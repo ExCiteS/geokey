@@ -4,7 +4,7 @@ from datetime import datetime
 from django.utils.timezone import utc
 from django.conf import settings
 
-from opencomap.apps.permissions.models import UserGroup
+from opencomap.apps.backend.models.permissions import UserGroup
 
 TYPE_CHOICE = (
 	(1, 'Text'),
@@ -31,6 +31,9 @@ class Layer(models.Model):
 	#status = models.IntegerField(choices=STATUS_CHOICES, default=1)
 	usergroups = models.ManyToManyField(UserGroup)
 
+	class Meta: 
+		app_label = 'backend'
+
 	def __unicode__(self):
 		return self.name + ', '.join([p.name for p in self.project.all()])
 
@@ -55,6 +58,9 @@ class Field(models.Model):
 	maxval = models.FloatField(null=True)
 	layer = models.ForeignKey(Layer)
 
+	class Meta: 
+		app_label = 'backend'
+
 class Lookup(models.Model):
 	"""
 	Stores a lookup value. Releated to :model:'api:Field'
@@ -62,3 +68,6 @@ class Lookup(models.Model):
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=100)
 	field = models.ForeignKey(Field)
+
+	class Meta: 
+		app_label = 'backend'

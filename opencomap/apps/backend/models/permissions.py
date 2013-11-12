@@ -4,7 +4,7 @@ from datetime import datetime
 from django.utils.timezone import utc
 from django.conf import settings
 
-def initialiseUserGroups(relation, creator):
+def createUserGroups(relation, creator):
 	adminGroup = UserGroup(name='Admin', can_admin=True, can_edit=True, can_contribute=True, can_view=True)
 	adminGroup.save()
 	adminGroup.addUsers(creator)
@@ -23,6 +23,9 @@ class UserGroup(models.Model):
 	can_view = models.BooleanField(default=True)
 	users = models.ManyToManyField(settings.AUTH_USER_MODEL)
 	public_group = models.BooleanField(default=False)
+
+	class Meta: 
+		app_label = 'backend'
 
 	def __unicode__(self):
 		return self.name + '. View: ' + str(self.can_view) + '. Edit: ' + str(self.can_edit) + '. Contribute: ' + str(self.can_contribute) + '. Admin: ' + str(self.can_admin)

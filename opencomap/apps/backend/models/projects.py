@@ -3,22 +3,23 @@ from django.db import models
 from datetime import datetime
 from django.utils.timezone import utc
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 
-from opencomap.apps.permissions.models import UserGroup
-from opencomap.apps.layers.models import Layer
+from opencomap.apps.backend.models.permissions import UserGroup
+from opencomap.apps.backend.models.permissions import createUserGroups
+from opencomap.apps.backend.models.layers import Layer
 
 # ###################################
 # PROJECT
 # ###################################
 
 
-class ProjectFactory(object):
-	def create(name, description, creator):
-		project = Project(name=name, description=description, creator=creator)
-		project.save()
-		initialiseUserGroups(project, creator)
+def ProjectFactory(name, description, creator):
+	project = Project(name=name, description=description, creator=creator)
+	project.save()
+	createUserGroups(project, creator)
 
-		return project
+	return project
 	
 
 class Project(models.Model):
@@ -33,6 +34,9 @@ class Project(models.Model):
 	#status = models.IntegerField(choices=STATUS_CHOICES, default=1)
 	usergroups = models.ManyToManyField(UserGroup)
 	layers = models.ManyToManyField(Layer)
+
+	class Meta: 
+		app_label = 'backend'
 
 	def __unicode__(self):
 		return self.name + ', ' + self.description
@@ -70,7 +74,7 @@ class Project(models.Model):
 
 			return self
 		else:
-			raise Forbidden('You are not allowed to edit project ' + self.name)
+			raise PermissionDenied('You are not allowed to edit project ' + self.name)
 
 	def remove(self, user):
 		if (self.userCanAdmin(user)):
@@ -78,4 +82,4 @@ class Project(models.Model):
 			self.save()
 			return True
 		else:
-			raise Forbidden('You are not allowed to administer project ' + self.name)
+			raise PermissionDenied('You are not allowed to administer project ' + self.name)

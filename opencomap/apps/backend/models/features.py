@@ -7,8 +7,8 @@ from django.conf import settings
 from djorm_hstore.fields import DictionaryField
 from django.contrib.gis.db import models as gis
 
-from opencomap.apps.permissions.models import UserGroup
-from opencomap.apps.layers.models import Layer
+from opencomap.apps.backend.models.permissions import UserGroup
+from opencomap.apps.backend.models.layers import Layer
 
 class Feature(models.Model):
 	"""
@@ -23,6 +23,9 @@ class Feature(models.Model):
 	#status = models.IntegerField(choices=STATUS_CHOICES,default=1)
 	usergroups = models.ManyToManyField(UserGroup)
 	layer = models.ForeignKey(Layer)
+
+	class Meta: 
+		app_label = 'backend'
 
 	def __unicode__(self):
 		return self.name + ', ' + self.layer.name + ', ' + self.geometry.wkt
@@ -41,6 +44,9 @@ class Observation(models.Model):
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	feature = models.ForeignKey(Feature)
 	#status = models.IntegerField(choices=STATUS_CHOICES,default=1)
+
+	class Meta: 
+		app_label = 'backend'
 
 	def __unicode__(self):
 		return self.feature.name # self.characteristics.items()

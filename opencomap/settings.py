@@ -122,10 +122,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'djorm_core', 'djorm_expressions', 'djorm_hstore', 'djorm_hstore.tests',
     'django.contrib.gis',
-    'opencomap.apps.projects',
-    'opencomap.apps.layers',
-    'opencomap.apps.features',
-    'opencomap.apps.permissions',
+    'opencomap.apps.backend',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
