@@ -7,7 +7,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
 
-
 class ProjectTest(TestCase):
 	class Meta: 
 		app_label = 'backend'
@@ -53,7 +52,7 @@ class ProjectTest(TestCase):
 		contributeGroup.save()
 		contributeGroup.addUsers(george)
 
-		project1.addUserGroups(editGroup, contributeGroup)
+		project1.addUserGroups(john, editGroup, contributeGroup)
 		# project2 = projects.createProject(name='Test 2', description='Test description for the project 2', creator=paul)
 		# project3 = projects.createProject(name='Test 3', description='Test description for the project 3', creator=ringo)
 		# project4 = projects.createProject(name='Test 4', description='Test description for the project 4', creator=george)
@@ -126,4 +125,33 @@ class ProjectTest(TestCase):
 			project.remove(george)
 
 		self.assertTrue(project.remove(john))
+
+	def test_usergroup_mgmt(self):
+		project = Project.objects.filter(name='Test 1')[0]
 		
+		john = self._authenticate('john')
+		ringo = self._authenticate('ringo')
+		george = self._authenticate('george')
+
+		testGroup = UserGroup(name='Test Group', can_view=True, can_contribute=True, can_edit=True)
+		testGroup.save()
+		testGroup.addUsers(ringo)
+
+		with self.assertRaises(PermissionDenied):
+			project.addUserGroups(george, testGroup)
+
+		project.addUserGroups(john, testGroup)
+		groups = project.usergroups.all()
+		self.assertEqual(len(groups), 5)
+
+		removeGroup = project.usergroups.filter(name='Test Group')[0]
+		with self.assertRaises(PermissionDenied):
+			project.removeUserGroups(george, testGroup)
+
+
+		project.removeUserGroups(john, removeGroup)
+		groups = project.usergroups.all()
+		self.assertEqual(len(groups), 4)
+
+		for group in groups:
+			self.assertFalse(group.name == 'Test Group')

@@ -6,8 +6,7 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
 from opencomap.apps.backend.models.permissions import UserGroup
-from opencomap.apps.backend.models.permissions import createUserGroups
-from opencomap.apps.backend.models.layers import Layer
+from opencomap.apps.backend.models.permissions import Authenticatable
 
 # ###################################
 # PROJECT
@@ -17,12 +16,12 @@ from opencomap.apps.backend.models.layers import Layer
 def ProjectFactory(name, description, creator):
 	project = Project(name=name, description=description, creator=creator)
 	project.save()
-	createUserGroups(project, creator)
+	project.createUserGroups()
 
 	return project
 	
 
-class Project(models.Model):
+class Project(Authenticatable):
 	"""
 	Stores a single project.
 	"""
@@ -32,39 +31,12 @@ class Project(models.Model):
 	created_at = models.DateTimeField(default=datetime.now(tz=utc))
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	#status = models.IntegerField(choices=STATUS_CHOICES, default=1)
-	usergroups = models.ManyToManyField(UserGroup)
-	layers = models.ManyToManyField(Layer)
 
 	class Meta: 
 		app_label = 'backend'
 
 	def __unicode__(self):
 		return self.name + ', ' + self.description
-
-	def addUserGroups(self, *groups):
-		for group in groups:
-			self.usergroups.add(group)
-
-	def _checkPermission(self, user, accessType):
-		canDo = self.usergroups.filter(public_group=True).values()[0][accessType]
-
-		if not canDo: 
-			for group in self.usergroups.filter(users__id__exact=user.id).values():
-				if group[accessType]: canDo = True
-
-		return canDo
-
-	def userCanView(self, user):
-		return self._checkPermission(user, 'can_view')
-
-	def userCanContribute(self, user):
-		return self._checkPermission(user, 'can_contribute')
-
-	def userCanEdit(self, user):
-		return self._checkPermission(user, 'can_edit')
-
-	def userCanAdmin(self, user):
-		return self._checkPermission(user, 'can_admin')
 
 	def update(self, user, name=None, description=None, status=None):
 		if (self.userCanEdit(user) or self.userCanAdmin(user)):
@@ -83,3 +55,13 @@ class Project(models.Model):
 			return True
 		else:
 			raise PermissionDenied('You are not allowed to administer project ' + self.name)
+
+	def addLayers(self, user, *layers):
+		if (self.userCanAdmin(user)):
+			for layer in layers:
+				layer.projects.add(self)
+
+	def removeLayer(self, user, *layer):
+		if (self.userCanAdmin(user)):
+			for layer in layers:
+				layer.projects.remove(self)

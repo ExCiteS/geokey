@@ -3,8 +3,11 @@ from django.db import models
 from datetime import datetime
 from django.utils.timezone import utc
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 
 from opencomap.apps.backend.models.permissions import UserGroup
+from opencomap.apps.backend.models.permissions import Authenticatable
+from opencomap.apps.backend.models.projects import Project
 
 TYPE_CHOICE = (
 	(1, 'Text'),
@@ -12,14 +15,14 @@ TYPE_CHOICE = (
 	(3, 'Lookup')
 )
 
-def createLayer(name, description, creator):
+def LayerFactory(name, description, creator):
 	layer = Layer(name=name, description=description, creator=creator)
 	layer.save()
-	initialiseUserGroups(layer, creator)
-
+	layer.createUserGroups()
+	
 	return layer
 
-class Layer(models.Model):
+class Layer(Authenticatable):
 	"""
 	Stores a single layer. Releated to :model:'api:Project'
 	"""
@@ -29,7 +32,7 @@ class Layer(models.Model):
 	created_at = models.DateTimeField(default=datetime.now(tz=utc))
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	#status = models.IntegerField(choices=STATUS_CHOICES, default=1)
-	usergroups = models.ManyToManyField(UserGroup)
+	projects = models.ManyToManyField(Project)
 
 	class Meta: 
 		app_label = 'backend'
@@ -37,13 +40,37 @@ class Layer(models.Model):
 	def __unicode__(self):
 		return self.name + ', '.join([p.name for p in self.project.all()])
 
-	def addUserGroups(self, *groups):
-		for group in groups:
-			self.usergroups.add(group)
+	def update(self, user, name=None, description=None, status=None):
+		if (self.userCanEdit(user) or self.userCanAdmin(user)):
+			if name: self.name = name
+			if description: self.description = description
+			if status: self.status = status
 
-	def addProjects(self, *projects):
-		for project in projects:
-			self.project.add(project)
+			return self
+		else:
+			raise PermissionDenied('You have no permission to administer the layer ' + self.name + '. The layer has not been updated.')
+
+	def remove(self, user):
+		if (self.userCanAdmin(user)):
+			self.status = 4
+			self.save()
+			return True
+		else:
+			raise PermissionDenied('You have no permission to administer the layer ' + self.name + '. The layer has not been deleted.')
+
+	def addFields(self, user, *fields):
+		if (self.userCanAdmin(user)):
+			for field in fields:
+				field.layer = self
+		else:
+			raise PermissionDenied('You have no permission to administer the layer ' + self.name + '. The field has not been added to the layer.')
+
+	def removeFields(self, user, *fields):
+		if (self.userCanAdmin(user)):
+			for field in fields:
+				field.delete()
+		else:
+			raise PermissionDenied('You have no permission to administer the layer ' + self.name + '. The field has not been removed.')
 
 
 class Field(models.Model):
@@ -60,6 +87,21 @@ class Field(models.Model):
 
 	class Meta: 
 		app_label = 'backend'
+
+	def addLookupValues(self, user, *lookups):
+		if (self.layer.userCanAdmin(user)):
+			for value in lookups:
+				value.field = self
+		else:
+			raise PermissionDenied('You have no permission to administer the layer ' + self.layer.name + '. The lookup values have not been added.')
+
+	def removeLookupValues(self, user, *lookups):
+		if (self.layer.userCanAdmin(user)):
+			for value in lookups:
+				values.delete()
+		else:
+			raise PermissionDenied('You have no permission to administer the layer ' + self.layer.name + '. The lookup values have not been removed.')
+			
 
 class Lookup(models.Model):
 	"""
