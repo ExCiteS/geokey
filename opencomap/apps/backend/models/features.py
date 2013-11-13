@@ -9,6 +9,7 @@ from django.contrib.gis.db import models as gis
 
 from opencomap.apps.backend.models.permissions import UserGroup
 from opencomap.apps.backend.models.layers import Layer
+from opencomap.apps.backend.models.choices import STATUS_TYPES
 
 class Feature(models.Model):
 	"""
@@ -20,7 +21,7 @@ class Feature(models.Model):
 	geometry = gis.GeometryField(geography=True)
 	created_at = models.DateTimeField(default=datetime.now(tz=utc))
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
-	#status = models.IntegerField(choices=STATUS_CHOICES,default=1)
+	status = models.IntegerField(choices=STATUS_TYPES,default=1)
 	usergroups = models.ManyToManyField(UserGroup)
 	layer = models.ForeignKey(Layer)
 
@@ -43,7 +44,7 @@ class Observation(models.Model):
 	created_at = models.DateTimeField(default=datetime.now(tz=utc))
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	feature = models.ForeignKey(Feature)
-	#status = models.IntegerField(choices=STATUS_CHOICES,default=1)
+	status = models.IntegerField(choices=STATUS_TYPES,default=1)
 
 	class Meta: 
 		app_label = 'backend'

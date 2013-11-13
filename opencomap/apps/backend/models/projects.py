@@ -7,6 +7,7 @@ from django.core.exceptions import PermissionDenied
 
 from opencomap.apps.backend.models.permissions import UserGroup
 from opencomap.apps.backend.models.permissions import Authenticatable
+from opencomap.apps.backend.models.choices import STATUS_TYPES
 
 # ###################################
 # PROJECT
@@ -30,7 +31,7 @@ class Project(Authenticatable):
 	description = models.TextField(null=True)
 	created_at = models.DateTimeField(default=datetime.now(tz=utc))
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
-	#status = models.IntegerField(choices=STATUS_CHOICES, default=1)
+	status = models.IntegerField(choices=STATUS_TYPES, default=1)
 
 	class Meta: 
 		app_label = 'backend'

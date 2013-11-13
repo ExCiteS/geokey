@@ -3,11 +3,19 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
+from django.core.exceptions import FieldError
 
 from opencomap.apps.backend.models.projects import Project
 from opencomap.apps.backend.models.projects import ProjectFactory
 from opencomap.apps.backend.models.layers import Layer
 from opencomap.apps.backend.models.layers import LayerFactory
+from opencomap.apps.backend.models.fields import Field
+from opencomap.apps.backend.models.fields import TextField
+from opencomap.apps.backend.models.fields import NumericField
+from opencomap.apps.backend.models.fields import DateTimeField
+from opencomap.apps.backend.models.fields import TrueFalseField
+from opencomap.apps.backend.models.fields import LookupField
+from opencomap.apps.backend.models.fields import LookupValue
 
 class LayersTest(TestCase):
 	class Meta: 
@@ -23,6 +31,127 @@ class LayersTest(TestCase):
 		User.objects.create_user('zidane', 'zinedine@zidane.fr', 'zinedine123', first_name='Zinedine', last_name='Zidane').save()
 		User.objects.create_user('diego', 'diego@maradonna.ar', 'diegoe123', first_name='Diego', last_name='Maradonna').save()
 		User.objects.create_user('carlos', 'carlos@valderama.co', 'carlos123', first_name='Carlos', last_name='Valderama').save()
+
+	def test_removeLookups(self):
+		admin = self._authenticate('eric')
+		user = self._authenticate('george')
+
+		lookupField = LookupField(name='Lookup', description='A lookup field', required=True)
+		textField = TextField(name='Text', description='A text field', required=True)
+		layer1 = LayerFactory('Test Layer 1', 'Lorem ipsum dolor sit amet', admin)
+		layer1.addFields(admin, lookupField, textField)
+		lookupField.addLookupValues(admin, 'value 1', 'value 2', 'value 3')
+
+		lookups = LookupValue.objects.filter(field__id__exact=lookupField.id)
+		with self.assertRaises(PermissionDenied):
+			lookupField.removeLookupValues(user, lookups[0])
+
+		lookupName = lookups[0].name
+		lookupField.removeLookupValues(admin, lookups[0])
+		self.assertEqual(len(LookupValue.objects.filter(field__id__exact=lookupField.id)), 2)
+		for value in LookupValue.objects.filter(field__id__exact=lookupField.id):
+			self.assertNotEqual(value.name, (lookupName))
+
+	def test_addLookups(self):
+		admin = self._authenticate('eric')
+		user = self._authenticate('george')
+
+		lookupField = LookupField(name='Lookup', description='A lookup field', required=True)
+		textField = TextField(name='Text', description='A text field', required=True)
+		layer1 = LayerFactory('Test Layer 1', 'Lorem ipsum dolor sit amet', admin)
+		layer1.addFields(admin, lookupField, textField)
+
+		lookupField.addLookupValues(admin, 'value 1', 'value 2', 'value 3')
+		self.assertEqual(len(LookupValue.objects.filter(field__id__exact=lookupField.id)), 3)
+		for value in LookupValue.objects.filter(field__id__exact=lookupField.id):
+			self.assertIn(value.name, ('value 1', 'value 2', 'value 3'))
+
+		with self.assertRaises(PermissionDenied):
+			lookupField.addLookupValues(user, 'value 1', 'value 2')		
+
+	def test_updateFields(self):
+		admin = self._authenticate('eric')
+		user = self._authenticate('george')
+
+		textField = TextField(name='Text', description='A text field', required=True)
+		numericField = NumericField(name='Numberic', description='A numeric field',required=True)
+		layer1 = LayerFactory('Test Layer 1', 'Lorem ipsum dolor sit amet', admin)
+
+		layer1.addFields(admin, textField, numericField)
+
+		textField.update(admin, name='Updated TextField')
+		self.assertEqual(textField.name, 'Updated TextField')
+
+		with self.assertRaises(PermissionDenied):
+			numericField.update(user, name='Updated Numberic Field')
+
+
+	def test_removeFields(self):
+		admin = self._authenticate('eric')
+		user = self._authenticate('george')
+
+		textField = TextField(name='Text', description='A text field', required=True)
+		numericField = NumericField(name='Numberic', description='A numeric field',required=True)
+		layer1 = LayerFactory('Test Layer 1', 'Lorem ipsum dolor sit amet', admin)
+		layer1.addFields(admin, textField, numericField)
+
+		layer1.removeFields(admin, textField)
+		self.assertEqual(len(Field.objects.filter(layer__id__exact=layer1.id)), 1)
+
+		for field in Field.objects.filter(layer__id__exact=layer1.id):
+			self.assertEqual(field.id, numericField.id)
+
+		# try to add field without permissions
+		with self.assertRaises(PermissionDenied):
+			layer1.removeFields(user, numericField)
+
+	def test_addFields(self):
+		admin = self._authenticate('eric')
+		user = self._authenticate('george')
+
+		textField = TextField(name='Text', description='A text field', required=True)
+		numericField = NumericField(name='Numberic', description='A numeric field',required=True)
+		dateField = DateTimeField(name='Date/Time', description='A date/time field', required=True)
+		lookupField = LookupField(name='Lookup', description='A lookup field', required=True)
+		booleanField = TrueFalseField(name='Bool', description='A true/false field', required=True)
+
+		layer1 = LayerFactory('Test Layer 1', 'Lorem ipsum dolor sit amet', admin)
+
+		# add single field
+		layer1.addFields(admin, textField)
+		self.assertEqual(len(Field.objects.filter(layer__id__exact=layer1.id)), 1)
+
+		# add more than one fields
+		layer1.addFields(admin, numericField, dateField, lookupField)
+		self.assertEqual(len(Field.objects.filter(layer__id__exact=layer1.id)), 4)
+		for field in Field.objects.filter(layer__id__exact=layer1.id):
+			self.assertEqual(layer1, field.layer)
+
+		# try to add field without permissions
+		with self.assertRaises(PermissionDenied):
+			layer1.addFields(user, booleanField)
+
+
+	def test_deleteLayer(self):
+		admin = self._authenticate('eric')
+		user = self._authenticate('george')
+
+		layer1 = LayerFactory('Test Layer 1', 'Lorem ipsum dolor sit amet', admin)
+		with self.assertRaises(PermissionDenied):
+			layer1.remove(user)
+
+		self.assertTrue(layer1.remove(admin))
+
+	def test_updateLayer(self):
+		admin = self._authenticate('eric')
+		user = self._authenticate('george')
+
+		layer1 = LayerFactory('Test Layer 1', 'Lorem ipsum dolor sit amet', admin)
+		with self.assertRaises(PermissionDenied):
+			layer1.update(user, name='Updated Test Layer 1')
+
+		layer1.update(admin, name='Updated Test Layer 1')
+		self.assertEqual(layer1.name, 'Updated Test Layer 1')
 
 	def test_Permissions(self):
 		admin = self._authenticate('eric')
