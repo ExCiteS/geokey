@@ -104,9 +104,9 @@ class ProjectTest(TestCase):
 		george = self._authenticate('george')
 		self.assertTrue((george is not None) and (george.is_active))
 
-		result = project.update(john, name='Johns project', description='Johns project description')
-		self.assertEqual(result.name, 'Johns project')
-		self.assertEqual(result.description, 'Johns project description')
+		project.update(john, name='Johns project', description='Johns project description')
+		self.assertEqual(project.name, 'Johns project')
+		self.assertEqual(project.description, 'Johns project description')
 
 		with self.assertRaises(PermissionDenied):
 			project.update(george, name='Goerges project', description='Georges project description')
@@ -123,8 +123,9 @@ class ProjectTest(TestCase):
 
 		with self.assertRaises(PermissionDenied):
 			project.remove(george)
-
-		self.assertTrue(project.remove(john))
+		
+		project.remove(john)
+		self.assertEqual(project.status, 4)
 
 	def test_usergroup_mgmt(self):
 		project = Project.objects.filter(name='Test 1')[0]

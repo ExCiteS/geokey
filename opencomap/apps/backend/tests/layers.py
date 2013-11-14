@@ -3,7 +3,6 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
-from django.core.exceptions import FieldError
 
 from opencomap.apps.backend.models.projects import Project
 from opencomap.apps.backend.models.projects import ProjectFactory
@@ -16,6 +15,7 @@ from opencomap.apps.backend.models.fields import DateTimeField
 from opencomap.apps.backend.models.fields import TrueFalseField
 from opencomap.apps.backend.models.fields import LookupField
 from opencomap.apps.backend.models.fields import LookupValue
+from opencomap.apps.backend.models.choices import STATUS_TYPES
 
 class LayersTest(TestCase):
 	class Meta: 
@@ -50,7 +50,7 @@ class LayersTest(TestCase):
 		lookupField.removeLookupValues(admin, lookups[0])
 		self.assertEqual(len(LookupValue.objects.filter(field__id__exact=lookupField.id)), 2)
 		for value in LookupValue.objects.filter(field__id__exact=lookupField.id):
-			self.assertNotEqual(value.name, (lookupName))
+			self.assertNotEqual(value.name, lookupName)
 
 	def test_addLookups(self):
 		admin = self._authenticate('eric')
@@ -131,17 +131,6 @@ class LayersTest(TestCase):
 		with self.assertRaises(PermissionDenied):
 			layer1.addFields(user, booleanField)
 
-
-	def test_deleteLayer(self):
-		admin = self._authenticate('eric')
-		user = self._authenticate('george')
-
-		layer1 = LayerFactory('Test Layer 1', 'Lorem ipsum dolor sit amet', admin)
-		with self.assertRaises(PermissionDenied):
-			layer1.remove(user)
-
-		self.assertTrue(layer1.remove(admin))
-
 	def test_updateLayer(self):
 		admin = self._authenticate('eric')
 		user = self._authenticate('george')
@@ -152,6 +141,29 @@ class LayersTest(TestCase):
 
 		layer1.update(admin, name='Updated Test Layer 1')
 		self.assertEqual(layer1.name, 'Updated Test Layer 1')
+
+	def test_status(self):
+		admin = self._authenticate('eric')
+		user = self._authenticate('george')
+
+		activelayer = LayerFactory('Active', 'Lorem ipsum dolor sit amet', admin)
+		reviewlayer = LayerFactory('Review', 'Lorem ipsum dolor sit amet', admin)
+		retiredlayer = LayerFactory('Retired', 'Lorem ipsum dolor sit amet', admin)
+		removedlayer = LayerFactory('Removed', 'Lorem ipsum dolor sit amet', admin)
+		project1 = ProjectFactory('Test Project 1', 'Lorem ipsum dolor sit amet', admin)
+
+		with self.assertRaises(PermissionDenied):
+			reviewlayer.setStatus(user, STATUS_TYPES['REVIEW'])
+
+		reviewlayer.setStatus(admin, STATUS_TYPES['REVIEW'])
+		retiredlayer.setStatus(admin, STATUS_TYPES['RETIRED'])
+		removedlayer.setStatus(admin, STATUS_TYPES['DELETED'])
+
+		project1.addLayers(admin, activelayer, reviewlayer, retiredlayer, removedlayer)
+		self.assertEqual(len(project1.getLayers(admin)), 2)
+		for layer in project1.getLayers(admin):
+			self.assertIn(layer.name, ('Active', 'Review'))
+
 
 	def test_Permissions(self):
 		admin = self._authenticate('eric')
@@ -170,6 +182,20 @@ class LayersTest(TestCase):
 		self.assertFalse(layer1.userCanAdmin(user))
 		self.assertFalse(layer1.userCanContribute(user))
 
+	def test_removeFromProject(self):
+		admin = self._authenticate('eric')
+		user = self._authenticate('george')
+
+		project1 = ProjectFactory('Test Project 1', 'Lorem ipsum dolor sit amet', admin)
+		layer1 = LayerFactory('Test Layer 1', 'Lorem ipsum dolor sit amet', admin)
+		project1.addLayers(admin, layer1)
+		
+		with self.assertRaises(PermissionDenied):
+			project1.removeLayers(user, layer1)
+
+		project1.removeLayers(admin, layer1)
+		self.assertEqual(len(project1.getLayers(admin)), 0)
+
 	def test_assignToProject(self):
 		admin = self._authenticate('eric')
 
@@ -179,12 +205,12 @@ class LayersTest(TestCase):
 		project1 = ProjectFactory('Test Project 1', 'Lorem ipsum dolor sit amet', admin)
 
 		project1.addLayers(admin, layer1)
-		self.assertEqual(len(Layer.objects.filter(projects__id__exact=project1.id)), 1)
-		self.assertIn(project1, Layer.objects.filter(projects__id__exact=project1.id)[0].projects.all())
+		self.assertEqual(len(project1.getLayers(admin)), 1)
+		self.assertIn(project1, project1.getLayers(admin)[0].projects.all())
 
 		project1.addLayers(admin, layer2, layer3)
-		self.assertEqual(len(Layer.objects.filter(projects__id__exact=project1.id)), 3)
-		for layer in Layer.objects.filter(projects__id__exact=project1.id):
+		self.assertEqual(len(project1.getLayers(admin)), 3)
+		for layer in project1.getLayers(admin):
 			self.assertIn(layer, (layer1, layer2, layer3))
 
 	def test_createLayer(self):

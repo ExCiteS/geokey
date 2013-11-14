@@ -47,6 +47,7 @@ class Authenticatable(models.Model):
 		return canDo
 
 	def createUserGroups(self):
+		self.save()
 		adminGroup = UserGroup(name='Admin', can_admin=True, can_edit=True, can_contribute=True, can_view=True)
 		adminGroup.save()
 		adminGroup.addUsers(self.creator)

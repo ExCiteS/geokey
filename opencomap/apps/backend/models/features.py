@@ -8,10 +8,11 @@ from djorm_hstore.fields import DictionaryField
 from django.contrib.gis.db import models as gis
 
 from opencomap.apps.backend.models.permissions import UserGroup
+from opencomap.apps.backend.models.permissions import Authenticatable
 from opencomap.apps.backend.models.layers import Layer
 from opencomap.apps.backend.models.choices import STATUS_TYPES
 
-class Feature(models.Model):
+class Feature(Authenticatable):
 	"""
 	Stores a single feature. Releated to :model:'api:Layer'
 	"""
@@ -21,8 +22,7 @@ class Feature(models.Model):
 	geometry = gis.GeometryField(geography=True)
 	created_at = models.DateTimeField(default=datetime.now(tz=utc))
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
-	status = models.IntegerField(choices=STATUS_TYPES,default=1)
-	usergroups = models.ManyToManyField(UserGroup)
+	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 	layer = models.ForeignKey(Layer)
 
 	class Meta: 
@@ -31,9 +31,8 @@ class Feature(models.Model):
 	def __unicode__(self):
 		return self.name + ', ' + self.layer.name + ', ' + self.geometry.wkt
 
-	def addUserGroups(self, *groups):
-		for group in groups:
-			self.usergroups.add(group)
+
+
 
 class Observation(models.Model):
 	"""
@@ -44,7 +43,7 @@ class Observation(models.Model):
 	created_at = models.DateTimeField(default=datetime.now(tz=utc))
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	feature = models.ForeignKey(Feature)
-	status = models.IntegerField(choices=STATUS_TYPES,default=1)
+	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 
 	class Meta: 
 		app_label = 'backend'
