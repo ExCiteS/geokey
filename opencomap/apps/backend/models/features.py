@@ -7,12 +7,10 @@ from django.conf import settings
 from djorm_hstore.fields import DictionaryField
 from django.contrib.gis.db import models as gis
 
-from opencomap.apps.backend.models.permissions import UserGroup
-from opencomap.apps.backend.models.permissions import Authenticatable
 from opencomap.apps.backend.models.layers import Layer
 from opencomap.apps.backend.models.choices import STATUS_TYPES
 
-class Feature(Authenticatable):
+class Feature(models.Model):
 	"""
 	Stores a single feature. Releated to :model:'api:Layer'
 	"""
@@ -31,26 +29,26 @@ class Feature(Authenticatable):
 	def __unicode__(self):
 		return self.name + ', ' + self.layer.name + ', ' + self.geometry.wkt
 
-	def update(self, user, name=None, description=None):
-		if (self.userCanAdmin(user)):
-			if name: self.name = name
-			if description: self.description = description
-		else:
-			raise PermissionDenied('You have no permission to administer the feature ' + self.name + '. The feature has not been updated.')
+	# def update(self, user, name=None, description=None):
+	# 	if (self.userCanAdmin(user)):
+	# 		if name: self.name = name
+	# 		if description: self.description = description
+	# 	else:
+	# 		raise PermissionDenied('You have no permission to administer the feature ' + self.name + '. The feature has not been updated.')
 
-	def remove(self, user):
-		if (self.userCanAdmin(user)):
-			self.status = STATUS_TYPES['DELETED']
-			self.save()
-		else:
-			raise PermissionDenied('You have no permission to administer the feature ' + self.name + '. The feature has not been deleted.')
+	# def remove(self, user):
+	# 	if (self.userCanAdmin(user)):
+	# 		self.status = STATUS_TYPES['DELETED']
+	# 		self.save()
+	# 	else:
+	# 		raise PermissionDenied('You have no permission to administer the feature ' + self.name + '. The feature has not been deleted.')
 
-	def setStatus(self, user, status):
-		if (self.userCanAdmin(user)):
-			self.status = status
-			self.save()
-		else:
-			raise PermissionDenied('You have no permission to administer the feature ' + self.name + '. The status has not been updated.')
+	# def setStatus(self, user, status):
+	# 	if (self.userCanAdmin(user)):
+	# 		self.status = status
+	# 		self.save()
+	# 	else:
+	# 		raise PermissionDenied('You have no permission to administer the feature ' + self.name + '. The status has not been updated.')
 
 
 class Observation(models.Model):

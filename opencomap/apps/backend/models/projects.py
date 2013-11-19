@@ -5,20 +5,12 @@ from django.utils.timezone import utc
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
-from opencomap.apps.backend.models.permissions import UserGroup
-from opencomap.apps.backend.models.permissions import Authenticatable
+from opencomap.apps.backend.models.authenticatable import Authenticatable
 from opencomap.apps.backend.models.choices import STATUS_TYPES
 
 # ###################################
 # PROJECT
 # ###################################
-
-
-def ProjectFactory(name, description, creator):
-	project = Project(name=name, description=description, creator=creator)
-	project.createUserGroups()
-
-	return project
 	
 
 class Project(Authenticatable):

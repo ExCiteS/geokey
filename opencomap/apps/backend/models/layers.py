@@ -5,8 +5,7 @@ from django.utils.timezone import utc
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
-from opencomap.apps.backend.models.permissions import UserGroup
-from opencomap.apps.backend.models.permissions import Authenticatable
+from opencomap.apps.backend.models.authenticatable import Authenticatable
 from opencomap.apps.backend.models.projects import Project
 from opencomap.apps.backend.models.choices import STATUS_TYPES
 
@@ -26,7 +25,7 @@ class Layer(Authenticatable):
 	created_at = models.DateTimeField(default=datetime.now(tz=utc))
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
-	projects = models.ManyToManyField(Project)
+	project = models.ManyToManyField(Project)
 
 	class Meta: 
 		app_label = 'backend'

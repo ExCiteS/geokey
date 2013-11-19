@@ -12,6 +12,8 @@ class Field(models.Model):
 	description = models.TextField()
 	required = models.BooleanField(default=False)
 	layer = models.ForeignKey(Layer)
+	minval = models.FloatField(null=True)
+	maxval = models.FloatField(null=True)
 
 	class Meta: 
 		app_label = 'backend'
@@ -26,35 +28,7 @@ class Field(models.Model):
 		else:
 			raise PermissionDenied('You have no permission to administer the layer ' + self.layer.name + '. The field has not been updated.')
 
-class TextField(Field):
-	datatype = 1
-
-	class Meta: 
-		app_label = 'backend'
-
-class NumericField(Field):
-	datatype = 2
-	minval = models.FloatField(null=True)
-	maxval = models.FloatField(null=True)
-
-	class Meta: 
-		app_label = 'backend'
-
-class DateTimeField(Field):
-	datatype = 4
-
-	class Meta: 
-		app_label = 'backend'
-
-class TrueFalseField(Field):
-	datatype = 5
-
-	class Meta: 
-		app_label = 'backend'
-
 class LookupField(Field):
-	datatype = 3
-
 	class Meta: 
 		app_label = 'backend'
 
