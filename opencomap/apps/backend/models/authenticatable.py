@@ -73,8 +73,7 @@ class Authenticatable(models.Model):
 		"""
 		Returns all `UserGroups` assigned to the entity.
 		"""
-		if (self.userCanAdmin(user)):
-			return self.usergroup_set.all()
+		return self.usergroup_set.all()
 
 
 	def addUserGroups(self, *groups):

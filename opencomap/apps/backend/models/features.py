@@ -7,7 +7,7 @@ from django.conf import settings
 from djorm_hstore.fields import DictionaryField
 from django.contrib.gis.db import models as gis
 
-from opencomap.apps.backend.models.layers import Layer
+from opencomap.apps.backend.models.projects import Project
 from opencomap.apps.backend.models.choices import STATUS_TYPES
 
 class Feature(models.Model):
@@ -21,7 +21,7 @@ class Feature(models.Model):
 	created_at = models.DateTimeField(default=datetime.now(tz=utc))
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
-	layer = models.ForeignKey(Layer)
+	project = models.ForeignKey(Project)
 
 	class Meta: 
 		app_label = 'backend'

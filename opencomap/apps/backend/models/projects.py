@@ -49,35 +49,35 @@ class Project(Authenticatable):
 		self.save()
 
 
-	def getLayers(self):
+	def getFeatures(self):
 		"""
-		Returns a list of all layers assinged to the project. Excludes those having status `RETIRED` and `DELETED`
+		Returns a list of all features assinged to the project. Excludes those having status `RETIRED` and `DELETED`
 		"""
 
 		resultSet = []
-		for layer in self.layer_set.exclude(status=STATUS_TYPES['RETIRED']).exclude(status=STATUS_TYPES['DELETED']):
-			resultSet.append(layer)
+		for feature in self.feature_set.exclude(status=STATUS_TYPES['RETIRED']).exclude(status=STATUS_TYPES['DELETED']):
+			resultSet.append(feature)
 
 		return resultSet
 
 
-	def addLayers(self, *layers):
+	def addFeatures(self, *features):
 		"""
-		Adds an arbitrary number of layers to the project.
+		Adds an arbitrary number of features to the project.
 
-		:layers: The layers to be added.
-		"""
-
-		for layer in layers:
-			layer.projects.add(self)
-
-
-	def removeLayers(self, *layers):
-		"""
-		Removes an arbitrary number of layers from the project.
-
-		:layers: The layers to be removed.
+		:features: The features to be added.
 		"""
 
-		for layer in layers:
-			layer.projects.remove(self)
+		for feature in features:
+			feature.projects.add(self)
+
+
+	def removeFeatures(self, *features):
+		"""
+		Removes an arbitrary number of features from the project.
+
+		:features: The features to be removed.
+		"""
+
+		for feature in features:
+			feature.projects.remove(self)

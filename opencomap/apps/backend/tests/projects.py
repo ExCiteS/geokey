@@ -65,7 +65,7 @@ class ProjectTest(TestCase):
 		self.assertEqual(len(Project.objects.all()), 1)
 		self.assertEqual(Project.objects.all()[0], project1)
 
-		usergroups = project1.getUserGroups(admin)
+		usergroups = project1.getUserGroups()
 		self.assertEqual(len(usergroups), 2)
 		for group in usergroups:
 			if (group.is_admin):
