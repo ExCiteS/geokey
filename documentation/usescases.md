@@ -9,11 +9,11 @@ This document briefly describes common use case scenarios that the proposed plat
 User groups are used to grant rights to users to interact with the system. User groups can be assigned to projects as well as layers. They define what exactly a user is allowed to do within a project or a layer. Each user group provides information if the five following tasks can be executed:
 
 1. **can_admin**: The user is an administrator for the project or layer and can therefore:
-* Edit information, such as name, descriptions or status.
-* Close projects or remove layers from a project.
-* Add, edit and remove user groups.
-* Create layers for a project.
-* Perform tasks of all subsequent groups.
+  - Edit information, such as name, descriptions or status.
+  - Close projects or remove layers from a project.
+  - Add, edit and remove user groups.
+  - Create layers for a project.
+  - Perform tasks of all subsequent groups.
 
 2. **can_edit**: The user is an editor of the project or layer and can therefore view, edit and remove all data in either all layers of the project or the respective layer. 
 
