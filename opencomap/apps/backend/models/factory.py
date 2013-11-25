@@ -30,5 +30,6 @@ class Factory(object):
 		everyoneGroup.save()
 
 		project.addUserGroups(adminGroup, everyoneGroup)
-
+		project.save()
+		
 		return project

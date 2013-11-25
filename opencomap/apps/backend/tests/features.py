@@ -1,117 +1,117 @@
+from django.test import TestCase
+from opencomap.apps.backend.models.factory import Factory
+from opencomap.apps.backend.models.projects import Project
+from opencomap.apps.backend.models.fields import FeatureType
+from opencomap.apps.backend.models.fields import TextField
+from opencomap.apps.backend.models.fields import NumericField
+from opencomap.apps.backend.models.fields import DateTimeField
+from opencomap.apps.backend.models.fields import TrueFalseField
+from opencomap.apps.backend.models.fields import LookupField
+from opencomap.apps.backend.models.fields import LookupValue
+from opencomap.apps.backend.models.choices import STATUS_TYPES
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
 
-from opencomap.apps.backend.models.layers import Layer
-from opencomap.apps.backend.models.permissions import UserGroup
 from opencomap.apps.backend.models.features import Feature
 from opencomap.apps.backend.models.choices import STATUS_TYPES
 
-# class FeaturesTest(TestCase):
-# 	class Meta: 
-# 		app_label = 'backend'
+class FeaturesTest(TestCase):
+	class Meta: 
+		app_label = 'backend'
 
-# 	def _authenticate(self, name):
-# 		return authenticate(username=name, password=name + '123')
+	def _authenticate(self, name):
+		return authenticate(username=name, password=name + '123')
 
-# 	def setUp(self):
-# 		User.objects.create_user('eric', 'eric@cantona.fr', 'eric123', first_name='Eric', last_name='Cantona').save()
-# 		User.objects.create_user('george', 'eric@best.uk', 'george123', first_name='George', last_name='Best').save()
-# 		User.objects.create_user('mehmet', 'mehmet@scholl.de', 'mehmet123', first_name='Mehmet', last_name='Scholl').save()
-# 		User.objects.create_user('zidane', 'zinedine@zidane.fr', 'zinedine123', first_name='Zinedine', last_name='Zidane').save()
-# 		User.objects.create_user('diego', 'diego@maradonna.ar', 'diegoe123', first_name='Diego', last_name='Maradonna').save()
-# 		User.objects.create_user('carlos', 'carlos@valderama.co', 'carlos123', first_name='Carlos', last_name='Valderama').save()
+	def setUp(self):
+		User.objects.create_user('eric', 'eric@cantona.fr', 'eric123', first_name='Eric', last_name='Cantona').save()
+		User.objects.create_user('george', 'eric@best.uk', 'george123', first_name='George', last_name='Best').save()
+		User.objects.create_user('mehmet', 'mehmet@scholl.de', 'mehmet123', first_name='Mehmet', last_name='Scholl').save()
+		User.objects.create_user('zidane', 'zinedine@zidane.fr', 'zinedine123', first_name='Zinedine', last_name='Zidane').save()
+		User.objects.create_user('diego', 'diego@maradonna.ar', 'diegoe123', first_name='Diego', last_name='Maradonna').save()
+		User.objects.create_user('carlos', 'carlos@valderama.co', 'carlos123', first_name='Carlos', last_name='Valderama').save()
 
-# 	def test_setStatus(self):
-# 		admin = self._authenticate('eric')
-# 		user = self._authenticate('george')
+		admin = self._authenticate('eric')
 
-# 		layer1 = LayerFactory('Test Layer 1', 'Lorem ipsum dolor sit amet', admin)
-# 		feature1 = Feature(name='Feature 1', description='Feature 1 description', creator=user, geometry='POINT(-0.1341533660888672 51.52459226699835)')
-# 		feature2 = Feature(name='Feature 2', description='Feature 2 description', creator=admin, geometry='POINT(-0.15192031860351562 51.5538605149062)')
-# 		feature3 = Feature(name='Feature 3', description='Feature 3 description', creator=contributor, geometry='POINT(-0.0766897201538086 51.52388468468649)')
-# 		layer1.addFeatures(admin, feature1, feature2, feature3)
+		project = Factory().createProject('First Project', 'First Project description', admin)
+		featureType = FeatureType(name='Test Feature Type', project=project)
+		featureType.save()
 
-# 		self.assertEqual(len(layer1.getFeatures(admin)), 3)
+		textField = TextField(name='Text field', description='Text field description', featuretype=featureType)
+		textField.save()
 
-# 		feature1.setStatus(admin, STATUS_TYPES['RETIRED'])
-# 		self.assertEqual(len(layer1.getFeatures(admin)), 2)
-# 		for feature in layer1.getFeatures(admin):
-# 			self.assertIn(feature, (feature2, feature3))
+		numericField = NumericField(name='Numeric field', description='Numeric field description', required=True, featuretype=featureType)
+		numericField.save()
 
-# 	def test_deleteFeature(self):
-# 		admin = self._authenticate('eric')
-# 		user = self._authenticate('george')
+		dateField = DateTimeField(name='Date field', description='Date field description', featuretype=featureType)
+		dateField.save()
 
-# 		layer1 = LayerFactory('Test Layer 1', 'Lorem ipsum dolor sit amet', admin)
-# 		feature1 = Feature(name='Feature 1', description='Feature 1 description', creator=user, geometry='POINT(-0.1341533660888672 51.52459226699835)')
-# 		feature2 = Feature(name='Feature 2', description='Feature 2 description', creator=admin, geometry='POINT(-0.15192031860351562 51.5538605149062)')
-# 		feature3 = Feature(name='Feature 3', description='Feature 3 description', creator=contributor, geometry='POINT(-0.0766897201538086 51.52388468468649)')
-# 		layer1.addFeatures(admin, feature1, feature2, feature3)
+		boolField = TrueFalseField(name='Bool field', description='Bool field description', featuretype=featureType)
+		boolField.save()
 
-# 		self.assertEqual(len(layer1.getFeatures(admin)), 3)
+		lookupField = LookupField(name='Lookup field', description='Lookup field description', featuretype=featureType)
+		lookupField.save()
 
-# 		feature1.remove(admin)
-# 		self.assertEqual(len(layer1.getFeatures(admin)), 2)
-# 		for feature in layer1.getFeatures(admin):
-# 			self.assertIn(feature, (feature2, feature3))
+		lookupField.addLookupValues('Value 1', 'Value 2', 'Value 3')
 
-# 	def test_updateFeature(self):
-# 		admin = self._authenticate('eric')
-# 		user = self._authenticate('george')
+	def _createFeatures(self, user, project, featureType):
+		geometries = [
+			'POINT(-0.15003204345703125 51.55615526777012)',
+			'POINT(-0.1544952392578125 51.53074643430678)',
+			'POINT(-0.17234802246093747 51.50446860957782)',
+			'POINT(-0.11398315429687499 51.52967852566193)',
+			'POINT(-0.13149261474609375 51.4950647301436)',
+			'POINT(-0.0391387939453125 51.53800754877571)',
+			'POINT(-0.06326794624328613 51.55791627866145)',
+			'POINT(-0.11020660400390625 51.505750806437874)',
+			'POINT(0.00308990478515625 51.50040808149318)',
+			'POINT(-0.06557464599609375 51.52562024435108)'
+		]
+		features = []
 
-# 		layer1 = LayerFactory('Test Layer 1', 'Lorem ipsum dolor sit amet', admin)
-# 		feature1 = Feature(name='Feature 1', description='Feature 1 description', creator=user, geometry='POINT(-0.1341533660888672 51.52459226699835)')
-# 		layer1.addFeatures(admin, feature1)
+		for i in range(len(geometries)):
+			f = Feature(name='Feature ' + str(i) , description='Feature ' + str(i) + ' description', featuretype=featureType, creator=user, geometry=geometries[i])
+			f.save()
+			features.append(f)
 
-# 		feature1.update(admin, name='Updated Feature1')
-# 		self.assertEqual(feature1.name, 'Updated Feature1')
+		return features
 
-# 	def test_removeFeatureFromLayer(self):
-# 		admin = self._authenticate('eric')
-# 		user = self._authenticate('george')
+	def test_addAndRemoveFeatures(self):
+		admin = self._authenticate('eric')
+		project = Project.objects.all()[0]
+		featureType = FeatureType.objects.all()[0]
 
-# 		layer1 = LayerFactory('Test Layer 1', 'Lorem ipsum dolor sit amet', admin)
-# 		feature1 = Feature(name='Feature 1', description='Feature 1 description', creator=user, geometry='POINT(-0.1341533660888672 51.52459226699835)')
-# 		feature2 = Feature(name='Feature 2', description='Feature 2 description', creator=admin, geometry='POINT(-0.15192031860351562 51.5538605149062)')
-# 		feature3 = Feature(name='Feature 3', description='Feature 3 description', creator=contributor, geometry='POINT(-0.0766897201538086 51.52388468468649)')
-# 		layer1.addFeatures(admin, feature1, feature2, feature3)
+		features = self._createFeatures(admin, project, featureType)
+		for i in range(len(features)):
+			project.addFeatures(features[i])
 
-# 		self.assertEqual(len(layer1.getFeatures(admin)), 3)
+		self.assertEqual(len(project.getFeatures()), 10)
+		for feature in project.getFeatures():
+			self.assertIn(feature, features)
 
-# 		layer1.removeFeatures(admin, feature1, feature2)
-# 		self.assertEqual(len(layer1.getFeatures(admin)), 1)
-# 		for feature in layer1.getFeatures(admin):
-# 			self.assertEqual(feature, feature3)
+		removedFeature1 = features[3]
+		removedFeature2 = features[7]
 
+		project.removeFeatures(removedFeature1, removedFeature2)
+		self.assertEqual(len(project.getFeatures()), 8)
+		for feature in project.getFeatures():
+			self.assertNotIn(feature, (removedFeature1, removedFeature2))
 
-# 	def test_addFeatureToLayer(self):
-# 		admin = self._authenticate('eric')
-# 		editor = self._authenticate('mehmet')
-# 		contributor = self._authenticate('zindane')
-# 		user = self._authenticate('george')
+	def test_deleteFeatures(self):
+		admin = self._authenticate('eric')
+		project = Project.objects.all()[0]
+		featureType = FeatureType.objects.all()[0]
 
-# 		layer1 = LayerFactory('Test Layer 1', 'Lorem ipsum dolor sit amet', admin)
+		features = self._createFeatures(admin, project, featureType)
+		for i in range(len(features)):
+			project.addFeatures(features[i])
 
-# 		editGroup = UserGroup(name='Edit Group', can_view=True, can_contribute=True, can_edit=True)
-# 		editGroup.save()
-# 		editGroup.addUsers(editor)
+		features[3].remove()
+		features[7].remove()
 
-# 		contributeGroup = UserGroup(name='Edit Group', can_view=True, can_contribute=True)
-# 		contributeGroup.save()
-# 		contributeGroup.addUsers(contributor)
+		removedFeature1 = features[3]
+		removedFeature2 = features[7]
 
-# 		layer1.addUserGroups(admin, editGroup, contributeGroup)
-
-# 		feature1 = Feature(name='Feature 1', description='Feature 1 description', creator=user, geometry='POINT(-0.1341533660888672 51.52459226699835)')
-# 		feature2 = Feature(name='Feature 2', description='Feature 2 description', creator=admin, geometry='POINT(-0.15192031860351562 51.5538605149062)')
-# 		feature3 = Feature(name='Feature 3', description='Feature 3 description', creator=contributor, geometry='POINT(-0.0766897201538086 51.52388468468649)')
-
-# 		with assertRaise(PermissionDenied):
-# 			layer1.addFeatures(user, feature1)
-
-# 		layer1.addFeatures(admin, feature1)
-# 		layer1.addFeatures(contributor, feature2, feature3)
-
-# 		for feature in layer1.getFeatures(admin):
-# 			self.assertIn(feature, (feature1, feature2, feature3))
+		self.assertEqual(len(project.getFeatures()), 8)
+		for feature in project.getFeatures():
+			self.assertNotIn(feature, (removedFeature1, removedFeature2))

@@ -1,7 +1,6 @@
 from django.db import models
 
 from opencomap.apps.backend.models.projects import Project
-from opencomap.apps.backend.models.choices import FIELD_TYPES
 from opencomap.apps.backend.models.choices import STATUS_TYPES
 from django.core.exceptions import PermissionDenied
 
@@ -46,30 +45,56 @@ class Field(models.Model):
 	description = models.TextField()
 	required = models.BooleanField(default=False)
 	featuretype = models.ForeignKey(FeatureType)
-	minval = models.FloatField(null=True)
-	maxval = models.FloatField(null=True)
-	fieldtype = models.IntegerField()
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 
 	class Meta: 
 		app_label = 'backend'
+
+class TextField(Field):
+	class Meta: 
+		app_label = 'backend'
+
+	def validateInput(self, input):
+		valid = True
+		return valid
+
+class NumericField(Field):
+	minval = models.FloatField(null=True)
+	maxval = models.FloatField(null=True)
+
+	class Meta: 
+		app_label = 'backend'
+
+	def validateInput(self, input):
+		valid = True
+		return valid
+
+class DateTimeField(Field):
+	
+	class Meta: 
+		app_label = 'backend'
+
+	def validateInput(self, input):
+		valid = True
+		return valid
+
+class TrueFalseField(Field):
+	
+	class Meta: 
+		app_label = 'backend'
+
+	def validateInput(self, input):
+		valid = True
+		return valid
 
 class LookupField(Field):
 	"""
 	A lookup value is a special kind of field the provides an pre-defined number of values 
 	as valid input values.
 	"""
-	def __init__(self, *args, **kwargs):
-		"""
-		Overrides init method of Field in order to set property `fieldtype` to LookupValue
-		by default.
-		"""
-		super(LookupField, self).__init__(*args, **kwargs)
-		self.fieldtype = FIELD_TYPES['LOOKUP']
 
 	class Meta: 
 		app_label = 'backend'
-		proxy = True
 
 	def getLookupValues(self):
 		"""
@@ -96,6 +121,10 @@ class LookupField(Field):
 		for value in lookups:
 			value.status = STATUS_TYPES['INACTIVE']
 			value.save()
+
+	def validateInput(self, input):
+		valid = True
+		return valid
 
 class LookupValue(models.Model):
 	"""

@@ -13,7 +13,7 @@ from opencomap.apps.backend.models.choices import STATUS_TYPES
 
 class Feature(models.Model):
 	"""
-	Stores a single feature. Releated to :model:'api:Layer'
+	Represents a location to which an arbitrary number of observations can be attached.
 	"""
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=100)
@@ -22,8 +22,8 @@ class Feature(models.Model):
 	created_at = models.DateTimeField(default=datetime.now(tz=utc))
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
-	project = models.ForeignKey(Project)
-	featureType = models.ForeignKey(FeatureType)
+	projects = models.ManyToManyField(Project)
+	featuretype = models.ForeignKey(FeatureType)
 
 	class Meta: 
 		app_label = 'backend'
@@ -31,31 +31,25 @@ class Feature(models.Model):
 	def __unicode__(self):
 		return self.name + ', ' + self.layer.name + ', ' + self.geometry.wkt
 
-	# def update(self, user, name=None, description=None):
-	# 	if (self.userCanAdmin(user)):
-	# 		if name: self.name = name
-	# 		if description: self.description = description
-	# 	else:
-	# 		raise PermissionDenied('You have no permission to administer the feature ' + self.name + '. The feature has not been updated.')
+	def remove(self):
+		"""
+		Deletes a layer by setting its status to deleted.
+		"""
+		self.status = STATUS_TYPES['DELETED']
+		self.save()
 
-	# def remove(self, user):
-	# 	if (self.userCanAdmin(user)):
-	# 		self.status = STATUS_TYPES['DELETED']
-	# 		self.save()
-	# 	else:
-	# 		raise PermissionDenied('You have no permission to administer the feature ' + self.name + '. The feature has not been deleted.')
+	def getObservations(self):
+		return self.observation_set.exclude(status=STATUS_TYPES['INACTIVE']).exclude(STATUS_TYPES['DELETED'])
 
-	# def setStatus(self, user, status):
-	# 	if (self.userCanAdmin(user)):
-	# 		self.status = status
-	# 		self.save()
-	# 	else:
-	# 		raise PermissionDenied('You have no permission to administer the feature ' + self.name + '. The status has not been updated.')
+	def removeObservations(self, *observations):
+		for observation in observations:
+			observation.status = STATUS_TYPES['DELETED']
+			observation.save()
 
 
 class Observation(models.Model):
 	"""
-	Stores a single observation. Releated to :model:'api:Feature'
+	Stores a single observation. 
 	"""
 	id = models.AutoField(primary_key=True)
 	characteristics = DictionaryField(db_index=True)

@@ -2,10 +2,12 @@ from django.test import TestCase
 from opencomap.apps.backend.models.factory import Factory
 from opencomap.apps.backend.models.projects import Project
 from opencomap.apps.backend.models.fields import FeatureType
-from opencomap.apps.backend.models.fields import Field
+from opencomap.apps.backend.models.fields import TextField
+from opencomap.apps.backend.models.fields import NumericField
+from opencomap.apps.backend.models.fields import DateTimeField
+from opencomap.apps.backend.models.fields import TrueFalseField
 from opencomap.apps.backend.models.fields import LookupField
 from opencomap.apps.backend.models.fields import LookupValue
-from opencomap.apps.backend.models.choices import FIELD_TYPES
 from opencomap.apps.backend.models.choices import STATUS_TYPES
 
 from django.contrib.auth.models import User
@@ -37,25 +39,25 @@ class FeatureTypeTest(TestCase):
 		featureType.save()
 
 		# Test create and add fields
-		textField = Field(name='Text field', description='Text field description', fieldtype=FIELD_TYPES['TEXT'], featuretype=featureType)
+		textField = TextField(name='Text field', description='Text field description', featuretype=featureType)
 		textField.save()
 		self.assertEqual(textField.name, 'Text field')
 		self.assertFalse(textField.required)
 		self.assertEqual(textField.status, STATUS_TYPES['ACTIVE'])
 
-		numericField = Field(name='Numeric field', description='Numeric field description', required=True, fieldtype=FIELD_TYPES['NUMERIC'], featuretype=featureType)
+		numericField = NumericField(name='Numeric field', description='Numeric field description', required=True, featuretype=featureType)
 		numericField.save()
 		self.assertEqual(numericField.name, 'Numeric field')
 		self.assertTrue(numericField.required)
 		self.assertEqual(numericField.status, STATUS_TYPES['ACTIVE'])
 
-		dateField = Field(name='Date field', description='Date field description', fieldtype=FIELD_TYPES['DATE_TIME'], featuretype=featureType)
+		dateField = DateTimeField(name='Date field', description='Date field description', featuretype=featureType)
 		dateField.save()
 		self.assertEqual(dateField.name, 'Date field')
 		self.assertFalse(dateField.required)
 		self.assertEqual(dateField.status, STATUS_TYPES['ACTIVE'])
 
-		boolField = Field(name='Bool field', description='Bool field description', fieldtype=FIELD_TYPES['TRUE_FALSE'], featuretype=featureType)
+		boolField = TrueFalseField(name='Bool field', description='Bool field description', featuretype=featureType)
 		boolField.save()
 		self.assertEqual(boolField.name, 'Bool field')
 		self.assertFalse(boolField.required)
@@ -67,7 +69,7 @@ class FeatureTypeTest(TestCase):
 		featureType.removeFields(dateField, boolField)
 		self.assertEqual(len(featureType.getFields()), 2)
 		for field in featureType.getFields():
-			self.assertIn(field, (textField, numericField))
+			self.assertIn(field.id, (textField.field_ptr_id, numericField.field_ptr_id))
 
 	def test_createAndRemoveLookup(self):
 		admin = self._authenticate('eric')

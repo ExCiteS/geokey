@@ -53,7 +53,7 @@ class Project(Authenticatable):
 		"""
 
 		resultSet = []
-		for feature in self.feature_set.exclude(status=STATUS_TYPES['RETIRED']).exclude(status=STATUS_TYPES['DELETED']):
+		for feature in self.feature_set.exclude(status=STATUS_TYPES['INACTIVE']).exclude(status=STATUS_TYPES['DELETED']):
 			resultSet.append(feature)
 
 		return resultSet
@@ -65,7 +65,7 @@ class Project(Authenticatable):
 
 		:features: The features to be added.
 		"""
-
+		
 		for feature in features:
 			feature.projects.add(self)
 			feature.save()
