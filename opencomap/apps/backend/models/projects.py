@@ -6,7 +6,6 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
 from opencomap.apps.backend.models.authenticatable import Authenticatable
-from opencomap.apps.backend.models.permissions import UserGroup
 from opencomap.apps.backend.models.choices import STATUS_TYPES
 
 class Project(Authenticatable):
@@ -19,7 +18,6 @@ class Project(Authenticatable):
 	created_at = models.DateTimeField(default=datetime.now(tz=utc))
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
-	usergroups = models.ManyToManyField(UserGroup)
 
 	class Meta: 
 		app_label = 'backend'
@@ -49,7 +47,6 @@ class Project(Authenticatable):
 		self.status = STATUS_TYPES['DELETED']
 		self.save()
 
-
 	def getFeatures(self):
 		"""
 		Returns a list of all features assinged to the project. Excludes those having status `RETIRED` and `DELETED`
@@ -71,6 +68,7 @@ class Project(Authenticatable):
 
 		for feature in features:
 			feature.projects.add(self)
+			feature.save()
 
 
 	def removeFeatures(self, *features):
@@ -82,3 +80,4 @@ class Project(Authenticatable):
 
 		for feature in features:
 			feature.projects.remove(self)
+			feature.save()

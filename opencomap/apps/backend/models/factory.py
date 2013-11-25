@@ -23,12 +23,12 @@ class Factory(object):
 		project = Project(name=name, description=description, creator=creator)
 		project.save()
 
-		adminGroup = UserGroup(name='Administrators', can_admin=True, can_edit=True, can_contribute=True, can_read=True, can_view=True, is_admin=True, project=project)
+		adminGroup = UserGroup(name='Administrators', can_admin=True, can_edit=True, can_contribute=True, can_read=True, can_view=True, is_admin=True)
 		adminGroup.save()
 		adminGroup.addUsers(creator)
-		everyoneGroup = UserGroup(name='Everyone', is_everyone=True, project=project)
+		everyoneGroup = UserGroup(name='Everyone', is_everyone=True)
 		everyoneGroup.save()
 
-		project.addUserGroups(creator, adminGroup, everyoneGroup)
+		project.addUserGroups(adminGroup, everyoneGroup)
 
 		return project

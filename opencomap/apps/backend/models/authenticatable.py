@@ -1,10 +1,12 @@
 from django.db import models
+from opencomap.apps.backend.models.permissions import UserGroup
 
 class Authenticatable(models.Model):
 	"""
 	Abstract class that provides functionality to link `Project` and `Layer` to `UserGroups`
 	and provide checks for user permissions.
 	"""
+	usergroups = models.ManyToManyField(UserGroup)
 
 	class Meta: 
 		app_label = 'backend'
@@ -14,10 +16,10 @@ class Authenticatable(models.Model):
 		"""
 		Checks if a user has permission to perform a task and returns if `True` or `False`.
 		"""
-		canDo = self.usergroup_set.filter(is_everyone=True).values()[0][accessType]
+		canDo = self.usergroups.filter(is_everyone=True).values()[0][accessType]
 
 		if not canDo: 
-			for group in self.usergroup_set.filter(users__id__exact=user.id).values():
+			for group in self.usergroups.filter(users__id__exact=user.id).values():
 				if group[accessType]: canDo = True
 
 		return canDo
@@ -73,7 +75,7 @@ class Authenticatable(models.Model):
 		"""
 		Returns all `UserGroups` assigned to the entity.
 		"""
-		return self.usergroup_set.all()
+		return self.usergroups.all()
 
 
 	def addUserGroups(self, *groups):
@@ -83,7 +85,7 @@ class Authenticatable(models.Model):
 		:groups: An arbitrary number of groups to be added to the entity.
 		"""
 		for group in groups:
-			group.project = self
+			self.usergroups.add(group)
 
 
 	def removeUserGroups(self, *groups):
@@ -93,4 +95,4 @@ class Authenticatable(models.Model):
 		:groups: An arbitrary number of groups to be removed from the entity.
 		"""
 		for group in groups:
-			group.delete()
+			self.usergroups.remove(group)

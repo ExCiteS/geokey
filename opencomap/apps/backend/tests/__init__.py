@@ -1,2 +1,2 @@
 from projects import *
-from layers import *
+from featuretype import *

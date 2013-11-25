@@ -1,67 +1,110 @@
 from django.db import models
 
 from opencomap.apps.backend.models.projects import Project
+from opencomap.apps.backend.models.choices import FIELD_TYPES
+from opencomap.apps.backend.models.choices import STATUS_TYPES
 from django.core.exceptions import PermissionDenied
 
 class FeatureType(models.Model):
+	"""
+	Defines the data structure of a certain type of features. 
+	"""
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=100)
 	description = models.TextField()
 	project = models.ForeignKey(Project)
+	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 
 	class Meta: 
 		app_label = 'backend'
 
+	def removeFields(self, *fields):
+		"""
+		Removes fields from the feature type
+
+		:fields: The fields to be me removed.
+		"""
+		for field in fields:
+			field.status = STATUS_TYPES['INACTIVE']
+			field.save()
+
+	def getFields(self):
+		"""
+		Returns all currently active fields af the feature type
+		"""
+		return self.field_set.exclude(status=STATUS_TYPES['INACTIVE'])
+
+
 class Field(models.Model):
 	"""
-	Stores a field. Releated to :model:'api:Layer'
+	A Field defines data type of one characterictic of an obesrvation. Used to create forms of
+	user interfaces and to validate user inputs. 
 	"""
+	
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=100)
 	description = models.TextField()
 	required = models.BooleanField(default=False)
-	featureType = models.ForeignKey(FeatureType)
+	featuretype = models.ForeignKey(FeatureType)
 	minval = models.FloatField(null=True)
 	maxval = models.FloatField(null=True)
+	fieldtype = models.IntegerField()
+	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 
 	class Meta: 
 		app_label = 'backend'
-
-	def update(self, user, name=None, description=None, required=None, minval=None, maxval=None):
-		if self.layer.userCanAdmin(user):
-			if name: self.name = name
-			if description: self.description = description
-			if required: self.required = required
-			if minval: self.minval = minval
-			if maxval: self.maxval = maxval
-		else:
-			raise PermissionDenied('You have no permission to administer the layer ' + self.layer.name + '. The field has not been updated.')
 
 class LookupField(Field):
+	"""
+	A lookup value is a special kind of field the provides an pre-defined number of values 
+	as valid input values.
+	"""
+	def __init__(self, *args, **kwargs):
+		"""
+		Overrides init method of Field in order to set property `fieldtype` to LookupValue
+		by default.
+		"""
+		super(LookupField, self).__init__(*args, **kwargs)
+		self.fieldtype = FIELD_TYPES['LOOKUP']
+
 	class Meta: 
 		app_label = 'backend'
+		proxy = True
 
-	def addLookupValues(self, user, *lookups):
-		if (self.layer.userCanAdmin(user)):
-			for value in lookups:
-				LookupValue(name=value, field=self).save()
-		else:
-			raise PermissionDenied('You have no permission to administer the layer ' + self.layer.name + '. The lookup values have not been added.')
+	def getLookupValues(self):
+		"""
+		Returns all currently active lookup values
+		"""
+		return self.lookupvalue_set.exclude(status=STATUS_TYPES['INACTIVE'])
 
-	def removeLookupValues(self, user, *lookups):
-		if (self.layer.userCanAdmin(user)):
-			for value in lookups:
-				value.delete()
-		else:
-			raise PermissionDenied('You have no permission to administer the layer ' + self.layer.name + '. The lookup values have not been removed.')
+	def addLookupValues(self, *lookups):
+		"""
+		Adds an arbitrary number of lookup values to the lookup field.
+
+		:lookups: Lookup values to be added to the field.
+		"""
+		for value in lookups:
+			LookupValue(name=value, field=self).save()
+
+	def removeLookupValues(self, *lookups):
+		"""
+		Removes an arbitrary number of lookup values from the lookup field by setting
+		its status to inactive.
+
+		:lookups: Lookup values to be added to the field.
+		"""
+		for value in lookups:
+			value.status = STATUS_TYPES['INACTIVE']
+			value.save()
 
 class LookupValue(models.Model):
 	"""
-	Stores a lookup value. Releated to :model:'api:Field'
+	Stores a single lookup value.
 	"""
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=100)
 	field = models.ForeignKey(LookupField)
+	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 
 	class Meta: 
 		app_label = 'backend'

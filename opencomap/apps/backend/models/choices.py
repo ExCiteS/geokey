@@ -1,6 +1,15 @@
 STATUS_TYPES = {
-	'ACTIVE': 1,
+	'ACTIVE': 0,
+	'INACTIVE': 1,
 	'REVIEW': 2,
 	'RETIRED': 3,
 	'DELETED': 4,
+}
+
+FIELD_TYPES = {
+	'TEXT': 0,
+	'NUMERIC': 1,
+	'TRUE_FALSE': 2,
+	'DATE_TIME': 3,
+	'LOOKUP': 4
 }
