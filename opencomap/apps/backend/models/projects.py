@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
 from opencomap.apps.backend.models.authenticatable import Authenticatable
+from opencomap.apps.backend.models.permissions import UserGroup
 from opencomap.apps.backend.models.choices import STATUS_TYPES
 
 class Project(Authenticatable):
@@ -18,6 +19,7 @@ class Project(Authenticatable):
 	created_at = models.DateTimeField(default=datetime.now(tz=utc))
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
+	usergroups = models.ManyToManyField(UserGroup)
 
 	class Meta: 
 		app_label = 'backend'
@@ -38,7 +40,6 @@ class Project(Authenticatable):
 		if description: self.description = description
 		if status: self.status = status
 		self.save()
-
 
 	def remove(self):
 		"""

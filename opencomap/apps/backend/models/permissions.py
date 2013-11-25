@@ -4,9 +4,6 @@ from datetime import datetime
 from django.utils.timezone import utc
 from django.conf import settings
 
-from opencomap.apps.backend.models.projects import Project
-from opencomap.apps.backend.models.layers import Layer
-
 class UserGroup(models.Model):
 	"""
 	Defines user permissions to layers and projects.
@@ -19,8 +16,6 @@ class UserGroup(models.Model):
 	can_read = models.BooleanField(default=False)
 	can_view = models.BooleanField(default=True)
 	users = models.ManyToManyField(settings.AUTH_USER_MODEL)
-	project = models.ForeignKey(Project)
-	layer = models.ForeignKey(Layer, null=True)
 	is_admin = models.BooleanField(default=False)
 	is_everyone = models.BooleanField(default=False)
 

@@ -2,8 +2,10 @@ from factory import Factory
 from permissions import UserGroup
 from authenticatable import Authenticatable
 from projects import Project
-from layers import Layer
+from fields import FeatureType
+from fields import Field
 from fields import LookupField
 from fields import LookupValue
 from features import Feature
 from features import Observation
+from view import View

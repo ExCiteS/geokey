@@ -1,7 +1,16 @@
 from django.db import models
 
-from opencomap.apps.backend.models.layers import Layer
+from opencomap.apps.backend.models.projects import Project
 from django.core.exceptions import PermissionDenied
+
+class FeatureType(models.Model):
+	id = models.AutoField(primary_key=True)
+	name = models.CharField(max_length=100)
+	description = models.TextField()
+	project = models.ForeignKey(Project)
+
+	class Meta: 
+		app_label = 'backend'
 
 class Field(models.Model):
 	"""
@@ -11,7 +20,7 @@ class Field(models.Model):
 	name = models.CharField(max_length=100)
 	description = models.TextField()
 	required = models.BooleanField(default=False)
-	layer = models.ForeignKey(Layer)
+	featureType = models.ForeignKey(FeatureType)
 	minval = models.FloatField(null=True)
 	maxval = models.FloatField(null=True)
 
