@@ -1,3 +1,3 @@
-from projects import *
-from featuretype import *
-from features import *
+from testprojects import *
+from testfeaturetype import *
+from testfeatures import *
