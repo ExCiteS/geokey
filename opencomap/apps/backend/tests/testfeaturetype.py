@@ -1,10 +1,10 @@
 from django.test import TestCase
 from opencomap.apps.backend.models.factory import Factory
 from opencomap.apps.backend.models.projects import Project
+from opencomap.apps.backend.models.features import Feature
 from opencomap.apps.backend.models.fields import FeatureType
 from opencomap.apps.backend.models.fields import TextField
 from opencomap.apps.backend.models.fields import NumericField
-from opencomap.apps.backend.models.fields import DateTimeField
 from opencomap.apps.backend.models.fields import TrueFalseField
 from opencomap.apps.backend.models.fields import LookupField
 from opencomap.apps.backend.models.fields import LookupValue
@@ -51,25 +51,19 @@ class FeatureTypeTest(TestCase):
 		self.assertTrue(numericField.required)
 		self.assertEqual(numericField.status, STATUS_TYPES['ACTIVE'])
 
-		dateField = DateTimeField(name='Date field', description='Date field description', featuretype=featureType)
-		dateField.save()
-		self.assertEqual(dateField.name, 'Date field')
-		self.assertFalse(dateField.required)
-		self.assertEqual(dateField.status, STATUS_TYPES['ACTIVE'])
-
 		boolField = TrueFalseField(name='Bool field', description='Bool field description', featuretype=featureType)
 		boolField.save()
 		self.assertEqual(boolField.name, 'Bool field')
 		self.assertFalse(boolField.required)
 		self.assertEqual(boolField.status, STATUS_TYPES['ACTIVE'])
 
-		self.assertEqual(len(featureType.getFields()), 4)
+		self.assertEqual(len(featureType.getFields()), 3)
 
 		# Test remove fields
-		featureType.removeFields(dateField, boolField)
-		self.assertEqual(len(featureType.getFields()), 2)
+		featureType.removeFields(textField, boolField)
+		self.assertEqual(len(featureType.getFields()), 1)
 		for field in featureType.getFields():
-			self.assertIn(field.id, (textField.field_ptr_id, numericField.field_ptr_id))
+			self.assertEqual(field.id, numericField.field_ptr_id)
 
 	def test_createAndRemoveLookup(self):
 		admin = self._authenticate('eric')
@@ -96,3 +90,112 @@ class FeatureTypeTest(TestCase):
 		self.assertEqual(len(lookupField.getLookupValues()), 2)
 		for lookup in lookupField.getLookupValues():
 			self.assertNotEqual(lookup, valueToRemove)
+
+	def test_textValidation(self):
+		admin = self._authenticate('eric')
+		project = Project.objects.all()[0]
+		featureType = FeatureType(name='Test Feature Type', project=project)
+		featureType.save()
+
+		textField = TextField(name='Text field', description='Text field description', featuretype=featureType)
+		textField.save()
+
+		self.assertTrue(textField.validateInput('This is a test text'))
+		self.assertTrue(textField.validateInput(str(2)))
+		self.assertFalse(textField.validateInput(2))
+		self.assertFalse(textField.validateInput(True))
+		self.assertFalse(textField.validateInput(False))
+
+	def test_numericValidation(self):
+		admin = self._authenticate('eric')
+		project = Project.objects.all()[0]
+		featureType = FeatureType(name='Test Feature Type', project=project)
+		featureType.save()
+
+		numericField = NumericField(name='Numeric field', description='Numeric field description', required=True, featuretype=featureType)
+		numericField.save()
+
+		self.assertFalse(numericField.validateInput('This is a test text'))
+		self.assertTrue(numericField.validateInput('2'))
+		self.assertTrue(numericField.validateInput('-102'))
+		self.assertTrue(numericField.validateInput('327.498'))
+		self.assertTrue(numericField.validateInput('-435345.87324'))
+		self.assertTrue(numericField.validateInput(2))
+		self.assertTrue(numericField.validateInput(2.324))
+		self.assertTrue(numericField.validateInput(-2134))
+		self.assertTrue(numericField.validateInput(-213247.8327))
+		self.assertFalse(numericField.validateInput(True))
+		self.assertFalse(numericField.validateInput(False))
+
+		numericRange1 = NumericField(name='Numeric field', description='Numeric field description', minval=10, required=True, featuretype=featureType)
+		numericRange1.save()
+		self.assertTrue(numericRange1.validateInput(546.5347))
+		self.assertTrue(numericRange1.validateInput(12))
+		self.assertFalse(numericRange1.validateInput(2.324))
+		self.assertFalse(numericRange1.validateInput(-2134))
+		self.assertTrue(numericRange1.validateInput('546.5347'))
+		self.assertTrue(numericRange1.validateInput('12'))
+		self.assertFalse(numericRange1.validateInput('2.324'))
+		self.assertFalse(numericRange1.validateInput('-2134'))
+
+		numericRange2 = NumericField(name='Numeric field', description='Numeric field description', maxval=87, required=True, featuretype=featureType)
+		numericRange2.save()
+		self.assertFalse(numericRange2.validateInput(546.5347))
+		self.assertTrue(numericRange2.validateInput(12))
+		self.assertTrue(numericRange2.validateInput(2.324))
+		self.assertTrue(numericRange2.validateInput(-2134))
+		self.assertFalse(numericRange2.validateInput('546.5347'))
+		self.assertTrue(numericRange2.validateInput('12'))
+		self.assertTrue(numericRange2.validateInput('2.324'))
+		self.assertTrue(numericRange2.validateInput('-2134'))
+
+		numericRange3 = NumericField(name='Numeric field', description='Numeric field description', minval=10, maxval=87, required=True, featuretype=featureType)
+		numericRange3.save()
+		self.assertFalse(numericRange3.validateInput(546.5347))
+		self.assertTrue(numericRange3.validateInput(12))
+		self.assertFalse(numericRange3.validateInput(2.324))
+		self.assertFalse(numericRange3.validateInput(-2134))
+		self.assertFalse(numericRange3.validateInput('546.5347'))
+		self.assertTrue(numericRange3.validateInput('12'))
+		self.assertFalse(numericRange3.validateInput('2.324'))
+		self.assertFalse(numericRange3.validateInput('-2134'))
+
+	def test_truefalseValidation(self):
+		admin = self._authenticate('eric')
+		project = Project.objects.all()[0]
+		featureType = FeatureType(name='Test Feature Type', project=project)
+		featureType.save()
+
+		boolField = TrueFalseField(name='Bool field', description='Bool field description', featuretype=featureType)
+		boolField.save()
+
+		self.assertFalse(boolField.validateInput('This is a test text'))
+		self.assertFalse(boolField.validateInput('2'))
+		self.assertFalse(boolField.validateInput(2))
+		self.assertTrue(boolField.validateInput(True))
+		self.assertTrue(boolField.validateInput(False))
+		self.assertTrue(boolField.validateInput('True'))
+		self.assertTrue(boolField.validateInput('true'))
+		self.assertTrue(boolField.validateInput('1'))
+		self.assertTrue(boolField.validateInput('t'))
+		self.assertTrue(boolField.validateInput('False'))
+		self.assertTrue(boolField.validateInput('false'))
+		self.assertTrue(boolField.validateInput('0'))
+		self.assertTrue(boolField.validateInput('f'))
+		self.assertTrue(boolField.validateInput(0))
+		self.assertTrue(boolField.validateInput(1))
+
+	def test_lookupValidation(self):
+		admin = self._authenticate('eric')
+		project = Project.objects.all()[0]
+		featureType = FeatureType(name='Test Feature Type', project=project)
+		featureType.save()
+
+		lookupField = LookupField(name='Lookup field', description='Lookup field description', featuretype=featureType)
+		lookupField.save()
+
+		lookupField.addLookupValues('Ms. Piggy', 'ist ein', 'dickes', 'Schwein')
+
+		self.assertTrue(lookupField.validateInput('Ms. Piggy'))
+		self.assertTrue(lookupField.validateInput('dickes'))
+		self.assertFalse(lookupField.validateInput('Kermit'))

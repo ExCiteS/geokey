@@ -52,12 +52,7 @@ class Project(Authenticatable):
 		Returns a list of all features assinged to the project. Excludes those having status `RETIRED` and `DELETED`
 		"""
 
-		resultSet = []
-		for feature in self.feature_set.exclude(status=STATUS_TYPES['INACTIVE']).exclude(status=STATUS_TYPES['DELETED']):
-			resultSet.append(feature)
-
-		return resultSet
-
+		return self.feature_set.exclude(status=STATUS_TYPES['INACTIVE']).exclude(status=STATUS_TYPES['DELETED'])
 
 	def addFeatures(self, *features):
 		"""
@@ -81,3 +76,10 @@ class Project(Authenticatable):
 		for feature in features:
 			feature.projects.remove(self)
 			feature.save()
+
+	def getFeatureTypes(self):
+		"""
+		Returns all `FeatureTypes` assigned to the project
+		"""
+
+		return self.featuretype_set.exclude(status=STATUS_TYPES['INACTIVE']).exclude(status=STATUS_TYPES['DELETED'])

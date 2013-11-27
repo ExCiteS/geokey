@@ -1,4 +1,5 @@
 from django.db import models
+import string
 
 from opencomap.apps.backend.models.projects import Project
 from opencomap.apps.backend.models.choices import STATUS_TYPES
@@ -34,6 +35,9 @@ class FeatureType(models.Model):
 		return self.field_set.exclude(status=STATUS_TYPES['INACTIVE'])
 
 
+
+
+
 class Field(models.Model):
 	"""
 	A Field defines data type of one characterictic of an obesrvation. Used to create forms of
@@ -50,42 +54,78 @@ class Field(models.Model):
 	class Meta: 
 		app_label = 'backend'
 
+	def validateInput(self, input):
+		raise NotImplementedError('The method validateInput has not been implemented for this child class of Field.')
+
+
+
+
 class TextField(Field):
+	"""
+	A field for character strings.
+	"""
 	class Meta: 
 		app_label = 'backend'
 
-	def validateInput(self, input):
-		valid = True
-		return valid
+	def validateInput(self, value):
+		"""
+		Validates if the given value is a valid input for the TextField by checking if the provided value is of type string.
+		"""
+		return isinstance(value, basestring)
+
+
 
 class NumericField(Field):
+	"""
+	A field for numeric values.
+	"""
 	minval = models.FloatField(null=True)
 	maxval = models.FloatField(null=True)
 
 	class Meta: 
 		app_label = 'backend'
 
-	def validateInput(self, input):
-		valid = True
+	def validateInput(self, value):
+		"""
+		Validates if the given value is a valid input for the NumerField. Checks if a value of type number has been provided or if
+		a value of type String has been provided that can be successfully converted to a Float value. Then checks if the value is 
+		between bounds of minval and maxval. 
+		"""
+		valid = False
+
+		if not isinstance(value, bool):
+			try:
+				value = float(value)
+			except ValueError:
+				pass
+			
+		valid = isinstance(value, float)
+
+		if valid:
+			if self.minval and self.maxval:
+				valid = (value >= self.minval) and (value <= self.maxval)
+			else: 
+				if self.minval: valid = (value >= self.minval)
+				if self.maxval: valid = (value <= self.maxval)
+
 		return valid
 
-class DateTimeField(Field):
-	
-	class Meta: 
-		app_label = 'backend'
 
-	def validateInput(self, input):
-		valid = True
-		return valid
 
 class TrueFalseField(Field):
-	
+	"""
+	A field that can only have two states True and False.
+	"""
 	class Meta: 
 		app_label = 'backend'
 
-	def validateInput(self, input):
-		valid = True
-		return valid
+	def validateInput(self, value):
+		"""
+		Checks if the provided value is one of `True`, `False`, `'True'`, `'true'`, `'1'`, `'t'`, `'False'`, `'false'`, `'0'`, `'f'`, `0`, `1`
+		"""
+		return value in [True, False, 'True', 'true', '1', 't', 'False', 'false', '0', 'f', 0, 1]
+
+
 
 class LookupField(Field):
 	"""
@@ -122,9 +162,14 @@ class LookupField(Field):
 			value.status = STATUS_TYPES['INACTIVE']
 			value.save()
 
-	def validateInput(self, input):
-		valid = True
+	def validateInput(self, value):
+		valid = False
+		for lookupvalue in self.lookupvalue_set.exclude(status=STATUS_TYPES['INACTIVE']).exclude(status=STATUS_TYPES['DELETED']):
+			if lookupvalue.name == value: valid = True
+
 		return valid
+
+
 
 class LookupValue(models.Model):
 	"""
@@ -137,3 +182,6 @@ class LookupValue(models.Model):
 
 	class Meta: 
 		app_label = 'backend'
+
+	def __unicode__(self):
+		return self.name

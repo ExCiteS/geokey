@@ -63,3 +63,12 @@ class Observation(models.Model):
 
 	def __unicode__(self):
 		return self.feature.name # self.characteristics.items()
+
+	# def save(self, *args, **kwargs):
+	# 	"""
+	# 	Overrides the `Model`'s `save` method in order to provide validation functionality
+	# 	"""
+
+		
+
+	# 	super(Observation, self).save(*args, **kwargs)
