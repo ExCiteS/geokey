@@ -1,5 +1,4 @@
 from django.db import models
-import string
 
 from opencomap.apps.backend.models.projects import Project
 from opencomap.apps.backend.models.choices import STATUS_TYPES
@@ -220,13 +219,15 @@ class LookupField(Field):
 		"""
 		valid = False
 		for lookupvalue in self.lookupvalue_set.exclude(status=STATUS_TYPES['INACTIVE']).exclude(status=STATUS_TYPES['DELETED']):
-			if lookupvalue.name == value: valid = True
+			if lookupvalue.id == value: valid = True
 
 		return valid
 
 	def convertFromString(self, value):
-		return value
-
+		"""
+		Returns the `value` of the field in `int` format.
+		"""
+		return int(value)
 
 
 class LookupValue(models.Model):

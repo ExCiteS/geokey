@@ -60,12 +60,13 @@ class FeaturesTest(TestCase):
 		admin = self._authenticate('eric')
 		project = Project.objects.all()[0]
 		feature = project.getFeatures()[0]
+		lookupField = feature.featuretype.getField('Lookup field').getLookupValues()[0]
 
 		characteristics = {
 			'Text field': 'This is test text',
 			'Numeric field': 2,
 			'Bool field': True,
-			'Lookup field': 'Value 1'
+			'Lookup field': lookupField.id
 		}
 
 		observation = Observation(creator=admin, data=characteristics)
@@ -75,7 +76,7 @@ class FeaturesTest(TestCase):
 		self.assertEqual(o.getValue('Text field'), 'This is test text')
 		self.assertEqual(o.getValue('Numeric field'), 2)
 		self.assertEqual(o.getValue('Bool field'), True)
-		self.assertEqual(o.getValue('Lookup field'), 'Value 1')
+		self.assertEqual(o.getValue('Lookup field'), lookupField.id)
 
 	def test_missingRequired(self):
 		admin = self._authenticate('eric')
@@ -84,8 +85,7 @@ class FeaturesTest(TestCase):
 
 		characteristics = {
 			'Text field': 'This is test text',
-			'Bool field': True,
-			'Lookup field': 'Value 1'
+			'Bool field': True
 		}
 
 		observation = Observation(creator=admin, data=characteristics)
@@ -101,7 +101,7 @@ class FeaturesTest(TestCase):
 
 		characteristics = {
 			'Numeric field': 2,
-			'Bool field': 'Miss Piggy ist fett',
+			'Bool field': 897098,
 		}
 
 		observation = Observation(creator=admin, data=characteristics)
@@ -114,10 +114,11 @@ class FeaturesTest(TestCase):
 		admin = self._authenticate('eric')
 		project = Project.objects.all()[0]
 		feature = project.getFeatures()[0]
+		lookupField = feature.featuretype.getField('Lookup field').getLookupValues()[0]
 
 		characteristics = {
 			'Numeric field': 2,
-			'Lookup field': 'Bla Bla Bla'
+			'Lookup field': lookupField.id
 		}
 
 		observation = Observation(creator=admin, data=characteristics)

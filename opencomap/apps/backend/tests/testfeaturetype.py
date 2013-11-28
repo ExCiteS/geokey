@@ -196,6 +196,8 @@ class FeatureTypeTest(TestCase):
 
 		lookupField.addLookupValues('Ms. Piggy', 'ist ein', 'dickes', 'Schwein')
 
-		self.assertTrue(lookupField.validateInput('Ms. Piggy'))
-		self.assertTrue(lookupField.validateInput('dickes'))
+		for lookupValue in featureType.getField('Lookup field').getLookupValues():
+			self.assertTrue(lookupField.validateInput(lookupValue.id))			
+
 		self.assertFalse(lookupField.validateInput('Kermit'))
+		self.assertFalse(lookupField.validateInput(287894))

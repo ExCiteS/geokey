@@ -55,7 +55,7 @@ class Feature(models.Model):
 			observation.feature = self
 			observation.save()
 		else:
-				raise ValidationError('One or more input values of characteristics do match validation criteria of input fields.')
+			raise ValidationError('One or more input values of characteristics do match validation criteria of input fields.')
 
 
 	def getObservations(self):
