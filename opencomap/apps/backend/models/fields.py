@@ -3,7 +3,7 @@ import string
 
 from opencomap.apps.backend.models.projects import Project
 from opencomap.apps.backend.models.choices import STATUS_TYPES
-from django.core.exceptions import PermissionDenied
+from opencomap.apps.backend.models.choices import FIELD_TYPE
 
 class FeatureType(models.Model):
 	"""
@@ -34,7 +34,28 @@ class FeatureType(models.Model):
 		"""
 		return self.field_set.exclude(status=STATUS_TYPES['INACTIVE'])
 
+	def getField(self, name):
+		"""
+		Returns exactly one `Field` identified by name
+		"""
+		field = self.field_set.filter(name=name)[0]
 
+		try: 
+			return field.textfield 
+		except Field.DoesNotExist: 
+			pass
+		try: 
+			return field.numericfield 
+		except Field.DoesNotExist: 
+			pass
+		try: 
+			return field.truefalsefield 
+		except Field.DoesNotExist: 
+			pass
+		try: 
+			return field.lookupfield 
+		except Field.DoesNotExist: 
+			pass
 
 
 
@@ -54,8 +75,24 @@ class Field(models.Model):
 	class Meta: 
 		app_label = 'backend'
 
-	def validateInput(self, input):
-		raise NotImplementedError('The method validateInput has not been implemented for this child class of Field.')
+	def __unicode__(self):
+		return self.name
+
+	
+	def validateInput(self, value):
+		"""
+		Validates the given `value` against the field definition.
+		@abstractmethod
+		"""
+		raise NotImplementedError('The method `validateInput` has not been implemented for this child class of Field.')
+
+
+	def convertFromString(self, value):
+		"""
+		Converts the given `value` of an `Observation`'s field from `String` to the proper data type. By default returns simply 
+		the value in `String` format. Needs to be overridden in order to support other data types.
+		"""
+		return value
 
 
 
@@ -69,9 +106,11 @@ class TextField(Field):
 
 	def validateInput(self, value):
 		"""
-		Validates if the given value is a valid input for the TextField by checking if the provided value is of type string.
+		Validates if the given value is a valid input for the `TextField` by checking if the provided value is of type `String`.
+		Returns `True` or `False`.
 		"""
 		return isinstance(value, basestring)
+
 
 
 
@@ -89,7 +128,7 @@ class NumericField(Field):
 		"""
 		Validates if the given value is a valid input for the NumerField. Checks if a value of type number has been provided or if
 		a value of type String has been provided that can be successfully converted to a Float value. Then checks if the value is 
-		between bounds of minval and maxval. 
+		between bounds of minval and maxval. Returns `True` or `False`.
 		"""
 		valid = False
 
@@ -110,6 +149,12 @@ class NumericField(Field):
 
 		return valid
 
+	def convertFromString(self, value):
+		"""
+		Returns the `value` of the field in `Float` format.
+		"""
+		return float(value)
+
 
 
 class TrueFalseField(Field):
@@ -121,9 +166,16 @@ class TrueFalseField(Field):
 
 	def validateInput(self, value):
 		"""
-		Checks if the provided value is one of `True`, `False`, `'True'`, `'true'`, `'1'`, `'t'`, `'False'`, `'false'`, `'0'`, `'f'`, `0`, `1`
+		Checks if the provided value is one of `True`, `False`, `'True'`, `'true'`, `'1'`, `'t'`, `'False'`, `'false'`, `'0'`, `'f'`, `0`, `1`.
+		Returns `True` or `False`.
 		"""
 		return value in [True, False, 'True', 'true', '1', 't', 'False', 'false', '0', 'f', 0, 1]
+
+	def convertFromString(self, value):
+		"""
+		Returns the `value` of the field in `Bool` format.
+		"""
+		return bool(value)
 
 
 
@@ -163,11 +215,17 @@ class LookupField(Field):
 			value.save()
 
 	def validateInput(self, value):
+		"""
+		Checks if the provided value is in the list of `LookupValue`'s.	Returns `True` or `False`.
+		"""
 		valid = False
 		for lookupvalue in self.lookupvalue_set.exclude(status=STATUS_TYPES['INACTIVE']).exclude(status=STATUS_TYPES['DELETED']):
 			if lookupvalue.name == value: valid = True
 
 		return valid
+
+	def convertFromString(self, value):
+		return value
 
 
 

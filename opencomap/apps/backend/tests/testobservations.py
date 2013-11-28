@@ -13,6 +13,7 @@ from opencomap.apps.backend.models.choices import STATUS_TYPES
 
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.core.exceptions import ValidationError
 
 
 
@@ -41,32 +42,86 @@ class FeaturesTest(TestCase):
 		featureType.save()
 		
 		# Creating example field types for each features
-		# textField = TextField(name='Text field', description='Text field description', featuretype=featureType)
-		# textField.save()
-		# numericField = NumericField(name='Numeric field', description='Numeric field description', required=True, featuretype=featureType)
-		# numericField.save()
-		# dateField = DateTimeField(name='Date field', description='Date field description', featuretype=featureType)
-		# dateField.save()
-		# boolField = TrueFalseField(name='Bool field', description='Bool field description', featuretype=featureType)
-		# boolField.save()
-		# lookupField = LookupField(name='Lookup field', description='Lookup field description', featuretype=featureType)
-		# lookupField.save()
-		# lookupField.addLookupValues('Value 1', 'Value 2', 'Value 3')
+		textField = TextField(name='Text field', description='Text field description', featuretype=featureType)
+		textField.save()
+		numericField = NumericField(name='Numeric field', description='Numeric field description', required=True, featuretype=featureType)
+		numericField.save()
+		boolField = TrueFalseField(name='Bool field', description='Bool field description', featuretype=featureType)
+		boolField.save()
+		lookupField = LookupField(name='Lookup field', description='Lookup field description', featuretype=featureType)
+		lookupField.save()
+		lookupField.addLookupValues('Value 1', 'Value 2', 'Value 3')
 
-		# f = Feature(name='Example Feature', description='Example feature description', featuretype=featureType, creator=admin, geometry='POINT(-0.15003204345703125 51.55615526777012)')
-		# f.save()
-		# project.addFeatures(f)
+		f = Feature(name='Example Feature', description='Example feature description', featuretype=featureType, creator=admin, geometry='POINT(-0.15003204345703125 51.55615526777012)')
+		f.save()
+		project.addFeatures(f)
 
-	# def test_validateText(self):
-	# 	admin = self._authenticate('eric')
-	# 	project = Project.objects.all()[0]
-	# 	featureType = project.getFeatureTypes()[0]
+	def test_addObservation(self):
+		admin = self._authenticate('eric')
+		project = Project.objects.all()[0]
+		feature = project.getFeatures()[0]
 
-	# 	textField = TextField(name='Text field', description='Text field description', featuretype=featureType)
-	# 	textField.save()
+		characteristics = {
+			'Text field': 'This is test text',
+			'Numeric field': 2,
+			'Bool field': True,
+			'Lookup field': 'Value 1'
+		}
 
-	# 	f = Feature(name='Example Feature', description='Example feature description', featuretype=featureType, creator=admin, geometry='POINT(-0.15003204345703125 51.55615526777012)')
-	# 	f.save()
-	# 	project.addFeatures(f)
+		observation = Observation(creator=admin, data=characteristics)
+		feature.addObservation(observation)
 
-	# 	
+		o = feature.getObservations()[0]
+		self.assertEqual(o.getValue('Text field'), 'This is test text')
+		self.assertEqual(o.getValue('Numeric field'), 2)
+		self.assertEqual(o.getValue('Bool field'), True)
+		self.assertEqual(o.getValue('Lookup field'), 'Value 1')
+
+	def test_missingRequired(self):
+		admin = self._authenticate('eric')
+		project = Project.objects.all()[0]
+		feature = project.getFeatures()[0]
+
+		characteristics = {
+			'Text field': 'This is test text',
+			'Bool field': True,
+			'Lookup field': 'Value 1'
+		}
+
+		observation = Observation(creator=admin, data=characteristics)
+		with self.assertRaises(ValidationError):
+			feature.addObservation(observation)
+
+		self.assertEqual(len(feature.getObservations()), 0)
+
+	def test_invalidInput(self):
+		admin = self._authenticate('eric')
+		project = Project.objects.all()[0]
+		feature = project.getFeatures()[0]
+
+		characteristics = {
+			'Numeric field': 2,
+			'Bool field': 'Miss Piggy ist fett',
+		}
+
+		observation = Observation(creator=admin, data=characteristics)
+		with self.assertRaises(ValidationError):
+			feature.addObservation(observation)
+
+		self.assertEqual(len(feature.getObservations()), 0)
+
+	def test_invalidLookupVal(self):
+		admin = self._authenticate('eric')
+		project = Project.objects.all()[0]
+		feature = project.getFeatures()[0]
+
+		characteristics = {
+			'Numeric field': 2,
+			'Lookup field': 'Bla Bla Bla'
+		}
+
+		observation = Observation(creator=admin, data=characteristics)
+		with self.assertRaises(ValidationError):
+			feature.addObservation(observation)
+
+		self.assertEqual(len(feature.getObservations()), 0)

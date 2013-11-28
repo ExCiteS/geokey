@@ -4,3 +4,10 @@ STATUS_TYPES = {
 	'REVIEW': 2,
 	'DELETED': 3,
 }
+
+FIELD_TYPE = {
+	'TEXT': 0,
+	'NUMBER': 1,
+	'TRUEFALSE':2,
+	'LOOKUP': 3
+}
