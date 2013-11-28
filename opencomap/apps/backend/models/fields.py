@@ -174,7 +174,7 @@ class TrueFalseField(Field):
 		"""
 		Returns the `value` of the field in `Bool` format.
 		"""
-		return bool(value)
+		return value in [True, 'True', 'true', '1', 't', 1]
 
 
 

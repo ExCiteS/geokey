@@ -42,17 +42,9 @@ class Feature(models.Model):
 		"""
 		Adds an observation to the featre. Input data is validated against the field definitions of the `Feature`'s `FeatureType`
 		"""
-		valid = True
+		observation.feature = self
 
-		for f in self.featuretype.getFields():
-			field = self.featuretype.getField(f.name)
-
-			if field.required and not (field.name in observation.data.keys()): 
-				valid = False
-				raise ValidationError('Required field ' + field.name + ' is not set or empty.')
-
-		if valid and field.validateInput(observation.data.get(field.name)):
-			observation.feature = self
+		if observation.dataIsValid():			
 			observation.save()
 		else:
 			raise ValidationError('One or more input values of characteristics do match validation criteria of input fields.')
@@ -93,3 +85,29 @@ class Observation(models.Model):
 		"""
 		field = self.feature.featuretype.getField(fieldName)
 		return field.convertFromString(self.data[fieldName])
+
+	def dataIsValid(self, data=None):
+		valid = True
+
+		if not data: data = self.data
+		
+		for f in self.feature.featuretype.getFields():
+			field = self.feature.featuretype.getField(f.name)
+
+			if field.required and not (field.name in data.keys()): 
+				valid = False
+				
+			if valid and not field.validateInput(data.get(field.name)):
+				valid = False
+
+		return valid
+
+	def updateData(self, data):
+		"""
+		Validates and Updates the data of the `Observation`. If the data doesn't update nothing happens.
+		"""
+		if self.dataIsValid(data=data): 
+			self.data = data
+			self.save()
+		else:
+			raise ValidationError('One or more input values of characteristics do match validation criteria of input fields.')

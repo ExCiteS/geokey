@@ -126,3 +126,67 @@ class FeaturesTest(TestCase):
 			feature.addObservation(observation)
 
 		self.assertEqual(len(feature.getObservations()), 0)
+
+	def testUpdateData(self):
+		admin = self._authenticate('eric')
+		project = Project.objects.all()[0]
+		feature = project.getFeatures()[0]
+		lookupField = feature.featuretype.getField('Lookup field').getLookupValues()[0]
+
+		characteristics = {
+			'Text field': 'This is test text',
+			'Numeric field': 2,
+			'Bool field': True,
+			'Lookup field': lookupField.id
+		}
+
+		observation = Observation(creator=admin, data=characteristics)
+		feature.addObservation(observation)
+
+
+		lookupField = feature.featuretype.getField('Lookup field').getLookupValues()[1]
+		update = {
+			'Text field': 'update',
+			'Numeric field': 10,
+			'Bool field': False,
+			'Lookup field': lookupField.id
+		}
+
+		observation.updateData(update)
+
+		o = feature.getObservations()[0]
+		self.assertEqual(o.getValue('Text field'), 'update')
+		self.assertEqual(o.getValue('Numeric field'), 10)
+		self.assertEqual(o.getValue('Bool field'), False)
+		self.assertEqual(o.getValue('Lookup field'), lookupField.id)
+
+	def testUpdateFalseData(self):
+		admin = self._authenticate('eric')
+		project = Project.objects.all()[0]
+		feature = project.getFeatures()[0]
+		lookupField = feature.featuretype.getField('Lookup field').getLookupValues()[0]
+
+		characteristics = {
+			'Text field': 'This is test text',
+			'Numeric field': 2,
+			'Bool field': True,
+			'Lookup field': lookupField.id
+		}
+
+		observation = Observation(creator=admin, data=characteristics)
+		feature.addObservation(observation)
+
+
+		update = {
+			'Numeric field': 'Kermit',
+			'Bool field': False,
+		}
+		
+		with self.assertRaises(ValidationError):
+			observation.updateData(update)
+
+		o = feature.getObservations()[0]
+		self.assertEqual(o.getValue('Text field'), 'This is test text')
+		self.assertEqual(o.getValue('Numeric field'), 2)
+		self.assertEqual(o.getValue('Bool field'), True)
+		self.assertEqual(o.getValue('Lookup field'), lookupField.id)
