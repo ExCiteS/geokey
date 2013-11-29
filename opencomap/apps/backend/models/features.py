@@ -8,7 +8,7 @@ from django.contrib.gis.db import models as gis
 from django.core.exceptions import ValidationError
 
 from opencomap.apps.backend.models.projects import Project
-from opencomap.apps.backend.models.fields import FeatureType
+from opencomap.apps.backend.models.featuretype import FeatureType
 from opencomap.apps.backend.models.choices import STATUS_TYPES
 
 class Feature(models.Model):
@@ -49,7 +49,6 @@ class Feature(models.Model):
 		else:
 			raise ValidationError('One or more input values of characteristics do match validation criteria of input fields.')
 
-
 	def getObservations(self):
 		"""
 		Returns all `Observations` assigned to the `Feature`, excluding those having status `INACTIVE` or `DELETED`.
@@ -58,7 +57,7 @@ class Feature(models.Model):
 
 	def removeObservations(self, *observations):
 		"""
-		Removes an `Observations` from the `Feature` by setting its status to `DELETED`.
+		Removes an arbitrary number of `Observation`s from the `Feature` by setting its status to `DELETED`.
 		"""
 		for observation in observations:
 			observation.status = STATUS_TYPES['DELETED']

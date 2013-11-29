@@ -42,19 +42,19 @@ class FeaturesTest(TestCase):
 		featureType.save()
 		
 		# Creating example field types for each features
-		textField = TextField(name='Text field', description='Text field description', featuretype=featureType)
-		textField.save()
-		numericField = NumericField(name='Numeric field', description='Numeric field description', required=True, featuretype=featureType)
-		numericField.save()
-		boolField = TrueFalseField(name='Bool field', description='Bool field description', featuretype=featureType)
-		boolField.save()
-		lookupField = LookupField(name='Lookup field', description='Lookup field description', featuretype=featureType)
-		lookupField.save()
+		textField = TextField(name='Text field', description='Text field description')
+		featureType.addField(textField)
+		numericField = NumericField(name='Numeric field', description='Numeric field description', required=True)
+		featureType.addField(numericField)
+		boolField = TrueFalseField(name='Bool field', description='Bool field description')
+		featureType.addField(boolField)
+		lookupField = LookupField(name='Lookup field', description='Lookup field description')
+		featureType.addField(lookupField)
 		lookupField.addLookupValues('Value 1', 'Value 2', 'Value 3')
 
 		f = Feature(name='Example Feature', description='Example feature description', featuretype=featureType, creator=admin, geometry='POINT(-0.15003204345703125 51.55615526777012)')
 		f.save()
-		project.addFeatures(f)
+		project.addFeature(f)
 
 	def test_addObservation(self):
 		admin = self._authenticate('eric')

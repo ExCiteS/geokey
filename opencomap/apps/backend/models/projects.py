@@ -54,25 +54,25 @@ class Project(Authenticatable):
 
 		return self.feature_set.exclude(status=STATUS_TYPES['INACTIVE']).exclude(status=STATUS_TYPES['DELETED'])
 
-	def addFeatures(self, *features):
+	def addFeature(self, feature):
 		"""
-		Adds an arbitrary number of features to the project.
+		Adds a feature to the project.
 
-		:features: The features to be added.
+		:feature: The features to be added.
 		"""
+
+		feature.save()
+		feature.projects.add(self)
 		
-		for feature in features:
-			feature.projects.add(self)
-			feature.save()
 
 
 	def removeFeatures(self, *features):
 		"""
-		Removes an arbitrary number of features from the project.
+		Removes an arbitrary number of `Features`s from the `Project`.
 
-		:features: The features to be removed.
+		:feature: The feature to be removed.
 		"""
-
+		
 		for feature in features:
 			feature.projects.remove(self)
 			feature.save()
@@ -83,3 +83,11 @@ class Project(Authenticatable):
 		"""
 
 		return self.featuretype_set.exclude(status=STATUS_TYPES['INACTIVE']).exclude(status=STATUS_TYPES['DELETED'])
+
+	def addFeatureType(self, featuretype):
+		"""
+		Adds a `FeatureType` to the project
+		"""
+
+		featuretype.project = self
+		featuretype.save()

@@ -83,7 +83,7 @@ class FeaturesTest(TestCase):
 
 		features = self._createFeatures(admin, project, featureType)
 		for i in range(len(features)):
-			project.addFeatures(features[i])
+			project.addFeature(features[i])
 
 		self.assertEqual(len(project.getFeatures()), 10)
 		for feature in project.getFeatures():
@@ -104,7 +104,7 @@ class FeaturesTest(TestCase):
 
 		features = self._createFeatures(admin, project, featureType)
 		for i in range(len(features)):
-			project.addFeatures(features[i])
+			project.addFeature(features[i])
 
 		features[3].remove()
 		features[7].remove()

@@ -17,6 +17,10 @@ class FeatureType(models.Model):
 	class Meta: 
 		app_label = 'backend'
 
+	def addField(self, field):
+		field.featuretype = self
+		field.save()
+
 	def removeFields(self, *fields):
 		"""
 		Removes fields from the feature type
@@ -174,7 +178,8 @@ class TrueFalseField(Field):
 		"""
 		Returns the `value` of the field in `Bool` format.
 		"""
-		return value in [True, 'True', 'true', '1', 't', 1]
+		return value in [True, 
+		'True', 'true', '1', 't', 1]
 
 
 

@@ -35,8 +35,8 @@ class FeatureTypeTest(TestCase):
 		admin = self._authenticate('eric')
 
 		project = Project.objects.all()[0]
-		featureType = FeatureType(name='Test Feature Type', project=project)
-		featureType.save()
+		featureType = FeatureType(name='Test Feature Type')
+		project.addFeatureType(featureType)
 
 		# Test create and add fields
 		textField = TextField(name='Text field', description='Text field description', featuretype=featureType)
@@ -69,8 +69,8 @@ class FeatureTypeTest(TestCase):
 		admin = self._authenticate('eric')
 
 		project = Project.objects.all()[0]
-		featureType = FeatureType(name='Test Feature Type', project=project)
-		featureType.save()
+		featureType = FeatureType(name='Test Feature Type')
+		project.addFeatureType(featureType)
 
 		lookupField = LookupField(name='Lookup field', description='Lookup field description', featuretype=featureType)
 		lookupField.save()
@@ -94,8 +94,8 @@ class FeatureTypeTest(TestCase):
 	def test_textValidation(self):
 		admin = self._authenticate('eric')
 		project = Project.objects.all()[0]
-		featureType = FeatureType(name='Test Feature Type', project=project)
-		featureType.save()
+		featureType = FeatureType(name='Test Feature Type')
+		project.addFeatureType(featureType)
 
 		textField = TextField(name='Text field', description='Text field description', featuretype=featureType)
 		textField.save()
@@ -109,8 +109,8 @@ class FeatureTypeTest(TestCase):
 	def test_numericValidation(self):
 		admin = self._authenticate('eric')
 		project = Project.objects.all()[0]
-		featureType = FeatureType(name='Test Feature Type', project=project)
-		featureType.save()
+		featureType = FeatureType(name='Test Feature Type')
+		project.addFeatureType(featureType)
 
 		numericField = NumericField(name='Numeric field', description='Numeric field description', required=True, featuretype=featureType)
 		numericField.save()
@@ -163,8 +163,8 @@ class FeatureTypeTest(TestCase):
 	def test_truefalseValidation(self):
 		admin = self._authenticate('eric')
 		project = Project.objects.all()[0]
-		featureType = FeatureType(name='Test Feature Type', project=project)
-		featureType.save()
+		featureType = FeatureType(name='Test Feature Type')
+		project.addFeatureType(featureType)
 
 		boolField = TrueFalseField(name='Bool field', description='Bool field description', featuretype=featureType)
 		boolField.save()
@@ -188,8 +188,8 @@ class FeatureTypeTest(TestCase):
 	def test_lookupValidation(self):
 		admin = self._authenticate('eric')
 		project = Project.objects.all()[0]
-		featureType = FeatureType(name='Test Feature Type', project=project)
-		featureType.save()
+		featureType = FeatureType(name='Test Feature Type')
+		project.addFeatureType(featureType)
 
 		lookupField = LookupField(name='Lookup field', description='Lookup field description', featuretype=featureType)
 		lookupField.save()
