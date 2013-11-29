@@ -1,5 +1,5 @@
 from django.db import models
-from opencomap.apps.backend.models.permissions import UserGroup
+from opencomap.apps.backend.models.permission import UserGroup
 
 class Authenticatable(models.Model):
 	"""

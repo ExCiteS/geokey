@@ -1,5 +1,5 @@
-from opencomap.apps.backend.models.projects import Project
-from opencomap.apps.backend.models.permissions import UserGroup
+from opencomap.apps.backend.models.project import Project
+from opencomap.apps.backend.models.permission import UserGroup
 
 class Factory(object):
 	"""

@@ -7,9 +7,9 @@ from djorm_hstore.fields import DictionaryField
 from django.contrib.gis.db import models as gis
 from django.core.exceptions import ValidationError
 
-from opencomap.apps.backend.models.projects import Project
+from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.featuretype import FeatureType
-from opencomap.apps.backend.models.choices import STATUS_TYPES
+from opencomap.apps.backend.models.choice import STATUS_TYPES
 
 class Feature(models.Model):
 	"""

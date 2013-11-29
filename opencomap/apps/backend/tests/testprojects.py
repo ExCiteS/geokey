@@ -1,7 +1,7 @@
 from django.test import TestCase
 from opencomap.apps.backend.models.factory import Factory
-from opencomap.apps.backend.models.projects import Project
-from opencomap.apps.backend.models.choices import STATUS_TYPES
+from opencomap.apps.backend.models.project import Project
+from opencomap.apps.backend.models.choice import STATUS_TYPES
 
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate

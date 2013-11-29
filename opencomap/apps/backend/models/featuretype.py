@@ -1,8 +1,8 @@
 from django.db import models
 
-from opencomap.apps.backend.models.projects import Project
-from opencomap.apps.backend.models.choices import STATUS_TYPES
-from opencomap.apps.backend.models.choices import FIELD_TYPE
+from opencomap.apps.backend.models.project import Project
+from opencomap.apps.backend.models.choice import STATUS_TYPES
+from opencomap.apps.backend.models.choice import FIELD_TYPE
 
 class FeatureType(models.Model):
 	"""

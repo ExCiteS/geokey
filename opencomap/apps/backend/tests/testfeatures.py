@@ -1,20 +1,14 @@
 from django.test import TestCase
-from opencomap.apps.backend.models.factory import Factory
-from opencomap.apps.backend.models.projects import Project
-from opencomap.apps.backend.models.fields import FeatureType
-# from opencomap.apps.backend.models.fields import TextField
-# from opencomap.apps.backend.models.fields import NumericField
-# from opencomap.apps.backend.models.fields import DateTimeField
-# from opencomap.apps.backend.models.fields import TrueFalseField
-# from opencomap.apps.backend.models.fields import LookupField
-# from opencomap.apps.backend.models.fields import LookupValue
-from opencomap.apps.backend.models.choices import STATUS_TYPES
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
 
-from opencomap.apps.backend.models.features import Feature
-from opencomap.apps.backend.models.choices import STATUS_TYPES
+from opencomap.apps.backend.models.factory import Factory
+from opencomap.apps.backend.models.project import Project
+from opencomap.apps.backend.models.featuretype import FeatureType
+from opencomap.apps.backend.models.choice import STATUS_TYPES
+from opencomap.apps.backend.models.feature import Feature
+from opencomap.apps.backend.models.choice import STATUS_TYPES
 
 class FeaturesTest(TestCase):
 	class Meta: 
@@ -36,23 +30,6 @@ class FeaturesTest(TestCase):
 		project = Factory().createProject('First Project', 'First Project description', admin)
 		featureType = FeatureType(name='Test Feature Type', project=project)
 		featureType.save()
-
-		# textField = TextField(name='Text field', description='Text field description', featuretype=featureType)
-		# textField.save()
-
-		# numericField = NumericField(name='Numeric field', description='Numeric field description', required=True, featuretype=featureType)
-		# numericField.save()
-
-		# dateField = DateTimeField(name='Date field', description='Date field description', featuretype=featureType)
-		# dateField.save()
-
-		# boolField = TrueFalseField(name='Bool field', description='Bool field description', featuretype=featureType)
-		# boolField.save()
-
-		# lookupField = LookupField(name='Lookup field', description='Lookup field description', featuretype=featureType)
-		# lookupField.save()
-
-		# lookupField.addLookupValues('Value 1', 'Value 2', 'Value 3')
 
 	def _createFeatures(self, user, project, featureType):
 		geometries = [

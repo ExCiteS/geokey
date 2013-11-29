@@ -3,10 +3,9 @@ from django.db import models
 from datetime import datetime
 from django.utils.timezone import utc
 from django.conf import settings
-from django.core.exceptions import PermissionDenied
 
 from opencomap.apps.backend.models.authenticatable import Authenticatable
-from opencomap.apps.backend.models.choices import STATUS_TYPES
+from opencomap.apps.backend.models.choice import STATUS_TYPES
 
 class Project(Authenticatable):
 	"""
@@ -65,7 +64,6 @@ class Project(Authenticatable):
 		feature.projects.add(self)
 		
 
-
 	def removeFeatures(self, *features):
 		"""
 		Removes an arbitrary number of `Features`s from the `Project`.
@@ -91,3 +89,17 @@ class Project(Authenticatable):
 
 		featuretype.project = self
 		featuretype.save()
+
+	def addView(seld, view):
+		"""
+		Adds a `View` to the `Project`
+		"""
+		view.save()
+		view.projects.add(self)
+
+	def removeViews(seld, *views):
+		"""
+		Removes an arbitraty number of `View`s from the `Project`
+		"""
+		for view in views:
+			view.projects.remove(view)

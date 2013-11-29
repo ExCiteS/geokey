@@ -4,10 +4,10 @@ from datetime import datetime
 from django.utils.timezone import utc
 from django.conf import settings
 
-from opencomap.apps.backend.models.projects import Project
-from opencomap.apps.backend.models.permissions import UserGroup
-from opencomap.apps.backend.models.features import Feature
-from opencomap.apps.backend.models.choices import STATUS_TYPES
+from opencomap.apps.backend.models.project import Project
+from opencomap.apps.backend.models.permission import UserGroup
+from opencomap.apps.backend.models.feature import Feature
+from opencomap.apps.backend.models.choice import STATUS_TYPES
 
 class View(models.Model):
 
@@ -23,3 +23,5 @@ class View(models.Model):
 
 	class Meta: 
 		app_label = 'backend'
+
+	
