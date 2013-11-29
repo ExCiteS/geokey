@@ -14,13 +14,37 @@ class Comment(models.Model):
 	created_at = models.DateTimeField(default=datetime.now(tz=utc))
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
-	respondsto = models.ForeignKey('Comment')
 
 	class Meta:
 		abstract = True
+		app_label = 'backend'
+
+	def delete(self):
+		"""
+		Deletes the comment by setting it's `status` to `DELETED`
+		"""
+		self.status = STATUS_TYPES['DELETED']
+		self.save()
+
+	def getResponses(self):
+		return self.respondsto_set.exclude(status=STATUS_TYPES['DELETED'])
 
 class FeatureComment(Comment):
-	feature = models.ForeignKey(Feature)
+	"""
+	A `Comment` on a `Feature`.
+	"""
+	commentto = models.ForeignKey(Feature)
+	respondsto = models.ForeignKey('FeatureComment', null=True)
+
+	class Meta:
+		app_label = 'backend'
 
 class ObservationComment(Comment):
-	observation = models.ForeignKey(Observation)
+	"""
+	A `Comment` on an `Observation`.
+	"""
+	commentto = models.ForeignKey(Observation)
+	respondsto = models.ForeignKey('ObservationComment', null=True)
+
+	class Meta:
+		app_label = 'backend'

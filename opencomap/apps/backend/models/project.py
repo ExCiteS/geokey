@@ -38,7 +38,7 @@ class Project(Authenticatable):
 		if status: self.status = status
 		self.save()
 
-	def remove(self):
+	def delete(self):
 		"""
 		Removes the project from the listing of all projects by setting its status to `DELETED`.
 		"""

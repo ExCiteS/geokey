@@ -40,7 +40,7 @@ class ProjectTest(TestCase):
 		admin = self._authenticate('eric')
 		project1 = Factory().createProject('Test Project', 'Test description', admin)
 
-		project1.remove()
+		project1.delete()
 		self.assertEqual(project1.status, STATUS_TYPES['DELETED'])
 
 	def test_updateProject(self):

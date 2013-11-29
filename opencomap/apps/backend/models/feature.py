@@ -11,7 +11,35 @@ from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.featuretype import FeatureType
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 
-class Feature(models.Model):
+class Commendable(models.Model):
+	"""
+	Abstract class for all `Models` that can have `Comment`s
+	"""
+	class Meta: 
+		app_label = 'backend'
+		abstract = True
+
+	def getComments(self):
+		"""
+		Returns all comments which statis is not `DELETED`
+		"""
+		raise NotImplementedError('The method `getCommets` has not been implemented for this child class of `Commendable`.')
+
+	def addComment(self, comment):
+		"""
+		Adds a comment to the `Commendable`
+		"""
+		comment.commentto = self
+		comment.save()
+
+	def removeComments(self, *comments):
+		"""
+		Removes an arbitrary number of `Comment`s from the `Commendable` by setting it's `status` to `DELETED`
+		"""
+		for comment in comments:
+			comment.delete()
+
+class Feature(Commendable):
 	"""
 	Represents a location to which an arbitrary number of observations can be attached.
 	"""
@@ -31,7 +59,7 @@ class Feature(models.Model):
 	def __unicode__(self):
 		return self.name + ',  ' + self.geometry.wkt
 
-	def remove(self):
+	def delete(self):
 		"""
 		Deletes a layer by setting its status to deleted.
 		"""
@@ -60,11 +88,15 @@ class Feature(models.Model):
 		Removes an arbitrary number of `Observation`s from the `Feature` by setting its status to `DELETED`.
 		"""
 		for observation in observations:
-			observation.status = STATUS_TYPES['DELETED']
-			observation.save()
+			observation.delete()
 
+	def getComments(self):
+		"""
+		Returns all comments which statis is not `DELETED`
+		"""
+		return self.featurecomment_set.exclude(status=STATUS_TYPES['DELETED'])
 
-class Observation(models.Model):
+class Observation(Commendable):
 	"""
 	Stores a single observation. 
 	"""
@@ -110,3 +142,13 @@ class Observation(models.Model):
 			self.save()
 		else:
 			raise ValidationError('One or more input values of characteristics do match validation criteria of input fields.')
+
+	def delete(self):
+		self.status = STATUS_TYPES['DELETED']
+		self.save()
+
+	def getComments(self):
+		"""
+		Returns all comments which statis is not `DELETED`
+		"""
+		return self.observationcomment_set.exclude(status=STATUS_TYPES['DELETED'])

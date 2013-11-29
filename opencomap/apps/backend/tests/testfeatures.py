@@ -83,8 +83,8 @@ class FeaturesTest(TestCase):
 		for i in range(len(features)):
 			project.addFeature(features[i])
 
-		features[3].remove()
-		features[7].remove()
+		features[3].delete()
+		features[7].delete()
 
 		removedFeature1 = features[3]
 		removedFeature2 = features[7]
