@@ -1,5 +1,5 @@
 from django.test import TestCase
-from opencomap.apps.backend.models.factory import Factory
+import opencomap.apps.backend.models.factory as Factory
 from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.feature import Feature
 from opencomap.apps.backend.models.featuretype import FeatureType
@@ -29,7 +29,7 @@ class FeatureTypeTest(TestCase):
 		User.objects.create_user('carlos', 'carlos@valderama.co', 'carlos123', first_name='Carlos', last_name='Valderama').save()
 
 		admin = self._authenticate('eric')
-		project = Factory().createProject('Test Project', 'Test description', admin)
+		project = Factory.createProject('Test Project', 'Test description', admin)
 
 	def test_createAndRemoveFields(self):
 		admin = self._authenticate('eric')

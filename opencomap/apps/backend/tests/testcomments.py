@@ -1,5 +1,5 @@
 from django.test import TestCase
-from opencomap.apps.backend.models.factory import Factory
+import opencomap.apps.backend.models.factory as Factory
 from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.feature import Feature
 from opencomap.apps.backend.models.feature import Observation
@@ -37,7 +37,7 @@ class CommentsTest(TestCase):
 		admin = self._authenticate('eric')
 
 		# Creating Project
-		project = Factory().createProject('First Project', 'First Project description', admin)
+		project = Factory.createProject('First Project', 'First Project description', admin)
 		
 		# Creating FeatureType
 		featureType = FeatureType(name='Test Feature Type')
@@ -154,7 +154,3 @@ class CommentsTest(TestCase):
 		self.assertEqual(len(feature.getComments()), 2)
 		self.assertEqual(len(comment.getResponses()), 1)
 		self.assertEqual(comment.getResponses()[0].respondsto, comment)
-		
-
-	# def test_deleteCommentObservation(self):
-	# def test_removeCommentFromObservation(self):

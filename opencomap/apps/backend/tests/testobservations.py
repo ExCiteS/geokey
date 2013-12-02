@@ -1,5 +1,5 @@
 from django.test import TestCase
-from opencomap.apps.backend.models.factory import Factory
+import opencomap.apps.backend.models.factory as Factory
 from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.feature import Feature
 from opencomap.apps.backend.models.feature import Observation
@@ -35,7 +35,7 @@ class FeaturesTest(TestCase):
 		admin = self._authenticate('eric')
 
 		# Creating Project
-		project = Factory().createProject('First Project', 'First Project description', admin)
+		project = Factory.createProject('First Project', 'First Project description', admin)
 		
 		# Creating FeatureType
 		featureType = FeatureType(name='Test Feature Type', project=project)

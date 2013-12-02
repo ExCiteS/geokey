@@ -1,5 +1,5 @@
 from django.test import TestCase
-from opencomap.apps.backend.models.factory import Factory
+import opencomap.apps.backend.models.factory as Factory
 from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 
@@ -24,7 +24,7 @@ class ProjectTest(TestCase):
 	def test_projectPermissions(self):
 		admin = self._authenticate('eric')
 		user = self._authenticate('george')
-		project1 = Factory().createProject('Test Project', 'Test description', admin)
+		project1 = Factory.createProject('Test Project', 'Test description', admin)
 
 		self.assertTrue(project1.userCanAdmin(admin))
 		self.assertTrue(project1.userCanEdit(admin))
@@ -38,7 +38,7 @@ class ProjectTest(TestCase):
 		
 	def test_deleteProject(self):
 		admin = self._authenticate('eric')
-		project1 = Factory().createProject('Test Project', 'Test description', admin)
+		project1 = Factory.createProject('Test Project', 'Test description', admin)
 
 		project1.delete()
 		self.assertEqual(project1.status, STATUS_TYPES['DELETED'])
@@ -46,7 +46,7 @@ class ProjectTest(TestCase):
 	def test_updateProject(self):
 		admin = self._authenticate('eric')
 
-		project1 = Factory().createProject('Test Project', 'Test description', admin)
+		project1 = Factory.createProject('Test Project', 'Test description', admin)
 
 		project1.update(name='Updated name')
 		self.assertEqual(project1.name, 'Updated name')
@@ -62,7 +62,7 @@ class ProjectTest(TestCase):
 	def test_createProject(self):
 		admin = self._authenticate('eric')
 
-		project1 = Factory().createProject('Test Project', 'Test description', admin)
+		project1 = Factory.createProject('Test Project', 'Test description', admin)
 		self.assertEqual(len(Project.objects.all()), 1)
 		self.assertEqual(Project.objects.all()[0], project1)
 

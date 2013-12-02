@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
 
-from opencomap.apps.backend.models.factory import Factory
+import opencomap.apps.backend.models.factory as Factory
 from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.featuretype import FeatureType
 from opencomap.apps.backend.models.choice import STATUS_TYPES
@@ -27,7 +27,7 @@ class FeaturesTest(TestCase):
 
 		admin = self._authenticate('eric')
 
-		project = Factory().createProject('First Project', 'First Project description', admin)
+		project = Factory.createProject('First Project', 'First Project description', admin)
 		featureType = FeatureType(name='Test Feature Type', project=project)
 		featureType.save()
 
