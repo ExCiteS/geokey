@@ -26,7 +26,18 @@ class Comment(models.Model):
 		self.status = STATUS_TYPES['DELETED']
 		self.save()
 
+	def addResponse(self, response):
+		"""
+		Adds a response to a comment.
+		"""
+		response.commentto = self.commentto
+		response.respondsto = self
+		response.save()
+
 	def getResponses(self):
+		"""
+		Returns all responses to the comment.
+		"""
 		return self.respondsto_set.exclude(status=STATUS_TYPES['DELETED'])
 
 class FeatureComment(Comment):
@@ -34,7 +45,7 @@ class FeatureComment(Comment):
 	A `Comment` on a `Feature`.
 	"""
 	commentto = models.ForeignKey(Feature)
-	respondsto = models.ForeignKey('FeatureComment', null=True)
+	respondsto = models.ForeignKey('FeatureComment', null=True, related_name='respondsto_set')
 
 	class Meta:
 		app_label = 'backend'
@@ -44,7 +55,7 @@ class ObservationComment(Comment):
 	A `Comment` on an `Observation`.
 	"""
 	commentto = models.ForeignKey(Observation)
-	respondsto = models.ForeignKey('ObservationComment', null=True)
+	respondsto = models.ForeignKey('ObservationComment', null=True, related_name='respondsto_set')
 
 	class Meta:
 		app_label = 'backend'

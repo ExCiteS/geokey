@@ -142,7 +142,19 @@ class CommentsTest(TestCase):
 				for comment in observation.getComments():
 					self.assertTrue(comment.text.startswith(feature.name))
 
-	# def test_commendOnComments(self):
+	def test_commendOnComments(self):
+		project = Project.objects.all()[0]
+		feature = project.getFeatures()[0]
+
+		feature.addComment(FeatureComment(text='Comment', creator=self._authenticate('mehmet')))
+
+		comment = feature.getComments()[0]
+
+		comment.addResponse(FeatureComment(text='Comment resonse', creator=self._authenticate('carlos')))
+		self.assertEqual(len(feature.getComments()), 2)
+		self.assertEqual(len(comment.getResponses()), 1)
+		self.assertEqual(comment.getResponses()[0].respondsto, comment)
+		
 
 	# def test_deleteCommentObservation(self):
 	# def test_removeCommentFromObservation(self):
