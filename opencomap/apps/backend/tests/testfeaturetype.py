@@ -6,6 +6,7 @@ from opencomap.apps.backend.models.featuretype import FeatureType
 from opencomap.apps.backend.models.featuretype import TextField
 from opencomap.apps.backend.models.featuretype import NumericField
 from opencomap.apps.backend.models.featuretype import TrueFalseField
+from opencomap.apps.backend.models.featuretype import DateTimeField
 from opencomap.apps.backend.models.featuretype import LookupField
 from opencomap.apps.backend.models.featuretype import LookupValue
 from opencomap.apps.backend.models.choice import STATUS_TYPES
@@ -201,3 +202,18 @@ class FeatureTypeTest(TestCase):
 
 		self.assertFalse(lookupField.validateInput('Kermit'))
 		self.assertFalse(lookupField.validateInput(287894))
+
+
+	def test_dateValidation(self):
+		admin = self._authenticate('eric')
+		project = Project.objects.all()[0]
+		featureType = FeatureType(name='Test Feature Type')
+		project.addFeatureType(featureType)
+
+		dateField = DateTimeField(name='Date Field', description='Date field description', featuretype=featureType)
+		dateField.save()
+
+		self.assertTrue(dateField.validateInput('2007-01-25T12:00:00Z'))
+		self.assertTrue(dateField.validateInput('2007-01-25'))
+		self.assertFalse(dateField.validateInput('2007-01-25T25:00:00Z'))
+		self.assertFalse(dateField.validateInput('2007-25-01'))

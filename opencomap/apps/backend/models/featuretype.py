@@ -1,5 +1,7 @@
 from django.db import models
 
+import iso8601
+
 from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 from opencomap.apps.backend.models.choice import FIELD_TYPE
@@ -178,8 +180,28 @@ class TrueFalseField(Field):
 		"""
 		Returns the `value` of the field in `Bool` format.
 		"""
-		return value in [True, 
-		'True', 'true', '1', 't', 1]
+		return value in [True, 'True', 'true', '1', 't', 1]
+
+
+
+class DateTimeField(Field):
+	"""
+	A field for storing dates and times.
+	"""
+	class Meta: 
+		app_label = 'backend'
+
+	def validateInput(self, value):
+		"""
+		Checks if the provided value is a valid and ISO8601 compliant date string.
+		"""
+		
+		try: 
+			iso8601.parse_date(value)
+			return True
+		except iso8601.iso8601.ParseError: 
+			return False
+		
 
 
 
