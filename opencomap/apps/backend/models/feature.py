@@ -96,6 +96,8 @@ class Feature(Commendable):
 		"""
 		return self.featurecomment_set.exclude(status=STATUS_TYPES['DELETED'])
 
+
+
 class Observation(Commendable):
 	"""
 	Stores a single observation. 
@@ -115,7 +117,33 @@ class Observation(Commendable):
 		Returns the value of a single field of the `Observation`
 		"""
 		field = self.feature.featuretype.getField(fieldName)
-		return field.convertFromString(self.data[fieldName])
+		if self.data.has_key(fieldName):
+			return field.convertFromString(self.data[fieldName])
+		else:
+			raise KeyError('No value set for field ' + fieldName)
+
+	def setValue(self, fieldName, value):
+		"""
+		Sets the value for the field.
+		"""
+		field = self.feature.featuretype.getField(fieldName)
+
+		if field.validateInput(value):
+			self.data[fieldName] = value
+			self.save()
+		else:
+			raise ValidationError('The input value does not match validation criteria of input fields.')
+
+	def deleteValue(self, fieldName):
+		"""
+		Removes the value from the observation if the field is not required.
+		"""
+		field = self.feature.featuretype.getField(fieldName)
+		if not field.required:
+			del self.data[fieldName]
+			self.save()
+		else:
+			raise ValidationError('The value for field ' + fieldName + ' cannot be deleted. The field is required.')
 
 	def dataIsValid(self, data=None):
 		valid = True
@@ -132,16 +160,6 @@ class Observation(Commendable):
 				valid = False
 
 		return valid
-
-	def updateData(self, data):
-		"""
-		Validates and Updates the data of the `Observation`. If the data doesn't update nothing happens.
-		"""
-		if self.dataIsValid(data=data): 
-			self.data = data
-			self.save()
-		else:
-			raise ValidationError('One or more input values of characteristics do match validation criteria of input fields.')
 
 	def delete(self):
 		self.status = STATUS_TYPES['DELETED']

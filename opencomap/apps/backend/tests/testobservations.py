@@ -145,14 +145,10 @@ class FeaturesTest(TestCase):
 
 
 		lookupField = feature.featuretype.getField('Lookup field').getLookupValues()[1]
-		update = {
-			'Text field': 'update',
-			'Numeric field': 10,
-			'Bool field': False,
-			'Lookup field': lookupField.id
-		}
-
-		observation.updateData(update)
+		observation.setValue('Text field', 'update',)
+		observation.setValue('Numeric field', 10)
+		observation.setValue('Bool field', False)
+		observation.setValue('Lookup field', lookupField.id)
 
 		o = feature.getObservations()[0]
 		self.assertEqual(o.getValue('Text field'), 'update')
@@ -176,17 +172,41 @@ class FeaturesTest(TestCase):
 		observation = Observation(creator=admin, data=characteristics)
 		feature.addObservation(observation)
 
-
-		update = {
-			'Numeric field': 'Kermit',
-			'Bool field': False,
-		}
 		
 		with self.assertRaises(ValidationError):
-			observation.updateData(update)
+			observation.setValue('Numeric field', 'Kermit')
+			observation.setValue('Lookup field', 564564548)
 
 		o = feature.getObservations()[0]
 		self.assertEqual(o.getValue('Text field'), 'This is test text')
 		self.assertEqual(o.getValue('Numeric field'), 2)
 		self.assertEqual(o.getValue('Bool field'), True)
 		self.assertEqual(o.getValue('Lookup field'), lookupField.id)
+
+	def testDeleteData(self):
+		admin = self._authenticate('eric')
+		project = Project.objects.all()[0]
+		feature = project.getFeatures()[0]
+		lookupField = feature.featuretype.getField('Lookup field').getLookupValues()[0]
+
+		characteristics = {
+			'Text field': 'This is test text',
+			'Numeric field': 2,
+			'Bool field': True,
+			'Lookup field': lookupField.id
+		}
+
+		observation = Observation(creator=admin, data=characteristics)
+		feature.addObservation(observation)
+
+		
+		with self.assertRaises(ValidationError):
+			observation.deleteValue('Numeric field')
+
+		observation.deleteValue('Text field')		
+
+		o = feature.getObservations()[0]
+		self.assertEqual(o.getValue('Numeric field'), 2)
+		with self.assertRaises(KeyError):
+			observation.getValue('Text field')
+		
