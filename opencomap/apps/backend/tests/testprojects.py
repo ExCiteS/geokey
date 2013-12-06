@@ -22,21 +22,6 @@ class ProjectTest(TestCase):
 		User.objects.create_user('zidane', 'zinedine@zidane.fr', 'zinedine123', first_name='Zinedine', last_name='Zidane').save()
 		User.objects.create_user('diego', 'diego@maradonna.ar', 'diegoe123', first_name='Diego', last_name='Maradonna').save()
 		User.objects.create_user('carlos', 'carlos@valderama.co', 'carlos123', first_name='Carlos', last_name='Valderama').save()
-
-	def test_projectPermissions(self):
-		admin = self._authenticate('eric')
-		user = self._authenticate('george')
-		project1 = Factory.createProject('Test Project', 'Test description', admin)
-
-		self.assertTrue(project1.userCanAdmin(admin))
-		self.assertTrue(project1.userCanEdit(admin))
-		self.assertTrue(project1.userCanContribute(admin))
-		self.assertTrue(project1.userCanView(admin))
-
-		self.assertFalse(project1.userCanAdmin(user))
-		self.assertFalse(project1.userCanEdit(user))
-		self.assertFalse(project1.userCanContribute(user))
-		self.assertTrue(project1.userCanView(user))
 		
 	def test_deleteProject(self):
 		admin = self._authenticate('eric')
@@ -60,24 +45,15 @@ class ProjectTest(TestCase):
 
 	def test_createProject(self):
 		admin = self._authenticate('eric')
+		user = self._authenticate('george')
 
 		project1 = Factory.createProject('Test Project', 'Test description', admin)
 		self.assertEqual(len(Project.objects.all()), 1)
 		self.assertEqual(Project.objects.all()[0], project1)
 
-		usergroups = project1.getUserGroups()
-		self.assertEqual(len(usergroups), 2)
-		for group in usergroups:
-			if (group.is_admin):
-				self.assertTrue(group.can_admin)
-				self.assertTrue(group.can_edit)
-				self.assertTrue(group.can_contribute)
-				self.assertTrue(group.can_view)
+		self.assertEqual(project1.admins.name, 'Administrators')
+		self.assertEqual(project1.contributors.name, 'Contributors')
 
-			if (group.is_everyone):
-				self.assertFalse(group.can_admin)
-				self.assertFalse(group.can_edit)
-				self.assertFalse(group.can_contribute)
-				self.assertTrue(group.can_view)
-
-		self.assertTrue(project1.userCanAdmin(admin))
+		self.assertTrue(project1.admins.isMember(admin))
+		self.assertFalse(project1.admins.isMember(user))
+		

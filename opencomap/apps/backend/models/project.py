@@ -5,19 +5,22 @@ from django.utils.timezone import utc
 from django.conf import settings
 from django.core.exceptions import ValidationError
 
-from opencomap.apps.backend.models.authenticatable import Authenticatable
 from opencomap.apps.backend.models.choice import STATUS_TYPES
+from opencomap.apps.backend.models.usergroup import UserGroup
 
-class Project(Authenticatable):
+class Project(models.Model):
 	"""
 	Stores a single project. Extends `Authenticatable`.
 	"""
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=100)
 	description = models.TextField(null=True)
+	isprivate = models.BooleanField(default=False)
 	created_at = models.DateTimeField(default=datetime.now(tz=utc))
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
+	admins = models.OneToOneField(UserGroup, related_name='admingroup')
+	contributors = models.OneToOneField(UserGroup, related_name='contributorgroup')
 
 	_ACCEPTED_STATUS = (
 		STATUS_TYPES['ACTIVE'], 

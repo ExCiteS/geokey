@@ -10,16 +10,15 @@ def createProject(name, description, creator):
 	:description: The description of the project.
 	:creator: The user who creates the project.
 	"""
-	project = Project(name=name, description=description, creator=creator)
-	project.save()
 
-	adminGroup = UserGroup(name='Administrators', can_admin=True, can_edit=True, can_contribute=True, can_read=True, can_view=True, is_admin=True)
+	adminGroup = UserGroup(name='Administrators')
 	adminGroup.save()
 	adminGroup.addUsers(creator)
-	everyoneGroup = UserGroup(name='Everyone', is_everyone=True)
+	adminGroup.save()
+	everyoneGroup = UserGroup(name='Contributors')
 	everyoneGroup.save()
 
-	project.addUserGroups(adminGroup, everyoneGroup)
+	project = Project(name=name, description=description, admins=adminGroup, contributors=everyoneGroup, creator=creator)
 	project.save()
 	
 	return project
