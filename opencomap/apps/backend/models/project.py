@@ -3,6 +3,7 @@ from django.db import models
 from datetime import datetime
 from django.utils.timezone import utc
 from django.conf import settings
+from django.core.exceptions import ValidationError
 
 from opencomap.apps.backend.models.authenticatable import Authenticatable
 from opencomap.apps.backend.models.choice import STATUS_TYPES
@@ -18,6 +19,11 @@ class Project(Authenticatable):
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 
+	ACCEPTED_STATUS = (
+		STATUS_TYPES['ACTIVE'], 
+		STATUS_TYPES['INACTIVE']
+	)
+
 	class Meta: 
 		app_label = 'backend'
 
@@ -26,23 +32,25 @@ class Project(Authenticatable):
 
 	def update(self, name=None, description=None, status=None):
 		"""
-		Updates `name` and `description of a project.
-
-		:name: The new name of the project.
-		:description: The new description of the project.
-		:status: The new status of the project.
+		Updates a project. Checks if the status is of ACTIVE or INACTIVE otherwise raises ValidationError.
 		"""
+		valid = True
+		if (status not in self.ACCEPTED_STATUS): valid = False
 
-		if name: self.name = name
-		if description: self.description = description
-		if status: self.status = status
-		self.save()
+		if (valid):
+			if (name): self.name = name
+			if (description): self.description = description
+			if (status): self.status = status
+
+			self.save()
+		else:
+			raise ValidationError('The status provided is invalid. Accepted values are ACTIVE or INACTIVE')
+
 
 	def delete(self):
 		"""
 		Removes the project from the listing of all projects by setting its status to `DELETED`.
 		"""
-
 		self.status = STATUS_TYPES['DELETED']
 		self.save()
 
@@ -50,7 +58,6 @@ class Project(Authenticatable):
 		"""
 		Returns a list of all features assinged to the project. Excludes those having status `RETIRED` and `DELETED`
 		"""
-
 		return self.feature_set.exclude(status=STATUS_TYPES['INACTIVE']).exclude(status=STATUS_TYPES['DELETED'])
 
 	def addFeature(self, feature):
@@ -59,18 +66,15 @@ class Project(Authenticatable):
 
 		:feature: The features to be added.
 		"""
-
 		feature.save()
 		feature.projects.add(self)
 		
-
 	def removeFeatures(self, *features):
 		"""
 		Removes an arbitrary number of `Features`s from the `Project`.
 
 		:feature: The feature to be removed.
 		"""
-		
 		for feature in features:
 			feature.projects.remove(self)
 			feature.save()
@@ -79,25 +83,24 @@ class Project(Authenticatable):
 		"""
 		Returns all `FeatureTypes` assigned to the project
 		"""
-
 		return self.featuretype_set.exclude(status=STATUS_TYPES['INACTIVE']).exclude(status=STATUS_TYPES['DELETED'])
 
 	def addFeatureType(self, featuretype):
 		"""
 		Adds a `FeatureType` to the project
 		"""
-
 		featuretype.project = self
 		featuretype.save()
 
-	def addView(seld, view):
+
+	def addView(self, view):
 		"""
 		Adds a `View` to the `Project`
 		"""
 		view.save()
 		view.projects.add(self)
 
-	def removeViews(seld, *views):
+	def removeViews(self, *views):
 		"""
 		Removes an arbitraty number of `View`s from the `Project`
 		"""

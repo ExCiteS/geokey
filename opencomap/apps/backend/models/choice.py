@@ -9,5 +9,6 @@ FIELD_TYPE = {
 	'TEXT': 0,
 	'NUMBER': 1,
 	'TRUEFALSE':2,
-	'LOOKUP': 3
+	'LOOKUP': 3,
+	'DATETIME': 4
 }
