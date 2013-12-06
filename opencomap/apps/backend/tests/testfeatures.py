@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ValidationError
 
 import opencomap.apps.backend.models.factory as Factory
 from opencomap.apps.backend.models.project import Project
@@ -92,3 +93,22 @@ class FeaturesTest(TestCase):
 		self.assertEqual(len(project.getFeatures()), 8)
 		for feature in project.getFeatures():
 			self.assertNotIn(feature, (removedFeature1, removedFeature2))
+
+	def test_updateFeature(self):
+		admin = self._authenticate('eric')
+		project = Project.objects.all()[0]
+		featureType = FeatureType.objects.all()[0]
+
+		features = self._createFeatures(admin, project, featureType)
+		for i in range(len(features)):
+			project.addFeature(features[i])
+
+		theFeature = project.getFeatures()[0]
+
+		with self.assertRaises(ValidationError):
+			theFeature.update(status=STATUS_TYPES['DELETED'])
+
+		self.assertNotEqual(theFeature.status, STATUS_TYPES['DELETED'])
+
+		theFeature.update(name='Updated feature')
+		self.assertEqual(theFeature.name, 'Updated feature')

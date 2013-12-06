@@ -78,6 +78,30 @@ class FeaturesTest(TestCase):
 		self.assertEqual(o.getValue('Bool field'), True)
 		self.assertEqual(o.getValue('Lookup field'), lookupField.id)
 
+	def test_updateObservation(self):
+		admin = self._authenticate('eric')
+		project = Project.objects.all()[0]
+		feature = project.getFeatures()[0]
+		lookupField = feature.featuretype.getField('Lookup field').getLookupValues()[0]
+
+		characteristics = {
+			'Text field': 'This is test text',
+			'Numeric field': 2,
+			'Bool field': True,
+			'Lookup field': lookupField.id
+		}
+
+		observation = Observation(creator=admin, data=characteristics)
+		feature.addObservation(observation)
+
+		o = feature.getObservations()[0]
+
+		with self.assertRaises(ValidationError):
+			o.update(status=STATUS_TYPES['DELETED'])
+		
+		o.update(status=STATUS_TYPES['REVIEW'])
+
+
 	def test_missingRequired(self):
 		admin = self._authenticate('eric')
 		project = Project.objects.all()[0]

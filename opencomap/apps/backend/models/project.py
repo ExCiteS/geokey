@@ -19,7 +19,7 @@ class Project(Authenticatable):
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 
-	ACCEPTED_STATUS = (
+	_ACCEPTED_STATUS = (
 		STATUS_TYPES['ACTIVE'], 
 		STATUS_TYPES['INACTIVE']
 	)
@@ -34,10 +34,7 @@ class Project(Authenticatable):
 		"""
 		Updates a project. Checks if the status is of ACTIVE or INACTIVE otherwise raises ValidationError.
 		"""
-		valid = True
-		if (status not in self.ACCEPTED_STATUS): valid = False
-
-		if (valid):
+		if ((status is None) or (status in self._ACCEPTED_STATUS)):
 			if (name): self.name = name
 			if (description): self.description = description
 			if (status): self.status = status
@@ -45,7 +42,6 @@ class Project(Authenticatable):
 			self.save()
 		else:
 			raise ValidationError('The status provided is invalid. Accepted values are ACTIVE or INACTIVE')
-
 
 	def delete(self):
 		"""

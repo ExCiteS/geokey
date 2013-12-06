@@ -53,11 +53,32 @@ class Feature(Commendable):
 	projects = models.ManyToManyField(Project)
 	featuretype = models.ForeignKey(FeatureType)
 
+	_ACCEPTED_STATUS = (
+		STATUS_TYPES['ACTIVE'], 
+		STATUS_TYPES['INACTIVE'],
+		STATUS_TYPES['REVIEW']
+	)
+
 	class Meta: 
 		app_label = 'backend'
 
 	def __unicode__(self):
 		return self.name + ',  ' + self.geometry.wkt
+
+	def update(self, name=None, description=None, geometry=None, status=None):
+		"""
+		Updates a feature. Checks if the status is of ACTIVE, INACTIVE or REVIEW otherwise raises ValidationError.
+		"""
+		if ((status is None) or (status in self._ACCEPTED_STATUS)):
+			if (name): self.name = name
+			if (description): self.description = description
+			if (geometry): self.geometry = geometry
+			if (status): self.status = status
+
+			self.save()
+		else:
+			raise ValidationError('The status provided is invalid. Accepted values are ACTIVE, INACTIVE or REVIEW.')
+
 
 	def delete(self):
 		"""
@@ -109,8 +130,31 @@ class Observation(Commendable):
 	feature = models.ForeignKey(Feature)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 
+	_ACCEPTED_STATUS = (
+		STATUS_TYPES['ACTIVE'], 
+		STATUS_TYPES['REVIEW']
+	)
+
 	class Meta: 
 		app_label = 'backend'
+
+	def update(self, status=None):
+		"""
+		Updates a feature. Checks if the status is of ACTIVE, INACTIVE or REVIEW otherwise raises ValidationError.
+		"""
+		if ((status is None) or (status in self._ACCEPTED_STATUS)):
+			if (status): self.status = status
+
+			self.save()
+		else:
+			raise ValidationError('The status provided is invalid. Accepted values are ACTIVE, INACTIVE or REVIEW.')
+
+	def delete(self):
+		"""
+		Deletes an observation by setting its status to `DELETED`.
+		"""
+		self.status = STATUS_TYPES['DELETED']
+		self.save()
 
 	def getValue(self, fieldName):
 		"""
@@ -160,10 +204,6 @@ class Observation(Commendable):
 				valid = False
 
 		return valid
-
-	def delete(self):
-		self.status = STATUS_TYPES['DELETED']
-		self.save()
 
 	def getComments(self):
 		"""
