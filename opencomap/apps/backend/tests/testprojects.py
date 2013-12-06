@@ -1,6 +1,9 @@
 from django.test import TestCase
-from opencomap.apps.backend.models.factory import Factory
-from opencomap.apps.backend.models.projects import Project
+from django.core.exceptions import ValidationError
+
+import opencomap.apps.backend.models.factory as Factory
+from opencomap.apps.backend.models.project import Project
+from opencomap.apps.backend.models.choice import STATUS_TYPES
 
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
@@ -23,7 +26,7 @@ class ProjectTest(TestCase):
 	def test_projectPermissions(self):
 		admin = self._authenticate('eric')
 		user = self._authenticate('george')
-		project1 = Factory().createProject('Test Project', 'Test description', admin)
+		project1 = Factory.createProject('Test Project', 'Test description', admin)
 
 		self.assertTrue(project1.userCanAdmin(admin))
 		self.assertTrue(project1.userCanEdit(admin))
@@ -37,35 +40,32 @@ class ProjectTest(TestCase):
 		
 	def test_deleteProject(self):
 		admin = self._authenticate('eric')
-		project1 = Factory().createProject('Test Project', 'Test description', admin)
+		project1 = Factory.createProject('Test Project', 'Test description', admin)
 
-		project1.remove()
-		self.assertEqual(project1.status, 4)
+		project1.delete()
+		self.assertEqual(project1.status, STATUS_TYPES['DELETED'])
 
 	def test_updateProject(self):
 		admin = self._authenticate('eric')
+		project1 = Factory.createProject('Test Project', 'Test description', admin)
 
-		project1 = Factory().createProject('Test Project', 'Test description', admin)
+		project1.update(name='Updated Project', description='Updated test description', status=STATUS_TYPES['INACTIVE'])
+		testProject = Project.objects.all()[0]
+		self.assertEqual(testProject.name, 'Updated Project')
 
-		project1.update(name='Updated name')
-		self.assertEqual(project1.name, 'Updated name')
+		with self.assertRaises(ValidationError):
+			testProject.update(name='Failed Project update', status=STATUS_TYPES['REVIEW'])
 
-		project1.update(description='Updated description')
-		self.assertEqual(project1.description, 'Updated description')
-
-		project1.update(name='Another Updated name', description='Another Updated description')
-		self.assertEqual(project1.name, 'Another Updated name')
-		self.assertEqual(project1.description, 'Another Updated description')
-
+		self.assertNotEqual(testProject.status, STATUS_TYPES['REVIEW'])
 
 	def test_createProject(self):
 		admin = self._authenticate('eric')
 
-		project1 = Factory().createProject('Test Project', 'Test description', admin)
+		project1 = Factory.createProject('Test Project', 'Test description', admin)
 		self.assertEqual(len(Project.objects.all()), 1)
 		self.assertEqual(Project.objects.all()[0], project1)
 
-		usergroups = project1.getUserGroups(admin)
+		usergroups = project1.getUserGroups()
 		self.assertEqual(len(usergroups), 2)
 		for group in usergroups:
 			if (group.is_admin):

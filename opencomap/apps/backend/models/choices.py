@@ -1,6 +1,0 @@
-STATUS_TYPES = {
-	'ACTIVE': 1,
-	'REVIEW': 2,
-	'RETIRED': 3,
-	'DELETED': 4,
-}
