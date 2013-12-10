@@ -1,6 +1,10 @@
 body {
-    padding-top: 50px;
+    padding-top: 80px;
     padding-bottom: 20px;
+}
+
+body#home {
+    padding-top: 50px;
 }
 
 body#home div.jumbotron h1 {
