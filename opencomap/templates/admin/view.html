@@ -42,13 +42,14 @@
         <div class="container">
             <ol class="breadcrumb">
                 <li><a href="dashboard.html">Dashboard</a></li>
-                <li class="active">Piggy and Kermit</li>
+                <li><a href="project.html">Piggy and Kermit</a></li>
+                <li class="active">Coffee</li>
             </ol>
 
             <div class="page-header">
                 <h1>
-                    Piggy and Kermit <a href="project.edit.html" class="btn btn-primary"><span class="glyphicon glyphicon-edit"></span> Edit project</a>
-                    <small>This is a map that shows all spots that important to our relationship.</small>
+                    Coffee <a href="view.edit.html" class="btn btn-primary"><span class="glyphicon glyphicon-edit"></span> Edit view</a>
+                    <small>All the places we like to have coffee.</small>
                 </h1>
             </div>
 
@@ -67,45 +68,44 @@
                 </div>
 
                 <div class="col-lg-5">
-                    <div class="panel panel-default"> <!-- View list -->
+                    <div class="panel panel-default"> <!-- User group list -->
                         <div class="panel-heading">
-                            <h2 class="panel-title">Views in this project</h2>
+                            <h2 class="panel-title">User Groups</h2>
                         </div>
-                        <div class="list-group">
-                            <a href="view.html" class="list-group-item">
-                                <h4 class="list-group-item-heading">Coffee</h4>
-                                <p class="list-group-item-text">All the places we like to have coffee.</p>
-                            </a>
-
-                            <a href="view.html" class="list-group-item">
-                                <h4 class="list-group-item-heading">Drinks</h4>
-                                <p class="list-group-item-text">All the places we like to get wasted.</p>
-                            </a>
-                        </div>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>View</th>
+                                    <th>Read</th>
+                                    <th>Edit</th>
+                                    <th>Admin</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Admins</td>
+                                    <td><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td></td>
+                                    <td><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td><a href="usergroup.html"><span class="glyphicon glyphicon-edit"></span></a></td>
+                                </tr>
+                                <tr>
+                                    <td>Editors</td>
+                                    <td><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td></td>
+                                    <td><a href="usergroup.html"><span class="glyphicon glyphicon-edit"></span></a></td>
+                                </tr>
+                            </tbody>
+                        </table>
                         <div class="panel-footer">
-                            <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new view</button>
+                            <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new user group</button>
                         </div>
-                    </div> <!-- /View List -->
-
-
-                    <div class="panel panel-default"> <!-- Feature type list List -->
-                        <div class="panel-heading">
-                            <h2 class="panel-title">Feature types in this project</h2>
-                        </div>
-                        <div class="list-group">
-                            <a href="#" class="list-group-item">
-                                <h4 class="list-group-item-heading">Bar</h4>
-                                <p class="list-group-item-text">A place to get pissed.</p>
-                            </a>
-                            <a href="#" class="list-group-item">
-                                <h4 class="list-group-item-heading">Coffee shops</h4>
-                                <p class="list-group-item-text">A place to have a coffee.</p>
-                            </a>
-                        </div>
-                        <div class="panel-footer">
-                            <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new feature type</button>
-                        </div>
-                    </div> <!-- /Feature type list List -->
+                    </div> <!-- /User Group List -->
                 </div>
             </div>
 

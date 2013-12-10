@@ -42,18 +42,19 @@
         <div class="container">
             <ol class="breadcrumb">
                 <li><a href="dashboard.html">Dashboard</a></li>
-                <li class="active">Piggy and Kermit</li>
+                <li><a href="project.html">Piggy and Kermit</a></li>
+                <li class="active">Coffee</li>
             </ol>
 
             <div class="page-header">
                 <h1>
-                    Piggy and Kermit
-                    <small>Edit project</small>
+                    Coffee 
+                    <small>Edit view</small>
                 </h1>
             </div>
 
             <div class="row">
-                <form  role="form" class="form-horizontal col-lg-7"> <!-- Project from -->
+                <form  role="form" class="form-horizontal col-lg-7"> <!-- View from -->
                     <div class="form-group">
                         <label for="name" class="col-sm-2 control-label">Name</label>
                         <div class="col-sm-10">
@@ -69,24 +70,6 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="status" class="col-sm-2 control-label">Status</label>
-                        <div class="col-sm-10">
-                            <select name="status" id="status" class="form-control">
-                                <option>Active</option>
-                                <option>Retired</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="col-sm-offset-2 col-sm-10">
-                            <div class="checkbox">
-                                <label><input type="checkbox"> The project is public</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-10">
                             <button type="submit" class="btn btn-primary">Save</button>
                             <button type="button" class="btn btn-danger" id="delete_btn" data-toggle="modal" data-target="#delete_confirm">Delete</button>
@@ -94,41 +77,48 @@
                     </div>
 
                     
-                </form> <!-- /Project form -->
+                </form> <!-- /View form -->
                 
 
                 <div class="col-lg-5">
-                    <div class="panel panel-default"> <!-- Administrators list -->
+                    <div class="panel panel-default"> <!-- User group list -->
                         <div class="panel-heading">
-                            <h2 class="panel-title">Administrators</h2>
-                            <p>Members of this group can edit and delete the project, create and alter views as well as access, edit and remove all data contributed to the project.<p>
+                            <h2 class="panel-title">User Groups</h2>
                         </div>
-                        <ul class="list-group">
-                            <li class="list-group-item">Peter Schmeichel (<a class="text-danger" href="#">remove</a>)</li>
-                            <li class="list-group-item">Carlos Valderama (<a class="text-danger" href="#">remove</a>)</li>
-                            <li class="list-group-item">George Best (<a class="text-danger" href="#">remove</a>)</li>
-                        </ul>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>View</th>
+                                    <th>Read</th>
+                                    <th>Edit</th>
+                                    <th>Admin</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Admins</td>
+                                    <td><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td></td>
+                                    <td><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td><a href="usergroup.html"><span class="glyphicon glyphicon-edit"></span></a></td>
+                                </tr>
+                                <tr>
+                                    <td>Editors</td>
+                                    <td><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td></td>
+                                    <td><a href="usergroup.html"><span class="glyphicon glyphicon-edit"></span></a></td>
+                                </tr>
+                            </tbody>
+                        </table>
                         <div class="panel-footer">
-                            <div class="input-group">
-                                <input type="text" class="form-control">
-                                <span class="input-group-btn">
-                                    <button class="btn btn-success" type="button">Add</button>
-                                </span>
-                            </div>
+                            <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new user group</button>
                         </div>
-                    </div> <!-- /Administrators List -->
-
-                    <div class="panel panel-default"> <!-- View list -->
-                        <div class="panel-heading">
-                            <h2 class="panel-title">Contributors</h2>
-                        </div>
-                        <div class="panel-body">
-                            <div class="checkbox">
-                                <label><input type="checkbox" checked="true"> Everyone can contribute</label>
-                            </div>
-                            
-                        </div>
-                    </div> <!-- /View List -->
+                    </div> <!-- /User Group List -->
                 </div>
             </div>
 
@@ -144,15 +134,15 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title" id="myModalLabel">Delete project?</h4>
+                        <h4 class="modal-title" id="myModalLabel">Delete view?</h4>
                     </div>
                     <div class="modal-body">
-                        <p>Do you really want to create the project?</p>
-                        <p>Deleting the project can not be undone.</p>
+                        <p>Do you really want to create the view?</p>
+                        <p>Deleting the view can not be undone.</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-danger">Yes, delete the project</button>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal">No, keep the project</button>
+                        <button type="button" class="btn btn-danger">Yes, delete the view</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No, keep the view</button>
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
