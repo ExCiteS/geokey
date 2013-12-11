@@ -46,66 +46,85 @@
             </ol>
 
             <div class="page-header">
-                <h1>
-                    Piggy and Kermit <a href="project.edit.html" class="btn btn-primary"><span class="glyphicon glyphicon-edit"></span> Edit project</a>
-                    <small>This is a map that shows all spots that important to our relationship.</small>
-                </h1>
+                <h1>Piggy and Kermit <small>This is a map that shows all spots that important to our relationship.</small></h1>
+                <a href="project.edit.html" class="btn btn-default settings"><span class="glyphicon glyphicon-wrench"></span> Project settings</a> 
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div id="map"></div>
+                </div>
             </div>
 
             <div class="row">
                 <div class="col-lg-7">
-                    <div class="panel panel-default"> <!-- Project overview -->
+                    <div class="panel panel-default"> <!-- View list -->
                         <div class="panel-heading">
-                            <h2 class="panel-title">Overview</h2>
+                            <h2 class="panel-title">Feature info</h2>
                         </div>
-                        <div class="panel-body">
-                            <div id="map">
-                                <!-- A Leaftlet map is placed here -->
-                            </div>
+                        <div class="panel-body bordered-panel">
+                            <!-- Nav tabs -->
+                            <ul class="nav nav-tabs">
+                                <li class="active"><a href="#feature_info" data-toggle="tab">Info</a></li>
+                                <li><a href="#feature_observations" data-toggle="tab">Observations</a></li>
+                                <li><a href="#feature_comments" data-toggle="tab">Comments</a></li>
+                            </ul>
+
+                            <!-- Tab panes -->
+                            <div class="tab-content">
+                                <div class="tab-pane active" id="feature_info">
+                                    <h4>Info</h4>
+                                </div>
+                                <div class="tab-pane" id="feature_observations">
+                                    <h4>Observations</h4>
+                                </div>
+                                <div class="tab-pane" id="feature_comments">
+                                    <ol class="list-unstyled comments">
+                                        <li>
+                                            <header><span class="glyphicon glyphicon-comment"></span><a href="#">Peter Scheichel</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
+                                            <p>This is a really cool place, but it's rather expensive. But I like it though.</p>
+
+                                            <ol class="list-unstyled comments">
+                                                <li>
+                                                    <header><span class="glyphicon glyphicon-comment"></span><a href="#">Carlos Valderama</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
+                                                    <p>What? That place sucks. Coffee is really really bad. And the waiter is ugly.</p>
+                                                </li>
+                                            </ol>
+                                        </li>
+                                        <li>
+                                            <header><span class="glyphicon glyphicon-comment"></span><a href="#">George Best</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
+                                            <p>The toilet just stinks. </p>
+                                        </li>
+                                    </ol>
+                                </div>
+                            </div>                            
                         </div>
-                    </div> <!-- /Project overview -->
+                    </div> <!-- /View List -->
                 </div>
 
                 <div class="col-lg-5">
                     <div class="panel panel-default"> <!-- View list -->
                         <div class="panel-heading">
-                            <h2 class="panel-title">Views in this project</h2>
+                            <h2 class="panel-title">Filter data by view</h2>
                         </div>
-                        <div class="list-group">
-                            <a href="view.html" class="list-group-item">
-                                <h4 class="list-group-item-heading">Coffee</h4>
-                                <p class="list-group-item-text">All the places we like to have coffee.</p>
-                            </a>
-
-                            <a href="view.html" class="list-group-item">
-                                <h4 class="list-group-item-heading">Drinks</h4>
-                                <p class="list-group-item-text">All the places we like to get wasted.</p>
-                            </a>
-                        </div>
+                        <ul class="list-group">
+                            <li class="list-group-item active">
+                                <h4 class="list-group-item-heading"><a href="project.html">All data</a></h4>
+                                <p class="list-group-item-text">Displays all data contributed to the project. (<a href="view.edit.html" class="text-primary">Edit</a>)</p>
+                            </li>
+                            <li class="list-group-item">
+                                <h4 class="list-group-item-heading"><a href="view.html">Coffee</a></h4>
+                                <p class="list-group-item-text">All the places we like to have coffee. (<a href="view.edit.html" class="text-primary">Edit</a>)</p>
+                            </li>
+                            <li class="list-group-item">
+                                <h4 class="list-group-item-heading"><a href="view.html">Drinks</a></h4>
+                                <p class="list-group-item-text">All the places we like to get wasted. (<a href="view.edit.html" class="text-primary">Edit</a>)</p>
+                            </li>
+                        </ul>
                         <div class="panel-footer">
-                            <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new view</button>
+                            <a href="view.edit.html" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new view</a>
                         </div>
                     </div> <!-- /View List -->
-
-
-                    <div class="panel panel-default"> <!-- Feature type list List -->
-                        <div class="panel-heading">
-                            <h2 class="panel-title">Feature types in this project</h2>
-                        </div>
-                        <div class="list-group">
-                            <a href="featuretype.html" class="list-group-item">
-                                <h4 class="list-group-item-heading">Bar</h4>
-                                <p class="list-group-item-text">A place to get pissed.</p>
-                            </a>
-                            <a href="featuretype.html" class="list-group-item">
-                                <h4 class="list-group-item-heading">Coffee shops</h4>
-                                <p class="list-group-item-text">A place to have a coffee.</p>
-                            </a>
-                        </div>
-                        <div class="panel-footer">
-                            <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new feature type</button>
-                        </div>
-                    </div> <!-- /Feature type list List -->
                 </div>
             </div>
 
@@ -129,7 +148,7 @@
         <!-- /LEAFLET -->
 
         <!-- CUSTOM SPECIALS-->
-            <script src="../../static/js/Ui.Map.js"></script>
+            <script src="../../static/js/Admin.Ui.Map.js"></script>
         <!-- /CUSTOM SPECIALS-->
     </body>
 </html>
