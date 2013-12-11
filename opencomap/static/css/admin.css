@@ -11,6 +11,15 @@ body#home div.jumbotron h1 {
     margin-top: 0;
 }
 
+h1:first-child,
+h2:first-child,
+h3:first-child,
+h4:first-child,
+h5:first-child,
+h6:first-child {
+    margin-top: 0;
+}
+
 div.page-header h1 small {
     display: block;
     margin-top: 0.5em;
@@ -23,4 +32,16 @@ div#map {
 
 .panel-title + p {
     margin-top: 0.5em;
+}
+
+ul.newsfeed li {
+    margin-top: 0.7em;
+}
+
+ul.newsfeed li:first-child {
+    margin-top: 0;
+}
+
+ul.newsfeed li span.glyphicon {
+    margin-right: 0.5em;
 }
