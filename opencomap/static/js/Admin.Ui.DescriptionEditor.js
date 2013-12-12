@@ -1,5 +1,5 @@
 $(function() {
-	var $editLink = $('a#edit_desc');
+	var $editLink = $('a#edit');
 	var $descriptionText = $('div.page-header h1 small');
 
 	var $descriptionForm = $('#description-form');

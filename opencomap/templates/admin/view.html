@@ -42,70 +42,90 @@
         <div class="container">
             <ol class="breadcrumb">
                 <li><a href="dashboard.html">Dashboard</a></li>
-                <li><a href="project.html">Piggy and Kermit</a></li>
+                <li>Project: <a href="project.html">Piggy and Kermit</a></li>
                 <li class="active">Coffee</li>
             </ol>
 
             <div class="page-header">
-                <h1>
-                    Coffee <a href="view.edit.html" class="btn btn-primary"><span class="glyphicon glyphicon-edit"></span> Edit view</a>
-                    <small>All the places we like to have coffee.</small>
-                </h1>
+                <h1>Coffee <small>All the places we like to have coffee. <a href="view.edit.html" id="edit"><span class="glyphicon glyphicon-wrench"></span> Settings</a> </small></h1>
+                
             </div>
 
             <div class="row">
-                <div class="col-lg-7">
-                    <div class="panel panel-default"> <!-- Project overview -->
+                <div class="col-lg-12">
+                    <div id="map"></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-7">
+                    <div class="panel panel-default"> <!-- View list -->
                         <div class="panel-heading">
-                            <h2 class="panel-title">Overview</h2>
+                            <h2 class="panel-title">Feature info</h2>
                         </div>
-                        <div class="panel-body">
-                            <div id="map">
-                                <!-- A Leaftlet map is placed here -->
-                            </div>
+                        <div class="panel-body bordered-panel">
+                            <!-- Nav tabs -->
+                            <ul class="nav nav-tabs">
+                                <li class="active"><a href="#feature_info" data-toggle="tab">Info</a></li>
+                                <li><a href="#feature_observations" data-toggle="tab">Observations <span class="badge">5</span></a></li>
+                                <li><a href="#feature_comments" data-toggle="tab">Comments <span class="badge">3</span></a></li>
+                            </ul>
+
+                            <!-- Tab panes -->
+                            <div class="tab-content">
+                                <div class="tab-pane active" id="feature_info">
+                                    <h4>Info</h4>
+                                </div>
+                                <div class="tab-pane" id="feature_observations">
+                                    <h4>Observations</h4>
+                                </div>
+                                <div class="tab-pane" id="feature_comments">
+                                    <ol class="list-unstyled comments">
+                                        <li>
+                                            <header><span class="glyphicon glyphicon-comment"></span><a href="#">Peter Scheichel</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
+                                            <p>This is a really cool place, but it's rather expensive. But I like it though.</p>
+
+                                            <ol class="list-unstyled comments">
+                                                <li>
+                                                    <header><span class="glyphicon glyphicon-comment"></span><a href="#">Carlos Valderama</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
+                                                    <p>What? That place sucks. Coffee is really really bad. And the waiter is ugly.</p>
+                                                </li>
+                                            </ol>
+                                        </li>
+                                        <li>
+                                            <header><span class="glyphicon glyphicon-comment"></span><a href="#">George Best</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
+                                            <p>The toilet just stinks. </p>
+                                        </li>
+                                    </ol>
+                                </div>
+                            </div>                            
                         </div>
-                    </div> <!-- /Project overview -->
+                    </div> <!-- /View List -->
                 </div>
 
-                <div class="col-lg-5">
-                    <div class="panel panel-default"> <!-- User group list -->
+                <div class="col-sm-5">
+                    <div class="panel panel-default"> <!-- View list -->
                         <div class="panel-heading">
-                            <h2 class="panel-title">User Groups</h2>
+                            <h2 class="panel-title">Filter data by view</h2>
                         </div>
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>View</th>
-                                    <th>Read</th>
-                                    <th>Edit</th>
-                                    <th>Admin</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Admins</td>
-                                    <td><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td></td>
-                                    <td><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td><a href="usergroup.html"><span class="glyphicon glyphicon-edit"></span></a></td>
-                                </tr>
-                                <tr>
-                                    <td>Editors</td>
-                                    <td><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td></td>
-                                    <td><a href="usergroup.html"><span class="glyphicon glyphicon-edit"></span></a></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <ul class="list-group">
+                            <a class="list-group-item" href="project.html">
+                                <h4 class="list-group-item-heading">All data</h4>
+                                <p class="list-group-item-text">Displays all data contributed to the project.</p>
+                            </a>
+                            <a class="list-group-item active" href="view.html">
+                                <h4 class="list-group-item-heading">Coffee</h4>
+                                <p class="list-group-item-text">All the places we like to have coffee.</p>
+                            </a>
+                            <a class="list-group-item" href="view.html">
+                                <h4 class="list-group-item-heading">Drinks</h4>
+                                <p class="list-group-item-text">All the places we like to get wasted.</p>
+                            </a>
+                        </ul>
                         <div class="panel-footer">
-                            <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new user group</button>
+                            <a href="view.edit.html" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new view</a>
                         </div>
-                    </div> <!-- /User Group List -->
+                    </div> <!-- /View List -->
                 </div>
             </div>
 

@@ -47,10 +47,10 @@
             </ol>
 
             <div class="page-header">
-                <h1>Piggy and Kermit <small>This is a map that shows all spots that important to our relationship. <a href="#" id="edit_desc"><span class="glyphicon glyphicon-edit"></span> Edit</a></small></h1>
+                <h1>Piggy and Kermit <small>This is a map that shows all spots that important to our relationship. <a href="#" id="edit"><span class="glyphicon glyphicon-edit"></span> Edit</a></small></h1>
 
                 <form class="form-inline" id="description-form" role="form">
-                    <div class="form-group" style="width: 50%;">
+                    <div class="form-group">
                         <label class="sr-only" for="desription">Project description</label>
                         <input type="text" class="form-control" id="description" placeholder="Enter a project desription">
                     </div>
@@ -59,124 +59,117 @@
                 </form>
             </div>
 
-            <div class="row">
-                <div class="col-lg-2">
-                    <ul class="nav nav-pills nav-stacked">
-                        <li class="active"><a href="#users" data-toggle="pill">User pemissions</a></li>
-                        <li><a href="#featuretypes" data-toggle="pill">Feature types</a></li>
-                        <li><a href="#danger" data-toggle="pill">Project visibilty</a></li>
-                    </ul>
+            <div class="row" id="users">
+                <div class="col-md-2">
+                    <h3>Permissions</h3>
                 </div>
-                    
-
-                <div class="col-lg-10 tab-content">
-                    <div class="row tab-pane active" id="users">
-                        <div class="col-lg-6">
-                            <div class="panel panel-default" id="administrators"> <!-- Administrators list -->
-                                <div class="panel-heading">
-                                    <h2 class="panel-title">Administrators</h2>
-                                    <p>Members of this group can edit and delete the project, create and alter views as well as access, edit and remove all data contributed to the project.<p>
-                                </div>
-                                <ul class="list-group">
-                                    <li class="list-group-item">Peter Schmeichel (<a class="text-danger" href="#">remove</a>)</li>
-                                    <li class="list-group-item">Carlos Valderama (<a class="text-danger" href="#">remove</a>)</li>
-                                    <li class="list-group-item">George Best (<a class="text-danger" href="#">remove</a>)</li>
-                                </ul>
-                                <div class="panel-footer">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Type to find users to this group">
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-success" type="button">Add</button>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div> <!-- /Administrators List -->
+                <div class="col-md-5">
+                    <div class="panel panel-default" id="administrators"> <!-- Administrators list -->
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Administrators</h2>
+                            <p>Members of this group can edit and delete the project, create and alter views as well as access, edit and remove all data contributed to the project.<p>
                         </div>
-                        <div class="col-lg-6">
-                            <div class="panel panel-default" id="contributors"> <!-- Contributors list -->
-                                <div class="panel-heading">
-                                    <h2 class="panel-title">Contributors</h2>
-                                    <p>Members of this group can contribute new features and observations to the project.<p>
-                                </div>
-                                <div class="panel-body">
-                                    <div class="checkbox">
-                                        <label><input type="checkbox" checked="true"> Everyone can contribute</label>
-                                    </div>
-                                </div>
-                                <ul class="list-group">
-                                    
-                                </ul>
-                                <div class="panel-footer">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Type to find users to this group">
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-success" type="button">Add</button>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div> <!-- /Contributors List -->
+                        <ul class="list-group">
+                            <li class="list-group-item">Peter Schmeichel (<a class="text-danger" href="#">remove</a>)</li>
+                            <li class="list-group-item">Carlos Valderama (<a class="text-danger" href="#">remove</a>)</li>
+                            <li class="list-group-item">George Best (<a class="text-danger" href="#">remove</a>)</li>
+                        </ul>
+                        <div class="panel-footer">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Type to find users to this group">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-success" type="button">Add</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div> <!-- /Administrators List -->
+                </div>
+                <div class="col-md-5">
+                    <div class="panel panel-default" id="contributors"> <!-- Contributors list -->
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Contributors</h2>
+                            <p>Members of this group can contribute new features and observations to the project.<p>
+                        </div>
+                        <div class="panel-body">
+                            <div class="checkbox">
+                                <label><input type="checkbox" checked="true"> Everyone can contribute</label>
+                            </div>
+                        </div>
+                        <ul class="list-group">
+                            
+                        </ul>
+                        <div class="panel-footer">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Type to find users to this group">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-success" type="button">Add</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div> <!-- /Contributors List -->
+                </div>
+            </div>
+            <hr>
+            <div class="row" id="featuretypes">
+                <div class="col-md-2">
+                    <h3>Feature types</h3>
+                </div>
+                <div class="col-md-5">
+                    <div class="panel panel-default"> <!-- Feature type list List -->
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Feature types in this project</h2>
+                        </div>
+                        <div class="list-group">
+                            <a href="featuretype.html" class="list-group-item">
+                                <h4 class="list-group-item-heading">Bar</h4>
+                                <p class="list-group-item-text">A place to get pissed.</p>
+                            </a>
+                            <a href="featuretype.html" class="list-group-item">
+                                <h4 class="list-group-item-heading">Coffee shops</h4>
+                                <p class="list-group-item-text">A place to have a coffee.</p>
+                            </a>
+                        </div>
+                        <div class="panel-footer">
+                            <a href="featuretype.new.html" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new feature type</a>
+                        </div>
+                    </div> <!-- /Feature type list List -->
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-5 col-md-offset-2 col-lg-3">
+                    <div class="panel panel-warning">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Make this project private</h2>
+                        </div>
+                        <div class="panel-body">
+                            <!-- <p>If you choose to make the project private, the project will be accessable only to administrators, contributors and members of view-related user groups.</p> -->
+                            <p>Hide this project from the public.</p>
+                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#private_confirm">Make private</button>
                         </div>
                     </div>
+                </div>
 
-                    <div class="row tab-pane" id="featuretypes">
-                        <div class="col-lg-6">
-                            <div class="panel panel-default"> <!-- Feature type list List -->
-                                <div class="panel-heading">
-                                    <h2 class="panel-title">Feature types in this project</h2>
-                                </div>
-                                <div class="list-group">
-                                    <a href="featuretype.html" class="list-group-item">
-                                        <h4 class="list-group-item-heading">Bar</h4>
-                                        <p class="list-group-item-text">A place to get pissed.</p>
-                                    </a>
-                                    <a href="featuretype.html" class="list-group-item">
-                                        <h4 class="list-group-item-heading">Coffee shops</h4>
-                                        <p class="list-group-item-text">A place to have a coffee.</p>
-                                    </a>
-                                </div>
-                                <div class="panel-footer">
-                                    <a href="featuretype.new.html" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new feature type</a>
-                                </div>
-                            </div> <!-- /Feature type list List -->
+                <div class="col-md-5 col-lg-3 col-lg-offset-0">
+                    <div class="panel panel-warning">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Make this project inactive</h2>
+                        </div>
+                        <div class="panel-body">
+                            <p>The project live cycle has come to an end. Users will not be able to contribute and read data from the project.</p>
+                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#inactive_confirm">Make inactive</button>
                         </div>
                     </div>
+                </div>
 
-                    <div class="row tab-pane" id="danger">
-                        <div class="col-lg-4">
-                            <div class="panel panel-warning">
-                                <div class="panel-heading">
-                                    <h2 class="panel-title">Make this project private</h2>
-                                </div>
-                                <div class="panel-body">
-                                    <!-- <p>If you choose to make the project private, the project will be accessable only to administrators, contributors and members of view-related user groups.</p> -->
-                                    <p>Hide this project from the public.</p>
-                                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#private_confirm">Make private</button>
-                                </div>
-                            </div>
+                <div class="col-md-5 col-md-offset-2 col-lg-3 col-lg-offset-0">
+                    <div class="panel panel-danger">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Delete project</h2>
                         </div>
-
-                        <div class="col-lg-4">
-                            <div class="panel panel-warning">
-                                <div class="panel-heading">
-                                    <h2 class="panel-title">Make this project inactive</h2>
-                                </div>
-                                <div class="panel-body">
-                                    <p>The project live cycle has come to an end. Users will not be able to contribute and read data from the project.</p>
-                                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#inactive_confirm">Make inactive</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-4">
-                            <div class="panel panel-danger">
-                                <div class="panel-heading">
-                                    <h2 class="panel-title">Delete project</h2>
-                                </div>
-                                <div class="panel-body">
-                                    <p>If you delete the project there's no way back.</p>
-                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_confirm">Delete this project</button>
-                                </div>
-                            </div>
+                        <div class="panel-body">
+                            <p>If you delete the project there's no way back.</p>
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_confirm">Delete this project</button>
                         </div>
                     </div>
                 </div>
@@ -262,7 +255,7 @@
         <script>window.jQuery || document.write('<script src="../../static/lib/jquery/jquery-1.10.1.js"><\/script>')</script>
         <script src="../../static/lib/bootstrap/bootstrap.min.js"></script>
 
-        <script src="../../static/js/Admin.Ui.DescriptionEditor.js"></script>  
+        <script src="../../static/js/Admin.Ui.DescriptionEditor.js"></script>
         <script src="../../static/js/Admin.Ui.Project.UserGroups.js"></script>
         <script src="../../static/js/Admin.Ui.UserGroup.js"></script>
     </body>

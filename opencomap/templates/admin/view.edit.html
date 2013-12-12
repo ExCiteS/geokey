@@ -42,85 +42,122 @@
         <div class="container">
             <ol class="breadcrumb">
                 <li><a href="dashboard.html">Dashboard</a></li>
-                <li><a href="project.html">Piggy and Kermit</a></li>
-                <li class="active">Coffee</li>
+                <li>Project: <a href="project.html">Piggy and Kermit</a></li>
+                <li>View: <a href="project.html">Coffee</a></li>
+                <li class="active">Settings</li>
             </ol>
 
             <div class="page-header">
                 <h1>
-                    Coffee 
-                    <small>Edit view</small>
+                    Coffee <small>All the places we like to have coffee. <a href="#" id="edit"><span class="glyphicon glyphicon-edit"></span> Edit</a></small>
                 </h1>
+
+                <form class="form-inline" id="description-form" role="form">
+                    <div class="form-group">
+                        <label class="sr-only" for="desription">Project description</label>
+                        <input type="text" class="form-control" id="description" placeholder="Enter a project desription">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-default">Cancel</button>
+                </form>
             </div>
 
             <div class="row">
-                <form  role="form" class="form-horizontal col-lg-7"> <!-- View from -->
-                    <div class="form-group">
-                        <label for="name" class="col-sm-2 control-label">Name</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" id="name" name="name">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="description" class="col-sm-2 control-label">Description</label>
-                        <div class="col-sm-10">
-                            <textarea class="form-control" rows="5" name="description" id="description"></textarea>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="col-sm-offset-2 col-sm-10">
-                            <button type="submit" class="btn btn-primary">Save</button>
-                            <a href="project.html" class="btn btn-default" role="button">Cancel</a>
-
-                            <button type="button" class="btn btn-danger pull-right" data-toggle="modal" data-target="#delete_confirm">Delete</button>
-                        </div>
-                    </div>
-
-                    
-                </form> <!-- /View form -->
-                
-
-                <div class="col-lg-5">
+                <div class="col-md-6">
                     <div class="panel panel-default"> <!-- User group list -->
                         <div class="panel-heading">
                             <h2 class="panel-title">User Groups</h2>
                         </div>
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>View</th>
-                                    <th>Read</th>
-                                    <th>Edit</th>
-                                    <th>Admin</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Admins</td>
-                                    <td><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td></td>
-                                    <td><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td><a href="usergroup.html"><span class="glyphicon glyphicon-edit"></span></a></td>
-                                </tr>
-                                <tr>
-                                    <td>Editors</td>
-                                    <td><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td></td>
-                                    <td><a href="usergroup.html"><span class="glyphicon glyphicon-edit"></span></a></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>View</th>
+                                        <th>Read</th>
+                                        <th>Edit</th>
+                                        <th>Admin</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Admins</td>
+                                        <td><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td></td>
+                                        <td><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td><a href="usergroup.html"><span class="glyphicon glyphicon-edit"></span></a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Editors</td>
+                                        <td><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td></td>
+                                        <td><a href="usergroup.html"><span class="glyphicon glyphicon-edit"></span></a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                         <div class="panel-footer">
                             <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new user group</button>
                         </div>
                     </div> <!-- /User Group List -->
+                </div>
+                <div class="col-md-6">
+                    <div class="panel panel-default"> <!-- User group list -->
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Filters</h2>
+                        </div>
+                        <div class="list-group">
+                            <div class="list-group-item">
+                                <form class="form-inline" role="form">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="featuretype">Email address</label>
+                                        <select id="featuretype" class="form-control">
+                                            <option>Coffee Shop</option>
+                                            <option>Bar</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="sr-only" for="field">Email address</label>
+                                        <select id="field" class="form-control">
+                                            <option>Name</option>
+                                            <option>Pricey</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        =
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="sr-only" for="value">Filter value</label>
+                                        <input type="text" class="form-control" placeholder="Text input">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="panel-footer">
+                            <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add new Filter</button>
+                        </div>
+                    </div> <!-- /User Group List -->
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="panel panel-danger">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Delete project</h2>
+                        </div>
+                        <div class="panel-body">
+                            <p>If you delete the project there's no way back.</p>
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_confirm">Delete this project</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -131,29 +168,33 @@
             </footer>
         </div> <!-- /container -->
 
-        <!-- Modal -->
+        <!-- Delete confirmation modal -->
         <div class="modal fade" id="delete_confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="myModalLabel">Delete view?</h4>
+                <div class="modal-content panel-danger">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
                     </div>
-                    <div class="modal-body">
-                        <p>Do you really want to create the view?</p>
-                        <p>Deleting the view can not be undone.</p>
+                    <div class="modal-body panel-body">
+                        <p class="text-danger">You are about to delete the view <strong>Piggy and Kermit</strong>. This can not be undone.</p>
+                        <ul>
+                            <li>All user groups assigned to the view will be deleted.</li>
+                            <li>All users who are solely assigned to one of the views user groups will not be able to access the project any longer.</li>
+                        </ul>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger">Yes, delete the view</button>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal">No, keep the view</button>
+                    <div class="modal-footer panel-footer">
+                        <button type="button" class="btn btn-danger">I'm absolutely sure, delete the view!</button>
                     </div>
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
-        </div><!-- /.modal -->
+                </div>
+            </div>
+        </div>
+        <!-- /Delete confirmation modal -->
 
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.js"></script>
         <script>window.jQuery || document.write('<script src="../../static/lib/jquery/jquery-1.10.1.js"><\/script>')</script>
         <script src="../../static/lib/bootstrap/bootstrap.min.js"></script>
 
-        <script src="../../static/js/Ui.Project.js"></script>  
+        <script src="../../static/js/Admin.Ui.DescriptionEditor.js"></script>
     </body>
 </html>

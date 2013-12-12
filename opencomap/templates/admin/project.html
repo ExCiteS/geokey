@@ -46,8 +46,8 @@
             </ol>
 
             <div class="page-header">
-                <h1>Piggy and Kermit <small>This is a map that shows all spots that important to our relationship.</small></h1>
-                <a href="project.edit.html" class="btn btn-default settings"><span class="glyphicon glyphicon-wrench"></span> Project settings</a> 
+                <h1>Piggy and Kermit <small>This is a map that shows all spots that important to our relationship. <a href="project.edit.html" id="edit"><span class="glyphicon glyphicon-wrench"></span> Settings</a> </small></h1>
+                
             </div>
 
             <div class="row">
@@ -57,7 +57,7 @@
             </div>
 
             <div class="row">
-                <div class="col-lg-7">
+                <div class="col-sm-7">
                     <div class="panel panel-default"> <!-- View list -->
                         <div class="panel-heading">
                             <h2 class="panel-title">Feature info</h2>
@@ -66,8 +66,8 @@
                             <!-- Nav tabs -->
                             <ul class="nav nav-tabs">
                                 <li class="active"><a href="#feature_info" data-toggle="tab">Info</a></li>
-                                <li><a href="#feature_observations" data-toggle="tab">Observations</a></li>
-                                <li><a href="#feature_comments" data-toggle="tab">Comments</a></li>
+                                <li><a href="#feature_observations" data-toggle="tab">Observations <span class="badge">5</span></a></li>
+                                <li><a href="#feature_comments" data-toggle="tab">Comments <span class="badge">3</span></a></li>
                             </ul>
 
                             <!-- Tab panes -->
@@ -102,27 +102,27 @@
                     </div> <!-- /View List -->
                 </div>
 
-                <div class="col-lg-5">
+                <div class="col-sm-5">
                     <div class="panel panel-default"> <!-- View list -->
                         <div class="panel-heading">
                             <h2 class="panel-title">Filter data by view</h2>
                         </div>
                         <ul class="list-group">
-                            <li class="list-group-item active">
-                                <h4 class="list-group-item-heading"><a href="project.html">All data</a></h4>
-                                <p class="list-group-item-text">Displays all data contributed to the project. (<a href="view.edit.html" class="text-primary">Edit</a>)</p>
-                            </li>
-                            <li class="list-group-item">
-                                <h4 class="list-group-item-heading"><a href="view.html">Coffee</a></h4>
-                                <p class="list-group-item-text">All the places we like to have coffee. (<a href="view.edit.html" class="text-primary">Edit</a>)</p>
-                            </li>
-                            <li class="list-group-item">
-                                <h4 class="list-group-item-heading"><a href="view.html">Drinks</a></h4>
-                                <p class="list-group-item-text">All the places we like to get wasted. (<a href="view.edit.html" class="text-primary">Edit</a>)</p>
-                            </li>
+                            <a class="list-group-item active" href="project.html">
+                                <h4 class="list-group-item-heading">All data</h4>
+                                <p class="list-group-item-text">Displays all data contributed to the project.</p>
+                            </a>
+                            <a class="list-group-item" href="view.html">
+                                <h4 class="list-group-item-heading">Coffee</h4>
+                                <p class="list-group-item-text">All the places we like to have coffee.</p>
+                            </a>
+                            <a class="list-group-item" href="view.html">
+                                <h4 class="list-group-item-heading">Drinks</h4>
+                                <p class="list-group-item-text">All the places we like to get wasted.</p>
+                            </a>
                         </ul>
                         <div class="panel-footer">
-                            <a href="view.edit.html" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new view</a>
+                            <a href="view.new.html" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new view</a>
                         </div>
                     </div> <!-- /View List -->
                 </div>
