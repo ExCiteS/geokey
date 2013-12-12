@@ -41,6 +41,10 @@ div.page-header {
             font-size: 14px;
         }
 
+    div.page-header > .form-inline {
+        margin-bottom: 2px;
+    }
+
 
 
 div#map {

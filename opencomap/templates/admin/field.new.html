@@ -42,18 +42,17 @@
         <div class="container">
             <ol class="breadcrumb">
                 <li><a href="dashboard.html">Dashboard</a></li>
-                <li><a href="project.html">Project: Piggy and Kermit</a></li>
-                <li class="active">Feature type: Coffee Shops</li>
+                <li>Project: <a href="project.html">Piggy and Kermit</a></li>
+                <li>Feature type: <a href="featuretype.html">Coffee Shops</a></li>
+                <li class="active">Create new field</li>
             </ol>
 
             <div class="page-header">
-                <h1>
-                    Coffee shops <small>Edit feature type</small>
-                </h1>
+                <h1>Create new field</h1>
             </div>
 
             <div class="row">
-                <form  role="form" class="form-horizontal col-lg-7"> <!-- Project from -->
+                <form  role="form" class="form-horizontal col-lg-8 col-md-offset-1"> <!-- Project from -->
                     <div class="form-group">
                         <label for="name" class="col-sm-2 control-label">Name</label>
                         <div class="col-sm-10">
@@ -67,14 +66,41 @@
                             <textarea class="form-control" rows="5" name="description" id="description"></textarea>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="status" class="col-sm-2 control-label">Type</label>
+                        <div class="col-sm-10">
+                            <select name="type" id="type" class="form-control">
+                                <option value="0">Text</option>
+                                <option value="1">Numeric</option>
+                                <option value="2">DateType</option>
+                                <option value="3">TrueFalse</option>
+                                <option value="4">Lookup</option>
+                            </select>
+
+                            <div id="lookupValuesPanel" class="panel panel-default"> <!-- Administrators list -->
+                                <div class="panel-heading">
+                                    <h2 class="panel-title">Lookup values</h2>
+                                </div>
+                                <ul class="list-group">
+                                    
+                                </ul>
+                                <div class="panel-footer">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-success" type="button">Add</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div> <!-- /Administrators List -->
+                        </div>
+                    </div>
 
                     <div class="form-group">
-                        <label for="status" class="col-sm-2 control-label">Status</label>
-                        <div class="col-sm-10">
-                            <select name="status" id="status" class="form-control">
-                                <option>Active</option>
-                                <option>Inactive</option>
-                            </select>
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <div class="checkbox">
+                                <label><input type="checkbox"> A value for this field is required</label>
+                            </div>
                         </div>
                     </div>
 
@@ -97,5 +123,10 @@
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.js"></script>
         <script>window.jQuery || document.write('<script src="../../static/lib/jquery/jquery-1.10.1.js"><\/script>')</script>
         <script src="../../static/lib/bootstrap/bootstrap.min.js"></script>
+
+        <!-- CUSTOM SPECIALS-->
+            <script src="../../static/js/Admin.Ui.Field.js"></script>
+            <script src="../../static/js/Admin.Ui.Lookup.js"></script>
+        <!-- /CUSTOM SPECIALS-->
     </body>
 </html>
