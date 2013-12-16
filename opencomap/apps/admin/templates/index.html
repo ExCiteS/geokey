@@ -11,11 +11,11 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
 
-        <link rel="stylesheet" href="../../static/lib/bootstrap/bootstrap.min.css">
+        <link rel="stylesheet" href="/static/lib/bootstrap/bootstrap.min.css">
         <!-- <link rel="stylesheet" href="../../static/lib/bootstrap/bootstrap-theme.min.css"> -->
-        <link rel="stylesheet" href="../../static/css/admin.css">
+        <link rel="stylesheet" href="/static/css/admin.css">
 
-        <script src="../../static/lib/modernizr/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+        <script src="/static/lib/modernizr/modernizr-2.6.2-respond-1.1.0.min.js"></script>
     </head>
     <body id="home">
         <div class="navbar navbar-inverse navbar-fixed-top">
@@ -29,12 +29,13 @@
                     <a class="navbar-brand" href="#">Open Community Maps</a>
                 </div>
                 <div class="navbar-collapse collapse">
-                    <form class="navbar-form navbar-right">
+                    <form class="navbar-form navbar-right" method="POST" action="/admin/login">
+                        {% csrf_token %}
                         <div class="form-group">
-                            <input type="text" placeholder="Email" class="form-control">
+                            <input type="text" placeholder="Email" name="email" class="form-control">
                         </div>
                         <div class="form-group">
-                            <input type="password" placeholder="Password" class="form-control">
+                            <input type="password" placeholder="Password"  name="password" class="form-control">
                         </div>
                         <button type="submit" class="btn btn-success">Sign in</button>
                     </form>
@@ -91,7 +92,7 @@
             </footer>
         </div> <!-- /container -->        
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.js"></script>
-        <script>window.jQuery || document.write('<script src="../../static/lib/jquery/jquery-1.10.1.js"><\/script>')</script>
-        <script src="../../static/lib/bootstrap/bootstrap.min.js"></script>
+        <script>window.jQuery || document.write('<script src="/static/lib/jquery/jquery-1.10.1.js"><\/script>')</script>
+        <script src="/static/lib/bootstrap/bootstrap.min.js"></script>
     </body>
 </html>
