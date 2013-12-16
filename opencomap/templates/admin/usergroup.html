@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <title>Open Community Maps | Dashboard</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+    <!-- STANDARD LIBS -->
+        <link rel="stylesheet" href="../../static/lib/bootstrap/bootstrap.min.css">
+        <!-- <link rel="stylesheet" href="../../static/lib/bootstrap/bootstrap-theme.min.css"> -->
+        <link rel="stylesheet" href="../../static/css/admin.css">
+
+        <script src="../../static/lib/modernizr/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+    <!-- /STANDARD LIBS -->
+    </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">Open Community Maps</a>
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="/profile"><span class="glyphicon glyphicon-user"></span> Peter Schmeichel</a></li>
+                        <li><a href="/logout"><span class="glyphicon glyphicon-off"></span> Sign out</a></li>
+                    </ul>
+                </div><!--/.navbar-collapse -->
+            </div>
+        </div>
+
+        <div class="container">
+            <ol class="breadcrumb">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li>Project: <a href="project.html">Piggy and Kermit</a></li>
+                <li>View: <a href="view.html">Coffee</a></li>
+                <li class="active">Admins</li>
+            </ol>
+
+            <div class="page-header">
+                <h1>Admins <small>Administrators  <a href="#" id="edit"><span class="glyphicon glyphicon-edit"></span> Edit</a></small></h1>
+                <form class="form-inline" id="description-form" role="form">
+                    <div class="form-group">
+                        <label class="sr-only" for="desription">Project description</label>
+                        <input type="text" class="form-control" id="description" placeholder="Enter a project desription">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-default">Cancel</button>
+                </form>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="panel panel-default"> <!-- Members list -->
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Permissions</h2>
+                        </div>
+                        <div class="list-group">
+                            <div class="list-group-item">
+                                <div class="checkbox">
+                                    <label><input type="checkbox"> <strong>Admin.</strong> If checked, members are permitted to administer the View, i.e. changing names and descriptions as well as defining new or altering existing Filters for the View. Permissions further include all of the following.</label>
+                                </div>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="checkbox">
+                                    <label><input type="checkbox"> <strong>Edit.</strong> If checked, members are permitted to edit existing Features and Observations of the View. </label>
+                                </div>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="checkbox">
+                                    <label><input type="checkbox"> <strong>Read.</strong> If checked, members are permitted to access the data and download in machine readable formats &ndash; such as JSON, XML or CSV.</label>
+                                </div>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="checkbox">
+                                    <label><input type="checkbox"> <strong>View.</strong> If checked, members are permitted to access pre-rendered maps of the data through a web-compliant image format.</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-footer">
+                            <button type="submit" class="btn btn-primary">Save permissions</button>
+                        </div>
+                    </div> <!-- /Members List -->
+                </div>
+               
+
+                <div class="col-md-6">
+                    <div class="panel panel-default"> <!-- Members list -->
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Members</h2>
+                        </div>
+                        <ul class="list-group">
+                            <li class="list-group-item">Peter Schmeichel (<a class="text-danger" href="#">remove</a>)</li>
+                            <li class="list-group-item">Carlos Valderama (<a class="text-danger" href="#">remove</a>)</li>
+                            <li class="list-group-item">George Best (<a class="text-danger" href="#">remove</a>)</li>
+                        </ul>
+                        <div class="panel-footer">
+                            <div class="input-group">
+                                <input type="text" class="form-control">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-success" type="button">Add</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div> <!-- /Members List -->
+                </div>
+            </div>
+
+            <hr>
+
+            <footer>
+                <p>&copy; <a href="http://www.ucl.ac.uk/excites">Excites Research Group</a> 2014</p>
+            </footer>
+        </div> <!-- /container -->  
+
+                <!-- Modal -->
+        <div class="modal fade" id="delete_confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel">Delete user group?</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Do you really want to create the user group?</p>
+                        <p>Deleting the project can not be undone.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger">Yes, delete the user group</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">No, keep the user group</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.js"></script>
+        <script>window.jQuery || document.write('<script src="../../static/lib/jquery/jquery-1.10.1.js"><\/script>')</script>
+        <script src="../../static/lib/bootstrap/bootstrap.min.js"></script>
+
+        <script src="../../static/js/Admin.Ui.DescriptionEditor.js"></script>
+    </body>
+</html>

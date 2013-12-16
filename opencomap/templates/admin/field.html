@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <title>Open Community Maps | Dashboard</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+    <!-- STANDARD LIBS -->
+        <link rel="stylesheet" href="../../static/lib/bootstrap/bootstrap.min.css">
+        <!-- <link rel="stylesheet" href="../../static/lib/bootstrap/bootstrap-theme.min.css"> -->
+        <link rel="stylesheet" href="../../static/css/admin.css">
+
+        <script src="../../static/lib/modernizr/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+    <!-- /STANDARD LIBS -->
+    </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">Open Community Maps</a>
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="/profile"><span class="glyphicon glyphicon-user"></span> Peter Schmeichel</a></li>
+                        <li><a href="/logout"><span class="glyphicon glyphicon-off"></span> Sign out</a></li>
+                    </ul>
+                </div><!--/.navbar-collapse -->
+            </div>
+        </div>
+
+        <div class="container">
+            <ol class="breadcrumb">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li>Project: <a href="project.html">Piggy and Kermit</a></li>
+                <li>Feature type: <a href="featuretype.html">Coffee Shops</a></li>
+                <li class="active">Field: Shop name</li>
+            </ol>
+
+            <div class="page-header">
+                <h1>
+                    Shop name <small>The name of the shop <a href="#" id="edit"><span class="glyphicon glyphicon-edit"></span> Edit</a></small>
+                </h1>
+                <form class="form-inline" id="description-form" role="form">
+                    <div class="form-group">
+                        <label class="sr-only" for="desription">Field description</label>
+                        <input type="text" class="form-control" id="description" placeholder="Enter a feature type desription">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-default">Cancel</button>
+                </form>
+            </div>
+
+            <div class="row">
+                <div class=" col-md-8  col-md-offset-2">
+                    <div id="lookupValuesPanel" class="panel panel-default"> <!-- Administrators list -->
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Lookup values</h2>
+                        </div>
+                        <ul class="list-group">
+                            <li class="list-group-item">Peter Schmeichel (<a class="text-danger" href="#">remove</a>)</li>
+                            <li class="list-group-item">Carlos Valderama (<a class="text-danger" href="#">remove</a>)</li>
+                            <li class="list-group-item">George Best (<a class="text-danger" href="#">remove</a>)</li>
+                        </ul>
+                        <div class="panel-footer">
+                            <div class="input-group">
+                                <input type="text" class="form-control">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-success" type="button">Add</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div> <!-- /Administrators List -->
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 col-md-offset-2">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Make this field mandatory</h2>
+                        </div>
+                        <div class="panel-body">
+                            <p>Making this field mandatory will require an input value for this field when users contribute data of the feature type.</p>
+                            <button type="button" class="btn btn-default">Make mandatory</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="panel panel-warning">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Make this field inactive</h2>
+                        </div>
+                        <div class="panel-body">
+                            <p>The field type shall no longer be used for data contribution.</p>
+                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#inactive_confirm">Make inactive</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+            <footer>
+                <p>&copy; <a href="http://www.ucl.ac.uk/excites">Excites Research Group</a> 2014</p>
+            </footer>
+        </div> <!-- /container -->  
+
+        <!-- Inactive confirmation modal -->
+        <div class="modal fade" id="inactive_confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content panel-warning">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+                    </div>
+                    <div class="modal-body panel-body">
+                        <p>Before you make the field inactive, please read through the consequences of this action:</p>
+                        <ul>
+                            <li>Users will not be able to contribute new data using this field.</li>
+                            <li>Existing data will no longer be validated against this field.</li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer panel-footer">
+                        <button type="button" class="btn btn-warning">Yes, make the project inactive.</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Inactive confirmation modal -->
+
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.js"></script>
+        <script>window.jQuery || document.write('<script src="../../static/lib/jquery/jquery-1.10.1.js"><\/script>')</script>
+        <script src="../../static/lib/bootstrap/bootstrap.min.js"></script>
+
+        <!-- CUSTOM SPECIALS-->
+            <script src="../../static/js/Admin.Ui.DescriptionEditor.js"></script>
+        <!-- /CUSTOM SPECIALS-->
+    </body>
+</html>

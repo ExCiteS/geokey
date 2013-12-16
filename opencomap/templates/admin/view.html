@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <title>Open Community Maps | Dashboard</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+    <!-- STANDARD LIBS -->
+        <link rel="stylesheet" href="../../static/lib/bootstrap/bootstrap.min.css">
+        <!-- <link rel="stylesheet" href="../../static/lib/bootstrap/bootstrap-theme.min.css"> -->
+        <link rel="stylesheet" href="../../static/css/admin.css">
+
+        <script src="../../static/lib/modernizr/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+    <!-- /STANDARD LIBS -->
+    </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">Open Community Maps</a>
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="/profile"><span class="glyphicon glyphicon-user"></span> Peter Schmeichel</a></li>
+                        <li><a href="/logout"><span class="glyphicon glyphicon-off"></span> Sign out</a></li>
+                    </ul>
+                </div><!--/.navbar-collapse -->
+            </div>
+        </div>
+
+        <div class="container">
+            <ol class="breadcrumb">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li>Project: <a href="project.html">Piggy and Kermit</a></li>
+                <li class="active">Coffee</li>
+            </ol>
+
+            <div class="page-header">
+                <h1>Coffee <small>All the places we like to have coffee. <a href="view.edit.html" id="edit"><span class="glyphicon glyphicon-wrench"></span> Settings</a> </small></h1>
+                
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div id="map"></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-7">
+                    <div class="panel panel-default"> <!-- View list -->
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Feature info</h2>
+                        </div>
+                        <div class="panel-body bordered-panel">
+                            <!-- Nav tabs -->
+                            <ul class="nav nav-tabs">
+                                <li class="active"><a href="#feature_info" data-toggle="tab">Info</a></li>
+                                <li><a href="#feature_observations" data-toggle="tab">Observations <span class="badge">5</span></a></li>
+                                <li><a href="#feature_comments" data-toggle="tab">Comments <span class="badge">3</span></a></li>
+                            </ul>
+
+                            <!-- Tab panes -->
+                            <div class="tab-content">
+                                <div class="tab-pane active" id="feature_info">
+                                    <h4>Info</h4>
+                                </div>
+                                <div class="tab-pane" id="feature_observations">
+                                    <h4>Observations</h4>
+                                </div>
+                                <div class="tab-pane" id="feature_comments">
+                                    <ol class="list-unstyled comments">
+                                        <li>
+                                            <header><span class="glyphicon glyphicon-comment"></span><a href="#">Peter Scheichel</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
+                                            <p>This is a really cool place, but it's rather expensive. But I like it though.</p>
+
+                                            <ol class="list-unstyled comments">
+                                                <li>
+                                                    <header><span class="glyphicon glyphicon-comment"></span><a href="#">Carlos Valderama</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
+                                                    <p>What? That place sucks. Coffee is really really bad. And the waiter is ugly.</p>
+                                                </li>
+                                            </ol>
+                                        </li>
+                                        <li>
+                                            <header><span class="glyphicon glyphicon-comment"></span><a href="#">George Best</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
+                                            <p>The toilet just stinks. </p>
+                                        </li>
+                                    </ol>
+                                </div>
+                            </div>                            
+                        </div>
+                    </div> <!-- /View List -->
+                </div>
+
+                <div class="col-sm-5">
+                    <div class="panel panel-default"> <!-- View list -->
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Filter data by view</h2>
+                        </div>
+                        <ul class="list-group">
+                            <a class="list-group-item" href="project.html">
+                                <h4 class="list-group-item-heading">All data</h4>
+                                <p class="list-group-item-text">Displays all data contributed to the project.</p>
+                            </a>
+                            <a class="list-group-item active" href="view.html">
+                                <h4 class="list-group-item-heading">Coffee</h4>
+                                <p class="list-group-item-text">All the places we like to have coffee.</p>
+                            </a>
+                            <a class="list-group-item" href="view.html">
+                                <h4 class="list-group-item-heading">Drinks</h4>
+                                <p class="list-group-item-text">All the places we like to get wasted.</p>
+                            </a>
+                        </ul>
+                        <div class="panel-footer">
+                            <a href="view.edit.html" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new view</a>
+                        </div>
+                    </div> <!-- /View List -->
+                </div>
+            </div>
+
+            <hr>
+
+            <footer>
+                <p>&copy; <a href="http://www.ucl.ac.uk/excites">Excites Research Group</a> 2014</p>
+            </footer>
+        </div> <!-- /container -->  
+
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.js"></script>
+        <script>window.jQuery || document.write('<script src="../../static/lib/jquery/jquery-1.10.1.js"><\/script>')</script>
+        <script src="../../static/lib/bootstrap/bootstrap.min.js"></script>
+
+        <!-- LEAFLET -->
+            <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.css" />
+            <!--[if lte IE 8]>
+                <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.ie.css" />
+            <![endif]-->
+            <script src="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.js"></script>
+        <!-- /LEAFLET -->
+
+        <!-- CUSTOM SPECIALS-->
+            <script src="../../static/js/Admin.Ui.Map.js"></script>
+        <!-- /CUSTOM SPECIALS-->
+    </body>
+</html>

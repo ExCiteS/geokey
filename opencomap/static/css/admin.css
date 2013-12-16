@@ -1,0 +1,125 @@
+body {
+    padding-top: 80px;
+    padding-bottom: 20px;
+}
+
+body#home {
+    padding-top: 50px;
+}
+
+body#home div.jumbotron {
+    text-align: center;
+    background: url(../img/london.jpg) no-repeat 50% -675px;
+    padding: 100px 0;
+    
+}
+
+    body#home div.jumbotron .super-heading {
+        text-shadow: 0 0 10px #555;    
+        color: #fff;
+    }
+
+    body#home div.jumbotron h1 {
+        margin-top: 0;
+    }
+
+.row {margin-bottom: 30px;}
+
+h1:first-child,
+h2:first-child,
+h3:first-child,
+h4:first-child,
+h5:first-child,
+h6:first-child {
+    margin-top: 0;
+}
+
+div.page-header {
+    position: relative;
+}
+
+    div.page-header > a.settings {
+        position: absolute;
+        bottom: 20px;
+        right: 0;
+    }
+
+    div.page-header > h1 > small {
+        display: block;
+        margin-top: 0.5em;
+    }
+
+        div.page-header > h1 > small > a#edit {
+            font-size: 14px;
+            display: inline-block;
+        }
+
+    div.page-header > .form-inline {
+        margin-bottom: 2px;
+    }
+        div.page-header > .form-inline > .form-group {
+            width: 100%;
+        }
+        
+        @media (min-width: 768px) { 
+            div.page-header > .form-inline > .form-group {
+                width: 583px;
+            }
+        }
+        
+
+
+
+div#map {
+    height: 300px;
+}
+
+.panel-title + p {
+    margin-top: 0.5em;
+}
+
+ul.newsfeed li {
+    margin-top: 0.7em;
+}
+
+ul.newsfeed li:first-child {
+    margin-top: 0;
+}
+
+ul.newsfeed li span.glyphicon {
+    margin-right: 0.5em;
+}
+
+.list-group-item.active a {
+    color: #fff;
+}
+
+.bordered-panel .tab-pane {
+    padding: 15px;
+    border: 0 solid #ddd;
+    border-width: 0 1px 1px 1px;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+ol.comments > li {
+    margin-bottom: 2em;
+    padding-left: 19px;
+}
+
+    ol.comments > li > header {
+        margin-left: -19px;
+        color: #999;
+    }
+
+        ol.comments > li > header > span {
+            margin-right: 5px;
+        }
+
+    ol.comments > li > footer {
+        margin-bottom: 1em;
+    }
+
+    ol.comments > li > ol.comments {
+        margin-left: 30px;
+    }
