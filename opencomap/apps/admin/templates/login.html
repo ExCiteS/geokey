@@ -1,34 +1,8 @@
-<!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-    <head>
-        <title>Open Community Maps | Dashboard</title>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width">
+{% extends "base.html" %}
 
-    <!-- STANDARD LIBS -->
-        <link rel="stylesheet" href="../static/lib/bootstrap/bootstrap.min.css">
-        <!-- <link rel="stylesheet" href="../../static/lib/bootstrap/bootstrap-theme.min.css"> -->
-        <link rel="stylesheet" href="../static/css/admin.css">
+{% block title %} | Login{% endblock %}
 
-        <script src="../../static/lib/modernizr/modernizr-2.6.2-respond-1.1.0.min.js"></script>
-    <!-- /STANDARD LIBS -->
-    </head>
-    <body>
-        <div class="navbar navbar-inverse navbar-fixed-top">
-            <div class="container">
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="#">Open Community Maps</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="container">
+{% block main %}
             <div class="page-header">
                 <h1>Login</h1>
             </div>
@@ -81,16 +55,4 @@
                     </form>
                 </div>
             </div>
-
-            <hr>
-
-            <footer>
-                <p>&copy; <a href="http://www.ucl.ac.uk/excites">Excites Research Group</a> 2014</p>
-            </footer>
-        </div> <!-- /container -->  
-
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.js"></script>
-        <script>window.jQuery || document.write('<script src="../../static/lib/jquery/jquery-1.10.1.js"><\/script>')</script>
-        <script src="../static/lib/bootstrap/bootstrap.min.js"></script>
-    </body>
-</html>
+{% endblock %}

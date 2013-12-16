@@ -10,7 +10,7 @@ def index(request):
 
 def signin(request):
     if request.method == 'GET':
-        if request.GET['next']: 
+        if request.GET and request.GET['next']: 
             return render(request, 'login.html', RequestContext(request, {'reason': 'required', 'next': request.GET['next']}))
         else:
             return render(request, 'login.html', RequestContext(request))
