@@ -9,7 +9,6 @@ from opencomap.apps.backend.models.feature import Feature
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 
 class View(models.Model):
-
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=100)
 	description = models.TextField(null=True)

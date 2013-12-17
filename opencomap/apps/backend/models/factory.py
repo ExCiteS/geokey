@@ -1,7 +1,7 @@
 from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.permission import UserGroup
 
-def createProject(name, description, creator):
+def createProject(name, description, creator, isprivate=False):
 	"""
 	Creates a new project, adds to user groups to the projects and adds the creator to the group
 	of project administrators. Returns the created project.
@@ -18,7 +18,7 @@ def createProject(name, description, creator):
 	everyoneGroup = UserGroup(name='Contributors')
 	everyoneGroup.save()
 
-	project = Project(name=name, description=description, admins=adminGroup, contributors=everyoneGroup, creator=creator)
+	project = Project(name=name, description=description, admins=adminGroup, contributors=everyoneGroup, creator=creator, isprivate=isprivate)
 	project.save()
 	
 	return project

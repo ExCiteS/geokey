@@ -4,6 +4,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
+from opencomap.apps.backend.views import projects_list
+
 # Create your views here.
 def index(request):
     return render(request, 'index.html', RequestContext(request))
@@ -39,7 +41,7 @@ def signup(request):
         return render(request, 'signup.html', RequestContext(request))
 
     elif request.method == 'POST':
-        User.objects.create_user(request.POST['email'], request.POST['email'], request.POST['password']).save()
+        User.objects.create_user(request.POST['email'], request.POST['email'], request.POST['password'], last_name=request.POST['lastname'], first_name=request.POST['firstname']).save()
         user = authenticate(username=request.POST['email'], password=request.POST['password'])
         if user is not None:
             login(request, user)
@@ -47,4 +49,4 @@ def signup(request):
         
 @login_required
 def dashboard(request):
-    return render(request, 'dashboard.html', RequestContext(request))
+    return render(request, 'dashboard.html', RequestContext(request, {"projects": projects_list(request.user)}))

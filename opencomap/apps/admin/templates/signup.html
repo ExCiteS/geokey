@@ -12,9 +12,21 @@
                     <form class="form-horizontal" role="form" action="/admin/signup" method="POST">
                         {% csrf_token %}
                         <div class="form-group">
-                            <label for="inputEmail3" class="col-sm-2 control-label">Email</label>
+                            <label for="email" class="col-sm-2 control-label">Email</label>
                             <div class="col-sm-10">
-                                <input type="email" class="form-control" id="email" name="email" placeholder="Email">
+                                <input type="email" class="form-control" id="email" name="email" placeholder="Your email address">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="firstname" class="col-sm-2 control-label">First name</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="firstname" name="firstname" placeholder="Your first name">
+                            </div>
+                        </div>
+                         <div class="form-group">
+                            <label for="lastname" class="col-sm-2 control-label">Last name</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Your family name">
                             </div>
                         </div>
                         <div class="form-group">

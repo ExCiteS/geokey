@@ -16,6 +16,7 @@ class Project(models.Model):
 	name = models.CharField(max_length=100)
 	description = models.TextField(null=True)
 	isprivate = models.BooleanField(default=False)
+	#everyoneContributes = models.BooleanField(default=True)
 	created_at = models.DateTimeField(default=datetime.now(tz=utc))
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
@@ -57,7 +58,7 @@ class Project(models.Model):
 		"""
 		Returns a list of all features assinged to the project. Excludes those having status `RETIRED` and `DELETED`
 		"""
-		return self.feature_set.exclude(status=STATUS_TYPES['INACTIVE']).exclude(status=STATUS_TYPES['DELETED'])
+		return self.feature_set.exclude(status=STATUS_TYPES['DELETED'])
 
 	def addFeature(self, feature):
 		"""
@@ -82,7 +83,7 @@ class Project(models.Model):
 		"""
 		Returns all `FeatureTypes` assigned to the project
 		"""
-		return self.featuretype_set.exclude(status=STATUS_TYPES['INACTIVE']).exclude(status=STATUS_TYPES['DELETED'])
+		return self.featuretype_set.exclude(status=STATUS_TYPES['DELETED'])
 
 	def addFeatureType(self, featuretype):
 		"""
