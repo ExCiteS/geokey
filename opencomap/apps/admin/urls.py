@@ -8,4 +8,6 @@ urlpatterns = patterns('',
     url(r'^logout$', views.signout, name='logout'),
     url(r'^dashboard$', views.dashboard, name='dashboard'),
     url(r'^signup$', views.signup, name='signup'),
+
+	url(r'^project/new$', views.createProject, name='project:create'),    
 )

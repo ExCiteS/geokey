@@ -48,8 +48,8 @@
         </div> <!-- /container --> 
         {% if not user.is_anonymous %}
             <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.js"></script>
-            <script>window.jQuery || document.write('<script src="../../static/lib/jquery/jquery-1.10.1.js"><\/script>')</script>
-            <script src="../../static/lib/bootstrap/bootstrap.min.js"></script>
+            <script>window.jQuery || document.write('<script src="/static/lib/jquery/jquery-1.10.1.js"><\/script>')</script>
+            <script src="/static/lib/bootstrap/bootstrap.min.js"></script>
         {% endif %}
 
         {% block libraries %} {% endblock %}

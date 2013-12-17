@@ -4,7 +4,7 @@
 
 {% block main %}
             <div class="page-header">
-                <h1>Welcome back{% if user.first_name %}, {{user.first_name}}{% endif %}!</h1>
+                <h1>Welcome back{% if user.first_name %}, {{user.first_name}}{% endif %}.</h1>
             </div>
             <div class="row">
 
@@ -26,7 +26,7 @@
                         {% if projects %}
                         <div class="list-group">
                             {% for project in projects %}
-                            <a href="project.html" class="list-group-item">
+                            <a href="/admin/projects/{{project.id}}" class="list-group-item">
                                 <h4 class="list-group-item-heading">{{project.name}}</h4>
                                 {% if project.description %}<p class="list-group-item-text">{{project.description}}</p>{% endif %}
                             </a>
@@ -34,11 +34,11 @@
                         </div>
                         {% else %}
                         <div class="panel-body">
-                            <p>You are not eglible to access any project. <a href="project.new.html">Create a new project</a>.</p>
+                            <p>You are not eligible to access any project. <a href="/admin/project/new">You may want to create a new project</a>.</p>
                         </div>
                         {% endif %}
                         <div class="panel-footer">
-                            <a href="project.new.html" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new Project</a>
+                            <a href="/admin/project/new" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new Project</a>
                         </div>
                     </div>
                 </div>

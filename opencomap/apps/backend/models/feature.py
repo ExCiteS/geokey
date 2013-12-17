@@ -47,7 +47,7 @@ class Feature(Commendable):
 	name = models.CharField(max_length=100)
 	description = models.TextField(null=True)
 	geometry = gis.GeometryField(geography=True)
-	created_at = models.DateTimeField(default=datetime.now(tz=utc))
+	created_at = models.DateTimeField(auto_now_add=True)
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 	projects = models.ManyToManyField(Project)
@@ -125,7 +125,7 @@ class Observation(Commendable):
 	"""
 	id = models.AutoField(primary_key=True)
 	data = DictionaryField(db_index=True)
-	created_at = models.DateTimeField(default=datetime.now(tz=utc))
+	created_at = models.DateTimeField(auto_now_add=True)
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	feature = models.ForeignKey(Feature)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])

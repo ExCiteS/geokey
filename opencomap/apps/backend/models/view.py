@@ -13,7 +13,7 @@ class View(models.Model):
 	name = models.CharField(max_length=100)
 	description = models.TextField(null=True)
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
-	created_at = models.DateTimeField(default=datetime.now(tz=utc))
+	created_at = models.DateTimeField(auto_now_add=True)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 	projects = models.ManyToManyField(Project)
 	features = models.ManyToManyField(Feature)

@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
 from opencomap.apps.backend.views import projects_list
+import opencomap.apps.backend.models.factory as Factory
 
 # Create your views here.
 def index(request):
@@ -50,3 +51,13 @@ def signup(request):
 @login_required
 def dashboard(request):
     return render(request, 'dashboard.html', RequestContext(request, {"projects": projects_list(request.user)}))
+
+@login_required
+def createProject(request):
+    if request.method == 'GET':
+        return render(request, 'project.new.html', RequestContext(request))
+    
+    elif request.method == 'POST':
+        private = request.POST.get('isprivate') == 'true'
+        Factory.createProject(request.POST.get('name'), request.POST.get('description'), request.user, isprivate=private).save()
+        return redirect('/admin/dashboard')
