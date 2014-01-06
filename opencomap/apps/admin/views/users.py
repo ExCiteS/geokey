@@ -6,11 +6,9 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 
 from opencomap.apps.api.serializers import SingleSerializer
-
 from opencomap.apps.backend import views as view
-import opencomap.apps.backend.models.factory as Factory
 
-# Create your views here.
+
 def index(request):
     return render(request, 'index.html', RequestContext(request))
 
@@ -54,28 +52,3 @@ def signup(request):
 @login_required
 def dashboard(request):
     return render(request, 'dashboard.html', RequestContext(request, {"projects": view.projects_list(request.user)}))
-
-@login_required
-def createProject(request):
-    if request.method == 'GET':
-        return render(request, 'project.new.html', RequestContext(request))
-    
-    elif request.method == 'POST':
-        private = request.POST.get('isprivate') == 'true'
-        Factory.createProject(request.POST.get('name'), request.POST.get('description'), request.user, isprivate=private).save()
-        return redirect('/admin/dashboard')
-
-@login_required
-def viewProject(request, project_id):
-    return render(request, 'project.html', RequestContext(request, {"project": view.project(request.user, project_id)}))
-
-@login_required
-def editProject(request, project_id):
-    return render(request, 'project.edit.html', RequestContext(request, {"project": view.project(request.user, project_id)}))
-
-@login_required
-def updateProject(request, project_id):
-    project = view.updateProject(request.user, project_id, request.POST)
-    serializer = SingleSerializer()
-
-    return HttpResponse(serializer.serialize(project))

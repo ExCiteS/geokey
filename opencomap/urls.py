@@ -7,4 +7,5 @@ urlpatterns = patterns('',
     # Examples:
 
     url(r'^admin/', include('opencomap.apps.admin.urls')),
+    url(r'^api/', include('opencomap.apps.api.urls')),
 )

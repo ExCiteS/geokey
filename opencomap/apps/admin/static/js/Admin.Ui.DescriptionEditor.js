@@ -18,7 +18,7 @@ $(function() {
 		
 		submitbtn.button('loading');
 		$.ajax({
-			url: '/admin/ajax/project/' + projectId + '/update',
+			url: '/api/ajax/project/' + projectId + '/update',
 			method: 'POST',
 			data: form.serializeArray(),
 			xhrFields: {
