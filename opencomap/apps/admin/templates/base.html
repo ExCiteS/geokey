@@ -14,7 +14,7 @@
         <link rel="stylesheet" href="/static/css/admin.css">
         <script src="/static/lib/modernizr/modernizr-2.6.2-respond-1.1.0.min.js"></script>
     </head>
-    <body>
+    <body{% block bodydata %} {% endblock %}>
         <div class="navbar navbar-inverse navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
@@ -51,7 +51,7 @@
             <script>window.jQuery || document.write('<script src="/static/lib/jquery/jquery-1.10.1.js"><\/script>')</script>
             <script src="/static/lib/bootstrap/bootstrap.min.js"></script>
         {% endif %}
-
+        {% block modals %} {% endblock %}
         {% block libraries %} {% endblock %}
     </body>
 </html>

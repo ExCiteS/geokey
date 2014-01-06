@@ -67,6 +67,9 @@ div.page-header {
             }
         }
         
+        div.page-header > .form-inline input.loading {
+            background: url(/static/img/ajax-loader.gif) 98% 50% no-repeat;
+        }
 
 
 

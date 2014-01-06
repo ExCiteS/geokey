@@ -9,4 +9,15 @@ def projects_list(user):
 		if (project.admins.isMember(user)) or ((not project.isprivate or project.contributors.isMember(user)) and project.status != STATUS_TYPES['INACTIVE']):
 			result.append(project)
 		
-	return result 
+	return result
+
+def project(user, project_id):
+	project = Project.objects.get(pk=project_id)
+	# TODO: Implement user check
+	return project
+
+def updateProject(user, project_id, data):
+	project = Project.objects.get(pk=project_id)
+	# TODO: Implement user check
+	project.update(description=data.get('description'))
+	return project

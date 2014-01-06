@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.gis',
     'opencomap.apps.backend',
     'opencomap.apps.admin',
+    'opencomap.apps.api',
 )
 
 MIDDLEWARE_CLASSES = (
