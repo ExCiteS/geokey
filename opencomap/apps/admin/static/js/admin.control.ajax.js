@@ -11,7 +11,8 @@
 				withCredentials: true
 			},
 			success: successCallback,
-			error: errorCallback
+			error: errorCallback,
+			data: data
 		});
 	}
 
