@@ -3,4 +3,5 @@ from opencomap.apps.api import views
 
 urlpatterns = patterns('',
     url(r'^ajax/project/(?P<project_id>\d+)/update$', views.updateProject, name='project_update'),
+    url(r'^ajax/project/(?P<project_id>\d+)/delete$', views.deleteProject, name='project_delete'),
 )

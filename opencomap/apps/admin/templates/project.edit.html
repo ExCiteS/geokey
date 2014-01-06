@@ -4,9 +4,21 @@
 {% block title %} | Project | Settings{% endblock %}
 
 {% block main %}
+    {% if error %}
             <div class="page-header">
-                <!-- <h1>Project</h1> -->
-                <h1>{{project.name}}{% if project.description %}<small><span id="descriptionText">{{project.description}}</span> <a href="#" id="edit"><span class="glyphicon glyphicon-edit"></span> Edit</a></small>{% endif %}</h1>
+                <h1>An error occured.</h1>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+                    <div class="alert alert-danger">{{ error }}</div>
+                </div>
+            </div>
+    {% endif %}
+
+    {% if project %}
+            <div class="page-header">
+                <h1>{{project.name}}<small><span id="descriptionText">{{project.description}}</span> <a href="#" id="edit"><span class="glyphicon glyphicon-edit"></span> Edit description</a></small></h1>
                 <form class="form-inline" id="description-form" role="form">
                     {% csrf_token %}
                     <div class="form-group">
@@ -133,9 +145,11 @@
                     </div>
                 </div>
             </div>
+    {% endif %}
 {% endblock %}
 
 {% block modals %} 
+    {% if project %}
         <!-- Delete confirmation modal -->
         <div class="modal fade" id="delete_confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -149,7 +163,7 @@
                         <p>Deleting a project will delete all data contributed to the project.</p>
                     </div>
                     <div class="modal-footer panel-footer">
-                        <button type="button" class="btn btn-danger">I'm absolutely sure, delete the project!</button>
+                        <button type="button" value="delete" class="btn btn-danger">I'm absolutely sure, delete the project!</button>
                     </div>
                 </div>
             </div>
@@ -204,12 +218,16 @@
             </div>
         </div>
         <!-- /Inactive confirmation modal -->
-
-
+    {% endif %}
 {% endblock %}
 
 {% block libraries %} 
+    {% if project %}
             <script src="/static/js/Admin.Ui.DescriptionEditor.js"></script>
+            <script src="/static/js/admin.ui.project.edit.js"></script>
+            <script src="/static/js/admin.control.project.js"></script>
+            <script src="/static/js/admin.control.ajax.js"></script>
             <script src="/static/js/Admin.Ui.Project.UserGroups.js"></script>
             <script src="/static/js/Admin.Ui.UserGroup.js"></script>
+    {% endif %}
 {% endblock %}

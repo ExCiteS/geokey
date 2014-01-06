@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 
+from django.core.exceptions import ObjectDoesNotExist
+
 from opencomap.apps.api.serializers import SingleSerializer
 from opencomap.apps.backend import views as view
 import opencomap.apps.backend.models.factory as Factory
@@ -21,8 +23,20 @@ def createProject(request):
 
 @login_required
 def viewProject(request, project_id):
-    return render(request, 'project.html', RequestContext(request, {"project": view.project(request.user, project_id)}))
+	try:
+		project = view.projects.project(request.user, project_id)
+		admin = project.admins.isMember(request.user)
+		return render(request, 'project.html', RequestContext(request, {"project": project, "admin": admin}))
+	except ObjectDoesNotExist, err:
+		return render(request, 'project.html', RequestContext(request, {"error": err}))
 
 @login_required
 def editProject(request, project_id):
-    return render(request, 'project.edit.html', RequestContext(request, {"project": view.project(request.user, project_id)}))
+	try:
+		project = view.projects.project(request.user, project_id)
+		if project.admins.isMember(request.user):
+			return render(request, 'project.edit.html', RequestContext(request, {"project": view.projects.project(request.user, project_id)}))
+		else:
+			return render(request, 'project.edit.html', RequestContext(request, {"error": "You are not allowed to edit the setting of this project"}))	
+	except ObjectDoesNotExist, err:
+		return render(request, 'project.edit.html', RequestContext(request, {"error": err}))

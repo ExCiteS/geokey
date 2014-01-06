@@ -3,9 +3,19 @@
 {% block title %} | Project{% endblock %}
 
 {% block main %}
+    {% if project %}
             <div class="page-header">
                 <!-- <h1>Project</h1> -->
-                <h1>{{project.name}}{% if project.description %}<small>{{project.description}} <a href="{% url 'project_settings' project.id%}" id="edit"><span class="glyphicon glyphicon-cog"></span> Settings</a></small>{% endif %}</h1>
+                <h1>
+                    {{project.name}}
+                    <small>
+                        {{project.description}} 
+
+                        {% if admin %}
+                            <a href="{% url 'project_settings' project.id%}" id="edit"><span class="glyphicon glyphicon-cog"></span> Settings</a>
+                        {% endif %}
+                    </small>
+                </h1>
             </div>
 
             <div class="row">
@@ -85,9 +95,23 @@
                     </div> <!-- /View List -->
                 </div>
             </div>
+    {% endif %}
+
+    {% if error %}
+            <div class="page-header">
+                <h1>An error occured.</h1>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+                    <div class="alert alert-danger">{{ error }}</div>
+                </div>
+            </div>
+    {% endif %}
 {% endblock %}
 
 {% block libraries %} 
+    {% if project %}
         <!-- LEAFLET -->
             <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.css" />
             <!--[if lte IE 8]>
@@ -99,4 +123,5 @@
         <!-- CUSTOM SPECIALS-->
             <script src="/static/js/Admin.Ui.Map.js"></script>
         <!-- /CUSTOM SPECIALS-->
+    {% endif %}
 {% endblock %}
