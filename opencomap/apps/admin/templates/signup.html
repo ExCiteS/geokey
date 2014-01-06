@@ -9,7 +9,7 @@
 
             <div class="row">
                 <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
-                    <form class="form-horizontal" role="form" action="/admin/signup" method="POST" novalidate>
+                    <form class="form-horizontal" role="form" action="{% url 'signup'%}" method="POST" novalidate>
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="email" class="col-sm-2 control-label">Email</label>

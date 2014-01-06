@@ -33,7 +33,7 @@
 
             <div class="row">
                 <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
-                    <form class="form-horizontal" role="form" action="/admin/login{% if next %}?next={{next}}{% endif %}" method="POST">
+                    <form class="form-horizontal" role="form" action="{% url 'login'%}{% if next %}?next={{next}}{% endif %}" method="POST">
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="inputEmail3" class="col-sm-2 control-label">Email</label>

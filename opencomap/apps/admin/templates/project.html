@@ -5,7 +5,7 @@
 {% block main %}
             <div class="page-header">
                 <!-- <h1>Project</h1> -->
-                <h1>{{project.name}}{% if project.description %}<small>{{project.description}} <a href="/admin/project/{{project.id}}/settings" id="edit"><span class="glyphicon glyphicon-cog"></span> Settings</a></small>{% endif %}</h1>
+                <h1>{{project.name}}{% if project.description %}<small>{{project.description}} <a href="{% url 'project_settings' project.id%}" id="edit"><span class="glyphicon glyphicon-cog"></span> Settings</a></small>{% endif %}</h1>
             </div>
 
             <div class="row">

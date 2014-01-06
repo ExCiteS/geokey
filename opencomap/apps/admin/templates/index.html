@@ -29,7 +29,7 @@
                     <a class="navbar-brand" href="#">Open Community Maps</a>
                 </div>
                 <div class="navbar-collapse collapse">
-                    <form class="navbar-form navbar-right" method="POST" action="/admin/login">
+                    <form class="navbar-form navbar-right" method="POST" action="{% url 'login'%}">
                         {% csrf_token %}
                         <div class="form-group">
                             <input type="text" placeholder="Email" name="email" class="form-control">
@@ -52,8 +52,8 @@
                         <p>Open Community Maps is an open platform for participatory mapping, that enables citizens to record, view and analyse geographically referenced observations and discussions for different purposes.</p>
                     </div> <!-- / Info -->
                 </div>
-                <a href="/admin/login" class="btn btn-success btn-lg"><span class="glyphicon glyphicon-user"></span> Log in</a>
-                <a href="/admin/signup" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-user"></span> Sign up</a>
+                <a href="{% url 'login'%}" class="btn btn-success btn-lg"><span class="glyphicon glyphicon-user"></span> Log in</a>
+                <a href="{% url 'signup'%}" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-user"></span> Sign up</a>
             </div>
         </div>
 
