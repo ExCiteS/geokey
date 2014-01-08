@@ -34,14 +34,17 @@ class Project(models.Model):
 	def __unicode__(self):
 		return self.name + ', ' + self.description
 
-	def update(self, name=None, description=None, status=None):
+	def update(self, name=None, description=None, status=None, isprivate=None):
 		"""
 		Updates a project. Checks if the status is of ACTIVE or INACTIVE otherwise raises ValidationError.
 		"""
+
 		if ((status is None) or (status in self._ACCEPTED_STATUS)):
 			if (name): self.name = name
 			if (description): self.description = description
 			if (status): self.status = status
+			if (isprivate != None): 
+				self.isprivate = isprivate
 
 			self.save()
 		else:

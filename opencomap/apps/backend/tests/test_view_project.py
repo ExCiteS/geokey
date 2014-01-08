@@ -3,9 +3,13 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import PermissionDenied
+
 import opencomap.apps.backend.models.factory as Factory
+from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.choice import STATUS_TYPES
-from opencomap.apps.backend.views import projects_list
+from opencomap.apps.backend import views as view
 
 class ProjectViewTest(TestCase):
 	class Meta: 
@@ -37,41 +41,117 @@ class ProjectViewTest(TestCase):
 		inactive.save()
 
 		private = Factory.createProject('Private project', 'Test description', eric, isprivate=True)
-		private.admins.addUsers(zidane)
+		private.admins.addUsers(george)
 		private.contributors.addUsers(diego)
 		private.save()
 
+		deleted = Factory.createProject('Deleted project', 'Test description', eric)
+		deleted.delete()
+		deleted.save()
+
 	def test_accessProjectsWithNonMember(self):
 		mehmet = self._authenticate('mehmet')
-		projects = projects_list(mehmet)
+		projects = view.projects_list(mehmet)
 		self.assertEqual(len(projects), 1)
 		for p in projects:
 			self.assertNotIn(p.name, ('Private project', 'Inactive project'))
 
-	def test_accessProjectWithCreator(self):
+	def test_accessProjectsWithCreator(self):
 		eric = self._authenticate('eric')
-		projects = projects_list(eric)
+		projects = view.projects_list(eric)
 		self.assertEqual(len(projects), 3)
 		for p in projects:
 			self.assertIn(p.name, ('Public project', 'Inactive project', 'Private project'))
 
-	def test_accessProjectInactiveWithAdmin(self):
+	def test_accessProjectsInactiveWithAdmin(self):
 		george = self._authenticate('george')
-		projects = projects_list(george)
-		self.assertEqual(len(projects), 2)
+		projects = view.projects_list(george)
+		self.assertEqual(len(projects), 3)
 		for p in projects:
-			self.assertIn(p.name, ('Public project', 'Inactive project'))
+			self.assertIn(p.name, ('Public project', 'Inactive project', 'Private project'))
 
-	def test_accessProjectPrivateWithAdmin(self):
-		zidane = self._authenticate('zidane')
-		projects = projects_list(zidane)
-		self.assertEqual(len(projects), 2)
-		for p in projects:
-			self.assertIn(p.name, ('Public project', 'Private project'))
-
-	def test_accessProjectPrivateWithContributer(self):
+	def test_accessProjectsPrivateWithContributor(self):
 		diego = self._authenticate('diego')
-		projects = projects_list(diego)
+		projects = view.projects_list(diego)
 		self.assertEqual(len(projects), 2)
 		for p in projects:
 			self.assertIn(p.name, ('Public project', 'Private project'))
+
+	def test_accessProjectWithNonMenber(self):
+		mehmet = self._authenticate('mehmet')
+		projects = Project.objects.all()
+		for project in projects:
+			if project.name == 'Public project':
+				self.assertEqual(project, view.project(mehmet, project.id))
+			if project.name == 'Inactive project':
+				with self.assertRaises(PermissionDenied):
+					view.project(mehmet, project.id)
+			if project.name == 'Private project':
+				with self.assertRaises(PermissionDenied):
+					view.project(mehmet, project.id)
+			if project.name == 'Deleted project':
+				with self.assertRaises(ObjectDoesNotExist):
+					view.project(mehmet, project.id)
+
+	def test_accessProjectWithContributor(self):
+		diego = self._authenticate('diego')
+		projects = Project.objects.all()
+		for project in projects:
+			if project.name == 'Public project':
+				self.assertEqual(project, view.project(diego, project.id))
+			if project.name == 'Inactive project':
+				with self.assertRaises(PermissionDenied):
+					view.project(diego, project.id)
+			if project.name == 'Private project':
+				self.assertEqual(project, view.project(diego, project.id))
+			if project.name == 'Deleted project':
+				with self.assertRaises(ObjectDoesNotExist):
+					view.project(diego, project.id)
+
+	def test_accessProjectWithAdmins(self):
+		george = self._authenticate('george')
+		eric = self._authenticate('eric')
+		projects = Project.objects.all()
+		for project in projects:
+			if project.name == 'Public project':
+				self.assertEqual(project, view.project(george, project.id))
+				self.assertEqual(project, view.project(eric, project.id))
+			if project.name == 'Inactive project':
+				self.assertEqual(project, view.project(george, project.id))
+				self.assertEqual(project, view.project(eric, project.id))
+			if project.name == 'Private project':
+				self.assertEqual(project, view.project(george, project.id))
+				self.assertEqual(project, view.project(eric, project.id))
+			if project.name == 'Deleted project':
+				with self.assertRaises(ObjectDoesNotExist):
+					view.project(george, project.id)
+					view.project(eric, project.id)
+
+	def testUpdateProjectWithAdmin(self):
+		george = self._authenticate('george')
+		eric = self._authenticate('eric')
+		for project in Project.objects.all():
+			if project.name == 'Private project':
+				try:
+					view.updateProject(george, project.id, {"description": "new description"})
+				except PermissionDenied: 
+					self.fail('updateProject() raised PermissionDenied unexpectedly')
+
+				try:
+					view.updateProject(eric, project.id, {"description": "new description"})
+				except PermissionDenied: 
+					self.fail('updateProject() raised PermissionDenied unexpectedly')
+
+	def testUpdateProjectWithNonAdmin(self):
+		diego = self._authenticate('diego')
+		mehmet = self._authenticate('mehmet')
+		for project in Project.objects.all():
+			with self.assertRaises(PermissionDenied):
+				view.updateProject(diego, project.id, {"description": "new description"})
+				view.updateProject(mehmet, project.id, {"description": "new description"})
+			
+
+
+
+
+

@@ -1,5 +1,9 @@
 from opencomap.apps.backend.models.project import Project
+from opencomap.apps.backend.models.usergroup import UserGroup
+
 from opencomap.apps.backend.models.choice import STATUS_TYPES
+
+from django.contrib.auth.models import User
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
@@ -21,7 +25,7 @@ def project(user, project_id):
 	elif project.status == STATUS_TYPES['DELETED']:
 		raise ObjectDoesNotExist('The requested project has been deleted by a project administrator.')
 	else:
-		raise ObjectDoesNotExist('You are not allowed to access this project.')
+		raise PermissionDenied('You are not allowed to access this project.')
 
 def deleteProject(user, project_id):
 	project = Project.objects.get(pk=project_id)
@@ -29,12 +33,45 @@ def deleteProject(user, project_id):
 		project.delete()
 		return project
 	else:
-		raise PermissionDenied('You are not allowed to delete this project.') 
+		raise PermissionDenied('You are not allowed to delete this project.')
 
 def updateProject(user, project_id, data):
 	project = Project.objects.get(pk=project_id)
 	if project.admins.isMember(user):
-		project.update(description=data.get('description'))
+		if data.get('isprivate') != None: project.update(isprivate=data.get('isprivate'))
+		if data.get('status') != None: project.update(status=data.get('status'))
+		if data.get('description') != None: project.update(description=data.get('description'))
+
 		return project
+	else: 
+		raise PermissionDenied('You are not allowed to update the settings of this project.')
+
+def addUserToGroup(user, project_id, group_id, userToAdd):
+	project = Project.objects.get(pk=project_id)
+	if project.admins.isMember(user):
+		if project.admins.id == int(group_id) or project.contributors.id == int(group_id):
+			user = User.objects.get(pk=userToAdd.get('userId'))
+			group = UserGroup.objects.get(pk=group_id)
+			group.addUsers(user)
+
+			return group
+		else:
+			raise UserGroup.DoesNotExist
+	else: 
+		raise PermissionDenied('You are not allowed to update the settings of this project.')
+
+def removeUserFromGroup(user, project_id, group_id, user_id):
+	project = Project.objects.get(pk=project_id)
+	if project.admins.isMember(user):
+		if project.admins.id == int(group_id) or project.contributors.id == int(group_id):
+			group = UserGroup.objects.get(pk=group_id)
+			user = User.objects.get(pk=user_id)
+			if group.isMember(user):
+				group.removeUsers(user)
+				return group
+			else:
+				raise User.DoesNotExist	
+		else:
+			raise UserGroup.DoesNotExist
 	else: 
 		raise PermissionDenied('You are not allowed to update the settings of this project.')
