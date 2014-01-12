@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 
 from opencomap.apps.api.serializers import SingleSerializer
-from opencomap.apps.backend import views as view
+from opencomap.apps.backend import auth
 import opencomap.apps.backend.models.factory as Factory
 
 @login_required
@@ -24,7 +24,7 @@ def createProject(request):
 @login_required
 def viewProject(request, project_id):
 	try:
-		project = view.projects.project(request.user, project_id)
+		project = auth.projects.project(request.user, project_id)
 		admin = project.admins.isMember(request.user)
 		return render(request, 'project.html', RequestContext(request, {"project": project, "admin": admin}))
 	except ObjectDoesNotExist, err:
@@ -33,9 +33,9 @@ def viewProject(request, project_id):
 @login_required
 def editProject(request, project_id):
 	try:
-		project = view.projects.project(request.user, project_id)
+		project = auth.projects.project(request.user, project_id)
 		if project.admins.isMember(request.user):
-			return render(request, 'project.edit.html', RequestContext(request, {"project": view.projects.project(request.user, project_id)}))
+			return render(request, 'project.edit.html', RequestContext(request, {"project": auth.projects.project(request.user, project_id)}))
 		else:
 			return render(request, 'project.edit.html', RequestContext(request, {"error": "You are not allowed to edit the setting of this project"}))	
 	except ObjectDoesNotExist, err:

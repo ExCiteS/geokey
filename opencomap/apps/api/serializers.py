@@ -9,6 +9,7 @@ class DataSerializer(serializers.get_serializer('python')):
 		app_label = 'api'
 
 	def get_dump_object(self, obj):
+		self._current['id'] = obj._get_pk_val()
 		return self._current
 
 	def handle_fk_field(self, obj, field):

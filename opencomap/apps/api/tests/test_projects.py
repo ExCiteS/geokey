@@ -106,6 +106,7 @@ class ProjectApiTest(TestCase):
 	def test_addNotExistingUser(self):
 		self.client.login(username='eric', password='eric123')
 		response = self.client.put('/api/ajax/project/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id), json.dumps({'userId': 10000}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+
 		self.assertEqual(response.status_code, 400)
 	
 	def test_addUsersWithCreator(self):
@@ -125,6 +126,7 @@ class ProjectApiTest(TestCase):
 		self.assertEqual(response.status_code, 200)
 		serializer = SingleSerializer()
 		self.assertContains(response, serializer.serialize(userToAdd))
+		print response
 
 	def test_addUsersWithContributor(self):
 		userToAdd = self._authenticate('carlos')
@@ -223,6 +225,7 @@ class ProjectApiTest(TestCase):
 		response = self.client.put('/api/ajax/project/' + str(self.project.id), json.dumps({'description': 'newer description'}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, '"description": "newer description"')
+		print response
 
 	def test_updateDescriptionWithContributor(self):
 		self.client.login(username='diego', password='diego123')

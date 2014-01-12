@@ -11,7 +11,7 @@ import json
 
 from opencomap.apps.api.serializers import SingleSerializer
 
-from opencomap.apps.backend.views import projects
+from opencomap.apps.backend.auth import projects as projectAuth
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 from opencomap.apps.backend.models.projects import Project
 from opencomap.apps.backend.models.usergroup import UserGroup
@@ -20,7 +20,7 @@ from opencomap.apps.backend.models.usergroup import UserGroup
 def updateProject(request, project_id):
 	if request.method == "PUT":
 		try: 
-			project = projects.updateProject(request.user, project_id, json.loads(request.body))
+			project = projectAuth.updateProject(request.user, project_id, json.loads(request.body))
 			serializer = SingleSerializer()
 			return HttpResponse(serializer.serialize(project))
 		except PermissionDenied, err:
@@ -30,7 +30,7 @@ def updateProject(request, project_id):
 
 	elif request.method == "DELETE":
 		try: 
-			project = projects.deleteProject(request.user, project_id)
+			project = projectAuth.deleteProject(request.user, project_id)
 			return HttpResponse("The project has been deleted.")
 		except PermissionDenied, err:
 			return HttpResponse(err, status=401)
@@ -43,7 +43,7 @@ def updateProject(request, project_id):
 def addUserToGroup(request, project_id, group_id):
 	if request.method == "PUT":
 		try: 
-			group = projects.addUserToGroup(request.user, project_id, group_id, json.loads(request.body))
+			group = projectAuth.addUserToGroup(request.user, project_id, group_id, json.loads(request.body))
 			serializer = SingleSerializer()
 			return HttpResponse(serializer.serialize(group))
 		except PermissionDenied, err:
@@ -60,7 +60,7 @@ def addUserToGroup(request, project_id, group_id):
 def removeUserFromGroup(request, project_id, group_id, user_id):
 	if request.method == "DELETE":
 		try:
-			projects.removeUserFromGroup(request.user, project_id, group_id, user_id)
+			projectAuth.removeUserFromGroup(request.user, project_id, group_id, user_id)
 			return HttpResponse("The user has been successfully removed from the group.")
 		except PermissionDenied, err:
 			return HttpResponse(err, status=401)

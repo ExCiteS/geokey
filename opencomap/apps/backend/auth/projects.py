@@ -60,12 +60,12 @@ def addUserToGroup(user, project_id, group_id, userToAdd):
 	else: 
 		raise PermissionDenied('You are not allowed to update the settings of this project.')
 
-def removeUserFromGroup(user, project_id, group_id, user_id):
+def removeUserFromGroup(user, project_id, group_id, userToRemove):
 	project = Project.objects.get(pk=project_id)
 	if project.admins.isMember(user):
 		if project.admins.id == int(group_id) or project.contributors.id == int(group_id):
 			group = UserGroup.objects.get(pk=group_id)
-			user = User.objects.get(pk=user_id)
+			user = User.objects.get(pk=userToRemove)
 			if group.isMember(user):
 				group.removeUsers(user)
 				return group
