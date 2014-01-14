@@ -7,7 +7,7 @@ from django.http import HttpResponse
 
 from django.core.exceptions import ObjectDoesNotExist
 
-from opencomap.apps.api.serializers import SingleSerializer
+from opencomap.apps.backend.serializers import SingleSerializer
 from opencomap.apps.backend import auth
 import opencomap.apps.backend.models.factory as Factory
 

@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 
 import json
-from opencomap.apps.api.serializers import SingleSerializer
+from opencomap.apps.backend.serializers import SingleSerializer
 
 import opencomap.apps.backend.models.factory as Factory
 from opencomap.apps.backend.models.choice import STATUS_TYPES
@@ -42,25 +42,25 @@ class ProjectAjaxTest(TestCase):
 	
 	def test_removeUsersWithWrongMethod(self):
 		self.client.login(username='eric', password='eric123')
-		response = self.client.post('/api/ajax/project/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/10', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.post('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/10', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 		self.assertEqual(response.status_code, 405)
 
 	def test_removeNotExistingUser(self):
 		self.client.login(username='eric', password='eric123')
-		response = self.client.delete('/api/ajax/project/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/10000', HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.delete('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/10000', HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 404)
 
 	def test_removeNotWrongUser(self):
 		userToRemove = self._authenticate('carlos')
 		self.client.login(username='eric', password='eric123')
-		response = self.client.delete('/api/ajax/project/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/' + str(userToRemove.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.delete('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/' + str(userToRemove.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 404)
 
 	def test_removeUsersWithCreator(self):
 		userToRemove = self._authenticate('george')
 
 		self.client.login(username='eric', password='eric123')
-		response = self.client.delete('/api/ajax/project/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/' + str(userToRemove.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.delete('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/' + str(userToRemove.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 200)
 		serializer = SingleSerializer()
 		self.assertNotContains(response, serializer.serialize(userToRemove))
@@ -70,7 +70,7 @@ class ProjectAjaxTest(TestCase):
 		self.project.admins.addUsers(self._authenticate('carlos'))
 
 		self.client.login(username='carlos', password='carlos123')
-		response = self.client.delete('/api/ajax/project/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/' + str(userToRemove.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.delete('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/' + str(userToRemove.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 200)
 		serializer = SingleSerializer()
 		self.assertNotContains(response, serializer.serialize(userToRemove))
@@ -79,14 +79,14 @@ class ProjectAjaxTest(TestCase):
 		userToRemove = self._authenticate('george')
 
 		self.client.login(username='diego', password='diego123')
-		response = self.client.delete('/api/ajax/project/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/' + str(userToRemove.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.delete('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/' + str(userToRemove.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 401)
 
 	def test_removeUsersWithNonMember(self):
 		userToRemove = self._authenticate('george')
 
 		self.client.login(username='mehmet', password='mehmet123')
-		response = self.client.delete('/api/ajax/project/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/' + str(userToRemove.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.delete('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/' + str(userToRemove.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 401)
 
 	# ###################################
@@ -95,17 +95,17 @@ class ProjectAjaxTest(TestCase):
 	 
 	def test_addUsersWrongUserGroup(self):
 		self.client.login(username='eric', password='eric123')
-		response = self.client.put('/api/ajax/project/' + str(self.project.id) + '/usergroups/' + str(self.referenceGroup.id), json.dumps({'userId': 10000}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.referenceGroup.id), json.dumps({'userId': 10000}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 404)
 
 	def test_addUsersWithWrongMethod(self):
 		self.client.login(username='eric', password='eric123')
-		response = self.client.post('/api/ajax/project/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id), json.dumps({'userId': 10}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.post('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id), json.dumps({'userId': 10}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 405)
 
 	def test_addNotExistingUser(self):
 		self.client.login(username='eric', password='eric123')
-		response = self.client.put('/api/ajax/project/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id), json.dumps({'userId': 10000}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id), json.dumps({'userId': 10000}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 
 		self.assertEqual(response.status_code, 400)
 	
@@ -113,7 +113,7 @@ class ProjectAjaxTest(TestCase):
 		userToAdd = self._authenticate('carlos')
 
 		self.client.login(username='eric', password='eric123')
-		response = self.client.put('/api/ajax/project/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id), json.dumps({'userId': userToAdd.id}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id), json.dumps({'userId': userToAdd.id}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 200)
 		serializer = SingleSerializer()
 		self.assertContains(response, serializer.serialize(userToAdd))
@@ -122,7 +122,7 @@ class ProjectAjaxTest(TestCase):
 		userToAdd = self._authenticate('carlos')
 
 		self.client.login(username='george', password='george123')
-		response = self.client.put('/api/ajax/project/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id), json.dumps({'userId': userToAdd.id}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id), json.dumps({'userId': userToAdd.id}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 200)
 		serializer = SingleSerializer()
 		self.assertContains(response, serializer.serialize(userToAdd))
@@ -131,14 +131,14 @@ class ProjectAjaxTest(TestCase):
 		userToAdd = self._authenticate('carlos')
 
 		self.client.login(username='diego', password='diego123')
-		response = self.client.put('/api/ajax/project/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id), json.dumps({'userId': userToAdd.id}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id), json.dumps({'userId': userToAdd.id}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 401)
 
 	def test_addUsersWithNonMember(self):
 		userToAdd = self._authenticate('carlos')
 
 		self.client.login(username='mehmet', password='mehmet123')
-		response = self.client.put('/api/ajax/project/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id), json.dumps({'userId': userToAdd.id}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id), json.dumps({'userId': userToAdd.id}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 401)
 
 	# ###################################
@@ -147,14 +147,14 @@ class ProjectAjaxTest(TestCase):
 	
 	def test_updateStatusWithCreator(self):
 		self.client.login(username='eric', password='eric123')
-		response = self.client.put('/api/ajax/project/' + str(self.project.id), json.dumps({'status': STATUS_TYPES['INACTIVE']}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/' + str(self.project.id), json.dumps({'status': STATUS_TYPES['INACTIVE']}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, '"status": ' + str(STATUS_TYPES['INACTIVE']))
 		
 
 	def test_updateStatusWithAdmin(self):
 		self.client.login(username='george', password='george123')
-		response = self.client.put('/api/ajax/project/' + str(self.project.id), json.dumps({'status': STATUS_TYPES['ACTIVE']}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/' + str(self.project.id), json.dumps({'status': STATUS_TYPES['ACTIVE']}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, '"isprivate": true')
 
@@ -162,13 +162,13 @@ class ProjectAjaxTest(TestCase):
 	def test_updateStatusWithContributor(self):
 		self.client.login(username='diego', password='diego123')
 
-		response = self.client.put('/api/ajax/project/' + str(self.project.id), json.dumps({'status': STATUS_TYPES['ACTIVE']}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/' + str(self.project.id), json.dumps({'status': STATUS_TYPES['ACTIVE']}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 401)
 
 	def test_updateStatusWithNonMember(self):
 		self.client.login(username='mehmet', password='mehmet123')
 
-		response = self.client.put('/api/ajax/project/' + str(self.project.id), json.dumps({'status': STATUS_TYPES['ACTIVE']}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/' + str(self.project.id), json.dumps({'status': STATUS_TYPES['ACTIVE']}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 401)
 
 	# ###################################
@@ -177,14 +177,14 @@ class ProjectAjaxTest(TestCase):
 	
 	def test_updatePrivateWithCreator(self):
 		self.client.login(username='eric', password='eric123')
-		response = self.client.put('/api/ajax/project/' + str(self.project.id), json.dumps({'isprivate': False}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/' + str(self.project.id), json.dumps({'isprivate': False}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, '"isprivate": false')
 		
 
 	def test_updatePrivateWithAdmin(self):
 		self.client.login(username='george', password='george123')
-		response = self.client.put('/api/ajax/project/' + str(self.project.id), json.dumps({"isprivate": True}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/' + str(self.project.id), json.dumps({"isprivate": True}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, '"isprivate": true')
 
@@ -192,13 +192,13 @@ class ProjectAjaxTest(TestCase):
 	def test_updateDescriptionWithContributor(self):
 		self.client.login(username='diego', password='diego123')
 
-		response = self.client.put('/api/ajax/project/' + str(self.project.id), json.dumps({"isprivate": True}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/' + str(self.project.id), json.dumps({"isprivate": True}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 401)
 
 	def test_updateDescriptionWithNonMember(self):
 		self.client.login(username='mehmet', password='mehmet123')
 
-		response = self.client.put('/api/ajax/project/' + str(self.project.id), json.dumps({"isprivate": True}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/' + str(self.project.id), json.dumps({"isprivate": True}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 401)
 
 	# ###################################
@@ -208,33 +208,33 @@ class ProjectAjaxTest(TestCase):
 	def test_updateNotExistingProject(self):
 		self.client.login(username='eric', password='eric123')
 
-		response = self.client.put('/api/ajax/project/10000', json.dumps({'description': 'new description'}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/10000', json.dumps({'description': 'new description'}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 404)
 
 	def test_updateDescriptionWithCreator(self):
 		self.client.login(username='eric', password='eric123')
 
-		response = self.client.put('/api/ajax/project/' + str(self.project.id), json.dumps({'description': 'new description'}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/' + str(self.project.id), json.dumps({'description': 'new description'}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, '"description": "new description"')
 
 	def test_updateDescriptionWithAdmin(self):
 		self.client.login(username='george', password='george123')
 
-		response = self.client.put('/api/ajax/project/' + str(self.project.id), json.dumps({'description': 'newer description'}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/' + str(self.project.id), json.dumps({'description': 'newer description'}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, '"description": "newer description"')
 
 	def test_updateDescriptionWithContributor(self):
 		self.client.login(username='diego', password='diego123')
 
-		response = self.client.put('/api/ajax/project/' + str(self.project.id), json.dumps({'description': 'new description'}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/' + str(self.project.id), json.dumps({'description': 'new description'}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 401)
 
 	def test_updateDescriptionWithNonMember(self):
 		self.client.login(username='mehmet', password='mehmet123')
 
-		response = self.client.put('/api/ajax/project/' + str(self.project.id), json.dumps({'description': 'new description'}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
+		response = self.client.put('/ajax/projects/' + str(self.project.id), json.dumps({'description': 'new description'}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 401)
 
 
@@ -245,29 +245,29 @@ class ProjectAjaxTest(TestCase):
 	def test_deleteNotExistingProject(self):
 		self.client.login(username='eric', password='eric123')
 
-		response = self.client.delete('/api/ajax/project/10000', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.delete('/ajax/projects/10000', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 		self.assertEqual(response.status_code, 404)
 
 	def test_deleteProjectWithCreator(self):
 		self.client.login(username='eric', password='eric123')
 
-		response = self.client.delete('/api/ajax/project/' + str(self.project.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.delete('/ajax/projects/' + str(self.project.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 		self.assertEqual(response.status_code, 200)
 
 	def test_deleteProjectWithAdmin(self):
 		self.client.login(username='george', password='george123')
 
-		response = self.client.delete('/api/ajax/project/' + str(self.project.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.delete('/ajax/projects/' + str(self.project.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 		self.assertEqual(response.status_code, 200)
 
 	def test_deleteProjectWithContributor(self):
 		self.client.login(username='diego', password='diego123')
 
-		response = self.client.delete('/api/ajax/project/' + str(self.project.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.delete('/ajax/projects/' + str(self.project.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 		self.assertEqual(response.status_code, 401)
 
 	def test_deleteProjectWithNonMember(self):
 		self.client.login(username='mehmet', password='mehmet123')
 
-		response = self.client.delete('/api/ajax/project/' + str(self.project.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.delete('/ajax/projects/' + str(self.project.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 		self.assertEqual(response.status_code, 401)

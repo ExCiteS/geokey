@@ -38,9 +38,11 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'djorm_core', 'djorm_expressions', 'djorm_hstore', 'djorm_hstore.tests',
     'django.contrib.gis',
+
     'opencomap.apps.backend',
     'opencomap.apps.admin',
-    'opencomap.apps.api',
+    'opencomap.apps.ajaxapi',
+    'opencomap.apps.publicapi',
 )
 
 MIDDLEWARE_CLASSES = (

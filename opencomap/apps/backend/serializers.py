@@ -6,7 +6,7 @@ def serialize_fields(model, fields):
 
 class DataSerializer(serializers.get_serializer('python')):
 	class Meta:
-		app_label = 'api'
+		app_label = 'backend'
 
 	def get_dump_object(self, obj):
 		self._current['id'] = obj._get_pk_val()
@@ -35,11 +35,11 @@ class DataSerializer(serializers.get_serializer('python')):
 
 class ObjectSerializer(DataSerializer, serializers.get_serializer('json')):
 	class Meta:
-		app_label = 'api'
+		app_label = 'backend'
 
 class SingleSerializer(ObjectSerializer):
 	class Meta:
-		app_label = 'api'
+		app_label = 'backend'
 	
 	def serialize(self, obj, **options):
 		return super(SingleSerializer, self).serialize([obj], **options)

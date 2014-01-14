@@ -9,8 +9,8 @@ from django.core.exceptions import PermissionDenied
 
 import json
 
-from opencomap.apps.api.serializers import SingleSerializer
-from opencomap.apps.api.serializers import ObjectSerializer
+from opencomap.apps.backend.serializers import SingleSerializer
+from opencomap.apps.backend.serializers import ObjectSerializer
 
 from opencomap.apps.backend.auth import projects as projectAuth
 from opencomap.apps.backend.models.choice import STATUS_TYPES
@@ -23,7 +23,7 @@ def updateProject(request, project_id):
 		try: 
 			project = projectAuth.updateProject(request.user, project_id, json.loads(request.body))
 			serializer = SingleSerializer()
-			return HttpResponse(serializer.serialize(project))
+			return HttpResponse('{ "project": ' + serializer.serialize(project) + "}")
 		except PermissionDenied, err:
 			return HttpResponse(err, status=401)
 		except Project.DoesNotExist, err:
@@ -46,7 +46,7 @@ def addUserToGroup(request, project_id, group_id):
 		try: 
 			group = projectAuth.addUserToGroup(request.user, project_id, group_id, json.loads(request.body))
 			serializer = SingleSerializer()
-			return HttpResponse(serializer.serialize(group))
+			return HttpResponse('{ "usergroup": ' + serializer.serialize(group) + "}")
 		except PermissionDenied, err:
 			return HttpResponse(err, status=401)
 		except User.DoesNotExist, err:
@@ -71,29 +71,6 @@ def removeUserFromGroup(request, project_id, group_id, user_id):
 		except Project.DoesNotExist, err:
 			return HttpResponse(err, status=404)
 		except UserGroup.DoesNotExist, err:
-			return HttpResponse(err, status=404)
-	else:
-		return HttpResponse("The HTTP method used is not allowed with this ressource", status=405)
-
-@login_required
-def listProjects(request):
-	if request.method == "GET":
-		projects = projectAuth.projects_list(request.user)
-		serializer = ObjectSerializer()
-		return HttpResponse(serializer.serialize(projects))
-	else:
-		return HttpResponse("The HTTP method used is not allowed with this ressource", status=405)
-
-@login_required
-def singleProject(request, project_id):
-	if request.method == "GET":
-		try:
-			project = projectAuth.project(request.user, project_id)
-			serializer = SingleSerializer()
-			return HttpResponse(serializer.serialize(project))
-		except PermissionDenied, err:
-			return HttpResponse(err, status=401)
-		except Project.DoesNotExist, err:
 			return HttpResponse(err, status=404)
 	else:
 		return HttpResponse("The HTTP method used is not allowed with this ressource", status=405)

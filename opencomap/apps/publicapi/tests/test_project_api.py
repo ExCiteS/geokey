@@ -4,9 +4,6 @@ from django.test.client import Client
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 
-import json
-from opencomap.apps.api.serializers import SingleSerializer
-
 import opencomap.apps.backend.models.factory as Factory
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 
@@ -17,8 +14,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 
 import json
-from opencomap.apps.api.serializers import SingleSerializer
-from opencomap.apps.api.serializers import ObjectSerializer
+from opencomap.apps.backend.serializers import SingleSerializer
+from opencomap.apps.backend.serializers import ObjectSerializer
 
 import opencomap.apps.backend.models.factory as Factory
 from opencomap.apps.backend.models.choice import STATUS_TYPES
