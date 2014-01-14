@@ -5,7 +5,6 @@ from opencomap.apps.backend.models.choice import STATUS_TYPES
 
 from django.contrib.auth.models import User
 
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
 
 def projects_list(user):
@@ -23,7 +22,7 @@ def project(user, project_id):
 	if ((project.admins.isMember(user)) or ((not project.isprivate or project.contributors.isMember(user)) and project.status != STATUS_TYPES['INACTIVE'])) and project.status != STATUS_TYPES['DELETED']:
 		return project
 	elif project.status == STATUS_TYPES['DELETED']:
-		raise ObjectDoesNotExist('The requested project has been deleted by a project administrator.')
+		raise Project.DoesNotExist('The requested project has been deleted by a project administrator.')
 	else:
 		raise PermissionDenied('You are not allowed to access this project.')
 

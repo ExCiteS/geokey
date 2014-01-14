@@ -10,7 +10,7 @@ from opencomap.apps.api.serializers import SingleSerializer
 import opencomap.apps.backend.models.factory as Factory
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 
-class ProjectApiTest(TestCase):
+class ProjectAjaxTest(TestCase):
 	def _authenticate(self, name):
 		return authenticate(username=name, password=name + '123')
 
@@ -82,7 +82,7 @@ class ProjectApiTest(TestCase):
 		response = self.client.delete('/api/ajax/project/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/' + str(userToRemove.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 401)
 
-	def test_removeUsersWithContributor(self):
+	def test_removeUsersWithNonMember(self):
 		userToRemove = self._authenticate('george')
 
 		self.client.login(username='mehmet', password='mehmet123')
@@ -126,7 +126,6 @@ class ProjectApiTest(TestCase):
 		self.assertEqual(response.status_code, 200)
 		serializer = SingleSerializer()
 		self.assertContains(response, serializer.serialize(userToAdd))
-		print response
 
 	def test_addUsersWithContributor(self):
 		userToAdd = self._authenticate('carlos')
@@ -225,7 +224,6 @@ class ProjectApiTest(TestCase):
 		response = self.client.put('/api/ajax/project/' + str(self.project.id), json.dumps({'description': 'newer description'}), HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/json')
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, '"description": "newer description"')
-		print response
 
 	def test_updateDescriptionWithContributor(self):
 		self.client.login(username='diego', password='diego123')
