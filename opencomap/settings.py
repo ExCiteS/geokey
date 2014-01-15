@@ -39,6 +39,9 @@ INSTALLED_APPS = (
     'djorm_core', 'djorm_expressions', 'djorm_hstore', 'djorm_hstore.tests',
     'django.contrib.gis',
 
+    'provider',
+    'provider.oauth2',
+
     'opencomap.apps.backend',
     'opencomap.apps.admin',
     'opencomap.apps.ajaxapi',

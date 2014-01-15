@@ -14,8 +14,9 @@ from opencomap.libs.decorators import handle_http_errors
 from opencomap.apps.backend.auth import projects as projectAuth
 from opencomap.apps.backend.models.projects import Project
 from opencomap.apps.backend.models.usergroup import UserGroup
+from oauth import oauthenticate
 
-@login_required
+@oauthenticate
 @require_http_methods(["GET"])
 def listProjects(request):
 	projects = projectAuth.projects_list(request.user)
@@ -23,7 +24,7 @@ def listProjects(request):
 	return HttpResponse('{ "projects": ' + serializer.serialize(projects) + "}")
 
 
-@login_required
+@oauthenticate
 @require_http_methods(["GET"])
 @handle_http_errors
 def singleProject(request, project_id):

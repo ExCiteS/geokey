@@ -2,3 +2,4 @@ Django==1.6
 djorm-ext-hstore==0.5
 psycopg2==2.5.1
 iso8601==0.1.8
+django-oauth2-provider==0.2.6

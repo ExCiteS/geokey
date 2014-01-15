@@ -3,15 +3,10 @@ from django.test.client import Client
 
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from provider.oauth2.models import Client as OAuthClient
 
 import opencomap.apps.backend.models.factory as Factory
 from opencomap.apps.backend.models.choice import STATUS_TYPES
-
-from django.test import TestCase
-from django.test.client import Client
-
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
 
 import json
 from opencomap.libs.serializers import SingleSerializer, ObjectSerializer
@@ -22,6 +17,14 @@ from opencomap.apps.backend.models.choice import STATUS_TYPES
 class ProjectApiTest(TestCase):
 	def _authenticate(self, name):
 		return authenticate(username=name, password=name + '123')
+
+	def getAuthHeader(self, user):
+		token = self.client.post('/oauth2/access_token/', {"client_id": self.oauth.client_id, "client_secret": self.oauth.client_secret, "grant_type": "password", "username": user, "password": user + "123"})
+		auth_headers = {
+			'Authorization': 'Oauth ' + json.loads(token.content).get('access_token'),
+		}
+
+		return auth_headers
 
 	def setUp(self):
 		User.objects.create_user('eric', 'eric@cantona.fr', 'eric123', first_name='Eric', last_name='Cantona').save()
@@ -50,22 +53,23 @@ class ProjectApiTest(TestCase):
 		self.deletedproject = Factory.createProject('Deleted Project', 'Test description', eric)
 		self.deletedproject.delete()
 
+		self.oauth = OAuthClient(user=eric, name="Test App", client_type=1, url="http://oliverroick.de")
+		self.oauth.save()
 		self.client = Client()
 		self.singleSerializer = SingleSerializer()
 		self.objectSerializer = ObjectSerializer()
 
 	def test_projectsListWithCreator(self):
-		self.client.login(username='eric', password='eric123')
-		response = self.client.get('/api/projects', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.get('/api/projects', HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("eric"))
+		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, self.singleSerializer.serialize(self.publicproject))
 		self.assertContains(response, self.singleSerializer.serialize(self.privateproject))
 		self.assertContains(response, self.singleSerializer.serialize(self.inactiveproject))
 		self.assertNotContains(response, self.singleSerializer.serialize(self.deletedproject))
-		self.assertEqual(response.status_code, 200)
+		
 
 	def test_projectsListWithAdmin(self):
-		self.client.login(username='george', password='george123')
-		response = self.client.get('/api/projects', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.get('/api/projects', HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("george"))
 		self.assertContains(response, self.singleSerializer.serialize(self.publicproject))
 		self.assertContains(response, self.singleSerializer.serialize(self.privateproject))
 		self.assertContains(response, self.singleSerializer.serialize(self.inactiveproject))
@@ -73,8 +77,7 @@ class ProjectApiTest(TestCase):
 		self.assertEqual(response.status_code, 200)
 
 	def test_projectsListWithContributor(self):
-		self.client.login(username='diego', password='diego123')
-		response = self.client.get('/api/projects', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.get('/api/projects', HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("diego"))
 		self.assertContains(response, self.singleSerializer.serialize(self.publicproject))
 		self.assertContains(response, self.singleSerializer.serialize(self.privateproject))
 		self.assertNotContains(response, self.singleSerializer.serialize(self.inactiveproject))
@@ -82,8 +85,7 @@ class ProjectApiTest(TestCase):
 		self.assertEqual(response.status_code, 200)
 
 	def test_projectsListWithNonMember(self):
-		self.client.login(username='mehmet', password='mehmet123')
-		response = self.client.get('/api/projects', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.get('/api/projects', HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("mehmet"))
 		self.assertContains(response, self.singleSerializer.serialize(self.publicproject))
 		self.assertNotContains(response, self.singleSerializer.serialize(self.privateproject))
 		self.assertNotContains(response, self.singleSerializer.serialize(self.inactiveproject))
@@ -91,71 +93,63 @@ class ProjectApiTest(TestCase):
 		self.assertEqual(response.status_code, 200)
 
 	def test_singleProjectsWithCreator(self):
-		self.client.login(username='eric', password='eric123')
-
-		response = self.client.get('/api/projects/' + str(self.publicproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.get('/api/projects/' + str(self.publicproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("eric"))
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, self.singleSerializer.serialize(self.publicproject))
-
-		response = self.client.get('/api/projects/' + str(self.privateproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		
+		response = self.client.get('/api/projects/' + str(self.privateproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("eric"))
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, self.singleSerializer.serialize(self.privateproject))
 
-		response = self.client.get('/api/projects/' + str(self.inactiveproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.get('/api/projects/' + str(self.inactiveproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("eric"))
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, self.singleSerializer.serialize(self.inactiveproject))
 
-		response = self.client.get('/api/projects/' + str(self.deletedproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.get('/api/projects/' + str(self.deletedproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("eric"))
 		self.assertEqual(response.status_code, 404)
 		
 	def test_singleProjectsWithAdmin(self):
-		self.client.login(username='george', password='george123')
-
-		response = self.client.get('/api/projects/' + str(self.publicproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.get('/api/projects/' + str(self.publicproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("george"))
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, self.singleSerializer.serialize(self.publicproject))
-
-		response = self.client.get('/api/projects/' + str(self.privateproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		
+		response = self.client.get('/api/projects/' + str(self.privateproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("george"))
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, self.singleSerializer.serialize(self.privateproject))
 
-		response = self.client.get('/api/projects/' + str(self.inactiveproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.get('/api/projects/' + str(self.inactiveproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("george"))
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, self.singleSerializer.serialize(self.inactiveproject))
 
-		response = self.client.get('/api/projects/' + str(self.deletedproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.get('/api/projects/' + str(self.deletedproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("george"))
 		self.assertEqual(response.status_code, 404)
 
 
 	def test_singleProjectsWithContributor(self):
-		self.client.login(username='diego', password='diego123')
-
-		response = self.client.get('/api/projects/' + str(self.publicproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.get('/api/projects/' + str(self.publicproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("diego"))
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, self.singleSerializer.serialize(self.publicproject))
-
-		response = self.client.get('/api/projects/' + str(self.privateproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		
+		response = self.client.get('/api/projects/' + str(self.privateproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("diego"))
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, self.singleSerializer.serialize(self.privateproject))
 
-		response = self.client.get('/api/projects/' + str(self.inactiveproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.get('/api/projects/' + str(self.inactiveproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("diego"))
 		self.assertEqual(response.status_code, 401)
 
-		response = self.client.get('/api/projects/' + str(self.deletedproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.get('/api/projects/' + str(self.deletedproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("diego"))
 		self.assertEqual(response.status_code, 404)
 
 	def test_singleProjectsWithNonMember(self):
-		self.client.login(username='mehmet', password='mehmet123')
-
-		response = self.client.get('/api/projects/' + str(self.publicproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.get('/api/projects/' + str(self.publicproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("mehmet"))
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, self.singleSerializer.serialize(self.publicproject))
-
-		response = self.client.get('/api/projects/' + str(self.privateproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		
+		response = self.client.get('/api/projects/' + str(self.privateproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("mehmet"))
 		self.assertEqual(response.status_code, 401)
 
-		response = self.client.get('/api/projects/' + str(self.inactiveproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.get('/api/projects/' + str(self.inactiveproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("mehmet"))
 		self.assertEqual(response.status_code, 401)
 
-		response = self.client.get('/api/projects/' + str(self.deletedproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		response = self.client.get('/api/projects/' + str(self.deletedproject.id), HTTP_X_REQUESTED_WITH='XMLHttpRequest', **self.getAuthHeader("mehmet"))
 		self.assertEqual(response.status_code, 404)
