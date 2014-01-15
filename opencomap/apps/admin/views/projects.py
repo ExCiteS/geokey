@@ -5,9 +5,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 
-from django.core.exceptions import ObjectDoesNotExist
-
-from opencomap.apps.backend.serializers import SingleSerializer
 from opencomap.apps.backend import auth
 import opencomap.apps.backend.models.factory as Factory
 
@@ -27,7 +24,7 @@ def viewProject(request, project_id):
 		project = auth.projects.project(request.user, project_id)
 		admin = project.admins.isMember(request.user)
 		return render(request, 'project.html', RequestContext(request, {"project": project, "admin": admin}))
-	except ObjectDoesNotExist, err:
+	except Project.DoesNotExist, err:
 		return render(request, 'project.html', RequestContext(request, {"error": err}))
 
 @login_required
@@ -38,5 +35,5 @@ def editProject(request, project_id):
 			return render(request, 'project.edit.html', RequestContext(request, {"project": auth.projects.project(request.user, project_id)}))
 		else:
 			return render(request, 'project.edit.html', RequestContext(request, {"error": "You are not allowed to edit the setting of this project"}))	
-	except ObjectDoesNotExist, err:
+	except Project.DoesNotExist, err:
 		return render(request, 'project.edit.html', RequestContext(request, {"error": err}))

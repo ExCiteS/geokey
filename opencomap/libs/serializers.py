@@ -1,6 +1,9 @@
 from django.core import serializers
+from django.contrib.auth.models import User
 
-field_registry = {}
+field_registry = {
+	User: ['id', 'username', 'first_name', 'last_name', 'email']
+}
 def serialize_fields(model, fields):
 	field_registry[model] = set(fields)
 

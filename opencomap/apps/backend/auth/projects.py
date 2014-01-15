@@ -6,6 +6,7 @@ from opencomap.apps.backend.models.choice import STATUS_TYPES
 from django.contrib.auth.models import User
 
 from django.core.exceptions import PermissionDenied
+from opencomap.libs.exceptions import MalformedBody
 
 def projects_list(user):
 	result = []
@@ -49,7 +50,10 @@ def addUserToGroup(user, project_id, group_id, userToAdd):
 	project = Project.objects.get(pk=project_id)
 	if project.admins.isMember(user):
 		if project.admins.id == int(group_id) or project.contributors.id == int(group_id):
-			user = User.objects.get(pk=userToAdd.get('userId'))
+			try:
+				user = User.objects.get(pk=userToAdd.get('userId'))
+			except User.DoesNotExist, err:
+				raise MalformedBody(err)
 			group = UserGroup.objects.get(pk=group_id)
 			group.addUsers(user)
 
