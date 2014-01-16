@@ -1,8 +1,10 @@
 from django.core import serializers
 from django.contrib.auth.models import User
+from opencomap.apps.backend.models.featuretype import FeatureType
 
 field_registry = {
-	User: ['id', 'username', 'first_name', 'last_name', 'email']
+	User: ['id', 'username', 'first_name', 'last_name', 'email'],
+	FeatureType: ['id', 'name', 'description', 'status', 'field_set'],
 }
 def serialize_fields(model, fields):
 	field_registry[model] = set(fields)
