@@ -39,28 +39,28 @@ class FeatureType(models.Model):
 		"""
 		return self.field_set.exclude(status=STATUS_TYPES['INACTIVE'])
 
-	def getField(self, name):
-		"""
-		Returns exactly one `Field` identified by name
-		"""
-		field = self.field_set.filter(name=name)[0]
+	# def getField(self, name):
+	# 	"""
+	# 	Returns exactly one `Field` identified by name
+	# 	"""
+	# 	field = self.field_set.filter(name=name)[0]
 
-		try: 
-			return field.textfield 
-		except Field.DoesNotExist: 
-			pass
-		try: 
-			return field.numericfield 
-		except Field.DoesNotExist: 
-			pass
-		try: 
-			return field.truefalsefield 
-		except Field.DoesNotExist: 
-			pass
-		try: 
-			return field.lookupfield 
-		except Field.DoesNotExist: 
-			pass
+	# 	try: 
+	# 		return field.textfield 
+	# 	except Field.DoesNotExist: 
+	# 		pass
+	# 	try: 
+	# 		return field.numericfield 
+	# 	except Field.DoesNotExist: 
+	# 		pass
+	# 	try: 
+	# 		return field.truefalsefield 
+	# 	except Field.DoesNotExist: 
+	# 		pass
+	# 	try: 
+	# 		return field.lookupfield 
+	# 	except Field.DoesNotExist: 
+	# 		pass
 
 
 
@@ -82,6 +82,28 @@ class Field(models.Model):
 
 	def __unicode__(self):
 		return self.name
+
+	def getInstance(self):
+		try: 
+			return self.textfield 
+		except Field.DoesNotExist: 
+			pass
+		try: 
+			return self.numericfield 
+		except Field.DoesNotExist: 
+			pass
+		try: 
+			return self.truefalsefield 
+		except Field.DoesNotExist: 
+			pass
+		try: 
+			return self.lookupfield 
+		except Field.DoesNotExist: 
+			pass
+		try: 
+			return self.datetimefield 
+		except Field.DoesNotExist: 
+			pass
 
 	
 	def validateInput(self, value):

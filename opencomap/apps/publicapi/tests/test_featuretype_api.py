@@ -37,7 +37,6 @@ class FeaturetypeApiTest(ApiTest):
 		response = self._get('george', self.deletedproject.id)
 		self.assertEqual(response.status_code, 404)
 
-
 	def test_featuretypesWithContributor(self):
 		response = self._get('diego', self.publicproject.id)
 		self.assertEqual(response.status_code, 200)

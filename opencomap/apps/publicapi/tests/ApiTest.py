@@ -9,7 +9,7 @@ import opencomap.apps.backend.models.factory as Factory
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 from opencomap.libs.serializers import SingleSerializer, ObjectSerializer
 
-from opencomap.apps.backend.models.featuretype import FeatureType, TextField, NumericField, DateTimeField
+from opencomap.apps.backend.models.featuretype import FeatureType, TextField, NumericField, DateTimeField, LookupField
 
 import json
 
@@ -82,6 +82,9 @@ class ApiTest(TestCase):
 		textField.save()
 		numericField = NumericField(name='Numeric field', description='Numeric field description', required=True, featuretype=self.publicFeatureType)
 		numericField.save()
+		lookupField = LookupField(name='Lookup field', description='Lookup field description', featuretype=self.publicFeatureType)
+		lookupField.save()
+		lookupField.addLookupValues('Ms. Piggy', 'ist ein', 'dickes', 'Schwein')
 		
 
 		self.privateFeatureType = FeatureType(name='Private feature type')
