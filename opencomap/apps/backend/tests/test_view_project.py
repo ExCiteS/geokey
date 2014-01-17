@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 import opencomap.apps.backend.models.factory as Factory
 from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.choice import STATUS_TYPES
-from opencomap.apps.backend import views as view
+from opencomap.apps.backend import auth as view
 
 class ProjectViewTest(TestCase):
 	class Meta: 
@@ -123,7 +123,7 @@ class ProjectViewTest(TestCase):
 				self.assertEqual(project, view.project(george, project.id))
 				self.assertEqual(project, view.project(eric, project.id))
 			if project.name == 'Deleted project':
-				with self.assertRaises(ObjectDoesNotExist):
+				with self.assertRaises(Project.DoesNotExist):
 					view.project(george, project.id)
 					view.project(eric, project.id)
 

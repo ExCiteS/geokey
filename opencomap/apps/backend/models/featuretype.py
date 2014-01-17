@@ -39,28 +39,11 @@ class FeatureType(models.Model):
 		"""
 		return self.field_set.exclude(status=STATUS_TYPES['INACTIVE'])
 
-	# def getField(self, name):
-	# 	"""
-	# 	Returns exactly one `Field` identified by name
-	# 	"""
-	# 	field = self.field_set.filter(name=name)[0]
-
-	# 	try: 
-	# 		return field.textfield 
-	# 	except Field.DoesNotExist: 
-	# 		pass
-	# 	try: 
-	# 		return field.numericfield 
-	# 	except Field.DoesNotExist: 
-	# 		pass
-	# 	try: 
-	# 		return field.truefalsefield 
-	# 	except Field.DoesNotExist: 
-	# 		pass
-	# 	try: 
-	# 		return field.lookupfield 
-	# 	except Field.DoesNotExist: 
-	# 		pass
+	def getField(self, fieldId):
+		"""
+		Returns exactly one `Field` identified by `id`
+		"""
+		return self.field_set.get(pk=fieldId).getInstance()
 
 
 
