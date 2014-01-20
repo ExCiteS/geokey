@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 
-from opencomap.apps.backend import auth
+from opencomap.apps.backend import authorization
 import opencomap.apps.backend.models.factory as Factory
 
 @login_required
@@ -21,7 +21,7 @@ def createProject(request):
 @login_required
 def viewProject(request, project_id):
 	try:
-		project = auth.projects.project(request.user, project_id)
+		project = authorization.projects.project(request.user, project_id)
 		admin = project.admins.isMember(request.user)
 		return render(request, 'project.html', RequestContext(request, {"project": project, "admin": admin}))
 	except Project.DoesNotExist, err:
@@ -30,7 +30,7 @@ def viewProject(request, project_id):
 @login_required
 def editProject(request, project_id):
 	try:
-		project = auth.projects.project(request.user, project_id)
+		project = authorization.projects.project(request.user, project_id)
 		if project.admins.isMember(request.user):
 			return render(request, 'project.edit.html', RequestContext(request, {"project": auth.projects.project(request.user, project_id)}))
 		else:

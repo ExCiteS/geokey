@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 
 from django.core.exceptions import PermissionDenied
 from opencomap.libs.exceptions import MalformedBody
+from decorators import check_admin
 
 def projects_list(user):
 	result = []
@@ -31,9 +32,10 @@ def deleteProject(user, project_id):
 	project = Project.objects.get(pk=project_id)
 	if project.admins.isMember(user):
 		project.delete()
+		print project.status
 		return project
-	else:
-		raise PermissionDenied('You are not allowed to delete this project.')
+	else: 
+		raise PermissionDenied('You are not allowed to update the settings of this project.')
 
 def updateProject(user, project_id, data):
 	project = Project.objects.get(pk=project_id)

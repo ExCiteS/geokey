@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 import opencomap.apps.backend.models.factory as Factory
 from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.choice import STATUS_TYPES
-from opencomap.apps.backend import auth as view
+from opencomap.apps.backend import authorization as view
 
 class ProjectViewTest(TestCase):
 	class Meta: 

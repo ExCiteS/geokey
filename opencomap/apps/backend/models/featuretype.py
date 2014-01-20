@@ -5,6 +5,7 @@ import iso8601
 from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 from opencomap.apps.backend.models.choice import FIELD_TYPE
+from opencomap.apps.backend.decorators import check_status
 
 class FeatureType(models.Model):
 	"""
@@ -18,6 +19,14 @@ class FeatureType(models.Model):
 
 	class Meta: 
 		app_label = 'backend'
+
+	@check_status
+	def update(self, name=None, description=None, status=None):
+		if (name): self.name = name
+		if (description): self.description = description
+		if (status): self.status = status
+
+		self.save()
 
 	def addField(self, field):
 		field.featuretype = self

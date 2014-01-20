@@ -3,10 +3,10 @@ from django.db import models
 from datetime import datetime
 from django.utils.timezone import utc
 from django.conf import settings
-from django.core.exceptions import ValidationError
 
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 from opencomap.apps.backend.models.usergroup import UserGroup
+from opencomap.apps.backend.decorators import check_status
 
 class Project(models.Model):
 	"""
@@ -23,32 +23,25 @@ class Project(models.Model):
 	admins = models.OneToOneField(UserGroup, related_name='admingroup')
 	contributors = models.OneToOneField(UserGroup, related_name='contributorgroup')
 
-	_ACCEPTED_STATUS = (
-		STATUS_TYPES['ACTIVE'], 
-		STATUS_TYPES['INACTIVE']
-	)
-
 	class Meta: 
 		app_label = 'backend'
 
 	def __unicode__(self):
 		return self.name + ', ' + self.description
 
+	@check_status
 	def update(self, name=None, description=None, status=None, isprivate=None):
 		"""
 		Updates a project. Checks if the status is of ACTIVE or INACTIVE otherwise raises ValidationError.
 		"""
 
-		if ((status is None) or (status in self._ACCEPTED_STATUS)):
-			if (name): self.name = name
-			if (description): self.description = description
-			if (status): self.status = status
-			if (isprivate != None): 
-				self.isprivate = isprivate
+		if (name): self.name = name
+		if (description): self.description = description
+		if (status): self.status = status
+		if (isprivate != None): 
+			self.isprivate = isprivate
 
-			self.save()
-		else:
-			raise ValidationError('The status provided is invalid. Accepted values are ACTIVE or INACTIVE')
+		self.save()
 
 	def delete(self):
 		"""
