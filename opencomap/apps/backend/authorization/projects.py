@@ -28,55 +28,42 @@ def project(user, project_id):
 	else:
 		raise PermissionDenied('You are not allowed to access this project.')
 
-def deleteProject(user, project_id):
-	project = Project.objects.get(pk=project_id)
-	if project.admins.isMember(user):
-		project.delete()
-		print project.status
-		return project
-	else: 
-		raise PermissionDenied('You are not allowed to update the settings of this project.')
+@check_admin
+def deleteProject(user, project_id, project=None):
+	project.delete()
+	return project
 
-def updateProject(user, project_id, data):
-	project = Project.objects.get(pk=project_id)
-	if project.admins.isMember(user):
-		if data.get('isprivate') != None: project.update(isprivate=data.get('isprivate'))
-		if data.get('status') != None: project.update(status=data.get('status'))
-		if data.get('description') != None: project.update(description=data.get('description'))
+@check_admin
+def updateProject(user, project_id, data, project=None):
+	if data.get('isprivate') != None: project.update(isprivate=data.get('isprivate'))
+	if data.get('status') != None: project.update(status=data.get('status'))
+	if data.get('description') != None: project.update(description=data.get('description'))
 
-		return project
-	else: 
-		raise PermissionDenied('You are not allowed to update the settings of this project.')
+	return project
 
-def addUserToGroup(user, project_id, group_id, userToAdd):
-	project = Project.objects.get(pk=project_id)
-	if project.admins.isMember(user):
-		if project.admins.id == int(group_id) or project.contributors.id == int(group_id):
-			try:
-				user = User.objects.get(pk=userToAdd.get('userId'))
-			except User.DoesNotExist, err:
-				raise MalformedBody(err)
-			group = UserGroup.objects.get(pk=group_id)
-			group.addUsers(user)
+@check_admin
+def addUserToGroup(user, project_id, group_id, userToAdd, project=None):
+	if project.admins.id == int(group_id) or project.contributors.id == int(group_id):
+		try:
+			user = User.objects.get(pk=userToAdd.get('userId'))
+		except User.DoesNotExist, err:
+			raise MalformedBody(err)
+		group = UserGroup.objects.get(pk=group_id)
+		group.addUsers(user)
 
+		return group
+	else:
+		raise UserGroup.DoesNotExist
+
+@check_admin
+def removeUserFromGroup(user, project_id, group_id, userToRemove, project=None):
+	if project.admins.id == int(group_id) or project.contributors.id == int(group_id):
+		group = UserGroup.objects.get(pk=group_id)
+		user = User.objects.get(pk=userToRemove)
+		if group.isMember(user):
+			group.removeUsers(user)
 			return group
 		else:
-			raise UserGroup.DoesNotExist
-	else: 
-		raise PermissionDenied('You are not allowed to update the settings of this project.')
-
-def removeUserFromGroup(user, project_id, group_id, userToRemove):
-	project = Project.objects.get(pk=project_id)
-	if project.admins.isMember(user):
-		if project.admins.id == int(group_id) or project.contributors.id == int(group_id):
-			group = UserGroup.objects.get(pk=group_id)
-			user = User.objects.get(pk=userToRemove)
-			if group.isMember(user):
-				group.removeUsers(user)
-				return group
-			else:
-				raise User.DoesNotExist	
-		else:
-			raise UserGroup.DoesNotExist
-	else: 
-		raise PermissionDenied('You are not allowed to update the settings of this project.')
+			raise User.DoesNotExist	
+	else:
+		raise UserGroup.DoesNotExist
