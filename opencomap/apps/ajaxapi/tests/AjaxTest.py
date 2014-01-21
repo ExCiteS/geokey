@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate
 import json
 
 import opencomap.apps.backend.models.factory as Factory
-from opencomap.apps.backend.models.featuretype import FeatureType, TextField
+from opencomap.apps.backend.models.featuretype import FeatureType, TextField, LookupField
 from opencomap.libs.serializers import ObjectSerializer, FeatureTypeSerializer
 
 
@@ -40,6 +40,13 @@ class AjaxTest(TestCase):
 		self.project.addFeatureType(self.featureType)
 		self.field = TextField(name='Text field', description='Text field description', featuretype=self.featureType)
 		self.field.save()
+
+		self.lookupfield = LookupField(name='Lookup field', description='Lookup field description', featuretype=self.featureType)
+		self.lookupfield.save()
+		self.lookupfield.addLookupValues('Gonzo')
+		self.lookupvalue = self.lookupfield.lookupvalue_set.filter(name='Gonzo')[0]
+		self.lookupvalue.status = 1
+		self.lookupvalue.save()
 
 		testProject = Factory.createProject('Test Project', 'Test description', carlos)
 		self.referenceGroup = testProject.admins

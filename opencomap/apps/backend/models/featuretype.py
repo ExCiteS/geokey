@@ -292,3 +292,8 @@ class LookupValue(models.Model):
 
 	def __unicode__(self):
 		return self.name
+
+	@check_status
+	def update(self, status=None):
+		if status != None: self.status = status
+		self.save()

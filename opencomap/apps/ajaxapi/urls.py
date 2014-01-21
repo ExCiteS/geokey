@@ -11,4 +11,6 @@ urlpatterns = patterns('',
 
     url(r'^projects/(?P<project_id>\d+)/featuretypes/(?P<featuretype_id>\d+)$', views.featuretypes.update, name='featuretype_update'),
     url(r'^projects/(?P<project_id>\d+)/featuretypes/(?P<featuretype_id>\d+)/fields/(?P<field_id>\d+)$', views.featuretypes.updateField, name='featuretype_field_update'),
+    url(r'^projects/(?P<project_id>\d+)/featuretypes/(?P<featuretype_id>\d+)/fields/(?P<field_id>\d+)/lookupvalues$', views.featuretypes.addLookupValue, name='featuretype_field_addlookup'),
+    url(r'^projects/(?P<project_id>\d+)/featuretypes/(?P<featuretype_id>\d+)/fields/(?P<field_id>\d+)/lookupvalues/(?P<lookup_id>\d+)$', views.featuretypes.removeLookupValue, name='featuretype_field_removelookup'),
 )

@@ -1,5 +1,6 @@
 from AjaxTest import AjaxTest
 from opencomap.apps.backend.models.choice import STATUS_TYPES
+import json
 
 class FeatureTypeAjaxTest(AjaxTest):
 	def test_updateDescriptionWithCreator(self):
@@ -70,4 +71,45 @@ class FeatureTypeAjaxTest(AjaxTest):
 
 	def test_updateFieldNonExistingField(self):
 		response = self.put('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id) + '/fields/54545454415484', {'description': 'new description'}, 'eric')
+		self.assertEqual(response.status_code, 404)
+
+	def test_addLookupValueWithCreator(self):
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id) + '/fields/' + str(self.lookupfield.id) + '/lookupvalues', {'name': 'Piggy'}, 'eric')
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, '"name": "Piggy"')
+
+	def test_addLookupValueWithAdmin(self):
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id) + '/fields/' + str(self.lookupfield.id) + '/lookupvalues', {'name': 'Kermit'}, 'george')
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, '"name": "Kermit"')
+
+	def test_addLookupValueWithContributor(self):
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id) + '/fields/' + str(self.lookupfield.id) + '/lookupvalues', {'name': 'Kermit'}, 'diego')
+		self.assertEqual(response.status_code, 401)
+
+	def test_addLookupValueWithNonMember(self):
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id) + '/fields/' + str(self.lookupfield.id) + '/lookupvalues', {'name': 'Kermit'}, 'mehmet')
+		self.assertEqual(response.status_code, 401)
+
+	def test_addLookupValueOnTextField(self):
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id) + '/fields/' + str(self.field.id) + '/lookupvalues', {'name': 'Kermit'}, 'eric')
+		self.assertEqual(response.status_code, 404)
+
+	def test_addLookupValueThatExisistButIsInactive(self):
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id) + '/fields/' + str(self.lookupfield.id) + '/lookupvalues', {'id': self.lookupvalue.id, 'name': 'Kermit'}, 'eric')
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, '"name": "Gonzo"')
+		self.assertNotContains(response, '"status": 1')
+
+	def test_removeLookupValue(self):
+		self.lookupvalue.status = 0
+		self.lookupvalue.save()
+		response = self.delete('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id) + '/fields/' + str(self.lookupfield.id) + '/lookupvalues/' + str(self.lookupvalue.id), 'eric')
+		self.assertEqual(response.status_code, 200)
+		for lookup in json.loads(response.content).get('field').get('lookupvalues'):
+			if lookup.get('name') == 'Gonzo':
+				self.assertEqual(lookup.get('status'), 1)
+
+	def test_removeLookupValueThatDoesNotExist(self):
+		response = self.delete('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id) + '/fields/' + str(self.lookupfield.id) + '/lookupvalues/468413515121', 'eric')
 		self.assertEqual(response.status_code, 404)

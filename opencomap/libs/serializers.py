@@ -80,7 +80,17 @@ class FieldSerializer(ObjectSerializer):
 					dump['lookupvalues'] = []
 
 					for value in lookup_vals:
-						dump['lookupvalues'].append({'id': value.id, 'name': value.name})
+						lookup_dump = {}
+						lookup_id = value._meta.get_field('id')
+						lookup_dump['id'] = lookup_id.value_from_object(value)
+
+						lookup_name = value._meta.get_field('name')
+						lookup_dump['name'] = lookup_name.value_from_object(value)
+
+						lookup_status = value._meta.get_field('status')
+						lookup_dump['status'] = lookup_status.value_from_object(value)
+
+						dump['lookupvalues'].append(lookup_dump)
 				except AttributeError:
 					continue
 
