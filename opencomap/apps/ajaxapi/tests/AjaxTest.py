@@ -38,8 +38,8 @@ class AjaxTest(TestCase):
 
 		self.featureType = FeatureType(name='Feature type', description='Feature type description')
 		self.project.addFeatureType(self.featureType)
-		textField = TextField(name='Text field', description='Text field description', featuretype=self.featureType)
-		textField.save()
+		self.field = TextField(name='Text field', description='Text field description', featuretype=self.featureType)
+		self.field.save()
 
 		testProject = Factory.createProject('Test Project', 'Test description', carlos)
 		self.referenceGroup = testProject.admins

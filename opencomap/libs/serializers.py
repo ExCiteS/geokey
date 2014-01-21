@@ -6,7 +6,7 @@ from django.db.models.fields import FieldDoesNotExist
 field_registry = {
 	User: ['id', 'username', 'first_name', 'last_name', 'email'],
 	FeatureType: ['id', 'name', 'description', 'status', 'required'],
-	Field: ['id', 'name', 'description', 'minval', 'maxval']
+	Field: ['id', 'name', 'description', 'minval', 'maxval', 'status', 'required']
 }
 
 def serialize_fields(model, fields):
@@ -51,34 +51,49 @@ class ObjectSerializer(DataSerializer, serializers.get_serializer('json')):
 		return super(ObjectSerializer, self).serialize(obj, **options)
 
 class FeatureTypeSerializer(ObjectSerializer):
+	def dump_fields(self, field_set):
+		dump = []
+		for input_field in field_set:
+			dump.append(FieldSerializer().dump_field(input_field.getInstance()))
+
+		return dump
+
+
 	def get_dump_object(self, obj):
-		self._current['fields'] = []
-		for input_field in obj.field_set.all():
-
-			input_field_dump = {}
-			input_field_instance = input_field.getInstance()
-
-			for field_name in field_registry[Field]:
-				try:
-					field = input_field_instance._meta.get_field(field_name)
-					input_field_dump[field_name] = field.value_from_object(input_field_instance)
-
-					try:
-						lookup_vals = input_field_instance.lookupvalue_set.all()
-						input_field_dump['lookupvalues'] = []
-
-						for value in lookup_vals:
-							input_field_dump['lookupvalues'].append({'id': value.id, 'name': value.name})
-					except AttributeError:
-						continue
-
-				except FieldDoesNotExist:
-					continue
-
-			self._current['fields'].append(input_field_dump)
-
+		self._current['fields'] = self.dump_fields(obj.field_set.all())
 		self._current['id'] = obj._get_pk_val()
 		return self._current
 
 	def serialize(self, obj, **options):
 		return super(FeatureTypeSerializer, self).serialize(obj, **options)
+
+class FieldSerializer(ObjectSerializer):
+	def dump_field(self, field_instance):
+		dump = {}
+		for field_name in field_registry[Field]:
+			try:
+				field = field_instance._meta.get_field(field_name)
+				dump[field_name] = field.value_from_object(field_instance)
+
+				try:
+					lookup_vals = field_instance.lookupvalue_set.all()
+					dump['lookupvalues'] = []
+
+					for value in lookup_vals:
+						dump['lookupvalues'].append({'id': value.id, 'name': value.name})
+				except AttributeError:
+					continue
+
+			except FieldDoesNotExist:
+				continue
+
+		return dump
+
+
+	def get_dump_object(self, obj):
+		self._current = self.dump_field(obj.getInstance())
+		self._current['id'] = obj._get_pk_val()
+		return self._current
+
+	def serialize(self, obj, **options):
+		return super(FieldSerializer, self).serialize(obj, **options)

@@ -113,7 +113,14 @@ class Field(models.Model):
 		"""
 		return value
 
+	@check_status
+	def update(self, name=None, description=None, status=None, required=None):
+		if (name): self.name = name
+		if (description): self.description = description
+		if (status): self.status = status
+		if (required): self.required = required
 
+		self.save()
 
 
 class TextField(Field):

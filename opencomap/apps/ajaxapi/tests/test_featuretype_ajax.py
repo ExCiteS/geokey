@@ -37,22 +37,37 @@ class FeatureTypeAjaxTest(AjaxTest):
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, '"status": ' + str(STATUS_TYPES['INACTIVE']))
 
-	def test_deleteWithCreator(self):
-		response = self.delete('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id), 'eric')
+	def testUpdateFieldWithCreator(self):
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id) + '/fields/' + str(self.field.id), {'description': 'new description'}, 'eric')
 		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, '"description": "new description"')
 
-	def test_deleteWithAdmin(self):
-		response = self.delete('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id), 'george')
+	def testUpdateFieldWithAdmin(self):
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id) + '/fields/' + str(self.field.id), {'description': 'newer description'}, 'george')
 		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, '"description": "newer description"')
 
-	def test_deleteWithContributor(self):
-		response = self.delete('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id), 'diego')
+	def testUpdateFieldWithContributor(self):
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id) + '/fields/' + str(self.field.id), {'description': 'newer description'}, 'diego')
 		self.assertEqual(response.status_code, 401)
 
-	def test_deleteWithNonMember(self):
-		response = self.delete('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id), 'mehmet')
+	def testUpdateFieldWithNonMember(self):
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id) + '/fields/' + str(self.field.id), {'description': 'newer description'}, 'mehmet')
 		self.assertEqual(response.status_code, 401)
 
-	def test_deleteNonExistingFeaturetype(self):
-		response = self.delete('/ajax/projects/' + str(self.project.id) + '/featuretypes/684640654540', 'eric')
+	def test_updateFieldFalseStatus(self):
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id) + '/fields/' + str(self.field.id), {'status': 656045}, 'eric')
+		self.assertEqual(response.status_code, 400)
+
+	def test_updateFieldCorrectStatus(self):
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id) + '/fields/' + str(self.field.id), {'status': STATUS_TYPES['INACTIVE']}, 'eric')
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, '"status": ' + str(STATUS_TYPES['INACTIVE']))
+
+	def test_updateFieldNonExistingFeaturetype(self):
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/featuretypes/684640654540/fields/' + str(self.field.id), {'description': 'new description'}, 'eric')
+		self.assertEqual(response.status_code, 404)
+
+	def test_updateFieldNonExistingField(self):
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id) + '/fields/54545454415484', {'description': 'new description'}, 'eric')
 		self.assertEqual(response.status_code, 404)
