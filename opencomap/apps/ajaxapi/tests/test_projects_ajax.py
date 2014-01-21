@@ -25,7 +25,7 @@ class ProjectAjaxTest(AjaxTest):
 		userToRemove = self._authenticate('george')
 		response = self.delete('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/' + str(userToRemove.id), 'eric')
 		self.assertEqual(response.status_code, 200)
-		self.assertNotContains(response, ObjectSerializer().serialize([userToRemove]))
+		self.assertNotContains(response, ObjectSerializer().serialize(userToRemove))
 
 	def test_removeUsersWithAdmin(self):
 		userToRemove = self._authenticate('george')
@@ -33,7 +33,7 @@ class ProjectAjaxTest(AjaxTest):
 
 		response = self.delete('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/' + str(userToRemove.id), 'carlos')
 		self.assertEqual(response.status_code, 200)
-		self.assertNotContains(response, ObjectSerializer().serialize([userToRemove]))
+		self.assertNotContains(response, ObjectSerializer().serialize(userToRemove))
 
 	def test_removeUsersWithContributor(self):
 		userToRemove = self._authenticate('george')
@@ -66,13 +66,13 @@ class ProjectAjaxTest(AjaxTest):
 
 		response = self.put('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id), {'userId': userToAdd.id}, 'eric')
 		self.assertEqual(response.status_code, 200)
-		self.assertContains(response, ObjectSerializer().serialize([userToAdd]))
+		self.assertContains(response, ObjectSerializer().serialize(userToAdd))
 
 	def test_addUsersWithCreator(self):
 		userToAdd = self._authenticate('carlos')
 		response = self.put('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id), {'userId': userToAdd.id}, 'george')
 		self.assertEqual(response.status_code, 200)
-		self.assertContains(response, ObjectSerializer().serialize([userToAdd]))
+		self.assertContains(response, ObjectSerializer().serialize(userToAdd))
 
 	def test_addUsersWithContributor(self):
 		userToAdd = self._authenticate('carlos')

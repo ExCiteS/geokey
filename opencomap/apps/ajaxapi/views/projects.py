@@ -19,7 +19,7 @@ from opencomap.apps.backend.models.projects import Project
 def updateProject(request, project_id):
 	if request.method == "PUT":
 		project = authorization.projects.updateProject(request.user, project_id, json.loads(request.body))
-		return HttpResponse('{ "project": ' + Serializer().serialize([project]) + "}")
+		return HttpResponse('{ "project": ' + Serializer().serialize(project) + "}")
 
 	elif request.method == "DELETE":
 		project = authorization.projects.deleteProject(request.user, project_id)
@@ -31,7 +31,7 @@ def updateProject(request, project_id):
 @handle_http_errors
 def addUserToGroup(request, project_id, group_id):
 	group = authorization.projects.addUserToGroup(request.user, project_id, group_id, json.loads(request.body))
-	return HttpResponse('{ "usergroup": ' + Serializer().serialize([group]) + "}")
+	return HttpResponse('{ "usergroup": ' + Serializer().serialize(group) + "}")
 
 @login_required
 @require_http_methods(["DELETE"])

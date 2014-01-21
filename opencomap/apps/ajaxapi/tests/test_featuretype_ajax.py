@@ -101,6 +101,10 @@ class FeatureTypeAjaxTest(AjaxTest):
 		self.assertContains(response, '"name": "Gonzo"')
 		self.assertNotContains(response, '"status": 1')
 
+	def test_addLookupValueThatDoesNotExisist(self):
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/featuretypes/' + str(self.featureType.id) + '/fields/' + str(self.lookupfield.id) + '/lookupvalues', {'id': 86476545487, 'name': 'Kermit'}, 'eric')
+		self.assertEqual(response.status_code, 400)
+
 	def test_removeLookupValue(self):
 		self.lookupvalue.status = 0
 		self.lookupvalue.save()

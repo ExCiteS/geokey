@@ -20,4 +20,4 @@ def project_list(request):
 @handle_http_errors
 def project_single(request, project_id):
 	project = authorization.projects.project(request.user, project_id)
-	return HttpResponse('{ "project": ' + Serializer().serialize([project]) + "}")
+	return HttpResponse('{ "project": ' + Serializer().serialize(project) + "}")

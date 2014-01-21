@@ -1,5 +1,7 @@
 from opencomap.apps.backend.models.projects import Project
+from opencomap.apps.backend.models.featuretype import LookupValue
 from opencomap.apps.backend.models.choice import STATUS_TYPES
+from opencomap.libs.exceptions import MalformedBody
 
 from django.core.exceptions import PermissionDenied
 from decorators import check_admin
@@ -7,7 +9,6 @@ from decorators import check_admin
 @check_admin
 def update(user, project_id, featuretype_id, data, project=None):
 	featuretype = project.featuretype_set.get(pk=featuretype_id)
-	print data
 	if data.get('description') != None: featuretype.update(description=data.get('description'))
 	if data.get('status') != None: featuretype.update(status=data.get('status'))
 	return featuretype
@@ -24,7 +25,10 @@ def updateField(user, project_id, featuretype_id, field_id, data, project=None):
 def addLookupValue(user, project_id, featuretype_id, field_id, data, project=None):
 	field = project.featuretype_set.get(pk=featuretype_id).getField(field_id)
 	if data.get('id') != None:
-		field.lookupvalue_set.get(pk=data.get('id')).update(status=STATUS_TYPES['ACTIVE'])
+		try: 
+			field.lookupvalue_set.get(pk=data.get('id')).update(status=STATUS_TYPES['ACTIVE'])
+		except LookupValue.DoesNotExist, err:
+			raise MalformedBody(err)
 	else:
 		field.addLookupValues(data.get('name'))
 

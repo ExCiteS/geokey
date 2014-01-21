@@ -2,6 +2,7 @@ from django.core import serializers
 from django.contrib.auth.models import User
 from opencomap.apps.backend.models.featuretype import FeatureType, Field, LookupField
 from django.db.models.fields import FieldDoesNotExist
+from django.db.models.query import QuerySet
 
 field_registry = {
 	User: ['id', 'username', 'first_name', 'last_name', 'email'],
@@ -35,20 +36,23 @@ class DataSerializer(serializers.get_serializer('python')):
 
 		if options.get('fields') is None and model in field_registry:
 			options['fields'] = field_registry[model]
-
+		
 		return super(DataSerializer, self).serialize(queryset, **options)
 
 class ObjectSerializer(DataSerializer, serializers.get_serializer('json')):
 	def getvalue(self):
 		value = super(ObjectSerializer, self).getvalue()
-		if self.single: 
-			return value.strip('[]\n')
-		else:
+		if self.isList: 
 			return value
+		else:
+			return value.strip('[]\n')
 
 	def serialize(self, obj, **options):
-		self.single = (len(obj) == 1)
-		return super(ObjectSerializer, self).serialize(obj, **options)
+		self.isList = isinstance(obj, QuerySet) or isinstance(obj, list)
+		
+		if self.isList: q_set = obj
+		else: q_set = [obj]
+		return super(ObjectSerializer, self).serialize(q_set, **options)
 
 class FeatureTypeSerializer(ObjectSerializer):
 	def dump_fields(self, field_set):
@@ -57,7 +61,6 @@ class FeatureTypeSerializer(ObjectSerializer):
 			dump.append(FieldSerializer().dump_field(input_field.getInstance()))
 
 		return dump
-
 
 	def get_dump_object(self, obj):
 		self._current['fields'] = self.dump_fields(obj.field_set.all())
