@@ -14,14 +14,15 @@ def projects_list(user):
 	projects = Project.objects.exclude(status=STATUS_TYPES['DELETED'])
 
 	for project in projects:
-		if (project.admins.isMember(user)) or ((not project.isprivate or project.contributors.isMember(user)) and project.status != STATUS_TYPES['INACTIVE']):
+		if project.isViewable(user):
 			result.append(project)
 		
 	return result
 
 def project(user, project_id):
 	project = Project.objects.get(pk=project_id)
-	if ((project.admins.isMember(user)) or ((not project.isprivate or project.contributors.isMember(user)) and project.status != STATUS_TYPES['INACTIVE'])) and project.status != STATUS_TYPES['DELETED']:
+
+	if project.isViewable(user):
 		return project
 	elif project.status == STATUS_TYPES['DELETED']:
 		raise Project.DoesNotExist('The requested project has been deleted by a project administrator.')

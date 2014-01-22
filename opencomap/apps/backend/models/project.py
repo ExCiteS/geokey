@@ -50,6 +50,14 @@ class Project(models.Model):
 		self.status = STATUS_TYPES['DELETED']
 		self.save()
 
+	def isViewable(self, user):
+		inViewgroup = False
+		for view in self.view_set.all():
+			for group in view.viewgroup_set.all():
+				if group.isMember(user): inViewgroup = True
+
+		return (inViewgroup or ((self.admins.isMember(user)) or ((not self.isprivate or self.contributors.isMember(user)) and self.status != STATUS_TYPES['INACTIVE']))) and self.status != STATUS_TYPES['DELETED']
+
 	def getViews(self):
 		"""
 		Returns a list of all views assinged to the project. Excludes those having status `DELETED`
