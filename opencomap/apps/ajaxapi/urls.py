@@ -15,4 +15,6 @@ urlpatterns = patterns('',
     url(r'^projects/(?P<project_id>\d+)/featuretypes/(?P<featuretype_id>\d+)/fields/(?P<field_id>\d+)/lookupvalues/(?P<lookup_id>\d+)$', views.featuretypes.removeLookupValue, name='featuretype_field_removelookup'),
 
     url(r'^projects/(?P<project_id>\d+)/views/(?P<view_id>\d+)$', views.views.update, name='view_update'),
+    url(r'^projects/(?P<project_id>\d+)/views/(?P<view_id>\d+)/usergroups/(?P<group_id>\d+)$', views.views.addUserToGroup, name='view_addUserToGroup'),
+    url(r'^projects/(?P<project_id>\d+)/views/(?P<view_id>\d+)/usergroups/(?P<group_id>\d+)/users/(?P<user_id>\d+)$', views.views.removeUserFromGroup, name='view_addUserToGroup'),
 )

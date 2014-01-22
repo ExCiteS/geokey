@@ -4,9 +4,9 @@ from opencomap.apps.backend.models.choice import STATUS_TYPES
 
 class ProjectAjaxTest(AjaxTest):
 
-	# ###################################
+	###################################
 	# REMOVE USERS FROM GROUPS
-	# ###################################
+	###################################
 	
 	def test_removeUsersWithWrongMethod(self):
 		response = self.get('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/10', 'eric')

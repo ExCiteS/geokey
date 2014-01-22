@@ -20,3 +20,18 @@ def update(request, project_id, view_id):
 	elif request.method == "DELETE":
 		view = authorization.views.delete(request.user, project_id, view_id)
 		return render_to_success("The view has been deleted.")
+
+@login_required
+@require_http_methods(["PUT"])
+@handle_http_errors
+@handle_malformed
+def addUserToGroup(request, project_id, view_id, group_id):
+	group = authorization.views.addUserToGroup(request.user, project_id, view_id, group_id, json.loads(request.body))
+	return render_to_json("usergroup", Serializer().serialize(group))
+
+@login_required
+@require_http_methods(["DELETE"])
+@handle_http_errors
+def removeUserFromGroup(request, project_id, view_id, group_id, user_id):
+	authorization.views.removeUserFromGroup(request.user, project_id, view_id, group_id, user_id)
+	return render_to_success("The user has been successfully removed from the group.")

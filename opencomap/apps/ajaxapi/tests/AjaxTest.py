@@ -8,6 +8,7 @@ import json
 
 import opencomap.apps.backend.models.factory as Factory
 from opencomap.apps.backend.models.featuretype import FeatureType, TextField, LookupField
+from opencomap.apps.backend.models.viewgroup import ViewGroup
 from opencomap.libs.serializers import ObjectSerializer, FeatureTypeSerializer
 
 
@@ -25,11 +26,13 @@ class AjaxTest(TestCase):
 		User.objects.create_user('diego', 'diego@maradonna.ar', 'diego123', first_name='Diego', last_name='Maradonna').save()
 		User.objects.create_user('mehmet', 'mehmet@scholl.de', 'mehmet123', first_name='Mehmet', last_name='Scholl').save()
 		User.objects.create_user('carlos', 'carlos@valderama.de', 'carlos123', first_name='carlos', last_name='valderama').save()
+		User.objects.create_user('peter', 'peter@schmeichel.dk', 'peter123', first_name='peter', last_name='schmeichel').save()
 
 		eric = self._authenticate('eric')
 		george = self._authenticate('george')
 		diego = self._authenticate('diego')
 		carlos = self._authenticate('carlos')
+		peter = self._authenticate('peter')
 
 		self.project = Factory.createProject('Project', 'Test description', eric, isprivate=True)
 		self.project.admins.addUsers(george)
@@ -46,6 +49,10 @@ class AjaxTest(TestCase):
 		self.lookupvalue = self.lookupfield.lookupvalue_set.filter(name='Gonzo')[0]
 		self.lookupvalue.status = 1
 		self.lookupvalue.save()
+
+		self.viewgroup = ViewGroup(name='View Group')
+		self.project.getViews()[0].addUserGroup(self.viewgroup)
+		self.viewgroup.addUsers(peter)
 
 		testProject = Factory.createProject('Test Project', 'Test description', carlos)
 		self.referenceGroup = testProject.admins

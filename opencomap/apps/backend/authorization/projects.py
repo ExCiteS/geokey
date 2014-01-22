@@ -44,11 +44,11 @@ def updateProject(user, project_id, data, project=None):
 @check_admin
 def addUserToGroup(user, project_id, group_id, userToAdd, project=None):
 	if project.admins.id == int(group_id) or project.contributors.id == int(group_id):
+		group = UserGroup.objects.get(pk=group_id)
 		try:
 			user = User.objects.get(pk=userToAdd.get('userId'))
 		except User.DoesNotExist, err:
 			raise MalformedBody(err)
-		group = UserGroup.objects.get(pk=group_id)
 		group.addUsers(user)
 
 		return group
@@ -59,11 +59,9 @@ def addUserToGroup(user, project_id, group_id, userToAdd, project=None):
 def removeUserFromGroup(user, project_id, group_id, userToRemove, project=None):
 	if project.admins.id == int(group_id) or project.contributors.id == int(group_id):
 		group = UserGroup.objects.get(pk=group_id)
-		user = User.objects.get(pk=userToRemove)
-		if group.isMember(user):
-			group.removeUsers(user)
-			return group
-		else:
-			raise User.DoesNotExist	
+		user = group.users.get(pk=userToRemove)
+
+		group.removeUsers(user)
+		return group
 	else:
 		raise UserGroup.DoesNotExist

@@ -57,3 +57,77 @@ class ViewAjaxTest(AjaxTest):
 	def testDeleteNonExisitingView(self):
 		response = self.delete('/ajax/projects/' + str(self.project.id) + '/views/684564521545121', 'eric')
 		self.assertEqual(response.status_code, 404)
+
+	# ###################################
+	# ADD USER TO GROUP
+	# ###################################
+
+	def test_addUsersWithCreator(self):
+		userToAdd = self._authenticate('carlos')
+
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id), {'userId': userToAdd.id}, 'eric')
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, self.objectSerializer.serialize(userToAdd))
+
+	def test_addUsersWithAdmin(self):
+		userToAdd = self._authenticate('carlos')
+
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id), {'userId': userToAdd.id}, 'george')
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, self.objectSerializer.serialize(userToAdd))
+
+	def test_addUsersWithContributor(self):
+		userToAdd = self._authenticate('carlos')
+
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id), {'userId': userToAdd.id}, 'diego')
+		self.assertEqual(response.status_code, 401)
+
+	def test_addUsersWithNonMember(self):
+		userToAdd = self._authenticate('carlos')
+
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id), {'userId': userToAdd.id}, 'mehmet')
+		self.assertEqual(response.status_code, 401)
+
+	def test_addUserThatDoesNotExist(self):
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id), {'userId': 56454521874545}, 'eric')
+		self.assertEqual(response.status_code, 400)
+
+	def test_addUserWrongMethod(self):
+		response = self.get('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id), 'eric')
+		self.assertEqual(response.status_code, 405)
+
+	# ###################################
+	# REMOVE USER FROM GROUP
+	# ###################################
+
+	def test_removeUsersWithCreator(self):
+		userToRemove = self._authenticate('peter')
+		response = self.delete('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id) + '/users/' + str(userToRemove.id), 'eric')
+		self.assertEqual(response.status_code, 200)
+		self.assertNotContains(response, self.objectSerializer.serialize(userToRemove))
+
+	def test_removeUsersWithAdmin(self):
+		userToRemove = self._authenticate('peter')
+		response = self.delete('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id) + '/users/' + str(userToRemove.id), 'george')
+		self.assertEqual(response.status_code, 200)
+		self.assertNotContains(response, self.objectSerializer.serialize(userToRemove))
+
+	def test_removeUsersWithContributor(self):
+		userToRemove = self._authenticate('peter')
+		response = self.delete('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id) + '/users/' + str(userToRemove.id), 'diego')
+		self.assertEqual(response.status_code, 401)
+
+	def test_removeUsersWithNonMember(self):
+		userToRemove = self._authenticate('peter')
+		response = self.delete('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id) + '/users/' + str(userToRemove.id), 'mehmet')
+		self.assertEqual(response.status_code, 401)
+
+	def test_removeUsersThatDoesNotExist(self):
+		userToRemove = self._authenticate('peter')
+		response = self.delete('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id) + '/users/5854545784847845', 'eric')
+		self.assertEqual(response.status_code, 404)
+
+	def test_removeUsersWrongMethod(self):
+		userToRemove = self._authenticate('peter')
+		response = self.get('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id) + '/users/5854545784847845', 'mehmet')
+		self.assertEqual(response.status_code, 405)
