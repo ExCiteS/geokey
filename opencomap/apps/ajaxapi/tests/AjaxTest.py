@@ -36,8 +36,7 @@ class AjaxTest(TestCase):
 		self.project.contributors.addUsers(diego)
 		self.project.save()
 
-		self.featureType = FeatureType(name='Feature type', description='Feature type description')
-		self.project.addFeatureType(self.featureType)
+		self.featureType = Factory.createFeaturetype('Feature type', 'TFeature type description', eric, self.project)
 		self.field = TextField(name='Text field', description='Text field description', featuretype=self.featureType)
 		self.field.save()
 

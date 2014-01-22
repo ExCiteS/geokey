@@ -1,9 +1,7 @@
-from opencomap.apps.backend.models.projects import Project
 from opencomap.apps.backend.models.featuretype import LookupValue
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 from opencomap.libs.exceptions import MalformedBody
 
-from django.core.exceptions import PermissionDenied
 from decorators import check_admin
 
 @check_admin

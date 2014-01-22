@@ -50,9 +50,15 @@ class Project(models.Model):
 		self.status = STATUS_TYPES['DELETED']
 		self.save()
 
+	def getViews(self):
+		"""
+		Returns a list of all views assinged to the project. Excludes those having status `DELETED`
+		"""
+		return self.view_set.exclude(status=STATUS_TYPES['DELETED'])
+
 	def getFeatures(self):
 		"""
-		Returns a list of all features assinged to the project. Excludes those having status `RETIRED` and `DELETED`
+		Returns a list of all features assinged to the project. Excludes those having status `DELETED`
 		"""
 		return self.feature_set.exclude(status=STATUS_TYPES['DELETED'])
 

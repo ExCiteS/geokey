@@ -36,7 +36,7 @@ class FeatureTypeTest(TestCase):
 		admin = self._authenticate('eric')
 
 		project = Project.objects.all()[0]
-		featureType = FeatureType(name='Test Feature Type')
+		featureType = Factory.createFeaturetype('Test Feature Type', 'Test featuretype description', admin, project)
 		project.addFeatureType(featureType)
 
 		# Test create and add fields

@@ -1,5 +1,7 @@
 from opencomap.apps.backend.models.project import Project
-from opencomap.apps.backend.models.permission import UserGroup
+from opencomap.apps.backend.models.view import View
+from opencomap.apps.backend.models.featuretype import FeatureType
+from opencomap.apps.backend.models.usergroup import UserGroup
 
 def createProject(name, description, creator, isprivate=False):
 	"""
@@ -22,3 +24,12 @@ def createProject(name, description, creator, isprivate=False):
 	project.save()
 	
 	return project
+
+def createFeaturetype(name, description, creator, project):
+	featuretype = FeatureType(name=name, description=description, project=project)
+	featuretype.save()
+
+	featuretypeView = View(name=featuretype.name, project=project, creator=creator, featuretype=featuretype)
+	featuretypeView.save()
+
+	return featuretype

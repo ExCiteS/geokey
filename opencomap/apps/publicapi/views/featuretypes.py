@@ -1,8 +1,8 @@
-from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 
 from opencomap.libs.serializers import FeatureTypeSerializer
-from opencomap.libs.decorators import handle_http_errors
+from opencomap.libs.views import render_to_json
+from opencomap.libs.decorators.http import handle_http_errors
 from opencomap.libs.oauth import oauthenticate
 
 from opencomap.apps.backend import authorization
@@ -12,4 +12,4 @@ from opencomap.apps.backend import authorization
 @handle_http_errors
 def featuretype_list(request, project_id):
 	project = authorization.projects.project(request.user, project_id)
-	return HttpResponse('{ "featuretypes": ' + FeatureTypeSerializer().serialize(project.getFeatureTypes()) + "}")
+	return render_to_json("featuretypes", FeatureTypeSerializer().serialize(project.getFeatureTypes()))
