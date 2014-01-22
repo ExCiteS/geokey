@@ -1,13 +1,16 @@
 from django.core import serializers
 from django.contrib.auth.models import User
 from opencomap.apps.backend.models.featuretype import FeatureType, Field, LookupField
+from opencomap.apps.backend.models.view import View
+
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models.query import QuerySet
 
 field_registry = {
+	'compact': ['id', 'name'],
 	User: ['id', 'username', 'first_name', 'last_name', 'email'],
 	FeatureType: ['id', 'name', 'description', 'status', 'required'],
-	Field: ['id', 'name', 'description', 'minval', 'maxval', 'status', 'required']
+	Field: ['id', 'name', 'description', 'minval', 'maxval', 'status', 'required'],
 }
 
 def serialize_fields(model, fields):
@@ -20,7 +23,7 @@ class DataSerializer(serializers.get_serializer('python')):
 
 	def handle_fk_field(self, obj, field):
 		related_obj = getattr(obj, field.name)
-		value = DataSerializer().serialize([related_obj])
+		value = DataSerializer().serialize([related_obj], compact=True)
 		self._current[field.name] = value[0]
 
 	def handle_m2m_field(self, obj, field):
@@ -28,13 +31,15 @@ class DataSerializer(serializers.get_serializer('python')):
 		values = DataSerializer().serialize(related_objs)
 		self._current[field.name] = values
 
-	def serialize(self, queryset, **options):
+	def serialize(self, queryset, compact=False, **options):
 		if hasattr(queryset, 'model'):
 			model = queryset.model
 		else:
 			model = queryset[0].__class__
 
-		if options.get('fields') is None and model in field_registry:
+		if compact and not (model == User):
+			options['fields'] = field_registry['compact']
+		elif options.get('fields') is None and model in field_registry:
 			options['fields'] = field_registry[model]
 		
 		return super(DataSerializer, self).serialize(queryset, **options)

@@ -3,10 +3,10 @@ from opencomap.libs.serializers import ObjectSerializer
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 
 class ProjectAjaxTest(AjaxTest):
-
-	###################################
+	
+	# ##################################
 	# REMOVE USERS FROM GROUPS
-	###################################
+	# ##################################
 	
 	def test_removeUsersWithWrongMethod(self):
 		response = self.get('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id) + '/users/10', 'eric')
@@ -68,7 +68,7 @@ class ProjectAjaxTest(AjaxTest):
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, ObjectSerializer().serialize(userToAdd))
 
-	def test_addUsersWithCreator(self):
+	def test_addUsersWithAdmin(self):
 		userToAdd = self._authenticate('carlos')
 		response = self.put('/ajax/projects/' + str(self.project.id) + '/usergroups/' + str(self.project.admins.id), {'userId': userToAdd.id}, 'george')
 		self.assertEqual(response.status_code, 200)
