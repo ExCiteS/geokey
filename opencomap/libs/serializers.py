@@ -1,16 +1,26 @@
 from django.core import serializers
 from django.contrib.auth.models import User
-from opencomap.apps.backend.models.featuretype import FeatureType, Field, LookupField
+from opencomap.apps.backend.models.featuretype import FeatureType, Field, TextField, NumericField, DateTimeField, TrueFalseField, LookupField, LookupValue
 from opencomap.apps.backend.models.view import View
+from opencomap.apps.backend.models.viewgroup import ViewGroup
 
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models.query import QuerySet
+from django.utils import six
 
 field_registry = {
-	'compact': ['id', 'name'],
+	'compact': ['id', 'name', 'users'],
 	User: ['id', 'username', 'first_name', 'last_name', 'email'],
-	FeatureType: ['id', 'name', 'description', 'status', 'required'],
-	Field: ['id', 'name', 'description', 'minval', 'maxval', 'status', 'required'],
+	FeatureType: ['id', 'name', 'description', 'status', 'field_set'],
+
+	TextField: ['id', 'name', 'description', 'status', 'required'],
+	NumericField: ['id', 'name', 'description', 'status', 'required', 'minval', 'maxval'],
+	DateTimeField: ['id', 'name', 'description', 'status', 'required'],
+	TrueFalseField: ['id', 'name', 'description', 'status', 'required'],
+	LookupField: ['id', 'name', 'description', 'status', 'required', 'lookupvalue_set'],
+	LookupValue: ['id', 'name', 'status'],
+
+	ViewGroup: ['id', 'name', 'can_edit', 'can_view', 'can_read', 'users'],
 }
 
 def serialize_fields(model, fields):
@@ -31,18 +41,78 @@ class DataSerializer(serializers.get_serializer('python')):
 		values = DataSerializer().serialize(related_objs)
 		self._current[field.name] = values
 
+	def handle_fk_ref(self, obj, field_name):
+		try:
+			related_objs = getattr(obj, field_name).all()
+			values = DataSerializer().serialize(related_objs)
+			self._current[field_name[:-4] + 's'] = values
+		except AttributeError:
+			pass
+
 	def serialize(self, queryset, compact=False, **options):
 		if hasattr(queryset, 'model'):
 			model = queryset.model
 		else:
 			model = queryset[0].__class__
-
+		
 		if compact and not (model == User):
 			options['fields'] = field_registry['compact']
 		elif options.get('fields') is None and model in field_registry:
 			options['fields'] = field_registry[model]
-		
-		return super(DataSerializer, self).serialize(queryset, **options)
+
+
+		# options['indent'] = 4
+
+		# return super(DataSerializer, self).serialize(queryset, **options)
+		self.options = options
+		self.stream = options.pop("stream", six.StringIO())
+		self.selected_fields = options.pop("fields", None)
+		self.use_natural_keys = options.pop("use_natural_keys", False)
+		if self.use_natural_keys:
+		    warnings.warn("``use_natural_keys`` is deprecated; use ``use_natural_foreign_keys`` instead.", PendingDeprecationWarning)
+		self.use_natural_foreign_keys = options.pop('use_natural_foreign_keys', False) or self.use_natural_keys
+		self.use_natural_primary_keys = options.pop('use_natural_primary_keys', False)
+
+		self.start_serialization()
+		self.first = True
+		for obj in queryset:
+			if model == Field:
+				obj = obj.getInstance()
+				fields_to_read = field_registry[obj.__class__]
+			else:
+				fields_to_read = self.selected_fields
+			
+			self.start_object(obj)
+
+
+			if fields_to_read is not None:
+				for field_name in fields_to_read:
+					if field_name[-4:] == '_set':
+						self.handle_fk_ref(obj, field_name)
+
+			# Use the concrete parent class' _meta instead of the object's _meta
+			# This is to avoid local_fields problems for proxy models. Refs #17717.
+			concrete_model = obj._meta.concrete_model
+			for field in concrete_model._meta.fields:
+				if field.serialize:
+					if field.rel is None:
+			 			if fields_to_read is None or field.attname in fields_to_read:
+							self.handle_field(obj, field)
+					else:
+						if fields_to_read is None or field.attname[:-3] in fields_to_read:
+							self.handle_fk_field(obj, field)
+
+			for field in concrete_model._meta.many_to_many:
+				if field.serialize:
+					if fields_to_read is None or field.attname in fields_to_read:
+						self.handle_m2m_field(obj, field)
+
+			self.end_object(obj)
+			if self.first:
+			    self.first = False
+		self.end_serialization()
+		return self.getvalue()
+
 
 class ObjectSerializer(DataSerializer, serializers.get_serializer('json')):
 	def getvalue(self):
@@ -58,60 +128,3 @@ class ObjectSerializer(DataSerializer, serializers.get_serializer('json')):
 		if self.isList: q_set = obj
 		else: q_set = [obj]
 		return super(ObjectSerializer, self).serialize(q_set, **options)
-
-class FeatureTypeSerializer(ObjectSerializer):
-	def dump_fields(self, field_set):
-		dump = []
-		for input_field in field_set:
-			dump.append(FieldSerializer().dump_field(input_field.getInstance()))
-
-		return dump
-
-	def get_dump_object(self, obj):
-		self._current['fields'] = self.dump_fields(obj.field_set.all())
-		self._current['id'] = obj._get_pk_val()
-		return self._current
-
-	def serialize(self, obj, **options):
-		return super(FeatureTypeSerializer, self).serialize(obj, **options)
-
-class FieldSerializer(ObjectSerializer):
-	def dump_field(self, field_instance):
-		dump = {}
-		for field_name in field_registry[Field]:
-			try:
-				field = field_instance._meta.get_field(field_name)
-				dump[field_name] = field.value_from_object(field_instance)
-
-				try:
-					lookup_vals = field_instance.lookupvalue_set.all()
-					dump['lookupvalues'] = []
-
-					for value in lookup_vals:
-						lookup_dump = {}
-						lookup_id = value._meta.get_field('id')
-						lookup_dump['id'] = lookup_id.value_from_object(value)
-
-						lookup_name = value._meta.get_field('name')
-						lookup_dump['name'] = lookup_name.value_from_object(value)
-
-						lookup_status = value._meta.get_field('status')
-						lookup_dump['status'] = lookup_status.value_from_object(value)
-
-						dump['lookupvalues'].append(lookup_dump)
-				except AttributeError:
-					continue
-
-			except FieldDoesNotExist:
-				continue
-
-		return dump
-
-
-	def get_dump_object(self, obj):
-		self._current = self.dump_field(obj.getInstance())
-		self._current['id'] = obj._get_pk_val()
-		return self._current
-
-	def serialize(self, obj, **options):
-		return super(FieldSerializer, self).serialize(obj, **options)

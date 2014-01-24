@@ -9,7 +9,7 @@ import json
 import opencomap.apps.backend.models.factory as Factory
 from opencomap.apps.backend.models.featuretype import FeatureType, TextField, LookupField
 from opencomap.apps.backend.models.viewgroup import ViewGroup
-from opencomap.libs.serializers import ObjectSerializer, FeatureTypeSerializer
+from opencomap.libs.serializers import ObjectSerializer
 
 
 
@@ -59,7 +59,6 @@ class AjaxTest(TestCase):
 		self.client = Client()
 
 		self.objectSerializer = ObjectSerializer()
-		self.featureTypeSerializer = FeatureTypeSerializer()
 
 	def get(self, url, user):
 		self.client.login(username=user, password=user + '123')

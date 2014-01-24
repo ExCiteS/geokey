@@ -139,7 +139,6 @@ class TextField(Field):
 
 
 
-
 class NumericField(Field):
 	"""
 	A field for numeric values.

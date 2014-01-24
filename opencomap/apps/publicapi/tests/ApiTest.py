@@ -8,7 +8,7 @@ from provider.oauth2.models import Client as OAuthClient
 import opencomap.apps.backend.models.factory as Factory
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 from opencomap.apps.backend.models.viewgroup import ViewGroup
-from opencomap.libs.serializers import ObjectSerializer, FeatureTypeSerializer
+from opencomap.libs.serializers import ObjectSerializer
 
 from opencomap.apps.backend.models.featuretype import FeatureType, TextField, NumericField, DateTimeField, LookupField
 
@@ -53,7 +53,6 @@ class ApiTest(TestCase):
 		self.oauth = OAuthClient(user=eric, name="Test App", client_type=1, url="http://ucl.ac.uk")
 		self.oauth.save()
 		self.objectSerializer = ObjectSerializer()
-		self.featuretypeSerializer = FeatureTypeSerializer()
 
 		# ###################################
 		# SETUP: PROJECTS

@@ -3,7 +3,6 @@ from opencomap.libs.serializers import ObjectSerializer
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 
 class ProjectAjaxTest(AjaxTest):
-	
 	# ##################################
 	# REMOVE USERS FROM GROUPS
 	# ##################################
