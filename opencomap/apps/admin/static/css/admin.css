@@ -4,11 +4,10 @@ body {
 }
 
 body#home {
-    padding-top: 50px;
+    padding-top: 0;
 }
 
 body#home div.jumbotron {
-    text-align: center;
     background: url(../img/london.jpg) no-repeat 50% -675px;
     padding: 100px 0;
     
@@ -23,6 +22,25 @@ body#home div.jumbotron {
         margin-top: 0;
     }
 
+    body#home div.jumbotron .footer {
+        font-size: 14px;
+        font-weight: normal;
+    }
+
+    body#home div.jumbotron .footer .panel-default {
+        text-align: center;
+        background-color: rgba(255,255,255,0.7);
+        border: none;
+    }
+
+    body#home div.jumbotron .footer .panel-default .panel-body {
+        padding: 5px;
+    }
+
+    
+.hide {
+    display: none;
+}
 .row {margin-bottom: 30px;}
 
 h1:first-child,

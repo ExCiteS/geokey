@@ -37,9 +37,8 @@ class Project(models.Model):
 
 		if (name): self.name = name
 		if (description): self.description = description
-		if (status): self.status = status
-		if (isprivate != None): 
-			self.isprivate = isprivate
+		if (status != None): self.status = status
+		if (isprivate != None): self.isprivate = isprivate
 
 		self.save()
 

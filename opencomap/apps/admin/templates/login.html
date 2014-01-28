@@ -3,32 +3,38 @@
 {% block title %} | Login{% endblock %}
 
 {% block main %}
-            <div class="page-header">
-                <h1>Log in</h1>
-            </div>
-
-            {% if reason == 'fail' %}
-            <div class="row">
-                <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
-                    <div class="alert alert-danger">We were unable to log you in. Either user name or password are wrong. Please try again.</div>
+            {% if login_failed %}
+                <div class="page-header">
+                    <h1>Authorisation failed</h1>
                 </div>
-            </div>
-            {% endif %}
-
-            {% if reason == 'required' %}
-            <div class="row">
-                <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
-                    <div class="alert alert-warning">Please log in.</div>
+                <div class="row">
+                    <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+                        <div class="alert alert-danger">We were unable to authorise you. Either user name or password are incorrect. Please try again.</div>
+                    </div>
                 </div>
-            </div>
-            {% endif %}
 
-            {% if reason == 'logout' %}
-            <div class="row">
-                <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
-                    <div class="alert alert-success">You have been successfully logged out.</div>
+            {% elif login_required %}
+                <div class="page-header">
+                    <h1>Sign in required</h1>
                 </div>
-            </div>
+                <div class="row">
+                    <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+                        <div class="alert alert-warning">Please sign in.</div>
+                    </div>
+                </div>
+            {% elif logged_out %}
+                <div class="page-header">
+                    <h1>Successfully signed out</h1>
+                </div>
+                <div class="row">
+                    <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+                        <div class="alert alert-success">You have been successfully signed out.</div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="page-header">
+                    <h1>Sign in</h1>
+                </div>
             {% endif %}
 
             <div class="row">
@@ -50,6 +56,11 @@
                         <div class="form-group">
                             <div class="col-sm-offset-2 col-sm-8 col-md-6">
                                 <button type="submit" class="btn btn-primary">Sign in</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-8 col-md-6">
+                                <p>Not a member yet? Please <a href="{% url 'signup'%}">sign up here</a.</p>
                             </div>
                         </div>
                     </form>

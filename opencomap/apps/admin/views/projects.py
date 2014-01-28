@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 
 from opencomap.apps.backend import authorization
+from opencomap.apps.backend.models.choice import STATUS_TYPES
+from opencomap.apps.backend.models.project import Project
 import opencomap.apps.backend.models.factory as Factory
 
 @login_required
@@ -32,7 +34,7 @@ def editProject(request, project_id):
 	try:
 		project = authorization.projects.project(request.user, project_id)
 		if project.admins.isMember(request.user):
-			return render(request, 'project.edit.html', RequestContext(request, {"project": auth.projects.project(request.user, project_id)}))
+			return render(request, 'project.edit.html', RequestContext(request, {"project": project, "status_types": STATUS_TYPES}))
 		else:
 			return render(request, 'project.edit.html', RequestContext(request, {"error": "You are not allowed to edit the setting of this project"}))	
 	except Project.DoesNotExist, err:

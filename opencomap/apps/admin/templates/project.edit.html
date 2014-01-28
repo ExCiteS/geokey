@@ -4,6 +4,7 @@
 {% block title %} | Project | Settings{% endblock %}
 
 {% block main %}
+    {% csrf_token %}
     {% if error %}
             <div class="page-header">
                 <h1>An error occured.</h1>
@@ -107,31 +108,61 @@
                 </div>
             </div>
             <hr>
-            <div class="row">
-                <div class="col-md-5 col-md-offset-2 col-lg-3">
+            <div class="row" id="general-settings">
+                <div class="col-md-2">
+                    <h3>General settings</h3>
+                </div>
+
+                
+                <div class="toggle-private col-md-5 col-lg-3{% if not project.isprivate %} hide{% endif %}">
+                    <div class="panel panel-warning">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Make this project public</h2>
+                        </div>
+                        <div class="panel-body">
+                            <p>Make this project accessibale to every registered user.</p>
+                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-public-confirm">Make public</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="toggle-private col-md-5 col-lg-3{% if project.isprivate %} hide{% endif %}">
                     <div class="panel panel-warning">
                         <div class="panel-heading">
                             <h2 class="panel-title">Make this project private</h2>
                         </div>
                         <div class="panel-body">
-                            <!-- <p>If you choose to make the project private, the project will be accessable only to administrators, contributors and members of view-related user groups.</p> -->
                             <p>Hide this project from the public.</p>
-                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#private_confirm">Make private</button>
+                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-private-confirm">Make private</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-5 col-lg-3 col-lg-offset-0">
+                <div class="toggle-active col-md-5 col-lg-3 col-lg-offset-0{% if project.status == status_types.INACTIVE %} hide{% endif %}">
                     <div class="panel panel-warning">
                         <div class="panel-heading">
                             <h2 class="panel-title">Make this project inactive</h2>
                         </div>
                         <div class="panel-body">
-                            <p>The project live cycle has come to an end. Users will not be able to contribute and read data from the project.</p>
-                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#inactive_confirm">Make inactive</button>
+                            <p>Users will not be able to contribute and read data from the project.</p>
+                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-inactive-confirm">Make inactive</button>
                         </div>
                     </div>
                 </div>
+
+                <div class="toggle-active col-md-5 col-lg-3 col-lg-offset-0{% if project.status == status_types.ACTIVE %} hide{% endif %}">
+                    <div class="panel panel-warning">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Make this project active</h2>
+                        </div>
+                        <div class="panel-body">
+                            <p>Users will be able to contribute and read data from the project.</p>
+                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-active-confirm">Make active</button>
+                        </div>
+                    </div>
+                </div>
+
+                
 
                 <div class="col-md-5 col-md-offset-2 col-lg-3 col-lg-offset-0">
                     <div class="panel panel-danger">
@@ -140,7 +171,7 @@
                         </div>
                         <div class="panel-body">
                             <p>If you delete the project there's no way back.</p>
-                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_confirm">Delete this project</button>
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-confirm">Delete this project</button>
                         </div>
                     </div>
                 </div>
@@ -151,7 +182,7 @@
 {% block modals %} 
     {% if project %}
         <!-- Delete confirmation modal -->
-        <div class="modal fade" id="delete_confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal fade" id="delete-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content panel-danger">
                     <div class="modal-header panel-heading">
@@ -159,19 +190,36 @@
                         <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
                     </div>
                     <div class="modal-body panel-body">
-                        <p class="text-danger">You are about to delete the project <strong>Piggy and Kermit</strong>. This can not be undone.</p>
+                        <p class="text-danger">You are about to delete the project <strong>{{project.name}}</strong>. This can not be undone.</p>
                         <p>Deleting a project will delete all data contributed to the project.</p>
                     </div>
                     <div class="modal-footer panel-footer">
-                        <button type="button" value="delete" class="btn btn-danger">I'm absolutely sure, delete the project!</button>
+                        <button type="button" name="confirm" value="delete" class="btn btn-danger" data-loading-text="Loading...">I'm absolutely sure, delete the project!</button>
                     </div>
                 </div>
             </div>
         </div>
         <!-- /Delete confirmation modal -->
 
-        <!-- Private confirmation modal -->
-        <div class="modal fade" id="private_confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal fade" id="make-public-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content panel-warning">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+                    </div>
+                    <div class="modal-body panel-body">
+                        <p>Before you make the project public, please read through the consequences of this action.</p>
+                        <p>A public project is accessible to every registered user of the platform. However, access to data contributed to the project may still be restricted by settings of individual views.</p>
+                    </div>
+                    <div class="modal-footer panel-footer">
+                        <button type="button" name="confirm" value="false" class="btn btn-warning" data-loading-text="Loading...">Yes, make the project public.</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="make-private-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content panel-warning">
                     <div class="modal-header panel-heading">
@@ -188,15 +236,15 @@
                         </ul>
                     </div>
                     <div class="modal-footer panel-footer">
-                        <button type="button" class="btn btn-warning">Yes, make the project private.</button>
+                        <button type="button" name="confirm" value="true" class="btn btn-warning" data-loading-text="Loading...">Yes, make the project private.</button>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- /Private confirmation modal -->
 
-        <!-- Inactive confirmation modal -->
-        <div class="modal fade" id="inactive_confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+
+        <div class="modal fade" id="make-inactive-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content panel-warning">
                     <div class="modal-header panel-heading">
@@ -212,12 +260,33 @@
                         </ul>
                     </div>
                     <div class="modal-footer panel-footer">
-                        <button type="button" class="btn btn-warning">Yes, make the project inactive.</button>
+                        <button type="button" name="confirm" value="{{status_types.INACTIVE}}" class="btn btn-warning" data-loading-text="Loading...">Yes, make the project inactive.</button>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- /Inactive confirmation modal -->
+
+        <div class="modal fade" id="make-active-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content panel-warning">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+                    </div>
+                    <div class="modal-body panel-body">
+                        <p>Before you make the project active, please read through the consequences of this action:</p>
+                        <ul>
+                            <li>The project will be accessible to either all registered users or Administrators, Viewers and Contributors.</li>
+                            <li>Contributors and Administrators can contribute new data.</li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer panel-footer">
+                        <button type="button" name="confirm" value="{{status_types.ACTIVE}}" class="btn btn-warning" data-dismiss="modal">Yes, make the project inactive.</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     {% endif %}
 {% endblock %}
 
@@ -225,7 +294,6 @@
     {% if project %}
             <script src="/static/js/Admin.Ui.DescriptionEditor.js"></script>
             <script src="/static/js/admin.ui.project.edit.js"></script>
-            <script src="/static/js/admin.control.project.js"></script>
             <script src="/static/js/admin.control.ajax.js"></script>
             <script src="/static/js/Admin.Ui.Project.UserGroups.js"></script>
             <script src="/static/js/Admin.Ui.UserGroup.js"></script>
