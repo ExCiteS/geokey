@@ -101,17 +101,19 @@
                             <h2 class="panel-title">Feature types in this project</h2>
                         </div>
                         <div class="list-group">
-                            <a href="featuretype.html" class="list-group-item">
-                                <h4 class="list-group-item-heading">Bar</h4>
-                                <p class="list-group-item-text">A place to get pissed.</p>
+                            {% for featuretype in project.featuretype_set.all %}
+                            <a href="{% url 'featuretype_view' project.id featuretype.id %}" class="list-group-item">
+                                <h4 class="list-group-item-heading">{{ featuretype.name }}{% if featuretype.status == status_types.INACTIVE %} <small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
+                                <p class="list-group-item-text">{{ featuretype.description }}</p>
                             </a>
-                            <a href="featuretype.html" class="list-group-item">
-                                <h4 class="list-group-item-heading">Coffee shops</h4>
-                                <p class="list-group-item-text">A place to have a coffee.</p>
-                            </a>
+                            {% empty %}
+                            <div class="list-group-item">
+                                No feature types have been added to the project.
+                            </div>
+                            {% endfor %}
                         </div>
                         <div class="panel-footer">
-                            <a href="featuretype.new.html" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new feature type</a>
+                            <a href="{% url 'featuretype_create' project.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new feature type</a>
                         </div>
                     </div> <!-- /Feature type list List -->
                 </div>
@@ -302,8 +304,8 @@
 {% block libraries %} 
     {% if project %}
             <script src="/static/js/admin.ui.messages.js"></script>
-            <script src="/static/js/Admin.Ui.DescriptionEditor.js"></script>
-            <script src="/static/js/admin.ui.project.edit.js"></script>
+            <script src="/static/js/admin.ui.descriptioneditor.js"></script>
+            <script src="/static/js/admin.ui.updater.js"></script>
             <script src="/static/js/admin.control.ajax.js"></script>
             <script src="/static/js/Admin.Ui.Project.UserGroups.js"></script>
             <script src="/static/js/Admin.Ui.UserGroup.js"></script>

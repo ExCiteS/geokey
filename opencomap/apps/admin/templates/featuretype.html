@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block bodydata %} data-project-id="{{project.id}}" data-featuretype-id="{{featuretype.id}}"{% endblock %}
+{% block title %} | Project | Feature type{% endblock %}
+
+{% block main %}
+    {% csrf_token %}
+    {% if error %}
+            <div class="page-header">
+                <h1>An error occured.</h1>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+                    <div class="alert alert-danger">{{ error }}</div>
+                </div>
+            </div>
+    {% endif %}
+
+    {% if project %}
+            <div class="page-header">
+                <h1>{{ featuretype.name }} <small><span id="descriptionText">{{featuretype.description}}</span> <a href="#" id="edit"><span class="glyphicon glyphicon-edit"></span> Edit</a></small></h1>
+
+                <form class="form-inline hidden" id="description-form" role="form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label class="sr-only" for="desription">Feature type description</label>
+                        <input type="text" class="form-control" id="description" name="description" placeholder="Enter a feature type desription" {% if featuretype.description %}value="{{featuretype.description}}"{% endif %}>
+                    </div>
+                    <button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
+                    <button type="button" class="btn btn-default">Cancel</button>
+                </form>
+            </div>
+
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1">
+                    <div class="panel panel-default"> <!-- Project overview -->
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Fields</h2>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Type</th>
+                                        <th>mandatory</th>
+                                        <th>Min. Value</th>
+                                        <th>Max. Value</th>
+                                        <th>Status</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Shop name</td>
+                                        <td>The name of the shop</td>
+                                        <td>Text</td>
+                                        <td><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>Active</td>
+                                        <td><a href="field.html" rel="tooltip" data-toggle="tooltip" data-placement="right" title="Edit field"><span class="glyphicon glyphicon-edit"></span></a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="panel-footer">
+                            <a href="field.new.html" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new field</a>
+                        </div>
+                    </div> <!-- /Project overview -->
+                </div>
+            </div>
+
+            <div class="row" id="general-settings">
+                <div class="toggle-active col-md-5 col-md-offset-1{% if featuretype.status == status_types.INACTIVE %} hidden{% endif %}">
+                    <div class="panel panel-warning">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Make this feature type inactive</h2>
+                        </div>
+                        <div class="panel-body">
+                            <p>The feature type shall no longer be used for data contribution.</p>
+                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-inactive-confirm">Make inactive</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="toggle-active col-md-5 col-lg-3 col-lg-offset-0{% if featuretype.status == status_types.ACTIVE %} hidden{% endif %}">
+                    <div class="panel panel-warning">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Make this feature type active</h2>
+                        </div>
+                        <div class="panel-body">
+                            <p>The feature type shall available for data contribution.</p>
+                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-active-confirm">Make active</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+    {% endif %}
+{% endblock %}
+
+{% block modals %} 
+    {% if project %}
+        <div class="modal fade" id="make-inactive-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content panel-warning">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+                    </div>
+                    <div class="modal-body panel-body">
+                        <p>Before you make the feature type inactive, please read through the consequences of this action:</p>
+                        <ul>
+                            <li>Users will not be able to contribute new data using this feature type.</li>
+                            <li>However, data already contributed using this feature type can be edited and the input will be validated against the type.</li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer panel-footer">
+                        <button type="button" name="confirm" value="{{status_types.INACTIVE}}" class="btn btn-warning" data-loading-text="Loading...">Yes, make the feature type inactive.</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="make-active-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content panel-warning">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+                    </div>
+                    <div class="modal-body panel-body">
+                        <p>Before you make the feature type active, please read through the consequences of this action:</p>
+                        <ul>
+                            <li>The feature type can be user for data contribution and validation.</li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer panel-footer">
+                        <button type="button" name="confirm" value="{{status_types.ACTIVE}}" class="btn btn-warning" data-dismiss="modal">Yes, make the feature type active.</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% endif %}
+{% endblock %}
+
+{% block libraries %} 
+    {% if project %}
+            <script src="/static/js/admin.ui.messages.js"></script>
+            <script src="/static/js/admin.ui.descriptioneditor.js"></script>
+            <script src="/static/js/admin.ui.updater.js"></script>
+            <script src="/static/js/admin.control.ajax.js"></script>
+            <script type="text/javascript">
+                $(function() {
+                    $('[rel="tooltip"]').tooltip();
+                });
+            </script>
+    {% endif %}
+{% endblock %}

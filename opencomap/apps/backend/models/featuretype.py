@@ -24,7 +24,7 @@ class FeatureType(models.Model):
 	def update(self, name=None, description=None, status=None):
 		if (name): self.name = name
 		if (description): self.description = description
-		if (status): self.status = status
+		if (status != None): self.status = status
 
 		self.save()
 

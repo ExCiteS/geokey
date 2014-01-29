@@ -6,15 +6,23 @@ $(function() {
 	var descriptionFormCancel = $('#description-form button[type="button"]');
 	var submitbtn = $('form button[type="submit"]');
 
+	var projectId = $('body').attr('data-project-id');
+	var featuretypeId = $('body').attr('data-featuretype-id');
+
+	var url = 'projects/' + projectId;
+	if (featuretypeId) { url += '/featuretypes/' + featuretypeId; }
+
 	function toggle() {
 		descriptionText.toggleClass('hidden');
 		descriptionForm.toggleClass('hidden')
 	}
 
 	function handleRequestSucess(response) {
-		console.log(response);
-		descriptionFormField.val(response.project.description);
-		descriptionText.children('#descriptionText').text(response.project.description);
+		var resultAccessor = 'project';
+		if (featuretypeId) { resultAccessor = 'featuretype'; }
+		
+		descriptionFormField.val(response[resultAccessor].description);
+		descriptionText.children('#descriptionText').text(response[resultAccessor].description);
 
 		submitbtn.button('reset');
 		toggle();
@@ -36,7 +44,7 @@ $(function() {
 		
 		submitbtn.button('loading');
 		descriptionFormField.addClass('loading');
-		Control.Ajax.put('projects/' + projectId, handleRequestSucess, handleRequestError, {'description': descriptionFormField.val()});
+		Control.Ajax.put(url, handleRequestSucess, handleRequestError, {'description': descriptionFormField.val()});
 
 		event.preventDefault();
 	}
