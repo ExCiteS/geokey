@@ -88,6 +88,15 @@ div.page-header {
             }
         }
 
+    div.page-header > .col-sm-12 {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+        div.page-header > .col-sm-12 > .alert {
+            margin: 5px 0 0 0;
+        }
+
 div#map {
     height: 300px;
 }

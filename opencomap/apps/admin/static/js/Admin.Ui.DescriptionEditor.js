@@ -1,4 +1,6 @@
 $(function() {
+	var messages = new Ui.MessageDisplay('.page-header');
+
 	var descriptionText = $('div.page-header h1 small');
 
 	var descriptionForm = $('#description-form');
@@ -20,7 +22,7 @@ $(function() {
 	function handleRequestSucess(response) {
 		var resultAccessor = 'project';
 		if (featuretypeId) { resultAccessor = 'featuretype'; }
-		
+
 		descriptionFormField.val(response[resultAccessor].description);
 		descriptionText.children('#descriptionText').text(response[resultAccessor].description);
 
@@ -30,12 +32,9 @@ $(function() {
 		descriptionFormField.removeClass('loading');
 	}
 
-	function handleRequestError() {
+	function handleRequestError(response) {
 		submitbtn.button('reset');
-		
-		// TODO: Display error message
-		
-		toggle();
+		messages.showError('An error occurred while updating the description. Error text was: ' + response.responseJSON.error, true);
 		descriptionFormField.removeClass('loading');
 	}
 

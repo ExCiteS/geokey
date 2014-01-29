@@ -59,7 +59,6 @@ $(function () {
 	 */
 	function updateActive(event) {
 		function handleSuccess(response) {
-			console.log(response);
 			updateUi('active');
 			messages.showSuccess('The ' + name + ' is now ' + (response[resultAccessor].status === 0 ? 'active' : 'inactive') + '.');
 		}
@@ -68,7 +67,6 @@ $(function () {
 			updateUi();
 			messages.showError('An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
 		}
-		console.log(event.target.value)
 		Control.Ajax.put(url, handleSuccess, handleError, {'status': parseInt(event.target.value)});
 	}
 

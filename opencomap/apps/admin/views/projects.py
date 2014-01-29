@@ -17,7 +17,7 @@ def createProject(request):
     elif request.method == 'POST':
         private = request.POST.get('isprivate') == 'true'
         Factory.createProject(request.POST.get('name'), request.POST.get('description'), request.user, isprivate=private).save()
-        return redirect('/admin/dashboard')
+        return redirect('project_view', project.id)
 
 @login_required
 def viewProject(request, project_id):
