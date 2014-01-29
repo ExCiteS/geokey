@@ -1,19 +1,34 @@
 $(function () {
-	var $administratorsPanel = new Ui.Usergroup('#users #administrators', 0),
-		$contributorsPanel = new Ui.Usergroup('#users #contributors', 1),
+	var projectId = $('body').attr('data-project-id');
+	var url = 'projects/' + projectId;
+	var messages = new Ui.MessageDisplay('#users');
+
+	var $administratorsPanel = new Ui.Usergroup('#users #administrators', projectId),
+		$contributorsPanel = new Ui.Usergroup('#users #contributors', projectId),
 		$everyoneCheck = $('#users #contributors input[type="checkbox"]');
 
 
-	function toggleEveryoneView(everyone) {
-		$('#users #contributors .list-group').toggle(),
+	function toggleEveryoneView() {
+		$('#users #contributors .user-list').toggle();
 		$('#users #contributors .panel-footer').toggle();
 	}
 
+	function handleEveryoneSuccess(response) {
+		messages.showSuccess('The project has been updated successfully.');
+		toggleEveryoneView(response.project.everyonecontributes);
+	}
+
+	function handleEveryoneError(response) {
+		messages.showError('An error occurred while updating the project. ' + response.responseJSON.error);
+	}
+
 	function handleEveryoneChange(event) {
-		toggleEveryoneView(event.target.checked)
+		Control.Ajax.put(url, handleEveryoneSuccess, handleEveryoneError, {'everyonecontributes': event.target.checked});
 	}
 	
-	toggleEveryoneView(false);
+	if ($everyoneCheck.prop('checked')) {
+		$('#users #contributors .user-list').hide();
+		$('#users #contributors .panel-footer').hide();
+	}
 	$everyoneCheck.change(handleEveryoneChange);
-	
 });

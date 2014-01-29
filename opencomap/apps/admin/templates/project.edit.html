@@ -20,7 +20,7 @@
     {% if project %}
             <div class="page-header">
                 <h1>{{project.name}}<small><span id="descriptionText">{{project.description}}</span> <a href="#" id="edit"><span class="glyphicon glyphicon-edit"></span> Edit description</a></small></h1>
-                <form class="form-inline" id="description-form" role="form">
+                <form class="form-inline hidden" id="description-form" role="form">
                     {% csrf_token %}
                     <div class="form-group">
                         <label class="sr-only" for="desription">Project description</label>
@@ -36,47 +36,56 @@
                     <h3>Permissions</h3>
                 </div>
                 <div class="col-md-5">
-                    <div class="panel panel-default" id="administrators"> <!-- Administrators list -->
+                    <div class="panel panel-default" id="administrators" data-group-id="{{ project.admins.id }}"> <!-- Administrators list -->
                         <div class="panel-heading">
                             <h2 class="panel-title">Administrators</h2>
                             <p>Members of this group can edit and delete the project, create and alter views as well as access, edit and remove all data contributed to the project.<p>
                         </div>
-                        <ul class="list-group">
-                            <li class="list-group-item">Peter Schmeichel (<a class="text-danger" href="#">remove</a>)</li>
-                            <li class="list-group-item">Carlos Valderama (<a class="text-danger" href="#">remove</a>)</li>
-                            <li class="list-group-item">George Best (<a class="text-danger" href="#">remove</a>)</li>
-                        </ul>
-                        <div class="panel-footer">
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Type to find users to this group">
-                                <span class="input-group-btn">
-                                    <button class="btn btn-success" type="button">Add</button>
-                                </span>
-                            </div>
+
+                        {% for user in project.admins.users.all %}
+                            {% if forloop.first %} 
+                                 <ul class="list-group user-list">
+                            {% endif %}
+                                <li class="list-group-item">{% if user.first_name %}{{ user.get_full_name }}{% else %}{{user}}{% endif %} (<a class="text-danger remove" data-user-id="{{ user.id }}" href="#">remove</a>)</li>
+                            {% if forloop.last %} 
+                                </ul>
+                            {% endif %}
+                        {% empty %}
+                            <div class="panel-body user-list">No users have been assigned to this group.</div>
+                        {% endfor %}
+                                                   
+                        <div class="panel-footer dropdown">
+                            <input type="text" class="form-control" placeholder="Type to find users to this group" autocomplete="off" data-provide="typeahead">
+                            <ul class="dropdown-menu type-away">
+                                <li role="presentation" class="dropdown-header">Click on item to add user</li>
+                            </ul>
                         </div>
                     </div> <!-- /Administrators List -->
                 </div>
                 <div class="col-md-5">
-                    <div class="panel panel-default" id="contributors"> <!-- Contributors list -->
+                    <div class="panel panel-default" id="contributors" data-group-id="{{ project.contributors.id }}"> <!-- Contributors list -->
                         <div class="panel-heading">
                             <h2 class="panel-title">Contributors</h2>
                             <p>Members of this group can contribute new features and observations to the project.<p>
                         </div>
                         <div class="panel-body">
                             <div class="checkbox">
-                                <label><input type="checkbox" checked="true"> Everyone can contribute</label>
+                                <label><input type="checkbox" {% if project.everyonecontributes %} checked="true" {% endif %}> Everyone can contribute</label>
                             </div>
                         </div>
-                        <ul class="list-group">
-                            
+                        <ul class="list-group user-list">
+                        {% for user in project.contributors.users.all %}
+                                <li class="list-group-item">{% if user.first_name %}{{ user.get_full_name }}{% else %}{{user}}{% endif %} (<a class="text-danger remove" data-user-id="{{ user.id }}" href="#">remove</a>)</li>
+                        {% empty %}
+                            <li class="list-group-item">No users have been assigned to this group.</li>
+                        {% endfor %}
                         </ul>
-                        <div class="panel-footer">
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Type to find users to this group">
-                                <span class="input-group-btn">
-                                    <button class="btn btn-success" type="button">Add</button>
-                                </span>
-                            </div>
+                                                   
+                        <div class="panel-footer dropdown">
+                            <input type="text" class="form-control" placeholder="Type to find users to this group" autocomplete="off" data-provide="typeahead">
+                            <ul class="dropdown-menu type-away">
+                                <li role="presentation" class="dropdown-header">Click on item to add user</li>
+                            </ul>
                         </div>
                     </div> <!-- /Contributors List -->
                 </div>
@@ -114,7 +123,7 @@
                 </div>
 
                 
-                <div class="toggle-private col-md-5 col-lg-3{% if not project.isprivate %} hide{% endif %}">
+                <div class="toggle-private col-md-5 col-lg-3{% if not project.isprivate %} hidden{% endif %}">
                     <div class="panel panel-warning">
                         <div class="panel-heading">
                             <h2 class="panel-title">Make this project public</h2>
@@ -126,7 +135,7 @@
                     </div>
                 </div>
 
-                <div class="toggle-private col-md-5 col-lg-3{% if project.isprivate %} hide{% endif %}">
+                <div class="toggle-private col-md-5 col-lg-3{% if project.isprivate %} hidden{% endif %}">
                     <div class="panel panel-warning">
                         <div class="panel-heading">
                             <h2 class="panel-title">Make this project private</h2>
@@ -138,7 +147,7 @@
                     </div>
                 </div>
 
-                <div class="toggle-active col-md-5 col-lg-3 col-lg-offset-0{% if project.status == status_types.INACTIVE %} hide{% endif %}">
+                <div class="toggle-active col-md-5 col-lg-3 col-lg-offset-0{% if project.status == status_types.INACTIVE %} hidden{% endif %}">
                     <div class="panel panel-warning">
                         <div class="panel-heading">
                             <h2 class="panel-title">Make this project inactive</h2>
@@ -150,7 +159,7 @@
                     </div>
                 </div>
 
-                <div class="toggle-active col-md-5 col-lg-3 col-lg-offset-0{% if project.status == status_types.ACTIVE %} hide{% endif %}">
+                <div class="toggle-active col-md-5 col-lg-3 col-lg-offset-0{% if project.status == status_types.ACTIVE %} hidden{% endif %}">
                     <div class="panel panel-warning">
                         <div class="panel-heading">
                             <h2 class="panel-title">Make this project active</h2>
@@ -292,6 +301,7 @@
 
 {% block libraries %} 
     {% if project %}
+            <script src="/static/js/admin.ui.messages.js"></script>
             <script src="/static/js/Admin.Ui.DescriptionEditor.js"></script>
             <script src="/static/js/admin.ui.project.edit.js"></script>
             <script src="/static/js/admin.control.ajax.js"></script>

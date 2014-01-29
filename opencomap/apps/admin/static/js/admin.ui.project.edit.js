@@ -1,23 +1,32 @@
+/* ***********************************************
+ * Connects the user inferface for updating teh settings of a project with the AJAX backend. 
+ * Sends requests using admin.control.ajax and handles the responses by update the interface
+ * accordingly.
+ *
+ * @author Oliver Roick
+ * @version 0.1
+ * ***********************************************/
+ 
 $(function () {
-	var PROJECT_ID = $('body').attr('data-project-id');
-	var AJAX_URL = 'projects/' + PROJECT_ID;
+	var projectId = $('body').attr('data-project-id');
+	var url = 'projects/' + projectId;
+	var messages = new Ui.MessageDisplay('#general-settings');
 
-	function showMessage(type, msgText) {
-		var html = $('<div class="col-md-12"><div class="alert alert-' + type + '">' + msgText + '</div></div>').hide();
-		$('#general-settings').prepend(html);
-		html.show('slow').delay(5000).hide('slow', function() {
-			html.remove();
-		});
-	}
-
+	/**
+	 * Updates the user interface after the response is received. Resets submit buttons in modals and hides all modals. 
+	 * Toggles the respective panel (active or public) if the request has been successful.
+	 */
 	function updateUi(toToggle) {
 		$('button[name="confirm"]').button('reset');
 		$('.modal').modal('hide');
 		if (toToggle) {
-			$('.toggle-' + toToggle).toggleClass('hide');
+			$('.toggle-' + toToggle).toggleClass('hidden');
 		}
 	}
 
+	/**
+	 * Deletes the project.
+	 */
 	function deleteProject() {
 		function handleSuccess(response) {
 			updateUi()
@@ -28,40 +37,46 @@ $(function () {
 
 		function handleError(response) {
 			updateUi();
-			showMessage('danger', 'An error occurred while updating the project. ' + response.responseJSON.error);
+			messages.showError('An error occurred while updating the project. ' + response.responseJSON.error);
 		}
 
-		Control.Ajax.del(AJAX_URL, handleSuccess, handleError);
+		Control.Ajax.del(url, handleSuccess, handleError);
 	}
 
+	/**
+	 * Updates the active status of the project.
+	 */
 	function updateActive(event) {
 		function handleSuccess(response) {
 			updateUi('active');
-			showMessage('success', 'The project is now ' + (response.project.status === 0 ? 'active' : 'inactive') + '.');
+			messages.showSuccess('The project is now ' + (response.project.status === 0 ? 'active' : 'inactive') + '.');
 		}
 
 		function handleError(response) {
-			updateUi('active');
-			showMessage('danger', 'An error occurred while updating the project. ' + response.responseJSON.error);
+			updateUi();
+			messages.showError('An error occurred while updating the project. ' + response.responseJSON.error);
 		}
 		
-		Control.Ajax.put(AJAX_URL, handleSuccess, handleError, {'status': parseInt(event.target.value)});
+		Control.Ajax.put(url, handleSuccess, handleError, {'status': parseInt(event.target.value)});
 	}
 
+	/**
+	 * Updates the private status of the project.
+	 */
 	function updatePrivate(event) {
 		var isPrivate = (event.target.value === 'true');
 
 		function handleSuccess(response) {
 			updateUi('private');
-			showMessage('success', 'The project is now ' + (response.project.isprivate ? 'private' : 'public') + '.');
+			messages.showSuccess('The project is now ' + (response.project.isprivate ? 'private' : 'public') + '.');
 		}
 
 		function handleError(response) {
-			updateUi('private');
-			showMessage('danger', 'An error occurred while updating the project. ' + response.responseJSON.error);
+			updateUi();
+			messages.showError('An error occurred while updating the project. ' + response.responseJSON.error);
 		}
 
-		Control.Ajax.put(AJAX_URL, handleSuccess, handleError, {'isprivate': isPrivate});
+		Control.Ajax.put(url, handleSuccess, handleError, {'isprivate': isPrivate});
 	}
 
 	$('#delete-confirm button[name="confirm"]').click(deleteProject);

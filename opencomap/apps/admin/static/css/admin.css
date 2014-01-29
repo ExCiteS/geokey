@@ -37,11 +37,14 @@ body#home div.jumbotron {
         padding: 5px;
     }
 
-    
-.hide {
-    display: none;
+.row {
+    margin-bottom: 30px;
 }
-.row {margin-bottom: 30px;}
+
+.loading {
+    background: url(/static/img/ajax-loader.gif) no-repeat;
+    background-position: right 10px top 50%;
+}
 
 h1:first-child,
 h2:first-child,
@@ -84,12 +87,6 @@ div.page-header {
                 width: 583px;
             }
         }
-        
-        div.page-header > .form-inline input.loading {
-            background: url(/static/img/ajax-loader.gif) 98% 50% no-repeat;
-        }
-
-
 
 div#map {
     height: 300px;
@@ -109,6 +106,15 @@ ul.newsfeed li:first-child {
 
 ul.newsfeed li span.glyphicon {
     margin-right: 0.5em;
+}
+
+ul.type-away {
+    width: 280px;
+    margin-left: 20px;
+    margin-top: -10px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top: 0;
 }
 
 .list-group-item.active a {

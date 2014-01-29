@@ -30,7 +30,7 @@ class Project(models.Model):
 		return self.name + ', ' + self.description
 
 	@check_status
-	def update(self, name=None, description=None, status=None, isprivate=None):
+	def update(self, name=None, description=None, status=None, isprivate=None, everyonecontributes=None):
 		"""
 		Updates a project. Checks if the status is of ACTIVE or INACTIVE otherwise raises ValidationError.
 		"""
@@ -39,6 +39,7 @@ class Project(models.Model):
 		if (description): self.description = description
 		if (status != None): self.status = status
 		if (isprivate != None): self.isprivate = isprivate
+		if (everyonecontributes != None): self.everyonecontributes = everyonecontributes
 
 		self.save()
 

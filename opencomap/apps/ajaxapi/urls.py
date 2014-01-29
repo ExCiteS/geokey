@@ -2,7 +2,6 @@ from django.conf.urls import patterns, include, url
 from django.contrib.auth.models import User
 
 from opencomap.apps.ajaxapi import views
-from opencomap.apps.backend.models import *
 
 urlpatterns = patterns('',
     url(r'^projects/(?P<project_id>\d+)$', views.projects.updateProject, name='project_update'),
@@ -17,4 +16,6 @@ urlpatterns = patterns('',
     url(r'^projects/(?P<project_id>\d+)/views/(?P<view_id>\d+)$', views.views.update, name='view_update'),
     url(r'^projects/(?P<project_id>\d+)/views/(?P<view_id>\d+)/usergroups/(?P<group_id>\d+)$', views.views.addUserToGroup, name='view_addUserToGroup'),
     url(r'^projects/(?P<project_id>\d+)/views/(?P<view_id>\d+)/usergroups/(?P<group_id>\d+)/users/(?P<user_id>\d+)$', views.views.removeUserFromGroup, name='view_addUserToGroup'),
+
+    url(r'^users$', views.users.getUsers, name='users_list'),
 )

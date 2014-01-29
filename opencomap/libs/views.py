@@ -8,4 +8,4 @@ def render_to_success(response):
 	return render_to_json("success", json.dumps(response))
 
 def render_to_error(status_code, error):
-	return render_to_json("error", json.dumps(error.message), status_code=status_code)
+	return render_to_json("error", json.dumps(str(error)), status_code=status_code)

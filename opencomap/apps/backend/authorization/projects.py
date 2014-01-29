@@ -39,6 +39,7 @@ def updateProject(user, project_id, data, project=None):
 	if data.get('isprivate') != None: project.update(isprivate=data.get('isprivate'))
 	if data.get('status') != None: project.update(status=data.get('status'))
 	if data.get('description') != None: project.update(description=data.get('description'))
+	if data.get('everyonecontributes') != None: project.update(everyonecontributes=data.get('everyonecontributes'))
 
 	return project
 
