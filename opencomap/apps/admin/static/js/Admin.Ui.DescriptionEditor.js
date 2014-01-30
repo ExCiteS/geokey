@@ -28,9 +28,8 @@ $(function() {
 		descriptionFormField.val(response[resultAccessor].description);
 		descriptionText.children('#descriptionText').text(response[resultAccessor].description);
 
-		submitbtn.button('reset');
 		toggle();
-
+		submitbtn.button('reset');
 		descriptionFormField.removeClass('loading');
 	}
 
@@ -48,7 +47,7 @@ $(function() {
 		event.preventDefault();
 	}
 
-	$('a#edit').click(toggle);
+	$('button#edit').click(toggle);
 	descriptionFormCancel.click(toggle);
 	descriptionForm.submit(handleDescriptionSubmit);
 });
