@@ -12,15 +12,21 @@ $(function () {
 
 	var projectId = $('body').attr('data-project-id');
 	var featuretypeId = $('body').attr('data-featuretype-id');
+	var fieldId = $('body').attr('data-field-id');
 
 	var url = 'projects/' + projectId;
 	var resultAccessor = 'project';
 	var name = 'project';
 	
-	if (featuretypeId) { 
+	if (projectId && featuretypeId) { 
 		url += '/featuretypes/' + featuretypeId; 
 		resultAccessor = 'featuretype';
 		name = 'feature type';
+	}
+	if (projectId && featuretypeId && fieldId) {
+		url += '/fields/' + fieldId; 
+		resultAccessor = 'field';
+		name = 'field';
 	}
 
 	/**
@@ -89,9 +95,26 @@ $(function () {
 		Control.Ajax.put(url, handleSuccess, handleError, {'isprivate': isPrivate});
 	}
 
+	function updateRequired(response) {
+		var isRequired = (event.target.value === 'true');
+
+		function handleSuccess(response) {
+			updateUi('mandatory');
+			messages.showSuccess('The ' + name + ' is now ' + (response[resultAccessor].required ? 'mandatory' : 'optional') + '.');
+		}
+
+		function handleError(response) {
+			updateUi();
+			messages.showError('An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
+		}
+
+		Control.Ajax.put(url, handleSuccess, handleError, {'required': isRequired});
+	}
+
 	$('#delete-confirm button[name="confirm"]').click(del);
 	$('#make-inactive-confirm button[name="confirm"]').click(updateActive);
 	$('#make-active-confirm button[name="confirm"]').click(updateActive);
 	$('#make-public-confirm button[name="confirm"]').click(updatePrivate);
 	$('#make-private-confirm button[name="confirm"]').click(updatePrivate);
+	$('button[name="makePrivate"]').click(updateRequired);
 });

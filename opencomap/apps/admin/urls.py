@@ -14,4 +14,7 @@ urlpatterns = patterns('',
 
 	url(r'^project/(?P<project_id>\d+)/featuretypes/new$', views.featuretypes.createFeaturetype, name='featuretype_create'),
 	url(r'^project/(?P<project_id>\d+)/featuretypes/(?P<featuretype_id>\d+)$', views.featuretypes.viewFeaturetype, name='featuretype_view'),
+
+	url(r'^project/(?P<project_id>\d+)/featuretypes/(?P<featuretype_id>\d+)/fields/new$', views.featuretypes.createField, name='field_create'),
+	url(r'^project/(?P<project_id>\d+)/featuretypes/(?P<featuretype_id>\d+)/fields/(?P<field_id>\d+)$', views.featuretypes.viewField, name='field_view'),
 )

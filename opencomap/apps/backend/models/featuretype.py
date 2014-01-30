@@ -4,7 +4,6 @@ import iso8601
 
 from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.choice import STATUS_TYPES
-from opencomap.apps.backend.models.choice import FIELD_TYPE
 from opencomap.apps.backend.decorators import check_status
 
 class FeatureType(models.Model):
@@ -117,8 +116,8 @@ class Field(models.Model):
 	def update(self, name=None, description=None, status=None, required=None):
 		if (name): self.name = name
 		if (description): self.description = description
-		if (status): self.status = status
-		if (required): self.required = required
+		if (status != None): self.status = status
+		if (required != None): self.required = required
 
 		self.save()
 
@@ -179,6 +178,14 @@ class NumericField(Field):
 		Returns the `value` of the field in `Float` format.
 		"""
 		return float(value)
+
+	def update(self, name=None, description=None, status=None, required=None, minval=None, maxval=None):
+		self.minval = minval
+		self.maxval = maxval
+
+		self.save()
+		
+		super(NumericField, self).update(name=name, description=description, status=status, required=required)
 
 
 
@@ -296,3 +303,31 @@ class LookupValue(models.Model):
 	def update(self, status=None):
 		if status != None: self.status = status
 		self.save()
+
+FIELD_TYPES = {
+	'TEXT': {
+		'type_id': 0,
+		'name': 'Text',
+		'model': TextField
+	},
+	'NUMBER': {
+		'type_id': 1,
+		'name': 'Numeric',
+		'model': NumericField
+	},
+	'TRUEFALSE': {
+		'type_id': 2,
+		'name': 'True/False',
+		'model': TrueFalseField
+	},
+	'LOOKUP': {
+		'type_id': 3,
+		'name': 'Lookup',
+		'model': LookupField
+	},
+	'DATETIME': {
+		'type_id': 4,
+		'name': 'Date and Time',
+		'model': DateTimeField
+	}
+}

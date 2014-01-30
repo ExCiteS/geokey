@@ -1,13 +1,39 @@
 $(function() {
-	var $typeSelectionField = $('#type');
-	var $lookupValuesPanel = $('#lookupValuesPanel');
-	var lookupPanel = new Ui.LookupPanel('#lookupValuesPanel');
+	var valuesSubmitBtn = $('form#valuesForm button[type="submit"]');
 
-	function handleTypeSelection(event) {
-		if (event.target.value === '4') { $lookupValuesPanel.show(); } 
-		else { $lookupValuesPanel.hide(); }
-	}
+	var messages = new Ui.MessageDisplay('#constraints');
+
+	var projectId = $('body').attr('data-project-id'),
+		featuretypeId = $('body').attr('data-featuretype-id'),
+		fieldId = $('body').attr('data-field-id'),
+		url = 'projects/' + projectId + '/featuretypes/' + featuretypeId + '/fields/' + fieldId;
+	// var $lookupValuesPanel = $('#lookupValuesPanel');
+	// var lookupPanel = new Ui.LookupPanel('#lookupValuesPanel');
 	
-	$typeSelectionField.change(handleTypeSelection);
-	$lookupValuesPanel.hide();
+	function handleNumericUpdateError(response) {
+		valuesSubmitBtn.button('reset');
+		messages.showError('An error occured while updating the field. Error text was: ' + response.responseJSON.error + '.')
+	}
+
+	function handleNumericUpdateSuccess(response) {
+		$('form#valuesForm input[name="minval"]').attr('value', response.field.minval);
+		$('form#valuesForm input[name="maxval"]').attr('value', response.field.maxval);
+		valuesSubmitBtn.button('reset');
+		messages.showSuccess('The field has been updated with new minumum and maximum values.')
+	}
+
+	function submitForm() {
+		if (this.checkValidity()) {
+			valuesSubmitBtn.button('loading');
+			var form = $(this).serializeArray();
+			var values = {};
+			for (var i = 0, len = form.length; i < len; i++) {
+				values[form[i].name] = (parseFloat(form[i].value) || null);
+			}
+			Control.Ajax.put(url, handleNumericUpdateSuccess, handleNumericUpdateError, values);
+		}
+		event.preventDefault();
+	}
+
+	$('form#valuesForm').submit(submitForm);
 });

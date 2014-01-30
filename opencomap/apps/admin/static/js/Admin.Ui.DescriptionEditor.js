@@ -1,18 +1,19 @@
 $(function() {
 	var messages = new Ui.MessageDisplay('.page-header');
 
-	var descriptionText = $('div.page-header h1 small');
+	var descriptionText = $('div.page-header h1 small'),
+		descriptionForm = $('#description-form'),
+		descriptionFormField = $('#description-form #description'),
+		descriptionFormCancel = $('#description-form button[type="button"]'),
+		submitbtn = $('form#description-form button[type="submit"]');
 
-	var descriptionForm = $('#description-form');
-	var descriptionFormField = $('#description-form #description');
-	var descriptionFormCancel = $('#description-form button[type="button"]');
-	var submitbtn = $('form button[type="submit"]');
-
-	var projectId = $('body').attr('data-project-id');
-	var featuretypeId = $('body').attr('data-featuretype-id');
+	var projectId = $('body').attr('data-project-id'),
+		featuretypeId = $('body').attr('data-featuretype-id'),
+		fieldId = $('body').attr('data-field-id');
 
 	var url = 'projects/' + projectId;
 	if (featuretypeId) { url += '/featuretypes/' + featuretypeId; }
+	if (fieldId) { url += '/fields/' + fieldId; }
 
 	function toggle() {
 		descriptionText.toggleClass('hidden');
@@ -22,6 +23,7 @@ $(function() {
 	function handleRequestSucess(response) {
 		var resultAccessor = 'project';
 		if (featuretypeId) { resultAccessor = 'featuretype'; }
+		if (featuretypeId) { resultAccessor = 'field'; }
 
 		descriptionFormField.val(response[resultAccessor].description);
 		descriptionText.children('#descriptionText').text(response[resultAccessor].description);
@@ -39,8 +41,6 @@ $(function() {
 	}
 
 	function handleDescriptionSubmit(event) {
-		var projectId = $('body').attr('data-project-id');
-		
 		submitbtn.button('loading');
 		descriptionFormField.addClass('loading');
 		Control.Ajax.put(url, handleRequestSucess, handleRequestError, {'description': descriptionFormField.val()});

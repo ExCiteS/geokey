@@ -17,6 +17,17 @@ def updateField(user, project_id, featuretype_id, field_id, data, project=None):
 	if data.get('description') != None: field.update(description=data.get('description'))
 	if data.get('status') != None: field.update(status=data.get('status'))
 	if data.get('required') != None: field.update(required=data.get('required'))
+
+	if 'minval' in data: 
+		minval = data.get('minval')
+	else:
+		minval = field.minval
+	if 'maxval' in data: 
+		maxval = data.get('maxval')
+	else:
+		maxval = field.maxval
+
+	field.update(minval=minval, maxval=maxval)
 	return field
 
 @check_admin
