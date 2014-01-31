@@ -8,7 +8,7 @@
             </div>
 
             <div class="row">
-                <form  role="form" class="form-horizontal col-md-8 col-md-offset-1" method="POST" novalidate> 
+                <form  role="form" class="form-horizontal col-md-8 col-md-offset-1" method="POST" action="{% url 'featuretype_create' project.id %}" novalidate> 
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="name" class="col-sm-2 control-label">Name</label>

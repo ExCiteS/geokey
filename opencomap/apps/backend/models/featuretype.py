@@ -69,6 +69,8 @@ class Field(models.Model):
 	featuretype = models.ForeignKey(FeatureType)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 
+	objects = ActiveManager()
+
 	class Meta: 
 		app_label = 'backend'
 

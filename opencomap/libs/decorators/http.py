@@ -1,4 +1,3 @@
-from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied, ValidationError
 from opencomap.libs.exceptions import MalformedBody
 from opencomap.libs.views import render_to_error
