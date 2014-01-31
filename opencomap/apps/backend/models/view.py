@@ -5,23 +5,35 @@ from django.utils.timezone import utc
 from django.conf import settings
 
 from opencomap.apps.backend.models.project import Project
-from opencomap.apps.backend.models.feature import Feature
+from opencomap.apps.backend.models.featuretype import FeatureType
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 
 class View(models.Model):
-
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=100)
 	description = models.TextField(null=True)
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
-	created_at = models.DateTimeField(default=datetime.now(tz=utc))
+	created_at = models.DateTimeField(auto_now_add=True)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
-	projects = models.ManyToManyField(Project)
-	features = models.ManyToManyField(Feature)
+	project = models.ForeignKey(Project)
+	featuretype = models.ForeignKey(FeatureType)
 
 	class Meta: 
 		app_label = 'backend'
 
+	def update(self, name=None, description=None):
+		"""
+		Updates a view. 
+		"""
+
+		if (name): self.name = name
+		if (description): self.description = description
+
+		self.save()
+
+	def delete(self):
+		self.status = STATUS_TYPES['DELETED']
+		self.save()
 	
 	def getUserGroups(self):
 		"""
@@ -48,6 +60,9 @@ class View(models.Model):
 		"""
 		for group in groups:
 			group.delete()
+
+	def getFeatures(self):
+		return self.project.feature_set.filter(featuretype=self.featuretype)
 
 	# TODO: Implement permission checks. Mind the everyonegroup
 

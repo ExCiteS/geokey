@@ -42,15 +42,18 @@ class FeaturesTest(TestCase):
 		featureType.save()
 		
 		# Creating example field types for each features
-		textField = TextField(name='Text field', description='Text field description')
-		featureType.addField(textField)
-		numericField = NumericField(name='Numeric field', description='Numeric field description', required=True)
-		featureType.addField(numericField)
-		boolField = TrueFalseField(name='Bool field', description='Bool field description')
-		featureType.addField(boolField)
-		lookupField = LookupField(name='Lookup field', description='Lookup field description')
-		featureType.addField(lookupField)
-		lookupField.addLookupValues('Value 1', 'Value 2', 'Value 3')
+		self.textField = TextField(name='Text field', description='Text field description')
+		featureType.addField(self.textField)
+		
+		self.numericField = NumericField(name='Numeric field', description='Numeric field description', required=True)
+		featureType.addField(self.numericField)
+		
+		self.boolField = TrueFalseField(name='Bool field', description='Bool field description')
+		featureType.addField(self.boolField)
+
+		self.lookupField = LookupField(name='Lookup field', description='Lookup field description')
+		featureType.addField(self.lookupField)
+		self.lookupField.addLookupValues('Value 1', 'Value 2', 'Value 3')
 
 		f = Feature(name='Example Feature', description='Example feature description', featuretype=featureType, creator=admin, geometry='POINT(-0.15003204345703125 51.55615526777012)')
 		f.save()
@@ -60,35 +63,35 @@ class FeaturesTest(TestCase):
 		admin = self._authenticate('eric')
 		project = Project.objects.all()[0]
 		feature = project.getFeatures()[0]
-		lookupField = feature.featuretype.getField('Lookup field').getLookupValues()[0]
+		lookupValue = self.lookupField.getInstance().getLookupValues()[0]
 
 		characteristics = {
-			'Text field': 'This is test text',
-			'Numeric field': 2,
-			'Bool field': True,
-			'Lookup field': lookupField.id
+			str(self.textField.id): 'This is test text',
+			str(self.numericField.id): 2,
+			str(self.boolField.id): True,
+			str(self.lookupField.id): lookupValue.id
 		}
 
 		observation = Observation(creator=admin, data=characteristics)
 		feature.addObservation(observation)
 
 		o = feature.getObservations()[0]
-		self.assertEqual(o.getValue('Text field'), 'This is test text')
-		self.assertEqual(o.getValue('Numeric field'), 2)
-		self.assertEqual(o.getValue('Bool field'), True)
-		self.assertEqual(o.getValue('Lookup field'), lookupField.id)
+		self.assertEqual(o.getValue(self.textField.id), 'This is test text')
+		self.assertEqual(o.getValue(self.numericField.id), 2)
+		self.assertEqual(o.getValue(self.boolField.id), True)
+		self.assertEqual(o.getValue(self.lookupField.id), lookupValue.id)
 
 	def test_updateObservation(self):
 		admin = self._authenticate('eric')
 		project = Project.objects.all()[0]
 		feature = project.getFeatures()[0]
-		lookupField = feature.featuretype.getField('Lookup field').getLookupValues()[0]
+		lookupValue = self.lookupField.getInstance().getLookupValues()[0]
 
 		characteristics = {
-			'Text field': 'This is test text',
-			'Numeric field': 2,
-			'Bool field': True,
-			'Lookup field': lookupField.id
+			str(self.textField.id): 'This is test text',
+			str(self.numericField.id): 2,
+			str(self.boolField.id): True,
+			str(self.lookupField.id): lookupValue.id
 		}
 
 		observation = Observation(creator=admin, data=characteristics)
@@ -108,8 +111,8 @@ class FeaturesTest(TestCase):
 		feature = project.getFeatures()[0]
 
 		characteristics = {
-			'Text field': 'This is test text',
-			'Bool field': True
+			str(self.textField.id): 'This is test text',
+			str(self.boolField.id): True
 		}
 
 		observation = Observation(creator=admin, data=characteristics)
@@ -124,8 +127,8 @@ class FeaturesTest(TestCase):
 		feature = project.getFeatures()[0]
 
 		characteristics = {
-			'Numeric field': 2,
-			'Bool field': 897098,
+			str(self.numericField.id): 2,
+			str(self.boolField.id): 897098,
 		}
 
 		observation = Observation(creator=admin, data=characteristics)
@@ -138,11 +141,11 @@ class FeaturesTest(TestCase):
 		admin = self._authenticate('eric')
 		project = Project.objects.all()[0]
 		feature = project.getFeatures()[0]
-		lookupField = feature.featuretype.getField('Lookup field').getLookupValues()[0]
+		lookupValue = self.lookupField.getInstance().getLookupValues()[0]
 
 		characteristics = {
-			'Numeric field': 2,
-			'Lookup field': lookupField.id
+			str(self.numericField.id): 2,
+			str(self.boolField.id): lookupValue.id
 		}
 
 		observation = Observation(creator=admin, data=characteristics)
@@ -155,42 +158,42 @@ class FeaturesTest(TestCase):
 		admin = self._authenticate('eric')
 		project = Project.objects.all()[0]
 		feature = project.getFeatures()[0]
-		lookupField = feature.featuretype.getField('Lookup field').getLookupValues()[0]
+		lookupValue = self.lookupField.getInstance().getLookupValues()[0]
 
 		characteristics = {
-			'Text field': 'This is test text',
-			'Numeric field': 2,
-			'Bool field': True,
-			'Lookup field': lookupField.id
+			str(self.textField.id): 'This is test text',
+			str(self.numericField.id): 2,
+			str(self.boolField.id): True,
+			str(self.lookupField.id): lookupValue.id
 		}
 
 		observation = Observation(creator=admin, data=characteristics)
 		feature.addObservation(observation)
 
 
-		lookupField = feature.featuretype.getField('Lookup field').getLookupValues()[1]
-		observation.setValue('Text field', 'update',)
-		observation.setValue('Numeric field', 10)
-		observation.setValue('Bool field', False)
-		observation.setValue('Lookup field', lookupField.id)
+		lookupValue = self.lookupField.getInstance().getLookupValues()[1]
+		observation.setValue(self.textField.id, 'update',)
+		observation.setValue(self.numericField.id, 10)
+		observation.setValue(self.boolField.id, False)
+		observation.setValue(self.lookupField.id, lookupValue.id)
 
 		o = feature.getObservations()[0]
-		self.assertEqual(o.getValue('Text field'), 'update')
-		self.assertEqual(o.getValue('Numeric field'), 10)
-		self.assertEqual(o.getValue('Bool field'), False)
-		self.assertEqual(o.getValue('Lookup field'), lookupField.id)
+		self.assertEqual(o.getValue(self.textField.id), 'update')
+		self.assertEqual(o.getValue(self.numericField.id), 10)
+		self.assertEqual(o.getValue(self.boolField.id), False)
+		self.assertEqual(o.getValue(self.lookupField.id), lookupValue.id)
 
 	def testUpdateFalseData(self):
 		admin = self._authenticate('eric')
 		project = Project.objects.all()[0]
 		feature = project.getFeatures()[0]
-		lookupField = feature.featuretype.getField('Lookup field').getLookupValues()[0]
+		lookupValue = self.lookupField.getInstance().getLookupValues()[0]
 
 		characteristics = {
-			'Text field': 'This is test text',
-			'Numeric field': 2,
-			'Bool field': True,
-			'Lookup field': lookupField.id
+			str(self.textField.id): 'This is test text',
+			str(self.numericField.id): 2,
+			str(self.boolField.id): True,
+			str(self.lookupField.id): lookupValue.id
 		}
 
 		observation = Observation(creator=admin, data=characteristics)
@@ -198,26 +201,26 @@ class FeaturesTest(TestCase):
 
 		
 		with self.assertRaises(ValidationError):
-			observation.setValue('Numeric field', 'Kermit')
-			observation.setValue('Lookup field', 564564548)
+			observation.setValue(self.numericField.id, 'Kermit')
+			observation.setValue(self.lookupField.id, 564564548)
 
 		o = feature.getObservations()[0]
-		self.assertEqual(o.getValue('Text field'), 'This is test text')
-		self.assertEqual(o.getValue('Numeric field'), 2)
-		self.assertEqual(o.getValue('Bool field'), True)
-		self.assertEqual(o.getValue('Lookup field'), lookupField.id)
+		self.assertEqual(o.getValue(self.textField.id), 'This is test text')
+		self.assertEqual(o.getValue(self.numericField.id), 2)
+		self.assertEqual(o.getValue(self.boolField.id), True)
+		self.assertEqual(o.getValue(self.lookupField.id), lookupValue.id)
 
 	def testDeleteData(self):
 		admin = self._authenticate('eric')
 		project = Project.objects.all()[0]
 		feature = project.getFeatures()[0]
-		lookupField = feature.featuretype.getField('Lookup field').getLookupValues()[0]
+		lookupValue = self.lookupField.getInstance().getLookupValues()[0]
 
 		characteristics = {
-			'Text field': 'This is test text',
-			'Numeric field': 2,
-			'Bool field': True,
-			'Lookup field': lookupField.id
+			str(self.textField.id): 'This is test text',
+			str(self.numericField.id): 2,
+			str(self.boolField.id): True,
+			str(self.lookupField.id): lookupValue.id
 		}
 
 		observation = Observation(creator=admin, data=characteristics)
@@ -225,12 +228,12 @@ class FeaturesTest(TestCase):
 
 		
 		with self.assertRaises(ValidationError):
-			observation.deleteValue('Numeric field')
+			observation.deleteValue(self.numericField.id)
 
-		observation.deleteValue('Text field')		
+		observation.deleteValue(self.textField.id)		
 
 		o = feature.getObservations()[0]
-		self.assertEqual(o.getValue('Numeric field'), 2)
+		self.assertEqual(o.getValue(self.numericField.id), 2)
 		with self.assertRaises(KeyError):
-			observation.getValue('Text field')
+			observation.getValue(self.textField.id)
 		

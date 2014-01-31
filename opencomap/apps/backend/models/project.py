@@ -3,10 +3,10 @@ from django.db import models
 from datetime import datetime
 from django.utils.timezone import utc
 from django.conf import settings
-from django.core.exceptions import ValidationError
 
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 from opencomap.apps.backend.models.usergroup import UserGroup
+from opencomap.apps.backend.libs.decorators import check_status
 
 class Project(models.Model):
 	"""
@@ -16,16 +16,12 @@ class Project(models.Model):
 	name = models.CharField(max_length=100)
 	description = models.TextField(null=True)
 	isprivate = models.BooleanField(default=False)
-	created_at = models.DateTimeField(default=datetime.now(tz=utc))
+	everyonecontributes = models.BooleanField(default=True)
+	created_at = models.DateTimeField(auto_now_add=True)
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 	admins = models.OneToOneField(UserGroup, related_name='admingroup')
 	contributors = models.OneToOneField(UserGroup, related_name='contributorgroup')
-
-	_ACCEPTED_STATUS = (
-		STATUS_TYPES['ACTIVE'], 
-		STATUS_TYPES['INACTIVE']
-	)
 
 	class Meta: 
 		app_label = 'backend'
@@ -33,18 +29,19 @@ class Project(models.Model):
 	def __unicode__(self):
 		return self.name + ', ' + self.description
 
-	def update(self, name=None, description=None, status=None):
+	@check_status
+	def update(self, name=None, description=None, status=None, isprivate=None, everyonecontributes=None):
 		"""
 		Updates a project. Checks if the status is of ACTIVE or INACTIVE otherwise raises ValidationError.
 		"""
-		if ((status is None) or (status in self._ACCEPTED_STATUS)):
-			if (name): self.name = name
-			if (description): self.description = description
-			if (status): self.status = status
 
-			self.save()
-		else:
-			raise ValidationError('The status provided is invalid. Accepted values are ACTIVE or INACTIVE')
+		if (name): self.name = name
+		if (description): self.description = description
+		if (status != None): self.status = status
+		if (isprivate != None): self.isprivate = isprivate
+		if (everyonecontributes != None): self.everyonecontributes = everyonecontributes
+
+		self.save()
 
 	def delete(self):
 		"""
@@ -53,11 +50,28 @@ class Project(models.Model):
 		self.status = STATUS_TYPES['DELETED']
 		self.save()
 
+	def isViewable(self, user):
+		"""
+		Checks if the user is allowed to view the project.
+		"""
+		inViewgroup = False
+		for view in self.view_set.all():
+			for group in view.viewgroup_set.all():
+				if group.isMember(user): inViewgroup = True
+
+		return (inViewgroup or ((self.admins.isMember(user)) or ((not self.isprivate or self.contributors.isMember(user)) and self.status != STATUS_TYPES['INACTIVE']))) and self.status != STATUS_TYPES['DELETED']
+
+	def getViews(self):
+		"""
+		Returns a list of all views assinged to the project. Excludes those having status `DELETED`
+		"""
+		return self.view_set.exclude(status=STATUS_TYPES['DELETED'])
+
 	def getFeatures(self):
 		"""
-		Returns a list of all features assinged to the project. Excludes those having status `RETIRED` and `DELETED`
+		Returns a list of all features assinged to the project. Excludes those having status `DELETED`
 		"""
-		return self.feature_set.exclude(status=STATUS_TYPES['INACTIVE']).exclude(status=STATUS_TYPES['DELETED'])
+		return self.feature_set.exclude(status=STATUS_TYPES['DELETED'])
 
 	def addFeature(self, feature):
 		"""
@@ -82,7 +96,7 @@ class Project(models.Model):
 		"""
 		Returns all `FeatureTypes` assigned to the project
 		"""
-		return self.featuretype_set.exclude(status=STATUS_TYPES['INACTIVE']).exclude(status=STATUS_TYPES['DELETED'])
+		return self.featuretype_set.exclude(status=STATUS_TYPES['DELETED'])
 
 	def addFeatureType(self, featuretype):
 		"""

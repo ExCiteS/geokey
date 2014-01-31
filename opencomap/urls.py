@@ -1,12 +1,13 @@
 from django.conf.urls import patterns, include, url
 
-from django.contrib import admin
-admin.autodiscover()
+# from django.contrib import admin
+# admin.autodiscover()
 
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$', 'opencomap.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
 
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', include('opencomap.apps.admin.urls')),
+    url(r'^api/', include('opencomap.apps.publicapi.urls')),
+    url(r'^ajax/', include('opencomap.apps.ajaxapi.urls')),
+    url(r'^oauth2/', include('provider.oauth2.urls', namespace = 'oauth2')),
 )

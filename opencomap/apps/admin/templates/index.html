@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+		<title>Open Community Maps</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+        <link rel="stylesheet" href="/static/lib/bootstrap/bootstrap.min.css">
+        <!-- <link rel="stylesheet" href="../../static/lib/bootstrap/bootstrap-theme.min.css"> -->
+        <link rel="stylesheet" href="/static/css/admin.css">
+
+        <script src="/static/lib/modernizr/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+    </head>
+    <body id="home">
+        
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+        <div class="jumbotron">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-7 super-heading"> <!-- Info -->
+                        <h1>Community Maps</h1>
+                        <p>Community Maps is an open platform for participatory mapping, that enables citizens to record, view and analyse geographically referenced observations and discussions for different purposes.</p>
+                    </div> <!-- / Info -->
+                    <div class="col-sm-5">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <h3>Sign in</h3>
+                                <form method="POST" action="{% url 'login'%}">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <input type="text" placeholder="Email" name="email" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password" placeholder="Password"  name="password" class="form-control">
+                                    </div>
+                                    <button type="submit" class="btn btn-success">Sign in</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <h3>New to Community Maps?</h3>
+                                <a href="{% url 'signup'%}" class="btn btn-primary">Sign up here</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 footer">
+                        <div class="panel panel-default">
+                            <div class="panel-body">Created by <a href="http://www.ucl.ac.uk/excites">Excites Research Group</a> &bull; <a href="https://groups.google.com/d/forum/opencommunitymaps">Join our mailing list</a> &bull; <a href="https://github.com/ExCiteS/opencommunitymaps">Contribute on Github</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

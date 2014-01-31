@@ -4,7 +4,8 @@ import iso8601
 
 from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.choice import STATUS_TYPES
-from opencomap.apps.backend.models.choice import FIELD_TYPE
+from opencomap.apps.backend.libs.decorators import check_status
+from opencomap.apps.backend.libs.managers import ActiveManager
 
 class FeatureType(models.Model):
 	"""
@@ -18,6 +19,14 @@ class FeatureType(models.Model):
 
 	class Meta: 
 		app_label = 'backend'
+
+	@check_status
+	def update(self, name=None, description=None, status=None):
+		if (name): self.name = name
+		if (description): self.description = description
+		if (status != None): self.status = status
+
+		self.save()
 
 	def addField(self, field):
 		field.featuretype = self
@@ -39,28 +48,11 @@ class FeatureType(models.Model):
 		"""
 		return self.field_set.exclude(status=STATUS_TYPES['INACTIVE'])
 
-	def getField(self, name):
+	def getField(self, fieldId):
 		"""
-		Returns exactly one `Field` identified by name
+		Returns exactly one `Field` identified by `id`
 		"""
-		field = self.field_set.filter(name=name)[0]
-
-		try: 
-			return field.textfield 
-		except Field.DoesNotExist: 
-			pass
-		try: 
-			return field.numericfield 
-		except Field.DoesNotExist: 
-			pass
-		try: 
-			return field.truefalsefield 
-		except Field.DoesNotExist: 
-			pass
-		try: 
-			return field.lookupfield 
-		except Field.DoesNotExist: 
-			pass
+		return self.field_set.get(pk=fieldId).getInstance()
 
 
 
@@ -77,11 +69,39 @@ class Field(models.Model):
 	featuretype = models.ForeignKey(FeatureType)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 
+	objects = ActiveManager()
+
 	class Meta: 
 		app_label = 'backend'
 
 	def __unicode__(self):
 		return self.name
+
+	def getInstance(self):
+		"""
+		Returns the child instance of the fields. When getting all fields from a feature type only the parent field
+		instances are return; i.e. fields and methods of child instances are not given.
+		"""
+		try: 
+			return self.textfield 
+		except Field.DoesNotExist: 
+			pass
+		try: 
+			return self.numericfield 
+		except Field.DoesNotExist: 
+			pass
+		try: 
+			return self.truefalsefield 
+		except Field.DoesNotExist: 
+			pass
+		try: 
+			return self.lookupfield 
+		except Field.DoesNotExist: 
+			pass
+		try: 
+			return self.datetimefield 
+		except Field.DoesNotExist: 
+			pass
 
 	
 	def validateInput(self, value):
@@ -99,7 +119,14 @@ class Field(models.Model):
 		"""
 		return value
 
+	@check_status
+	def update(self, name=None, description=None, status=None, required=None):
+		if (name): self.name = name
+		if (description): self.description = description
+		if (status != None): self.status = status
+		if (required != None): self.required = required
 
+		self.save()
 
 
 class TextField(Field):
@@ -115,7 +142,6 @@ class TextField(Field):
 		Returns `True` or `False`.
 		"""
 		return isinstance(value, basestring)
-
 
 
 
@@ -159,6 +185,14 @@ class NumericField(Field):
 		Returns the `value` of the field in `Float` format.
 		"""
 		return float(value)
+
+	def update(self, name=None, description=None, status=None, required=None, minval=None, maxval=None):
+		self.minval = minval
+		self.maxval = maxval
+
+		self.save()
+		
+		super(NumericField, self).update(name=name, description=description, status=status, required=required)
 
 
 
@@ -256,7 +290,6 @@ class LookupField(Field):
 		"""
 		return int(value)
 
-
 class LookupValue(models.Model):
 	"""
 	Stores a single lookup value.
@@ -266,8 +299,48 @@ class LookupValue(models.Model):
 	field = models.ForeignKey(LookupField)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 
+	objects = ActiveManager()
+
 	class Meta: 
 		app_label = 'backend'
 
 	def __unicode__(self):
 		return self.name
+
+	@check_status
+	def update(self, status=None):
+		"""
+		Updates the status pf the lookup.
+		"""
+		if status != None: self.status = status
+		self.save()
+
+
+
+FIELD_TYPES = {
+	'TEXT': {
+		'type_id': 0,
+		'name': 'Text',
+		'model': TextField
+	},
+	'NUMBER': {
+		'type_id': 1,
+		'name': 'Numeric',
+		'model': NumericField
+	},
+	'TRUEFALSE': {
+		'type_id': 2,
+		'name': 'True/False',
+		'model': TrueFalseField
+	},
+	'LOOKUP': {
+		'type_id': 3,
+		'name': 'Lookup',
+		'model': LookupField
+	},
+	'DATETIME': {
+		'type_id': 4,
+		'name': 'Date and Time',
+		'model': DateTimeField
+	}
+}

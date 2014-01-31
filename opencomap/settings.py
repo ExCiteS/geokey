@@ -38,7 +38,14 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'djorm_core', 'djorm_expressions', 'djorm_hstore', 'djorm_hstore.tests',
     'django.contrib.gis',
+
+    'provider',
+    'provider.oauth2',
+
     'opencomap.apps.backend',
+    'opencomap.apps.admin',
+    'opencomap.apps.ajaxapi',
+    'opencomap.apps.publicapi',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -88,3 +95,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+LOGIN_URL = '/admin/login'
+LOGOUT_URL = '/admin/logout'
+LOGIN_REDIRECT_URL = '/admin/dashboard'

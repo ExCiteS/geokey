@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %} | Project{% endblock %}
+
+{% block main %}
+    {% if project %}
+            <div class="page-header">
+                <!-- <h1>Project</h1> -->
+                <h1>
+                    {{project.name}}
+                    <small>
+                        {{project.description}} 
+
+                        {% if admin %}
+                            <a href="{% url 'project_settings' project.id%}" class="btn btn-link"><span class="glyphicon glyphicon-cog"></span> Settings</a>
+                        {% endif %}
+                    </small>
+                </h1>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div id="map"></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-7">
+                    <div class="panel panel-default"> <!-- View list -->
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Feature info</h2>
+                        </div>
+                        <div class="panel-body bordered-panel">
+                            <!-- Nav tabs -->
+                            <ul class="nav nav-tabs">
+                                <li class="active"><a href="#feature_info" data-toggle="tab">Info</a></li>
+                                <li><a href="#feature_observations" data-toggle="tab">Observations <span class="badge">5</span></a></li>
+                                <li><a href="#feature_comments" data-toggle="tab">Comments <span class="badge">3</span></a></li>
+                            </ul>
+
+                            <!-- Tab panes -->
+                            <div class="tab-content">
+                                <div class="tab-pane active" id="feature_info">
+                                    <h4>Info</h4>
+                                </div>
+                                <div class="tab-pane" id="feature_observations">
+                                    <h4>Observations</h4>
+                                </div>
+                                <div class="tab-pane" id="feature_comments">
+                                    <ol class="list-unstyled comments">
+                                        <li>
+                                            <header><span class="glyphicon glyphicon-comment"></span><a href="#">Peter Scheichel</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
+                                            <p>This is a really cool place, but it's rather expensive. But I like it though.</p>
+
+                                            <ol class="list-unstyled comments">
+                                                <li>
+                                                    <header><span class="glyphicon glyphicon-comment"></span><a href="#">Carlos Valderama</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
+                                                    <p>What? That place sucks. Coffee is really really bad. And the waiter is ugly.</p>
+                                                </li>
+                                            </ol>
+                                        </li>
+                                        <li>
+                                            <header><span class="glyphicon glyphicon-comment"></span><a href="#">George Best</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
+                                            <p>The toilet just stinks. </p>
+                                        </li>
+                                    </ol>
+                                </div>
+                            </div>                            
+                        </div>
+                    </div> <!-- /View List -->
+                </div>
+
+                <div class="col-sm-5">
+                    <div class="panel panel-default"> <!-- View list -->
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Filter data by view</h2>
+                        </div>
+                        <ul class="list-group">
+                            <a class="list-group-item active" href="project.html">
+                                <h4 class="list-group-item-heading">All data</h4>
+                                <p class="list-group-item-text">Displays all data contributed to the project.</p>
+                            </a>
+                            <a class="list-group-item" href="view.html">
+                                <h4 class="list-group-item-heading">Coffee</h4>
+                                <p class="list-group-item-text">All the places we like to have coffee.</p>
+                            </a>
+                            <a class="list-group-item" href="view.html">
+                                <h4 class="list-group-item-heading">Drinks</h4>
+                                <p class="list-group-item-text">All the places we like to get wasted.</p>
+                            </a>
+                        </ul>
+                        <div class="panel-footer">
+                            <a href="view.new.html" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new view</a>
+                        </div>
+                    </div> <!-- /View List -->
+                </div>
+            </div>
+    {% endif %}
+{% endblock %}
+
+{% block libraries %} 
+    {% if project %}
+        <!-- LEAFLET -->
+            <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.css" />
+            <!--[if lte IE 8]>
+                <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.ie.css" />
+            <![endif]-->
+            <script src="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.js"></script>
+        <!-- /LEAFLET -->
+
+        <!-- CUSTOM SPECIALS-->
+            <script src="/static/js/admin.ui.map.js"></script>
+        <!-- /CUSTOM SPECIALS-->
+    {% endif %}
+{% endblock %}

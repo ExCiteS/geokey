@@ -47,7 +47,7 @@ class Feature(Commendable):
 	name = models.CharField(max_length=100)
 	description = models.TextField(null=True)
 	geometry = gis.GeometryField(geography=True)
-	created_at = models.DateTimeField(default=datetime.now(tz=utc))
+	created_at = models.DateTimeField(auto_now_add=True)
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 	projects = models.ManyToManyField(Project)
@@ -125,7 +125,7 @@ class Observation(Commendable):
 	"""
 	id = models.AutoField(primary_key=True)
 	data = DictionaryField(db_index=True)
-	created_at = models.DateTimeField(default=datetime.now(tz=utc))
+	created_at = models.DateTimeField(auto_now_add=True)
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	feature = models.ForeignKey(Feature)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
@@ -156,38 +156,38 @@ class Observation(Commendable):
 		self.status = STATUS_TYPES['DELETED']
 		self.save()
 
-	def getValue(self, fieldName):
+	def getValue(self, fieldId):
 		"""
 		Returns the value of a single field of the `Observation`
 		"""
-		field = self.feature.featuretype.getField(fieldName)
-		if self.data.has_key(fieldName):
-			return field.convertFromString(self.data[fieldName])
+		field = self.feature.featuretype.getField(fieldId)
+		if self.data.has_key(str(fieldId)):
+			return field.convertFromString(self.data[str(fieldId)])
 		else:
-			raise KeyError('No value set for field ' + fieldName)
+			raise KeyError('No value set for field ' + str(fieldId))
 
-	def setValue(self, fieldName, value):
+	def setValue(self, fieldId, value):
 		"""
 		Sets the value for the field.
 		"""
-		field = self.feature.featuretype.getField(fieldName)
+		field = self.feature.featuretype.getField(fieldId)
 
 		if field.validateInput(value):
-			self.data[fieldName] = value
+			self.data[str(fieldId)] = value
 			self.save()
 		else:
 			raise ValidationError('The input value does not match validation criteria of input fields.')
 
-	def deleteValue(self, fieldName):
+	def deleteValue(self, fieldId):
 		"""
 		Removes the value from the observation if the field is not required.
 		"""
-		field = self.feature.featuretype.getField(fieldName)
+		field = self.feature.featuretype.getField(fieldId)
 		if not field.required:
-			del self.data[fieldName]
+			del self.data[str(fieldId)]
 			self.save()
 		else:
-			raise ValidationError('The value for field ' + fieldName + ' cannot be deleted. The field is required.')
+			raise ValidationError('The value for field ' + str(fieldId) + ' cannot be deleted. The field is required.')
 
 	def dataIsValid(self, data=None):
 		valid = True
@@ -195,12 +195,12 @@ class Observation(Commendable):
 		if not data: data = self.data
 		
 		for f in self.feature.featuretype.getFields():
-			field = self.feature.featuretype.getField(f.name)
+			field = f.getInstance()
 
-			if field.required and not (field.name in data.keys()): 
+			if field.required and not (str(field.id) in data.keys()): 
 				valid = False
 				
-			if valid and not field.validateInput(data.get(field.name)):
+			if valid and not field.validateInput(data.get(str(field.id))):
 				valid = False
 
 		return valid

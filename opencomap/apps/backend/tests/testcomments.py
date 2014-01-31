@@ -54,7 +54,7 @@ class CommentsTest(TestCase):
 		for feature in project.getFeatures():
 			for i in range(0, 5):
 				user = self._authenticate('mehmet')
-				feature.addObservation(Observation(creator=admin, data={'Text': 'Textfield val'}))
+				feature.addObservation(Observation(creator=admin, data={str(textField.id): 'Textfield val'}))
 
 	def test_addCommentToFeature(self):
 		users = ['george', 'mehmet', 'zinedine', 'diego', 'carlos']

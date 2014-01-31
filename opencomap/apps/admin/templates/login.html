@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %} | Login{% endblock %}
+
+{% block main %}
+            {% if login_failed %}
+                <div class="page-header">
+                    <h1>Authorisation failed</h1>
+                </div>
+                <div class="row">
+                    <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+                        <div class="alert alert-danger">We were unable to authorise you. Either user name or password are incorrect. Please try again.</div>
+                    </div>
+                </div>
+
+            {% elif login_required %}
+                <div class="page-header">
+                    <h1>Sign in required</h1>
+                </div>
+                <div class="row">
+                    <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+                        <div class="alert alert-warning">Please sign in.</div>
+                    </div>
+                </div>
+            {% elif logged_out %}
+                <div class="page-header">
+                    <h1>Successfully signed out</h1>
+                </div>
+                <div class="row">
+                    <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+                        <div class="alert alert-success">You have been successfully signed out.</div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="page-header">
+                    <h1>Sign in</h1>
+                </div>
+            {% endif %}
+
+            <div class="row">
+                <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+                    <form class="form-horizontal" role="form" action="{% url 'login'%}{% if next %}?next={{next}}{% endif %}" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="inputEmail3" class="col-sm-2 control-label">Email</label>
+                            <div class="col-sm-10">
+                                <input type="email" class="form-control" id="email" name="email" placeholder="Email">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPassword3" class="col-sm-2 control-label">Password</label>
+                            <div class="col-sm-10">
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-8 col-md-6">
+                                <button type="submit" class="btn btn-primary">Sign in</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-8 col-md-6">
+                                <p>Not a member yet? Please <a href="{% url 'signup'%}">sign up here</a.</p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+{% endblock %}
