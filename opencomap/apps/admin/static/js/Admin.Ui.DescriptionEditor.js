@@ -23,7 +23,7 @@ $(function() {
 	function handleRequestSucess(response) {
 		var resultAccessor = 'project';
 		if (featuretypeId) { resultAccessor = 'featuretype'; }
-		if (featuretypeId) { resultAccessor = 'field'; }
+		if (fieldId) { resultAccessor = 'field'; }
 
 		descriptionFormField.val(response[resultAccessor].description);
 		descriptionText.children('#descriptionText').text(response[resultAccessor].description);

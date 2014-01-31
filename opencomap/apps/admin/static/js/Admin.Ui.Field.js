@@ -1,14 +1,12 @@
 $(function() {
-	var valuesSubmitBtn = $('form#valuesForm button[type="submit"]');
-
-	var messages = new Ui.MessageDisplay('#constraints');
-
 	var projectId = $('body').attr('data-project-id'),
 		featuretypeId = $('body').attr('data-featuretype-id'),
 		fieldId = $('body').attr('data-field-id'),
 		url = 'projects/' + projectId + '/featuretypes/' + featuretypeId + '/fields/' + fieldId;
-	// var $lookupValuesPanel = $('#lookupValuesPanel');
-	// var lookupPanel = new Ui.LookupPanel('#lookupValuesPanel');
+
+	var lookupPanel = ($('#lookupValuesPanel').length !== 0 ? new Ui.LookupPanel('#lookupValuesPanel', url) : undefined);
+	var valuesSubmitBtn = $('form#valuesForm button[type="submit"]');
+	var messages = new Ui.MessageDisplay('#constraints');
 	
 	function handleNumericUpdateError(response) {
 		valuesSubmitBtn.button('reset');

@@ -14,7 +14,6 @@ from opencomap.apps.backend import authorization
 @handle_http_errors
 @handle_malformed
 def updateProject(request, project_id):
-	print request.body
 	if request.method == "PUT":
 		project = authorization.projects.updateProject(request.user, project_id, json.loads(request.body))
 		return render_to_json("project", Serializer().serialize(project))

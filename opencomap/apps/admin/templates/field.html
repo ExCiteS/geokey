@@ -4,169 +4,195 @@
 {% block title %} | Project | Feature type | Field{% endblock %}
 
 {% block main %}
-    {% csrf_token %}
-    {% if error %}
-            <div class="page-header">
-                <h1>An error occured.</h1>
-            </div>
+	{% csrf_token %}
+	{% if error %}
+			<div class="page-header">
+				<h1>An error occured.</h1>
+			</div>
 
-            <div class="row">
-                <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
-                    <div class="alert alert-danger">{{ error }}</div>
-                </div>
-            </div>
-    {% endif %}
+			<div class="row">
+				<div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+					<div class="alert alert-danger">{{ error }}</div>
+				</div>
+			</div>
+	{% endif %}
 
-    {% if project %}
-            <div class="page-header">
-                <h1>{{ field.name }} <small><span id="descriptionText">{{field.description}}</span> <button id="edit" type="button" class="btn btn-link"><span class="glyphicon glyphicon-edit"></span> Edit</button></small></h1>
+	{% if project %}
+			<div class="page-header">
+				<h1>{{ field.name }} <small><span id="descriptionText">{{field.description}}</span> <button id="edit" type="button" class="btn btn-link"><span class="glyphicon glyphicon-edit"></span> Edit</button></small></h1>
 
-                <form class="form-inline hidden" id="description-form" role="form">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label class="sr-only" for="desription">Field description</label>
-                        <input type="text" class="form-control" id="description" name="description" placeholder="Enter a feature type desription" {% if field.description %}value="{{field.description}}"{% endif %}>
-                    </div>
-                    <button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
-                    <button type="button" class="btn btn-default">Cancel</button>
-                </form>
-            </div>
+				<form class="form-inline hidden" id="description-form" role="form">
+					{% csrf_token %}
+					<div class="form-group">
+						<label class="sr-only" for="desription">Field description</label>
+						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a feature type desription" {% if field.description %}value="{{field.description}}"{% endif %}>
+					</div>
+					<button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
+					<button type="button" class="btn btn-default">Cancel</button>
+				</form>
+			</div>
 
-            {% if field.numericfield or field.lookupfield %}
-            <div class="row" id="constraints">
-                {% if field.numericfield %}
-                <form role="form" id="valuesForm" class="form-horizontal col-md-8 col-md-offset-2" novalidate>
-                    <div class="form-group">
-                        <label for="name" class="col-sm-3 control-label">Minimun value</label>
-                        <div class="col-sm-9">
-                            <input type="number" step="0.001" class="form-control" id="minval" name="minval" placeholder="e.g.; 1.642" {% if field.numericfield.minval %} value="{{ field.numericfield.minval }}" {% endif %}>
-                        </div>
-                    </div>
+			{% if field.numericfield or field.lookupfield %}
+			<div class="row" id="constraints">
+				{% if field.numericfield %}
+				<form role="form" id="valuesForm" class="form-horizontal col-md-8 col-md-offset-2" novalidate>
+					<div class="form-group">
+						<label for="name" class="col-sm-3 control-label">Minimun value</label>
+						<div class="col-sm-9">
+							<input type="number" step="0.001" class="form-control" id="minval" name="minval" placeholder="e.g.; 1.642" {% if field.numericfield.minval %} value="{{ field.numericfield.minval }}" {% endif %}>
+						</div>
+					</div>
 
-                    <div class="form-group">
-                        <label for="name" class="col-sm-3 control-label">Maximum value</label>
-                        <div class="col-sm-9">
-                            <input type="number" step="0.001" class="form-control" id="maxval" name="maxval" placeholder="e.g.; 4541.6" {% if field.numericfield.maxval %} value="{{ field.numericfield.maxval }}" {% endif %}>
-                        </div>
-                    </div>
+					<div class="form-group">
+						<label for="name" class="col-sm-3 control-label">Maximum value</label>
+						<div class="col-sm-9">
+							<input type="number" step="0.001" class="form-control" id="maxval" name="maxval" placeholder="e.g.; 4541.6" {% if field.numericfield.maxval %} value="{{ field.numericfield.maxval }}" {% endif %}>
+						</div>
+					</div>
 
-                    <div class="form-group">
-                        <div class="col-sm-offset-3 col-sm-9">
-                            <button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
-                            <button type="reset" class="btn btn-default">Reset</button>
-                        </div>
-                    </div>
-                </form>
-                {% endif %}
-            </div>
-            {% endif %}
-            
+					<div class="form-group">
+						<div class="col-sm-offset-3 col-sm-9">
+							<button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
+							<button type="reset" class="btn btn-default">Reset</button>
+						</div>
+					</div>
+				</form>
+				{% endif %}
 
-            <div class="row" id="general-settings">
-                <div class="toggle-mandatory col-md-4 col-md-offset-2 {% if field.required %} hidden{% endif %}">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h2 class="panel-title">Make this field mandatory</h2>
-                        </div>
-                        <div class="panel-body">
-                            <p>Making this field mandatory will require an input value for this field.</p>
-                            <button type="button" name="makePrivate" value="true" class="btn btn-default">Make mandatory</button>
-                        </div>
-                    </div>
-                </div>
+				{% if field.lookupfield %}
+				<div class=" col-md-8  col-md-offset-2">
+					<div id="lookupValuesPanel" class="panel panel-default" id="lookupValuesPanel">
+						<div class="panel-heading">
+							<h2 class="panel-title">Lookup values</h2>
+						</div>
+						<ul class="list-group">
+						{% for lookupvalue in field.lookupfield.lookupvalue_set.active %}
+							<li class="list-group-item">{{ lookupvalue.name }} (<a class="text-danger" data-lookup-id="{{ lookupvalue.id }}" href="#">remove</a>)</li>
+						{% empty %}
+							<li class="list-group-item">No lookup values have been added yet.</li>
+						{% endfor %}
+						</ul>
+						<div class="panel-footer">
+							<div class="input-group">
+								<input type="text" name="new-value" class="form-control">
+								<span class="input-group-btn">
+									<button class="btn btn-success" type="button"  data-loading-text="Adding...">Add</button>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				{% endif %}
+			</div>
+			{% endif %}
+			
 
-                <div class="toggle-mandatory col-md-4 col-md-offset-2 {% if not field.required %} hidden{% endif %}">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h2 class="panel-title">Make this field optional</h2>
-                        </div>
-                        <div class="panel-body">
-                            <p>Making this field optional will not require an input value for this field.</p>
-                            <button type="button" name="makePrivate" value="false" class="btn btn-default">Make optional</button>
-                        </div>
-                    </div>
-                </div>
+			<div class="row" id="general-settings">
+				<div class="toggle-mandatory col-md-4 col-md-offset-2 {% if field.required %} hidden{% endif %}">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h2 class="panel-title">Make this field mandatory</h2>
+						</div>
+						<div class="panel-body">
+							<p>Making this field mandatory will require an input value for this field.</p>
+							<button type="button" name="makePrivate" value="true" class="btn btn-default">Make mandatory</button>
+						</div>
+					</div>
+				</div>
 
-                <div class="toggle-active col-md-4 {% if field.status == status_types.INACTIVE %} hidden{% endif %}">
-                    <div class="panel panel-warning">
-                        <div class="panel-heading">
-                            <h2 class="panel-title">Make this field inactive</h2>
-                        </div>
-                        <div class="panel-body">
-                            <p>The field shall no longer be used for data contribution.</p>
-                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-inactive-confirm">Make inactive</button>
-                        </div>
-                    </div>
-                </div>
+				<div class="toggle-mandatory col-md-4 col-md-offset-2 {% if not field.required %} hidden{% endif %}">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h2 class="panel-title">Make this field optional</h2>
+						</div>
+						<div class="panel-body">
+							<p>Making this field optional will not require an input value for this field.</p>
+							<button type="button" name="makePrivate" value="false" class="btn btn-default">Make optional</button>
+						</div>
+					</div>
+				</div>
 
-                <div class="toggle-active col-md-4 {% if field.status == status_types.ACTIVE %} hidden{% endif %}">
-                    <div class="panel panel-warning">
-                        <div class="panel-heading">
-                            <h2 class="panel-title">Make this field active</h2>
-                        </div>
-                        <div class="panel-body">
-                            <p>The field shall available for data contribution.</p>
-                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-active-confirm">Make active</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        
-    {% endif %}
+				<div class="toggle-active col-md-4 {% if field.status == status_types.INACTIVE %} hidden{% endif %}">
+					<div class="panel panel-warning">
+						<div class="panel-heading">
+							<h2 class="panel-title">Make this field inactive</h2>
+						</div>
+						<div class="panel-body">
+							<p>The field shall no longer be used for data contribution.</p>
+							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-inactive-confirm">Make inactive</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="toggle-active col-md-4 {% if field.status == status_types.ACTIVE %} hidden{% endif %}">
+					<div class="panel panel-warning">
+						<div class="panel-heading">
+							<h2 class="panel-title">Make this field active</h2>
+						</div>
+						<div class="panel-body">
+							<p>The field shall available for data contribution.</p>
+							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-active-confirm">Make active</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		
+	{% endif %}
 {% endblock %}
 
 {% block modals %} 
-    {% if project %}
-        <div class="modal fade" id="make-inactive-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content panel-warning">
-                    <div class="modal-header panel-heading">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
-                    </div>
-                    <div class="modal-body panel-body">
-                        <p>Before you make the field inactive, please read through the consequences of this action:</p>
-                        <ul>
-                            <li>Users will not be able to contribute new data using this field.</li>
-                            <li>Existing data will no longer be validated against this field.</li>
-                        </ul>
-                    </div>
-                    <div class="modal-footer panel-footer">
-                        <button type="button" name="confirm" value="{{status_types.INACTIVE}}" class="btn btn-warning" data-loading-text="Loading...">Yes, make the field inactive.</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+	{% if project %}
+		<div class="modal fade" id="make-inactive-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content panel-warning">
+					<div class="modal-header panel-heading">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+					</div>
+					<div class="modal-body panel-body">
+						<p>Before you make the field inactive, please read through the consequences of this action:</p>
+						<ul>
+							<li>Users will not be able to contribute new data using this field.</li>
+							<li>Existing data will no longer be validated against this field.</li>
+						</ul>
+					</div>
+					<div class="modal-footer panel-footer">
+						<button type="button" name="confirm" value="{{status_types.INACTIVE}}" class="btn btn-warning" data-loading-text="Loading...">Yes, make the field inactive.</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
-        <div class="modal fade" id="make-active-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content panel-warning">
-                    <div class="modal-header panel-heading">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
-                    </div>
-                    <div class="modal-body panel-body">
-                        <p>Before you make the field active, please read through the consequences of this action:</p>
-                        <p><strong>PUT TEXT HERE</strong></p>
-                        
-                    </div>
-                    <div class="modal-footer panel-footer">
-                        <button type="button" name="confirm" value="{{status_types.ACTIVE}}" class="btn btn-warning" data-dismiss="modal">Yes, make the field active.</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+		<div class="modal fade" id="make-active-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content panel-warning">
+					<div class="modal-header panel-heading">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+					</div>
+					<div class="modal-body panel-body">
+						<p>Before you make the field active, please read through the consequences of this action:</p>
+						<p><strong>PUT TEXT HERE</strong></p>
+						
+					</div>
+					<div class="modal-footer panel-footer">
+						<button type="button" name="confirm" value="{{status_types.ACTIVE}}" class="btn btn-warning" data-dismiss="modal">Yes, make the field active.</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    {% endif %}
+	{% endif %}
 {% endblock %}
 
 {% block libraries %} 
-    {% if project %}
-            <script src="/static/js/admin.ui.forms.validate.js"></script>
-            <script src="/static/js/admin.ui.messages.js"></script>
-            <script src="/static/js/admin.ui.descriptioneditor.js"></script>
-            <script src="/static/js/admin.ui.updater.js"></script>
-            <script src="/static/js/admin.ui.field.js"></script>
-            <script src="/static/js/admin.control.ajax.js"></script>
-    {% endif %}
+	{% if project %}
+			<script src="/static/js/admin.ui.forms.validate.js"></script>
+			<script src="/static/js/admin.ui.messages.js"></script>
+			<script src="/static/js/admin.ui.descriptioneditor.js"></script>
+			<script src="/static/js/admin.ui.updater.js"></script>
+			<script src="/static/js/admin.ui.field.js"></script>
+			<script src="/static/js/admin.ui.field.lookup.js"></script>
+			<script src="/static/js/admin.control.ajax.js"></script>
+	{% endif %}
 {% endblock %}

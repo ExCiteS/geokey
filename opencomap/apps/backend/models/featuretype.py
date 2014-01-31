@@ -4,7 +4,8 @@ import iso8601
 
 from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.choice import STATUS_TYPES
-from opencomap.apps.backend.decorators import check_status
+from opencomap.apps.backend.libs.decorators import check_status
+from opencomap.apps.backend.libs.managers import ActiveManager
 
 class FeatureType(models.Model):
 	"""
@@ -75,6 +76,10 @@ class Field(models.Model):
 		return self.name
 
 	def getInstance(self):
+		"""
+		Returns the child instance of the fields. When getting all fields from a feature type only the parent field
+		instances are return; i.e. fields and methods of child instances are not given.
+		"""
 		try: 
 			return self.textfield 
 		except Field.DoesNotExist: 
@@ -283,7 +288,6 @@ class LookupField(Field):
 		"""
 		return int(value)
 
-
 class LookupValue(models.Model):
 	"""
 	Stores a single lookup value.
@@ -293,6 +297,8 @@ class LookupValue(models.Model):
 	field = models.ForeignKey(LookupField)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 
+	objects = ActiveManager()
+
 	class Meta: 
 		app_label = 'backend'
 
@@ -301,8 +307,13 @@ class LookupValue(models.Model):
 
 	@check_status
 	def update(self, status=None):
+		"""
+		Updates the status pf the lookup.
+		"""
 		if status != None: self.status = status
 		self.save()
+
+
 
 FIELD_TYPES = {
 	'TEXT': {

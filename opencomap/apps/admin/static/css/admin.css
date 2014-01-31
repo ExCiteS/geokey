@@ -59,10 +59,8 @@ div.page-header {
     position: relative;
 }
 
-    div.page-header > a.settings {
-        position: absolute;
-        bottom: 20px;
-        right: 0;
+    div.page-header > h1 {
+        margin-bottom: 0;
     }
 
     div.page-header > h1 > small {
@@ -71,6 +69,7 @@ div.page-header {
     }
 
     div.page-header > .form-inline {
+        margin-top: 12px;
         margin-bottom: 2px;
     }
         div.page-header > .form-inline > .form-group {

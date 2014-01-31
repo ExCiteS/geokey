@@ -2,6 +2,9 @@ from opencomap.apps.backend.models.choice import STATUS_TYPES
 from django.core.exceptions import ValidationError
 
 def check_status(func):
+	"""
+	A decorator user in update methods of model entities. 
+	"""
 	ACCEPTED_STATUS = (
 		STATUS_TYPES['ACTIVE'], 
 		STATUS_TYPES['INACTIVE']

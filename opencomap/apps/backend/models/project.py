@@ -6,7 +6,7 @@ from django.conf import settings
 
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 from opencomap.apps.backend.models.usergroup import UserGroup
-from opencomap.apps.backend.decorators import check_status
+from opencomap.apps.backend.libs.decorators import check_status
 
 class Project(models.Model):
 	"""
@@ -51,6 +51,9 @@ class Project(models.Model):
 		self.save()
 
 	def isViewable(self, user):
+		"""
+		Checks if the user is allowed to view the project.
+		"""
 		inViewgroup = False
 		for view in self.view_set.all():
 			for group in view.viewgroup_set.all():
