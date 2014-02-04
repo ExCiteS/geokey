@@ -1,5 +1,6 @@
 from django.core.exceptions import PermissionDenied
 from opencomap.apps.backend.models.projects import Project
+from opencomap.apps.backend.models.view import View
 from opencomap.apps.backend.models.featuretype import FeatureType, Field
 
 from django.shortcuts import render
@@ -21,7 +22,7 @@ def handle_errors(func):
 			return func(*args, **kwargs)
 		except PermissionDenied, error:
 			return render(args[0], 'error.html', RequestContext(args[0], {"error": str(error), "head": "Permission denied."}))
-		except (Project.DoesNotExist, FeatureType.DoesNotExist, Field.DoesNotExist) as error:
+		except (Project.DoesNotExist, FeatureType.DoesNotExist, Field.DoesNotExist, View.DoesNotExist) as error:
 			return render(args[0], 'error.html', RequestContext(args[0], {"error": str(error), "head": "Not found."}))
 	
 	return wrapped

@@ -7,6 +7,7 @@ class UserGroup(models.Model):
 	"""
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=100)
+	description = models.TextField(null=True)
 	users = models.ManyToManyField(settings.AUTH_USER_MODEL)
 
 	class Meta: 
@@ -14,6 +15,18 @@ class UserGroup(models.Model):
 
 	def __unicode__(self):
 		return self.name
+
+	def update(self, description=None, can_admin=None, can_edit=None, can_read=None, can_view=None):
+		if description: self.description = description
+		if can_admin != None: self.can_admin = can_admin
+		if can_edit != None: self.can_edit = can_edit
+		if can_read != None: self.can_read = can_read
+		if can_view != None: self.can_view = can_view
+
+		self.save()
+
+		return self
+
 
 	def addUsers(self, *users):
 		"""

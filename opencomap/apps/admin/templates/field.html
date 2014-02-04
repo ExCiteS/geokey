@@ -18,17 +18,21 @@
 	{% endif %}
 
 	{% if project %}
-			<div class="page-header">
-				<h1>{{ field.name }} <small><span id="descriptionText">{{field.description}}</span> <button id="edit" type="button" class="btn btn-link"><span class="glyphicon glyphicon-edit"></span> Edit</button></small></h1>
 
+			<div class="page-header">
+				<h1>{{ field.name }} </h1>
+				<p class="lead">
+					<span id="descriptionText">{% if field.description %} {{ field.description }} {% endif %}</span>
+					<button id="edit" type="button" class="btn btn-link"><span class="glyphicon glyphicon-edit"></span> Edit</button>
+				</p>
 				<form class="form-inline hidden" id="description-form" role="form">
 					{% csrf_token %}
 					<div class="form-group">
-						<label class="sr-only" for="desription">Field description</label>
+						<label class="sr-only" for="desription">Feature type description</label>
 						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a feature type desription" {% if field.description %}value="{{field.description}}"{% endif %}>
 					</div>
 					<button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
-					<button type="button" class="btn btn-default">Cancel</button>
+					<button type="button" class="btn btn-link">Cancel</button>
 				</form>
 			</div>
 

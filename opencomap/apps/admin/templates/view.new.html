@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %} | Create new view{% endblock %}
+
+{% block main %}
+			<div class="page-header">
+				<h1>Create new view</h1>
+			</div>
+
+			<div class="row">
+				<form  role="form" class="form-horizontal col-md-8 col-md-offset-1" method="POST" action="{% url 'view_create' project.id %}" novalidate> 
+					{% csrf_token %}
+					<div class="form-group">
+						<label for="name" class="col-sm-2 control-label">Name</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="name" name="name" required>
+							<span class="help-block">This field is required.</span>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="description" class="col-sm-2 control-label">Description</label>
+						<div class="col-sm-10">
+							<textarea class="form-control" rows="5" name="description" id="description"></textarea>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-sm-offset-2 col-sm-10">
+							<button type="submit" class="btn btn-primary">Save</button>
+							<a href="{% url 'project_view' project.id %}" class="btn btn-default" role="button">Cancel</a>
+						</div>
+					</div>
+				</form>
+			</div>
+{% endblock %}
+
+{% block libraries %} 
+			<script src="/static/js/admin.ui.forms.validate.js"></script>
+{% endblock %}

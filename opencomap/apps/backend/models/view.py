@@ -7,6 +7,7 @@ from django.conf import settings
 from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.featuretype import FeatureType
 from opencomap.apps.backend.models.choice import STATUS_TYPES
+from opencomap.apps.backend.libs.managers import Manager
 
 class View(models.Model):
 	id = models.AutoField(primary_key=True)
@@ -16,7 +17,8 @@ class View(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 	project = models.ForeignKey(Project)
-	featuretype = models.ForeignKey(FeatureType)
+
+	objects = Manager()
 
 	class Meta: 
 		app_label = 'backend'
@@ -32,83 +34,32 @@ class View(models.Model):
 		self.save()
 
 	def delete(self):
+		"""
+		Deletes the view by setting its status to DELETED.
+		"""
 		self.status = STATUS_TYPES['DELETED']
 		self.save()
-	
-	def getUserGroups(self):
+
+	def isViewable(self, user):
 		"""
-		Returns all `ViewGroups` assigned to the `View`.
+		Checks if the View is viewable by the user
 		"""
-		return self.viewgroup_set.all()
+		if self.project.admins.isMember(user):
+			return True
+		else:
+			canView = False
+			for group in self.viewgroup_set.all():
+				if group.isMember(user):
+					canView = True
 
+			return canView
 
-	def addUserGroup(self, group):
-		"""
-		Adds a `ViewGroup` to the `View`.
+	def _check_permission(self, user, access_type):
+		can_do = False
+		for group in self.viewgroup_set.filter(users__id__exact=user.id).values():
+			if group[access_type]: can_do = True
 
-		:group: The group to be added to the `View`.
-		"""
-		group.view = self
-		group.save()
+		return can_do
 
-
-	def removeUserGroups(self, *groups):
-		"""
-		Removes `ViewGroups` from the `View` by deleting the `ViewGroup`.
-
-		:groups: An arbitrary number of groups to be removed from the `View`.
-		"""
-		for group in groups:
-			group.delete()
-
-	def getFeatures(self):
-		return self.project.feature_set.filter(featuretype=self.featuretype)
-
-	# TODO: Implement permission checks. Mind the everyonegroup
-
-	# def _checkPermission(self, user, accessType):
-	# 	"""
-	# 	Checks if a user has permission to perform a task and returns if `True` or `False`.
-	# 	"""
-	# 	canDo = self.usergroups.filter(is_everyone=True).values()[0][accessType]
-
-	# 	if not canDo: 
-	# 		for group in self.usergroups.filter(users__id__exact=user.id).values():
-	# 			if group[accessType]: canDo = True
-
-	# 	return canDo
-
-	# def userCanRead(self, user):
-	# 	"""
-	# 	Checks if the user can read the data and returns if `True` or `False`.
-
-	# 	:user: The user to be checked.
-	# 	"""
-	# 	return self._checkPermission(user, 'can_read')
-
-
-	# def userCanView(self, user):
-	# 	"""
-	# 	Checks if the user can view graphical representations of the data and 
-	# 	returns if `True` or `False`.
-
-	# 	:user: The user to be checked.
-	# 	"""
-	# 	return self._checkPermission(user, 'can_view')
-
-	# def userCanEdit(self, user):
-	# 	"""
-	# 	Checks if the user can edit existing data and returns if `True` or `False`.
-
-	# 	:user: The user to be checked.
-	# 	"""
-	# 	return self._checkPermission(user, 'can_edit')
-
-
-	# def userCanAdmin(self, user):
-	# 	"""
-	# 	Checks if the user can administer the entity and returns if `True` or `False`.
-
-	# 	:user: The user to be checked.
-	# 	"""
-	# 	return self._checkPermission(user, 'can_admin')
+	def can_admin(self, user):
+		return self._check_permission(user, 'can_admin')

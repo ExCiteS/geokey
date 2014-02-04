@@ -3,9 +3,9 @@ $(function () {
 	var url = 'projects/' + projectId;
 	var messages = new Ui.MessageDisplay('#users');
 
-	var $administratorsPanel = new Ui.Usergroup('#users #administrators', projectId),
-		$contributorsPanel = new Ui.Usergroup('#users #contributors', projectId),
-		$everyoneCheck = $('#users #contributors input[type="checkbox"]');
+	var administratorsPanel = new Ui.Usergroup('#users #administrators', projectId),
+		contributorsPanel = new Ui.Usergroup('#users #contributors', projectId),
+		everyoneCheck = $('#users #contributors input[type="checkbox"]');
 
 
 	function toggleEveryoneView() {
@@ -26,9 +26,9 @@ $(function () {
 		Control.Ajax.put(url, handleEveryoneSuccess, handleEveryoneError, {'everyonecontributes': event.target.checked});
 	}
 	
-	if ($everyoneCheck.prop('checked')) {
+	if (everyoneCheck.prop('checked')) {
 		$('#users #contributors .user-list').hide();
 		$('#users #contributors .panel-footer').hide();
 	}
-	$everyoneCheck.change(handleEveryoneChange);
+	everyoneCheck.change(handleEveryoneChange);
 });

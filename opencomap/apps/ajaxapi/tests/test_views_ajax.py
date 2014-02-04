@@ -24,7 +24,7 @@ class ViewAjaxTest(AjaxTest):
 		response = self.put('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id), {'description': 'new description'}, 'diego')
 		self.assertEqual(response.status_code, 401)
 
-	def testUpdateViewWithNonMemberg(self):
+	def testUpdateViewWithNonMember(self):
 		response = self.put('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id), {'description': 'new description'}, 'mehmet')
 		self.assertEqual(response.status_code, 401)
 
@@ -65,35 +65,35 @@ class ViewAjaxTest(AjaxTest):
 	def test_addUsersWithCreator(self):
 		userToAdd = self._authenticate('carlos')
 
-		response = self.put('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id), {'userId': userToAdd.id}, 'eric')
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id) + '/users', {'userId': userToAdd.id}, 'eric')
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, self.objectSerializer.serialize(userToAdd))
 
 	def test_addUsersWithAdmin(self):
 		userToAdd = self._authenticate('carlos')
 
-		response = self.put('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id), {'userId': userToAdd.id}, 'george')
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id) + '/users', {'userId': userToAdd.id}, 'george')
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, self.objectSerializer.serialize(userToAdd))
 
 	def test_addUsersWithContributor(self):
 		userToAdd = self._authenticate('carlos')
 
-		response = self.put('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id), {'userId': userToAdd.id}, 'diego')
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id) + '/users', {'userId': userToAdd.id}, 'diego')
 		self.assertEqual(response.status_code, 401)
 
 	def test_addUsersWithNonMember(self):
 		userToAdd = self._authenticate('carlos')
 
-		response = self.put('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id), {'userId': userToAdd.id}, 'mehmet')
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id) + '/users', {'userId': userToAdd.id}, 'mehmet')
 		self.assertEqual(response.status_code, 401)
 
 	def test_addUserThatDoesNotExist(self):
-		response = self.put('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id), {'userId': 56454521874545}, 'eric')
+		response = self.put('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id) + '/users', {'userId': 56454521874545}, 'eric')
 		self.assertEqual(response.status_code, 400)
 
 	def test_addUserWrongMethod(self):
-		response = self.get('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id), 'eric')
+		response = self.get('/ajax/projects/' + str(self.project.id) + '/views/' + str(self.project.getViews()[0].id) + '/usergroups/' + str(self.viewgroup.id) + '/users', 'eric')
 		self.assertEqual(response.status_code, 405)
 
 	# ###################################

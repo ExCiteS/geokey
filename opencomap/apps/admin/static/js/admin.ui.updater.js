@@ -13,6 +13,7 @@ $(function () {
 	var projectId = $('body').attr('data-project-id');
 	var featuretypeId = $('body').attr('data-featuretype-id');
 	var fieldId = $('body').attr('data-field-id');
+	var viewId = $('body').attr('data-view-id');
 
 	var url = 'projects/' + projectId;
 	var resultAccessor = 'project';
@@ -27,6 +28,11 @@ $(function () {
 		url += '/fields/' + fieldId; 
 		resultAccessor = 'field';
 		name = 'field';
+	}
+	if (projectId && viewId) {
+		url += '/views/' + viewId; 
+		resultAccessor = 'view';
+		name = 'view';
 	}
 
 	/**
@@ -46,10 +52,13 @@ $(function () {
 	 */
 	function del() {
 		function handleSuccess(response) {
+			var link = '<a href="/admin/dashboard" class="alert-link">Return to dashboard</a>';
+			if (projectId && viewId) { link = '<a href="/admin/project/' + projectId +'" class="alert-link">Return to project</a>' }
+
 			updateUi()
 			$('.row').remove();
 			$('hr').remove();
-			$('.page-header').after('<div class="col-md-12"><div class="alert alert-success">The project has now been deleted. <a href="/admin/dashboard" class="alert-link">Return to dashboard</a>.</div></div>')
+			$('.page-header').after('<div class="col-md-12"><div class="alert alert-success">The ' + name + ' has now been deleted. ' + link + '.</div></div>')
 		}
 
 		function handleError(response) {

@@ -5,7 +5,7 @@ import iso8601
 from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 from opencomap.apps.backend.libs.decorators import check_status
-from opencomap.apps.backend.libs.managers import ActiveManager
+from opencomap.apps.backend.libs.managers import Manager
 
 class FeatureType(models.Model):
 	"""
@@ -16,6 +16,8 @@ class FeatureType(models.Model):
 	description = models.TextField()
 	project = models.ForeignKey(Project)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
+
+	objects = Manager()
 
 	class Meta: 
 		app_label = 'backend'
@@ -69,7 +71,7 @@ class Field(models.Model):
 	featuretype = models.ForeignKey(FeatureType)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 
-	objects = ActiveManager()
+	objects = Manager()
 
 	class Meta: 
 		app_label = 'backend'
@@ -299,7 +301,7 @@ class LookupValue(models.Model):
 	field = models.ForeignKey(LookupField)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])
 
-	objects = ActiveManager()
+	objects = Manager()
 
 	class Meta: 
 		app_label = 'backend'

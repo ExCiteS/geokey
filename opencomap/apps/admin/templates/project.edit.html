@@ -8,15 +8,19 @@
 
 	{% if project %}
 			<div class="page-header">
-				<h1>{{project.name}}<small><span id="descriptionText">{{project.description}}</span> <button id="edit" type="button" class="btn btn-link"><span class="glyphicon glyphicon-edit"></span> Edit</button></small></h1>
+				<h1>{{project.name}}</h1>
+				<p class="lead">
+					<span id="descriptionText">{% if project.description %} {{project.description}} {% endif %}</span>
+					<button id="edit" type="button" class="btn btn-link"><span class="glyphicon glyphicon-edit"></span> Edit</button>
+				</p>
 				<form class="form-inline hidden" id="description-form" role="form">
 					{% csrf_token %}
 					<div class="form-group">
 						<label class="sr-only" for="desription">Project description</label>
-						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a project desription" {% if project.description %}value="{{project.description}}"{% endif %}>
+						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a view desription" {% if project.description %}value="{{project.description}}"{% endif %}>
 					</div>
 					<button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
-					<button type="button" class="btn btn-default">Cancel</button>
+					<button type="button" class="btn btn-link">Cancel</button>
 				</form>
 			</div>
 
@@ -246,7 +250,7 @@
 						</ul>
 					</div>
 					<div class="modal-footer panel-footer">
-						<button type="button" name="confirm" value="{{status_types.ACTIVE}}" class="btn btn-warning" data-dismiss="modal">Yes, make the project inactive.</button>
+						<button type="button" name="confirm" value="{{status_types.ACTIVE}}" class="btn btn-warning" data-dismiss="modal">Yes, make the project active.</button>
 					</div>
 				</div>
 			</div>

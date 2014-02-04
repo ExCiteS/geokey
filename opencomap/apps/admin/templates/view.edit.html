@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block bodydata %} data-project-id="{{view.project.id}}" data-view-id="{{view.id}}"{% endblock %}
+{% block title %} | Project | View | Settings{% endblock %}
+
+{% block main %}
+	{% csrf_token %}
+			<div class="page-header">
+				<h1>{{view.name}}</h1>
+				<p class="lead">
+					<span id="descriptionText">{% if view.description %} {{view.description}} {% endif %}</span>
+					<button id="edit" type="button" class="btn btn-link"><span class="glyphicon glyphicon-edit"></span> Edit</button>
+				</p>
+				<form class="form-inline hidden" id="description-form" role="form">
+					{% csrf_token %}
+					<div class="form-group">
+						<label class="sr-only" for="desription">View description</label>
+						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a view desription" {% if view.description %}value="{{view.description}}"{% endif %}>
+					</div>
+					<button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
+					<button type="button" class="btn btn-link">Cancel</button>
+				</form>
+			</div>
+
+			<div class="row">
+				<div class="col-md-12">
+					<div class="panel panel-default"> <!-- User group list -->
+						<div class="panel-heading">
+							<h2 class="panel-title">User Groups</h2>
+						</div>
+						<div class="table-responsive">
+							<table class="table table-striped">
+								<thead>
+									<tr>
+										<th>Name</th>
+										<th>Description</th>
+										<th>View</th>
+										<th>Read</th>
+										<th>Edit</th>
+										<th>Admin</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for group in view.viewgroup_set.all %}
+									<tr>
+										<td>{{group.name}}</td>
+										<td>{{group.description}}</td>
+										<td>{% if group.can_view %}<span class="glyphicon glyphicon-ok"></span>{% endif %}</td>
+										<td>{% if group.can_read %}<span class="glyphicon glyphicon-ok"></span>{% endif %}</td>
+										<td>{% if group.can_edit %}<span class="glyphicon glyphicon-ok"></span>{% endif %}</td>
+										<td>{% if group.can_admin %}<span class="glyphicon glyphicon-ok"></span>{% endif %}</td>
+										<td><a href="{% url 'view_usergroup_view' view.project.id view.id group.id %}"><span class="glyphicon glyphicon-edit"></span></a></td>
+									</tr>
+
+									{% endfor %}									
+								</tbody>
+							</table>
+						</div>
+						<div class="panel-footer">
+							<a href="{% url 'view_create_usergroup' view.project.id view.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new user group</a>
+						</div>
+					</div> <!-- /User Group List -->
+				</div>
+			</div>
+
+			<div class="row" id="general-settings">
+				<div class="col-md-6">
+					<div class="panel panel-danger">
+						<div class="panel-heading">
+							<h2 class="panel-title">Delete view</h2>
+						</div>
+						<div class="panel-body">
+							<p>If you delete the view there's no way back.</p>
+							<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-confirm">Delete this view</button>
+						</div>
+					</div>
+				</div>
+			</div>
+{% endblock %}
+
+{% block modals %} 
+		<!-- Delete confirmation modal -->
+		<div class="modal fade" id="delete-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content panel-danger">
+					<div class="modal-header panel-heading">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+					</div>
+					<div class="modal-body panel-body">
+						<p class="text-danger">You are about to delete the view <strong>{{view.name}}</strong>. This can not be undone.</p>
+						<ul>
+							<li>All user groups assigned to the view will be deleted.</li>
+							<li>All users who are solely assigned to one of the views user groups will not be able to access the project any longer.</li>
+						</ul>
+					</div>
+					<div class="modal-footer panel-footer">
+						<button type="button" name="confirm" class="btn btn-danger">I'm absolutely sure, delete the view!</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /Delete confirmation modal -->
+{% endblock %}
+
+{% block libraries %} 
+			<script src="/static/js/admin.ui.messages.js"></script>
+			<script src="/static/js/admin.ui.descriptioneditor.js"></script>
+			<script src="/static/js/admin.ui.updater.js"></script>
+			<script src="/static/js/admin.control.ajax.js"></script>
+{% endblock %}

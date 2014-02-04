@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block bodydata %} data-project-id="{{group.view.project.id}}" data-view-id="{{group.view.id}}"  data-group-id="{{group.id}}"{% endblock %}
+{% block title %} | User group{% endblock %}
+
+{% block main %}
+			<div class="page-header">
+				<h1>{{group.name}}</h1>
+				<p class="lead">
+					<span id="descriptionText">{% if group.description %} {{group.description}} {% endif %}</span>
+					<button id="edit" type="button" class="btn btn-link"><span class="glyphicon glyphicon-edit"></span> Edit</button>
+				</p>
+				<form class="form-inline hidden" id="description-form" role="form">
+					{% csrf_token %}
+					<div class="form-group">
+						<label class="sr-only" for="desription">Project description</label>
+						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a view desription" {% if group.description %}value="{{group.description}}"{% endif %}>
+					</div>
+					<button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
+					<button type="button" class="btn btn-link">Cancel</button>
+				</form>
+			</div>
+
+			<div class="row" id="users">
+				<div class="col-md-6" id="permissions">
+					<div class="panel panel-default"> <!-- Members list -->
+						<div class="panel-heading">
+							<h2 class="panel-title">Permissions</h2>
+						</div>
+						<div class="list-group">
+							<div class="list-group-item">
+								<div class="checkbox">
+									<label><input type="checkbox" name="can_admin" {% if group.can_admin %} checked="true" {% endif %}> <strong>Admin.</strong> If checked, members are permitted to administer the View, i.e. changing names and descriptions as well as defining new or altering existing Filters for the View. Permissions further include all of the following.</label>
+									
+								</div>
+								
+							</div>
+							<div class="list-group-item">
+								<div class="checkbox">
+									<label><input type="checkbox" name="can_edit" {% if group.can_edit %} checked="true" {% endif %}> <strong>Edit.</strong> If checked, members are permitted to edit existing Features and Observations of the View. </label>
+								</div>
+							</div>
+							<div class="list-group-item">
+								<div class="checkbox">
+									<label><input type="checkbox" name="can_view" {% if group.can_view %} checked="true" {% endif %}> <strong>Read.</strong> If checked, members are permitted to access the data and download in machine readable formats &ndash; such as JSON, XML or CSV.</label>
+								</div>
+							</div>
+							<div class="list-group-item">
+								<div class="checkbox">
+									<label><input type="checkbox" name="can_read" {% if group.can_read %} checked="true" {% endif %}> <strong>View.</strong> If checked, members are permitted to access pre-rendered maps of the data through a web-compliant image format.</label>
+								</div>
+							</div>
+						</div>
+					</div> <!-- /Members List -->
+				</div>
+				<div class="col-md-6">
+					<div class="panel panel-default" id="members" data-group-id="{{ group.id }}"> <!-- Administrators list -->
+						<div class="panel-heading">
+							<h2 class="panel-title">Members</h2>
+						</div>
+
+						{% include 'snippets/usergroup-editor.html' with users=group.users.all %}
+					</div> <!-- /Administrators List -->
+				</div>
+				
+			</div>
+{% endblock %}
+
+{% block libraries %} 
+			<script src="/static/js/admin.ui.messages.js"></script>
+			<script src="/static/js/admin.ui.descriptioneditor.js"></script>
+			<script src="/static/js/admin.control.ajax.js"></script>
+			<script src="/static/js/admin.ui.usergroup.js"></script>
+			<script src="/static/js/admin.ui.view.usergroups.js"></script>
+{% endblock %}

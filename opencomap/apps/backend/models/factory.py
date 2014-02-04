@@ -24,12 +24,3 @@ def createProject(name, description, creator, isprivate=False):
 	project.save()
 	
 	return project
-
-def createFeaturetype(name, description, creator, project):
-	featuretype = FeatureType(name=name, description=description, project=project)
-	featuretype.save()
-
-	featuretypeView = View(name=featuretype.name, project=project, creator=creator, featuretype=featuretype)
-	featuretypeView.save()
-
-	return featuretype

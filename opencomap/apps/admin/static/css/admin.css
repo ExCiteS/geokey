@@ -60,17 +60,16 @@ div.page-header {
 }
 
     div.page-header > h1 {
+        margin-bottom: 5px;
+    }
+
+    div.page-header > p.lead {
         margin-bottom: 0;
     }
 
-    div.page-header > h1 > small {
-        display: block;
-        margin-top: 0.5em;
-    }
-
     div.page-header > .form-inline {
-        margin-top: 12px;
-        margin-bottom: 2px;
+        margin-top: 0;
+        margin-bottom: 0;
     }
         div.page-header > .form-inline > .form-group {
             width: 100%;

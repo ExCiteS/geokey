@@ -16,20 +16,20 @@ from opencomap.apps.admin.libs.decorators import handle_errors, check_admin
 @handle_errors
 @check_admin
 def createFeaturetype(request, project_id, project=None):
-	project = authorization.projects.project(request.user, project_id)
-
 	if request.method == "GET":
 		return render(request, 'featuretype.new.html', RequestContext(request, {"project": project}))
 
 	if request.method == "POST":
-		featuretype = Factory.createFeaturetype(request.POST.get('name'), request.POST.get('description'), request.user, project)
+		featuretype = FeatureType(name=request.POST.get('name'), description=request.POST.get('description'), project=project)
+		featuretype.save()
+		print featuretype.id
 		return redirect('featuretype_view', project.id, featuretype.id)
 
 @login_required
 @require_http_methods(["GET"])
 @handle_errors
 def viewFeaturetype(request, project_id, featuretype_id):
-	project = authorization.projects.project(request.user, project_id)
+	project = authorization.projects.get_single(request.user, project_id)
 	admin = project.admins.isMember(request.user)
 	featuretype = project.featuretype_set.get(pk=featuretype_id)
 
@@ -40,7 +40,7 @@ def viewFeaturetype(request, project_id, featuretype_id):
 @handle_errors
 @check_admin
 def createField(request, project_id, featuretype_id, project=None):
-	project = authorization.projects.project(request.user, project_id)
+	project = authorization.projects.get_single(request.user, project_id)
 	featuretype = project.featuretype_set.get(pk=featuretype_id)
 	admin = project.admins.isMember(request.user)
 
@@ -59,7 +59,7 @@ def createField(request, project_id, featuretype_id, project=None):
 @handle_errors
 @check_admin
 def viewField(request, project_id, featuretype_id, field_id, project=None):
-	project = authorization.projects.project(request.user, project_id)
+	project = authorization.projects.get_single(request.user, project_id)
 	featuretype = project.featuretype_set.get(pk=featuretype_id)
 	field = featuretype.field_set.get(pk=field_id)
 	return render(request, 'field.html', RequestContext(request, {"project": project, "featuretype": featuretype, "field": field, "status_types": STATUS_TYPES}))

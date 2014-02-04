@@ -1,16 +1,19 @@
 (function (global) {
-	function Usergroup(panel, projectId, viewId) {
-		var panel = $(panel);
+	function Usergroup(panelId, projectId, viewId) {
+		var panel = $(panelId);
+		var groupId = panel.attr('data-group-id');
+
 		this.typeAwayResults = panel.find('.panel-footer .type-away');
 		this.formField = panel.find('.panel-footer input[type="text"]');
-		this.formField.keyup(this.handleFormType.bind(this));
 		this.userList = panel.find('.user-list');
 		this.messages = new Ui.MessageDisplay('#users');
 
-		var groupId = panel.attr('data-group-id');
-		this.url = 'projects/' + projectId + '/usergroups/' + groupId;
+		this.url = 'projects/' + projectId + '/usergroups/' + groupId + '/users';
+		if (viewId) { this.url = 'projects/' + projectId + '/views/' + viewId + '/usergroups/' + groupId + '/users'; }
+
 		this.numberOfRequests = 0;
 		this.userList.find('li a.remove').click(this.handleRemoveUser.bind(this));
+		this.formField.keyup(this.handleFormType.bind(this));
 	}
 
 	Usergroup.prototype.handleRemoveUser = function handleRemoveUser(event) {
@@ -19,6 +22,9 @@
 
 		function handleRemoveUserSuccess() {
 			itemToRemove.remove();
+			if (this.userList.children().length === 0) {
+				this.userList.append('<li class="list-group-item">No users have been assigned to this group.</li>')
+			}
 			this.messages.showSuccess('The user has been removed successfully.');
 		}
 
@@ -26,7 +32,8 @@
 			this.messages.showError('An error occured while removing the user. Error text was: ' + response.responseJSON.error);
 		}
 
-		Control.Ajax.del(this.url + '/users/' + userId, handleRemoveUserSuccess.bind(this), handleRemoveUserError.bind(this), {'userId': userId});
+		Control.Ajax.del(this.url + '/' + userId, handleRemoveUserSuccess.bind(this), handleRemoveUserError.bind(this), {'userId': userId});
+		event.preventDefault();
 	}
 
 

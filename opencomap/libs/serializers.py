@@ -20,7 +20,7 @@ field_registry = {
 	LookupField: ['id', 'name', 'description', 'status', 'required', 'lookupvalue_set'],
 	LookupValue: ['id', 'name', 'status'],
 
-	ViewGroup: ['id', 'name', 'can_edit', 'can_view', 'can_read', 'users'],
+	ViewGroup: ['id', 'name', 'description', 'can_admin', 'can_edit', 'can_view', 'can_read', 'users'],
 }
 
 def serialize_fields(model, fields):

@@ -9,9 +9,9 @@ from django.core.exceptions import PermissionDenied
 from opencomap.libs.exceptions import MalformedBody
 from decorators import check_admin
 
-def projects_list(user):
+def get_list(user):
 	result = []
-	projects = Project.objects.exclude(status=STATUS_TYPES['DELETED'])
+	projects = Project.objects.all()
 
 	for project in projects:
 		if project.isViewable(user):
@@ -19,13 +19,10 @@ def projects_list(user):
 		
 	return result
 
-def project(user, project_id):
+def get_single(user, project_id):
 	project = Project.objects.get(pk=project_id)
-
 	if project.isViewable(user):
 		return project
-	elif project.status == STATUS_TYPES['DELETED']:
-		raise Project.DoesNotExist('The requested project has been deleted by a project administrator.')
 	else:
 		raise PermissionDenied('You are not allowed to access this project.')
 

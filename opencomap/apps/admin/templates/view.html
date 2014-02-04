@@ -1,15 +1,16 @@
 {% extends "base.html" %}
 
-{% block title %} | Project{% endblock %}
+{% block title %} | Project | View{% endblock %}
 
 {% block main %}
-	{% if project %}
+
 			<div class="page-header">
-				<h1>{{project.name}}</h1>
+				<h1>{{view.name}} </h1>
 				<p class="lead">
-					{{project.description}} 
+					{% if view.description %} {{view.description}} {% endif %}
+
 					{% if admin %}
-						<a href="{% url 'project_settings' project.id%}" class="btn btn-link"><span class="glyphicon glyphicon-cog"></span> Settings</a>		
+						<a href="{% url 'view_settings' view.project.id view.id %}" class="btn btn-link"><span class="glyphicon glyphicon-cog"></span> Settings</a>
 					{% endif %}
 				</p>
 			</div>
@@ -72,28 +73,26 @@
 							<h2 class="panel-title">Filter data by view</h2>
 						</div>
 						<div class="list-group">
-							<a class="list-group-item active" href="{% url 'project_view' project.id %}">
+							<a class="list-group-item" href="{% url 'project_view' view.project.id %}">
 								<h4 class="list-group-item-heading">All data</h4>
 								<p class="list-group-item-text">Displays all data contributed to the project.</p>
 							</a>
-							{% for view in project.view_set.all %}
-							<a class="list-group-item" href="{% url 'view_view' project.id view.id %}">
-								<h4 class="list-group-item-heading">{{ view.name }}</h4>
-								<p class="list-group-item-text">{{ view.description }}</p>
+							{% for view_item in view.project.view_set.all %}
+							<a class="list-group-item {% if view_item.id == view.id %} active {% endif %}" href="{% url 'view_view' view.project.id view_item.id %}">
+								<h4 class="list-group-item-heading">{{ view_item.name }}</h4>
+								<p class="list-group-item-text">{{ view_item.description }}</p>
 							</a>
 							{% endfor %}
 						</div>
 						<div class="panel-footer">
-							<a href="{% url 'view_create' project.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new view</a>
+							<a href="view.new.html" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new view</a>
 						</div>
 					</div> <!-- /View List -->
 				</div>
 			</div>
-	{% endif %}
 {% endblock %}
 
 {% block libraries %} 
-	{% if project %}
 		<!-- LEAFLET -->
 			<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.css" />
 			<!--[if lte IE 8]>
@@ -105,5 +104,4 @@
 		<!-- CUSTOM SPECIALS-->
 			<script src="/static/js/admin.ui.map.js"></script>
 		<!-- /CUSTOM SPECIALS-->
-	{% endif %}
 {% endblock %}
