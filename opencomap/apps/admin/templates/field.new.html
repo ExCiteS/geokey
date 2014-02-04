@@ -8,7 +8,7 @@
             </div>
 
             <div class="row">
-                <form  role="form" class="form-horizontal col-md-8 col-md-offset-1" method="POST" action="{% url 'field_create' project.id featuretype.id %}" novalidate> 
+                <form  role="form" class="form-horizontal col-md-8 col-md-offset-1" method="POST" action="{% url 'field_create' featuretype.project.id featuretype.id %}" novalidate> 
                     {% csrf_token %}
                     <form  role="form" class="form-horizontal col-md-8 col-md-offset-1"> <!-- Project from -->
                     <div class="form-group">
@@ -48,7 +48,7 @@
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-10">
                             <button type="submit" class="btn btn-primary">Save</button>
-                            <a href="{% url 'featuretype_view' project.id featuretype.id %}" class="btn btn-default" role="button">Cancel</a>
+                            <a href="{% url 'featuretype_view' featuretype.project.id featuretype.id %}" class="btn btn-default" role="button">Cancel</a>
                         </div>
                     </div>
                 </form>

@@ -1,12 +1,10 @@
 {% extends "base.html" %}
 
-{% block bodydata %} data-project-id="{{project.id}}" data-featuretype-id="{{featuretype.id}}"{% endblock %}
+{% block bodydata %} data-project-id="{{featuretype.project.id}}" data-featuretype-id="{{featuretype.id}}"{% endblock %}
 {% block title %} | Project | Feature type{% endblock %}
 
 {% block main %}
 	{% csrf_token %}
-
-	{% if project %}
 			<div class="page-header">
 				<h1>{{ featuretype.name }} </h1>
 				<p class="lead">
@@ -37,7 +35,7 @@
 						{% endif %}
 						{% if admin %}
 						<div class="panel-footer">
-							<a href="{% url 'field_create' project.id featuretype.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new field</a>
+							<a href="{% url 'field_create' featuretype.project.id featuretype.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new field</a>
 						</div>
 						{% endif %}
 					</div>
@@ -71,12 +69,10 @@
 				</div>
 			</div>
 			{% endif %}
-		
-	{% endif %}
 {% endblock %}
 
 {% block modals %} 
-	{% if project and admin %}
+	{% if admin %}
 		<div class="modal fade" id="make-inactive-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content panel-warning">
@@ -117,12 +113,11 @@
 				</div>
 			</div>
 		</div>
-
 	{% endif %}
 {% endblock %}
 
 {% block libraries %} 
-	{% if project and admin %}
+	{% if admin %}
 			<script src="/static/js/admin.ui.messages.js"></script>
 			<script src="/static/js/admin.ui.descriptioneditor.js"></script>
 			<script src="/static/js/admin.ui.updater.js"></script>

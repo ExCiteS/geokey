@@ -27,7 +27,7 @@ def new(request, project_id):
 
 	elif request.method == "POST":
 		view = authorization.views.create(request.user, project_id, request.POST)
-		return redirect('view_view', project.id, view.id)
+		return redirect('view_view', view.project.id, view.id)
 
 @login_required
 @require_http_methods(["GET"])

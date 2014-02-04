@@ -10,7 +10,7 @@ from opencomap.apps.backend import authorization
 @oauthenticate
 @require_http_methods(["GET"])
 def project_list(request):
-	projects = authorization.projects.projects_list(request.user)
+	projects = authorization.projects.get_list(request.user)
 	return render_to_json("projects", Serializer().serialize(projects))
 
 
@@ -18,5 +18,5 @@ def project_list(request):
 @require_http_methods(["GET"])
 @handle_http_errors
 def project_single(request, project_id):
-	project = authorization.projects.project(request.user, project_id)
+	project = authorization.projects.get_single(request.user, project_id)
 	return render_to_json("project", Serializer().serialize(project))

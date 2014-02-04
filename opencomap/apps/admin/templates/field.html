@@ -1,24 +1,10 @@
 {% extends "base.html" %}
 
-{% block bodydata %} data-project-id="{{project.id}}" data-featuretype-id="{{featuretype.id}}" data-field-id="{{field.id}}"{% endblock %}
+{% block bodydata %} data-project-id="{{field.featuretype.project.id}}" data-featuretype-id="{{field.featuretype.id}}" data-field-id="{{field.id}}"{% endblock %}
 {% block title %} | Project | Feature type | Field{% endblock %}
 
 {% block main %}
 	{% csrf_token %}
-	{% if error %}
-			<div class="page-header">
-				<h1>An error occured.</h1>
-			</div>
-
-			<div class="row">
-				<div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
-					<div class="alert alert-danger">{{ error }}</div>
-				</div>
-			</div>
-	{% endif %}
-
-	{% if project %}
-
 			<div class="page-header">
 				<h1>{{ field.name }} </h1>
 				<p class="lead">
@@ -140,12 +126,9 @@
 					</div>
 				</div>
 			</div>
-		
-	{% endif %}
 {% endblock %}
 
 {% block modals %} 
-	{% if project %}
 		<div class="modal fade" id="make-inactive-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content panel-warning">
@@ -185,12 +168,9 @@
 				</div>
 			</div>
 		</div>
-
-	{% endif %}
 {% endblock %}
 
 {% block libraries %} 
-	{% if project %}
 			<script src="/static/js/admin.ui.forms.validate.js"></script>
 			<script src="/static/js/admin.ui.messages.js"></script>
 			<script src="/static/js/admin.ui.descriptioneditor.js"></script>
@@ -198,5 +178,4 @@
 			<script src="/static/js/admin.ui.field.js"></script>
 			<script src="/static/js/admin.ui.field.lookup.js"></script>
 			<script src="/static/js/admin.control.ajax.js"></script>
-	{% endif %}
 {% endblock %}

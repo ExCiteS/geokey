@@ -57,9 +57,12 @@ class Project(models.Model):
 		"""
 		Checks if the user is allowed to view the project.
 		"""
-		inViewgroup = False
-		for view in self.view_set.all():
-			if view.isViewable(user):
-				inViewgroup = True
+		can_view = ((self.admins.isMember(user)) or ((not self.isprivate or self.contributors.isMember(user)) and self.status != STATUS_TYPES['INACTIVE']))
 
-		return (inViewgroup or ((self.admins.isMember(user)) or ((not self.isprivate or self.contributors.isMember(user)) and self.status != STATUS_TYPES['INACTIVE'])))
+
+		if not can_view:
+			for view in self.view_set.all():
+				if view.isViewable(user):
+					can_view = True
+
+		return can_view

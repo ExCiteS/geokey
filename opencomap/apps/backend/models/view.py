@@ -60,6 +60,3 @@ class View(models.Model):
 			if group[access_type]: can_do = True
 
 		return can_do
-
-	def can_admin(self, user):
-		return self._check_permission(user, 'can_admin')

@@ -14,53 +14,47 @@ from opencomap.apps.admin.libs.decorators import handle_errors, check_admin
 @login_required
 @require_http_methods(["GET", "POST"])
 @handle_errors
-@check_admin
-def createFeaturetype(request, project_id, project=None):
+def createFeaturetype(request, project_id):
 	if request.method == "GET":
-		return render(request, 'featuretype.new.html', RequestContext(request, {"project": project}))
+		project = authorization.projects.get_single(request.user, project_id)
+		if project.admins.isMember(request.user):
+			return render(request, 'featuretype.new.html', RequestContext(request, {"project": project}))
+		else:
+			return render(request, 'error.html', RequestContext(request, {"error": "You are not member of the administrators group of this project and therefore not permitted to edit the project settings.", "head": "Permission denied."}))
+		
 
 	if request.method == "POST":
-		featuretype = FeatureType(name=request.POST.get('name'), description=request.POST.get('description'), project=project)
-		featuretype.save()
-		print featuretype.id
-		return redirect('featuretype_view', project.id, featuretype.id)
+		featuretype = authorization.featuretypes.create(request.user, project_id, request.POST)
+		return redirect('featuretype_view', featuretype.project.id, featuretype.id)
 
 @login_required
 @require_http_methods(["GET"])
 @handle_errors
 def viewFeaturetype(request, project_id, featuretype_id):
-	project = authorization.projects.get_single(request.user, project_id)
-	admin = project.admins.isMember(request.user)
-	featuretype = project.featuretype_set.get(pk=featuretype_id)
+	featuretype = authorization.featuretypes.get_single(request.user, project_id, featuretype_id)
+	admin = featuretype.project.admins.isMember(request.user)
+	return render(request, 'featuretype.html', RequestContext(request, {"featuretype": featuretype, "admin": admin, "status_types": STATUS_TYPES}))
 
-	return render(request, 'featuretype.html', RequestContext(request, {"project": project, "featuretype": featuretype, "admin": admin, "status_types": STATUS_TYPES}))
-	
+
 @login_required
 @require_http_methods(["GET", "POST"])
 @handle_errors
-@check_admin
-def createField(request, project_id, featuretype_id, project=None):
-	project = authorization.projects.get_single(request.user, project_id)
-	featuretype = project.featuretype_set.get(pk=featuretype_id)
-	admin = project.admins.isMember(request.user)
-
+def createField(request, project_id, featuretype_id):
 	if request.method == "GET":
-		return render(request, 'field.new.html', RequestContext(request, {"project": project, "featuretype": featuretype, "fieldtypes": FIELD_TYPES}))
+		featuretype = authorization.featuretypes.get_single(request.user, project_id, featuretype_id)
+		if featuretype.project.admins.isMember(request.user):
+			return render(request, 'field.new.html', RequestContext(request, {"featuretype": featuretype, "fieldtypes": FIELD_TYPES}))
+		else:
+			return render(request, 'error.html', RequestContext(request, {"error": "You are not member of the administrators group of this project and therefore not permitted to edit the project settings.", "head": "Permission denied."}))
 
 	if request.method == "POST":
-		field_model = FIELD_TYPES.get(request.POST.get('type')).get('model')
-		required = request.POST.get('required') != None
-		field = field_model(name=request.POST.get('name'), description=request.POST.get('description'), required=required, featuretype=featuretype)
-		field.save()
-		return redirect('field_view', project.id, featuretype.id, field.id)
+		field = authorization.featuretypes.createField(request.user, project_id, featuretype_id, request.POST)
+		return redirect('field_view', field.featuretype.project.id, field.featuretype.id, field.id)
 
 @login_required
 @require_http_methods(["GET"])
 @handle_errors
-@check_admin
-def viewField(request, project_id, featuretype_id, field_id, project=None):
-	project = authorization.projects.get_single(request.user, project_id)
-	featuretype = project.featuretype_set.get(pk=featuretype_id)
-	field = featuretype.field_set.get(pk=field_id)
-	return render(request, 'field.html', RequestContext(request, {"project": project, "featuretype": featuretype, "field": field, "status_types": STATUS_TYPES}))
+def viewField(request, project_id, featuretype_id, field_id):
+	field = authorization.featuretypes.get_single_field(request.user, project_id, featuretype_id, field_id)
+	return render(request, 'field.html', RequestContext(request, {"field": field, "status_types": STATUS_TYPES}))
 

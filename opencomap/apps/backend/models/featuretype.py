@@ -44,12 +44,6 @@ class FeatureType(models.Model):
 			field.status = STATUS_TYPES['INACTIVE']
 			field.save()
 
-	def getFields(self):
-		"""
-		Returns all currently active fields af the feature type
-		"""
-		return self.field_set.exclude(status=STATUS_TYPES['INACTIVE'])
-
 	def getField(self, fieldId):
 		"""
 		Returns exactly one `Field` identified by `id`

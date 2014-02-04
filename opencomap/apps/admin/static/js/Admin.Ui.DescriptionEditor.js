@@ -25,7 +25,6 @@ $(function() {
 	}
 
 	function handleRequestSucess(response) {
-		console.log(response);
 		var resultAccessor = 'project';
 		if (featuretypeId) { resultAccessor = 'featuretype'; }
 		if (fieldId) { resultAccessor = 'field'; }
