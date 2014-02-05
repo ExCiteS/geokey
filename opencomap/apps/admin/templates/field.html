@@ -1,10 +1,17 @@
 {% extends "base.html" %}
 
 {% block bodydata %} data-project-id="{{field.featuretype.project.id}}" data-featuretype-id="{{field.featuretype.id}}" data-field-id="{{field.id}}"{% endblock %}
-{% block title %} | Project | Feature type | Field{% endblock %}
+{% block title %} | Field: {{ field.name }}{% endblock %}
 
 {% block main %}
 	{% csrf_token %}
+			<ol class="breadcrumb">
+				<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+				<li><a href="{% url 'project_view' field.featuretype.project.id %}">{{ field.featuretype.project.name }}</a></li>
+				<li><a href="{% url 'featuretype_view' field.featuretype.project.id field.featuretype.id %}">{{ field.featuretype.name }}</a></li>
+				<li class="active">{{ field.name }}</li>
+			</ol>
+
 			<div class="page-header">
 				<h1>{{ field.name }} </h1>
 				<p class="lead">

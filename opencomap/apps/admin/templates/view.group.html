@@ -1,9 +1,16 @@
 {% extends "base.html" %}
 
 {% block bodydata %} data-project-id="{{group.view.project.id}}" data-view-id="{{group.view.id}}"  data-group-id="{{group.id}}"{% endblock %}
-{% block title %} | User group{% endblock %}
+{% block title %} | User group: {{group.name}}{% endblock %}
 
 {% block main %}
+			<ol class="breadcrumb">
+				<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+				<li><a href="{% url 'project_view' group.view.project.id %}">{{ group.view.project.name }}</a></li>
+				<li><a href="{% url 'view_view' group.view.project.id group.view.id %}">{{group.view.name}}</a></li>
+				<li class="active">{{group.name}}</li>
+			</ol>
+
 			<div class="page-header">
 				<h1>{{group.name}}</h1>
 				<p class="lead">

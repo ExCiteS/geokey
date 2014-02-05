@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.db import IntegrityError
 
-from opencomap.apps.backend import views as view
+from opencomap.apps.backend.authorization import projects
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 
 
@@ -24,7 +24,7 @@ def signin(request):
             return render(request, 'login.html', RequestContext(request))
 
     elif request.method == 'POST':
-        user = authenticate(username=request.POST['email'], password=request.POST['password'])
+        user = authenticate(username=request.POST['username'], password=request.POST['password'])
         if user is not None:
             login(request, user)
             
@@ -48,8 +48,8 @@ def signup(request):
 
     elif request.method == 'POST':
         try:
-            User.objects.create_user(request.POST['email'], request.POST['email'], request.POST['password'], last_name=request.POST['lastname'], first_name=request.POST['firstname']).save()
-            user = authenticate(username=request.POST['email'], password=request.POST['password'])
+            User.objects.create_user(request.POST['username'], request.POST['email'], request.POST['password'], last_name=request.POST['lastname'], first_name=request.POST['firstname']).save()
+            user = authenticate(username=request.POST['username'], password=request.POST['password'])
             if user is not None:
                 login(request, user)
                 return redirect('/admin/dashboard')
@@ -58,4 +58,4 @@ def signup(request):
         
 @login_required
 def dashboard(request):
-    return render(request, 'dashboard.html', RequestContext(request, {"projects": view.projects_list(request.user), "status_types": STATUS_TYPES}))
+    return render(request, 'dashboard.html', RequestContext(request, {"projects": projects.get_list(request.user), "status_types": STATUS_TYPES}))

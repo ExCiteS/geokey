@@ -4,7 +4,7 @@
 
 {% block main %}
             <div class="page-header">
-                <h1>Welcome back{% if user.first_name %}, {{user.first_name}}{% endif %}.</h1>
+                <h1>Welcome back, {% if user.first_name %}{{user.first_name}}{% else %}{{user}}{% endif %}.</h1>
             </div>
             <div class="row">
 

@@ -56,5 +56,7 @@ def createField(request, project_id, featuretype_id):
 @handle_errors
 def viewField(request, project_id, featuretype_id, field_id):
 	field = authorization.featuretypes.get_single_field(request.user, project_id, featuretype_id, field_id)
-	return render(request, 'field.html', RequestContext(request, {"field": field, "status_types": STATUS_TYPES}))
-
+	if field.featuretype.project.admins.isMember(request.user):
+		return render(request, 'field.html', RequestContext(request, {"field": field, "status_types": STATUS_TYPES}))
+	else:
+		return render(request, 'error.html', RequestContext(request, {"error": "You are not member of the administrators group of this project and therefore not permitted to edit the project settings.", "head": "Permission denied."}))

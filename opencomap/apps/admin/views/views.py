@@ -11,8 +11,9 @@ from opencomap.apps.backend import authorization
 @handle_errors
 def viewView(request, project_id, view_id):
 	view = authorization.views.get_single(request.user, project_id, view_id)
-	admin = view.project.admins.isMember(request.user) or view.can_admin(request.user)
-	return render(request, 'view.html', RequestContext(request, {"view": view, "admin": admin}))
+	views = authorization.views.get_list(request.user, project_id)
+	admin = view.project.admins.isMember(request.user)
+	return render(request, 'view.html', RequestContext(request, {"view": view, "views": views, "admin": admin}))
 
 @login_required
 @require_http_methods(["GET", "POST"])
@@ -34,7 +35,10 @@ def new(request, project_id):
 @handle_errors
 def editView(request, project_id, view_id):
 	view = authorization.views.get_single(request.user, project_id, view_id)
-	return render(request, 'view.edit.html', RequestContext(request, {"view": view}))
+	if view.project.admins.isMember(request.user):
+		return render(request, 'view.edit.html', RequestContext(request, {"view": view}))
+	else:
+		return render(request, 'error.html', RequestContext(request, {"error": "You are not member of the administrators group of this view or the project and therefore not permitted to edit the view settings.", "head": "Permission denied."}))
 
 @login_required
 @require_http_methods(["GET", "POST"])
@@ -42,7 +46,7 @@ def editView(request, project_id, view_id):
 def create_usergroup(request, project_id, view_id):
 	view = authorization.views.get_single(request.user, project_id, view_id)
 	if request.method == "GET":
-		if view.project.admins.isMember(request.user) or view.can_admin(request.user):
+		if view.project.admins.isMember(request.user):
 			return render(request, 'view.group.new.html', RequestContext(request, {"view": view}))
 		else:
 			return render(request, 'error.html', RequestContext(request, {"error": "You are not member of the administrators group of this view or the project and therefore not permitted to edit the view settings.", "head": "Permission denied."}))

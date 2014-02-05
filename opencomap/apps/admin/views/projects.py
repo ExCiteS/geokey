@@ -26,7 +26,7 @@ def viewProject(request, project_id):
 	project = authorization.projects.get_single(request.user, project_id)
 	views = authorization.views.get_list(request.user, project_id)
 	admin = project.admins.isMember(request.user)
-	return render(request, 'project.html', RequestContext(request, {"project": project, "admin": admin}))
+	return render(request, 'project.html', RequestContext(request, {"project": project, "views": views, "admin": admin}))
 
 @login_required
 @handle_errors

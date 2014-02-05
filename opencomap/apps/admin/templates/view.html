@@ -1,8 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %} | Project | View{% endblock %}
+{% block title %} | View: {{view.name}}{% endblock %}
 
 {% block main %}
+
+			<ol class="breadcrumb">
+				<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+				<li><a href="{% url 'project_view' view.project.id %}">{{ view.project.name }}</a></li>
+				<li class="active">{{view.name}}</li>
+			</ol>
 
 			<div class="page-header">
 				<h1>{{view.name}} </h1>
@@ -77,16 +83,18 @@
 								<h4 class="list-group-item-heading">All data</h4>
 								<p class="list-group-item-text">Displays all data contributed to the project.</p>
 							</a>
-							{% for view_item in view.project.view_set.all %}
+							{% for view_item in views %}
 							<a class="list-group-item {% if view_item.id == view.id %} active {% endif %}" href="{% url 'view_view' view.project.id view_item.id %}">
 								<h4 class="list-group-item-heading">{{ view_item.name }}</h4>
 								<p class="list-group-item-text">{{ view_item.description }}</p>
 							</a>
 							{% endfor %}
 						</div>
+						{% if admin %}
 						<div class="panel-footer">
-							<a href="view.new.html" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new view</a>
+							<a href="{% url 'view_create' view.project.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new view</a>
 						</div>
+						{% endif %}
 					</div> <!-- /View List -->
 				</div>
 			</div>

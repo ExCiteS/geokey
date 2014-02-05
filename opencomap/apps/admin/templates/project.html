@@ -1,9 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %} | Project{% endblock %}
+{% block title %} | Project: {{ project.name }}{% endblock %}
 
 {% block main %}
 	{% if project %}
+			<ol class="breadcrumb">
+				<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+				<li class="active">{{ project.name }}</li>
+			</ol>
+
 			<div class="page-header">
 				<h1>{{project.name}}</h1>
 				<p class="lead">
@@ -76,16 +81,18 @@
 								<h4 class="list-group-item-heading">All data</h4>
 								<p class="list-group-item-text">Displays all data contributed to the project.</p>
 							</a>
-							{% for view in project.view_set.all %}
+							{% for view in views %}
 							<a class="list-group-item" href="{% url 'view_view' project.id view.id %}">
 								<h4 class="list-group-item-heading">{{ view.name }}</h4>
 								<p class="list-group-item-text">{{ view.description }}</p>
 							</a>
 							{% endfor %}
 						</div>
+						{% if admin %}
 						<div class="panel-footer">
 							<a href="{% url 'view_create' project.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new view</a>
 						</div>
+						{% endif %}
 					</div> <!-- /View List -->
 				</div>
 			</div>

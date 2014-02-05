@@ -7,7 +7,7 @@
 {% endif %}
 	<ul class="list-group user-list">
 	{% for user in users %}
-		<li class="list-group-item">{% if user.first_name %}{{ user.get_full_name }}{% else %}{{user}}{% endif %} (<a class="text-danger remove" data-user-id="{{ user.id }}" href="#">remove</a>)</li>
+		<li class="list-group-item">{{user}} {% if user.first_name or user.last_name %}({{ user.first_name }} {{ user.last_name }}){% endif %} <a class="text-danger remove" data-user-id="{{ user.id }}" href="#"><small>remove</small></a></li>
 	{% empty %}
 		<li class="list-group-item">No users have been assigned to this group.</li>
 	{% endfor %}

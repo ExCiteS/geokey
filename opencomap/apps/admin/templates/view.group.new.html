@@ -1,8 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %} | Create new user group{% endblock %}
+{% block title %} | Create new usergroup{% endblock %}
 
 {% block main %}
+			<ol class="breadcrumb">
+				<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+				<li><a href="{% url 'project_view' view.project.id %}">{{ view.project.name }}</a></li>
+				<li><a href="{% url 'view_view' view.project.id view.id %}">{{view.name}}</a></li>
+				<li class="active">Create new user group</li>
+			</ol>
+
 			<div class="page-header">
 				<h1>Create new user group</h1>
 			</div>

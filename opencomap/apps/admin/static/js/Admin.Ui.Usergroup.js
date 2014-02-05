@@ -16,9 +16,21 @@
 		this.formField.keyup(this.handleFormType.bind(this));
 	}
 
+	function getUserDisplay(user) {
+		var username = user.username;
+		if (user.first_name || user.last_name) {
+			username += ' (';
+			if (user.first_name) {username += user.first_name; }
+			if (user.first_name && user.last_name) {username += ' '; }
+			if (user.last_name) {username += user.last_name; }
+			username += ')';
+		}
+		return username;
+	}
+
 	Usergroup.prototype.handleRemoveUser = function handleRemoveUser(event) {
-		var userId = $(event.target).attr('data-user-id');
-		var itemToRemove = $(event.target).parent('.list-group-item');
+		var userId = $(event.target).parent('a').attr('data-user-id');
+		var itemToRemove = $(event.target).parents('.list-group-item');
 
 		function handleRemoveUserSuccess() {
 			itemToRemove.remove();
@@ -43,7 +55,7 @@
 		this.userList.empty();
 		for (var i = 0, len = users.length; i < len; i++) {
 			var user = users[i];
-			this.userList.append('<li class="list-group-item">' + user.first_name + ' ' + user.last_name + ' (<a class="text-danger remove" data-user-id="' + user.id + '" href="#">remove</a>)</li>')
+			this.userList.append('<li class="list-group-item">' + getUserDisplay(user) + ' <a class="text-danger remove" data-user-id="' + user.id + '" href="#"><small>remove</small></a></li>')
 		}
 		this.userList.find('li a.remove').click(this.handleRemoveUser.bind(this));
 		this.messages.showSuccess('The user has been added successfully.');
@@ -75,7 +87,7 @@
 		}
 		
 		for (var i = 0, len = users.length; i < len; i++) {
-			this.typeAwayResults.append('<li role="presentation"><a role="menuitem" tabindex="-1" href="#" data-user-id="' + users[i].id + '">' + users[i].first_name + ' ' + users[i].last_name + '</a></li>');
+			this.typeAwayResults.append('<li role="presentation"><a role="menuitem" tabindex="-1" href="#" data-user-id="' + users[i].id + '">' + getUserDisplay(users[i]) + '</a></li>');
 		}
 		
 		this.typeAwayResults.children('.dropdown-header').text(header);
