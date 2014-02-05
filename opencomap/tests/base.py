@@ -134,11 +134,20 @@ class CommunityMapsTest(TestCase):
 		self.lookupfield.save()
 		self.lookupfield.addLookupValues('Gonzo')
 		self.lookupvalue = self.lookupfield.lookupvalue_set.filter(name='Gonzo')[0]
-		self.lookupvalue.status = 1
-		self.lookupvalue.save()
+
+		self.inactive_field = TextField(name='Inactive', description='description', featuretype=self.active_feature_type, status=STATUS_TYPES['INACTIVE'])
+		self.inactive_field.save()
+
+		self.inactive_feature_type = FeatureType(name='Inactive feature type', description='description', project=self.private_project, status=STATUS_TYPES['INACTIVE'])
+		self.inactive_feature_type.save()
+		dateField = DateTimeField(name='Date Field', description='Date field description', featuretype=self.inactive_feature_type)
+		dateField.save()
+
+		self.inactive_feature_type_two = FeatureType(name='Inactive feature type', description='description', project=self.inactive_project, status=STATUS_TYPES['INACTIVE'])
+		self.inactive_feature_type_two.save()
 
 
-		self.public_feature_type = FeatureType(name='Public feature type', project=self.public_project)
+		self.public_feature_type = FeatureType(name='Public feature type', description='description', project=self.public_project)
 		self.public_feature_type.save()
 		textField = TextField(name='Text field', description='Text field description', featuretype=self.public_feature_type)
 		textField.save()
@@ -148,15 +157,11 @@ class CommunityMapsTest(TestCase):
 		lookupField.save()
 		lookupField.addLookupValues('Ms. Piggy', 'ist ein', 'dickes', 'Schwein')
 
-		self.private_feature_type = FeatureType(name='Private feature type', project=self.private_project)
+
+		self.private_feature_type = FeatureType(name='Private feature type', description='description', project=self.private_project)
 		self.private_feature_type.save()
 		textField = TextField(name='Text field', description='Text field description', featuretype=self.private_feature_type)
 		textField.save()
-
-		self.inactive_feature_type = FeatureType(name='Invalid feature type', project=self.inactive_project)
-		self.inactive_feature_type.save()
-		dateField = DateTimeField(name='Date Field', description='Date field description', featuretype=self.inactive_feature_type)
-		dateField.save()
 
 	def get(self, url, user):
 		self.client.login(username=user, password=user + '123')

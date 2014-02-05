@@ -12,7 +12,7 @@ from opencomap.apps.backend.libs.managers import Manager
 class View(models.Model):
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=100)
-	description = models.TextField(null=True)
+	description = models.TextField()
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)
 	created_at = models.DateTimeField(auto_now_add=True)
 	status = models.IntegerField(default=STATUS_TYPES['ACTIVE'])

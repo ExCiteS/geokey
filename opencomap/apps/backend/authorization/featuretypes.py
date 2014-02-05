@@ -1,6 +1,7 @@
 from opencomap.apps.backend.models.featuretype import FeatureType, LookupValue, FIELD_TYPES
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 from opencomap.libs.exceptions import MalformedBody
+from django.core.exceptions import PermissionDenied
 
 from decorators import check_admin
 import projects
@@ -43,7 +44,7 @@ def get_list_field(user, project_id, featuretype_id):
 
 def get_single_field(user, project_id, featuretype_id, field_id):
 	featuretype = get_single(user, project_id, featuretype_id)
-	field = featuretype.field_set.get(pk=field_id)
+	field = featuretype.getField(field_id)
 	if field.status == STATUS_TYPES['ACTIVE'] or featuretype.project.admins.isMember(user):
 		return field
 	else:
@@ -59,7 +60,6 @@ def createField(user, project_id, featuretype_id, data, project=None):
 	field.save()
 
 	return field
-
 
 @check_admin
 def updateField(user, project_id, featuretype_id, field_id, data, project=None):

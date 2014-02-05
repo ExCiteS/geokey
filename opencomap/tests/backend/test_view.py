@@ -22,6 +22,11 @@ class ViewAuthorizationTest(CommunityMapsTest):
 		self.assertEqual(len(views), 1)
 		self.assertEqual(views[0], self.active_view)
 
+		luis = self._authenticate('luis')
+		views = authorization.views.get_list(luis, self.private_project.id)
+		self.assertEqual(len(views), 1)
+		self.assertEqual(views[0], self.active_view_two)
+
 	def test_access_views_with_admin(self):
 		george = self._authenticate('george')
 		views = authorization.views.get_list(george, self.private_project.id)

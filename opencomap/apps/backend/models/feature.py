@@ -45,7 +45,7 @@ class Feature(Commendable):
 	"""
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=100)
-	description = models.TextField(null=True)
+	description = models.TextField()
 	geometry = gis.GeometryField(geography=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 	creator = models.ForeignKey(settings.AUTH_USER_MODEL)

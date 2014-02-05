@@ -42,6 +42,12 @@ class ProjectAuthorizationTest(CommunityMapsTest):
 		for p in projects:
 			self.assertIn(p.name, ('Public project', 'Private project'))
 
+		luis = self._authenticate('luis')
+		projects = authorization.projects.get_list(luis)
+		self.assertEqual(len(projects), 2)
+		for p in projects:
+			self.assertIn(p.name, ('Public project', 'Private project'))
+
 	def test_access_projects_with_deleted_viewgroup_member(self):
 		zidane = self._authenticate('zidane')
 		projects = authorization.projects.get_list(zidane)
@@ -93,6 +99,20 @@ class ProjectAuthorizationTest(CommunityMapsTest):
 			if project.name == 'Deleted project':
 				with self.assertRaises(Project.DoesNotExist):
 					authorization.projects.get_single(carlos, project.id)
+
+		luis = self._authenticate('luis')
+		projects = Project.objects.all()
+		for project in projects:
+			if project.name == 'Public project':
+				self.assertEqual(project, authorization.projects.get_single(luis, project.id))
+			if project.name == 'Inactive project':
+				with self.assertRaises(PermissionDenied):
+					authorization.projects.get_single(luis, project.id)
+			if project.name == 'Private project':
+				self.assertEqual(project, authorization.projects.get_single(luis, project.id))
+			if project.name == 'Deleted project':
+				with self.assertRaises(Project.DoesNotExist):
+					authorization.projects.get_single(luis, project.id)
 
 	def test_access_single_project_with_deleted_viewgroup_member(self):
 		zidane = self._authenticate('zidane')
@@ -148,10 +168,12 @@ class ProjectAuthorizationTest(CommunityMapsTest):
 		diego = self._authenticate('diego')
 		mehmet = self._authenticate('mehmet')
 		carlos = self._authenticate('carlos')
+		luis = self._authenticate('luis')
 		for project in Project.objects.all():
 			with self.assertRaises(PermissionDenied):
 				authorization.projects.updateProject(diego, project.id, {"description": "new description"})
 				authorization.projects.updateProject(mehmet, project.id, {"description": "new description"})
 				authorization.projects.updateProject(carlos, project.id, {"description": "new description"})
+				authorization.projects.updateProject(luis, project.id, {"description": "new description"})
 			
 

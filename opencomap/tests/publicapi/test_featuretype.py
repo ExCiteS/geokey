@@ -16,7 +16,7 @@ class FeatureTypeApiTest(CommunityMapsTest):
 
 		response = self._get('eric', self.inactive_project.id)
 		self.assertEqual(response.status_code, 200)
-		self.assertContains(response, self.objectSerializer.serialize(self.inactive_feature_type))
+		self.assertContains(response, self.objectSerializer.serialize(self.inactive_feature_type_two))
 
 		response = self._get('eric', self.deleted_project.id)
 		self.assertEqual(response.status_code, 404)
@@ -32,7 +32,7 @@ class FeatureTypeApiTest(CommunityMapsTest):
 
 		response = self._get('george', self.inactive_project.id)
 		self.assertEqual(response.status_code, 200)
-		self.assertContains(response, self.objectSerializer.serialize(self.inactive_feature_type))
+		self.assertContains(response, self.objectSerializer.serialize(self.inactive_feature_type_two))
 
 		response = self._get('george', self.deleted_project.id)
 		self.assertEqual(response.status_code, 404)
