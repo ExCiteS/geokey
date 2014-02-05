@@ -3,11 +3,13 @@
 {% block title %} | Dashboard{% endblock %}
 
 {% block main %}
-            <div class="page-header">
+        <div class="page-header">
+            <div class="container">
                 <h1>Welcome back, {% if user.first_name %}{{user.first_name}}{% else %}{{user}}{% endif %}.</h1>
             </div>
+        </div>
+        <div class="container">
             <div class="row">
-
                 <div class="col-sm-6">
                     <h3>Here's what happed since your last visit</h3>
                     <ul class="list-unstyled newsfeed">
@@ -43,4 +45,5 @@
                     </div>
                 </div>
             </div>
+        </div>
 {% endblock %}

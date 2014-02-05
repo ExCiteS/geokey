@@ -5,13 +5,14 @@
 
 {% block main %}
 	{% csrf_token %}
-			<ol class="breadcrumb">
-				<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-				<li><a href="{% url 'project_view' featuretype.project.id %}">{{ featuretype.project.name }}</a></li>
-				<li class="active">{{ featuretype.name }}</li>
-			</ol>
-
-			<div class="page-header">
+		<div class="page-header">
+			<div class="container">
+				<ol class="breadcrumb">
+					<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+					<li><a href="{% url 'project_view' featuretype.project.id %}">{{ featuretype.project.name }}</a></li>
+					<li class="active">{{ featuretype.name }}</li>
+				</ol>
+				
 				<h1>{{ featuretype.name }} </h1>
 				<p class="lead">
 					<span id="descriptionText">{% if featuretype.description %} {{ featuretype.description }} {% endif %}</span>
@@ -27,7 +28,9 @@
 					<button type="button" class="btn btn-link">Cancel</button>
 				</form>
 			</div>
+		</div>
 
+		<div class="container">
 			<div class="row">
 				<div class="col-md-10 col-md-offset-1">
 					<div class="panel panel-default"> <!-- Project overview -->
@@ -75,6 +78,7 @@
 				</div>
 			</div>
 			{% endif %}
+		</div>
 {% endblock %}
 
 {% block modals %} 

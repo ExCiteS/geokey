@@ -3,16 +3,19 @@
 {% block title %} | Create new feature type{% endblock %}
 
 {% block main %}
-			<ol class="breadcrumb">
-				<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-				<li><a href="{% url 'project_view' project.id %}">{{ project.name }}</a></li>
-				<li class="active">Create new feature type</li>
-			</ol>
-
-			<div class="page-header">
+		<div class="page-header">
+			<div class="container">
+				<ol class="breadcrumb">
+					<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+					<li><a href="{% url 'project_view' project.id %}">{{ project.name }}</a></li>
+					<li class="active">Create new feature type</li>
+				</ol>
+			
 				<h1>Create new feature type</h1>
 			</div>
+		</div>
 
+		<div class="container">
 			<div class="row">
 				<form  role="form" class="form-horizontal col-md-8 col-md-offset-1" method="POST" action="{% url 'featuretype_create' project.id %}" novalidate> 
 					{% csrf_token %}
@@ -40,6 +43,7 @@
 					</div>
 				</form>
 			</div>
+		</div>
 {% endblock %}
 
 {% block libraries %} 

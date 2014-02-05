@@ -5,14 +5,15 @@
 
 {% block main %}
 	{% csrf_token %}
-			<ol class="breadcrumb">
-				<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-				<li><a href="{% url 'project_view' view.project.id %}">{{ view.project.name }}</a></li>
-				<li><a href="{% url 'view_view' view.project.id view.id %}">{{view.name}}</a></li>
-				<li class="active">Settings</li>
-			</ol>
-
-			<div class="page-header">
+		<div class="page-header">
+			<div class="container">
+				<ol class="breadcrumb">
+					<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+					<li><a href="{% url 'project_view' view.project.id %}">{{ view.project.name }}</a></li>
+					<li><a href="{% url 'view_view' view.project.id view.id %}">{{view.name}}</a></li>
+					<li class="active">Settings</li>
+				</ol>
+			
 				<h1>{{view.name}}</h1>
 				<p class="lead">
 					<span id="descriptionText">{% if view.description %} {{view.description}} {% endif %}</span>
@@ -28,7 +29,9 @@
 					<button type="button" class="btn btn-link">Cancel</button>
 				</form>
 			</div>
+		</div>
 
+		<div class="container">
 			<div class="row">
 				<div class="col-md-12">
 					<div class="panel panel-default"> <!-- User group list -->
@@ -82,6 +85,7 @@
 					</div>
 				</div>
 			</div>
+		</div>
 {% endblock %}
 
 {% block modals %} 

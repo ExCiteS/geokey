@@ -1,5 +1,4 @@
 body {
-    padding-top: 80px;
     padding-bottom: 20px;
 }
 
@@ -55,28 +54,48 @@ h6:first-child {
     margin-top: 0;
 }
 
-div.page-header {
-    position: relative;
+.navbar-default {
+    background-color: #f5f5f5;
 }
 
-    div.page-header > h1 {
+div.page-header {
+    position: relative;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    margin-bottom: 40px;
+    background-color: #fafafa;
+}
+
+div.page-header .breadcrumb {
+    background-color: #fafafa;
+    padding-left: 0;
+    padding-right: 0;
+    margin: 0;
+}
+
+div.page-header .breadcrumb > li + li:before {
+    content: "\00BB";
+}
+
+    div.page-header h1 {
+        margin-top: 20px;
         margin-bottom: 5px;
     }
 
-    div.page-header > p.lead {
+    div.page-header p.lead {
         margin-bottom: 0;
     }
 
-    div.page-header > .form-inline {
+    div.page-header .form-inline {
         margin-top: 0;
         margin-bottom: 0;
     }
-        div.page-header > .form-inline > .form-group {
+        div.page-header .form-inline > .form-group {
             width: 100%;
         }
         
         @media (min-width: 768px) { 
-            div.page-header > .form-inline > .form-group {
+            div.page-header .form-inline > .form-group {
                 width: 583px;
             }
         }
@@ -152,3 +171,10 @@ ol.comments > li {
     ol.comments > li > ol.comments {
         margin-left: 30px;
     }
+
+footer {
+    text-align: center;
+    padding-top: 30px;
+    border-top: 1px solid #eee;
+    background-color: #fafafa;
+}

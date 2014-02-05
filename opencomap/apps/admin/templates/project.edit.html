@@ -7,13 +7,14 @@
 	{% csrf_token %}
 
 	{% if project %}
-			<ol class="breadcrumb">
-				<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-				<li><a href="{% url 'project_view' project.id %}">{{ project.name }}</a></li>
-				<li class="active">Settings</li>
-			</ol>
-
-			<div class="page-header">
+		<div class="page-header">
+			<div class="container">
+				<ol class="breadcrumb">
+					<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+					<li><a href="{% url 'project_view' project.id %}">{{ project.name }}</a></li>
+					<li class="active">Settings</li>
+				</ol>
+			
 				<h1>{{project.name}}</h1>
 				<p class="lead">
 					<span id="descriptionText">{% if project.description %} {{project.description}} {% endif %}</span>
@@ -29,7 +30,9 @@
 					<button type="button" class="btn btn-link">Cancel</button>
 				</form>
 			</div>
+		</div>
 
+		<div class="container">
 			<div class="row" id="users">
 				<div class="col-md-2">
 					<h3>Permissions</h3>
@@ -151,6 +154,8 @@
 					</div>
 				</div>
 			</div>
+		</div>
+
 	{% endif %}
 {% endblock %}
 

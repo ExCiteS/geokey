@@ -5,14 +5,15 @@
 
 {% block main %}
 	{% csrf_token %}
-			<ol class="breadcrumb">
-				<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-				<li><a href="{% url 'project_view' field.featuretype.project.id %}">{{ field.featuretype.project.name }}</a></li>
-				<li><a href="{% url 'featuretype_view' field.featuretype.project.id field.featuretype.id %}">{{ field.featuretype.name }}</a></li>
-				<li class="active">{{ field.name }}</li>
-			</ol>
+		<div class="page-header">
+			<div class="container">
+				<ol class="breadcrumb">
+					<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+					<li><a href="{% url 'project_view' field.featuretype.project.id %}">{{ field.featuretype.project.name }}</a></li>
+					<li><a href="{% url 'featuretype_view' field.featuretype.project.id field.featuretype.id %}">{{ field.featuretype.name }}</a></li>
+					<li class="active">{{ field.name }}</li>
+				</ol>
 
-			<div class="page-header">
 				<h1>{{ field.name }} </h1>
 				<p class="lead">
 					<span id="descriptionText">{% if field.description %} {{ field.description }} {% endif %}</span>
@@ -28,7 +29,9 @@
 					<button type="button" class="btn btn-link">Cancel</button>
 				</form>
 			</div>
+		</div>
 
+		<div class="container">
 			{% if field.numericfield or field.lookupfield %}
 			<div class="row" id="constraints">
 				{% if field.numericfield %}
@@ -133,6 +136,7 @@
 					</div>
 				</div>
 			</div>
+		</div>
 {% endblock %}
 
 {% block modals %} 

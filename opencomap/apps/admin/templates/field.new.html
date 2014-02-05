@@ -3,17 +3,19 @@
 {% block title %} | Create new field{% endblock %}
 
 {% block main %}
-			<ol class="breadcrumb">
-				<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-				<li><a href="{% url 'project_view' featuretype.project.id %}">{{ featuretype.project.name }}</a></li>
-				<li><a href="{% url 'featuretype_view' featuretype.project.id featuretype.id %}">{{ featuretype.name }}</a></li>
-				<li class="active">Create new field</li>
-			</ol>
-
-			<div class="page-header">
+		<div class="page-header">
+			<div class="container">
+				<ol class="breadcrumb">
+					<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+					<li><a href="{% url 'project_view' featuretype.project.id %}">{{ featuretype.project.name }}</a></li>
+					<li><a href="{% url 'featuretype_view' featuretype.project.id featuretype.id %}">{{ featuretype.name }}</a></li>
+					<li class="active">Create new field</li>
+				</ol>
 				<h1>Create new field</h1>
 			</div>
+		</div>
 
+		<div class="container">
 			<div class="row">
 				<form  role="form" class="form-horizontal col-md-8 col-md-offset-1" method="POST" action="{% url 'field_create' featuretype.project.id featuretype.id %}" novalidate> 
 					{% csrf_token %}
@@ -63,6 +65,7 @@
 					
 				</form>
 			</div>
+		</div>
 {% endblock %}
 
 {% block libraries %} 
