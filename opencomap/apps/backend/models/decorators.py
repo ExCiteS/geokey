@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 
 def check_status(func):
 	"""
-	A decorator user in update methods of model entities. 
+	A decorator used in update methods of model entities. 
 	"""
 	ACCEPTED_STATUS = (
 		STATUS_TYPES['ACTIVE'], 

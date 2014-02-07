@@ -1,38 +1,52 @@
 {% extends "base.html" %}
 
 {% block title %} | Login{% endblock %}
+{% block bodydata %} class="login" {% endblock %}
 
 {% block main %}
 			{% if login_failed %}
-				<div class="page-header">
-					<h1>Authorisation failed</h1>
+			<div class="page-header">
+				<div class="container">
+					<h1>Authorisation failed</h1>	
 				</div>
+			</div>
+			<div class="container">
 				<div class="row">
 					<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
 						<div class="alert alert-danger">We were unable to authorise you. Either user name or password are incorrect. Please try again.</div>
 					</div>
 				</div>
+			</div>
 
 			{% elif login_required %}
-				<div class="page-header">
+			<div class="page-header">
+				<div class="container">
 					<h1>Sign in required</h1>
 				</div>
+			</div>
+			<div class="container">
 				<div class="row">
 					<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
 						<div class="alert alert-warning">Please sign in.</div>
 					</div>
 				</div>
+			</div>
 			{% elif logged_out %}
-				<div class="page-header">
-					<h1>Successfully signed out</h1>
+			<div class="page-header">
+				<div class="container">
+					<h1>Successfully signed out</h1>	
 				</div>
+			</div>
+			<div class="container">
 				<div class="row">
 					<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
 						<div class="alert alert-success">You have been successfully signed out.</div>
 					</div>
 				</div>
+			</div>
 			{% endif %}
 
+		<div class="container">
 			<div class="row">
 				<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
 					<div class="well">
@@ -55,4 +69,5 @@
 					<p class="text-center">Not a member yet? Please <a href="{% url 'signup'%}">sign up here</a.</p>
 				</div>
 			</div>
+		</div>
 {% endblock %}

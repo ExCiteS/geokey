@@ -6,8 +6,8 @@ from django.conf import settings
 
 from opencomap.apps.backend.models.choice import STATUS_TYPES
 from opencomap.apps.backend.models.usergroup import UserGroup
-from opencomap.apps.backend.libs.decorators import check_status
-from opencomap.apps.backend.libs.managers import Manager
+from decorators import check_status
+from managers import Manager
 
 class Project(models.Model):
 	"""

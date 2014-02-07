@@ -1,4 +1,14 @@
+/* ***********************************************
+ * Validates form accroding to the definition in the HTML. 
+ * Is automatically loaded when included in a page.
+ *
+ * @author Oliver Roick (http://github.com/oliverroick)
+ * @version 0.1
+ * ***********************************************/
+
 $(function() {
+	'use strict';
+
 	var form = $('form').not('#description-form');
 
 	/**
@@ -10,26 +20,29 @@ $(function() {
 		field.siblings('.help-block').remove();
 		field.after('<span class="help-block">' + message  + '</span>');
 	}
-
+	
 	/**
 	 * Validates a frorm using standard form.checkValidity(). If valid, the form is submitted. 
 	 * If not, invalid fields are marked and a help text is provided. 
+	 * @param  {Event} event The form submission event.
 	 */
-	function validate() {
-		if (this.checkValidity()) {
+	function validate(event) {
+		var formSumitted = event.target;
+		if (formSumitted.checkValidity()) {
 			// The form is valid, submit the thing
 			if (form.attr('method') && form.attr('action')) {
-				$(this).off('submit');
-				$(this).submit();
+				$(formSumitted).off('submit');
+				$(formSumitted).submit();
 			}
 		} else {
 			// The form is invalid
-			var validFields = $(this).find(':valid');
-			var invalidFields = $(this).find(':invalid');
+			var validFields = $(formSumitted).find(':valid');
+			var invalidFields = $(formSumitted).find(':invalid');
 
+			// Iterate through all invlaid fields and display an error message
 			for (var i = 0, len = invalidFields.length; i < len; i++) {
-				var field = $(invalidFields[i])
-				var validity = invalidFields[i].validity
+				var field = $(invalidFields[i]);
+				var validity = invalidFields[i].validity;
 				field.parents('.form-group').addClass('has-error');
 
 				if (validity.valueMissing) {
@@ -58,11 +71,13 @@ $(function() {
 		event.preventDefault();
 	}
 
+	/**
+	 * Resets the form to its initial state. Removes all error messages.
+	 */
 	function reset() {
 		form.find('.form-group').removeClass('has-error');
 		form.find('.help-block').remove();
-		form.find(':required').after('<span class="help-block">This field is required.</span>')
-
+		form.find(':required').after('<span class="help-block">This field is required.</span>');
 	}
 
 	form.submit(validate);

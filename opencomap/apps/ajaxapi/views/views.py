@@ -25,7 +25,7 @@ def update(request, project_id, view_id):
 @require_http_methods(["PUT"])
 @handle_http_errors
 @handle_malformed
-def updateGroup(request, project_id, view_id, group_id):
+def update_group(request, project_id, view_id, group_id):
 	group = authorization.views.update_usergrpup(request.user, project_id, view_id, group_id, json.loads(request.body))
 	return render_to_json("usergroup", Serializer().serialize(group))
 
@@ -33,13 +33,13 @@ def updateGroup(request, project_id, view_id, group_id):
 @require_http_methods(["PUT"])
 @handle_http_errors
 @handle_malformed
-def addUserToGroup(request, project_id, view_id, group_id):
-	group = authorization.views.addUserToGroup(request.user, project_id, view_id, group_id, json.loads(request.body))
+def add_user_to_group(request, project_id, view_id, group_id):
+	group = authorization.views.add_user_to_group(request.user, project_id, view_id, group_id, json.loads(request.body))
 	return render_to_json("usergroup", Serializer().serialize(group))
 
 @login_required
 @require_http_methods(["DELETE"])
 @handle_http_errors
-def removeUserFromGroup(request, project_id, view_id, group_id, user_id):
-	authorization.views.removeUserFromGroup(request.user, project_id, view_id, group_id, user_id)
+def remove_user_from_group(request, project_id, view_id, group_id, user_id):
+	authorization.views.remove_user_from_group(request.user, project_id, view_id, group_id, user_id)
 	return render_to_success("The user has been successfully removed from the group.")

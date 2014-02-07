@@ -4,8 +4,8 @@ import iso8601
 
 from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.choice import STATUS_TYPES
-from opencomap.apps.backend.libs.decorators import check_status
-from opencomap.apps.backend.libs.managers import Manager
+from decorators import check_status
+from managers import Manager
 
 class FeatureType(models.Model):
 	"""

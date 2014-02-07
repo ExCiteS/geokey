@@ -1,16 +1,34 @@
+/* ***********************************************
+ * Module to send asychronous requests to the backend. 
+ * Singleton, does not net to instancated. Simply call for instance Control.Ajax.get()
+ *
+ * @author Oliver Roick (http://github.com/oliverroick)
+ * @version 0.1
+ * ***********************************************/
+
 (function (global) {
+	'use strict';
 	var baseUrl = '/ajax/';
 
 	function Ajax() {
 		
 	}
 
+	/**
+	 * Reads the CSRF token from the cookie. Nessesary to authentication the user with AJAX requests.
+	 */
+	
+	/**
+	 * Reads the CSRF token from the cookie. Nessesary to authentication the user with AJAX requests.
+	 * @param  {String} name The name of the cookie to read
+	 * @return {String}      The cookie value
+	 */
 	function getCookie(name) {
 		var cookieValue = null;
-		if (document.cookie && document.cookie != '') {
+		if (document.cookie && document.cookie !== '') {
 			var cookies = document.cookie.split(';');
 			for (var i = 0; i < cookies.length; i++) {
-				var cookie = jQuery.trim(cookies[i]);
+				var cookie = $.trim(cookies[i]);
 				// Does this cookie string begin with the name we want?
 				if (cookie.substring(0, name.length + 1) == (name + '=')) {
 					cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
@@ -21,10 +39,22 @@
 	    return cookieValue;
 	}
 
+	/**
+	 * Sets the request header
+	 * @param {Object} xhr XmlHttpRequest object
+	 */
 	function setHeader(xhr) {
-		xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+		xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
 	}
 
+	/**
+	 * Sends the request.
+	 * @param  {String}   url             URL the called.
+	 * @param  {String}   method          HTTP method
+	 * @param  {Function} successCallback Function to be called after successful request
+	 * @param  {Function} errorCallback   Function to be called after request failed
+	 * @param  {Object}   data            Optional. Data to be send with the request body
+	 */
 	function request(url, method, successCallback, errorCallback, data) {
 		$.ajax({
 			url: baseUrl + url,
@@ -40,17 +70,37 @@
 		});
 	}
 
+	/**
+	 * Request using HTTP GET
+	 * @param  {String}   url             URL the called.
+	 * @param  {Function} successCallback Function to be called after successful request
+	 * @param  {Function} errorCallback   Function to be called after request failed
+	 */
 	Ajax.prototype.get = function get(url, successCallback, errorCallback) {
 		request(url, 'GET', successCallback, errorCallback);
 	}
 
+	/**
+	 * Request using HTTP PUT
+	 * @param  {String}   url             URL the called.
+	 * @param  {Function} successCallback Function to be called after successful request
+	 * @param  {Function} errorCallback   Function to be called after request failed
+	 * @param  {Object}   data            Data to be send with the request body
+	 */
 	Ajax.prototype.put = function put(url, successCallback, errorCallback, data) {
 		request(url, 'PUT', successCallback, errorCallback, data);
 	}
 
+	/**
+	 * Request using HTTP DELETE
+	 * @param  {String}   url             URL the called.
+	 * @param  {Function} successCallback Function to be called after successful request
+	 * @param  {Function} errorCallback   Function to be called after request failed
+	 */
 	Ajax.prototype.del = function del(url, successCallback, errorCallback) {
 		request(url, 'DELETE', successCallback, errorCallback);
 	}
 
+	// Initialize
 	global.Ajax = new Ajax();
 }(window.Control ? window.Control : window.Control = {}));

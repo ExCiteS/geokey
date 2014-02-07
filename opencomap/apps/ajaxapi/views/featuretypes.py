@@ -20,22 +20,22 @@ def update(request, project_id, featuretype_id):
 @require_http_methods(["PUT"])
 @handle_http_errors
 @handle_malformed
-def updateField(request, project_id, featuretype_id, field_id):
-	field = authorization.featuretypes.updateField(request.user, project_id, featuretype_id, field_id, json.loads(request.body))
+def update_field(request, project_id, featuretype_id, field_id):
+	field = authorization.featuretypes.update_field(request.user, project_id, featuretype_id, field_id, json.loads(request.body))
 	return render_to_json("field", ObjectSerializer().serialize(field))
 
 @login_required
 @require_http_methods(["PUT"])
 @handle_http_errors
 @handle_malformed
-def addLookupValue(request, project_id, featuretype_id, field_id):
-	field = authorization.featuretypes.addLookupValue(request.user, project_id, featuretype_id, field_id, json.loads(request.body))
+def add_lookup_value(request, project_id, featuretype_id, field_id):
+	field = authorization.featuretypes.add_lookup_value(request.user, project_id, featuretype_id, field_id, json.loads(request.body))
 	return render_to_json("field", ObjectSerializer().serialize(field))
 
 @login_required
 @require_http_methods(["DELETE"])
 @handle_http_errors
 @handle_malformed
-def removeLookupValue(request, project_id, featuretype_id, field_id, lookup_id):
-	field = authorization.featuretypes.removeLookupValue(request.user, project_id, featuretype_id, field_id, lookup_id)
+def remove_lookup_value(request, project_id, featuretype_id, field_id, lookup_id):
+	field = authorization.featuretypes.remove_lookup_value(request.user, project_id, featuretype_id, field_id, lookup_id)
 	return render_to_json("field", ObjectSerializer().serialize(field))

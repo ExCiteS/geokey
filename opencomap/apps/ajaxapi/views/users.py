@@ -10,7 +10,7 @@ import json
 
 @login_required
 @require_http_methods(["GET"])
-def getUsers(request):
+def query_users(request):
 	if request.GET and request.GET['query']:
 		q = request.GET['query']
 		users = User.objects.filter(Q(username__contains=q) | Q(last_name__contains=q) | Q(first_name__contains=q))[:10]

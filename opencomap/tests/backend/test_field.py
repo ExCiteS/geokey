@@ -80,23 +80,23 @@ class FieldAuthorizationTest(CommunityMapsTest):
 
 	def test_create_field_with_admin(self):
 		user = self._authenticate('eric')
-		field = authorization.featuretypes.createField(user, self.private_project.id, self.active_feature_type.id, {"type": "TEXT", "name": "new field", "description": "description"})
+		field = authorization.featuretypes.create_field(user, self.private_project.id, self.active_feature_type.id, {"type": "TEXT", "name": "new field", "description": "description"})
 		self.assertEqual(field.name, "new field")
 
 	def test_create_field_with_contributor(self):
 		user = self._authenticate('diego')
 		with self.assertRaises(PermissionDenied):
-			authorization.featuretypes.createField(user, self.private_project.id, self.active_feature_type.id, {"type": "TEXT", "name": "new field", "description": "description"})
+			authorization.featuretypes.create_field(user, self.private_project.id, self.active_feature_type.id, {"type": "TEXT", "name": "new field", "description": "description"})
 
 	def test_create_field_with_view_member(self):
 		user = self._authenticate('luis')
 		with self.assertRaises(PermissionDenied):
-			authorization.featuretypes.createField(user, self.private_project.id, self.active_feature_type.id, {"type": "TEXT", "name": "new field", "description": "description"})
+			authorization.featuretypes.create_field(user, self.private_project.id, self.active_feature_type.id, {"type": "TEXT", "name": "new field", "description": "description"})
 
 	def test_create_field_with_non_member(self):
 		user = self._authenticate('mehmet')
 		with self.assertRaises(PermissionDenied):
-			authorization.featuretypes.createField(user, self.private_project.id, self.active_feature_type.id, {"type": "TEXT", "name": "new field", "description": "description"})
+			authorization.featuretypes.create_field(user, self.private_project.id, self.active_feature_type.id, {"type": "TEXT", "name": "new field", "description": "description"})
 
 	###########################################################################
 	# UPDATE FIELD
@@ -104,23 +104,23 @@ class FieldAuthorizationTest(CommunityMapsTest):
 
 	def test_update_field_with_admin(self):
 		user = self._authenticate('eric')
-		field = authorization.featuretypes.updateField(user, self.private_project.id, self.active_feature_type.id, self.text_field.id, {"description": "updated"})
+		field = authorization.featuretypes.update_field(user, self.private_project.id, self.active_feature_type.id, self.text_field.id, {"description": "updated"})
 		self.assertEqual(field.description, "updated")
 
 	def test_update_field_with_contributor(self):
 		user = self._authenticate('diego')
 		with self.assertRaises(PermissionDenied):
-			authorization.featuretypes.updateField(user, self.private_project.id, self.active_feature_type.id, self.text_field.id, {"description": "updated"})
+			authorization.featuretypes.update_field(user, self.private_project.id, self.active_feature_type.id, self.text_field.id, {"description": "updated"})
 
 	def test_update_field_with_view_member(self):
 		user = self._authenticate('luis')
 		with self.assertRaises(PermissionDenied):
-			authorization.featuretypes.updateField(user, self.private_project.id, self.active_feature_type.id, self.text_field.id, {"description": "updated"})
+			authorization.featuretypes.update_field(user, self.private_project.id, self.active_feature_type.id, self.text_field.id, {"description": "updated"})
 
 	def test_update_field_with_non_member(self):
 		user = self._authenticate('mehmet')
 		with self.assertRaises(PermissionDenied):
-			authorization.featuretypes.updateField(user, self.private_project.id, self.active_feature_type.id, self.text_field.id, {"description": "updated"})
+			authorization.featuretypes.update_field(user, self.private_project.id, self.active_feature_type.id, self.text_field.id, {"description": "updated"})
 
 	###########################################################################
 	# ADD LOOKUP VALUES
@@ -128,23 +128,23 @@ class FieldAuthorizationTest(CommunityMapsTest):
 
 	def test_add_lookup_with_admin(self):
 		user = self._authenticate('eric')
-		field = authorization.featuretypes.addLookupValue(user, self.private_project.id, self.active_feature_type.id, self.lookupfield.id, {"name": "Kermit"})
+		field = authorization.featuretypes.add_lookup_value(user, self.private_project.id, self.active_feature_type.id, self.lookupfield.id, {"name": "Kermit"})
 		self.assertEqual(len(field.lookupvalue_set.all()), 2)
 
 	def test_update_field_with_contributor(self):
 		user = self._authenticate('diego')
 		with self.assertRaises(PermissionDenied):
-			authorization.featuretypes.addLookupValue(user, self.private_project.id, self.active_feature_type.id, self.lookupfield.id, {"name": "Kermit"})
+			authorization.featuretypes.add_lookup_value(user, self.private_project.id, self.active_feature_type.id, self.lookupfield.id, {"name": "Kermit"})
 
 	def test_update_field_with_view_member(self):
 		user = self._authenticate('luis')
 		with self.assertRaises(PermissionDenied):
-			authorization.featuretypes.addLookupValue(user, self.private_project.id, self.active_feature_type.id, self.lookupfield.id, {"name": "Kermit"})
+			authorization.featuretypes.add_lookup_value(user, self.private_project.id, self.active_feature_type.id, self.lookupfield.id, {"name": "Kermit"})
 
 	def test_update_field_with_non_member(self):
 		user = self._authenticate('mehmet')
 		with self.assertRaises(PermissionDenied):
-			authorization.featuretypes.addLookupValue(user, self.private_project.id, self.active_feature_type.id, self.lookupfield.id, {"name": "Kermit"})
+			authorization.featuretypes.add_lookup_value(user, self.private_project.id, self.active_feature_type.id, self.lookupfield.id, {"name": "Kermit"})
 
 	###########################################################################
 	# REMOVE LOOKUP VALUES
@@ -152,20 +152,20 @@ class FieldAuthorizationTest(CommunityMapsTest):
 
 	def test_add_lookup_with_admin(self):
 		user = self._authenticate('eric')
-		field = authorization.featuretypes.removeLookupValue(user, self.private_project.id, self.active_feature_type.id, self.lookupfield.id, self.lookupvalue.id)
+		field = authorization.featuretypes.remove_lookup_value(user, self.private_project.id, self.active_feature_type.id, self.lookupfield.id, self.lookupvalue.id)
 		self.assertEqual(len(field.lookupvalue_set.active()), 0)
 
 	def test_update_field_with_contributor(self):
 		user = self._authenticate('diego')
 		with self.assertRaises(PermissionDenied):
-			authorization.featuretypes.addLookupValue(user, self.private_project.id, self.active_feature_type.id, self.lookupfield.id, self.lookupvalue.id)
+			authorization.featuretypes.remove_lookup_value(user, self.private_project.id, self.active_feature_type.id, self.lookupfield.id, self.lookupvalue.id)
 
 	def test_update_field_with_view_member(self):
 		user = self._authenticate('luis')
 		with self.assertRaises(PermissionDenied):
-			authorization.featuretypes.addLookupValue(user, self.private_project.id, self.active_feature_type.id, self.lookupfield.id, self.lookupvalue.id)
+			authorization.featuretypes.remove_lookup_value(user, self.private_project.id, self.active_feature_type.id, self.lookupfield.id, self.lookupvalue.id)
 
 	def test_update_field_with_non_member(self):
 		user = self._authenticate('mehmet')
 		with self.assertRaises(PermissionDenied):
-			authorization.featuretypes.addLookupValue(user, self.private_project.id, self.active_feature_type.id, self.lookupfield.id, self.lookupvalue.id)
+			authorization.featuretypes.remove_lookup_value(user, self.private_project.id, self.active_feature_type.id, self.lookupfield.id, self.lookupvalue.id)

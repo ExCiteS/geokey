@@ -48,7 +48,7 @@ def createField(request, project_id, featuretype_id):
 			return render(request, 'error.html', RequestContext(request, {"error": "You are not member of the administrators group of this project and therefore not permitted to edit the project settings.", "head": "Permission denied."}))
 
 	if request.method == "POST":
-		field = authorization.featuretypes.createField(request.user, project_id, featuretype_id, request.POST)
+		field = authorization.featuretypes.create_field(request.user, project_id, featuretype_id, request.POST)
 		return redirect('field_view', field.featuretype.project.id, field.featuretype.id, field.id)
 
 @login_required

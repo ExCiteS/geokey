@@ -10,6 +10,10 @@ from opencomap.libs.exceptions import MalformedBody
 from decorators import check_admin
 
 def get_list(user):
+	"""
+	Return a list of all projects, that are accessible to the user. The list may 
+	be empty if the user is not eligible to access any projects.
+	"""
 	result = []
 	projects = Project.objects.all()
 
@@ -20,6 +24,10 @@ def get_list(user):
 	return result
 
 def get_single(user, project_id):
+	"""
+	Returns a single project, or raises `PermissionDenied` if the user is 
+	eligible to access the project.
+	"""
 	project = Project.objects.get(pk=project_id)
 	if project.isViewable(user):
 		return project
@@ -27,12 +35,11 @@ def get_single(user, project_id):
 		raise PermissionDenied('You are not allowed to access this project.')
 
 @check_admin
-def deleteProject(user, project_id, project=None):
-	project.delete()
-	return project
-
-@check_admin
-def updateProject(user, project_id, data, project=None):
+def update(user, project_id, data, project=None):
+	"""
+	Updates a project, or raises `PermissionDenied` if the user is 
+	eligible to alter the project. Returns the project.
+	"""
 	if data.get('isprivate') != None: project.update(isprivate=data.get('isprivate'))
 	if data.get('status') != None: project.update(status=data.get('status'))
 	if data.get('description') != None: project.update(description=data.get('description'))
@@ -41,7 +48,20 @@ def updateProject(user, project_id, data, project=None):
 	return project
 
 @check_admin
-def addUserToGroup(user, project_id, group_id, userToAdd, project=None):
+def delete(user, project_id, project=None):
+	"""
+	Deletes a project, or raises `PermissionDenied` if the user is eligible 
+	to alter the project.
+	"""
+	project.delete()
+	return project
+
+@check_admin
+def add_user_to_group(user, project_id, group_id, userToAdd, project=None):
+	"""
+	Adds an existing user to either the contributors or administrators group, 
+	or raises `PermissionDenied` if the user is eligible to alter the project.
+	"""
 	if project.admins.id == int(group_id) or project.contributors.id == int(group_id):
 		group = UserGroup.objects.get(pk=group_id)
 		try:
@@ -55,7 +75,11 @@ def addUserToGroup(user, project_id, group_id, userToAdd, project=None):
 		raise UserGroup.DoesNotExist
 
 @check_admin
-def removeUserFromGroup(user, project_id, group_id, userToRemove, project=None):
+def remove_user_from_group(user, project_id, group_id, userToRemove, project=None):
+	"""
+	Adds an existing user to either the contributors or administrators group, 
+	or raises `PermissionDenied` if the user is eligible to alter the project.
+	"""
 	if project.admins.id == int(group_id) or project.contributors.id == int(group_id):
 		group = UserGroup.objects.get(pk=group_id)
 		user = group.users.get(pk=userToRemove)

@@ -7,7 +7,8 @@ from django.conf import settings
 from opencomap.apps.backend.models.project import Project
 from opencomap.apps.backend.models.featuretype import FeatureType
 from opencomap.apps.backend.models.choice import STATUS_TYPES
-from opencomap.apps.backend.libs.managers import Manager
+from managers import Manager
+from decorators import check_status
 
 class View(models.Model):
 	id = models.AutoField(primary_key=True)

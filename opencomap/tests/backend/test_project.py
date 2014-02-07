@@ -155,12 +155,12 @@ class ProjectAuthorizationTest(CommunityMapsTest):
 		for project in Project.objects.all():
 			if project.name == 'Private project':
 				try:
-					authorization.projects.updateProject(george, project.id, {"description": "new description"})
+					authorization.projects.update(george, project.id, {"description": "new description"})
 				except PermissionDenied: 
 					self.fail('updateProject() raised PermissionDenied unexpectedly')
 
 				try:
-					authorization.projects.updateProject(eric, project.id, {"description": "new description"})
+					authorization.projects.update(eric, project.id, {"description": "new description"})
 				except PermissionDenied: 
 					self.fail('updateProject() raised PermissionDenied unexpectedly')
 
@@ -171,9 +171,9 @@ class ProjectAuthorizationTest(CommunityMapsTest):
 		luis = self._authenticate('luis')
 		for project in Project.objects.all():
 			with self.assertRaises(PermissionDenied):
-				authorization.projects.updateProject(diego, project.id, {"description": "new description"})
-				authorization.projects.updateProject(mehmet, project.id, {"description": "new description"})
-				authorization.projects.updateProject(carlos, project.id, {"description": "new description"})
-				authorization.projects.updateProject(luis, project.id, {"description": "new description"})
+				authorization.projects.update(diego, project.id, {"description": "new description"})
+				authorization.projects.update(mehmet, project.id, {"description": "new description"})
+				authorization.projects.update(carlos, project.id, {"description": "new description"})
+				authorization.projects.update(luis, project.id, {"description": "new description"})
 			
 

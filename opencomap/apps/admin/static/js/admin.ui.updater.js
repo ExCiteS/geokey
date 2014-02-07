@@ -3,41 +3,57 @@
  * Sends requests using admin.control.ajax and handles the responses by update the interface
  * accordingly.
  *
- * @author Oliver Roick
+ * @author Oliver Roick (http://github.com/oliverroick)
  * @version 0.1
  * ***********************************************/
  
 $(function () {
+	'use strict';
+
 	var messages = new Ui.MessageDisplay('#general-settings');
 
+	// Read the IDs from the body's attributes
 	var projectId = $('body').attr('data-project-id');
 	var featuretypeId = $('body').attr('data-featuretype-id');
 	var fieldId = $('body').attr('data-field-id');
 	var viewId = $('body').attr('data-view-id');
 
+	/*
+	 The url to send the requests to update the object
+	 */
 	var url = 'projects/' + projectId;
+
+	/*
+	 The key to access the result object in the response
+	 */
 	var resultAccessor = 'project';
+
+	/*
+	 Human readable name, to be used in message displays
+	 */
 	var name = 'project';
 	
-	if (projectId && featuretypeId) { 
-		url += '/featuretypes/' + featuretypeId; 
+	// Setting parameters
+	if (projectId && featuretypeId) {
+		url += '/featuretypes/' + featuretypeId;
 		resultAccessor = 'featuretype';
 		name = 'feature type';
 	}
 	if (projectId && featuretypeId && fieldId) {
-		url += '/fields/' + fieldId; 
+		url += '/fields/' + fieldId;
 		resultAccessor = 'field';
 		name = 'field';
 	}
 	if (projectId && viewId) {
-		url += '/views/' + viewId; 
+		url += '/views/' + viewId;
 		resultAccessor = 'view';
 		name = 'view';
 	}
-
+	
 	/**
 	 * Updates the user interface after the response is received. Resets submit buttons in modals and hides all modals. 
 	 * Toggles the respective panel (active or public) if the request has been successful.
+	 * @param  {String} toToggle Css class part to toogle the display after update
 	 */
 	function updateUi(toToggle) {
 		$('button[name="confirm"]').button('reset');
@@ -51,16 +67,24 @@ $(function () {
 	 * Deletes the project.
 	 */
 	function del() {
-		function handleSuccess(response) {
-			var link = '<a href="/admin/dashboard" class="alert-link">Return to dashboard</a>';
-			if (projectId && viewId) { link = '<a href="/admin/project/' + projectId +'" class="alert-link">Return to project</a>' }
 
-			updateUi()
+		/**
+		 * Handles the response after the item has been deleted successfully. 
+		 */
+		function handleSuccess() {
+			var link = '<a href="/admin/dashboard" class="alert-link">Return to dashboard</a>';
+			if (projectId && viewId) { link = '<a href="/admin/project/' + projectId +'" class="alert-link">Return to project</a>'; }
+
+			updateUi();
 			$('.row').remove();
 			$('hr').remove();
-			$('.page-header').after('<div class="col-md-12"><div class="alert alert-success">The ' + name + ' has now been deleted. ' + link + '.</div></div>')
+			$('.page-header').after('<div class="col-md-12"><div class="alert alert-success">The ' + name + ' has now been deleted. ' + link + '.</div></div>');
 		}
 
+		/**
+		 * Handles the response after the deletion of the item failed.
+		 * @param  {Object} response JSON object of the response
+		 */
 		function handleError(response) {
 			updateUi();
 			messages.showError('An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
@@ -68,16 +92,25 @@ $(function () {
 
 		Control.Ajax.del(url, handleSuccess, handleError);
 	}
-
+	
 	/**
-	 * Updates the active status of the project.
+	 * Handles the click on the confirm button and updates the status to either active or inactive.
+	 * @param  {Event} event The click event fired by the button.
 	 */
 	function updateActive(event) {
+		/**
+		 * Handles the respionse after the status of the item has been updated successfully.
+		 * @param  {Object} response JSON object of the response
+		 */
 		function handleSuccess(response) {
 			updateUi('active');
 			messages.showSuccess('The ' + name + ' is now ' + (response[resultAccessor].status === 0 ? 'active' : 'inactive') + '.');
 		}
 
+		/**
+		 * Handles the respionse after the update of the item failed.
+		 * @param  {Object} response JSON object of the response
+		 */
 		function handleError(response) {
 			updateUi();
 			messages.showError('An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
@@ -86,16 +119,25 @@ $(function () {
 	}
 
 	/**
-	 * Updates the private status of the project.
+	 * Handles the click on the confirm button and updates the status to either private or public.
+	 * @param  {Event} event The click event fired by the button.
 	 */
 	function updatePrivate(event) {
 		var isPrivate = (event.target.value === 'true');
 
+		/**
+		 * Handles the respionse after the status of the item has been updated successfully.
+		 * @param  {Object} response JSON object of the response
+		 */
 		function handleSuccess(response) {
 			updateUi('private');
 			messages.showSuccess('The ' + name + ' is now ' + (response[resultAccessor].isprivate ? 'private' : 'public') + '.');
 		}
 
+		/**
+		 * Handles the respionse after the update of the item failed.
+		 * @param  {Object} response JSON object of the response
+		 */
 		function handleError(response) {
 			updateUi();
 			messages.showError('An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
@@ -104,14 +146,26 @@ $(function () {
 		Control.Ajax.put(url, handleSuccess, handleError, {'isprivate': isPrivate});
 	}
 
-	function updateRequired(response) {
+	/**
+	 * Handles the click on the confirm button and updates the field status to either mandatory or optional.
+	 * @param  {Event} event The click event fired by the button.
+	 */
+	function updateRequired(event) {
 		var isRequired = (event.target.value === 'true');
 
+		/**
+		 * Handles the respionse after the status of the field has been updated successfully.
+		 * @param  {Object} response JSON object of the response
+		 */
 		function handleSuccess(response) {
 			updateUi('mandatory');
 			messages.showSuccess('The ' + name + ' is now ' + (response[resultAccessor].required ? 'mandatory' : 'optional') + '.');
 		}
 
+		/**
+		 * Handles the respionse after the update of the field failed.
+		 * @param  {Object} response JSON object of the response
+		 */
 		function handleError(response) {
 			updateUi();
 			messages.showError('An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
