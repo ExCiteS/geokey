@@ -24,13 +24,14 @@ $(function() {
 	function handlePermissionChange(event) {
 		var data = {};
 		var target = $(event.target).parents('.checkbox');
+		var state = $(event.target).prop('checked');
 
 		/**
 		 * Handles the response after the update of the permissions failed. 
 		 * @param  {Object} response JSON object of the response
 		 */
 		function handleGroupUpdateError(response) {
-			// TODO: Reset the checkbox
+			$(event.target).prop('checked', !state); // reset the status of the checkbox
 			messages.showError('An error occurred while updating permissions of this user group. Error text was: ' + response.responseJSON.error);
 			target.prepend('<span class="glyphicon glyphicon-remove text-danger"></span>').delay(5000).queue(function() {
 				$(this).children('span.glyphicon').remove();
@@ -48,7 +49,7 @@ $(function() {
 			});
 		}
 
-		data[event.target.name] = $(event.target).prop('checked');
+		data[event.target.name] = state;
 		Control.Ajax.put(url, handleGroupUpdateSuccess, handleGroupUpdateError, data);
 	}
 

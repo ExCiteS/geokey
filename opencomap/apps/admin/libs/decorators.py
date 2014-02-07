@@ -10,7 +10,7 @@ def check_admin(func, *args, **kwargs):
 	def wrapped(*args, **kwargs):
 		project = Project.objects.get(pk=kwargs.get('project_id'))
 		if project.admins.isMember(args[0].user):
-			return func(project=project, *args, **kwargs)
+			return func(*args, **kwargs)
 		else:
 			raise PermissionDenied('You are not member of the administrators group of this project and therefore not permitted to edit the project settings.')
 

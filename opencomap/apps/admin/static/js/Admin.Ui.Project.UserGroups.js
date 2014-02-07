@@ -40,7 +40,7 @@ $(function () {
 	 * @param  {Object} response JSON object of the response
 	 */
 	function handleEveryoneError(response) {
-		// TODO: Reset checkbox after the update failes.
+		everyoneCheck.prop('checked', !everyoneCheck.prop('checked')); // reset the status of the checkbox
 		messages.showError('An error occurred while updating the project. ' + response.responseJSON.error);
 	}
 
