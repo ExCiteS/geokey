@@ -267,7 +267,7 @@ class LookupField(Field):
 		:lookups: Lookup values to be added to the field.
 		"""
 		for value in lookups:
-			value.status = STATUS_TYPES['INACTIVE']
+			value.status = STATUS_TYPES['DELETED']
 			value.save()
 
 	def validateInput(self, value):
@@ -275,7 +275,7 @@ class LookupField(Field):
 		Checks if the provided value is in the list of `LookupValue`'s.	Returns `True` or `False`.
 		"""
 		valid = False
-		for lookupvalue in self.lookupvalue_set.exclude(status=STATUS_TYPES['INACTIVE']).exclude(status=STATUS_TYPES['DELETED']):
+		for lookupvalue in self.lookupvalue_set.exclude.exclude(status=STATUS_TYPES['DELETED']):
 			if lookupvalue.id == value: valid = True
 
 		return valid

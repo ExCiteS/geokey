@@ -23,7 +23,23 @@
 
 		this.addButton.click(this.handleAddValue.bind(this));
 		this.lookuplist.find('li a').click(this.handleRemoveValue.bind(this));
+
+		this.messages = new Ui.MessageDisplay();
 	}
+
+	/**
+	 * Displays the success tick in the panel heading.
+	 */
+	LookupPanel.prototype.displaySuccess = function displaySuccess() {
+		this.messages.showInlineSuccess(this.panel.find('.panel-heading'));
+	};
+
+	/**
+	 * Shows the error message in the panel heading.
+	 */
+	LookupPanel.prototype.displayError = function displayError(message) {
+		this.messages.showInlineError(this.panel.find('.panel-heading'), message);
+	};
 
 	/**
 	 * Handles the removal of a lookup value from the lookup field. Is called
@@ -40,6 +56,7 @@
 		 */
 		function handleRemoveValueSucces() {
 			itemToRemove.remove();
+			this.displaySuccess();
 		}
 
 		/**
@@ -47,10 +64,10 @@
 		 * @param  {Object} response JSON object of the response
 		 */
 		function handleRemoveValueError(response) {
-			// TODO: Handle error
+			this.displayError('An error occurred while removing the lookup value. Error text was: ' + response.responseJSON.error);
 		}
 
-		Control.Ajax.del(this.url + '/' + lookupId, handleRemoveValueSucces, handleRemoveValueError, {name: this.formField.val()} );
+		Control.Ajax.del(this.url + '/' + lookupId, handleRemoveValueSucces.bind(this), handleRemoveValueError.bind(this), {name: this.formField.val()} );
 
 		event.preventDefault();
 	};
@@ -76,18 +93,19 @@
 			}
 			this.lookuplist.find('li a').click(this.handleRemoveValue.bind(this));
 			this.addButton.button('reset');
-		};
+			this.displaySuccess();
+		}
 
 		/**
 		 * Handles the response after the addition of a lookup value failed.
 		 * @param  {Object} response JSON object of the response
 		 */
-		function handleAddValueError(resonse) {
-			// TODO: Handle error
+		function handleAddValueError(response) {
+			this.displayError('An error occurred while adding the lookup value. Error text was: ' + response.responseJSON.error);
 		}
 
 		this.addButton.button('loading');
-		Control.Ajax.put(this.url, this.handleAddValueSuccess.bind(this), this.handleAddValueError.bind(this), {name: this.formField.val()});
+		Control.Ajax.put(this.url, handleAddValueSuccess.bind(this), handleAddValueError.bind(this), {name: this.formField.val()});
 	};
 
 	global.LookupPanel = LookupPanel;
