@@ -19,13 +19,13 @@
 		var groupId = panel.attr('data-group-id');
 
 		// Get the elements
+		this.header = panel.find('.panel-heading');
 		this.typeAwayResults = panel.find('.panel-footer .type-away');
 		this.formField = panel.find('.panel-footer input[type="text"]');
 		this.userList = panel.find('.user-list');
-		this.messages = new Ui.MessageDisplay('#users');
 
 		// Build the request url
-		this.url = 'projects/' + projectId + '/usergroups/' + groupId + '/users';
+		this.url = 'projects/4545' + projectId + '/usergroups/' + groupId + '/users';
 		if (viewId) { this.url = 'projects/' + projectId + '/views/' + viewId + '/usergroups/' + groupId + '/users'; }
 
 		this.numberOfRequests = 0;
@@ -36,6 +36,24 @@
 		// Register the keyup event on the text field. 
 		this.formField.keyup(this.handleFormType.bind(this));
 	}
+
+	Usergroup.prototype.displaySuccess = function displaySuccess() {
+		this.header.removeClass('loading');
+		this.header.addClass('success');
+		setTimeout(function () {
+			this.header.removeClass('success');
+		}.bind(this), 3000);
+	};
+
+	Usergroup.prototype.displayError = function displayError(msg) {
+		console.log(msg);
+		this.header.removeClass('loading');
+		var html = $('<p class="text-danger">' + msg + '</p>').hide();
+		this.header.append(html);
+		html.show('slow').delay(5000).hide('slow', function() {
+			html.remove();
+		});
+	};
 
 	/**
 	 * Returns the user name display to be used in type away drop down and in the user list
@@ -67,9 +85,9 @@
 		function handleRemoveUserSuccess() {
 			itemToRemove.remove();
 			if (this.userList.children().length === 0) {
-				this.userList.append('<li class="list-group-item">No users have been assigned to this group.</li>')
-			}
-			this.messages.showSuccess('The user has been removed successfully.');
+				this.userList.append('<li class="list-group-item">No users have been assigned to this group.</li>');
+			}	
+			this.displaySuccess();
 		}
 
 		/**
@@ -77,7 +95,7 @@
 		 * @param  {Object} response JSON object of the response
 		 */
 		function handleRemoveUserError(response) {
-			this.messages.showError('An error occured while removing the user. Error text was: ' + response.responseJSON.error);
+			this.displayError('An error occured while removing the user. Error text was: ' + response.responseJSON.error);
 		}
 
 		Control.Ajax.del(this.url + '/' + userId, handleRemoveUserSuccess.bind(this), handleRemoveUserError.bind(this), {'userId': userId});
@@ -98,7 +116,9 @@
 			this.userList.append('<li class="list-group-item">' + getUserDisplay(user) + ' <a class="text-danger remove" data-user-id="' + user.id + '" href="#"><small>remove</small></a></li>');
 		}
 		this.userList.find('li a.remove').click(this.handleRemoveUser.bind(this));
-		this.messages.showSuccess('The user has been added successfully.');
+
+		this.formField.val('');
+		this.displaySuccess();
 	};
 
 	/**
@@ -106,7 +126,7 @@
 	 * @param  {Object} response JSON object of the response
 	 */
 	Usergroup.prototype.handleAddUserError = function handleAddUserError(response) {
-		this.messages.showError('An error occured while adding the user. Error text was: ' + response.responseJSON.error);
+		this.displayError('An error occured while adding the user. Error text was: ' + response.responseJSON.error);
 	};
 
 	/**
@@ -116,9 +136,10 @@
 	Usergroup.prototype.handleAddUser = function handleAddUser(event) {
 		var userId = $(event.target).attr('data-user-id');
 
+		this.header.addClass('loading');
 		this.typeAwayResults.hide();
-		this.formField.val('');
 		Control.Ajax.put(this.url, this.handleAddUserSucess.bind(this), this.handleAddUserError.bind(this), {'userId': userId});
+		event.preventDefault();
 	};
 
 

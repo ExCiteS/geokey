@@ -15,7 +15,8 @@ $(function () {
 
 	var administratorsPanel = new Ui.Usergroup('#users #administrators', projectId),
 		contributorsPanel = new Ui.Usergroup('#users #contributors', projectId),
-		everyoneCheck = $('#users #contributors input[type="checkbox"]');
+		everyoneCheck = $('#users #contributors input[type="checkbox"]'),
+		everyoneCheckParent = everyoneCheck.parents('.panel-body');
 
 	/**
 	 * Toggles the display of the contributors user group member list, when the user clicks the 
@@ -31,7 +32,9 @@ $(function () {
 	 * @param  {Object} response JSON object of the response
 	 */
 	function handleEveryoneSuccess(response) {
-		messages.showSuccess('The project has been updated successfully.');
+		everyoneCheckParent.removeClass('loading');
+		everyoneCheckParent.addClass('success');
+		setTimeout(function() { everyoneCheckParent.removeClass('success'); }, 2000);
 		toggleEveryoneView(response.project.everyonecontributes);
 	}
 
@@ -49,6 +52,7 @@ $(function () {
 	 * @param  {Event} event The change event of the checkbox.
 	 */
 	function handleEveryoneChange(event) {
+		everyoneCheckParent.addClass('loading');
 		Control.Ajax.put(url, handleEveryoneSuccess, handleEveryoneError, {'everyonecontributes': event.target.checked});
 	}
 	

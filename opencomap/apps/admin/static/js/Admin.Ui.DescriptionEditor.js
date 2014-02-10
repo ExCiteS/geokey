@@ -33,7 +33,6 @@ $(function() {
 	if (projectId && featuretypeId) { url += '/featuretypes/' + featuretypeId; }
 	if (projectId && featuretypeId && fieldId) { url += '/fields/' + fieldId; }
 
-
 	/**
 	 * Toggles between the display of description text and description form.
 	 */

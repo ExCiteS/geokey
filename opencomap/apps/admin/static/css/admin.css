@@ -52,6 +52,19 @@ body.login div.page-header {
 	background-position: right 10px top 50%;
 }
 
+.panel-heading.loading {
+	background-position: right 10px top 10px;
+}
+
+.success {
+	background: url(/static/img/success.png) no-repeat;
+	background-position: right 10px top 50%;
+}
+
+.panel-heading.success {
+	background-position: right 10px top 10px;
+}
+
 h1:first-child,
 h2:first-child,
 h3:first-child,
