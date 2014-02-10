@@ -88,8 +88,8 @@
 			
 
 			<div class="row" id="general-settings">
-				<div class="toggle-mandatory col-md-4 col-md-offset-2 {% if field.required %} hidden{% endif %}">
-					<div class="panel panel-default">
+				<div class="col-md-4 col-md-offset-2">
+					<div class="panel panel-default toggle-mandatory {% if field.required %} hidden{% endif %}">
 						<div class="panel-heading">
 							<h2 class="panel-title">Make this field mandatory</h2>
 						</div>
@@ -98,10 +98,8 @@
 							<button type="button" name="makePrivate" value="true" class="btn btn-default">Make mandatory</button>
 						</div>
 					</div>
-				</div>
 
-				<div class="toggle-mandatory col-md-4 col-md-offset-2 {% if not field.required %} hidden{% endif %}">
-					<div class="panel panel-default">
+					<div class="panel panel-default toggle-mandatory {% if not field.required %} hidden{% endif %}">
 						<div class="panel-heading">
 							<h2 class="panel-title">Make this field optional</h2>
 						</div>
@@ -112,8 +110,8 @@
 					</div>
 				</div>
 
-				<div class="toggle-active col-md-4 {% if field.status == status_types.INACTIVE %} hidden{% endif %}">
-					<div class="panel panel-warning">
+				<div class="col-md-4">
+					<div class="panel panel-warning toggle-active {% if field.status == status_types.INACTIVE %} hidden{% endif %}">
 						<div class="panel-heading">
 							<h2 class="panel-title">Make this field inactive</h2>
 						</div>
@@ -122,10 +120,8 @@
 							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-inactive-confirm">Make inactive</button>
 						</div>
 					</div>
-				</div>
 
-				<div class="toggle-active col-md-4 {% if field.status == status_types.ACTIVE %} hidden{% endif %}">
-					<div class="panel panel-warning">
+					<div class="panel panel-warning toggle-active {% if field.status == status_types.ACTIVE %} hidden{% endif %}">
 						<div class="panel-heading">
 							<h2 class="panel-title">Make this field active</h2>
 						</div>

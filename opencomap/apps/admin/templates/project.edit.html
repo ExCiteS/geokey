@@ -91,9 +91,8 @@
 					<h3>General settings</h3>
 				</div>
 
-				
-				<div class="toggle-private col-md-5 col-lg-3{% if not project.isprivate %} hidden{% endif %}">
-					<div class="panel panel-warning">
+				<div class="col-md-5 col-lg-3">
+					<div class="panel panel-warning toggle-private {% if not project.isprivate %} hidden{% endif %}">
 						<div class="panel-heading">
 							<h2 class="panel-title">Make this project public</h2>
 						</div>
@@ -102,10 +101,8 @@
 							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-public-confirm">Make public</button>
 						</div>
 					</div>
-				</div>
 
-				<div class="toggle-private col-md-5 col-lg-3{% if project.isprivate %} hidden{% endif %}">
-					<div class="panel panel-warning">
+					<div class="panel panel-warning toggle-private {% if project.isprivate %} hidden{% endif %}">
 						<div class="panel-heading">
 							<h2 class="panel-title">Make this project private</h2>
 						</div>
@@ -116,8 +113,8 @@
 					</div>
 				</div>
 
-				<div class="toggle-active col-md-5 col-lg-3 col-lg-offset-0{% if project.status == status_types.INACTIVE %} hidden{% endif %}">
-					<div class="panel panel-warning">
+				<div class="col-md-5 col-lg-3 col-lg-offset-0">
+					<div class="panel panel-warning toggle-active {% if project.status == status_types.INACTIVE %} hidden{% endif %}">
 						<div class="panel-heading">
 							<h2 class="panel-title">Make this project inactive</h2>
 						</div>
@@ -126,10 +123,8 @@
 							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-inactive-confirm">Make inactive</button>
 						</div>
 					</div>
-				</div>
-
-				<div class="toggle-active col-md-5 col-lg-3 col-lg-offset-0{% if project.status == status_types.ACTIVE %} hidden{% endif %}">
-					<div class="panel panel-warning">
+				
+					<div class="panel panel-warning toggle-active {% if project.status == status_types.ACTIVE %} hidden{% endif %}">
 						<div class="panel-heading">
 							<h2 class="panel-title">Make this project active</h2>
 						</div>
@@ -139,8 +134,6 @@
 						</div>
 					</div>
 				</div>
-
-				
 
 				<div class="col-md-5 col-md-offset-2 col-lg-3 col-lg-offset-0">
 					<div class="panel panel-danger">

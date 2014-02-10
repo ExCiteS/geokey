@@ -8,9 +8,8 @@
 
 $(function() {
 	'use strict';
-
 	// Initializes the message display
-	var messages = new Ui.MessageDisplay('.page-header');
+	var messages = new Ui.MessageDisplay();
 
 	// Reads the relevant DOM elements
 	var descriptionText = $('div.page-header p.lead'),
@@ -59,6 +58,7 @@ $(function() {
 		toggle();
 		submitbtn.button('reset');
 		descriptionFormField.removeClass('loading');
+		messages.showInlineSuccess(descriptionText.children('#descriptionText'));
 	}
 
 	/**
@@ -67,7 +67,7 @@ $(function() {
 	 */
 	function handleRequestError(response) {
 		submitbtn.button('reset');
-		messages.showError('An error occurred while updating the description. Error text was: ' + response.responseJSON.error, true);
+		messages.showInlineError(descriptionForm, 'An error occurred while updating the description. Error text was: ' + response.responseJSON.error);
 		descriptionFormField.removeClass('loading');
 	}
 

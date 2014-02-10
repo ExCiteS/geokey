@@ -10,7 +10,7 @@
 $(function () {
 	'use strict';
 
-	var messages = new Ui.MessageDisplay('#general-settings');
+	var messages = new Ui.MessageDisplay();
 
 	// Read the IDs from the body's attributes
 	var projectId = $('body').attr('data-project-id');
@@ -19,18 +19,18 @@ $(function () {
 	var viewId = $('body').attr('data-view-id');
 
 	/*
-	 The url to send the requests to update the object
-	 */
+	The url to send the requests to update the object
+	*/
 	var url = 'projects/' + projectId;
 
 	/*
-	 The key to access the result object in the response
-	 */
+	The key to access the result object in the response
+	*/
 	var resultAccessor = 'project';
 
 	/*
-	 Human readable name, to be used in message displays
-	 */
+	Human readable name, to be used in message displays
+	*/
 	var name = 'project';
 	
 	// Setting parameters
@@ -64,6 +64,14 @@ $(function () {
 	}
 
 	/**
+	 * Returns the parent element of the panel for message display.
+	 * @param  {String} id HTML element id or class name
+	 */
+	function getMessageTarget(id) {
+		return $('.toggle-' + id).parent();
+	}
+
+	/**
 	 * Deletes the project.
 	 */
 	function del() {
@@ -87,7 +95,7 @@ $(function () {
 		 */
 		function handleError(response) {
 			updateUi();
-			messages.showError('An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
+			messages.showPanelError(getMessageTarget(event), 'An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
 		}
 
 		Control.Ajax.del(url, handleSuccess, handleError);
@@ -104,7 +112,7 @@ $(function () {
 		 */
 		function handleSuccess(response) {
 			updateUi('active');
-			messages.showSuccess('The ' + name + ' is now ' + (response[resultAccessor].status === 0 ? 'active' : 'inactive') + '.');
+			messages.showPanelSuccess(getMessageTarget('active'), 'The ' + name + ' is now ' + (response[resultAccessor].status === 0 ? 'active' : 'inactive') + '.');
 		}
 
 		/**
@@ -113,7 +121,7 @@ $(function () {
 		 */
 		function handleError(response) {
 			updateUi();
-			messages.showError('An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
+			messages.showPanelError(getMessageTarget('active'), 'An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
 		}
 		Control.Ajax.put(url, handleSuccess, handleError, {'status': parseInt(event.target.value)});
 	}
@@ -131,7 +139,7 @@ $(function () {
 		 */
 		function handleSuccess(response) {
 			updateUi('private');
-			messages.showSuccess('The ' + name + ' is now ' + (response[resultAccessor].isprivate ? 'private' : 'public') + '.');
+			messages.showPanelSuccess(getMessageTarget('private'), 'The ' + name + ' is now ' + (response[resultAccessor].isprivate ? 'private' : 'public') + '.');
 		}
 
 		/**
@@ -140,7 +148,7 @@ $(function () {
 		 */
 		function handleError(response) {
 			updateUi();
-			messages.showError('An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
+			messages.showPanelError(getMessageTarget('private'), 'An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
 		}
 
 		Control.Ajax.put(url, handleSuccess, handleError, {'isprivate': isPrivate});
@@ -159,7 +167,7 @@ $(function () {
 		 */
 		function handleSuccess(response) {
 			updateUi('mandatory');
-			messages.showSuccess('The ' + name + ' is now ' + (response[resultAccessor].required ? 'mandatory' : 'optional') + '.');
+			messages.showPanelSuccess(getMessageTarget('mandatory'), 'The ' + name + ' is now ' + (response[resultAccessor].required ? 'mandatory' : 'optional') + '.');
 		}
 
 		/**
@@ -168,7 +176,7 @@ $(function () {
 		 */
 		function handleError(response) {
 			updateUi();
-			messages.showError('An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
+			messages.showPanelError(getMessageTarget('mandatory'), 'An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
 		}
 
 		Control.Ajax.put(url, handleSuccess, handleError, {'required': isRequired});

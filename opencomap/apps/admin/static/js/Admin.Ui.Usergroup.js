@@ -18,6 +18,9 @@
 		var panel = $(panelId);
 		var groupId = panel.attr('data-group-id');
 
+		// Initializes the message display
+		this.messages = new Ui.MessageDisplay();
+
 		// Get the elements
 		this.header = panel.find('.panel-heading');
 		this.typeAwayResults = panel.find('.panel-footer .type-away');
@@ -25,7 +28,7 @@
 		this.userList = panel.find('.user-list');
 
 		// Build the request url
-		this.url = 'projects/4545' + projectId + '/usergroups/' + groupId + '/users';
+		this.url = 'projects/' + projectId + '/usergroups/' + groupId + '/users';
 		if (viewId) { this.url = 'projects/' + projectId + '/views/' + viewId + '/usergroups/' + groupId + '/users'; }
 
 		this.numberOfRequests = 0;
@@ -39,20 +42,12 @@
 
 	Usergroup.prototype.displaySuccess = function displaySuccess() {
 		this.header.removeClass('loading');
-		this.header.addClass('success');
-		setTimeout(function () {
-			this.header.removeClass('success');
-		}.bind(this), 3000);
+		this.messages.showInlineSuccess(this.header);
 	};
 
 	Usergroup.prototype.displayError = function displayError(msg) {
-		console.log(msg);
 		this.header.removeClass('loading');
-		var html = $('<p class="text-danger">' + msg + '</p>').hide();
-		this.header.append(html);
-		html.show('slow').delay(5000).hide('slow', function() {
-			html.remove();
-		});
+		this.messages.showInlineError(this.header, msg);
 	};
 
 	/**

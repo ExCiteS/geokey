@@ -65,6 +65,11 @@ body.login div.page-header {
 	background-position: right 10px top 10px;
 }
 
+#descriptionText.success,
+.checkbox.success {
+	padding-right: 35px;
+}
+
 h1:first-child,
 h2:first-child,
 h3:first-child,
@@ -119,6 +124,10 @@ div.page-header .breadcrumb > li + li:before {
 			div.page-header .form-inline > .form-group {
 				width: 583px;
 			}
+		}
+
+		div.page-header .form-inline p.error {
+			margin-top: 10px;
 		}
 
 	div.page-header > .col-sm-12 {

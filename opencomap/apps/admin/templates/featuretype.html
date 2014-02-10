@@ -53,8 +53,8 @@
 
 			{% if admin %}
 			<div class="row" id="general-settings">
-				<div class="toggle-active col-md-5 col-md-offset-1{% if featuretype.status == status_types.INACTIVE %} hidden{% endif %}">
-					<div class="panel panel-warning">
+				<div class="col-md-5 col-md-offset-1">
+					<div class="panel panel-warning toggle-active {% if featuretype.status == status_types.INACTIVE %} hidden{% endif %}">
 						<div class="panel-heading">
 							<h2 class="panel-title">Make this feature type inactive</h2>
 						</div>
@@ -63,10 +63,8 @@
 							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-inactive-confirm">Make inactive</button>
 						</div>
 					</div>
-				</div>
-
-				<div class="toggle-active col-md-5 col-md-offset-1{% if featuretype.status == status_types.ACTIVE %} hidden{% endif %}">
-					<div class="panel panel-warning">
+				
+					<div class="panel panel-warning toggle-active {% if featuretype.status == status_types.ACTIVE %} hidden{% endif %}">
 						<div class="panel-heading">
 							<h2 class="panel-title">Make this feature type active</h2>
 						</div>

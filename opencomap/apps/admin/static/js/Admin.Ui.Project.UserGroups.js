@@ -10,8 +10,8 @@ $(function () {
 	'use strict';
 
 	var projectId = $('body').attr('data-project-id');
-	var url = 'projects/' + projectId;
-	var messages = new Ui.MessageDisplay('#users');
+	var url = 'projects/5454' + projectId;
+	var messages = new Ui.MessageDisplay();
 
 	var administratorsPanel = new Ui.Usergroup('#users #administrators', projectId),
 		contributorsPanel = new Ui.Usergroup('#users #contributors', projectId),
@@ -44,7 +44,8 @@ $(function () {
 	 */
 	function handleEveryoneError(response) {
 		everyoneCheck.prop('checked', !everyoneCheck.prop('checked')); // reset the status of the checkbox
-		messages.showError('An error occurred while updating the project. ' + response.responseJSON.error);
+		everyoneCheckParent.removeClass('loading');
+		messages.showInlineError(everyoneCheckParent, 'An error occurred while updating the project. ' + response.responseJSON.error);
 	}
 
 	/**

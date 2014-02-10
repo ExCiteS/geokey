@@ -6,7 +6,7 @@
  * @version 0.1
  * ***********************************************/
 
-(function (global) {\
+(function (global) {
 	'use strict';
 
 	/**
@@ -33,7 +33,6 @@
 	LookupPanel.prototype.handleRemoveValue = function handleRemoveValue(event) {
 		var lookupId = $(event.target).attr('data-lookup-id');
 		var itemToRemove = $(event.target).parent('.list-group-item');
-
 
 		/**
 		 * Handles succesfull removal of the lookup value. Removes the item from

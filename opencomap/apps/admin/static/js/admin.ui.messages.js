@@ -10,10 +10,12 @@
 
 	/**
 	 * Constructor
-	 * @param {String} container The HTML element id if the element in which the messages shall be displayed.
+	 * @param {String} container Optional. The HTML element id if the element in which the messages shall be displayed.
 	 */
 	function MessageDisplay (container) {
-		this.container = $(container);
+		if (container) {
+			this.container = $(container);	
+		}
 	}
 
 	/**
@@ -48,6 +50,38 @@
 	 */
 	MessageDisplay.prototype.showError = function showError(message, append) {
 		this.showMessage('danger', message, append);
+	};
+
+	MessageDisplay.prototype.showPanelMessage = function showPanelMessage(type, container, message) {	
+		var html = $('<div class="alert alert-' + type + '">' + message + '</div>').hide();
+		container.prepend(html);
+		
+		html.show('slow').delay(5000).hide('slow', function() {
+			html.remove();
+		});
+	};
+
+	MessageDisplay.prototype.showPanelSuccess = function showPanelSuccess(container, message) {	
+		this.showPanelMessage('success', container, message);
+	};
+
+	MessageDisplay.prototype.showPanelError = function showPanelError(container, message) {	
+		this.showPanelMessage('danger', container, message);
+	};
+
+	MessageDisplay.prototype.showInlineSuccess = function showInlineSuccess(container) {
+		container.addClass('success');
+		setTimeout(function () {
+			container.removeClass('success');
+		}.bind(this), 3000);
+	};
+
+	MessageDisplay.prototype.showInlineError = function showInlineError(container, message) {
+		var html = $('<p class="error text-danger">' + message + '</p>').hide();
+		container.append(html);
+		html.show('slow').delay(5000).hide('slow', function() {
+			html.remove();
+		});
 	};
 
 	global.MessageDisplay = MessageDisplay;

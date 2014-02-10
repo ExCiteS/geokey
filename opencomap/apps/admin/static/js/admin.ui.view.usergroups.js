@@ -15,7 +15,7 @@ $(function() {
 	var url = 'projects/' + projectId + '/views/' + viewId + '/usergroups/' + groupId;
 	
 	var usergroupPanel =  new Ui.Usergroup('#users #members', projectId, viewId),
-		messages = new Ui.MessageDisplay('#users');
+		messages = new Ui.MessageDisplay();
 
 	/**
 	 * Handles the change of the checkbox status in the permission panel of the user group.
@@ -32,21 +32,14 @@ $(function() {
 		 */
 		function handleGroupUpdateError(response) {
 			$(event.target).prop('checked', !state); // reset the status of the checkbox
-			messages.showError('An error occurred while updating permissions of this user group. Error text was: ' + response.responseJSON.error);
-			target.prepend('<span class="glyphicon glyphicon-remove text-danger"></span>').delay(5000).queue(function() {
-				$(this).children('span.glyphicon').remove();
-				$(this).dequeue();
-			});
+			messages.showInlineError(target, 'An error occurred while updating permissions of this user group. Error text was: ' + response.responseJSON.error);
 		}
 
 		/**
 		 * Handles the response after a successful update of the permissions. 
 		 */
 		function handleGroupUpdateSuccess() {
-			target.prepend('<span class="glyphicon glyphicon-ok text-success"></span>').delay(2000).queue(function() {
-				$(this).children('span.glyphicon').remove();
-				$(this).dequeue();
-			});
+			messages.showInlineSuccess(target);
 		}
 
 		data[event.target.name] = state;
