@@ -24,9 +24,12 @@ class FeatureType(models.Model):
 
 	@check_status
 	def update(self, name=None, description=None, status=None):
-		if (name): self.name = name
-		if (description): self.description = description
-		if (status != None): self.status = status
+		if (name): 
+			self.name = name
+		if (description): 
+			self.description = description
+		if (status != None): 
+			self.status = status
 
 		self.save()
 
@@ -60,6 +63,7 @@ class Field(models.Model):
 	
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=100)
+	key = models.CharField(max_length=30)
 	description = models.TextField()
 	required = models.BooleanField(default=False)
 	featuretype = models.ForeignKey(FeatureType)
@@ -272,7 +276,7 @@ class LookupField(Field):
 
 	def validateInput(self, value):
 		"""
-		Checks if the provided value is in the list of `LookupValue`'s.	Returns `True` or `False`.
+		Checks if the provided value is in the list of `LookupValue`'s. Returns `True` or `False`.
 		"""
 		valid = False
 		for lookupvalue in self.lookupvalue_set.exclude.exclude(status=STATUS_TYPES['DELETED']):

@@ -42,6 +42,8 @@ INSTALLED_APPS = (
     'provider',
     'provider.oauth2',
 
+    'south',
+
     'opencomap.apps.backend',
     'opencomap.apps.admin',
     'opencomap.apps.ajaxapi',

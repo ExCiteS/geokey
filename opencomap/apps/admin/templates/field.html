@@ -14,7 +14,7 @@
 					<li class="active">{{ field.name }}</li>
 				</ol>
 
-				<h1>{{ field.name }} </h1>
+				<h1>{{ field.name }} <small>Field key: {{ field.key }}</small></h1>
 				<p class="lead">
 					<span id="descriptionText">{% if field.description %} {{ field.description }} {% endif %}</span>
 					<button id="edit" type="button" class="btn btn-link"><span class="glyphicon glyphicon-edit"></span> Edit</button>

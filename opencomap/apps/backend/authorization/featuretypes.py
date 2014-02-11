@@ -86,7 +86,7 @@ def create_field(user, project_id, featuretype_id, data, project=None):
 
 	field_model = FIELD_TYPES.get(data.get('type')).get('model')
 	required = data.get('required') != None
-	field = field_model(name=data.get('name'), description=data.get('description'), required=required, featuretype=featuretype)
+	field = field_model(name=data.get('name'), key=data.get('key'), description=data.get('description'), required=required, featuretype=featuretype)
 	field.save()
 
 	return field

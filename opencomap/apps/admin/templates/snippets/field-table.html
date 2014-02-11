@@ -5,6 +5,7 @@
 			<thead>
 				<tr>
 					<th>Name</th>
+					<th>Key</th>
 					<th>Description</th>
 					<th>Type</th>
 					<th>mandatory</th>
@@ -17,6 +18,7 @@
 	{% endif %}
 				<tr>
 					<td>{{field.name}} {% if field.status == status_types.INACTIVE %} <span class="label label-default">INACTIVE</span> {% endif %}</td>
+					<td>{{field.key}}</td>
 					<td>{{field.description}}</td>
 					<td></td>
 					<td align="center">{% if field.required %} <span class="glyphicon glyphicon-ok"></span> {% endif %}</td>

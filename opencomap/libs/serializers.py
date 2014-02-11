@@ -13,12 +13,12 @@ field_registry = {
 	User: ['id', 'username', 'first_name', 'last_name', 'email'],
 	FeatureType: ['id', 'name', 'description', 'status', 'field_set'],
 
-	TextField: ['id', 'name', 'description', 'status', 'required'],
-	NumericField: ['id', 'name', 'description', 'status', 'required', 'minval', 'maxval'],
-	DateTimeField: ['id', 'name', 'description', 'status', 'required'],
-	TrueFalseField: ['id', 'name', 'description', 'status', 'required'],
-	LookupField: ['id', 'name', 'description', 'status', 'required', 'lookupvalue_set'],
-	LookupValue: ['id', 'name', 'status'],
+	TextField: ['id', 'key','name', 'description', 'status', 'required'],
+	NumericField: ['id', 'key', 'name', 'description', 'status', 'required', 'minval', 'maxval'],
+	DateTimeField: ['id', 'key', 'name', 'description', 'status', 'required'],
+	TrueFalseField: ['id', 'key', 'name', 'description', 'status', 'required'],
+	LookupField: ['id', 'key', 'name', 'description', 'status', 'required', 'lookupvalue_set'],
+	LookupValue: ['id', 'key', 'name', 'status'],
 
 	ViewGroup: ['id', 'name', 'description', 'can_admin', 'can_edit', 'can_view', 'can_read', 'users'],
 }
