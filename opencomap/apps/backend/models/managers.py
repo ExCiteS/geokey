@@ -1,5 +1,5 @@
 from django.db import models
-from opencomap.apps.backend.models.choices import STATUS_TYPES
+from opencomap.apps.backend.models.choice import STATUS_TYPES
 
 class QuerySet(models.query.QuerySet):
 	"""

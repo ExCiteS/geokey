@@ -10,7 +10,7 @@ $(function () {
 	'use strict';
 
 	var projectId = $('body').attr('data-project-id');
-	var url = 'projects/5454' + projectId;
+	var url = 'projects/' + projectId;
 	var messages = new Ui.MessageDisplay();
 
 	var administratorsPanel = new Ui.Usergroup('#users #administrators', projectId),
