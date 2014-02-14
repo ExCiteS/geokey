@@ -1,5 +1,4 @@
 from factory import *
-from permission import *
 from usergroup import *
 from viewgroup import *
 from project import *
