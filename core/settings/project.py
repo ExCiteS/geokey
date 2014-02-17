@@ -17,8 +17,8 @@ DATABASES = {
 
 
 INSTALLED_APPS += (
-    'opencomap.apps.backend',
-    'opencomap.apps.admin',
-    'opencomap.apps.ajaxapi',
-    'opencomap.apps.publicapi',
+    'backend',
+    'admin',
+    'ajaxapi',
+    'publicapi',
 )

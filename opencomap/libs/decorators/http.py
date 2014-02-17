@@ -1,12 +1,12 @@
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.contrib.auth.models import User
+
 from opencomap.libs.exceptions import MalformedBody
 from opencomap.libs.views import render_to_error
 
-from django.contrib.auth.models import User
-from opencomap.apps.backend.models import Project
-from opencomap.apps.backend.models import FeatureType, Field, LookupValue
-from opencomap.apps.backend.models import UserGroup
-from opencomap.apps.backend.models import View
+from backend.models import (
+    Project, FeatureType, Field, LookupValue, UserGroup, View
+)
 
 
 def handle_http_errors(func):

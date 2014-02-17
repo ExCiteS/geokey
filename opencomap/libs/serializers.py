@@ -1,14 +1,12 @@
 from django.core import serializers
 from django.contrib.auth.models import User
-from opencomap.apps.backend.models.featuretype import (
-    FeatureType, Field, TextField, NumericField, DateTimeField,
-    TrueFalseField, LookupField, LookupValue
-)
-
-from opencomap.apps.backend.models.viewgroup import ViewGroup
-
 from django.db.models.query import QuerySet
 from django.utils import six
+
+from backend.models import (
+    FeatureType, Field, TextField, NumericField, DateTimeField,
+    TrueFalseField, LookupField, LookupValue, ViewGroup
+)
 
 field_registry = {
     'compact': ['id', 'name', 'users'],
