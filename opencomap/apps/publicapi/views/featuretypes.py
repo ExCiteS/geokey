@@ -7,9 +7,16 @@ from opencomap.libs.oauth import oauthenticate
 
 from opencomap.apps.backend import authorization
 
+
 @oauthenticate
 @require_http_methods(["GET"])
 @handle_http_errors
 def featuretype_list(request, project_id):
-	featuretypes = authorization.featuretypes.get_list(request.user, project_id)
-	return render_to_json("featuretypes", ObjectSerializer().serialize(featuretypes))
+    featuretypes = authorization.featuretypes.get_list(
+        request.user,
+        project_id
+    )
+    return render_to_json(
+        "featuretypes",
+        ObjectSerializer().serialize(featuretypes)
+    )

@@ -14,7 +14,10 @@ from opencomap.libs.serializers import ObjectSerializer
 def query_users(request):
     if request.GET and request.GET['query']:
         q = request.GET['query']
-        users = User.objects.filter(Q(username__contains=q) | Q(last_name__contains=q) | Q(first_name__contains=q))[:10]
+        users = User.objects.filter(
+            Q(username__contains=q) |
+            Q(last_name__contains=q) |
+            Q(first_name__contains=q))[:10]
         return render_to_json("users", ObjectSerializer().serialize(users))
     else:
         return render_to_json(
