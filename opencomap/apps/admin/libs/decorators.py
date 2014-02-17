@@ -1,5 +1,5 @@
 from django.core.exceptions import PermissionDenied
-from opencomap.apps.backend.models.projects import Project
+from opencomap.apps.backend.models import Project
 from opencomap.apps.backend.models.view import View
 from opencomap.apps.backend.models.featuretype import FeatureType, Field
 
