@@ -5,7 +5,7 @@ from django.template import RequestContext
 
 from opencomap.apps.backend import authorization
 from opencomap.apps.backend.models.choice import STATUS_TYPES
-from opencomap.apps.backend.models.FeatureType import FIELD_TYPES
+from opencomap.apps.backend.models import FIELD_TYPES
 from opencomap.apps.admin.libs.decorators import handle_errors, check_admin
 
 
