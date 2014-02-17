@@ -19,14 +19,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '6q%yhmxh88#a)s-4w7#&7tr_d^-xb22kz17whf5s4biir)-m(&'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-TEMPLATE_DEBUG = True
-
-ALLOWED_HOSTS = []
-
-
 # Application definition
 
 INSTALLED_APPS = (
@@ -36,18 +28,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'djorm_core', 'djorm_expressions', 'djorm_hstore', 'djorm_hstore.tests',
     'django.contrib.gis',
-
-    'provider',
-    'provider.oauth2',
-
-    'south',
-
-    'opencomap.apps.backend',
-    'opencomap.apps.admin',
-    'opencomap.apps.ajaxapi',
-    'opencomap.apps.publicapi',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -59,25 +40,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'opencomap.urls'
+ROOT_URLCONF = 'core.urls'
 
-WSGI_APPLICATION = 'opencomap.wsgi.application'
+WSGI_APPLICATION = 'core.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'communitymaps',                      # Or path to database file if using sqlite3.
-        # The following settings are not used with sqlite3:
-        'USER': 'django',
-        'PASSWORD': 'django123',
-        'HOST': '127.0.0.1',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '',                      # Set to empty string for default.
-    }
-}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
@@ -97,6 +63,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
 LOGIN_URL = '/admin/login'
+
 LOGOUT_URL = '/admin/logout'
+
 LOGIN_REDIRECT_URL = '/admin/dashboard'
