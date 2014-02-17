@@ -80,23 +80,23 @@ class FieldAuthorizationTest(CommunityMapsTest):
 
 	def test_create_field_with_admin(self):
 		user = self._authenticate('eric')
-		field = authorization.featuretypes.create_field(user, self.private_project.id, self.active_feature_type.id, {"type": "TEXT", "name": "new field", "description": "description"})
+		field = authorization.featuretypes.create_field(user, self.private_project.id, self.active_feature_type.id, {"type": "TEXT", "key": "testkey", "name": "new field", "description": "description"})
 		self.assertEqual(field.name, "new field")
 
 	def test_create_field_with_contributor(self):
 		user = self._authenticate('diego')
 		with self.assertRaises(PermissionDenied):
-			authorization.featuretypes.create_field(user, self.private_project.id, self.active_feature_type.id, {"type": "TEXT", "name": "new field", "description": "description"})
+			authorization.featuretypes.create_field(user, self.private_project.id, self.active_feature_type.id, {"type": "TEXT", "name": "new field", "key": "testkey", "description": "description"})
 
 	def test_create_field_with_view_member(self):
 		user = self._authenticate('luis')
 		with self.assertRaises(PermissionDenied):
-			authorization.featuretypes.create_field(user, self.private_project.id, self.active_feature_type.id, {"type": "TEXT", "name": "new field", "description": "description"})
+			authorization.featuretypes.create_field(user, self.private_project.id, self.active_feature_type.id, {"type": "TEXT", "name": "new field", "key": "testkey", "description": "description"})
 
 	def test_create_field_with_non_member(self):
 		user = self._authenticate('mehmet')
 		with self.assertRaises(PermissionDenied):
-			authorization.featuretypes.create_field(user, self.private_project.id, self.active_feature_type.id, {"type": "TEXT", "name": "new field", "description": "description"})
+			authorization.featuretypes.create_field(user, self.private_project.id, self.active_feature_type.id, {"type": "TEXT", "name": "new field", "key": "testkey", "description": "description"})
 
 	###########################################################################
 	# UPDATE FIELD
