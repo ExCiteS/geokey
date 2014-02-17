@@ -1,2 +1,2 @@
 class MalformedBody(Exception):
-	pass
+    pass
