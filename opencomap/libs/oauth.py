@@ -58,7 +58,7 @@ def is_authenticated(request):
         # request in case we need it later
         request.META['oauth_consumer_key'] = key
         return True
-    except KeyError, e:
+    except KeyError:
         logging.exception("Error in OAuth20Authentication.")
         request.user = AnonymousUser()
         return False

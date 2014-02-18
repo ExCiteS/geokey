@@ -4,3 +4,4 @@ psycopg2==2.5.1
 iso8601==0.1.8
 django-oauth2-provider==0.2.6
 South==0.8.4
+django-model-utils==2.0.1

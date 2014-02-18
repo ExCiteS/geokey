@@ -6,7 +6,7 @@ from backend import authorization
 
 
 class ProjectAuthorizationTest(CommunityMapsTest):
-    class Meta: 
+    class Meta:
         app_label = 'backend'
 
     def test_access_projects_with_non_member(self):

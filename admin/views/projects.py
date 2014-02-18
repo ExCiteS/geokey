@@ -18,7 +18,8 @@ def createProject(request):
         project = Factory.createProject(
             request.POST.get('name'),
             request.POST.get('description'),
-            request.user, isprivate=private
+            request.user,
+            isprivate=private
         )
         return redirect('project_view', project.id)
 

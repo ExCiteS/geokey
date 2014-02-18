@@ -17,8 +17,12 @@ DATABASES = {
 
 
 INSTALLED_APPS += (
-    'backend',
-    'admin',
-    'ajaxapi',
-    'publicapi',
+    'projects',
+    'featuretypes',
+    'contributions',
+    'views',
+    # 'backend',
+    # 'admin',
+    # 'ajaxapi',
+    # 'publicapi',
 )
