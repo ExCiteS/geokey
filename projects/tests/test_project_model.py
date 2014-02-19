@@ -48,6 +48,23 @@ class ProjectTest(TestCase):
         self.assertIsInstance(project.contributors, UserGroup)
         self.assertIn(creator, project.admins.users.all())
 
+    @raises(Project.DoesNotExist)
+    def test_delete_project(self):
+        project = ProjectF.create()
+        project.delete()
+        Project.objects.get(self.admin, pk=project.id)
+
+    def test_str(self):
+        project = ProjectF.create(**{
+            'name': 'Name',
+            'status': 'inactive',
+            'isprivate': False
+        })
+        self.assertEqual(
+            str(project),
+            'Name status: inactive private: False'
+        )
+
     def test_get_projects_with_admin(self):
         projects = Project.objects.for_user(self.admin)
         self.assertEqual(projects.count(), 3)
@@ -61,7 +78,6 @@ class ProjectTest(TestCase):
 
     def test_get_projects_with_non_member(self):
         projects = Project.objects.for_user(self.non_member)
-        print projects
         self.assertEqual(projects.count(), 1)
         self.assertNotIn(self.private_project, projects)
         self.assertNotIn(self.inactive_project, projects)
@@ -116,4 +132,67 @@ class ProjectTest(TestCase):
 
     def test_get_public_project_with_non_member(self):
         project = Project.objects.get(self.non_member, self.public_project.id)
+        self.assertEqual(project, self.public_project)
+
+    @raises(Project.DoesNotExist)
+    def test_get_deleted_project_as_admin_with_admin(self):
+        Project.objects.as_admin(self.admin, self.deleted_project.id)
+
+    def test_get_private_project_as_admin_with_admin(self):
+        project = Project.objects.as_admin(self.admin, self.private_project.id)
+        self.assertEqual(project, self.private_project)
+
+    def test_get_inactive_project_as_admin_with_admin(self):
+        project = Project.objects.as_admin(
+            self.admin,
+            self.inactive_project.id
+        )
+        self.assertEqual(project, self.inactive_project)
+
+    def test_get_public_project_as_admin_with_admin(self):
+        project = Project.objects.as_admin(self.admin, self.public_project.id)
+        self.assertEqual(project, self.public_project)
+
+    @raises(Project.DoesNotExist)
+    def test_get_deleted_project_as_admin_with_contributor(self):
+        Project.objects.as_admin(self.contributor, self.deleted_project.id)
+
+    @raises(PermissionDenied)
+    def test_get_private_project_as_admin_with_contributor(self):
+        project = Project.objects.as_admin(
+            self.contributor,
+            self.private_project.id
+        )
+        self.assertEqual(project, self.private_project)
+
+    @raises(PermissionDenied)
+    def test_get_inactive_project_as_admin_with_contributor(self):
+        Project.objects.as_admin(self.contributor, self.inactive_project.id)
+
+    @raises(PermissionDenied)
+    def test_get_public_project_as_admin_with_contributor(self):
+        project = Project.objects.as_admin(
+            self.contributor,
+            self.public_project.id
+        )
+        self.assertEqual(project, self.public_project)
+
+    @raises(Project.DoesNotExist)
+    def test_get_deleted_project_as_admin_with_non_member(self):
+        Project.objects.as_admin(self.non_member, self.deleted_project.id)
+
+    @raises(PermissionDenied)
+    def test_get_private_project_as_admin_with_non_member(self):
+        Project.objects.as_admin(self.non_member, self.private_project.id)
+
+    @raises(PermissionDenied)
+    def test_get_inactive_project_as_admin_with_non_member(self):
+        Project.objects.as_admin(self.non_member, self.inactive_project.id)
+
+    @raises(PermissionDenied)
+    def test_get_public_project_as_admin_with_non_member(self):
+        project = Project.objects.as_admin(
+            self.non_member,
+            self.public_project.id
+        )
         self.assertEqual(project, self.public_project)
