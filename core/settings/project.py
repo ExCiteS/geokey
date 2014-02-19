@@ -21,8 +21,4 @@ INSTALLED_APPS += (
     'featuretypes',
     'contributions',
     'views',
-    # 'backend',
-    # 'admin',
-    # 'ajaxapi',
-    # 'publicapi',
 )

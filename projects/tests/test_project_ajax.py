@@ -21,6 +21,10 @@ class ProjectAjaxTest(TestCase):
             'contributors': UserGroupF(add_users=[self.contributor])
         })
 
+    def _get(self, url, user):
+        self.client.login(username=user.username, password='123456')
+        return self.client.get(url)
+
     def _put(self, url, data, user):
         self.client.login(username=user.username, password='123456')
         return self.client.put(
@@ -37,6 +41,13 @@ class ProjectAjaxTest(TestCase):
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             content_type='application/json'
         )
+
+    def test_admin_project(self):
+        response = self._get(
+            '/admin/projects/' + str(self.project.id),
+            self.creator
+        )
+        print response
 
     def test_update_with_wrong_status(self):
         response = self._put(

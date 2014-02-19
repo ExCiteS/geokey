@@ -1,3 +1,5 @@
+from django.views.generic import TemplateView
+
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -6,6 +8,11 @@ from core.decorators import handle_exceptions
 
 from .models import Project
 from .serializers import ProjectUpdateSerializer
+
+
+class ProjectAdminDetail(TemplateView):
+    model = Project
+    template_name = 'projects/project_view.html'
 
 
 class ProjectApiDetail(APIView):
