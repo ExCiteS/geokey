@@ -7,7 +7,7 @@
 			{% if user_exists %}
 			<div class="page-header">
 				<div class="container">
-					<h1>Registration error</h1>	
+					<h1>Registration error</h1>
 				</div>
 			</div>
 			<div class="container">
@@ -24,7 +24,7 @@
 					<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
 						<div class="well">
 							<h2 class="text-center">Sign up</h2>
-							<form role="form" action="{% url 'signup'%}" method="POST" novalidate>
+							<form role="form" action="{% url 'admin:signup'%}" method="POST" novalidate>
 								{% csrf_token %}
 								<h4>Required fields</h4>
 								<div class="form-group">
@@ -42,27 +42,25 @@
 
 								<h4>Optional fields</h4>
 								<div class="form-group">
-									<label for="firstname" class="sr-only">First name</label>
-									<input type="text" class="form-control input-lg" id="firstname" name="firstname" placeholder="Your first name">
+									<label for="first_name" class="sr-only">First name</label>
+									<input type="text" class="form-control input-lg" id="first_name" name="first_name" placeholder="Your first name">
 								</div>
 								 <div class="form-group">
-									<label for="lastname" class="sr-only">Last name</label>
-									<input type="text" class="form-control input-lg" id="lastname" name="lastname" placeholder="Your family name">
+									<label for="last_name" class="sr-only">Last name</label>
+									<input type="text" class="form-control input-lg" id="last_name" name="last_name" placeholder="Your family name">
 								</div>
-								
 								<div class="form-group text-center">
 									<button type="submit" class="btn btn-primary">Sign up</button>
 								</div>
 							</form>
-							
 						</div>
-						<p class="text-center">Already signed up? Please <a href="{% url 'login'%}">sign in here</a.</p>
+						<p class="text-center">Already signed up? Please <a href="{% url 'admin:login'%}">sign in here</a.</p>
 					</div>
 				</div>
 			</div>
 {% endblock %}
 
-{% block libraries %} 
+{% block libraries %}
 			<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.js"></script>
 			<script>window.jQuery || document.write('<script src="/static/lib/jquery/jquery-1.10.1.js"><\/script>')</script>
 			<script src="/static/js/admin.ui.forms.validate.js"></script>

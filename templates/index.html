@@ -31,7 +31,7 @@
                         <div class="panel panel-default">
                             <div class="panel-body">
                                 <h3>Sign in</h3>
-                                <form method="POST">
+                                <form method="POST" action="{% url 'admin:login' %}">
                                     {% csrf_token %}
                                     <div class="form-group">
                                         <input type="text" placeholder="Username" name="username" class="form-control">
@@ -46,7 +46,7 @@
                         <div class="panel panel-default">
                             <div class="panel-body">
                                 <h3>New to Community Maps?</h3>
-                                <a href="#" class="btn btn-primary">Sign up here</a>
+                                <a href="{% url 'admin:signup' %}" class="btn btn-primary">Sign up here</a>
                             </div>
                         </div>
                     </div>

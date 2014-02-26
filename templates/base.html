@@ -31,27 +31,27 @@
 				<div class="navbar-collapse collapse">
 					<ul class="nav navbar-nav navbar-right">
 						<li><a href="/admin/profile"><span class="glyphicon glyphicon-user"></span> {% if user.first_name %}{{ user.get_full_name }}{% else %}{{user}}{% endif %} </a></li>
-						<li><a href="{% url 'logout'%}"><span class="glyphicon glyphicon-off"></span> Sign out</a></li>
+						<li><a href="{% url 'admin:logout'%}"><span class="glyphicon glyphicon-off"></span> Sign out</a></li>
 					</ul>
-				</div>    
+				</div>
 				{% endif %}
 			</div>
 		</div>
 
 
-		
+
 		{% block main %} {% endblock %}
-		
+
 
 		<footer>
 			<div class="container">
-				<p>Created by the <a href="http://www.ucl.ac.uk/excites">Excites Research Group</a> &bull; <a href="https://groups.google.com/d/forum/opencommunitymaps">Join our mailing list</a> &bull; <a href="https://github.com/ExCiteS/opencommunitymaps">Contribute on Github</a></p>	
+				<p>Created by the <a href="http://www.ucl.ac.uk/excites">Excites Research Group</a> &bull; <a href="https://groups.google.com/d/forum/opencommunitymaps">Join our mailing list</a> &bull; <a href="https://github.com/ExCiteS/opencommunitymaps">Contribute on Github</a></p>
 			</div>
 		</footer>
-		
+
 		{% if not user.is_anonymous %}
 			<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.js"></script>
-			<script>window.jQuery || document.write('<script src="/static/lib/jquery/jquery-1.10.1.js"><\/script>')</script>
+			<script>window.jQuery || document.write('<script src="/static/lib/jquery/jquery-1.10.1.js"><\/script>');</script>
 			<script src="/static/lib/bootstrap/bootstrap.min.js"></script>
 		{% endif %}
 		{% block modals %} {% endblock %}
