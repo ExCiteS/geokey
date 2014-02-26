@@ -10,11 +10,11 @@
 		<div class="page-header">
 			<div class="container">
 				<ol class="breadcrumb">
-					<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-					<li><a href="{% url 'project_view' project.id %}">{{ project.name }}</a></li>
+					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
+					<li><a href="{% url 'admin:project_detail' project.id %}">{{ project.name }}</a></li>
 					<li class="active">Settings</li>
 				</ol>
-			
+
 				<h1>{{project.name}}</h1>
 				<p class="lead">
 					<span id="descriptionText">{% if project.description %} {{project.description}} {% endif %}</span>
@@ -80,7 +80,7 @@
 							{% endfor %}
 						</div>
 						<div class="panel-footer">
-							<a href="{% url 'featuretype_create' project.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new feature type</a>
+							<a href="#" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new feature type</a>
 						</div>
 					</div> <!-- /Feature type list List -->
 				</div>
@@ -114,7 +114,7 @@
 				</div>
 
 				<div class="col-md-5 col-lg-3 col-lg-offset-0">
-					<div class="panel panel-warning toggle-active {% if project.status == status_types.INACTIVE %} hidden{% endif %}">
+					<div class="panel panel-warning toggle-active {% if project.status == status_types.inactive %} hidden{% endif %}">
 						<div class="panel-heading">
 							<h2 class="panel-title">Make this project inactive</h2>
 						</div>
@@ -123,8 +123,8 @@
 							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-inactive-confirm">Make inactive</button>
 						</div>
 					</div>
-				
-					<div class="panel panel-warning toggle-active {% if project.status == status_types.ACTIVE %} hidden{% endif %}">
+
+					<div class="panel panel-warning toggle-active {% if project.status == status_types.active %} hidden{% endif %}">
 						<div class="panel-heading">
 							<h2 class="panel-title">Make this project active</h2>
 						</div>
@@ -233,7 +233,7 @@
 						</ul>
 					</div>
 					<div class="modal-footer panel-footer">
-						<button type="button" name="confirm" value="{{status_types.INACTIVE}}" class="btn btn-warning" data-loading-text="Loading...">Yes, make the project inactive.</button>
+						<button type="button" name="confirm" value="{{status_types.inactive}}" class="btn btn-warning" data-loading-text="Loading...">Yes, make the project inactive.</button>
 					</div>
 				</div>
 			</div>
@@ -254,7 +254,7 @@
 						</ul>
 					</div>
 					<div class="modal-footer panel-footer">
-						<button type="button" name="confirm" value="{{status_types.ACTIVE}}" class="btn btn-warning" data-dismiss="modal">Yes, make the project active.</button>
+						<button type="button" name="confirm" value="{{status_types.active}}" class="btn btn-warning" data-dismiss="modal">Yes, make the project active.</button>
 					</div>
 				</div>
 			</div>

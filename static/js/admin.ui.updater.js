@@ -32,24 +32,21 @@ $(function () {
 	Human readable name, to be used in message displays
 	*/
 	var name = 'project';
-	
+
 	// Setting parameters
 	if (projectId && featuretypeId) {
 		url += '/featuretypes/' + featuretypeId;
-		resultAccessor = 'featuretype';
 		name = 'feature type';
 	}
 	if (projectId && featuretypeId && fieldId) {
 		url += '/fields/' + fieldId;
-		resultAccessor = 'field';
 		name = 'field';
 	}
 	if (projectId && viewId) {
 		url += '/views/' + viewId;
-		resultAccessor = 'view';
 		name = 'view';
 	}
-	
+
 	/**
 	 * Updates the user interface after the response is received. Resets submit buttons in modals and hides all modals. 
 	 * Toggles the respective panel (active or public) if the request has been successful.
@@ -100,7 +97,7 @@ $(function () {
 
 		Control.Ajax.del(url, handleSuccess, handleError);
 	}
-	
+
 	/**
 	 * Handles the click on the confirm button and updates the status to either active or inactive.
 	 * @param  {Event} event The click event fired by the button.
@@ -112,7 +109,7 @@ $(function () {
 		 */
 		function handleSuccess(response) {
 			updateUi('active');
-			messages.showPanelSuccess(getMessageTarget('active'), 'The ' + name + ' is now ' + (response[resultAccessor].status === 0 ? 'active' : 'inactive') + '.');
+			messages.showPanelSuccess(getMessageTarget('active'), 'The ' + name + ' is now ' + (response.status === 0 ? 'active' : 'inactive') + '.');
 		}
 
 		/**
@@ -123,7 +120,7 @@ $(function () {
 			updateUi();
 			messages.showPanelError(getMessageTarget('active'), 'An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
 		}
-		Control.Ajax.put(url, handleSuccess, handleError, {'status': parseInt(event.target.value)});
+		Control.Ajax.put(url, handleSuccess, handleError, {'status': event.target.value});
 	}
 
 	/**
@@ -139,7 +136,7 @@ $(function () {
 		 */
 		function handleSuccess(response) {
 			updateUi('private');
-			messages.showPanelSuccess(getMessageTarget('private'), 'The ' + name + ' is now ' + (response[resultAccessor].isprivate ? 'private' : 'public') + '.');
+			messages.showPanelSuccess(getMessageTarget('private'), 'The ' + name + ' is now ' + (response.isprivate ? 'private' : 'public') + '.');
 		}
 
 		/**
@@ -167,7 +164,7 @@ $(function () {
 		 */
 		function handleSuccess(response) {
 			updateUi('mandatory');
-			messages.showPanelSuccess(getMessageTarget('mandatory'), 'The ' + name + ' is now ' + (response[resultAccessor].required ? 'mandatory' : 'optional') + '.');
+			messages.showPanelSuccess(getMessageTarget('mandatory'), 'The ' + name + ' is now ' + (response.required ? 'mandatory' : 'optional') + '.');
 		}
 
 		/**

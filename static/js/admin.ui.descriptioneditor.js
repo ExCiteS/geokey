@@ -45,15 +45,8 @@ $(function() {
 	 * @param  {Object} response JSON object of the response
 	 */
 	function handleRequestSucess(response) {
-		// Sets the id to access the response according to the IDs read avobe
-		var resultAccessor = 'project';
-		if (featuretypeId) { resultAccessor = 'featuretype'; }
-		if (fieldId) { resultAccessor = 'field'; }
-		if (viewId) { resultAccessor = 'view'; }
-		if (groupId) { resultAccessor = 'usergroup'; }
-
-		descriptionFormField.val(response[resultAccessor].description);
-		descriptionText.children('#descriptionText').text(response[resultAccessor].description);
+		descriptionFormField.val(response.description);
+		descriptionText.children('#descriptionText').text(response.description);
 
 		toggle();
 		submitbtn.button('reset');

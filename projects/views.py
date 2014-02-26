@@ -9,6 +9,7 @@ from braces.views import LoginRequiredMixin
 
 from core.decorators import handle_exceptions
 
+from .base import STATUS
 from .models import Project
 from .forms import ProjectCreateForm
 from .serializers import ProjectUpdateSerializer
@@ -39,6 +40,18 @@ class ProjectAdminDetailView(TemplateView):
         return {
             'project': project,
             'admin': project.is_admin(user)
+        }
+
+
+class ProjectAdminSettings(TemplateView):
+    model = Project
+    template_name = 'projects/project_settings.html'
+
+    def get_context_data(self, project_id=None):
+        project = Project.objects.as_admin(self.request.user, pk=project_id)
+        return {
+            'project': project,
+            'status_types': STATUS
         }
 
 
