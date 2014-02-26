@@ -28,7 +28,7 @@
                         {% if projects %}
                         <div class="list-group">
                             {% for project in projects %}
-                            <a href="{% url 'project_view' project.id %}" class="list-group-item">
+                            <a href="{% url 'admin:project_detail' project.id %}" class="list-group-item">
                                 <h4 class="list-group-item-heading">{{project.name}}{% if project.status == status_types.INACTIVE %} <small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
                                 {% if project.description %}<p class="list-group-item-text">{{project.description}}</p>{% endif %}
                             </a>
@@ -36,11 +36,11 @@
                         </div>
                         {% else %}
                         <div class="panel-body">
-                            <p>You are not eligible to access any project yet. <a href="#">You may want to create a new project</a>.</p>
+                            <p>You are not eligible to access any project yet. <a href="{% url 'admin:project_create' %}">You may want to create a new project</a>.</p>
                         </div>
                         {% endif %}
                         <div class="panel-footer">
-                            <a href="#" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new Project</a>
+                            <a href="{% url 'admin:project_create' %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new Project</a>
                         </div>
                     </div>
                 </div>

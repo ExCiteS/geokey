@@ -1,18 +1,45 @@
-from django.views.generic import TemplateView
+from django.views.generic import CreateView, TemplateView
+from django.shortcuts import redirect
 
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from braces.views import LoginRequiredMixin
+
 from core.decorators import handle_exceptions
 
 from .models import Project
+from .forms import ProjectCreateForm
 from .serializers import ProjectUpdateSerializer
 
 
-class ProjectAdminDetail(TemplateView):
+class ProjectAdminCreateView(LoginRequiredMixin, CreateView):
+    form_class = ProjectCreateForm
+    template_name = 'projects/project_create.html'
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        project = Project.create(
+            data.get('name'),
+            data.get('description'),
+            data.get('isprivate'),
+            self.request.user
+        )
+        return redirect('admin:project_detail', project_id=project.id)
+
+
+class ProjectAdminDetailView(TemplateView):
     model = Project
     template_name = 'projects/project_view.html'
+
+    def get_context_data(self, project_id=None):
+        user = self.request.user
+        project = Project.objects.get(user, pk=project_id)
+        return {
+            'project': project,
+            'admin': project.is_admin(user)
+        }
 
 
 class ProjectApiDetail(APIView):

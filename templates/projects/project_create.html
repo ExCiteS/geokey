@@ -6,7 +6,7 @@
 		<div class="page-header">
 			<div class="container">
 				<ol class="breadcrumb">
-					<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
 					<li class="active">Create new project</li>
 				</ol>
 				<h1>Create new project</h1>
@@ -15,7 +15,7 @@
 
 		<div class="container">
 			<div class="row">
-				<form role="form" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url 'project_create' %}" novalidate>
+				<form role="form" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url 'admin:project_create' %}" novalidate>
 					{% csrf_token %}
 					<div class="form-group">
 						<label for="name" class="control-label">Name (required)</label>
@@ -42,7 +42,7 @@
 
 					<div class="form-group">
 						<button type="submit" class="btn btn-primary">Save</button>
-						<a href="{% url 'dashboard' %}" class="btn btn-default" role="button">Cancel</a>
+						<a href="{% url 'admin:dashboard' %}" class="btn btn-default" role="button">Cancel</a>
 					</div>
 				</form>
 			</div>

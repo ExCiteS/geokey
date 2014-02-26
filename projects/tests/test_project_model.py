@@ -66,18 +66,18 @@ class ProjectTest(TestCase):
         )
 
     def test_get_projects_with_admin(self):
-        projects = Project.objects.for_user(self.admin)
+        projects = Project.objects.all(self.admin)
         self.assertEqual(projects.count(), 3)
         self.assertNotIn(self.deleted_project, projects)
 
     def test_get_projects_with_contributor(self):
-        projects = Project.objects.for_user(self.contributor)
+        projects = Project.objects.all(self.contributor)
         self.assertEqual(projects.count(), 2)
         self.assertNotIn(self.inactive_project, projects)
         self.assertNotIn(self.deleted_project, projects)
 
     def test_get_projects_with_non_member(self):
-        projects = Project.objects.for_user(self.non_member)
+        projects = Project.objects.all(self.non_member)
         self.assertEqual(projects.count(), 1)
         self.assertNotIn(self.private_project, projects)
         self.assertNotIn(self.inactive_project, projects)

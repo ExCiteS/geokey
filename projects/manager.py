@@ -22,7 +22,7 @@ class ProjectManager(models.Manager):
     def get_query_set(self):
         return ProjectQuerySet(self.model).exclude(status=STATUS.deleted)
 
-    def for_user(self, user):
+    def all(self, user):
         return self.get_query_set().for_user(user)
 
     def get(self, user, pk):

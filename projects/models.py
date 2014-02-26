@@ -44,7 +44,7 @@ class Project(models.Model):
 
         contributorgroup = UserGroup.objects.create(name='Contributors')
 
-        return cls(
+        project = cls(
             name=name,
             description=description,
             isprivate=isprivate,
@@ -52,6 +52,9 @@ class Project(models.Model):
             admins=admingroup,
             contributors=contributorgroup
         )
+        project.save()
+
+        return project
 
     def delete(self):
         """
@@ -60,6 +63,13 @@ class Project(models.Model):
         """
         self.status = STATUS.deleted
         self.save()
+
+    def is_admin(self, user):
+        """
+        Returns True if the user is member of the administrators group, False
+        if not.
+        """
+        return user in self.admins.users.all()
 
 
 class UserGroup(models.Model):
