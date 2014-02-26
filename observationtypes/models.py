@@ -8,7 +8,7 @@ from model_utils import Choices
 STATUS = Choices('active', 'inactive')
 
 
-class FeatureType(models.Model):
+class ObservationType(models.Model):
     """
     Defines the data structure of a certain type of features.
     """
@@ -41,7 +41,7 @@ class Field(models.Model):
     key = models.CharField(max_length=30)
     description = models.TextField()
     required = models.BooleanField(default=False)
-    featuretype = models.ForeignKey('FeatureType')
+    featuretype = models.ForeignKey('ObservationType')
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
@@ -116,9 +116,6 @@ class NumericField(Field):
     minval = models.FloatField(null=True)
     maxval = models.FloatField(null=True)
 
-    class Meta:
-        app_label = 'backend'
-
     def validateInput(self, value):
         """
         Validates if the given value is a valid input for the NumerField.
@@ -172,8 +169,6 @@ class TrueFalseField(Field):
     """
     A field that can only have two states True and False.
     """
-    class Meta:
-        app_label = 'backend'
 
     def validateInput(self, value):
         """
@@ -197,8 +192,6 @@ class DateTimeField(Field):
     """
     A field for storing dates and times.
     """
-    class Meta:
-        app_label = 'backend'
 
     def validateInput(self, value):
         """

@@ -18,7 +18,7 @@ DATABASES = {
 
 INSTALLED_APPS += (
     'projects',
-    'featuretypes',
+    'observationtypes',
     'contributions',
     'views',
 )

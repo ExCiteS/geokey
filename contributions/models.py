@@ -8,7 +8,7 @@ from model_utils import Choices
 CONTRIBUTION_STATUS = Choices('active', 'inactive', 'review', 'deleted')
 
 
-class Feature(models.Model):
+class Location(models.Model):
     """
     Represents a location to which an arbitrary number of observations can be
     attached.
@@ -24,7 +24,6 @@ class Feature(models.Model):
         max_length=20
     )
     projects = models.ManyToManyField('projects.Project')
-    featuretype = models.ForeignKey('featuretypes.FeatureType')
 
     def delete(self):
         """
@@ -41,12 +40,13 @@ class Observation(models.Model):
     data = DictionaryField(db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
-    feature = models.ForeignKey('Feature')
+    feature = models.ForeignKey('Location')
     status = models.CharField(
         choices=CONTRIBUTION_STATUS,
         default=CONTRIBUTION_STATUS.active,
         max_length=20
     )
+    observationtype = models.ForeignKey('observationtypes.ObservationType')
 
     def delete(self):
         """
