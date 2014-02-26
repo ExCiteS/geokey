@@ -1,5 +1,5 @@
 /* ***********************************************
- * Mangages the members of user groups. 
+ * Mangages the members of user groups.
  *
  * @author Oliver Roick (http://github.com/oliverroick)
  * @version 0.1
@@ -32,11 +32,11 @@
 		if (viewId) { this.url = 'projects/' + projectId + '/views/' + viewId + '/usergroups/' + groupId + '/users'; }
 
 		this.numberOfRequests = 0;
-		
+
 		// Register the click event handler of remove links
 		this.userList.find('li a.remove').click(this.handleRemoveUser.bind(this));
 
-		// Register the keyup event on the text field. 
+		// Register the keyup event on the text field.
 		this.formField.keyup(this.handleFormType.bind(this));
 	}
 
@@ -75,18 +75,18 @@
 		var itemToRemove = $(event.target).parents('.list-group-item');
 
 		/**
-		 * Handles the response after the removal of the user from the group was successful. 
+		 * Handles the response after the removal of the user from the group was successful.
 		 */
 		function handleRemoveUserSuccess() {
 			itemToRemove.remove();
 			if (this.userList.children().length === 0) {
 				this.userList.append('<li class="list-group-item">No users have been assigned to this group.</li>');
-			}	
+			}
 			this.displaySuccess();
 		}
 
 		/**
-		 * Handles the response after the removal of the user from the group failed. 
+		 * Handles the response after the removal of the user from the group failed.
 		 * @param  {Object} response JSON object of the response
 		 */
 		function handleRemoveUserError(response) {
@@ -99,11 +99,11 @@
 
 
 	/**
-	 * Handles the response if the addition of the user to the group was successful. 
+	 * Handles the response if the addition of the user to the group was successful.
 	 * @param  {Object} response JSON object of the response
 	 */
 	Usergroup.prototype.handleAddUserSucess = function handleAddUserSucess(response) {
-		var users = response.usergroup.users;
+		var users = response.users;
 
 		this.userList.empty();
 		for (var i = 0, len = users.length; i < len; i++) {
@@ -138,13 +138,13 @@
 	};
 
 
-	
+
 	/**
 	 * Handles the reponse the the request for the user list was successful. Updates the dropdown list.
 	 * @param  {Object} response JSON object of the response
 	 */
 	Usergroup.prototype.handleSuccess = function handleSuccess(response) {
-		var users = response.users;
+		var users = response;
 		var header = (users.length > 0 ? 'Click on item to add user' : 'No records matched your query');
 
 		this.typeAwayResults.children().not('.dropdown-header').remove();
@@ -152,11 +152,11 @@
 		if (this.numberOfRequests === 0) {
 			this.formField.removeClass('loading');
 		}
-		
+
 		for (var i = 0, len = users.length; i < len; i++) {
 			this.typeAwayResults.append('<li role="presentation"><a role="menuitem" tabindex="-1" href="#" data-user-id="' + users[i].id + '">' + getUserDisplay(users[i]) + '</a></li>');
 		}
-		
+
 		this.typeAwayResults.children('.dropdown-header').text(header);
 		this.typeAwayResults.find('li a').click(this.handleAddUser.bind(this));
 		this.typeAwayResults.show();

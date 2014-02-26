@@ -21,4 +21,5 @@ INSTALLED_APPS += (
     'observationtypes',
     'contributions',
     'views',
+    'users',
 )
