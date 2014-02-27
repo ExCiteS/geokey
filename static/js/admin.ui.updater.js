@@ -1,12 +1,12 @@
 /* ***********************************************
- * Connects the user inferface for updating teh settings of a project with the AJAX backend. 
+ * Connects the user inferface for updating teh settings of a project with the AJAX backend.
  * Sends requests using admin.control.ajax and handles the responses by update the interface
  * accordingly.
  *
  * @author Oliver Roick (http://github.com/oliverroick)
  * @version 0.1
  * ***********************************************/
- 
+
 $(function () {
 	'use strict';
 
@@ -48,8 +48,10 @@ $(function () {
 	}
 
 	/**
-	 * Updates the user interface after the response is received. Resets submit buttons in modals and hides all modals. 
-	 * Toggles the respective panel (active or public) if the request has been successful.
+	 * Updates the user interface after the response is received. Resets
+	 * submit buttons in modals and hides all modals.
+	 * Toggles the respective panel (active or public) if the request has
+	 * been successful.
 	 * @param  {String} toToggle Css class part to toogle the display after update
 	 */
 	function updateUi(toToggle) {
@@ -74,7 +76,7 @@ $(function () {
 	function del() {
 
 		/**
-		 * Handles the response after the item has been deleted successfully. 
+		 * Handles the response after the item has been deleted successfully.
 		 */
 		function handleSuccess() {
 			var link = '<a href="/admin/dashboard" class="alert-link">Return to dashboard</a>';
@@ -83,7 +85,7 @@ $(function () {
 			updateUi();
 			$('.row').remove();
 			$('hr').remove();
-			$('.page-header').after('<div class="col-md-12"><div class="alert alert-success">The ' + name + ' has now been deleted. ' + link + '.</div></div>');
+			$('.page-header').after('<div class="container"><div class="col-md-12"><div class="alert alert-success">The ' + name + ' has now been deleted. ' + link + '.</div></div></div>');
 		}
 
 		/**

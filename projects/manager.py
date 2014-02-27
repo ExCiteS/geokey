@@ -33,11 +33,15 @@ class ProjectManager(models.Manager):
         ):
             return project
         else:
-            raise PermissionDenied('Not allowed')
+            raise PermissionDenied('You are not allowed to access this' +
+                                   ' project.')
 
     def as_admin(self, user, pk):
         project = super(ProjectManager, self).get(pk=pk)
         if user in project.admins.users.all():
             return project
         else:
-            raise PermissionDenied('Not allowed')
+            raise PermissionDenied('You are not member of the administrators' +
+                                   ' group of this project and therefore not' +
+                                   ' allowed to alter the settings of the ' +
+                                   ' project')

@@ -8,7 +8,9 @@ from rest_framework.response import Response
 
 from braces.views import LoginRequiredMixin
 
-from core.decorators import handle_exceptions
+from core.decorators import (
+    handle_exceptions_for_ajax, handle_exceptions_for_admin
+)
 
 from .base import STATUS
 from .models import Project, UserGroup
@@ -37,13 +39,14 @@ class ProjectAdminCreateView(LoginRequiredMixin, CreateView):
         return redirect('admin:project_detail', project_id=project.id)
 
 
-class ProjectAdminDetailView(TemplateView):
+class ProjectAdminDetailView(LoginRequiredMixin, TemplateView):
     """
     Displays the project overview page
     """
     model = Project
     template_name = 'projects/project_view.html'
 
+    @handle_exceptions_for_admin
     def get_context_data(self, project_id):
         """
         Creates the request context for rendering the page
@@ -56,13 +59,14 @@ class ProjectAdminDetailView(TemplateView):
         }
 
 
-class ProjectAdminSettings(TemplateView):
+class ProjectAdminSettings(LoginRequiredMixin, TemplateView):
     """
     Displays the project settings page
     """
     model = Project
     template_name = 'projects/project_settings.html'
 
+    @handle_exceptions_for_admin
     def get_context_data(self, project_id=None):
         """
         Creates the request context for rendering the page
@@ -80,7 +84,7 @@ class ProjectApiDetail(APIView):
     /ajax/projects/:project_id
     """
 
-    @handle_exceptions
+    @handle_exceptions_for_ajax
     def put(self, request, project_id, format=None):
         """
         Updates a project
@@ -94,7 +98,7 @@ class ProjectApiDetail(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @handle_exceptions
+    @handle_exceptions_for_ajax
     def delete(self, request, project_id, format=None):
         """
         Deletes a project
@@ -110,7 +114,7 @@ class ProjectApiUserGroup(APIView):
     /ajax/projects/:project_id/usergroups/:usergroup_id
     """
 
-    @handle_exceptions
+    @handle_exceptions_for_ajax
     def post(self, request, project_id, group_id, format=None):
         """
         Adds a user to the usergroup
@@ -144,7 +148,7 @@ class ProjectApiUserGroupUser(APIView):
     /ajax/projects/:project_id/usergroups/:usergroup_id/users/:user_id
     """
 
-    @handle_exceptions
+    @handle_exceptions_for_ajax
     def delete(self, request, project_id, group_id, user_id, format=None):
         """
         Removes a user from the user group

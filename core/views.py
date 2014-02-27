@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from braces.views import LoginRequiredMixin
 
 from projects.models import Project
+from projects.base import STATUS
 
 
 class Index(TemplateView):
@@ -132,4 +133,7 @@ class Dashboard(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard.html'
 
     def get_context_data(self):
-        return {'projects': Project.objects.all(self.request.user)}
+        return {
+            'projects': Project.objects.all(self.request.user),
+            'status_types': STATUS
+        }

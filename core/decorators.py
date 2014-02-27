@@ -7,7 +7,21 @@ from rest_framework.response import Response
 from projects.models import Project, UserGroup
 
 
-def handle_exceptions(func):
+def handle_exceptions_for_admin(func):
+    def wrapped(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except PermissionDenied, error:
+            return {"error": str(error), "head": "Permission denied."}
+        except (
+            Project.DoesNotExist
+        ) as error:
+            return {"error": str(error), "head": "Not found."}
+
+    return wrapped
+
+
+def handle_exceptions_for_ajax(func):
     def wrapped(*args, **kwargs):
         try:
             return func(*args, **kwargs)

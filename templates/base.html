@@ -4,7 +4,10 @@
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
 	<head>
-		<title>Open Community Maps{% block title %}{% endblock %}</title>
+		<title>
+			Open Community Maps {% if error %}| {{ head }}{% else %}{% block title %}{% endblock %}{% endif%}
+
+		</title>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<meta name="description" content="">
@@ -38,9 +41,11 @@
 			</div>
 		</div>
 
-
-
-		{% block main %} {% endblock %}
+		{% if error %}
+			{% include 'snippets/error.html' %}
+		{% else %}
+			{% block main %} {% endblock %}
+		{% endif %}
 
 
 		<footer>
@@ -54,7 +59,9 @@
 			<script>window.jQuery || document.write('<script src="/static/lib/jquery/jquery-1.10.1.js"><\/script>');</script>
 			<script src="/static/lib/bootstrap/bootstrap.min.js"></script>
 		{% endif %}
-		{% block modals %} {% endblock %}
-		{% block libraries %} {% endblock %}
+		{% if not error %}
+			{% block modals %} {% endblock %}
+			{% block libraries %} {% endblock %}
+		{% endif %}
 	</body>
 </html>
