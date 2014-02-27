@@ -9,5 +9,13 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)$',
         project_views.ProjectApiDetail.as_view(),
         name='project'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users$',
+        project_views.ProjectApiUserGroup.as_view(),
+        name='project_usergroup'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users/(?P<user_id>[0-9]+)$',
+        project_views.ProjectApiUserGroupUser.as_view(),
+        name='project_usergroup_user'),
     url(r'^users$', user_views.QueryUsers.as_view(), name='users_users'),
 )

@@ -65,6 +65,12 @@ class ProjectTest(TestCase):
             'Name status: inactive private: False'
         )
 
+    def test_is_admin(self):
+        self.assertTrue(self.private_project.is_admin(self.admin))
+        self.assertTrue(self.private_project.is_admin(self.creator))
+        self.assertFalse(self.private_project.is_admin(self.contributor))
+        self.assertFalse(self.private_project.is_admin(self.non_member))
+
     def test_get_projects_with_admin(self):
         projects = Project.objects.all(self.admin)
         self.assertEqual(projects.count(), 3)

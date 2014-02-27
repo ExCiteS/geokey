@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Project
+from .models import Project, UserGroup
 from .base import STATUS
 
 
@@ -18,3 +18,10 @@ class ProjectUpdateSerializer(ProjectSerializer):
     isprivate = serializers.BooleanField(required=False)
     status = serializers.ChoiceField(choices=STATUS, required=False)
     everyonecontributes = serializers.BooleanField(required=False)
+
+
+class UserGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserGroup
+        depth = 1
+        fields = ('id', 'name', 'users')

@@ -10,10 +10,10 @@ from ..models import Project
 
 class ProjectAjaxTest(TestCase):
     def setUp(self):
-        self.creator = UserF.create(password='123456')
-        self.admin = UserF.create(password='123456')
-        self.contributor = UserF.create(password='123456')
-        self.non_member = UserF.create(password='123456')
+        self.creator = UserF.create(**{'password': '1'})
+        self.admin = UserF.create(**{'password': '1'})
+        self.contributor = UserF.create(**{'password': '1'})
+        self.non_member = UserF.create(**{'password': '1'})
 
         self.project = ProjectF.create(**{
             'creator': self.creator,
@@ -22,11 +22,11 @@ class ProjectAjaxTest(TestCase):
         })
 
     def _get(self, url, user):
-        self.client.login(username=user.username, password='123456')
+        self.client.login(username=user.username, password='1')
         return self.client.get(url)
 
     def _put(self, url, data, user):
-        self.client.login(username=user.username, password='123456')
+        self.client.login(username=user.username, password='1')
         return self.client.put(
             url,
             json.dumps(data),
@@ -35,19 +35,12 @@ class ProjectAjaxTest(TestCase):
         )
 
     def _delete(self, url, user):
-        self.client.login(username=user.username, password='123456')
+        self.client.login(username=user.username, password='1')
         return self.client.delete(
             url,
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             content_type='application/json'
         )
-
-    def test_admin_project(self):
-        response = self._get(
-            '/admin/projects/' + str(self.project.id),
-            self.creator
-        )
-        print response
 
     def test_update_with_wrong_status(self):
         response = self._put(

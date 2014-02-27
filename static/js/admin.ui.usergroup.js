@@ -133,7 +133,7 @@
 
 		this.header.addClass('loading');
 		this.typeAwayResults.hide();
-		Control.Ajax.put(this.url, this.handleAddUserSucess.bind(this), this.handleAddUserError.bind(this), {'userId': userId});
+		Control.Ajax.post(this.url, this.handleAddUserSucess.bind(this), this.handleAddUserError.bind(this), {'userId': userId});
 		event.preventDefault();
 	};
 

@@ -19,7 +19,7 @@ $(function () {
 		everyoneCheckParent = everyoneCheck.parents('.panel-body');
 
 	/**
-	 * Toggles the display of the contributors user group member list, when the user clicks the 
+	 * Toggles the display of the contributors user group member list, when the user clicks the
 	 * 'everyone can contribute' checkbox.
 	 */
 	function toggleEveryoneView() {
@@ -35,7 +35,7 @@ $(function () {
 		everyoneCheckParent.removeClass('loading');
 		everyoneCheckParent.addClass('success');
 		setTimeout(function() { everyoneCheckParent.removeClass('success'); }, 2000);
-		toggleEveryoneView(response.project.everyonecontributes);
+		toggleEveryoneView(response.everyonecontributes);
 	}
 
 	/**
@@ -56,7 +56,7 @@ $(function () {
 		everyoneCheckParent.addClass('loading');
 		Control.Ajax.put(url, handleEveryoneSuccess, handleEveryoneError, {'everyonecontributes': event.target.checked});
 	}
-	
+
 	if (everyoneCheck.prop('checked')) {
 		$('#users #contributors .user-list').hide();
 		$('#users #contributors .panel-footer').hide();
