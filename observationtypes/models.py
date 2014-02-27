@@ -21,16 +21,6 @@ class ObservationType(models.Model):
         max_length=20
     )
 
-    def update(self, name=None, description=None, status=None):
-        if (name):
-            self.name = name
-        if (description):
-            self.description = description
-        if (status is not None):
-            self.status = status
-
-        self.save()
-
 
 class Field(models.Model):
     """
@@ -41,14 +31,14 @@ class Field(models.Model):
     key = models.CharField(max_length=30)
     description = models.TextField()
     required = models.BooleanField(default=False)
-    featuretype = models.ForeignKey('ObservationType')
+    observationtype = models.ForeignKey('ObservationType')
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
         max_length=20
     )
 
-    def getInstance(self):
+    def get_instance(self):
         """
         Returns the child instance of the fields. When getting all fields from
         a feature type only the parent field instances are return; i.e. fields
@@ -73,19 +63,19 @@ class Field(models.Model):
         try:
             return self.datetimefield
         except Field.DoesNotExist:
-            pass
+            raise Field.DoesNotExist
 
-    def validateInput(self, value):
+    def validate_input(self, value):
         """
         Validates the given `value` against the field definition.
         @abstractmethod
         """
         raise NotImplementedError(
-            'The method `validateInput` has not been implemented for this '
+            'The method `validate_input` has not been implemented for this '
             'child class of Field.'
         )
 
-    def convertFromString(self, value):
+    def convert_from_string(self, value):
         """
         Converts the given `value` of an `Observation`'s field from `String`
         to the proper data type. By default returns simply the value in
@@ -100,7 +90,7 @@ class TextField(Field):
     A field for character strings.
     """
 
-    def validateInput(self, value):
+    def validate_input(self, value):
         """
         Validates if the given value is a valid input for the `TextField` by
         checking if the provided value is of type `String`.
@@ -116,7 +106,7 @@ class NumericField(Field):
     minval = models.FloatField(null=True)
     maxval = models.FloatField(null=True)
 
-    def validateInput(self, value):
+    def validate_input(self, value):
         """
         Validates if the given value is a valid input for the NumerField.
         Checks if a value of type number has been provided or if a value of
@@ -145,24 +135,11 @@ class NumericField(Field):
 
         return valid
 
-    def convertFromString(self, value):
+    def convert_from_string(self, value):
         """
         Returns the `value` of the field in `Float` format.
         """
         return float(value)
-
-    def update(
-            self, name=None, description=None, status=None, required=None,
-            minval=None, maxval=None):
-        self.minval = minval
-        self.maxval = maxval
-
-        self.save()
-
-        super(NumericField, self).update(
-            name=name, description=description, status=status,
-            required=required
-        )
 
 
 class TrueFalseField(Field):
@@ -170,7 +147,7 @@ class TrueFalseField(Field):
     A field that can only have two states True and False.
     """
 
-    def validateInput(self, value):
+    def validate_input(self, value):
         """
         Checks if the provided value is one of `True`, `False`, `'True'`,
         `'true'`, `'1'`, `'t'`, `'False'`, `'false'`, `'0'`, `'f'`, `0`, `1`.
@@ -181,7 +158,7 @@ class TrueFalseField(Field):
             'f', 0, 1
         ]
 
-    def convertFromString(self, value):
+    def convert_from_string(self, value):
         """
         Returns the `value` of the field in `Bool` format.
         """
@@ -193,7 +170,7 @@ class DateTimeField(Field):
     A field for storing dates and times.
     """
 
-    def validateInput(self, value):
+    def validate_input(self, value):
         """
         Checks if the provided value is a valid and ISO8601 compliant date
         string.
@@ -211,19 +188,19 @@ class LookupField(Field):
     A lookup value is a special kind of field the provides an pre-defined
     number of values as valid input values.
     """
-    def validateInput(self, value):
+    def validate_input(self, value):
         """
         Checks if the provided value is in the list of `LookupValue`'s.
         Returns `True` or `False`.
         """
         valid = False
-        for lookupvalue in self.lookupvalue_set:
+        for lookupvalue in self.lookupvalue_set.all():
             if lookupvalue.id == value:
                 valid = True
 
         return valid
 
-    def convertFromString(self, value):
+    def convert_from_string(self, value):
         """
         Returns the `value` of the field in `int` format.
         """
@@ -236,12 +213,8 @@ class LookupValue(models.Model):
     """
     name = models.CharField(max_length=100)
     field = models.ForeignKey(LookupField)
-    status = models.IntegerField(choices=STATUS, default=STATUS.active)
-
-    def update(self, status=None):
-        """
-        Updates the status pf the lookup.
-        """
-        if status is not None:
-            self.status = status
-        self.save()
+    status = models.CharField(
+        choices=STATUS,
+        default=STATUS.active,
+        max_length=20
+    )

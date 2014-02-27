@@ -61,7 +61,7 @@ class ProjectF(factory.django.DjangoModelFactory):
     FACTORY_FOR = Project
 
     name = factory.Sequence(lambda n: 'name_%d' % n)
-    description = 'Bla'
+    description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     isprivate = True
     everyonecontributes = True
     created_at = datetime.date(2014, 11, 11)
