@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block bodydata %} data-project-id="{{observationtype.project.id}}" data-featuretype-id="{{observationtype.id}}"{% endblock %}
-{% block title %} | Feature type: {{ observationtype.name }}{% endblock %}
+{% block bodydata %} data-project-id="{{observationtype.project.id}}" data-observationtype-id="{{observationtype.id}}"{% endblock %}
+{% block title %} | Observation type: {{ observationtype.name }}{% endblock %}
 
 {% block main %}
 	{% csrf_token %}

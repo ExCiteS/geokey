@@ -20,7 +20,7 @@ $(function() {
 
 	// Reads the IDs from the body's attributes
 	var projectId = $('body').attr('data-project-id'),
-		featuretypeId = $('body').attr('data-featuretype-id'),
+		observationtypeId = $('body').attr('data-observationtype-id'),
 		fieldId = $('body').attr('data-field-id'),
 		viewId = $('body').attr('data-view-id'),
 		groupId = $('body').attr('data-group-id');
@@ -29,8 +29,8 @@ $(function() {
 	var url = 'projects/' + projectId;
 	if (projectId && viewId) { url += '/views/' + viewId; }
 	if (projectId && viewId && groupId) { url += '/usergroups/' + groupId; }
-	if (projectId && featuretypeId) { url += '/featuretypes/' + featuretypeId; }
-	if (projectId && featuretypeId && fieldId) { url += '/fields/' + fieldId; }
+	if (projectId && observationtypeId) { url += '/observationtypes/' + observationtypeId; }
+	if (projectId && observationtypeId && fieldId) { url += '/fields/' + fieldId; }
 
 	/**
 	 * Toggles between the display of description text and description form.

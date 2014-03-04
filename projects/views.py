@@ -12,10 +12,12 @@ from core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
 
+from observationtypes.models import ObservationType
+
 from .base import STATUS
 from .models import Project, UserGroup
 from .forms import ProjectCreateForm
-from .serializers import ProjectSerializer, UserGroupSerializer
+from .serializers import ProjectUpdateSerializer, UserGroupSerializer
 
 
 class ProjectAdminCreateView(LoginRequiredMixin, CreateView):
@@ -72,8 +74,11 @@ class ProjectAdminSettings(LoginRequiredMixin, TemplateView):
         Creates the request context for rendering the page
         """
         project = Project.objects.as_admin(self.request.user, pk=project_id)
+        observation_types = ObservationType.objects.all(
+            self.request.user, project_id)
         return {
             'project': project,
+            'observationtypes': observation_types,
             'status_types': STATUS
         }
 
@@ -90,7 +95,7 @@ class ProjectApiDetail(APIView):
         Updates a project
         """
         project = Project.objects.as_admin(request.user, project_id)
-        serializer = ProjectSerializer(project, data=request.DATA)
+        serializer = ProjectUpdateSerializer(project, data=request.DATA)
 
         if serializer.is_valid():
             serializer.save()

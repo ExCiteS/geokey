@@ -14,7 +14,7 @@ $(function () {
 
 	// Read the IDs from the body's attributes
 	var projectId = $('body').attr('data-project-id');
-	var featuretypeId = $('body').attr('data-featuretype-id');
+	var observationtypeId = $('body').attr('data-observationtype-id');
 	var fieldId = $('body').attr('data-field-id');
 	var viewId = $('body').attr('data-view-id');
 
@@ -34,11 +34,11 @@ $(function () {
 	var name = 'project';
 
 	// Setting parameters
-	if (projectId && featuretypeId) {
-		url += '/featuretypes/' + featuretypeId;
-		name = 'feature type';
+	if (projectId && observationtypeId) {
+		url += '/observationtypes/' + observationtypeId;
+		name = 'observation type';
 	}
-	if (projectId && featuretypeId && fieldId) {
+	if (projectId && observationtypeId && fieldId) {
 		url += '/fields/' + fieldId;
 		name = 'field';
 	}

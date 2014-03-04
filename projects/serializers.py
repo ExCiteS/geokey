@@ -12,6 +12,12 @@ class ProjectSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'name', 'creator')
 
 
+class ProjectUpdateSerializer(ProjectSerializer):
+    def __init__(self, *args, **kwargs):
+        super(ProjectSerializer, self).__init__(*args, **kwargs)
+        self.fields['description'].required = False
+
+
 class UserGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserGroup
