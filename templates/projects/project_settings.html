@@ -59,29 +59,29 @@
 			<hr>
 			<div class="row" id="featuretypes">
 				<div class="col-md-2">
-					<h3>Feature types</h3>
+					<h3>Observation types</h3>
 				</div>
 				<div class="col-md-5">
-					<div class="panel panel-default"> <!-- Feature type list List -->
+					<div class="panel panel-default"> <!-- Observation type list List -->
 						<div class="panel-heading">
-							<h2 class="panel-title">Feature types in this project</h2>
+							<h2 class="panel-title">Observation types in this project</h2>
 						</div>
 						<div class="list-group">
-							{% for featuretype in project.featuretype_set.all %}
-							<a href="{% url 'featuretype_view' project.id featuretype.id %}" class="list-group-item">
-								<h4 class="list-group-item-heading">{{ featuretype.name }}{% if featuretype.status == status_types.INACTIVE %} <small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
-								<p class="list-group-item-text">{{ featuretype.description }}</p>
+							{% for observationtype in project.observationtype_set.all %}
+							<a href="{% url 'admin:observationtype_detail' project.id observationtype.id %}" class="list-group-item">
+								<h4 class="list-group-item-heading">{{ observationtype.name }}{% if observationtype.status == status_types.inactive %} <small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
+								<p class="list-group-item-text">{{ observationtype.description }}</p>
 							</a>
 							{% empty %}
 							<div class="list-group-item">
-								No feature types have been added to the project.
+								No observation types have been added to the project.
 							</div>
 							{% endfor %}
 						</div>
 						<div class="panel-footer">
-							<a href="#" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new feature type</a>
+							<a href="{% url 'admin:observationtype_create' project.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new observation type</a>
 						</div>
-					</div> <!-- /Feature type list List -->
+					</div> <!-- /Observation type list List -->
 				</div>
 			</div>
 			<hr>

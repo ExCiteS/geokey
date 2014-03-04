@@ -15,7 +15,7 @@ from core.decorators import (
 from .base import STATUS
 from .models import Project, UserGroup
 from .forms import ProjectCreateForm
-from .serializers import ProjectUpdateSerializer, UserGroupSerializer
+from .serializers import ProjectSerializer, UserGroupSerializer
 
 
 class ProjectAdminCreateView(LoginRequiredMixin, CreateView):
@@ -67,7 +67,7 @@ class ProjectAdminSettings(LoginRequiredMixin, TemplateView):
     template_name = 'projects/project_settings.html'
 
     @handle_exceptions_for_admin
-    def get_context_data(self, project_id=None):
+    def get_context_data(self, project_id):
         """
         Creates the request context for rendering the page
         """
@@ -90,7 +90,7 @@ class ProjectApiDetail(APIView):
         Updates a project
         """
         project = Project.objects.as_admin(request.user, project_id)
-        serializer = ProjectUpdateSerializer(project, data=request.DATA)
+        serializer = ProjectSerializer(project, data=request.DATA)
 
         if serializer.is_valid():
             serializer.save()

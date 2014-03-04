@@ -2,10 +2,8 @@ import iso8601
 
 from django.db import models
 
-from model_utils import Choices
-
-
-STATUS = Choices('active', 'inactive')
+from .manager import ObservationTypeManager
+from .base import STATUS
 
 
 class ObservationType(models.Model):
@@ -20,6 +18,8 @@ class ObservationType(models.Model):
         default=STATUS.active,
         max_length=20
     )
+
+    objects = ObservationTypeManager()
 
 
 class Field(models.Model):

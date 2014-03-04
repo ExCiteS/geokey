@@ -8,7 +8,7 @@ from ..models import (
 )
 
 
-class ObservationtypeFactory(factory.django.DjangoModelFactory):
+class ObservationTypeFactory(factory.django.DjangoModelFactory):
     FACTORY_FOR = ObservationType
 
     name = factory.Sequence(lambda n: "observationtype %s" % n)
@@ -23,7 +23,7 @@ class FieldFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: "field %s" % n)
     key = factory.Sequence(lambda n: "field_%s" % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
-    observationtype = factory.SubFactory(ObservationtypeFactory)
+    observationtype = factory.SubFactory(ObservationTypeFactory)
     status = 'active'
 
 
@@ -33,7 +33,7 @@ class TextFieldFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: "textfield %s" % n)
     key = factory.Sequence(lambda n: "textfield_%s" % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
-    observationtype = factory.SubFactory(ObservationtypeFactory)
+    observationtype = factory.SubFactory(ObservationTypeFactory)
     status = 'active'
 
 
@@ -43,7 +43,7 @@ class NumericFieldFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: "numericfield %s" % n)
     key = factory.Sequence(lambda n: "numericfield_%s" % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
-    observationtype = factory.SubFactory(ObservationtypeFactory)
+    observationtype = factory.SubFactory(ObservationTypeFactory)
     status = 'active'
 
 
@@ -53,7 +53,7 @@ class TrueFalseFieldFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: "truefalsefield %s" % n)
     key = factory.Sequence(lambda n: "truefalsefield_%s" % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
-    observationtype = factory.SubFactory(ObservationtypeFactory)
+    observationtype = factory.SubFactory(ObservationTypeFactory)
     status = 'active'
 
 
@@ -63,7 +63,7 @@ class DateTimeFieldFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: "datetimefield %s" % n)
     key = factory.Sequence(lambda n: "datetimefield_%s" % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
-    observationtype = factory.SubFactory(ObservationtypeFactory)
+    observationtype = factory.SubFactory(ObservationTypeFactory)
     status = 'active'
 
 
@@ -73,7 +73,7 @@ class LookupFieldFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: "lookupfield %s" % n)
     key = factory.Sequence(lambda n: "lookupfield_%s" % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
-    observationtype = factory.SubFactory(ObservationtypeFactory)
+    observationtype = factory.SubFactory(ObservationTypeFactory)
     status = 'active'
 
 

@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, url
 
 from projects import views as project_views
+from observationtypes import views as observationtype_views
 import views as login_views
 
 
@@ -27,4 +28,12 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/settings$',
         project_views.ProjectAdminSettings.as_view(),
         name='project_settings'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/observationtypes/new$',
+        observationtype_views.ObservationTypeAdminCreateView.as_view(),
+        name='observationtype_create'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)$',
+        observationtype_views.ObservationTypeAdminDetailView.as_view(),
+        name='observationtype_detail'),
 )

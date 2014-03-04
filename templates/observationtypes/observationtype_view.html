@@ -1,28 +1,28 @@
 {% extends "base.html" %}
 
-{% block bodydata %} data-project-id="{{featuretype.project.id}}" data-featuretype-id="{{featuretype.id}}"{% endblock %}
-{% block title %} | Feature type: {{ featuretype.name }}{% endblock %}
+{% block bodydata %} data-project-id="{{observationtype.project.id}}" data-featuretype-id="{{observationtype.id}}"{% endblock %}
+{% block title %} | Feature type: {{ observationtype.name }}{% endblock %}
 
 {% block main %}
 	{% csrf_token %}
 		<div class="page-header">
 			<div class="container">
 				<ol class="breadcrumb">
-					<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-					<li><a href="{% url 'project_view' featuretype.project.id %}">{{ featuretype.project.name }}</a></li>
-					<li class="active">{{ featuretype.name }}</li>
+					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
+					<li><a href="{% url 'admin:project_detail' observationtype.project.id %}">{{ observationtype.project.name }}</a></li>
+					<li class="active">{{ observationtype.name }}</li>
 				</ol>
-				
-				<h1>{{ featuretype.name }} </h1>
+
+				<h1>{{ observationtype.name }} </h1>
 				<p class="lead">
-					<span id="descriptionText">{% if featuretype.description %} {{ featuretype.description }} {% endif %}</span>
+					<span id="descriptionText">{% if observationtype.description %} {{ observationtype.description }} {% endif %}</span>
 					{% if admin %}<button id="edit" type="button" class="btn btn-link"><span class="glyphicon glyphicon-edit"></span> Edit</button>{% endif %}
 				</p>
 				<form class="form-inline hidden" id="description-form" role="form">
 					{% csrf_token %}
 					<div class="form-group">
 						<label class="sr-only" for="desription">Feature type description</label>
-						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a feature type desription" {% if featuretype.description %}value="{{featuretype.description}}"{% endif %}>
+						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a feature type desription" {% if observationtype.description %}value="{{observationtype.description}}"{% endif %}>
 					</div>
 					<button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
 					<button type="button" class="btn btn-link">Cancel</button>
@@ -38,13 +38,13 @@
 							<h2 class="panel-title">Fields</h2>
 						</div>
 						{% if admin %}
-							{% include 'snippets/field-table.html' with fields=featuretype.field_set.all %}
+							{% include 'snippets/field-table.html' with fields=observationtype.field_set.all %}
 						{% else %}
-							{% include 'snippets/field-table.html' with fields=featuretype.field_set.active %}
+							{% include 'snippets/field-table.html' with fields=observationtype.field_set.active %}
 						{% endif %}
 						{% if admin %}
 						<div class="panel-footer">
-							<a href="{% url 'field_create' featuretype.project.id featuretype.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new field</a>
+							<a href="#" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new field</a>
 						</div>
 						{% endif %}
 					</div>
@@ -54,7 +54,7 @@
 			{% if admin %}
 			<div class="row" id="general-settings">
 				<div class="col-md-5 col-md-offset-1">
-					<div class="panel panel-warning toggle-active {% if featuretype.status == status_types.INACTIVE %} hidden{% endif %}">
+					<div class="panel panel-warning toggle-active {% if observationtype.status == status_types.inactive %} hidden{% endif %}">
 						<div class="panel-heading">
 							<h2 class="panel-title">Make this feature type inactive</h2>
 						</div>
@@ -63,8 +63,8 @@
 							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-inactive-confirm">Make inactive</button>
 						</div>
 					</div>
-				
-					<div class="panel panel-warning toggle-active {% if featuretype.status == status_types.ACTIVE %} hidden{% endif %}">
+
+					<div class="panel panel-warning toggle-active {% if observationtype.status == status_types.active %} hidden{% endif %}">
 						<div class="panel-heading">
 							<h2 class="panel-title">Make this feature type active</h2>
 						</div>
@@ -79,7 +79,7 @@
 		</div>
 {% endblock %}
 
-{% block modals %} 
+{% block modals %}
 	{% if admin %}
 		<div class="modal fade" id="make-inactive-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 			<div class="modal-dialog">
@@ -96,7 +96,7 @@
 						</ul>
 					</div>
 					<div class="modal-footer panel-footer">
-						<button type="button" name="confirm" value="{{status_types.INACTIVE}}" class="btn btn-warning" data-loading-text="Loading...">Yes, make the feature type inactive.</button>
+						<button type="button" name="confirm" value="{{status_types.inactive}}" class="btn btn-warning" data-loading-text="Loading...">Yes, make the feature type inactive.</button>
 					</div>
 				</div>
 			</div>
@@ -116,7 +116,7 @@
 						</ul>
 					</div>
 					<div class="modal-footer panel-footer">
-						<button type="button" name="confirm" value="{{status_types.ACTIVE}}" class="btn btn-warning" data-dismiss="modal">Yes, make the feature type active.</button>
+						<button type="button" name="confirm" value="{{status_types.active}}" class="btn btn-warning" data-dismiss="modal">Yes, make the feature type active.</button>
 					</div>
 				</div>
 			</div>
@@ -124,7 +124,7 @@
 	{% endif %}
 {% endblock %}
 
-{% block libraries %} 
+{% block libraries %}
 	{% if admin %}
 			<script src="/static/js/admin.ui.messages.js"></script>
 			<script src="/static/js/admin.ui.descriptioneditor.js"></script>

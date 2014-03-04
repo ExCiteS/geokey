@@ -165,11 +165,7 @@ class ProjectTest(TestCase):
 
     @raises(PermissionDenied)
     def test_get_private_project_as_admin_with_contributor(self):
-        project = Project.objects.as_admin(
-            self.contributor,
-            self.private_project.id
-        )
-        self.assertEqual(project, self.private_project)
+        Project.objects.as_admin(self.contributor, self.private_project.id)
 
     @raises(PermissionDenied)
     def test_get_inactive_project_as_admin_with_contributor(self):
@@ -177,11 +173,7 @@ class ProjectTest(TestCase):
 
     @raises(PermissionDenied)
     def test_get_public_project_as_admin_with_contributor(self):
-        project = Project.objects.as_admin(
-            self.contributor,
-            self.public_project.id
-        )
-        self.assertEqual(project, self.public_project)
+        Project.objects.as_admin(self.contributor, self.public_project.id)
 
     @raises(Project.DoesNotExist)
     def test_get_deleted_project_as_admin_with_non_member(self):
@@ -197,8 +189,4 @@ class ProjectTest(TestCase):
 
     @raises(PermissionDenied)
     def test_get_public_project_as_admin_with_non_member(self):
-        project = Project.objects.as_admin(
-            self.non_member,
-            self.public_project.id
-        )
-        self.assertEqual(project, self.public_project)
+        Project.objects.as_admin(self.non_member, self.public_project.id)
