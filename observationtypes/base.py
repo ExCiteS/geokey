@@ -2,29 +2,19 @@ from model_utils import Choices
 
 STATUS = Choices('active', 'inactive')
 FIELD_TYPES = {
-    'TEXT': {
-        'type_id': 0,
-        'name': 'Text',
-        'model': 'TextField'
+    'TextField': {
+        'name': 'Text'
     },
-    'NUMBER': {
-        'type_id': 1,
-        'name': 'Numeric',
-        'model': 'NumericField'
+    'NumericField': {
+        'name': 'Numeric'
     },
-    'TRUEFALSE': {
-        'type_id': 2,
-        'name': 'True/False',
-        'model': 'TrueFalseField'
+    'TrueFalseField': {
+        'name': 'True/False'
     },
-    'LOOKUP': {
-        'type_id': 3,
-        'name': 'Lookup',
-        'model': 'LookupField'
+    'LookupField': {
+        'name': 'Lookup'
     },
-    'DATETIME': {
-        'type_id': 4,
-        'name': 'Date and Time',
-        'model': 'DateTimeField'
+    'DateTimeField': {
+        'name': 'Date/Time'
     }
 }

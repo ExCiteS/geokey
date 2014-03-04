@@ -2,6 +2,8 @@ from django.db import models
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 
+from model_utils.managers import InheritanceManager
+
 from projects.models import Project
 
 from .base import STATUS
@@ -40,5 +42,36 @@ class ObservationTypeManager(models.Manager):
             ).observationtype_set.get(pk=observationtype_id)
 
 
-class FieldManager(models.Manager):
+class FieldManager(InheritanceManager):
     use_for_related_fields = True
+
+    def all(self, user, project_id, observationtype_id):
+        """
+        Returns all fields the user is allowed to access.
+        """
+        return Project.objects.get(user, project_id).observationtype_set.get(
+            pk=observationtype_id).field_set.filter(
+            Q(status=STATUS.active) |
+            Q(observationtype__project__admins__users=user)
+            ).distinct().select_subclasses()
+
+    def get_single(self, user, project_id, observationtype_id, field_id):
+        """
+        Return a single field
+        """
+        field = Project.objects.get(user, project_id).observationtype_set.get(
+            pk=observationtype_id).field_set.get_subclass(pk=field_id)
+
+        if (field.status == STATUS.active or
+                field.observationtype.project.is_admin(user)):
+            return field
+        else:
+            raise PermissionDenied('You are not allowed to access this field')
+
+    def as_admin(self, user, project_id, observationtype_id, field_id):
+        """
+        Returns all a single field for an project admin.
+        """
+        return Project.objects.as_admin(
+            user, project_id).observationtype_set.get(
+            pk=observationtype_id).field_set.get_subclass(pk=field_id)

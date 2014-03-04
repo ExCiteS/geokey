@@ -1,9 +1,11 @@
 from django.test import TestCase
+from django.core.exceptions import PermissionDenied
 
 from nose.tools import raises
 
+from projects.tests.model_factories import UserF, ProjectF, UserGroupF
+
 from ..models import Field
-from ..base import FIELD_TYPES
 
 from .model_factories import (
     TextFieldFactory, NumericFieldFactory, DateTimeFieldFactory,
@@ -13,65 +15,271 @@ from .model_factories import (
 
 
 class FieldTest(TestCase):
-    def test_create_textfield(self):
-        observation_type = ObservationTypeFactory()
-        field = Field.create(
-            'name', 'key', 'description', False, observation_type, 'TEXT')
+    def test_access_fields_with_admin(self):
+        admin = UserF.create()
+        project = ProjectF.create(**{
+            'isprivate': True,
+            'admins': UserGroupF(add_users=[admin]),
+        })
+        observation_type = ObservationTypeFactory(**{
+            'project': project,
+            'status': 'active'
+        })
+        TextFieldFactory.create(**{
+            'status': 'active',
+            'observationtype': observation_type
+        })
+        TextFieldFactory.create(**{
+            'status': 'inactive',
+            'observationtype': observation_type
+        })
         self.assertEqual(
-            field.__class__.__name__, FIELD_TYPES.get('TEXT').get('model'))
+            len(Field.objects.all(admin, project.id, observation_type.id)), 2
+        )
 
-    def test_create_numericfield(self):
-        observation_type = ObservationTypeFactory()
-        field = Field.create(
-            'name', 'key', 'description', False, observation_type, 'NUMBER')
+    def test_access_active_field_with_admin(self):
+        user = UserF.create()
+        project = ProjectF.create(**{
+            'isprivate': True,
+            'admins': UserGroupF(add_users=[user]),
+        })
+        observation_type = ObservationTypeFactory(**{
+            'project': project,
+            'status': 'active'
+        })
+        field = TextFieldFactory.create(**{
+            'status': 'active',
+            'observationtype': observation_type
+        })
         self.assertEqual(
-            field.__class__.__name__, FIELD_TYPES.get('NUMBER').get('model'))
+            field, Field.objects.get_single(
+                user, project.id, observation_type.id, field.id))
 
-    def test_create_truefalsefield(self):
-        observation_type = ObservationTypeFactory()
-        field = Field.create(
-            'name', 'key', 'description', False, observation_type, 'TRUEFALSE')
+    def test_access_inactive_field_with_admin(self):
+        user = UserF.create()
+        project = ProjectF.create(**{
+            'isprivate': True,
+            'admins': UserGroupF(add_users=[user]),
+        })
+        observation_type = ObservationTypeFactory(**{
+            'project': project,
+            'status': 'active'
+        })
+        field = TextFieldFactory.create(**{
+            'status': 'inactive',
+            'observationtype': observation_type
+        })
         self.assertEqual(
-            field.__class__.__name__, FIELD_TYPES.get('TRUEFALSE').get('model'))
+            field, Field.objects.get_single(
+                user, project.id, observation_type.id, field.id))
 
-    def test_create_datetimefield(self):
-        observation_type = ObservationTypeFactory()
-        field = Field.create(
-            'name', 'key', 'description', False, observation_type, 'DATETIME')
+    def test_admin_access_active_field_with_admin(self):
+        user = UserF.create()
+        project = ProjectF.create(**{
+            'isprivate': True,
+            'admins': UserGroupF(add_users=[user]),
+        })
+        observation_type = ObservationTypeFactory(**{
+            'project': project,
+            'status': 'active'
+        })
+        field = TextFieldFactory.create(**{
+            'status': 'active',
+            'observationtype': observation_type
+        })
         self.assertEqual(
-            field.__class__.__name__, FIELD_TYPES.get('DATETIME').get('model'))
+            field, Field.objects.as_admin(
+                user, project.id, observation_type.id, field.id))
 
-    def test_create_lookupfield(self):
-        observation_type = ObservationTypeFactory()
-        field = Field.create(
-            'name', 'key', 'description', False, observation_type, 'LOOKUP')
+    def test_access_fields_with_contributor(self):
+        user = UserF.create()
+        project = ProjectF.create(**{
+            'isprivate': True,
+            'contributors': UserGroupF(add_users=[user]),
+        })
+        observation_type = ObservationTypeFactory(**{
+            'project': project,
+            'status': 'active'
+        })
+        TextFieldFactory.create(**{
+            'status': 'active',
+            'observationtype': observation_type
+        })
+        inactive = TextFieldFactory.create(**{
+            'status': 'inactive',
+            'observationtype': observation_type
+        })
+        fields = Field.objects.all(user, project.id, observation_type.id)
+        self.assertEqual(len(fields), 1)
+        self.assertNotIn(inactive, fields)
+
+    def test_access_active_field_with_contributor(self):
+        user = UserF.create()
+        project = ProjectF.create(**{
+            'isprivate': True,
+            'contributors': UserGroupF(add_users=[user]),
+        })
+        observation_type = ObservationTypeFactory(**{
+            'project': project,
+            'status': 'active'
+        })
+        field = TextFieldFactory.create(**{
+            'status': 'active',
+            'observationtype': observation_type
+        })
         self.assertEqual(
-            field.__class__.__name__, FIELD_TYPES.get('LOOKUP').get('model'))
+            field, Field.objects.get_single(
+                user, project.id, observation_type.id, field.id))
 
-    @raises(Field.DoesNotExist)
-    def test_field_getinstance(self):
-        field = FieldFactory()
-        Field.objects.get(pk=field.id).get_instance()
+    @raises(PermissionDenied)
+    def test_access_inactive_field_with_contributor(self):
+        user = UserF.create()
+        project = ProjectF.create(**{
+            'isprivate': True,
+            'contributors': UserGroupF(add_users=[user]),
+        })
+        observation_type = ObservationTypeFactory(**{
+            'project': project,
+            'status': 'active'
+        })
+        field = TextFieldFactory.create(**{
+            'status': 'inactive',
+            'observationtype': observation_type
+        })
+        Field.objects.get_single(
+            user, project.id, observation_type.id, field.id)
+
+    @raises(PermissionDenied)
+    def test_admin_access_active_field_with_contributor(self):
+        user = UserF.create()
+        project = ProjectF.create(**{
+            'isprivate': True,
+            'contributors': UserGroupF(add_users=[user]),
+        })
+        observation_type = ObservationTypeFactory(**{
+            'project': project,
+            'status': 'active'
+        })
+        field = TextFieldFactory.create(**{
+            'status': 'active',
+            'observationtype': observation_type
+        })
+        Field.objects.as_admin(
+            user, project.id, observation_type.id, field.id)
+
+    @raises(PermissionDenied)
+    def test_access_fields_with_non_member(self):
+        user = UserF.create()
+        project = ProjectF.create(**{
+            'isprivate': True
+        })
+        observation_type = ObservationTypeFactory(**{
+            'project': project,
+            'status': 'active'
+        })
+        TextFieldFactory.create(**{
+            'status': 'active',
+            'observationtype': observation_type
+        })
+        TextFieldFactory.create(**{
+            'status': 'inactive',
+            'observationtype': observation_type
+        })
+        Field.objects.all(user, project.id, observation_type.id)
+
+    @raises(PermissionDenied)
+    def test_access_active_field_with_non_member(self):
+        user = UserF.create()
+        project = ProjectF.create(**{
+            'isprivate': True
+        })
+        observation_type = ObservationTypeFactory(**{
+            'project': project,
+            'status': 'active'
+        })
+        field = TextFieldFactory.create(**{
+            'status': 'active',
+            'observationtype': observation_type
+        })
+        Field.objects.get_single(
+            user, project.id, observation_type.id, field.id)
+
+    @raises(PermissionDenied)
+    def test_access_inactive_field_with_non_member(self):
+        user = UserF.create()
+        project = ProjectF.create(**{
+            'isprivate': True
+        })
+        observation_type = ObservationTypeFactory(**{
+            'project': project,
+            'status': 'active'
+        })
+        field = TextFieldFactory.create(**{
+            'status': 'inactive',
+            'observationtype': observation_type
+        })
+        Field.objects.get_single(
+            user, project.id, observation_type.id, field.id)
+
+    @raises(PermissionDenied)
+    def test_admin_access_active_field_with_non_member(self):
+        user = UserF.create()
+        project = ProjectF.create(**{
+            'isprivate': True
+        })
+        observation_type = ObservationTypeFactory(**{
+            'project': project,
+            'status': 'active'
+        })
+        field = TextFieldFactory.create(**{
+            'status': 'active',
+            'observationtype': observation_type
+        })
+        Field.objects.as_admin(
+            user, project.id, observation_type.id, field.id)
 
     @raises(NotImplementedError)
     def test_field_validate_input(self):
         field = FieldFactory()
         field.validate_input('Bla')
 
+    def test_create_textfield(self):
+        observation_type = ObservationTypeFactory()
+        field = Field.create(
+            'name', 'key', 'description', False, observation_type, 'TextField')
+        self.assertEqual(field.__class__.__name__, 'TextField')
+
+    def test_create_numericfield(self):
+        observation_type = ObservationTypeFactory()
+        field = Field.create(
+            'name', 'key', 'description', False, observation_type, 'NumericField')
+        self.assertEqual(field.__class__.__name__, 'NumericField')
+
+    def test_create_truefalsefield(self):
+        observation_type = ObservationTypeFactory()
+        field = Field.create(
+            'name', 'key', 'description', False, observation_type, 'TrueFalseField')
+        self.assertEqual(field.__class__.__name__, 'TrueFalseField')
+
+    def test_create_datetimefield(self):
+        observation_type = ObservationTypeFactory()
+        field = Field.create(
+            'name', 'key', 'description', False, observation_type, 'DateTimeField')
+        self.assertEqual(field.__class__.__name__, 'DateTimeField')
+
+    def test_create_lookupfield(self):
+        observation_type = ObservationTypeFactory()
+        field = Field.create(
+            'name', 'key', 'description', False, observation_type, 'LookupField')
+        self.assertEqual(field.__class__.__name__, 'LookupField')
+
+    def test_get_name(self):
+        field = TextFieldFactory()
+        self.assertEqual(field.get_type_name(), 'Text')
+
     #
     # TEXT FIELD
     #
-    def test_textfield_getinstance(self):
-        textfield = TextFieldFactory()
-        self.assertEqual(
-            type(textfield),
-            type(Field.objects.get(pk=textfield.id).get_instance())
-        )
-        self.assertEqual(
-            textfield.name,
-            Field.objects.get(pk=textfield.id).get_instance().name
-        )
-
     def test_textfield_validate_input(self):
         textfield = TextFieldFactory()
         self.assertTrue(textfield.validate_input('Bla'))
@@ -83,16 +291,6 @@ class FieldTest(TestCase):
     #
     # NUMERIC FIELD
     #
-    def test_numericfield_getinstance(self):
-        numeric_field = NumericFieldFactory()
-        self.assertEqual(
-            type(numeric_field),
-            type(Field.objects.get(pk=numeric_field.id).get_instance())
-        )
-        self.assertEqual(
-            numeric_field.name,
-            Field.objects.get(pk=numeric_field.id).get_instance().name
-        )
 
     def test_numericfield_validate_input_number(self):
         numeric_field = NumericFieldFactory()
@@ -140,17 +338,6 @@ class FieldTest(TestCase):
     #
     # DATE TIME FIELD
     #
-    def test_datetimefield_getinstance(self):
-        date_time_field = DateTimeFieldFactory()
-        self.assertEqual(
-            type(date_time_field),
-            type(Field.objects.get(pk=date_time_field.id).get_instance())
-        )
-        self.assertEqual(
-            date_time_field.name,
-            Field.objects.get(pk=date_time_field.id).get_instance().name
-        )
-
     def test_datetimefield_validate_input(self):
         date_time_field = DateTimeFieldFactory()
         self.assertTrue(date_time_field.validate_input('2014-12-01'))
@@ -159,16 +346,6 @@ class FieldTest(TestCase):
     #
     # TRUE FALSE FIELD
     #
-    def test_truefalsefield_getinstance(self):
-        true_false_field = TrueFalseFieldFactory()
-        self.assertEqual(
-            type(true_false_field),
-            type(Field.objects.get(pk=true_false_field.id).get_instance())
-        )
-        self.assertEqual(
-            true_false_field.name,
-            Field.objects.get(pk=true_false_field.id).get_instance().name
-        )
 
     def test_truefalsefield_validate_input(self):
         true_false_field = TrueFalseFieldFactory()
@@ -194,16 +371,6 @@ class FieldTest(TestCase):
     #
     # LOOKUP FIELD
     #
-    def test_lookupfield_getinstance(self):
-        lookup_field = LookupFieldFactory()
-        self.assertEqual(
-            type(lookup_field),
-            type(Field.objects.get(pk=lookup_field.id).get_instance())
-        )
-        self.assertEqual(
-            lookup_field.name,
-            Field.objects.get(pk=lookup_field.id).get_instance().name
-        )
 
     def test_lookupfield_validate_input(self):
         lookup_field = LookupFieldFactory()

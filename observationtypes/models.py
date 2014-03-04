@@ -44,8 +44,7 @@ class Field(models.Model):
     @classmethod
     def create(self, name, key, description, required, observation_type,
                field_type):
-        model_class = get_model(
-            'observationtypes', FIELD_TYPES.get(field_type).get('model'))
+        model_class = get_model('observationtypes', field_type)
         field = model_class.objects.create(
             name=name,
             key=key,
@@ -56,32 +55,8 @@ class Field(models.Model):
         field.save()
         return field
 
-    def get_instance(self):
-        """
-        Returns the child instance of the fields. When getting all fields from
-        a feature type only the parent field instances are return; i.e. fields
-        and methods of child instances are not given.
-        """
-        try:
-            return self.textfield
-        except Field.DoesNotExist:
-            pass
-        try:
-            return self.numericfield
-        except Field.DoesNotExist:
-            pass
-        try:
-            return self.truefalsefield
-        except Field.DoesNotExist:
-            pass
-        try:
-            return self.lookupfield
-        except Field.DoesNotExist:
-            pass
-        try:
-            return self.datetimefield
-        except Field.DoesNotExist:
-            raise Field.DoesNotExist
+    def get_type_name(self):
+        return FIELD_TYPES.get(self.__class__.__name__).get('name')
 
     def validate_input(self, value):
         """

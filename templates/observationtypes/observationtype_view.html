@@ -37,11 +37,7 @@
 						<div class="panel-heading">
 							<h2 class="panel-title">Fields</h2>
 						</div>
-						{% if admin %}
-							{% include 'snippets/field-table.html' with fields=observationtype.field_set.all %}
-						{% else %}
-							{% include 'snippets/field-table.html' with fields=observationtype.field_set.active %}
-						{% endif %}
+							{% include 'snippets/field-table.html' %}
 						{% if admin %}
 						<div class="panel-footer">
 							<a href="{% url 'admin:observationtype_field_create' observationtype.project.id observationtype.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new field</a>
