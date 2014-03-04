@@ -12,8 +12,9 @@ from core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
 
-from .models import ObservationType, STATUS
-from .forms import ObservationTypeCreateForm
+from .base import STATUS, FIELD_TYPES
+from .models import ObservationType, Field
+from .forms import ObservationTypeCreateForm, FieldCreateForm
 from .serializer import ObservationTypeUpdateSerializer
 
 
@@ -105,3 +106,45 @@ class ObservationTypeApiDetail(APIView):
             return Response(serializer.data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FieldAdminCreateView(LoginRequiredMixin, CreateView):
+    """
+    Displays the create field page
+    """
+    form_class = FieldCreateForm
+    template_name = 'observationtypes/field_create.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, form, **kwargs):
+        project_id = self.kwargs['project_id']
+        observationtype_id = self.kwargs['observationtype_id']
+
+        context = super(FieldAdminCreateView, self).get_context_data(**kwargs)
+
+        context['observationtype'] = ObservationType.objects.as_admin(
+            self.request.user, project_id, observationtype_id
+        )
+        context['fieldtypes'] = FIELD_TYPES
+        return context
+
+    def form_valid(self, form):
+        project_id = self.kwargs['project_id']
+        observationtype_id = self.kwargs['observationtype_id']
+        data = form.cleaned_data
+        observation_type = ObservationType.objects.as_admin(
+            self.request.user, project_id, observationtype_id)
+
+        field = Field.create(
+            data.get('name'),
+            data.get('key'),
+            data.get('description'),
+            data.get('required'),
+            observation_type,
+            self.request.POST.get('type')
+        )
+        return redirect(
+            'admin:observationtype_detail',
+            project_id=observation_type.project.id,
+            observationtype_id=observation_type.id
+        )

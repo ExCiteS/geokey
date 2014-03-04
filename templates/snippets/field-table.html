@@ -24,7 +24,7 @@
 					<td align="center">{% if field.required %} <span class="glyphicon glyphicon-ok"></span> {% endif %}</td>
 					<td align="right">{% if field.numericfield %} {% if field.numericfield.minval %} {{field.numericfield.minval}} {% endif %} {% else %} &mdash; {% endif %}</td>
 					<td align="right">{% if field.numericfield %} {% if field.numericfield.maxval %} {{field.numericfield.maxval}} {% endif %} {% else %} &mdash; {% endif %}</td>
-					{% if admin %}<td align="center"><a href="{% url 'field_view' featuretype.project.id featuretype.id field.id %}" rel="tooltip" data-toggle="tooltip" data-placement="right" title="Edit field"><span class="glyphicon glyphicon-edit"></span></a></td>{% endif %}
+					{% if admin %}<td align="center"><a href="#" rel="tooltip" data-toggle="tooltip" data-placement="right" title="Edit field"><span class="glyphicon glyphicon-edit"></span></a></td>{% endif %}
 				</tr>
 	{% if forloop.last %}
 			</tbody>

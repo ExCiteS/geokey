@@ -1,5 +1,5 @@
 /* ***********************************************
- * Module to edit the description of an object in the top of pages. 
+ * Module to edit the description of an object in the top of pages.
  * Is automatically loaded when included in a page.
  *
  * @author Oliver Roick (http://github.com/oliverroick)

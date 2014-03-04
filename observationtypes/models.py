@@ -1,9 +1,10 @@
 import iso8601
 
 from django.db import models
+from django.db.models.loading import get_model
 
-from .manager import ObservationTypeManager
-from .base import STATUS
+from .manager import ObservationTypeManager, FieldManager
+from .base import STATUS, FIELD_TYPES
 
 
 class ObservationType(models.Model):
@@ -37,6 +38,23 @@ class Field(models.Model):
         default=STATUS.active,
         max_length=20
     )
+
+    objects = FieldManager()
+
+    @classmethod
+    def create(self, name, key, description, required, observation_type,
+               field_type):
+        model_class = get_model(
+            'observationtypes', FIELD_TYPES.get(field_type).get('model'))
+        field = model_class.objects.create(
+            name=name,
+            key=key,
+            description=description,
+            required=required,
+            observationtype=observation_type,
+        )
+        field.save()
+        return field
 
     def get_instance(self):
         """

@@ -8,8 +8,6 @@ from .base import STATUS
 
 
 class ObservationTypeManager(models.Manager):
-    use_for_related_fields = True
-
     def all(self, user, project_id):
         """
         Returns all observationtype objects the user is allowed to access
@@ -40,3 +38,7 @@ class ObservationTypeManager(models.Manager):
         return Project.objects.as_admin(
             user, project_id
             ).observationtype_set.get(pk=observationtype_id)
+
+
+class FieldManager(models.Manager):
+    use_for_related_fields = True

@@ -36,4 +36,8 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)$',
         observationtype_views.ObservationTypeAdminDetailView.as_view(),
         name='observationtype_detail'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/new$',
+        observationtype_views.FieldAdminCreateView.as_view(),
+        name='observationtype_field_create'),
 )

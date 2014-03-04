@@ -21,7 +21,7 @@
 				<form class="form-inline hidden" id="description-form" role="form">
 					{% csrf_token %}
 					<div class="form-group">
-						<label class="sr-only" for="desription">Feature type description</label>
+						<label class="sr-only" for="desription">Observation type description</label>
 						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a feature type desription" {% if observationtype.description %}value="{{observationtype.description}}"{% endif %}>
 					</div>
 					<button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
@@ -44,7 +44,7 @@
 						{% endif %}
 						{% if admin %}
 						<div class="panel-footer">
-							<a href="#" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new field</a>
+							<a href="{% url 'admin:observationtype_field_create' observationtype.project.id observationtype.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new field</a>
 						</div>
 						{% endif %}
 					</div>
