@@ -187,7 +187,7 @@ class LookupField(Field):
         Returns `True` or `False`.
         """
         valid = False
-        for lookupvalue in self.lookupvalue_set.all():
+        for lookupvalue in self.lookupvalues.all():
             if lookupvalue.id == value:
                 valid = True
 
@@ -205,9 +205,13 @@ class LookupValue(models.Model):
     Stores a single lookup value.
     """
     name = models.CharField(max_length=100)
-    field = models.ForeignKey(LookupField)
+    field = models.ForeignKey(LookupField, related_name='lookupvalues')
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
         max_length=20
     )
+
+    def delete(self):
+        self.status = STATUS.inactive
+        self.save()

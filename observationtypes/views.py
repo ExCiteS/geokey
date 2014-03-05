@@ -13,11 +13,13 @@ from core.decorators import (
 )
 
 from .base import STATUS, FIELD_TYPES
-from .models import ObservationType, Field, NumericField
+from .models import (
+    ObservationType, Field, NumericField, LookupField, LookupValue
+)
 from .forms import ObservationTypeCreateForm, FieldCreateForm
 from .serializer import (
     ObservationTypeUpdateSerializer, FieldUpdateSerializer,
-    NumericFieldUpdateSerializer
+    NumericFieldUpdateSerializer, LookupFieldSerializer
 )
 
 
@@ -178,7 +180,8 @@ class FieldAdminDetailView(LoginRequiredMixin, TemplateView):
 class FieldApiDetail(APIView):
     """
     API endpoints for fields
-    /ajax/projects/:project_id/observationtypes/:observationtype_id/fields/:field_id
+    /ajax/projects/:project_id/observationtypes/:observationtype_id/fields/
+    :field_id
     """
     @handle_exceptions_for_ajax
     def put(self, request, project_id, observationtype_id, field_id,
@@ -199,3 +202,56 @@ class FieldApiDetail(APIView):
             return Response(serializer.data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FieldApiLookups(APIView):
+    """
+    API endpoint for lookupvalues
+    /ajax/projects/:project_id/observationtypes/:observationtype_id/fields/
+    :field_id/lookupvalues
+    """
+    @handle_exceptions_for_ajax
+    def post(self, request, project_id, observationtype_id, field_id,
+             format=None):
+        """
+        Adds a lookup value to the lookup field
+        """
+        field = Field.objects.as_admin(
+            request.user, project_id, observationtype_id, field_id)
+
+        if isinstance(field, LookupField):
+            LookupValue.objects.create(
+                name=request.DATA.get('name'), field=field)
+
+            serializer = LookupFieldSerializer(field)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(
+                {'error': 'This field is not a lookup field'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+
+class FieldApiLookupsDetail(APIView):
+    """
+    API endpoint for lookupvalues
+    /ajax/projects/:project_id/observationtypes/:observationtype_id/fields/
+    :field_id/lookupvalues/:value_id
+    """
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, observationtype_id, field_id,
+               value_id, format=None):
+        """
+        Removes a LookupValue
+        """
+        field = Field.objects.as_admin(
+            request.user, project_id, observationtype_id, field_id)
+
+        if isinstance(field, LookupField):
+            field.lookupvalues.get(pk=value_id).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(
+                {'error': 'This field is not a lookup field'},
+                status=status.HTTP_404_NOT_FOUND
+            )

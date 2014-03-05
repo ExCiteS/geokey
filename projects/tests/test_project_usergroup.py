@@ -72,10 +72,7 @@ class ProjectUsergroupTest(TestCase):
             {'userId': self.user_to_add.id},
             self.project.admins.id,
             self.admin)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(
-            response, '"username": "' + self.user_to_add.username + '"'
-        )
+        self.assertEqual(response.status_code, 201)
         self.assertIn(
             self.user_to_add,
             Project.objects.get(
@@ -114,10 +111,7 @@ class ProjectUsergroupTest(TestCase):
             {'userId': self.user_to_add.id},
             self.project.contributors.id,
             self.admin)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(
-            response, '"username": "' + self.user_to_add.username + '"'
-        )
+        self.assertEqual(response.status_code, 201)
         self.assertIn(
             self.user_to_add,
             Project.objects.get(

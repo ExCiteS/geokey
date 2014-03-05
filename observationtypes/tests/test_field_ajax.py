@@ -5,7 +5,8 @@ from django.test import TestCase
 from projects.tests.model_factories import UserF, UserGroupF, ProjectF
 
 from .model_factories import (
-    ObservationTypeFactory, TextFieldFactory, NumericFieldFactory
+    ObservationTypeFactory, TextFieldFactory, NumericFieldFactory,
+    LookupFieldFactory, LookupValueFactory
 )
 
 from ..models import Field
@@ -39,6 +40,32 @@ class ObservationtypeAjaxTest(TestCase):
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             content_type='application/json'
         )
+
+    def _post(self, url, data, user):
+        self.client.login(username=user.username, password='1')
+        return self.client.post(
+            url,
+            json.dumps(data),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            content_type='application/json'
+        )
+
+    def _delete(self, url, user):
+        self.client.login(username=user.username, password='1')
+        return self.client.delete(
+            url,
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            content_type='application/json'
+        )
+
+    def test_update_non_existing_field(self):
+        response = self._put(
+            '/ajax/projects/' + str(self.project.id) + '/observationtypes/' +
+            str(self.active_type.id) + '/fields/554454545',
+            {'description': 'new description'},
+            self.admin
+        )
+        self.assertEqual(response.status_code, 404)
 
     def test_update_description_with_admin(self):
         response = self._put(
@@ -199,3 +226,91 @@ class ObservationtypeAjaxTest(TestCase):
                 self.admin, self.project.id, self.active_type.id,
                 num_field.id).description, 'new description'
         )
+
+    def test_add_lookupvalue_to_not_existing_field(self):
+        response = self._post(
+            '/ajax/projects/' + str(self.project.id) + '/observationtypes/' +
+            str(self.active_type.id) + '/fields/44545444/lookupvalues',
+            {'name': 'Ms. Piggy'},
+            self.admin
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_add_lookupvalue_with_admin(self):
+        lookup_field = LookupFieldFactory(**{
+            'observationtype': self.active_type
+        })
+        response = self._post(
+            '/ajax/projects/' + str(self.project.id) + '/observationtypes/' +
+            str(self.active_type.id) + '/fields/' + str(lookup_field.id) +
+            '/lookupvalues',
+            {'name': 'Ms. Piggy'},
+            self.admin
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(len(lookup_field.lookupvalues.all()), 1)
+
+    def test_add_lookupvalue_from_non_lookup(self):
+        num_field = NumericFieldFactory(**{
+            'observationtype': self.active_type
+        })
+        response = self._post(
+            '/ajax/projects/' + str(self.project.id) + '/observationtypes/' +
+            str(self.active_type.id) + '/fields/' + str(num_field.id) +
+            '/lookupvalues',
+            {'name': 'Ms. Piggy'},
+            self.admin
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_remove_lookupvalue_with_admin(self):
+        lookup_field = LookupFieldFactory(**{
+            'observationtype': self.active_type
+        })
+        lookup_value = LookupValueFactory(**{
+            'field': lookup_field
+        })
+        response = self._delete(
+            '/ajax/projects/' + str(self.project.id) + '/observationtypes/' +
+            str(self.active_type.id) + '/fields/' + str(lookup_field.id) +
+            '/lookupvalues/' + str(lookup_value.id),
+            self.admin
+        )
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(
+            len(lookup_field.lookupvalues.filter(status='active')), 0
+        )
+
+    def test_remove_lookupvalue_from_not_existing_field(self):
+        lookup_value = LookupValueFactory()
+        response = self._delete(
+            '/ajax/projects/' + str(self.project.id) + '/observationtypes/' +
+            str(self.active_type.id) + '/fields/45455/lookupvalues/' +
+            str(lookup_value.id),
+            self.admin
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_remove_not_exisiting_lookupvalue(self):
+        lookup_field = LookupFieldFactory(**{
+            'observationtype': self.active_type
+        })
+        response = self._delete(
+            '/ajax/projects/' + str(self.project.id) + '/observationtypes/' +
+            str(self.active_type.id) + '/fields/' + str(lookup_field.id) +
+            '/lookupvalues/65645445444',
+            self.admin
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_remove_lookupvalue_from_non_lookup(self):
+        num_field = NumericFieldFactory(**{
+            'observationtype': self.active_type
+        })
+        response = self._delete(
+            '/ajax/projects/' + str(self.project.id) + '/observationtypes/' +
+            str(self.active_type.id) + '/fields/' + str(num_field.id) +
+            '/lookupvalues/5544',
+            self.admin
+        )
+        self.assertEqual(response.status_code, 404)

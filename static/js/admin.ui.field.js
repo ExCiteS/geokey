@@ -1,5 +1,5 @@
 /* ***********************************************
- * Module to edit field properties. Is currently only responsible 
+ * Module to edit field properties. Is currently only responsible
  * for setting minimim and maximum values of numeric fields.
  * Is automatically loaded when included in a page.
  *
@@ -12,9 +12,9 @@ $(function() {
 
 	// Reads the IDs from the body's attributes
 	var projectId = $('body').attr('data-project-id'),
-		featuretypeId = $('body').attr('data-featuretype-id'),
+		observationtypeId = $('body').attr('data-observationtype-id'),
 		fieldId = $('body').attr('data-field-id'),
-		url = 'projects/' + projectId + '/featuretypes/' + featuretypeId + '/fields/' + fieldId;
+		url = 'projects/' + projectId + '/observationtypes/' + observationtypeId + '/fields/' + fieldId;
 
 	// Initialize the lookup panel functionality if the field is a lookup
 	var lookupPanel = ($('#lookupValuesPanel').length !== 0 ? new Ui.LookupPanel('#lookupValuesPanel', url) : undefined);
@@ -22,7 +22,7 @@ $(function() {
 	// Reads the relevant DOM elements
 	var valuesSubmitBtn = $('form#valuesForm button[type="submit"]');
 	var messages = new Ui.MessageDisplay('#constraints');
-	
+
 	/**
 	 * Handles the response if the update of the numeric fields failed. Displays
 	 * an error message.
@@ -34,21 +34,21 @@ $(function() {
 	}
 
 	/**
-	 * Handles the response if the update of the numeric fields has been 
+	 * Handles the response if the update of the numeric fields has been
 	 * successful.
 	 * @param  {Object} response JSON object of the response
 	 */
 	function handleNumericUpdateSuccess(response) {
-		$('form#valuesForm input[name="minval"]').attr('value', response.field.minval);
-		$('form#valuesForm input[name="maxval"]').attr('value', response.field.maxval);
+		$('form#valuesForm input[name="minval"]').attr('value', response.minval);
+		$('form#valuesForm input[name="maxval"]').attr('value', response.maxval);
 		valuesSubmitBtn.button('reset');
 		messages.showSuccess('The field has been updated with new minumum and maximum values.');
 	}
 
 	/**
-	 * Event handler for form submission. Reads the values from the from and 
+	 * Event handler for form submission. Reads the values from the from and
 	 * sends the AJax request.
-	 * @param  {Event} event The event the fires the event handler. 
+	 * @param  {Event} event The event the fires the event handler.
 	 */
 	function submitForm(event) {
 		if (event.target.checkValidity()) {

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import ObservationType, Field, NumericField
+from .models import ObservationType, Field, NumericField, LookupField
 
 
 class ObservationTypeSerializer(serializers.ModelSerializer):
@@ -40,3 +40,14 @@ class NumericFieldSerializer(serializers.ModelSerializer):
 
 class NumericFieldUpdateSerializer(NumericFieldSerializer):
     description = serializers.CharField(required=False)
+
+
+class LookupFieldSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LookupField
+        depth = 1
+        fields = (
+            'id', 'name', 'key', 'description', 'status', 'required',
+            'lookupvalues'
+        )
+        read_only_fields = ('id', 'name', 'key')

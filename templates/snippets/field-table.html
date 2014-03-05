@@ -17,7 +17,7 @@
 			<tbody>
 	{% endif %}
 				<tr>
-					<td>{{field.name}} {% if field.status == status_types.INACTIVE %} <span class="label label-default">INACTIVE</span> {% endif %}</td>
+					<td>{{field.name}} {% if field.status == status_types.inactive %} <span class="label label-default">INACTIVE</span> {% endif %}</td>
 					<td>{{field.key}}</td>
 					<td>{{field.description}}</td>
 					<td>{{field.get_type_name}}</td>

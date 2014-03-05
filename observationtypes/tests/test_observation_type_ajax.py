@@ -38,6 +38,14 @@ class ObservationtypeAjaxTest(TestCase):
             content_type='application/json'
         )
 
+    def test_update_not_existing_type(self):
+        response = self._put(
+            '/ajax/projects/' + str(self.project.id) + '/observationtypes/456',
+            {'status': 'bockwurst'},
+            self.admin
+        )
+        self.assertEqual(response.status_code, 404)
+
     def test_update_wrong_status(self):
         response = self._put(
             '/ajax/projects/' + str(self.project.id) + '/observationtypes/' +

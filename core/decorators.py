@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from projects.models import Project, UserGroup
+from observationtypes.models import ObservationType, Field, LookupValue
 
 
 def handle_exceptions_for_admin(func):
@@ -30,7 +31,10 @@ def handle_exceptions_for_ajax(func):
         except (
             Project.DoesNotExist,
             UserGroup.DoesNotExist,
-            User.DoesNotExist
+            User.DoesNotExist,
+            ObservationType.DoesNotExist,
+            Field.DoesNotExist,
+            LookupValue.DoesNotExist
         ) as err:
             return Response(str(err), status=status.HTTP_404_NOT_FOUND)
 

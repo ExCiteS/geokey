@@ -138,7 +138,7 @@ class ProjectApiUserGroup(APIView):
             group.users.add(user)
 
             serializer = UserGroupSerializer(group)
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         except User.DoesNotExist:
             return Response(
                 'The user you are trying to add to the user group does ' +
