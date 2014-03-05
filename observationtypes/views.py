@@ -146,7 +146,25 @@ class FieldAdminCreateView(LoginRequiredMixin, CreateView):
             self.request.POST.get('type')
         )
         return redirect(
-            'admin:observationtype_detail',
+            'admin:observationtype_field_detail',
             project_id=observation_type.project.id,
-            observationtype_id=observation_type.id
+            observationtype_id=observation_type.id,
+            field_id=field.id
         )
+
+class FieldAdminDetailView(LoginRequiredMixin, TemplateView):
+    """
+    Displays the field detail page
+    """
+    template_name = 'observationtypes/field_view.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, observationtype_id, field_id, **kwargs):
+        user = self.request.user
+        field = Field.objects.get_single(user, project_id,
+            observationtype_id, field_id)
+        context = super(FieldAdminDetailView, self).get_context_data(**kwargs)
+        context['field'] = field
+        context['status_types'] = STATUS
+
+        return context
