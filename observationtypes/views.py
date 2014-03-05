@@ -13,9 +13,12 @@ from core.decorators import (
 )
 
 from .base import STATUS, FIELD_TYPES
-from .models import ObservationType, Field
+from .models import ObservationType, Field, NumericField
 from .forms import ObservationTypeCreateForm, FieldCreateForm
-from .serializer import ObservationTypeUpdateSerializer
+from .serializer import (
+    ObservationTypeUpdateSerializer, FieldUpdateSerializer,
+    NumericFieldUpdateSerializer
+)
 
 
 class ObservationTypeAdminCreateView(LoginRequiredMixin, CreateView):
@@ -152,6 +155,7 @@ class FieldAdminCreateView(LoginRequiredMixin, CreateView):
             field_id=field.id
         )
 
+
 class FieldAdminDetailView(LoginRequiredMixin, TemplateView):
     """
     Displays the field detail page
@@ -159,12 +163,39 @@ class FieldAdminDetailView(LoginRequiredMixin, TemplateView):
     template_name = 'observationtypes/field_view.html'
 
     @handle_exceptions_for_admin
-    def get_context_data(self, project_id, observationtype_id, field_id, **kwargs):
+    def get_context_data(self, project_id, observationtype_id, field_id,
+                         **kwargs):
         user = self.request.user
-        field = Field.objects.get_single(user, project_id,
-            observationtype_id, field_id)
+        field = Field.objects.get_single(
+            user, project_id, observationtype_id, field_id)
         context = super(FieldAdminDetailView, self).get_context_data(**kwargs)
         context['field'] = field
         context['status_types'] = STATUS
 
         return context
+
+
+class FieldApiDetail(APIView):
+    """
+    API endpoints for fields
+    /ajax/projects/:project_id/observationtypes/:observationtype_id/fields/:field_id
+    """
+    @handle_exceptions_for_ajax
+    def put(self, request, project_id, observationtype_id, field_id,
+            format=None):
+        """
+        Updates an field
+        """
+        field = Field.objects.as_admin(
+            request.user, project_id, observationtype_id, field_id)
+
+        if isinstance(field, NumericField):
+            serializer = NumericFieldUpdateSerializer(field, data=request.DATA)
+        else:
+            serializer = FieldUpdateSerializer(field, data=request.DATA)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

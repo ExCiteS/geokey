@@ -96,8 +96,8 @@ class NumericField(Field):
     """
     A field for numeric values.
     """
-    minval = models.FloatField(null=True)
-    maxval = models.FloatField(null=True)
+    minval = models.FloatField(blank=True, null=True)
+    maxval = models.FloatField(blank=True, null=True)
 
     def validate_input(self, value):
         """

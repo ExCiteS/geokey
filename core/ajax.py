@@ -22,5 +22,9 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)$',
         observationtypes_views.ObservationTypeApiDetail.as_view(),
         name='project_observationtype'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)$',
+        observationtypes_views.FieldApiDetail.as_view(),
+        name='project_observationtype_field'),
     url(r'^users$', user_views.QueryUsers.as_view(), name='users_users'),
 )

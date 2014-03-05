@@ -13,9 +13,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class ProjectUpdateSerializer(ProjectSerializer):
-    def __init__(self, *args, **kwargs):
-        super(ProjectSerializer, self).__init__(*args, **kwargs)
-        self.fields['description'].required = False
+    description = serializers.CharField(required=False)
 
 
 class UserGroupSerializer(serializers.ModelSerializer):

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import ObservationType
+from .models import ObservationType, Field, NumericField
 
 
 class ObservationTypeSerializer(serializers.ModelSerializer):
@@ -12,6 +12,31 @@ class ObservationTypeSerializer(serializers.ModelSerializer):
 
 
 class ObservationTypeUpdateSerializer(ObservationTypeSerializer):
-    def __init__(self, *args, **kwargs):
-        super(ObservationTypeUpdateSerializer, self).__init__(*args, **kwargs)
-        self.fields['description'].required = False
+    description = serializers.CharField(required=False)
+
+
+class FieldSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Field
+        depth = 1
+        fields = ('id', 'name', 'key', 'description', 'status', 'required')
+        read_only_fields = ('id', 'name', 'key')
+
+
+class FieldUpdateSerializer(FieldSerializer):
+    description = serializers.CharField(required=False)
+
+
+class NumericFieldSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NumericField
+        depth = 1
+        fields = (
+            'id', 'name', 'key', 'description', 'status', 'required',
+            'minval', 'maxval'
+        )
+        read_only_fields = ('id', 'name', 'key')
+
+
+class NumericFieldUpdateSerializer(NumericFieldSerializer):
+    description = serializers.CharField(required=False)
