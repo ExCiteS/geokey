@@ -50,7 +50,7 @@ class FieldManager(InheritanceManager):
         Returns all fields the user is allowed to access.
         """
         return Project.objects.get(user, project_id).observationtype_set.get(
-            pk=observationtype_id).field_set.filter(
+            pk=observationtype_id).fields.filter(
             Q(status=STATUS.active) |
             Q(observationtype__project__admins__users=user)
             ).distinct().select_subclasses()
@@ -60,7 +60,7 @@ class FieldManager(InheritanceManager):
         Return a single field
         """
         field = Project.objects.get(user, project_id).observationtype_set.get(
-            pk=observationtype_id).field_set.get_subclass(pk=field_id)
+            pk=observationtype_id).fields.get_subclass(pk=field_id)
 
         if (field.status == STATUS.active or
                 field.observationtype.project.is_admin(user)):
@@ -74,4 +74,26 @@ class FieldManager(InheritanceManager):
         """
         return Project.objects.as_admin(
             user, project_id).observationtype_set.get(
-            pk=observationtype_id).field_set.get_subclass(pk=field_id)
+            pk=observationtype_id).fields.get_subclass(pk=field_id)
+
+
+class LookupQuerySet(models.query.QuerySet):
+    """
+    QuerySet for models having a field status. User by ActiveManager.
+    """
+    def active(self):
+        return self.filter(status=STATUS.active)
+
+
+class LookupValueManager(models.Manager):
+    """
+    Manager for models having a field status. Is required to render active
+    items only in templates.
+    """
+    use_for_related_fields = True
+
+    def get_query_set(self):
+        return LookupQuerySet(self.model)
+
+    def active(self, *args, **kwargs):
+        return self.get_query_set().active(*args, **kwargs)

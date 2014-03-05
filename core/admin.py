@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url
 
 from projects import views as project_views
 from observationtypes import views as observationtype_views
-import views as login_views
+from users import views as login_views
 
 
 urlpatterns = patterns(

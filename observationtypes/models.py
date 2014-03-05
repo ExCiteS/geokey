@@ -3,7 +3,7 @@ import iso8601
 from django.db import models
 from django.db.models.loading import get_model
 
-from .manager import ObservationTypeManager, FieldManager
+from .manager import ObservationTypeManager, FieldManager, LookupValueManager
 from .base import STATUS, FIELD_TYPES
 
 
@@ -32,7 +32,9 @@ class Field(models.Model):
     key = models.CharField(max_length=30)
     description = models.TextField()
     required = models.BooleanField(default=False)
-    observationtype = models.ForeignKey('ObservationType')
+    observationtype = models.ForeignKey(
+        'ObservationType', related_name='fields'
+    )
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
@@ -211,6 +213,8 @@ class LookupValue(models.Model):
         default=STATUS.active,
         max_length=20
     )
+
+    objects = LookupValueManager()
 
     def delete(self):
         self.status = STATUS.inactive

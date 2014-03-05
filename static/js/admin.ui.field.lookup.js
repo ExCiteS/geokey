@@ -43,7 +43,7 @@
 
 	/**
 	 * Handles the removal of a lookup value from the lookup field. Is called
-	 * when the user clicks on the remove link next to the user name. 
+	 * when the user clicks on the remove link next to the user name.
 	 * @param  {[Event} event Click event fired by the link
 	 */
 	LookupPanel.prototype.handleRemoveValue = function handleRemoveValue(event) {
@@ -84,7 +84,7 @@
 		 * @param  {Object} response JSON object of the response
 		 */
 		function handleAddValueSuccess(response) {
-			var lookupValues = response.field.lookupvalues;
+			var lookupValues = response.lookupvalues;
 
 			this.formField.val(null);
 			this.lookuplist.empty();
@@ -105,7 +105,7 @@
 		}
 
 		this.addButton.button('loading');
-		Control.Ajax.put(this.url, handleAddValueSuccess.bind(this), handleAddValueError.bind(this), {name: this.formField.val()});
+		Control.Ajax.post(this.url, handleAddValueSuccess.bind(this), handleAddValueError.bind(this), {name: this.formField.val()});
 	};
 
 	global.LookupPanel = LookupPanel;

@@ -80,7 +80,7 @@
                             <h2 class="panel-title">Lookup values</h2>
                         </div>
                         <ul class="list-group">
-                        {% for lookupvalue in field.lookupfield.lookupvalue_set.active %}
+                        {% for lookupvalue in field.lookupfield.lookupvalues.active %}
                             <li class="list-group-item">{{ lookupvalue.name }} (<a class="text-danger" data-lookup-id="{{ lookupvalue.id }}" href="#">remove</a>)</li>
                         {% empty %}
                             <li class="list-group-item">No lookup values have been added yet.</li>

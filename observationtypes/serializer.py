@@ -3,18 +3,6 @@ from rest_framework import serializers
 from .models import ObservationType, Field, NumericField, LookupField
 
 
-class ObservationTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ObservationType
-        depth = 1
-        fields = ('id', 'name', 'description', 'status')
-        read_only_fields = ('id', 'name')
-
-
-class ObservationTypeUpdateSerializer(ObservationTypeSerializer):
-    description = serializers.CharField(required=False)
-
-
 class FieldSerializer(serializers.ModelSerializer):
     class Meta:
         model = Field
@@ -51,3 +39,17 @@ class LookupFieldSerializer(serializers.ModelSerializer):
             'lookupvalues'
         )
         read_only_fields = ('id', 'name', 'key')
+
+
+class ObservationTypeSerializer(serializers.ModelSerializer):
+    # fields = FieldSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ObservationType
+        depth = 1
+        fields = ('id', 'name', 'description', 'status')
+        read_only_fields = ('id', 'name')
+
+
+class ObservationTypeUpdateSerializer(ObservationTypeSerializer):
+    description = serializers.CharField(required=False)
