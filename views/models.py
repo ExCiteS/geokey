@@ -16,7 +16,7 @@ class View(models.Model):
         default=STATUS.active,
         max_length=20
     )
-    project = models.ForeignKey('projects.Project')
+    project = models.ForeignKey('projects.Project', related_name='views')
 
     def delete(self):
         """

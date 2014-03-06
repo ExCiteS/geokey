@@ -3,6 +3,7 @@ from django.conf.urls import patterns, url
 from projects import views as project_views
 from observationtypes import views as observationtype_views
 from users import views as login_views
+from views import views as view_views
 
 
 urlpatterns = patterns(
@@ -52,4 +53,12 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)$',
         observationtype_views.FieldAdminDetailView.as_view(),
         name='observationtype_field_detail'),
+
+    # ###########################
+    # VIEWS
+    # ###########################
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/views/new$',
+        view_views.ViewAdminCreateView.as_view(),
+        name='view_create'),
 )
