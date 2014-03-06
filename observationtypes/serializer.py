@@ -42,8 +42,6 @@ class LookupFieldSerializer(serializers.ModelSerializer):
 
 
 class ObservationTypeSerializer(serializers.ModelSerializer):
-    # fields = FieldSerializer(many=True, read_only=True)
-
     class Meta:
         model = ObservationType
         depth = 1

@@ -34,7 +34,7 @@ class FieldTest(TestCase):
             'observationtype': observation_type
         })
         self.assertEqual(
-            len(Field.objects.all(admin, project.id, observation_type.id)), 2
+            len(Field.objects.get_list(admin, project.id, observation_type.id)), 2
         )
 
     def test_access_active_field_with_admin(self):
@@ -109,7 +109,7 @@ class FieldTest(TestCase):
             'status': 'inactive',
             'observationtype': observation_type
         })
-        fields = Field.objects.all(user, project.id, observation_type.id)
+        fields = Field.objects.get_list(user, project.id, observation_type.id)
         self.assertEqual(len(fields), 1)
         self.assertNotIn(inactive, fields)
 
@@ -185,7 +185,7 @@ class FieldTest(TestCase):
             'status': 'inactive',
             'observationtype': observation_type
         })
-        Field.objects.all(user, project.id, observation_type.id)
+        Field.objects.get_list(user, project.id, observation_type.id)
 
     @raises(PermissionDenied)
     def test_access_active_field_with_non_member(self):

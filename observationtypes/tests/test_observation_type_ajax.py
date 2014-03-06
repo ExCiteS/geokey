@@ -73,7 +73,6 @@ class ObservationtypeAjaxTest(TestCase):
                 self.admin, self.project.id, self.active_type.id).description,
             'new description'
         )
-        print response
 
     def test_update_status_with_admin(self):
         response = self._put(

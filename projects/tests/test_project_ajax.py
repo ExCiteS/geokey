@@ -58,7 +58,7 @@ class ProjectAjaxTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            Project.objects.get(self.admin, pk=self.project.id).description,
+            Project.objects.get(pk=self.project.id).description,
             'new description'
         )
 
@@ -70,7 +70,7 @@ class ProjectAjaxTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
-            Project.objects.get(self.admin, pk=self.project.id).description,
+            Project.objects.get(pk=self.project.id).description,
             self.project.description
         )
 
@@ -82,7 +82,7 @@ class ProjectAjaxTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
-            Project.objects.get(self.admin, pk=self.project.id).description,
+            Project.objects.get(pk=self.project.id).description,
             self.project.description
         )
 
@@ -93,7 +93,7 @@ class ProjectAjaxTest(TestCase):
             self.admin
         )
         self.assertEqual(response.status_code, 204)
-        Project.objects.get(self.admin, pk=self.project.id)
+        Project.objects.get(pk=self.project.id)
 
     def test_delete_project_with_contributor(self):
         response = self._delete(
@@ -102,7 +102,7 @@ class ProjectAjaxTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
-            Project.objects.get(self.admin, pk=self.project.id).status,
+            Project.objects.get(pk=self.project.id).status,
             'active'
         )
 
@@ -113,6 +113,6 @@ class ProjectAjaxTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
-            Project.objects.get(self.admin, pk=self.project.id).status,
+            Project.objects.get(pk=self.project.id).status,
             'active'
         )

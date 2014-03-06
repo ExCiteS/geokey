@@ -22,15 +22,12 @@ class ProjectManager(models.Manager):
     def get_query_set(self):
         return ProjectQuerySet(self.model).exclude(status=STATUS.deleted)
 
-    def all(self, user):
+    def get_list(self, user):
         return self.get_query_set().for_user(user)
 
-    def get(self, user, pk):
+    def get_single(self, user, pk):
         project = super(ProjectManager, self).get(pk=pk)
-        if user in project.admins.users.all() or (
-            (not project.isprivate or user in project.contributors.users.all())
-            and project.status != STATUS.inactive
-        ):
+        if project.can_access(user):
             return project
         else:
             raise PermissionDenied('You are not allowed to access this '
@@ -38,7 +35,7 @@ class ProjectManager(models.Manager):
 
     def as_admin(self, user, pk):
         project = super(ProjectManager, self).get(pk=pk)
-        if user in project.admins.users.all():
+        if project.is_admin(user):
             return project
         else:
             raise PermissionDenied('You are not member of the administrators '

@@ -1,6 +1,5 @@
 from django.db import models
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
 
 from model_utils.managers import InheritanceManager
 
@@ -9,22 +8,32 @@ from projects.models import Project
 from .base import STATUS
 
 
-class ObservationTypeManager(models.Manager):
-    def all(self, user, project_id):
+class ActiveMixin(object):
+    def active(self, *args, **kwargs):
+        return self.get_query_set().filter(status=STATUS.active)
+
+
+class ObservationTypeManager(ActiveMixin, models.Manager):
+    def active(self, *args, **kwargs):
+        return self.get_query_set().filter(status=STATUS.active)
+
+    def get_list(self, user, project_id):
         """
         Returns all observationtype objects the user is allowed to access
         """
-        return Project.objects.get(user, project_id).observationtype_set.filter(
-            Q(status=STATUS.active) | Q(project__admins__users=user)
-            ).distinct()
+        project = Project.objects.get_single(user, project_id)
+        if (project.is_admin(user)):
+            return project.observationtypes.all()
+        else:
+            return project.observationtypes.active()
 
     def get_single(self, user, project_id, observationtype_id):
         """
         Returns all a single observationtype. Raises PermissionDenied if user
         is not eligable to access the observationtype.
         """
-        observation_type = Project.objects.get(
-            user, project_id).observationtype_set.get(pk=observationtype_id)
+        observation_type = Project.objects.get_single(
+            user, project_id).observationtypes.get(pk=observationtype_id)
 
         if (observation_type.status == STATUS.active or
                 observation_type.project.is_admin(user)):
@@ -39,41 +48,54 @@ class ObservationTypeManager(models.Manager):
         """
         return Project.objects.as_admin(
             user, project_id
-            ).observationtype_set.get(pk=observationtype_id)
+            ).observationtypes.get(pk=observationtype_id)
 
 
-class FieldManager(InheritanceManager):
+class FieldManager(ActiveMixin, InheritanceManager):
     use_for_related_fields = True
 
-    def all(self, user, project_id, observationtype_id):
+    def get_list(self, user, project_id, observationtype_id):
         """
         Returns all fields the user is allowed to access.
         """
-        return Project.objects.get(user, project_id).observationtype_set.get(
-            pk=observationtype_id).fields.filter(
-            Q(status=STATUS.active) |
-            Q(observationtype__project__admins__users=user)
-            ).distinct().select_subclasses()
+        project = Project.objects.get_single(user, project_id)
+
+        if project.is_admin(user):
+            return project.observationtypes.get(
+                pk=observationtype_id).fields.all().select_subclasses()
+        else:
+            observationtype = project.observationtypes.get(
+                pk=observationtype_id)
+            if observationtype.status == STATUS.active:
+                return observationtype.fields.active().select_subclasses()
 
     def get_single(self, user, project_id, observationtype_id, field_id):
         """
         Return a single field
         """
-        field = Project.objects.get(user, project_id).observationtype_set.get(
-            pk=observationtype_id).fields.get_subclass(pk=field_id)
+        project = Project.objects.get_single(user, project_id)
+        observationtype = project.observationtypes.get(pk=observationtype_id)
+        field = observationtype.fields.get_subclass(pk=field_id)
 
-        if (field.status == STATUS.active or
-                field.observationtype.project.is_admin(user)):
+        if project.is_admin(user):
             return field
         else:
-            raise PermissionDenied('You are not allowed to access this field')
+            if observationtype.status == STATUS.active:
+                if field.status == STATUS.active:
+                    return field
+                else:
+                    raise PermissionDenied('You are not allowed to access '
+                                           'this field')
+            else:
+                raise PermissionDenied('You are not allowed to access this '
+                                       'observationtype')
 
     def as_admin(self, user, project_id, observationtype_id, field_id):
         """
         Returns all a single field for an project admin.
         """
         return Project.objects.as_admin(
-            user, project_id).observationtype_set.get(
+            user, project_id).observationtypes.get(
             pk=observationtype_id).fields.get_subclass(pk=field_id)
 
 

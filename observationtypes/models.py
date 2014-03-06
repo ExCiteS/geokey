@@ -13,7 +13,9 @@ class ObservationType(models.Model):
     """
     name = models.CharField(max_length=100)
     description = models.TextField()
-    project = models.ForeignKey('projects.Project')
+    project = models.ForeignKey(
+        'projects.Project', related_name='observationtypes'
+    )
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,

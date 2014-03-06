@@ -71,6 +71,12 @@ class Project(models.Model):
         """
         return user in self.admins.users.all()
 
+    def can_access(self, user):
+        return self.is_admin(user) or (
+            (not self.isprivate or user in self.contributors.users.all())
+            and self.status != STATUS.inactive
+        )
+
 
 class UserGroup(models.Model):
     """

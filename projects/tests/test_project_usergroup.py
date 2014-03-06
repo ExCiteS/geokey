@@ -76,7 +76,6 @@ class ProjectUsergroupTest(TestCase):
         self.assertIn(
             self.user_to_add,
             Project.objects.get(
-                self.admin,
                 pk=self.project.id).admins.users.all()
         )
 
@@ -89,7 +88,6 @@ class ProjectUsergroupTest(TestCase):
         self.assertNotIn(
             self.user_to_add,
             Project.objects.get(
-                self.admin,
                 pk=self.project.id).admins.users.all()
         )
 
@@ -102,7 +100,6 @@ class ProjectUsergroupTest(TestCase):
         self.assertNotIn(
             self.user_to_add,
             Project.objects.get(
-                self.admin,
                 pk=self.project.id).admins.users.all()
         )
 
@@ -115,7 +112,6 @@ class ProjectUsergroupTest(TestCase):
         self.assertIn(
             self.user_to_add,
             Project.objects.get(
-                self.admin,
                 pk=self.project.id).contributors.users.all()
         )
 
@@ -128,7 +124,6 @@ class ProjectUsergroupTest(TestCase):
         self.assertNotIn(
             self.user_to_add,
             Project.objects.get(
-                self.admin,
                 pk=self.project.id).contributors.users.all()
         )
 
@@ -141,7 +136,6 @@ class ProjectUsergroupTest(TestCase):
         self.assertNotIn(
             self.user_to_add,
             Project.objects.get(
-                self.admin,
                 pk=self.project.id).contributors.users.all()
         )
 
@@ -174,7 +168,6 @@ class ProjectUsergroupTest(TestCase):
         self.assertNotIn(
             self.admin_to_remove,
             Project.objects.get(
-                self.admin,
                 pk=self.project.id).admins.users.all()
         )
 
@@ -187,7 +180,6 @@ class ProjectUsergroupTest(TestCase):
         self.assertIn(
             self.admin_to_remove,
             Project.objects.get(
-                self.admin,
                 pk=self.project.id).admins.users.all()
         )
 
@@ -200,7 +192,6 @@ class ProjectUsergroupTest(TestCase):
         self.assertIn(
             self.admin_to_remove,
             Project.objects.get(
-                self.admin,
                 pk=self.project.id).admins.users.all()
         )
 
@@ -213,7 +204,6 @@ class ProjectUsergroupTest(TestCase):
         self.assertNotIn(
             self.contrib_to_remove,
             Project.objects.get(
-                self.admin,
                 pk=self.project.id).contributors.users.all()
         )
 
@@ -226,7 +216,6 @@ class ProjectUsergroupTest(TestCase):
         self.assertIn(
             self.contrib_to_remove,
             Project.objects.get(
-                self.admin,
                 pk=self.project.id).contributors.users.all()
         )
 
@@ -239,6 +228,5 @@ class ProjectUsergroupTest(TestCase):
         self.assertIn(
             self.contrib_to_remove,
             Project.objects.get(
-                self.admin,
                 pk=self.project.id).contributors.users.all()
         )

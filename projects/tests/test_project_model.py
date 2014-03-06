@@ -52,7 +52,7 @@ class ProjectTest(TestCase):
     def test_delete_project(self):
         project = ProjectF.create()
         project.delete()
-        Project.objects.get(self.admin, pk=project.id)
+        Project.objects.get(pk=project.id)
 
     def test_str(self):
         project = ProjectF.create(**{
@@ -72,18 +72,18 @@ class ProjectTest(TestCase):
         self.assertFalse(self.private_project.is_admin(self.non_member))
 
     def test_get_projects_with_admin(self):
-        projects = Project.objects.all(self.admin)
+        projects = Project.objects.get_list(self.admin)
         self.assertEqual(projects.count(), 3)
         self.assertNotIn(self.deleted_project, projects)
 
     def test_get_projects_with_contributor(self):
-        projects = Project.objects.all(self.contributor)
+        projects = Project.objects.get_list(self.contributor)
         self.assertEqual(projects.count(), 2)
         self.assertNotIn(self.inactive_project, projects)
         self.assertNotIn(self.deleted_project, projects)
 
     def test_get_projects_with_non_member(self):
-        projects = Project.objects.all(self.non_member)
+        projects = Project.objects.get_list(self.non_member)
         self.assertEqual(projects.count(), 1)
         self.assertNotIn(self.private_project, projects)
         self.assertNotIn(self.inactive_project, projects)
@@ -91,26 +91,26 @@ class ProjectTest(TestCase):
 
     @raises(Project.DoesNotExist)
     def test_get_deleted_project_with_admin(self):
-        Project.objects.get(self.admin, self.deleted_project.id)
+        Project.objects.get_single(self.admin, self.deleted_project.id)
 
     def test_get_private_project_with_admin(self):
-        project = Project.objects.get(self.admin, self.private_project.id)
+        project = Project.objects.get_single(self.admin, self.private_project.id)
         self.assertEqual(project, self.private_project)
 
     def test_get_inactive_project_with_admin(self):
-        project = Project.objects.get(self.admin, self.inactive_project.id)
+        project = Project.objects.get_single(self.admin, self.inactive_project.id)
         self.assertEqual(project, self.inactive_project)
 
     def test_get_public_project_with_admin(self):
-        project = Project.objects.get(self.admin, self.public_project.id)
+        project = Project.objects.get_single(self.admin, self.public_project.id)
         self.assertEqual(project, self.public_project)
 
     @raises(Project.DoesNotExist)
     def test_get_deleted_project_with_contributor(self):
-        Project.objects.get(self.contributor, self.deleted_project.id)
+        Project.objects.get_single(self.contributor, self.deleted_project.id)
 
     def test_get_private_project_with_contributor(self):
-        project = Project.objects.get(
+        project = Project.objects.get_single(
             self.contributor,
             self.private_project.id
         )
@@ -118,26 +118,26 @@ class ProjectTest(TestCase):
 
     @raises(PermissionDenied)
     def test_get_inactive_project_with_contributor(self):
-        Project.objects.get(self.contributor, self.inactive_project.id)
+        Project.objects.get_single(self.contributor, self.inactive_project.id)
 
     def test_get_public_project_with_contributor(self):
-        project = Project.objects.get(self.contributor, self.public_project.id)
+        project = Project.objects.get_single(self.contributor, self.public_project.id)
         self.assertEqual(project, self.public_project)
 
     @raises(Project.DoesNotExist)
     def test_get_deleted_project_with_non_member(self):
-        Project.objects.get(self.non_member, self.deleted_project.id)
+        Project.objects.get_single(self.non_member, self.deleted_project.id)
 
     @raises(PermissionDenied)
     def test_get_private_project_with_non_member(self):
-        Project.objects.get(self.non_member, self.private_project.id)
+        Project.objects.get_single(self.non_member, self.private_project.id)
 
     @raises(PermissionDenied)
     def test_get_inactive_project_with_non_member(self):
-        Project.objects.get(self.non_member, self.inactive_project.id)
+        Project.objects.get_single(self.non_member, self.inactive_project.id)
 
     def test_get_public_project_with_non_member(self):
-        project = Project.objects.get(self.non_member, self.public_project.id)
+        project = Project.objects.get_single(self.non_member, self.public_project.id)
         self.assertEqual(project, self.public_project)
 
     @raises(Project.DoesNotExist)

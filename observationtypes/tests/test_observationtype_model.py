@@ -33,7 +33,7 @@ class ObservationtypeTest(TestCase):
         })
 
         self.assertEqual(
-            len(ObservationType.objects.all(admin, project.id)), 2
+            len(ObservationType.objects.get_list(admin, project.id)), 2
         )
 
     def test_access_with_projct_contributor(self):
@@ -52,7 +52,7 @@ class ObservationtypeTest(TestCase):
             'status': 'inactive'
         })
 
-        types = ObservationType.objects.all(contributor, project.id)
+        types = ObservationType.objects.get_list(contributor, project.id)
         self.assertEqual(len(types), 1)
         self.assertIn(active, types)
 
@@ -70,7 +70,7 @@ class ObservationtypeTest(TestCase):
             'project': project,
             'status': 'inactive'
         })
-        ObservationType.objects.all(contributor, project.id)
+        ObservationType.objects.get_list(contributor, project.id)
 
     def test_access_active_with_admin(self):
         admin = UserF.create()
