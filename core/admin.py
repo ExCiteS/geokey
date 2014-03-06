@@ -22,12 +22,12 @@ urlpatterns = patterns(
         name='project_create'),
     url(
         r'^projects/(?P<project_id>[0-9]+)$',
-        project_views.ProjectAdminDetailView.as_view(),
-        name='project_detail'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/settings$',
         project_views.ProjectAdminSettings.as_view(),
         name='project_settings'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/data$',
+        project_views.ProjectAdminDetailView.as_view(),
+        name='project_detail'),
 
     # ###########################
     # OBSERVATION TYPES

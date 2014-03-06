@@ -1,104 +1,101 @@
 {% extends "base.html" %}
-	{% block title %}| Project: {{ project.name }}{% endblock %}
+    {% block title %}| Project: {{ project.name }}{% endblock %}
 
     {% block main %}
-    	
-	        <div class="page-header">
-	            <div class="container">
-	                <ol class="breadcrumb">
-	                    <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
-	                    <li class="active">{{ project.name }}</li>
-	                </ol>
 
-	                <h1>{{project.name}}</h1>
-	                <p class="lead">
-	                    {{project.description}} 
-	                    {% if admin %}
-	                        <a href="{% url 'admin:project_settings' project.id %}" class="btn btn-link"><span class="glyphicon glyphicon-cog"></span> Settings</a>
-	                    {% endif %}
-	                </p>
-	            </div>
-	        </div>
+            <div class="page-header">
+                <div class="container">
+                    <ol class="breadcrumb">
+                        <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
+                        <li><a href="{% url 'admin:project_settings' project.id %}">{{ project.name }}: Settings</a></li>
+                        <li class="active">Data</li>
+                    </ol>
 
-	        <div class="container">
-	            <div class="row">
-	                <div class="col-lg-12">
-	                    <div id="map"></div>
-	                </div>
-	            </div>
+                    <h1>{{project.name}}</h1>
+                    <p class="lead">{{project.description}}</p>
+                </div>
+            </div>
 
-	            <div class="row">
-	                <div class="col-sm-7">
-	                    <div class="panel panel-default"> <!-- View list -->
-	                        <div class="panel-heading">
-	                            <h2 class="panel-title">Feature info</h2>
-	                        </div>
-	                        <div class="panel-body bordered-panel">
-	                            <!-- Nav tabs -->
-	                            <ul class="nav nav-tabs">
-	                                <li class="active"><a href="#feature_info" data-toggle="tab">Info</a></li>
-	                                <li><a href="#feature_observations" data-toggle="tab">Observations <span class="badge">5</span></a></li>
-	                                <li><a href="#feature_comments" data-toggle="tab">Comments <span class="badge">3</span></a></li>
-	                            </ul>
+            <div class="container">
+                <div class="alert alert-danger">This is hard coded dummy page. No actual data is shown here.</div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div id="map"></div>
+                    </div>
+                </div>
 
-	                            <!-- Tab panes -->
-	                            <div class="tab-content">
-	                                <div class="tab-pane active" id="feature_info">
-	                                    <h4>Info</h4>
-	                                </div>
-	                                <div class="tab-pane" id="feature_observations">
-	                                    <h4>Observations</h4>
-	                                </div>
-	                                <div class="tab-pane" id="feature_comments">
-	                                    <ol class="list-unstyled comments">
-	                                        <li>
-	                                            <header><span class="glyphicon glyphicon-comment"></span><a href="#">Peter Scheichel</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
-	                                            <p>This is a really cool place, but it's rather expensive. But I like it though.</p>
+                <div class="row">
+                    <div class="col-sm-7">
+                        <div class="panel panel-default"> <!-- View list -->
+                            <div class="panel-heading">
+                                <h2 class="panel-title">Feature info</h2>
+                            </div>
+                            <div class="panel-body bordered-panel">
+                                <!-- Nav tabs -->
+                                <ul class="nav nav-tabs">
+                                    <li class="active"><a href="#feature_info" data-toggle="tab">Info</a></li>
+                                    <li><a href="#feature_observations" data-toggle="tab">Observations <span class="badge">5</span></a></li>
+                                    <li><a href="#feature_comments" data-toggle="tab">Comments <span class="badge">3</span></a></li>
+                                </ul>
 
-	                                            <ol class="list-unstyled comments">
-	                                                <li>
-	                                                    <header><span class="glyphicon glyphicon-comment"></span><a href="#">Carlos Valderama</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
-	                                                    <p>What? That place sucks. Coffee is really really bad. And the waiter is ugly.</p>
-	                                                </li>
-	                                            </ol>
-	                                        </li>
-	                                        <li>
-	                                            <header><span class="glyphicon glyphicon-comment"></span><a href="#">George Best</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
-	                                            <p>The toilet just stinks. </p>
-	                                        </li>
-	                                    </ol>
-	                                </div>
-	                            </div>
-	                        </div>
-	                    </div> <!-- /View List -->
-	                </div>
+                                <!-- Tab panes -->
+                                <div class="tab-content">
+                                    <div class="tab-pane active" id="feature_info">
+                                        <h4>Info</h4>
+                                    </div>
+                                    <div class="tab-pane" id="feature_observations">
+                                        <h4>Observations</h4>
+                                    </div>
+                                    <div class="tab-pane" id="feature_comments">
+                                        <ol class="list-unstyled comments">
+                                            <li>
+                                                <header><span class="glyphicon glyphicon-comment"></span><a href="#">Peter Scheichel</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
+                                                <p>This is a really cool place, but it's rather expensive. But I like it though.</p>
 
-	                <div class="col-sm-5">
-	                    <div class="panel panel-default"> <!-- View list -->
-	                        <div class="panel-heading">
-	                            <h2 class="panel-title">Filter data by view</h2>
-	                        </div>
-	                        <div class="list-group">
-	                            <a class="list-group-item active" href="{% url 'admin:project_detail' project.id %}">
-	                                <h4 class="list-group-item-heading">All data</h4>
-	                                <p class="list-group-item-text">Displays all data contributed to the project.</p>
-	                            </a>
-	                            {% for view in views %}
-	                            <a class="list-group-item" href="{% url 'view_view' project.id view.id %}">
-	                                <h4 class="list-group-item-heading">{{ view.name }}</h4>
-	                                <p class="list-group-item-text">{{ view.description }}</p>
-	                            </a>
-	                            {% endfor %}
-	                        </div>
-	                        {% if admin %}
-	                        <div class="panel-footer">
-	                            <a href="#" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new view</a>
-	                        </div>
-	                        {% endif %}
-	                    </div> <!-- /View List -->
-	                </div>
-	            </div>
-	        </div>
+                                                <ol class="list-unstyled comments">
+                                                    <li>
+                                                        <header><span class="glyphicon glyphicon-comment"></span><a href="#">Carlos Valderama</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
+                                                        <p>What? That place sucks. Coffee is really really bad. And the waiter is ugly.</p>
+                                                    </li>
+                                                </ol>
+                                            </li>
+                                            <li>
+                                                <header><span class="glyphicon glyphicon-comment"></span><a href="#">George Best</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
+                                                <p>The toilet just stinks. </p>
+                                            </li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> <!-- /View List -->
+                    </div>
+
+                    <div class="col-sm-5">
+                        <div class="panel panel-default"> <!-- View list -->
+                            <div class="panel-heading">
+                                <h2 class="panel-title">Filter data by view</h2>
+                            </div>
+                            <div class="list-group">
+                                <a class="list-group-item active" href="{% url 'admin:project_detail' project.id %}">
+                                    <h4 class="list-group-item-heading">All data</h4>
+                                    <p class="list-group-item-text">Displays all data contributed to the project.</p>
+                                </a>
+                                {% for view in views %}
+                                <a class="list-group-item" href="{% url 'view_view' project.id view.id %}">
+                                    <h4 class="list-group-item-heading">{{ view.name }}</h4>
+                                    <p class="list-group-item-text">{{ view.description }}</p>
+                                </a>
+                                {% endfor %}
+                            </div>
+                            {% if admin %}
+                            <div class="panel-footer">
+                                <a href="#" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new view</a>
+                            </div>
+                            {% endif %}
+                        </div> <!-- /View List -->
+                    </div>
+                </div>
+            </div>
     {% endblock %}
 
     {% block libraries %}

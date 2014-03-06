@@ -202,6 +202,17 @@ ol.comments > li {
 		margin-left: 30px;
 	}
 
+div.quick-stats {
+	border-left: 5px solid #f0ad4e;
+	background-color: #fcf8f2;
+	padding: 20px;
+	font-size: 1.3em
+}
+
+	div.quick-stats span.number {
+		font-size: 1.75em;
+	}
+
 footer {
 	text-align: center;
 	padding-top: 30px;

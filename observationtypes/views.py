@@ -82,10 +82,8 @@ class ObservationTypeAdminDetailView(LoginRequiredMixin, TemplateView):
         user = self.request.user
         observation_type = ObservationType.objects.get_single(
             user, project_id, observationtype_id)
-        fields = Field.objects.all(user, project_id, observationtype_id)
         return {
             'observationtype': observation_type,
-            'fields': fields,
             'admin': observation_type.project.is_admin(user),
             'status_types': STATUS
         }

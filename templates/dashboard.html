@@ -28,7 +28,7 @@
                         {% if projects %}
                         <div class="list-group">
                             {% for project in projects %}
-                            <a href="{% url 'admin:project_detail' project.id %}" class="list-group-item">
+                            <a href="{% url 'admin:project_settings' project.id %}" class="list-group-item">
                                 <h4 class="list-group-item-heading">{{project.name}}{% if project.status == status_types.inactive %} <small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
                                 {% if project.description %}<p class="list-group-item-text">{{project.description}}</p>{% endif %}
                             </a>

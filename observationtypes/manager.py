@@ -54,6 +54,9 @@ class ObservationTypeManager(ActiveMixin, models.Manager):
 class FieldManager(ActiveMixin, InheritanceManager):
     use_for_related_fields = True
 
+    def all(self):
+        return self.get_query_set().select_subclasses()
+
     def get_list(self, user, project_id, observationtype_id):
         """
         Returns all fields the user is allowed to access.

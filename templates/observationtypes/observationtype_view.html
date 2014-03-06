@@ -9,7 +9,7 @@
 			<div class="container">
 				<ol class="breadcrumb">
 					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
-					<li><a href="{% url 'admin:project_detail' observationtype.project.id %}">{{ observationtype.project.name }}</a></li>
+					<li><a href="{% url 'admin:project_settings' observationtype.project.id %}">{{ observationtype.project.name }}: Settings</a></li>
 					<li class="active">{{ observationtype.name }}</li>
 				</ol>
 
@@ -37,12 +37,10 @@
 						<div class="panel-heading">
 							<h2 class="panel-title">Fields</h2>
 						</div>
-							{% include 'snippets/field-table.html' %}
-						{% if admin %}
+						{% include 'snippets/field-table.html' %}
 						<div class="panel-footer">
 							<a href="{% url 'admin:observationtype_field_create' observationtype.project.id observationtype.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new field</a>
 						</div>
-						{% endif %}
 					</div>
 				</div>
 			</div>

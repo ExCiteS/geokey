@@ -12,8 +12,6 @@ from core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
 
-from observationtypes.models import ObservationType
-
 from .base import STATUS
 from .models import Project, UserGroup
 from .forms import ProjectCreateForm
@@ -54,7 +52,7 @@ class ProjectAdminDetailView(LoginRequiredMixin, TemplateView):
         Creates the request context for rendering the page
         """
         user = self.request.user
-        project = Project.objects.get(user, pk=project_id)
+        project = Project.objects.get_single(user, project_id)
         return {
             'project': project,
             'admin': project.is_admin(user)
@@ -73,12 +71,9 @@ class ProjectAdminSettings(LoginRequiredMixin, TemplateView):
         """
         Creates the request context for rendering the page
         """
-        project = Project.objects.as_admin(self.request.user, pk=project_id)
-        observation_types = ObservationType.objects.all(
-            self.request.user, project_id)
+        project = Project.objects.as_admin(self.request.user, project_id)
         return {
             'project': project,
-            'observationtypes': observation_types,
             'status_types': STATUS
         }
 

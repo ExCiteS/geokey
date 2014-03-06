@@ -140,7 +140,7 @@ class Dashboard(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self):
         return {
-            'projects': Project.objects.all(self.request.user),
+            'projects': Project.objects.get_list(self.request.user),
             'status_types': STATUS
         }
 
