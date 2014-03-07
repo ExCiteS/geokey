@@ -6,6 +6,7 @@ from rest_framework.response import Response
 
 from projects.models import Project, UserGroup
 from observationtypes.models import ObservationType, Field, LookupValue
+from views.models import View, ViewGroup
 
 
 def handle_exceptions_for_admin(func):
@@ -15,7 +16,11 @@ def handle_exceptions_for_admin(func):
         except PermissionDenied, error:
             return {"error": str(error), "head": "Permission denied."}
         except (
-            Project.DoesNotExist
+            Project.DoesNotExist,
+            ObservationType.DoesNotExist,
+            Field.DoesNotExist,
+            View.DoesNotExist,
+            ViewGroup.DoesNotExist
         ) as error:
             return {"error": str(error), "head": "Not found."}
 
@@ -26,16 +31,18 @@ def handle_exceptions_for_ajax(func):
     def wrapped(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except PermissionDenied, err:
-            return Response(str(err), status=status.HTTP_403_FORBIDDEN)
+        except PermissionDenied, error:
+            return Response(str(error), status=status.HTTP_403_FORBIDDEN)
         except (
             Project.DoesNotExist,
             UserGroup.DoesNotExist,
             User.DoesNotExist,
             ObservationType.DoesNotExist,
             Field.DoesNotExist,
-            LookupValue.DoesNotExist
-        ) as err:
-            return Response(str(err), status=status.HTTP_404_NOT_FOUND)
+            LookupValue.DoesNotExist,
+            View.DoesNotExist,
+            ViewGroup.DoesNotExist
+        ) as error:
+            return Response(str(error), status=status.HTTP_404_NOT_FOUND)
 
     return wrapped

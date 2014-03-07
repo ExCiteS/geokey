@@ -21,10 +21,6 @@ class ProjectAjaxTest(TestCase):
             'contributors': UserGroupF(add_users=[self.contributor])
         })
 
-    def _get(self, url, user):
-        self.client.login(username=user.username, password='1')
-        return self.client.get(url)
-
     def _put(self, url, data, user):
         self.client.login(username=user.username, password='1')
         return self.client.put(

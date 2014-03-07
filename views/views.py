@@ -16,7 +16,7 @@ from projects.models import Project
 from .base import STATUS
 from .forms import ViewCreateForm, ViewGroupCreateForm
 from .models import View, ViewGroup
-from .serializers import ViewUpdateSerializer
+from .serializers import ViewUpdateSerializer, ViewGroupUpdateSerializer
 
 
 class ViewAdminCreateView(LoginRequiredMixin, CreateView):
@@ -126,9 +126,14 @@ class ViewGroupAdminCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         project_id = self.kwargs['project_id']
         view_id = self.kwargs['view_id']
+        group_id = self.object.id
         return reverse(
-            'admin:view_settings',
-            kwargs={'project_id': project_id, 'view_id': view_id}
+            'admin:view_group_settings',
+            kwargs={
+                'project_id': project_id,
+                'view_id': view_id,
+                'group_id': group_id
+            }
         )
 
     @handle_exceptions_for_admin
@@ -178,3 +183,34 @@ class ViewGroupAdminSettingsView(LoginRequiredMixin, TemplateView):
             self.request.user, project_id, view_id, group_id
         )
         return context
+
+
+class ViewUserGroupApiDetail(APIView):
+    """
+    API Endpoints for a view in the AJAX API.
+    /ajax/projects/:project_id/views/:view_id/usergroups/:group_id
+    """
+    @handle_exceptions_for_ajax
+    def put(self, request, project_id, view_id, group_id, format=None):
+        """
+        Updates a view
+        """
+        group = ViewGroup.objects.as_admin(
+            request.user, project_id, view_id, group_id)
+        serializer = ViewGroupUpdateSerializer(group, data=request.DATA)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, view_id, group_id, format=None):
+        """
+        Deletes a view
+        """
+        group = ViewGroup.objects.as_admin(
+            request.user, project_id, view_id, group_id)
+        group.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

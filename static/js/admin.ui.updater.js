@@ -17,6 +17,7 @@ $(function () {
 	var observationtypeId = $('body').attr('data-observationtype-id');
 	var fieldId = $('body').attr('data-field-id');
 	var viewId = $('body').attr('data-view-id');
+	var groupId = $('body').attr('data-group-id');
 
 	/*
 	The url to send the requests to update the object
@@ -45,6 +46,10 @@ $(function () {
 	if (projectId && viewId) {
 		url += '/views/' + viewId;
 		name = 'view';
+	}
+	if (projectId && viewId && groupId) {
+		url += '/usergroups/' + groupId;
+		name = 'user group';
 	}
 
 	/**
@@ -81,6 +86,7 @@ $(function () {
 		function handleSuccess() {
 			var link = '<a href="/admin/dashboard" class="alert-link">Return to dashboard</a>';
 			if (projectId && viewId) { link = '<a href="/admin/projects/' + projectId +'" class="alert-link">Return to project</a>'; }
+			if (projectId && viewId && groupId) { link = '<a href="/admin/projects/' + projectId +'/views/' + groupId + '" class="alert-link">Return to view</a>'; }
 
 			updateUi();
 			$('.row').remove();

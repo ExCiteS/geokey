@@ -10,7 +10,7 @@ from .base import STATUS
 class ViewQuerySet(models.query.QuerySet):
     def for_user(self, user):
         return self.filter(Q(project__admins__users=user) |
-                           Q(usergroups__users=user)).distinct()
+                           Q(viewgroups__users=user)).distinct()
 
 
 class ViewManager(models.Manager):
@@ -28,7 +28,7 @@ class ViewManager(models.Manager):
         project = Project.objects.get_single(user, project_id)
         view = project.views.get(pk=view_id)
         if (project.is_admin(user) or
-                view.usergroups.filter(users=user).count() > 0):
+                view.viewgroups.filter(users=user).count() > 0):
             return view
         else:
             raise PermissionDenied('You are not allowrd to access this view.')
