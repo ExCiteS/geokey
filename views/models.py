@@ -1,9 +1,8 @@
 from django.db import models
 from django.conf import settings
 
-from model_utils import Choices
-
-STATUS = Choices('active', 'inactive', 'deleted')
+from .base import STATUS
+from .manager import ViewManager
 
 
 class View(models.Model):
@@ -18,6 +17,8 @@ class View(models.Model):
     )
     project = models.ForeignKey('projects.Project', related_name='views')
 
+    objects = ViewManager()
+
     def delete(self):
         """
         Deletes the view by setting its status to DELETED.
@@ -26,11 +27,11 @@ class View(models.Model):
         self.save()
 
 
-class Viewgroup(models.Model):
+class ViewGroup(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
     users = models.ManyToManyField(settings.AUTH_USER_MODEL)
     can_edit = models.BooleanField(default=False)
     can_read = models.BooleanField(default=False)
     can_view = models.BooleanField(default=True)
-    view = models.ForeignKey('View')
+    view = models.ForeignKey('View', related_name='usergroups')

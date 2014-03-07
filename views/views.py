@@ -1,5 +1,4 @@
 from django.views.generic import CreateView
-from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 
 from braces.views import LoginRequiredMixin
@@ -23,7 +22,9 @@ class ViewAdminCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         project_id = self.kwargs['project_id']
-        return reverse('admin:project_settings', kwargs={'project_id': project_id})
+        return reverse(
+            'admin:project_settings', kwargs={'project_id': project_id}
+        )
 
     @handle_exceptions_for_admin
     def get_context_data(self, form, **kwargs):

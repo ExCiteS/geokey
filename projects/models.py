@@ -73,8 +73,9 @@ class Project(models.Model):
 
     def can_access(self, user):
         return self.is_admin(user) or (
-            (not self.isprivate or user in self.contributors.users.all())
-            and self.status != STATUS.inactive
+            (not self.isprivate or user in self.contributors.users.all() or
+                (self.views.filter(usergroups__users=user).count() > 0))
+            and self.status == STATUS.active
         )
 
 
