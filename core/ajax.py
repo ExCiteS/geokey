@@ -2,6 +2,7 @@ from django.conf.urls import patterns, url
 
 from projects import views as project_views
 from observationtypes import views as observationtypes_views
+from views import views as view_views
 from users import views as user_views
 
 urlpatterns = patterns(
@@ -34,5 +35,9 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/lookupvalues/(?P<value_id>[0-9]+)$',
         observationtypes_views.FieldApiLookupsDetail.as_view(),
         name='project_observationtype_lookupvalues_detail'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)$',
+        view_views.ViewApiDetail.as_view(),
+        name='view'),
     url(r'^users$', user_views.QueryUsers.as_view(), name='users_users'),
 )

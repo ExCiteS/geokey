@@ -6,9 +6,10 @@
 		<div class="page-header">
 			<div class="container">
 				<ol class="breadcrumb">
-					<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-					<li><a href="{% url 'project_view' view.project.id %}">{{ view.project.name }}</a></li>
-					<li class="active">{{view.name}}</li>
+					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
+					<li><a href="{% url 'admin:project_settings' view.project.id %}">{{ view.project.name }}</a></li>
+					<li><a href="{% url 'admin:view_settings' view.project.id view.id %}">{{ view.name }}</a></li>
+					<li class="active">Data</li>
 				</ol>
 
 				<h1>{{view.name}} </h1>
@@ -23,6 +24,7 @@
 		</div>
 
 		<div class="container">
+			<div class="alert alert-danger">This is hard coded dummy page. No actual data is shown here.</div>
 			<div class="row">
 				<div class="col-lg-12">
 					<div id="map"></div>
@@ -81,12 +83,12 @@
 							<h2 class="panel-title">Filter data by view</h2>
 						</div>
 						<div class="list-group">
-							<a class="list-group-item" href="{% url 'project_view' view.project.id %}">
+							<a class="list-group-item" href="{% url 'admin:project_detail' view.project.id %}">
 								<h4 class="list-group-item-heading">All data</h4>
 								<p class="list-group-item-text">Displays all data contributed to the project.</p>
 							</a>
-							{% for view_item in views %}
-							<a class="list-group-item {% if view_item.id == view.id %} active {% endif %}" href="{% url 'view_view' view.project.id view_item.id %}">
+							{% for view_item in view.project.views.all %}
+							<a class="list-group-item {% if view_item.id == view.id %} active {% endif %}" href="{% url 'admin:view_data' view.project.id view_item.id %}">
 								<h4 class="list-group-item-heading">{{ view_item.name }}</h4>
 								<p class="list-group-item-text">{{ view_item.description }}</p>
 							</a>
