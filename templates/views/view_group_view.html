@@ -8,12 +8,12 @@
 			<div class="container">
 
 				<ol class="breadcrumb">
-					<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-					<li><a href="{% url 'project_view' group.view.project.id %}">{{ group.view.project.name }}</a></li>
-					<li><a href="{% url 'view_view' group.view.project.id group.view.id %}">{{group.view.name}}</a></li>
+					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
+					<li><a href="{% url 'admin:project_settings' group.view.project.id %}">{{ group.view.project.name }}</a></li>
+					<li><a href="{% url 'admin:view_settings' group.view.project.id group.view.id %}">{{group.view.name}}</a></li>
 					<li class="active">{{group.name}}</li>
 				</ol>
-			
+
 				<h1>{{group.name}}</h1>
 				<p class="lead">
 					<span id="descriptionText">{% if group.description %} {{group.description}} {% endif %}</span>
@@ -46,12 +46,12 @@
 							</div>
 							<div class="list-group-item">
 								<div class="checkbox">
-									<label><input type="checkbox" name="can_view" {% if group.can_view %} checked="true" {% endif %}> <strong>Read.</strong> If checked, members are permitted to access the data and download in machine readable formats &ndash; such as JSON, XML or CSV.</label>
+									<label><input type="checkbox" name="can_read" {% if group.can_read %} checked="true" {% endif %}> <strong>Read.</strong> If checked, members are permitted to access pre-rendered maps of the data through a web-compliant image format.</label>
 								</div>
 							</div>
 							<div class="list-group-item">
 								<div class="checkbox">
-									<label><input type="checkbox" name="can_read" {% if group.can_read %} checked="true" {% endif %}> <strong>View.</strong> If checked, members are permitted to access pre-rendered maps of the data through a web-compliant image format.</label>
+									<label><input type="checkbox" name="can_view" {% if group.can_view %} checked="true" {% endif %}> <strong>View.</strong> If checked, members are permitted to access the data and download in machine readable formats &ndash; such as JSON, XML or CSV.</label>
 								</div>
 							</div>
 						</div>
@@ -70,7 +70,7 @@
 		</div>
 {% endblock %}
 
-{% block libraries %} 
+{% block libraries %}
 			<script src="/static/js/admin.ui.messages.js"></script>
 			<script src="/static/js/admin.ui.descriptioneditor.js"></script>
 			<script src="/static/js/admin.control.ajax.js"></script>

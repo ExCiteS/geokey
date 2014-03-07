@@ -14,14 +14,14 @@ from rest_framework.response import Response
 from projects.models import Project
 
 from .base import STATUS
-from .forms import ViewCreateForm
-from .models import View
+from .forms import ViewCreateForm, ViewGroupCreateForm
+from .models import View, ViewGroup
 from .serializers import ViewUpdateSerializer
 
 
 class ViewAdminCreateView(LoginRequiredMixin, CreateView):
     """
-    Displays the create project page
+    Displays the create view page
     """
     form_class = ViewCreateForm
     template_name = 'views/view_create.html'
@@ -114,3 +114,67 @@ class ViewApiDetail(APIView):
         view = View.objects.as_admin(request.user, project_id, view_id)
         view.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ViewGroupAdminCreateView(LoginRequiredMixin, CreateView):
+    """
+    Displays the create usergroup page
+    """
+    form_class = ViewGroupCreateForm
+    template_name = 'views/view_group_create.html'
+
+    def get_success_url(self):
+        project_id = self.kwargs['project_id']
+        view_id = self.kwargs['view_id']
+        return reverse(
+            'admin:view_settings',
+            kwargs={'project_id': project_id, 'view_id': view_id}
+        )
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, form, **kwargs):
+        """
+        Creates the request context for rendering the page
+        """
+        project_id = self.kwargs['project_id']
+        view_id = self.kwargs['view_id']
+
+        context = super(
+            ViewGroupAdminCreateView, self).get_context_data(**kwargs)
+
+        context['view'] = View.objects.as_admin(
+            self.request.user, project_id, view_id
+        )
+        return context
+
+    def form_valid(self, form):
+        """
+        Is called when the POSTed data is valid and creates the view group.
+        """
+        project_id = self.kwargs['project_id']
+        view_id = self.kwargs['view_id']
+        view = View.objects.as_admin(self.request.user, project_id, view_id)
+
+        form.instance.view = view
+        return super(ViewGroupAdminCreateView, self).form_valid(form)
+
+
+class ViewGroupAdminSettingsView(LoginRequiredMixin, TemplateView):
+    """
+    Displays the usergroup admin page
+    """
+    template_name = 'views/view_group_view.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, view_id, group_id, **kwargs):
+        """
+        Creates the request context for rendering the page
+        """
+
+        context = super(
+            ViewGroupAdminSettingsView, self).get_context_data(**kwargs)
+
+        context['group'] = ViewGroup.objects.as_admin(
+            self.request.user, project_id, view_id, group_id
+        )
+        return context

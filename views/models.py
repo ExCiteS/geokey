@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 
 from .base import STATUS
-from .manager import ViewManager
+from .manager import ViewManager, ViewGroupManager
 
 
 class View(models.Model):
@@ -34,4 +34,18 @@ class ViewGroup(models.Model):
     can_edit = models.BooleanField(default=False)
     can_read = models.BooleanField(default=False)
     can_view = models.BooleanField(default=True)
-    view = models.ForeignKey('View', related_name='usergroups')
+    view = models.ForeignKey('View', related_name='viewgroups')
+    status = models.CharField(
+        choices=STATUS,
+        default=STATUS.active,
+        max_length=20
+    )
+
+    objects = ViewGroupManager()
+
+    def delete(self):
+        """
+        Deletes the view by setting its status to DELETED.
+        """
+        self.status = STATUS.deleted
+        self.save()

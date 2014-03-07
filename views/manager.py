@@ -36,3 +36,12 @@ class ViewManager(models.Manager):
     def as_admin(self, user, project_id, view_id):
         project = Project.objects.as_admin(user, project_id)
         return project.views.get(pk=view_id)
+
+
+class ViewGroupManager(models.Manager):
+    def get_query_set(self):
+        return ViewQuerySet(self.model).exclude(status=STATUS.deleted)
+
+    def as_admin(self, user, project_id, view_id, group_id):
+        project = Project.objects.as_admin(user, project_id)
+        return project.views.get(pk=view_id).viewgroups.get(pk=group_id)

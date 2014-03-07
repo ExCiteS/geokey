@@ -69,4 +69,12 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/data$',
         view_views.ViewAdminDataView.as_view(),
         name='view_data'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/new$',
+        view_views.ViewGroupAdminCreateView.as_view(),
+        name='view_group_create'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)$',
+        view_views.ViewGroupAdminSettingsView.as_view(),
+        name='view_group_settings'),
 )

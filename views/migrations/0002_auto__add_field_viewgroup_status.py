@@ -8,49 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'View'
-        db.create_table(u'views_view', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('description', self.gf('django.db.models.fields.TextField')()),
-            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('status', self.gf('django.db.models.fields.CharField')(default='active', max_length=20)),
-            ('project', self.gf('django.db.models.fields.related.ForeignKey')(related_name='views', to=orm['projects.Project'])),
-        ))
-        db.send_create_signal(u'views', ['View'])
-
-        # Adding model 'ViewGroup'
-        db.create_table(u'views_viewgroup', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('description', self.gf('django.db.models.fields.TextField')()),
-            ('can_edit', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('can_read', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('can_view', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('view', self.gf('django.db.models.fields.related.ForeignKey')(related_name='viewgroups', to=orm['views.View'])),
-        ))
-        db.send_create_signal(u'views', ['ViewGroup'])
-
-        # Adding M2M table for field users on 'ViewGroup'
-        m2m_table_name = db.shorten_name(u'views_viewgroup_users')
-        db.create_table(m2m_table_name, (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('viewgroup', models.ForeignKey(orm[u'views.viewgroup'], null=False)),
-            ('user', models.ForeignKey(orm[u'auth.user'], null=False))
-        ))
-        db.create_unique(m2m_table_name, ['viewgroup_id', 'user_id'])
+        # Adding field 'ViewGroup.status'
+        db.add_column(u'views_viewgroup', 'status',
+                      self.gf('django.db.models.fields.CharField')(default='active', max_length=20),
+                      keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting model 'View'
-        db.delete_table(u'views_view')
-
-        # Deleting model 'ViewGroup'
-        db.delete_table(u'views_viewgroup')
-
-        # Removing M2M table for field users on 'ViewGroup'
-        db.delete_table(db.shorten_name(u'views_viewgroup_users'))
+        # Deleting field 'ViewGroup.status'
+        db.delete_column(u'views_viewgroup', 'status')
 
 
     models = {
@@ -127,6 +93,7 @@ class Migration(SchemaMigration):
             'description': ('django.db.models.fields.TextField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'status': ('django.db.models.fields.CharField', [], {'default': "'active'", 'max_length': '20'}),
             'users': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.User']", 'symmetrical': 'False'}),
             'view': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'viewgroups'", 'to': u"orm['views.View']"})
         }
