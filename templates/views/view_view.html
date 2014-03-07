@@ -10,7 +10,7 @@
 					<li><a href="{% url 'project_view' view.project.id %}">{{ view.project.name }}</a></li>
 					<li class="active">{{view.name}}</li>
 				</ol>
-			
+
 				<h1>{{view.name}} </h1>
 				<p class="lead">
 					{% if view.description %} {{view.description}} {% endif %}
@@ -70,7 +70,7 @@
 										</li>
 									</ol>
 								</div>
-							</div>                            
+							</div>
 						</div>
 					</div> <!-- /View List -->
 				</div>
@@ -103,7 +103,7 @@
 		</div>
 {% endblock %}
 
-{% block libraries %} 
+{% block libraries %}
 		<!-- LEAFLET -->
 			<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.css" />
 			<!--[if lte IE 8]>

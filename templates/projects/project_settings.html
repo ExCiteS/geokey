@@ -93,7 +93,7 @@
 						</div>
 						<div class="list-group">
 							{% for view in project.views.all %}
-                                <a class="list-group-item" href="#">
+                                <a class="list-group-item" href="{% url 'admin:view_settings' project.id view.id %}">
                                     <h4 class="list-group-item-heading">{{ view.name }}</h4>
                                     <p class="list-group-item-text">{{ view.description }}</p>
                                 </a>

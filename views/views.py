@@ -1,4 +1,4 @@
-from django.views.generic import CreateView
+from django.views.generic import CreateView, TemplateView
 from django.core.urlresolvers import reverse
 
 from braces.views import LoginRequiredMixin
@@ -23,7 +23,8 @@ class ViewAdminCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         project_id = self.kwargs['project_id']
         return reverse(
-            'admin:project_settings', kwargs={'project_id': project_id}
+            'admin:view_settings',
+            kwargs={'project_id': project_id, 'view_id': self.object.id}
         )
 
     @handle_exceptions_for_admin
@@ -52,3 +53,16 @@ class ViewAdminCreateView(LoginRequiredMixin, CreateView):
         form.instance.project = project
         form.instance.creator = self.request.user
         return super(ViewAdminCreateView, self).form_valid(form)
+
+
+class ViewAdminDetailView(LoginRequiredMixin, TemplateView):
+    template_name = 'views/view_settings.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, view_id):
+        """
+        Creates the request context for rendering the page
+        """
+        user = self.request.user
+        view = View.objects.as_admin(user, project_id, view_id)
+        return {'view': view}
