@@ -43,5 +43,13 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)$',
         view_views.ViewUserGroupApiDetail.as_view(),
         name='view_group'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users$',
+        view_views.ViewUserGroupUsersApi.as_view(),
+        name='view_group_users'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users/(?P<user_id>[0-9]+)$',
+        view_views.ViewUserGroupUsersApiDetail.as_view(),
+        name='view_group_users_user'),
     url(r'^users$', user_views.QueryUsers.as_view(), name='users_users'),
 )

@@ -52,11 +52,11 @@ class ViewGroupAjaxTest(TestCase):
         response = self._put(
             '/ajax/projects/' + str(self.project.id) + '/views/' + str(self.view.id) + '/usergroups/' + str(self.group.id),
             {'description': 'new description'},
-            self.creator
+            self.admin
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            ViewGroup.objects.get(pk=self.project.id).description,
+            ViewGroup.objects.get(pk=self.group.id).description,
             'new description'
         )
 
@@ -67,7 +67,7 @@ class ViewGroupAjaxTest(TestCase):
             self.creator
         )
         self.assertEqual(response.status_code, 204)
-        ViewGroup.objects.get(pk=self.project.id)
+        ViewGroup.objects.get(pk=self.group.id)
 
     def test_update_description_with_contributor(self):
         response = self._put(
@@ -77,7 +77,7 @@ class ViewGroupAjaxTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
-            ViewGroup.objects.get(pk=self.project.id).description,
+            ViewGroup.objects.get(pk=self.group.id).description,
             'bockwurst'
         )
 
@@ -88,7 +88,7 @@ class ViewGroupAjaxTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
-            ViewGroup.objects.get(pk=self.project.id).status, 'active'
+            ViewGroup.objects.get(pk=self.group.id).status, 'active'
         )
 
     def test_update_description_with_non_member(self):
@@ -99,7 +99,7 @@ class ViewGroupAjaxTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
-            ViewGroup.objects.get(pk=self.project.id).description,
+            ViewGroup.objects.get(pk=self.group.id).description,
             'bockwurst'
         )
 
@@ -110,7 +110,7 @@ class ViewGroupAjaxTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
-            ViewGroup.objects.get(pk=self.project.id).status, 'active'
+            ViewGroup.objects.get(pk=self.group.id).status, 'active'
         )
 
     def test_update_description_with_view_user(self):
@@ -121,7 +121,7 @@ class ViewGroupAjaxTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
-            ViewGroup.objects.get(pk=self.project.id).description,
+            ViewGroup.objects.get(pk=self.group.id).description,
             'bockwurst'
         )
 
@@ -132,5 +132,5 @@ class ViewGroupAjaxTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
-            ViewGroup.objects.get(pk=self.project.id).status, 'active'
+            ViewGroup.objects.get(pk=self.group.id).status, 'active'
         )

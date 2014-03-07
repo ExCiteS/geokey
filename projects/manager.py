@@ -12,7 +12,7 @@ class ProjectQuerySet(models.query.QuerySet):
             (
                 Q(status=STATUS.active) &
                 (Q(isprivate=False) | Q(contributors__users=user) |
-                (self.views.filter(viewgroups__users=user).count() > 0))
+                    Q(views__viewgroups__users=user))
             )
         ).distinct()
 

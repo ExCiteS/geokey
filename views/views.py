@@ -1,5 +1,6 @@
 from django.views.generic import CreateView, TemplateView
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 
 from braces.views import LoginRequiredMixin
 
@@ -16,7 +17,9 @@ from projects.models import Project
 from .base import STATUS
 from .forms import ViewCreateForm, ViewGroupCreateForm
 from .models import View, ViewGroup
-from .serializers import ViewUpdateSerializer, ViewGroupUpdateSerializer
+from .serializers import (
+    ViewUpdateSerializer, ViewGroupSerializer, ViewGroupUpdateSerializer
+)
 
 
 class ViewAdminCreateView(LoginRequiredMixin, CreateView):
@@ -213,4 +216,47 @@ class ViewUserGroupApiDetail(APIView):
         group = ViewGroup.objects.as_admin(
             request.user, project_id, view_id, group_id)
         group.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ViewUserGroupUsersApi(APIView):
+    """
+    API Endpoints for a usergroup of a project in the AJAX API.
+    /ajax/projects/:project_id/views/:view_id/usergroups/:usergroup_id/users
+    """
+
+    @handle_exceptions_for_ajax
+    def post(self, request, project_id, view_id, group_id, format=None):
+        """
+        Adds a user to the usergroup
+        """
+        group = ViewGroup.objects.as_admin(
+            request.user, project_id, view_id, group_id)
+
+        try:
+            user = User.objects.get(pk=request.DATA.get('userId'))
+            group.users.add(user)
+
+            serializer = ViewGroupSerializer(group)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except User.DoesNotExist:
+            return Response(
+                'The user you are trying to add to the user group does ' +
+                'not exist',
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class ViewUserGroupUsersApiDetail(APIView):
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, view_id, group_id, user_id,
+               format=None):
+        """
+        Removes a user from the user group
+        """
+        group = ViewGroup.objects.as_admin(
+            request.user, project_id, view_id, group_id)
+
+        user = group.users.get(pk=user_id)
+        group.users.remove(user)
         return Response(status=status.HTTP_204_NO_CONTENT)

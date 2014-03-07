@@ -111,7 +111,7 @@ class ProjectApiDetail(APIView):
 class ProjectApiUserGroup(APIView):
     """
     API Endpoints for a usergroup of a project in the AJAX API.
-    /ajax/projects/:project_id/usergroups/:usergroup_id
+    /ajax/projects/:project_id/usergroups/:usergroup_id/users
     """
 
     @handle_exceptions_for_ajax
