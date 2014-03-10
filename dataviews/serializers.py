@@ -6,6 +6,9 @@ from .models import View, ViewGroup
 
 
 class ViewSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Views.
+    """
     class Meta:
         model = View
         depth = 1
@@ -13,11 +16,10 @@ class ViewSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'name')
 
 
-class ViewUpdateSerializer(ViewSerializer):
-    description = serializers.CharField(required=False)
-
-
 class ViewGroupSerializer(serializers.ModelSerializer):
+    """
+    Serializer for ViewGroups.
+    """
     users = UserSerializer(many=True, read_only=True)
 
     class Meta:
@@ -28,7 +30,3 @@ class ViewGroupSerializer(serializers.ModelSerializer):
             'can_edit', 'users'
         )
         read_only_fields = ('id', 'name', 'status')
-
-
-class ViewGroupUpdateSerializer(ViewGroupSerializer):
-    description = serializers.CharField(required=False)

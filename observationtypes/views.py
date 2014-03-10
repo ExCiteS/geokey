@@ -1,5 +1,6 @@
 from django.views.generic import CreateView, TemplateView
 from django.shortcuts import redirect
+from django.core.urlresolvers import reverse
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -18,8 +19,8 @@ from .models import (
 )
 from .forms import ObservationTypeCreateForm, FieldCreateForm
 from .serializer import (
-    ObservationTypeUpdateSerializer, FieldUpdateSerializer,
-    NumericFieldUpdateSerializer, LookupFieldSerializer
+    ObservationTypeSerializer, FieldSerializer,
+    NumericFieldSerializer, LookupFieldSerializer
 )
 
 
@@ -46,26 +47,29 @@ class ObservationTypeAdminCreateView(LoginRequiredMixin, CreateView):
         )
         return context
 
+    def get_success_url(self):
+        """
+        Returns the redeirect URL after successful creation of the
+        observation type
+        """
+        project_id = self.kwargs['project_id']
+        return reverse(
+            'admin:observationtype_detail',
+            kwargs={
+                'project_id': project_id, 'observationtype_id': self.object.id
+            }
+        )
+
     def form_valid(self, form):
         """
         Is called when the POSTed data is valid and creates the observation
         type.
         """
         project_id = self.kwargs['project_id']
-
-        data = form.cleaned_data
         project = Project.objects.as_admin(self.request.user, pk=project_id)
+        form.instance.project = project
 
-        observation_type = ObservationType.objects.create(
-            name=data.get('name'),
-            description=data.get('description'),
-            project=project
-        )
-        return redirect(
-            'admin:observationtype_detail',
-            project_id=project.id,
-            observationtype_id=observation_type.id
-        )
+        return super(ObservationTypeAdminCreateView, self).form_valid(form)
 
 
 class ObservationTypeAdminDetailView(LoginRequiredMixin, TemplateView):
@@ -103,8 +107,8 @@ class ObservationTypeApiDetail(APIView):
 
         observation_type = ObservationType.objects.as_admin(
             request.user, project_id, observationtype_id)
-        serializer = ObservationTypeUpdateSerializer(
-            observation_type, data=request.DATA)
+        serializer = ObservationTypeSerializer(
+            observation_type, data=request.DATA, partial=True)
 
         if serializer.is_valid():
             serializer.save()
@@ -191,9 +195,13 @@ class FieldApiDetail(APIView):
             request.user, project_id, observationtype_id, field_id)
 
         if isinstance(field, NumericField):
-            serializer = NumericFieldUpdateSerializer(field, data=request.DATA)
+            serializer = NumericFieldSerializer(
+                field, data=request.DATA, partial=True
+            )
         else:
-            serializer = FieldUpdateSerializer(field, data=request.DATA)
+            serializer = FieldSerializer(
+                field, data=request.DATA, partial=True
+            )
 
         if serializer.is_valid():
             serializer.save()

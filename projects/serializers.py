@@ -6,6 +6,9 @@ from .models import Project, UserGroup
 
 
 class UserGroupSerializer(serializers.ModelSerializer):
+    """
+    Serializer for project user groups.
+    """
     users = UserSerializer(many=True)
 
     class Meta:
@@ -29,6 +32,9 @@ class UserGroupSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
+    """
+    Serializer for projects.
+    """
     creator = UserSerializer(read_only=True)
     admins = UserGroupSerializer(read_only=True, fields=('id', 'name'))
     contributors = UserGroupSerializer(read_only=True, fields=('id', 'name'))
@@ -39,7 +45,3 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'isprivate', 'status',
                   'everyonecontributes', 'creator', 'admins', 'contributors')
         read_only_fields = ('id', 'name')
-
-
-class ProjectUpdateSerializer(ProjectSerializer):
-    description = serializers.CharField(required=False)

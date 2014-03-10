@@ -18,7 +18,7 @@ from .base import STATUS
 from .forms import ViewCreateForm, ViewGroupCreateForm
 from .models import View, ViewGroup
 from .serializers import (
-    ViewUpdateSerializer, ViewGroupSerializer, ViewGroupUpdateSerializer
+    ViewSerializer, ViewGroupSerializer
 )
 
 
@@ -87,7 +87,12 @@ class ViewAdminDataView(LoginRequiredMixin, TemplateView):
         """
         user = self.request.user
         view = View.objects.get_single(user, project_id, view_id)
-        return {'view': view}
+        project_views = View.objects.get_list(user, project_id)
+        return {
+            'view': view,
+            'admin': view.project.is_admin(user),
+            'project_views': project_views
+        }
 
 
 class ViewApiDetail(APIView):
@@ -101,7 +106,7 @@ class ViewApiDetail(APIView):
         Updates a view
         """
         view = View.objects.as_admin(request.user, project_id, view_id)
-        serializer = ViewUpdateSerializer(view, data=request.DATA)
+        serializer = ViewSerializer(view, data=request.DATA, partial=True)
 
         if serializer.is_valid():
             serializer.save()
@@ -200,7 +205,9 @@ class ViewUserGroupApiDetail(APIView):
         """
         group = ViewGroup.objects.as_admin(
             request.user, project_id, view_id, group_id)
-        serializer = ViewGroupUpdateSerializer(group, data=request.DATA)
+        serializer = ViewGroupSerializer(
+            group, data=request.DATA, partial=True
+        )
 
         if serializer.is_valid():
             serializer.save()

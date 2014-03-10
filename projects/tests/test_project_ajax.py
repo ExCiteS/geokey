@@ -46,6 +46,18 @@ class ProjectAjaxTest(TestCase):
         )
         self.assertEqual(response.status_code, 400)
 
+    def test_update_project_status_with_admin(self):
+        response = self._put(
+            '/ajax/projects/' + str(self.project.id),
+            {'status': 'inactive'},
+            self.creator
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            Project.objects.get(pk=self.project.id).status,
+            'inactive'
+        )
+
     def test_update_project_description_with_admin(self):
         response = self._put(
             '/ajax/projects/' + str(self.project.id),

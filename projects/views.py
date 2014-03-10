@@ -11,11 +11,12 @@ from braces.views import LoginRequiredMixin
 from core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
+from dataviews.models import View
 
 from .base import STATUS
 from .models import Project, UserGroup
 from .forms import ProjectCreateForm
-from .serializers import ProjectUpdateSerializer, UserGroupSerializer
+from .serializers import ProjectSerializer, UserGroupSerializer
 
 
 class ProjectAdminCreateView(LoginRequiredMixin, CreateView):
@@ -36,7 +37,7 @@ class ProjectAdminCreateView(LoginRequiredMixin, CreateView):
             data.get('isprivate'),
             self.request.user
         )
-        return redirect('admin:project_detail', project_id=project.id)
+        return redirect('admin:project_settings', project_id=project.id)
 
 
 class ProjectAdminDetailView(LoginRequiredMixin, TemplateView):
@@ -53,8 +54,10 @@ class ProjectAdminDetailView(LoginRequiredMixin, TemplateView):
         """
         user = self.request.user
         project = Project.objects.get_single(user, project_id)
+        views = View.objects.get_list(user, project_id)
         return {
             'project': project,
+            'views': views,
             'admin': project.is_admin(user)
         }
 
@@ -90,8 +93,9 @@ class ProjectApiDetail(APIView):
         Updates a project
         """
         project = Project.objects.as_admin(request.user, project_id)
-        serializer = ProjectUpdateSerializer(project, data=request.DATA)
-
+        serializer = ProjectSerializer(
+            project, data=request.DATA, partial=True
+        )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

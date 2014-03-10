@@ -31,7 +31,7 @@ class ViewManager(models.Manager):
                 view.viewgroups.filter(users=user).count() > 0):
             return view
         else:
-            raise PermissionDenied('You are not allowrd to access this view.')
+            raise PermissionDenied('You are not allowed to access this view.')
 
     def as_admin(self, user, project_id, view_id):
         project = Project.objects.as_admin(user, project_id)

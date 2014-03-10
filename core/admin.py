@@ -3,7 +3,7 @@ from django.conf.urls import patterns, url
 from projects import views as project_views
 from observationtypes import views as observationtype_views
 from users import views as login_views
-from views import views as view_views
+from dataviews import views as view_views
 
 
 urlpatterns = patterns(

@@ -83,11 +83,13 @@
 							<h2 class="panel-title">Filter data by view</h2>
 						</div>
 						<div class="list-group">
+							{% if admin %}
 							<a class="list-group-item" href="{% url 'admin:project_detail' view.project.id %}">
 								<h4 class="list-group-item-heading">All data</h4>
 								<p class="list-group-item-text">Displays all data contributed to the project.</p>
 							</a>
-							{% for view_item in view.project.views.all %}
+							{% endif %}
+							{% for view_item in project_views %}
 							<a class="list-group-item {% if view_item.id == view.id %} active {% endif %}" href="{% url 'admin:view_data' view.project.id view_item.id %}">
 								<h4 class="list-group-item-heading">{{ view_item.name }}</h4>
 								<p class="list-group-item-text">{{ view_item.description }}</p>

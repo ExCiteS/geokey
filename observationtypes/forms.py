@@ -4,12 +4,20 @@ from .models import ObservationType, Field
 
 
 class ObservationTypeCreateForm(forms.ModelForm):
+    """
+    Validates the inputs against the model definition.
+    Used in .views.ObservationTypeAdminCreateView
+    """
     class Meta:
         model = ObservationType
         fields = ('name', 'description')
 
 
 class FieldCreateForm(forms.ModelForm):
+    """
+    Validates the inputs against the model definition.
+    Used in .views.FieldAdminCreateView
+    """
     class Meta:
         model = Field
         fields = ('name', 'key', 'description', 'required')

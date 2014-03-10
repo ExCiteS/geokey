@@ -72,6 +72,11 @@ class Project(models.Model):
         return user in self.admins.users.all()
 
     def can_access(self, user):
+        """
+        Returns True if the user is either member of the administrators group
+        -if active- the contributors group or one the Viewgroups of the
+        project.
+        """
         return self.is_admin(user) or (
             (not self.isprivate or user in self.contributors.users.all() or
                 (self.views.filter(viewgroups__users=user).count() > 0))
@@ -83,6 +88,5 @@ class UserGroup(models.Model):
     """
     UserGroup for a project, either Administrators or contributors
     """
-
     name = models.CharField(max_length=100)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL)
