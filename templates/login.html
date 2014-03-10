@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %} | Login{% endblock %}
+{% block bodydata %} class="login" {% endblock %}
+
+{% block main %}
+			{% if login_failed %}
+			<div class="page-header">
+				<div class="container">
+					<h1>Authorisation failed</h1>
+				</div>
+			</div>
+			<div class="container">
+				<div class="row">
+					<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+						<div class="alert alert-danger">We were unable to authenticate you. Either user name or password are incorrect. Please try again.</div>
+					</div>
+				</div>
+			</div>
+
+			{% elif login_required %}
+			<div class="page-header">
+				<div class="container">
+					<h1>Sign in required</h1>
+				</div>
+			</div>
+			<div class="container">
+				<div class="row">
+					<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+						<div class="alert alert-warning">Please sign in.</div>
+					</div>
+				</div>
+			</div>
+			{% elif logged_out %}
+			<div class="page-header">
+				<div class="container">
+					<h1>Successfully signed out</h1>
+				</div>
+			</div>
+			<div class="container">
+				<div class="row">
+					<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+						<div class="alert alert-success">You have been successfully signed out.</div>
+					</div>
+				</div>
+			</div>
+			{% endif %}
+
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+					<div class="well">
+						<h2 class="text-center">Sign in</h2>
+						<form role="form" action="{% url 'admin:login'%}{% if next %}?next={{next}}{% endif %}" method="POST">
+							{% csrf_token %}
+							<div class="form-group">
+								<label for="username" class="sr-only">Username</label>
+								<input type="text" class="form-control input-lg" id="username" name="username" placeholder="Username">
+							</div>
+							<div class="form-group">
+								<label for="inputPassword" class="sr-only">Password</label>
+								<input type="password" class="form-control input-lg" id="password" name="password" placeholder="Password">
+							</div>
+							<div class="form-group text-center">
+									<button type="submit" class="btn btn-primary">Sign in</button>
+							</div>
+						</form>
+					</div>
+					<p class="text-center">Not a member yet? Please <a href="{% url 'admin:signup'%}">sign up here</a.</p>
+				</div>
+			</div>
+		</div>
+{% endblock %}

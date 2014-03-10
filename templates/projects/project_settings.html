@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+
+{% block bodydata %} data-project-id="{{project.id}}"{% endblock %}
+{% block title %} | Project: {{project.name}}{% endblock %}
+
+{% block main %}
+	{% csrf_token %}
+
+		<div class="page-header">
+			<div class="container">
+				<ol class="breadcrumb">
+					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
+					<li class="active">{{ project.name }}: Settings</li>
+				</ol>
+
+				<h1>{{project.name}}</h1>
+				<p class="lead">
+					<span id="descriptionText">{% if project.description %} {{project.description}} {% endif %}</span>
+					<button id="edit" type="button" class="btn btn-link"><span class="glyphicon glyphicon-edit"></span> Edit</button>
+				</p>
+				<form class="form-inline hidden" id="description-form" role="form">
+					{% csrf_token %}
+					<div class="form-group">
+						<label class="sr-only" for="desription">Project description</label>
+						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a view desription" {% if project.description %}value="{{project.description}}"{% endif %}>
+					</div>
+					<button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
+					<button type="button" class="btn btn-link">Cancel</button>
+				</form>
+			</div>
+		</div>
+
+		<div class="container">
+			<div class="quick-stats">
+				<span class="number">12 users</span> have contributed <a href="{% url 'admin:project_detail' project.id %}"><span class="number">73 observations</span></a> to this project.
+			</div>
+			<hr>
+			<div class="row" id="users">
+				<div class="col-md-10 col-md-offset-1">
+					<h3>Permissions</h3>
+				</div>
+				<div class="col-md-5 col-md-offset-1">
+					<div class="panel panel-default" id="administrators" data-group-id="{{ project.admins.id }}"> <!-- Administrators list -->
+						<div class="panel-heading">
+							<h2 class="panel-title">Administrators</h2>
+							<p>Members of this group can edit and delete the project, create and alter views as well as access, edit and remove all data contributed to the project.<p>
+						</div>
+
+						{% include 'snippets/usergroup-editor.html' with users=project.admins.users.all %}
+					</div> <!-- /Administrators List -->
+				</div>
+				<div class="col-md-5">
+					<div class="panel panel-default" id="contributors" data-group-id="{{ project.contributors.id }}"> <!-- Contributors list -->
+						<div class="panel-heading">
+							<h2 class="panel-title">Contributors</h2>
+							<p>Members of this group can contribute new features and observations to the project.<p>
+						</div>
+						{% include 'snippets/usergroup-editor.html' with users=project.contributors.users.all contributors=True %}
+					</div> <!-- /Contributors List -->
+				</div>
+			</div>
+			<hr>
+			<div class="row" id="featuretypes">
+				<div class="col-md-5 col-md-offset-1">
+					<h3>Observation types</h3>
+					<div class="panel panel-default"> <!-- Observation type list List -->
+						<div class="panel-heading">
+							<h2 class="panel-title">Observation types in this project</h2>
+						</div>
+						<div class="list-group">
+							{% for observationtype in project.observationtypes.all %}
+							<a href="{% url 'admin:observationtype_detail' project.id observationtype.id %}" class="list-group-item">
+								<h4 class="list-group-item-heading">{{ observationtype.name }}{% if observationtype.status == status_types.inactive %} <small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
+								<p class="list-group-item-text">{{ observationtype.description }}</p>
+							</a>
+							{% empty %}
+							<div class="list-group-item">
+								No observation types have been added to the project.
+							</div>
+							{% endfor %}
+						</div>
+						<div class="panel-footer">
+							<a href="{% url 'admin:observationtype_create' project.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new observation type</a>
+						</div>
+					</div> <!-- /Observation type list List -->
+				</div>
+
+				<div class="col-md-5">
+					<h3>Views</h3>
+					<div class="panel panel-default"> <!-- Observation type list List -->
+						<div class="panel-heading">
+							<h2 class="panel-title">Views in this project</h2>
+						</div>
+						<div class="list-group">
+							{% for view in project.views.all %}
+                                <a class="list-group-item" href="{% url 'admin:view_settings' project.id view.id %}">
+                                    <h4 class="list-group-item-heading">{{ view.name }}</h4>
+                                    <p class="list-group-item-text">{{ view.description }}</p>
+                                </a>
+							{% empty %}
+							<div class="list-group-item">
+								No views have been added to the project.
+							</div>
+							{% endfor %}
+						</div>
+						<div class="panel-footer">
+							<a href="{% url 'admin:view_create' project.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new view</a>
+						</div>
+					</div> <!-- /Observation type list List -->
+				</div>
+			</div>
+			<hr>
+			<div class="row" id="general-settings">
+				<div class="col-md-10 col-md-offset-1">
+					<h3>General settings</h3>
+				</div>
+
+				<div class="col-md-5 col-md-offset-1 col-lg-3">
+					<div class="panel panel-warning toggle-private {% if not project.isprivate %} hidden{% endif %}">
+						<div class="panel-heading">
+							<h2 class="panel-title">Make this project public</h2>
+						</div>
+						<div class="panel-body">
+							<p>Make this project accessibale to every registered user.</p>
+							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-public-confirm">Make public</button>
+						</div>
+					</div>
+
+					<div class="panel panel-warning toggle-private {% if project.isprivate %} hidden{% endif %}">
+						<div class="panel-heading">
+							<h2 class="panel-title">Make this project private</h2>
+						</div>
+						<div class="panel-body">
+							<p>Hide this project from the public.</p>
+							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-private-confirm">Make private</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-5 col-lg-3 col-lg-offset-0">
+					<div class="panel panel-warning toggle-active {% if project.status == status_types.inactive %} hidden{% endif %}">
+						<div class="panel-heading">
+							<h2 class="panel-title">Make this project inactive</h2>
+						</div>
+						<div class="panel-body">
+							<p>Users will not be able to contribute and read data from the project.</p>
+							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-inactive-confirm">Make inactive</button>
+						</div>
+					</div>
+
+					<div class="panel panel-warning toggle-active {% if project.status == status_types.active %} hidden{% endif %}">
+						<div class="panel-heading">
+							<h2 class="panel-title">Make this project active</h2>
+						</div>
+						<div class="panel-body">
+							<p>Users will be able to contribute and read data from the project.</p>
+							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-active-confirm">Make active</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-5 col-md-offset-1 col-lg-3 col-lg-offset-0">
+					<div class="panel panel-danger">
+						<div class="panel-heading">
+							<h2 class="panel-title">Delete project</h2>
+						</div>
+						<div class="panel-body">
+							<p>If you delete the project there's no way back.</p>
+							<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-confirm">Delete this project</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+{% endblock %}
+
+{% block modals %}
+		<!-- Delete confirmation modal -->
+		<div class="modal fade" id="delete-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content panel-danger">
+					<div class="modal-header panel-heading">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+					</div>
+					<div class="modal-body panel-body">
+						<p class="text-danger">You are about to delete the project <strong>{{project.name}}</strong>. This can not be undone.</p>
+						<p>Deleting a project will delete all data contributed to the project.</p>
+					</div>
+					<div class="modal-footer panel-footer">
+						<button type="button" name="confirm" value="delete" class="btn btn-danger" data-loading-text="Loading...">I'm absolutely sure, delete the project!</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /Delete confirmation modal -->
+
+		<div class="modal fade" id="make-public-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content panel-warning">
+					<div class="modal-header panel-heading">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+					</div>
+					<div class="modal-body panel-body">
+						<p>Before you make the project public, please read through the consequences of this action.</p>
+						<p>A public project is accessible to every registered user of the platform. However, access to data contributed to the project may still be restricted by settings of individual views.</p>
+					</div>
+					<div class="modal-footer panel-footer">
+						<button type="button" name="confirm" value="false" class="btn btn-warning" data-loading-text="Loading...">Yes, make the project public.</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="make-private-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content panel-warning">
+					<div class="modal-header panel-heading">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+					</div>
+					<div class="modal-body panel-body">
+						<p>Before you make the project private, please read through the consequences of this action.</p>
+						<p>A private project is only accessible by the following users:</p>
+						<ul>
+							<li>Project administrators</li>
+							<li>Project contributers</li>
+							<li>Members of any user group that is assigned to one of the project views.</li>
+						</ul>
+					</div>
+					<div class="modal-footer panel-footer">
+						<button type="button" name="confirm" value="true" class="btn btn-warning" data-loading-text="Loading...">Yes, make the project private.</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+		<div class="modal fade" id="make-inactive-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content panel-warning">
+					<div class="modal-header panel-heading">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+					</div>
+					<div class="modal-body panel-body">
+						<p>Before you make the project inactive, please read through the consequences of this action:</p>
+						<ul>
+							<li>The project will be accessible to project administrators only.</li>
+							<li>All data, user groups and views will be kept in the data base.</li>
+							<li>It is not possible to contribute new data to the project.</li>
+						</ul>
+					</div>
+					<div class="modal-footer panel-footer">
+						<button type="button" name="confirm" value="{{status_types.inactive}}" class="btn btn-warning" data-loading-text="Loading...">Yes, make the project inactive.</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="make-active-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content panel-warning">
+					<div class="modal-header panel-heading">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+					</div>
+					<div class="modal-body panel-body">
+						<p>Before you make the project active, please read through the consequences of this action:</p>
+						<ul>
+							<li>The project will be accessible to either all registered users or Administrators, Viewers and Contributors.</li>
+							<li>Contributors and Administrators can contribute new data.</li>
+						</ul>
+					</div>
+					<div class="modal-footer panel-footer">
+						<button type="button" name="confirm" value="{{status_types.active}}" class="btn btn-warning" data-dismiss="modal">Yes, make the project active.</button>
+					</div>
+				</div>
+			</div>
+		</div>
+{% endblock %}
+
+{% block libraries %}
+			<script src="/static/js/admin.ui.messages.js"></script>
+			<script src="/static/js/admin.ui.descriptioneditor.js"></script>
+			<script src="/static/js/admin.ui.updater.js"></script>
+			<script src="/static/js/admin.control.ajax.js"></script>
+			<script src="/static/js/admin.ui.project.usergroups.js"></script>
+			<script src="/static/js/admin.ui.usergroup.js"></script>
+{% endblock %}

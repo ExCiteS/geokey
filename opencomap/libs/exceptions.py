@@ -1,2 +1,0 @@
-class MalformedBody(Exception):
-    pass

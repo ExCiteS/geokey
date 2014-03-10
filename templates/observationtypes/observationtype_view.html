@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block bodydata %} data-project-id="{{observationtype.project.id}}" data-observationtype-id="{{observationtype.id}}"{% endblock %}
+{% block title %} | Observation type: {{ observationtype.name }}{% endblock %}
+
+{% block main %}
+	{% csrf_token %}
+		<div class="page-header">
+			<div class="container">
+				<ol class="breadcrumb">
+					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
+					<li><a href="{% url 'admin:project_settings' observationtype.project.id %}">{{ observationtype.project.name }}: Settings</a></li>
+					<li class="active">{{ observationtype.name }}</li>
+				</ol>
+
+				<h1>{{ observationtype.name }} </h1>
+				<p class="lead">
+					<span id="descriptionText">{% if observationtype.description %} {{ observationtype.description }} {% endif %}</span>
+					{% if admin %}<button id="edit" type="button" class="btn btn-link"><span class="glyphicon glyphicon-edit"></span> Edit</button>{% endif %}
+				</p>
+				<form class="form-inline hidden" id="description-form" role="form">
+					{% csrf_token %}
+					<div class="form-group">
+						<label class="sr-only" for="desription">Observation type description</label>
+						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a feature type desription" {% if observationtype.description %}value="{{observationtype.description}}"{% endif %}>
+					</div>
+					<button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
+					<button type="button" class="btn btn-link">Cancel</button>
+				</form>
+			</div>
+		</div>
+
+		<div class="container">
+			<div class="row">
+				<div class="col-md-10 col-md-offset-1">
+					<div class="panel panel-default"> <!-- Project overview -->
+						<div class="panel-heading">
+							<h2 class="panel-title">Fields</h2>
+						</div>
+						{% include 'snippets/field-table.html' %}
+						<div class="panel-footer">
+							<a href="{% url 'admin:observationtype_field_create' observationtype.project.id observationtype.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new field</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			{% if admin %}
+			<div class="row" id="general-settings">
+				<div class="col-md-5 col-md-offset-1">
+					<div class="panel panel-warning toggle-active {% if observationtype.status == status_types.inactive %} hidden{% endif %}">
+						<div class="panel-heading">
+							<h2 class="panel-title">Make this feature type inactive</h2>
+						</div>
+						<div class="panel-body">
+							<p>The feature type shall no longer be used for data contribution.</p>
+							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-inactive-confirm">Make inactive</button>
+						</div>
+					</div>
+
+					<div class="panel panel-warning toggle-active {% if observationtype.status == status_types.active %} hidden{% endif %}">
+						<div class="panel-heading">
+							<h2 class="panel-title">Make this feature type active</h2>
+						</div>
+						<div class="panel-body">
+							<p>The feature type shall available for data contribution.</p>
+							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-active-confirm">Make active</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			{% endif %}
+		</div>
+{% endblock %}
+
+{% block modals %}
+	{% if admin %}
+		<div class="modal fade" id="make-inactive-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content panel-warning">
+					<div class="modal-header panel-heading">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+					</div>
+					<div class="modal-body panel-body">
+						<p>Before you make the feature type inactive, please read through the consequences of this action:</p>
+						<ul>
+							<li>Users will not be able to contribute new data using this feature type.</li>
+							<li>However, data already contributed using this feature type can be edited and the input will be validated against the type.</li>
+						</ul>
+					</div>
+					<div class="modal-footer panel-footer">
+						<button type="button" name="confirm" value="{{status_types.inactive}}" class="btn btn-warning" data-loading-text="Loading...">Yes, make the feature type inactive.</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="make-active-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content panel-warning">
+					<div class="modal-header panel-heading">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+					</div>
+					<div class="modal-body panel-body">
+						<p>Before you make the feature type active, please read through the consequences of this action:</p>
+						<ul>
+							<li>The feature type can be user for data contribution and validation.</li>
+						</ul>
+					</div>
+					<div class="modal-footer panel-footer">
+						<button type="button" name="confirm" value="{{status_types.active}}" class="btn btn-warning" data-dismiss="modal">Yes, make the feature type active.</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+{% endblock %}
+
+{% block libraries %}
+	{% if admin %}
+			<script src="/static/js/admin.ui.messages.js"></script>
+			<script src="/static/js/admin.ui.descriptioneditor.js"></script>
+			<script src="/static/js/admin.ui.updater.js"></script>
+			<script src="/static/js/admin.control.ajax.js"></script>
+			<script type="text/javascript">
+				$(function() {
+					$('[rel="tooltip"]').tooltip();
+				});
+			</script>
+	{% endif %}
+{% endblock %}

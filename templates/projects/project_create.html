@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %} | Create new project{% endblock %}
+
+{% block main %}
+		<div class="page-header">
+			<div class="container">
+				<ol class="breadcrumb">
+					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
+					<li class="active">Create new project</li>
+				</ol>
+				<h1>Create new project</h1>
+			</div>
+		</div>
+
+		<div class="container">
+			<div class="row">
+				<form role="form" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url 'admin:project_create' %}" novalidate>
+					{% csrf_token %}
+					<div class="form-group">
+						<label for="name" class="control-label">Name (required)</label>
+						<input type="text" class="form-control input-lg" id="name" name="name" required>
+					</div>
+
+					<div class="form-group">
+						<label for="description" class="control-label">Description (required)</label>
+						<textarea class="form-control input-lg" rows="5" name="description" id="description" required></textarea>
+					</div>
+
+					<div class="form-group">
+						<div class="radio">
+							<label>
+								<input type="radio" id="private" name="isprivate" value="true" checked> <strong>Private</strong> The project will be accessible by project administrators, contributors and members of any user group that is assigned to one of the project views.
+							</label>
+						</div>
+						<div class="radio">
+							<label>
+								<input type="radio" id="public" name="isprivate" value="false"> <strong>Public</strong> The project will be accessible by all registered users.
+							</label>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary">Save</button>
+						<a href="{% url 'admin:dashboard' %}" class="btn btn-default" role="button">Cancel</a>
+					</div>
+				</form>
+			</div>
+		</div>
+{% endblock %}
+
+{% block libraries %} 
+			<script src="/static/js/admin.ui.forms.validate.js"></script>
+{% endblock %}

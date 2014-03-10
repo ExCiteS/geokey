@@ -16,6 +16,11 @@ CACHES = {
     }
 }
 
+INSTALLED_APPS += (
+    'django_nose',
+)
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 # set up django-devserver if installed
 try:
