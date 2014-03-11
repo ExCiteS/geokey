@@ -35,24 +35,24 @@ class ProjectManager(models.Manager):
         """
         return self.get_query_set().for_user(user)
 
-    def get_single(self, user, pk):
+    def get_single(self, user, project_id):
         """
         Returns a single project or raises PermissionDenied if the user is not
         allowed to access the project.
         """
-        project = super(ProjectManager, self).get(pk=pk)
+        project = super(ProjectManager, self).get(pk=project_id)
         if project.can_access(user):
             return project
         else:
             raise PermissionDenied('You are not allowed to access this '
                                    'project.')
 
-    def as_admin(self, user, pk):
+    def as_admin(self, user, project_id):
         """
         Returns the project if the user is member of the administrators group
         of raises PermissionDenied if not.
         """
-        project = super(ProjectManager, self).get(pk=pk)
+        project = super(ProjectManager, self).get(pk=project_id)
         if project.is_admin(user):
             return project
         else:
@@ -60,3 +60,15 @@ class ProjectManager(models.Manager):
                                    'group of this project and therefore not '
                                    'allowed to alter the settings of the '
                                    'project')
+
+    def as_contributor(self, user, project_id):
+        """
+        Returns the project if the user is eligable to contribute data to the
+        project. Raises PermissionDenied if not.
+        """
+        project = self.get_single(user, project_id)
+        if project.can_contribute(user):
+            return project
+        else:
+            raise PermissionDenied('You are not eligable to contribute data '
+                                   'to this project')

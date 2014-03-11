@@ -83,6 +83,11 @@ class Project(models.Model):
             and self.status == STATUS.active
         )
 
+    def can_contribute(self, user):
+        return self.status == STATUS.active and (
+            self.is_admin(user) or self.everyonecontributes or (
+                user in self.contributors.users.all()))
+
 
 class UserGroup(models.Model):
     """

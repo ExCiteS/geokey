@@ -50,7 +50,7 @@ class Observation(models.Model):
     )
     observationtype = models.ForeignKey('observationtypes.ObservationType')
 
-    objects = hstore.HStoreGeoManager()
+    objects = hstore.HStoreManager()
 
     def delete(self):
         """
