@@ -2,10 +2,9 @@ from django.db import models
 from django.conf import settings
 from django.contrib.gis.db import models as gis
 
-from djorm_hstore.fields import DictionaryField
-from model_utils import Choices
+from django_hstore import hstore
 
-CONTRIBUTION_STATUS = Choices('active', 'inactive', 'review', 'deleted')
+from .base import LOCATION_STATUS, OBSERVATION_STATUS, COMMENT_STATUS
 
 
 class Location(models.Model):
@@ -18,35 +17,40 @@ class Location(models.Model):
     geometry = gis.GeometryField(geography=True)
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
+    version = models.IntegerField(default=1)
+    # if private is True and private_for_project is not null, the location
+    # shall be available for further contributions to the project.
+    # if private is False, the location is public to contributors accross all
+    # projects if the platform
+    private = models.BooleanField(default=False)
+    private_for_project = models.ForeignKey('projects.Project', null=True)
     status = models.CharField(
-        choices=CONTRIBUTION_STATUS,
-        default=CONTRIBUTION_STATUS.active,
+        choices=LOCATION_STATUS,
+        default=LOCATION_STATUS.active,
         max_length=20
     )
-    projects = models.ManyToManyField('projects.Project')
-
-    def delete(self):
-        """
-        Deletes a layer by setting its status to deleted.
-        """
-        self.status = CONTRIBUTION_STATUS.deleted
-        self.save()
 
 
 class Observation(models.Model):
     """
     Stores a single observation.
     """
-    data = DictionaryField(db_index=True)
+    data = hstore.DictionaryField(db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
-    feature = models.ForeignKey('Location')
+    location = models.ForeignKey('Location', related_name='observations')
+    project = models.ForeignKey(
+        'projects.Project', related_name='observations'
+    )
+    version = models.IntegerField(default=1)
     status = models.CharField(
-        choices=CONTRIBUTION_STATUS,
-        default=CONTRIBUTION_STATUS.active,
+        choices=OBSERVATION_STATUS,
+        default=OBSERVATION_STATUS.active,
         max_length=20
     )
     observationtype = models.ForeignKey('observationtypes.ObservationType')
+
+    objects = hstore.HStoreGeoManager()
 
     def delete(self):
         """
@@ -57,13 +61,11 @@ class Observation(models.Model):
 
 
 class Comment(models.Model):
-    COMMENT_STATUS = Choices('active', 'deleted')
-
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     commentto = models.ForeignKey('Observation')
-    respondsto = models.ForeignKey('Comment', null=True)
+    respondsto = models.ForeignKey('Comment', null=True, blank=True)
     status = models.CharField(
         choices=COMMENT_STATUS,
         default=COMMENT_STATUS.active,

@@ -43,5 +43,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         depth = 1
         fields = ('id', 'name', 'description', 'isprivate', 'status',
-                  'everyonecontributes', 'creator', 'admins', 'contributors')
+                  'everyonecontributes', 'creator', 'admins', 'contributors',
+                  'created_at')
         read_only_fields = ('id', 'name')

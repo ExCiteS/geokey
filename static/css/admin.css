@@ -12,7 +12,7 @@ body#home div.jumbotron {
 }
 
 	body#home div.jumbotron .super-heading {
-		text-shadow: 0 0 10px #555;    
+		text-shadow: 0 0 10px #555;
 		color: #fff;
 	}
 
@@ -108,6 +108,10 @@ div.page-header .breadcrumb > li + li:before {
 		margin-bottom: 5px;
 	}
 
+		div.page-header h1 small {
+			display: block;
+		}
+
 	div.page-header p.lead {
 		margin-bottom: 0;
 	}
@@ -119,8 +123,8 @@ div.page-header .breadcrumb > li + li:before {
 		div.page-header .form-inline > .form-group {
 			width: 100%;
 		}
-		
-		@media (min-width: 768px) { 
+
+		@media (min-width: 768px) {
 			div.page-header .form-inline > .form-group {
 				width: 583px;
 			}
