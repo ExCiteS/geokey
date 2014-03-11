@@ -8,58 +8,14 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'Location'
-        db.create_table(u'contributions_location', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('description', self.gf('django.db.models.fields.TextField')()),
-            ('geometry', self.gf('django.contrib.gis.db.models.fields.GeometryField')(geography=True)),
-            ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('version', self.gf('django.db.models.fields.IntegerField')(default=1)),
-            ('private', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('private_for_project', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['projects.Project'], null=True)),
-            ('status', self.gf('django.db.models.fields.CharField')(default='active', max_length=20)),
-        ))
-        db.send_create_signal(u'contributions', ['Location'])
 
-        # Adding model 'Observation'
-        db.create_table(u'contributions_observation', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('data', self.gf('djorm_hstore.fields.DictionaryField')(db_index=True)),
-            ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('location', self.gf('django.db.models.fields.related.ForeignKey')(related_name='observations', to=orm['contributions.Location'])),
-            ('project', self.gf('django.db.models.fields.related.ForeignKey')(related_name='observations', to=orm['projects.Project'])),
-            ('version', self.gf('django.db.models.fields.IntegerField')(default=1)),
-            ('status', self.gf('django.db.models.fields.CharField')(default='active', max_length=20)),
-            ('observationtype', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['observationtypes.ObservationType'])),
-        ))
-        db.send_create_signal(u'contributions', ['Observation'])
-
-        # Adding model 'Comment'
-        db.create_table(u'contributions_comment', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('text', self.gf('django.db.models.fields.TextField')()),
-            ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('commentto', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contributions.Observation'])),
-            ('respondsto', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contributions.Comment'], null=True, blank=True)),
-            ('status', self.gf('django.db.models.fields.CharField')(default='active', max_length=20)),
-        ))
-        db.send_create_signal(u'contributions', ['Comment'])
-
+        # Changing field 'Observation.data'
+        db.alter_column(u'contributions_observation', 'data', self.gf(u'django_hstore.fields.DictionaryField')())
 
     def backwards(self, orm):
-        # Deleting model 'Location'
-        db.delete_table(u'contributions_location')
 
-        # Deleting model 'Observation'
-        db.delete_table(u'contributions_observation')
-
-        # Deleting model 'Comment'
-        db.delete_table(u'contributions_comment')
-
+        # Changing field 'Observation.data'
+        db.alter_column(u'contributions_observation', 'data', self.gf('djorm_hstore.fields.DictionaryField')())
 
     models = {
         u'auth.group': {
@@ -125,7 +81,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Observation'},
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'creator': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"}),
-            'data': ('djorm_hstore.fields.DictionaryField', [], {'db_index': 'True'}),
+            'data': (u'django_hstore.fields.DictionaryField', [], {'db_index': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'location': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'observations'", 'to': u"orm['contributions.Location']"}),
             'observationtype': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['observationtypes.ObservationType']"}),
