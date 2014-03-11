@@ -1,9 +1,12 @@
 from django.test import TestCase
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 
 from nose.tools import raises
 
 from projects.tests.model_factories import ProjectF, UserGroupF, UserF
+from observationtypes.tests.model_factories import (
+    ObservationTypeFactory, TextFieldFactory, NumericFieldFactory
+)
 
 from ..models import Location, Observation, Comment
 
@@ -88,6 +91,44 @@ class LocationTest(TestCase):
         observation = ObservationFactory()
         observation.delete()
         Observation.objects.get(pk=observation.id)
+
+    def test_create_observation(self):
+        creator = UserF()
+        location = LocationFactory()
+        observationtype = ObservationTypeFactory()
+        TextFieldFactory(**{
+            'key': 'text',
+            'observationtype': observationtype
+        })
+        NumericFieldFactory(**{
+            'key': 'number',
+            'observationtype': observationtype
+        })
+        data = {'text': 'Text', 'number': 12}
+        observation = Observation.objects.create(
+            data=data, creator=creator, location=location,
+            observationtype=observationtype, project=observationtype.project
+        )
+        self.assertEqual(observation.data, data)
+
+    @raises(ValidationError)
+    def test_create_invalid_observation(self):
+        creator = UserF()
+        location = LocationFactory()
+        observationtype = ObservationTypeFactory()
+        TextFieldFactory(**{
+            'key': 'text',
+            'observationtype': observationtype
+        })
+        NumericFieldFactory(**{
+            'key': 'number',
+            'observationtype': observationtype
+        })
+        data = {'text': 'Text', 'number': 'abc'}
+        Observation.objects.create(
+            data=data, creator=creator, location=location,
+            observationtype=observationtype, project=observationtype.project
+        )
 
     # ########################################################################
     #

@@ -1,6 +1,6 @@
 from django.contrib.gis.db import models
 from django.db.models import Q
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 
 from django_hstore import hstore
 
@@ -49,6 +49,27 @@ class LocationManager(models.GeoManager):
 
 
 class ObservationManager(hstore.HStoreManager):
+    def create(self, **kwargs):
+        """
+        Creates a new observation. Validates all fields first and raises a
+        ValidationError if at least one field did not validate.
+        Creates the object if all fields are valid.
+        """
+        observationtype = kwargs.get('observationtype')
+        data = kwargs.get('data')
+
+        valid = True
+        for field in observationtype.fields.all():
+            if not field.validate_input(data.get(field.key)):
+                valid = False
+
+        if valid:
+            return super(ObservationManager, self).create(**kwargs)
+        else:
+            raise ValidationError('One or more fields did not validate. The '
+                                  'contribution has not been save to the '
+                                  'database')
+
     def get_query_set(self):
         return super(ObservationManager, self).get_query_set().exclude(
             status=OBSERVATION_STATUS.deleted)
