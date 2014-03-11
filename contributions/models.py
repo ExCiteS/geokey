@@ -5,6 +5,7 @@ from django.contrib.gis.db import models as gis
 from django_hstore import hstore
 
 from .base import LOCATION_STATUS, OBSERVATION_STATUS, COMMENT_STATUS
+from .manager import LocationManager, ObservationManager, CommentManager
 
 
 class Location(models.Model):
@@ -18,10 +19,6 @@ class Location(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     version = models.IntegerField(default=1)
-    # if private is True and private_for_project is not null, the location
-    # shall be available for further contributions to the project.
-    # if private is False, the location is public to contributors accross all
-    # projects if the platform
     private = models.BooleanField(default=False)
     private_for_project = models.ForeignKey('projects.Project', null=True)
     status = models.CharField(
@@ -29,6 +26,8 @@ class Location(models.Model):
         default=LOCATION_STATUS.active,
         max_length=20
     )
+
+    objects = LocationManager()
 
 
 class Observation(models.Model):
@@ -50,13 +49,13 @@ class Observation(models.Model):
     )
     observationtype = models.ForeignKey('observationtypes.ObservationType')
 
-    objects = hstore.HStoreManager()
+    objects = ObservationManager()
 
     def delete(self):
         """
         Deletes the comment by setting it's `status` to `DELETED`
         """
-        self.status = self.CONTRIBUTION_STATUS.deleted
+        self.status = OBSERVATION_STATUS.deleted
         self.save()
 
 
@@ -72,9 +71,11 @@ class Comment(models.Model):
         max_length=20
     )
 
+    objects = CommentManager()
+
     def delete(self):
         """
         Deletes the comment by setting it's `status` to `DELETED`
         """
-        self.status = self.COMMENT_STATUS.deleted
+        self.status = COMMENT_STATUS.deleted
         self.save()
