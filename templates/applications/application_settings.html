@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block bodydata %} data-app-id="{{project.id}}"{% endblock %}
+{% block title %} | Applcation: {{project.name}}{% endblock %}
+
+{% block main %}
+    {% csrf_token %}
+
+    <div class="page-header">
+            <div class="container">
+                <ol class="breadcrumb">
+                    <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
+                    <li class="active">{{ app.name }}: Settings</li>
+                </ol>
+
+                <h1>{{app.name}}</h1>
+                <p class="lead">
+                    <span id="descriptionText">{% if app.description %} {{app.description}} {% endif %}</span>
+                    <button id="edit" type="button" class="btn btn-link"><span class="glyphicon glyphicon-edit"></span> Edit</button>
+                </p>
+                <form class="form-inline hidden" id="description-form" role="form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label class="sr-only" for="desription">app description</label>
+                        <input type="text" class="form-control" id="description" name="description" placeholder="Enter a application desription" {% if app.description %}value="{{app.description}}"{% endif %}>
+                    </div>
+                    <button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
+                    <button type="button" class="btn btn-link">Cancel</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="container">
+            <form role="form" id="valuesForm" class="form-horizontal col-md-8 col-md-offset-2" novalidate>
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="name" class="col-sm-4 control-label">Client ID</label>
+                        <div class="col-sm-8">
+                            <p class="form-control-static">{{ app.client.client_id }}</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description" class="col-sm-4 control-label">Client Secret</label>
+                        <div class="col-sm-8">
+                            <p class="form-control-static">{{ app.client.client_secret }}</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="download_url" class="col-sm-4 control-label">Download / welcome page url</label>
+                        <div class="col-sm-8">
+                            <input type="url" class="form-control" id="download_url" name="download_url" value="{{ app.download_url }}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description" class="col-sm-4 control-label">Redirect URL</label>
+                        <div class="col-sm-8">
+                            <input type="url" class="form-control" id="redirect_url" value="{{ app.redirect_url }}" name="redirect_url" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-4 col-sm-8">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                            <a href="{% url 'admin:dashboard' %}" class="btn btn-default" role="button">Cancel</a>
+                        </div>
+                    </div>
+                </form>
+        </div>
+{% endblock %}
+
+{% block libraries %}
+
+{% endblock %}

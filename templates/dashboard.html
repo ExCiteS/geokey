@@ -42,17 +42,18 @@
                         </div>
                         <div class="list-group">
                         {% for app in apps %}
-                            <div class="list-group-item">
-                                {{ app.name }}
-                            </div>
+                            <a href="{% url 'admin:app_settings' app.id %}" class="list-group-item">
+                                <h4 class="list-group-item-heading">{{app.name}}</h4>
+                                <p class="list-group-item-text">{{app.description}}</p>
+                            </a>
                         {% empty %}
                             <div class="list-group-item">
-                                <p>You haven't registered any third-party applications yet. <a href="#">Register an application now</a>.</p>
+                                <p>You haven't registered any third-party applications yet. <a href="{% url 'admin:app_register' %}">Register an application now</a>.</p>
                             </div>
                         {% endfor %}
                         </div>
                         <div class="panel-footer">
-                            <a href="#" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Register an application</a>
+                            <a href="{% url 'admin:app_register' %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Register an application</a>
                         </div>
                     </div>
                 </div>

@@ -1,9 +1,21 @@
 import datetime
 import factory
 
+from provider.oauth2.models import Client
+
 from projects.tests.model_factories import UserF
 
 from ..models import Application
+
+
+class ClientFactory(factory.django.DjangoModelFactory):
+    FACTORY_FOR = Client
+
+    name = factory.Sequence(lambda n: 'name_%d' % n)
+    url = 'http://example.com/'
+    redirect_uri = 'http://example.com/app'
+    user = factory.SubFactory(UserF)
+    client_type = 0
 
 
 class ApplicationFactory(factory.django.DjangoModelFactory):
@@ -16,3 +28,4 @@ class ApplicationFactory(factory.django.DjangoModelFactory):
     download_url = 'http://example.com'
     redirect_url = 'http://example.com/app'
     status = 'active'
+    client = factory.SubFactory(ClientFactory)

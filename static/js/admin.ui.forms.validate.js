@@ -1,5 +1,5 @@
 /* ***********************************************
- * Validates form accroding to the definition in the HTML. 
+ * Validates form accroding to the definition in the HTML.
  * Is automatically loaded when included in a page.
  *
  * @author Oliver Roick (http://github.com/oliverroick)
@@ -12,7 +12,7 @@ $(function() {
 	var form = $('form').not('#description-form');
 
 	/**
-	 * Displays a help text beneath invalid fields. 
+	 * Displays a help text beneath invalid fields.
 	 * @param  {Object} field   The invalid field
 	 * @param  {String} message The message to display.
 	 */
@@ -20,10 +20,10 @@ $(function() {
 		field.siblings('.help-block').remove();
 		field.after('<span class="help-block">' + message  + '</span>');
 	}
-	
+
 	/**
-	 * Validates a frorm using standard form.checkValidity(). If valid, the form is submitted. 
-	 * If not, invalid fields are marked and a help text is provided. 
+	 * Validates a frorm using standard form.checkValidity(). If valid, the form is submitted.
+	 * If not, invalid fields are marked and a help text is provided.
 	 * @param  {Event} event The form submission event.
 	 */
 	function validate(event) {
@@ -52,8 +52,11 @@ $(function() {
 
 				if (!validity.valueMissing) {
 					switch (field.attr('type')) {
+						case 'url':
+							if (validity.typeMismatch) { showHelp(field, 'Please enter a valid URL; e.g., http://example.com.'); }
+							break;
 						case 'email':
-							if (validity.typeMismatch) { showHelp(field, 'Please insert a valid email address; e.g., kermit@muppets.co.uk.'); }
+							if (validity.typeMismatch) { showHelp(field, 'Please enter a valid email address; e.g., name@example.com.'); }
 							break;
 						case 'number':
 							if (validity.badInput) { showHelp(field, 'Your input contains non-numeric characters. Maybe you used a comma (,) as decimal point?'); }

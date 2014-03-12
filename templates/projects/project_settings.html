@@ -22,7 +22,7 @@
 					{% csrf_token %}
 					<div class="form-group">
 						<label class="sr-only" for="desription">Project description</label>
-						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a view desription" {% if project.description %}value="{{project.description}}"{% endif %}>
+						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a application desription" {% if project.description %}value="{{project.description}}"{% endif %}>
 					</div>
 					<button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
 					<button type="button" class="btn btn-link">Cancel</button>

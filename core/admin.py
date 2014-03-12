@@ -4,6 +4,7 @@ from projects import views as project_views
 from observationtypes import views as observationtype_views
 from users import views as login_views
 from dataviews import views as view_views
+from applications import views as app_views
 
 
 urlpatterns = patterns(
@@ -82,8 +83,12 @@ urlpatterns = patterns(
     # APPS
     # ###########################
 
-    # url(
-    #     r'^apps/register$',
-    #     view_views.ViewAdminCreateView.as_view(),
-    #     name='apps_register'),
+    url(
+        r'^apps/register$',
+        app_views.AppCreateView.as_view(),
+        name='app_register'),
+    url(
+        r'^apps/(?P<app_id>[0-9]+)$',
+        app_views.AppSettingsView.as_view(),
+        name='app_settings'),
 )

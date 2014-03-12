@@ -12,6 +12,7 @@ from rest_framework.response import Response
 
 from projects.models import Project
 from projects.base import STATUS
+from applications.models import Application
 
 from .serializers import UserSerializer
 
@@ -141,6 +142,7 @@ class Dashboard(LoginRequiredMixin, TemplateView):
     def get_context_data(self):
         return {
             'projects': Project.objects.get_list(self.request.user),
+            'apps': Application.objects.get_list(self.request.user),
             'status_types': STATUS
         }
 
