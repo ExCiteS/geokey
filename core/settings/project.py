@@ -22,4 +22,5 @@ INSTALLED_APPS += (
     'contributions',
     'dataviews',
     'users',
+    'applications'
 )

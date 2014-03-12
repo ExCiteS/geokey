@@ -19,6 +19,12 @@ from .forms import ProjectCreateForm
 from .serializers import ProjectSerializer, UserGroupSerializer
 
 
+# ############################################################################
+#
+# Administration views
+#
+# ############################################################################
+
 class ProjectAdminCreateView(LoginRequiredMixin, CreateView):
     """
     Displays the create project page
@@ -80,6 +86,12 @@ class ProjectAdminSettings(LoginRequiredMixin, TemplateView):
             'status_types': STATUS
         }
 
+
+# ############################################################################
+#
+# AJAX API views
+#
+# ############################################################################
 
 class ProjectApiDetail(APIView):
     """
@@ -168,3 +180,10 @@ class ProjectApiUserGroupUser(APIView):
         user = group.users.get(pk=user_id)
         group.users.remove(user)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# ############################################################################
+#
+# AJAX API views
+#
+# ############################################################################

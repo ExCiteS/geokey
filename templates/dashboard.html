@@ -11,16 +11,6 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-6">
-                    <h3>Here's what happed since your last visit</h3>
-                    <ul class="list-unstyled newsfeed">
-                        <li><span class="glyphicon glyphicon-plus"></span> <a href="#">Peter Schmeichel</a> created View <a href="view.html">Movie Theatres</a>.</li>
-                        <li><span class="glyphicon glyphicon-plus"></span> <a href="#">George Best</a> added a new field <em>Address</em> to Project <a href="project.html">Piggy and Kermit</a>.</li>
-                        <li><span class="glyphicon glyphicon-remove"></span> <a href="#">Carlos Valderama</a> deleted View <a href="view.html">Parks</a>.</li>
-                        <li><span class="glyphicon glyphicon-pencil"></span> <a href="#">Carlos Valderama</a> edited View <a href="view.html">Coffee Shops</a>.</li>
-                    </ul>
-                </div>
-
-                <div class="col-sm-6">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h2 class="panel-title">Your Projects</h2>
@@ -44,6 +34,29 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="col-sm-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">My Apps</h2>
+                        </div>
+                        <div class="list-group">
+                        {% for app in apps %}
+                            <div class="list-group-item">
+                                {{ app.name }}
+                            </div>
+                        {% empty %}
+                            <div class="list-group-item">
+                                <p>You haven't registered any third-party applications yet. <a href="#">Register an application now</a>.</p>
+                            </div>
+                        {% endfor %}
+                        </div>
+                        <div class="panel-footer">
+                            <a href="#" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Register an application</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
             </div>
         </div>
 {% endblock %}

@@ -77,4 +77,13 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)$',
         view_views.ViewGroupAdminSettingsView.as_view(),
         name='view_group_settings'),
+
+    # ###########################
+    # APPS
+    # ###########################
+
+    # url(
+    #     r'^apps/register$',
+    #     view_views.ViewAdminCreateView.as_view(),
+    #     name='apps_register'),
 )

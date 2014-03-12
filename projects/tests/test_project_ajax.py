@@ -38,6 +38,15 @@ class ProjectAjaxTest(TestCase):
             content_type='application/json'
         )
 
+    def test_unauthenticated(self):
+        response = self.client.put(
+            '/ajax/projects/' + str(self.project.id),
+            {'status': 'bockwurst'},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 403)
+
     def test_update_with_wrong_status(self):
         response = self._put(
             '/ajax/projects/' + str(self.project.id),
