@@ -23,7 +23,8 @@ $(function() {
 		observationtypeId = $('body').attr('data-observationtype-id'),
 		fieldId = $('body').attr('data-field-id'),
 		viewId = $('body').attr('data-view-id'),
-		groupId = $('body').attr('data-group-id');
+		groupId = $('body').attr('data-group-id'),
+		appId = $('body').attr('data-app-id');
 
 	// sets the request URL according to the IDs read above
 	var url = 'projects/' + projectId;
@@ -31,6 +32,8 @@ $(function() {
 	if (projectId && viewId && groupId) { url += '/usergroups/' + groupId; }
 	if (projectId && observationtypeId) { url += '/observationtypes/' + observationtypeId; }
 	if (projectId && observationtypeId && fieldId) { url += '/fields/' + fieldId; }
+
+	if (appId) { url = 'apps/' + appId; }
 
 	/**
 	 * Toggles between the display of description text and description form.

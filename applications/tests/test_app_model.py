@@ -48,9 +48,9 @@ class ApplicationModelTest(TestCase):
         self.assertNotIn(self.app2, apps)
 
     def test_get_single_app_with_user1(self):
-        app = Application.objects.get_single(self.user1, self.app1.id)
+        app = Application.objects.as_owner(self.user1, self.app1.id)
         self.assertEqual(app, self.app1)
 
     @raises(PermissionDenied)
     def test_get_single_app_with_user2(self):
-        Application.objects.get_single(self.user2, self.app1.id)
+        Application.objects.as_owner(self.user2, self.app1.id)

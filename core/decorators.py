@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from projects.models import Project, UserGroup
 from observationtypes.models import ObservationType, Field, LookupValue
 from dataviews.models import View, ViewGroup
+from applications.models import Application
 
 
 def handle_exceptions_for_admin(func):
@@ -20,7 +21,8 @@ def handle_exceptions_for_admin(func):
             ObservationType.DoesNotExist,
             Field.DoesNotExist,
             View.DoesNotExist,
-            ViewGroup.DoesNotExist
+            ViewGroup.DoesNotExist,
+            Application.DoesNotExist
         ) as error:
             return {"error": str(error), "head": "Not found."}
 
@@ -51,7 +53,8 @@ def handle_exceptions_for_ajax(func):
             Field.DoesNotExist,
             LookupValue.DoesNotExist,
             View.DoesNotExist,
-            ViewGroup.DoesNotExist
+            ViewGroup.DoesNotExist,
+            Application.DoesNotExist
         ) as error:
             return Response(
                 {"error": str(error)},

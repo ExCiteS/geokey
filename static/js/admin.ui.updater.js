@@ -18,6 +18,7 @@ $(function () {
 	var fieldId = $('body').attr('data-field-id');
 	var viewId = $('body').attr('data-view-id');
 	var groupId = $('body').attr('data-group-id');
+	var appId = $('body').attr('data-app-id');
 
 	/*
 	The url to send the requests to update the object
@@ -50,6 +51,10 @@ $(function () {
 	if (projectId && viewId && groupId) {
 		url += '/usergroups/' + groupId;
 		name = 'user group';
+	}
+	if (appId) {
+		url = 'apps/' + appId;
+		name = 'application';
 	}
 
 	/**
@@ -116,8 +121,9 @@ $(function () {
 		 * @param  {Object} response JSON object of the response
 		 */
 		function handleSuccess(response) {
+			console.log(response)
 			updateUi('active');
-			messages.showPanelSuccess(getMessageTarget('active'), 'The ' + name + ' is now ' + (response.status === 0 ? 'active' : 'inactive') + '.');
+			messages.showPanelSuccess(getMessageTarget('active'), 'The ' + name + ' is now ' + response.status + '.');
 		}
 
 		/**

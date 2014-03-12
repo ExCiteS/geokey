@@ -16,11 +16,11 @@ class ApplicationManager(models.Manager):
     def get_list(self, user):
         return self.get_query_set().for_user(user)
 
-    def get_single(self, user, app_id):
+    def as_owner(self, user, app_id):
         app = self.get(pk=app_id)
         if app.creator == user:
             return app
         else:
-            raise PermissionDenied('You are not the creator of this '
+            raise PermissionDenied('You are not the owner of this '
                                    'application and therefore not allowed '
                                    'to access this app.')
