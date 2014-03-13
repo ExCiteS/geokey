@@ -190,7 +190,7 @@ class ProjectApiUserGroupUser(APIView):
 
 class ProjectApiList(APIView):
     """
-    API Endpoints projects in the public API.
+    API Endpoint for project list in the public API.
     /api/projects
     """
     @handle_exceptions_for_ajax
@@ -200,4 +200,19 @@ class ProjectApiList(APIView):
         """
         projects = Project.objects.get_list(request.user)
         serializer = ProjectSerializer(projects, many=True)
+        return Response(serializer.data)
+
+
+class ProjectApiSingle(APIView):
+    """
+    API Endpoint for single project in the public API.
+    /api/projects
+    """
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, format=None):
+        """
+        Returns a list a all projects accessable to the user
+        """
+        project = Project.objects.get_single(request.user, project_id)
+        serializer = ProjectSerializer(project)
         return Response(serializer.data)

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from users.serializers import UserSerializer
+from dataviews.serializers import ViewSerializer
 
 from .models import Project, UserGroup
 
@@ -35,14 +36,14 @@ class ProjectSerializer(serializers.ModelSerializer):
     """
     Serializer for projects.
     """
-    creator = UserSerializer(read_only=True)
-    admins = UserGroupSerializer(read_only=True, fields=('id', 'name'))
-    contributors = UserGroupSerializer(read_only=True, fields=('id', 'name'))
+    views = ViewSerializer(read_only=True, many=True)
+    # creator = UserSerializer(read_only=True)
+    # admins = UserGroupSerializer(read_only=True, fields=('id', 'name'))
+    # contributors = UserGroupSerializer(read_only=True, fields=('id', 'name'))
 
     class Meta:
         model = Project
         depth = 1
         fields = ('id', 'name', 'description', 'isprivate', 'status',
-                  'everyonecontributes', 'creator', 'admins', 'contributors',
-                  'created_at')
+                  'everyonecontributes', 'created_at', 'views')
         read_only_fields = ('id', 'name')

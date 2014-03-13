@@ -9,13 +9,12 @@ class ViewSerializer(serializers.ModelSerializer):
     """
     Serializer for Views.
     """
-    creator = UserSerializer(read_only=True)
 
     class Meta:
         model = View
         depth = 1
         fields = ('id', 'name', 'description', 'status',
-                  'created_at', 'creator')
+                  'created_at')
         read_only_fields = ('id', 'name', 'created_at')
 
 

@@ -106,7 +106,8 @@ class ProjectPublicApiTest(TestCase):
             }
         )
         auth_headers = {
-            'HTTP_AUTHORIZATION': 'Bearer ' + json.loads(token.content).get('access_token'),
+            'HTTP_AUTHORIZATION': 'Bearer '
+            '' + json.loads(token.content).get('access_token'),
         }
         return self.client.get(url, **auth_headers)
 
@@ -141,3 +142,124 @@ class ProjectPublicApiTest(TestCase):
         self.assertNotContains(response, self.inactive_project.name)
         self.assertNotContains(response, self.deleted_project.name)
         self.assertNotContains(response, self.private_project.name)
+
+    def test_get_deleted_project_with_admin(self):
+        response = self._get(
+            '/api/projects/' + str(self.deleted_project.id),
+            self.admin
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_private_project_with_admin(self):
+        response = self._get(
+            '/api/projects/' + str(self.private_project.id),
+            self.admin
+        )
+        print response
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.private_project.name)
+
+    def test_get_inactive_project_with_admin(self):
+        response = self._get(
+            '/api/projects/' + str(self.inactive_project.id),
+            self.admin
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.inactive_project.name)
+
+    def test_get_public_project_with_admin(self):
+        response = self._get(
+            '/api/projects/' + str(self.public_project.id),
+            self.admin
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.public_project.name)
+
+    def test_get_deleted_project_with_contributor(self):
+        response = self._get(
+            '/api/projects/' + str(self.deleted_project.id),
+            self.contributor
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_private_project_with_contributor(self):
+        response = self._get(
+            '/api/projects/' + str(self.private_project.id),
+            self.contributor
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.private_project.name)
+
+    def test_get_inactive_project_with_contributor(self):
+        response = self._get(
+            '/api/projects/' + str(self.inactive_project.id),
+            self.contributor
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_public_project_with_contributor(self):
+        response = self._get(
+            '/api/projects/' + str(self.public_project.id),
+            self.contributor
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.public_project.name)
+
+    def test_get_deleted_project_with_view_member(self):
+        response = self._get(
+            '/api/projects/' + str(self.deleted_project.id),
+            self.contributor
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_private_project_with_view_member(self):
+        response = self._get(
+            '/api/projects/' + str(self.private_project.id),
+            self.view_member
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.private_project.name)
+
+    def test_get_inactive_project_with_view_member(self):
+        response = self._get(
+            '/api/projects/' + str(self.inactive_project.id),
+            self.view_member
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_public_project_with_view_member(self):
+        response = self._get(
+            '/api/projects/' + str(self.public_project.id),
+            self.contributor
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.public_project.name)
+
+    def test_get_deleted_project_with_non_member(self):
+        response = self._get(
+            '/api/projects/' + str(self.deleted_project.id),
+            self.non_member
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_private_project_with_non_member(self):
+        response = self._get(
+            '/api/projects/' + str(self.private_project.id),
+            self.non_member
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_inactive_project_with_non_member(self):
+        response = self._get(
+            '/api/projects/' + str(self.inactive_project.id),
+            self.non_member
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_public_project_with_non_member(self):
+        response = self._get(
+            '/api/projects/' + str(self.public_project.id),
+            self.non_member
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.public_project.name)
