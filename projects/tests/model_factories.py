@@ -60,7 +60,7 @@ class UserGroupF(factory.django.DjangoModelFactory):
 class ProjectF(factory.django.DjangoModelFactory):
     FACTORY_FOR = Project
 
-    name = factory.Sequence(lambda n: 'name_%d' % n)
+    name = factory.Sequence(lambda n: 'project %d' % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     isprivate = True
     everyonecontributes = False

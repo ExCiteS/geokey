@@ -184,6 +184,20 @@ class ProjectApiUserGroupUser(APIView):
 
 # ############################################################################
 #
-# AJAX API views
+# Public API views
 #
 # ############################################################################
+
+class ProjectApiList(APIView):
+    """
+    API Endpoints projects in the public API.
+    /api/projects
+    """
+    @handle_exceptions_for_ajax
+    def get(self, request, format=None):
+        """
+        Returns a list a all projects accessable to the user
+        """
+        projects = Project.objects.get_list(request.user)
+        serializer = ProjectSerializer(projects, many=True)
+        return Response(serializer.data)
