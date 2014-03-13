@@ -1,7 +1,6 @@
 from django.views.generic import CreateView, TemplateView
 from django.core.urlresolvers import reverse
 
-from provider.oauth2.models import Client
 from braces.views import LoginRequiredMixin
 from rest_framework import status
 from rest_framework.views import APIView
@@ -11,7 +10,6 @@ from core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
 
-from .base import STATUS
 from .forms import AppCreateForm
 from .models import Application
 from .serializer import AppSerializer
@@ -30,22 +28,11 @@ class AppCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse(
             'admin:app_settings',
-            kwargs={
-                'app_id': self.object.id
-            }
+            kwargs={'app_id': self.object.id}
         )
 
     def form_valid(self, form):
         form.instance.creator = self.request.user
-        client = Client.objects.create(
-            user=form.instance.creator,
-            name=form.instance.name,
-            client_type=0,
-            url=form.instance.download_url,
-            redirect_uri=form.instance.redirect_url
-        )
-
-        form.instance.client = client
         return super(AppCreateView, self).form_valid(form)
 
 
@@ -58,7 +45,6 @@ class AppSettingsView(LoginRequiredMixin, TemplateView):
 
         app = Application.objects.as_owner(self.request.user, app_id)
         context['app'] = app
-        context['status_types'] = STATUS
 
         return context
 

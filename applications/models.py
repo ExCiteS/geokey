@@ -33,6 +33,9 @@ class Application(models.Model):
         """
         Deletes an application by setting it's status to deleted.
         """
+        client = Client.objects.get(pk=self.client.id)
+        self.client = None
+        client.delete()
         self.status = STATUS.deleted
         self.save()
 
@@ -45,20 +48,3 @@ def update_application_client(sender, **kwargs):
         app.client.url = app.download_url
         app.client.redirect_uri = app.redirect_url
         app.client.save()
-
-    if app.status == STATUS.active and app.client is None:
-        app.client = Client.objects.create(
-            user=app.creator,
-            name=app.name,
-            client_type=0,
-            url=app.download_url,
-            redirect_uri=app.redirect_url
-        )
-        app.save()
-
-    if ((app.status == STATUS.deleted or app.status == STATUS.inactive)
-            and app.client is not None):
-        client = Client.objects.get(pk=app.client.id)
-        app.client = None
-        app.save()
-        client.delete()
