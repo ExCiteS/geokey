@@ -1,4 +1,4 @@
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.contrib.auth.models import User
 
 from rest_framework import status
@@ -44,6 +44,11 @@ def handle_exceptions_for_ajax(func):
             return Response(
                 {"error": str(error)},
                 status=status.HTTP_403_FORBIDDEN
+            )
+        except ValidationError, error:
+            return Response(
+                {"error": error.messages},
+                status=status.HTTP_400_BAD_REQUEST
             )
         except (
             Project.DoesNotExist,

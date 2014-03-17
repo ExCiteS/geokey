@@ -155,7 +155,6 @@ class ProjectPublicApiTest(TestCase):
             '/api/projects/' + str(self.private_project.id),
             self.admin
         )
-        print response
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.private_project.name)
 

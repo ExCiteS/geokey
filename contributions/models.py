@@ -13,8 +13,8 @@ class Location(models.Model):
     Represents a location to which an arbitrary number of observations can be
     attached.
     """
-    name = models.CharField(max_length=100)
-    description = models.TextField()
+    name = models.CharField(max_length=100, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
     geometry = gis.GeometryField(geography=True)
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)

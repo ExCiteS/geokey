@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, url
 
 from projects import views as project_views
+from contributions import views as contribution_views
 
 urlpatterns = patterns(
     '',
@@ -15,4 +16,13 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)$',
         project_views.ProjectApiSingle.as_view(),
         name='project_single'),
+
+    # ###########################
+    # OBSERVATIONS
+    # ###########################
+
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/observations$',
+        contribution_views.ProjectObservations.as_view(),
+        name='project_observations'),
 )
