@@ -4,9 +4,10 @@ from rest_framework import serializers
 from rest_framework.renderers import JSONRenderer
 
 from projects.serializers import ProjectSerializer
+from users.serializers import UserSerializer
 from observationtypes.serializer import ObservationTypeSerializer
 
-from .models import Location, Observation
+from .models import Location, Observation, ObservationData
 
 
 class LocationSerializer(serializers.ModelSerializer):
@@ -19,26 +20,39 @@ class LocationSerializer(serializers.ModelSerializer):
                   'created_at', 'private', 'private_for_project')
 
 
-class ObservationSubSerializer(serializers.ModelSerializer):
+class ObservationSerializer(serializers.ModelSerializer):
     observationtype = ObservationTypeSerializer(read_only=True)
 
     class Meta:
         model = Observation
         depth = 1
-        fields = ('id', 'data', 'version', 'status',
-                  'observationtype')
+        fields = ('id', 'status', 'observationtype')
 
 
-class ObservationSerializer(object):
+class ObservationDataSerializer(serializers.ModelSerializer):
+    creator = UserSerializer(read_only=True)
+
+    class Meta:
+        model = ObservationData
+        depth = 1
+        fields = ('created_at', 'creator', 'version')
+
+
+class ContributionSerializer(object):
     def serialize(self, obj):
         location_serializer = LocationSerializer(obj.location)
-        observation_serializer = ObservationSubSerializer(obj)
+        observation_serializer = ObservationSerializer(obj)
+        observation_data_serializer = ObservationDataSerializer(obj.current_data)
         json_object = {
             'type': 'Feature',
             'geometry': json.loads(obj.location.geometry.geojson),
             'properties': {}
         }
         json_object['properties']['location'] = location_serializer.data
-        json_object['properties']['observation'] = observation_serializer.data
+        json_object['properties'] = dict(
+            observation_serializer.data.items() +
+            observation_data_serializer.data.items() +
+            obj.current_data.attributes.items()
+        )
 
         return JSONRenderer().render(json_object)

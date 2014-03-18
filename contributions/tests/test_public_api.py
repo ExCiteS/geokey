@@ -40,19 +40,13 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
+                "key_1": "value 1",
+                "key_2": 12,
+                "observationtype": self.observationtype.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
                     "private": True
-                },
-                "observation": {
-                    "observationtype": {
-                        "id": self.observationtype.id
-                    },
-                    "data": {
-                        "key_1": "value 1",
-                        "key_2": 12
-                    }
                 },
             }
         }
@@ -85,14 +79,13 @@ class ProjectPublicApiTest(TestCase):
         })
         self.observationtype.project = project
         self.observationtype.save()
-        self.data['properties']['observation']['observationtype']['id'] = 3864
+        self.data['properties']['observationtype'] = 3864
 
         response = self._post(
             '/api/projects/' + str(project.id) + '/observations',
             self.data,
             admin
         )
-        print response
         self.assertEqual(response.status_code, 400)
 
     def test_contribute_with_invalid(self):
@@ -117,15 +110,11 @@ class ProjectPublicApiTest(TestCase):
                     "description": "UCL's main quad",
                     "private": True
                 },
-                "observation": {
-                    "observationtype": {
-                        "id": self.observationtype.id
-                    },
-                    "data": {
-                        "key_1": "value 1",
-                        "key_2": "jsdbdjhsb"
-                    }
-                },
+                "observationtype": self.observationtype.id,
+                "data": {
+                    "key_1": "value 1",
+                    "key_2": "jsdbdjhsb"
+                }
             }
         }
         response = self._post(
@@ -133,7 +122,6 @@ class ProjectPublicApiTest(TestCase):
             data,
             admin
         )
-        print response
         self.assertEqual(response.status_code, 400)
 
     def test_contribute_to_public_with_admin(self):
@@ -151,6 +139,7 @@ class ProjectPublicApiTest(TestCase):
             admin
         )
         self.assertEqual(response.status_code, 201)
+        print response
 
     def test_contribute_to_public_with_contributor(self):
         contributor = UserF.create(**{'password': '1'})

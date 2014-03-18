@@ -105,11 +105,36 @@ class LocationTest(TestCase):
             'observationtype': observationtype
         })
         data = {'text': 'Text', 'number': 12}
-        observation = Observation.objects.create(
+        observation = Observation.create(
             data=data, creator=creator, location=location,
             observationtype=observationtype, project=observationtype.project
         )
-        self.assertEqual(observation.data, data)
+        self.assertEqual(observation.current_data.attributes, data)
+
+    def test_update_observation(self):
+        creator = UserF()
+        location = LocationFactory()
+        observationtype = ObservationTypeFactory()
+        TextFieldFactory(**{
+            'key': 'text',
+            'observationtype': observationtype
+        })
+        NumericFieldFactory(**{
+            'key': 'number',
+            'observationtype': observationtype
+        })
+        data = {'text': 'Text', 'number': 12}
+        observation = Observation.create(
+            data=data, creator=creator, location=location,
+            observationtype=observationtype, project=observationtype.project
+        )
+
+        updater = UserF()
+        update = {'text': 'Udpated Text', 'number': 13}
+        observation.update(data=update, creator=updater)
+
+        self.assertEqual(observation.current_data.attributes, update)
+        self.assertEqual(observation.current_data.version, 2)
 
     @raises(ValidationError)
     def test_create_invalid_observation(self):
@@ -125,7 +150,7 @@ class LocationTest(TestCase):
             'observationtype': observationtype
         })
         data = {'text': 'Text', 'number': 'abc'}
-        Observation.objects.create(
+        Observation.create(
             data=data, creator=creator, location=location,
             observationtype=observationtype, project=observationtype.project
         )

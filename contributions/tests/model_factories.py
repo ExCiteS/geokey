@@ -24,12 +24,8 @@ class LocationFactory(factory.django.DjangoModelFactory):
 class ObservationFactory(factory.django.DjangoModelFactory):
     FACTORY_FOR = Observation
 
-    data = {'key': 'value'}
-    created_at = datetime.date(2014, 11, 11)
-    creator = factory.SubFactory(UserF)
     location = factory.SubFactory(LocationFactory)
     project = factory.SubFactory(ProjectF)
-    version = 1
     status = 'active'
     observationtype = factory.SubFactory(ObservationTypeFactory)
 

@@ -116,7 +116,7 @@ class NumericField(Field):
         if not isinstance(value, bool):
             try:
                 value = float(value)
-            except ValueError:
+            except (ValueError, TypeError):
                 pass
 
         valid = isinstance(value, float)
