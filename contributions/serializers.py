@@ -42,7 +42,8 @@ class ContributionSerializer(object):
     def serialize(self, obj):
         location_serializer = LocationSerializer(obj.location)
         observation_serializer = ObservationSerializer(obj)
-        observation_data_serializer = ObservationDataSerializer(obj.current_data)
+        observation_data_serializer = ObservationDataSerializer(
+            obj.current_data)
         json_object = {
             'type': 'Feature',
             'geometry': json.loads(obj.location.geometry.geojson),
@@ -51,8 +52,11 @@ class ContributionSerializer(object):
         json_object['properties']['location'] = location_serializer.data
         json_object['properties'] = dict(
             observation_serializer.data.items() +
-            observation_data_serializer.data.items() +
-            obj.current_data.attributes.items()
+            observation_data_serializer.data.items()
         )
+        for field in obj.observationtype.fields.all():
+            json_object['properties'][field.key] = field.convert_from_string(
+                obj.current_data.attributes.get(field.key)
+            )
 
         return JSONRenderer().render(json_object)

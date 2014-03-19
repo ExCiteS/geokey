@@ -56,14 +56,6 @@ class Observation(models.Model):
 
     objects = ObservationManager()
 
-    def _data_is_valid(self, data, observationtype):
-        is_valid = True
-        for field in observationtype.fields.all():
-            if not field.validate_input(data.get(field.key)):
-                is_valid = False
-
-        return is_valid
-
     @classmethod
     def create(cls, data=None, creator=None, location=None,
                observationtype=None, project=None):
@@ -72,12 +64,17 @@ class Observation(models.Model):
         ValidationError if at least one field did not validate.
         Creates the object if all fields are valid.
         """
-        observation = cls(
-            location=location,
-            observationtype=observationtype,
-            project=project
-        )
-        if observation._data_is_valid(data, observationtype):
+        is_valid = True
+        for field in observationtype.fields.all():
+            if not field.validate_input(data.get(field.key)):
+                is_valid = False
+
+        if is_valid:
+            observation = cls(
+                location=location,
+                observationtype=observationtype,
+                project=project
+            )
             observation.save()
 
             ObservationData.objects.create(
@@ -100,7 +97,13 @@ class Observation(models.Model):
         return self.data.order_by("-version")[0]
 
     def update(self, data=None, creator=None):
-        if self._data_is_valid(data, self.observationtype):
+        is_valid = True
+        for field in self.observationtype.fields.all():
+            if (field.key in data and
+                    not field.validate_input(data.get(field.key))):
+                is_valid = False
+
+        if is_valid:
             version = self.current_data.version + 1
             ObservationData.objects.create(
                 attributes=data,
@@ -110,8 +113,7 @@ class Observation(models.Model):
             )
         else:
             raise ValidationError('One or more fields did not validate. The '
-                                  'contribution has not been save to the '
-                                  'database')
+                                  'observation has not been updated.')
 
     def delete(self):
         """

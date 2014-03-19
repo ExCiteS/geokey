@@ -53,6 +53,10 @@ class ObservationManager(hstore.HStoreManager):
         return super(ObservationManager, self).get_query_set().exclude(
             status=OBSERVATION_STATUS.deleted)
 
+    def as_contributor(self, user, project_id, observation_id):
+        project = Project.objects.as_contributor(user, project_id)
+        return project.observations.get(pk=observation_id)
+
 
 class CommentManager(hstore.HStoreManager):
     def get_query_set(self):

@@ -70,3 +70,30 @@ class ProjectObservations(APIView):
             serializer.serialize(observation),
             status=status.HTTP_201_CREATED
         )
+
+
+class ProjectSingleObservation(APIView):
+    """
+    Public API endpoint for updating a single observation in a project
+    /api/projects/:project_id/observations/:observationtype_id
+    """
+    def put(self, request, project_id, observation_id, format=None):
+        observation = Observation.objects.as_contributor(
+            request.user, project_id, observation_id
+        )
+        properties = request.DATA.get('properties')
+        observation.update(data=properties, creator=request.user)
+        serializer = ContributionSerializer()
+        return Response(
+            serializer.serialize(observation),
+            status=status.HTTP_200_OK
+        )
+
+    def delete(self, request, project_id, observation_id, format=None):
+        observation = Observation.objects.as_contributor(
+            request.user, project_id, observation_id
+        )
+        observation.delete()
+        return Response(
+            status=status.HTTP_204_NO_CONTENT
+        )

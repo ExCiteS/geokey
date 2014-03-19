@@ -9,6 +9,9 @@ from dataviews.tests.model_factories import ViewFactory, ViewGroupFactory
 from observationtypes.tests.model_factories import (
     ObservationTypeFactory, TextFieldFactory, NumericFieldFactory
 )
+from contributions.models import Observation
+
+from .model_factories import LocationFactory
 
 
 class ProjectPublicApiTest(TestCase):
@@ -51,7 +54,13 @@ class ProjectPublicApiTest(TestCase):
             }
         }
 
-    def _post(self, url, data, user):
+        self.update_data = {
+            "properties": {
+                "key_2": 15,
+            }
+        }
+
+    def _get_auth_headers(self, user):
         token = self.client.post(
             '/oauth2/access_token/',
             {
@@ -62,13 +71,31 @@ class ProjectPublicApiTest(TestCase):
                 "password": '1'
             }
         )
-        auth_headers = {
+        return {
             'HTTP_AUTHORIZATION': 'Bearer '
             '' + json.loads(token.content).get('access_token'),
         }
+
+    def _put(self, url, data, user):
+        auth_headers = self._get_auth_headers(user)
+        return self.client.put(
+            url,
+            json.dumps(data),
+            content_type='application/json', **auth_headers
+        )
+
+    def _post(self, url, data, user):
+        auth_headers = self._get_auth_headers(user)
         return self.client.post(
             url,
             json.dumps(data),
+            content_type='application/json', **auth_headers
+        )
+
+    def _delete(self, url, user):
+        auth_headers = self._get_auth_headers(user)
+        return self.client.delete(
+            url,
             content_type='application/json', **auth_headers
         )
 
@@ -139,7 +166,6 @@ class ProjectPublicApiTest(TestCase):
             admin
         )
         self.assertEqual(response.status_code, 201)
-        print response
 
     def test_contribute_to_public_with_contributor(self):
         contributor = UserF.create(**{'password': '1'})
@@ -517,3 +543,76 @@ class ProjectPublicApiTest(TestCase):
             non_member
         )
         self.assertEqual(response.status_code, 404)
+
+    def test_update_to_public_with_admin(self):
+        admin = UserF.create(**{'password': '1'})
+        project = ProjectF.create(**{
+            'admins': UserGroupF(add_users=[admin])
+        })
+        self.observationtype.project = project
+        self.observationtype.save()
+
+        location = LocationFactory()
+
+        TextFieldFactory(**{
+            'key': 'key_1',
+            'observationtype': self.observationtype
+        })
+        NumericFieldFactory(**{
+            'key': 'key_2',
+            'observationtype': self.observationtype
+        })
+        observation = Observation.create(
+            data={
+                "key_1": "value 1",
+                "key_2": 12,
+            },
+            observationtype=self.observationtype,
+            project=project,
+            location=location,
+            creator=admin
+        )
+
+        response = self._put(
+            '/api/projects/' + str(project.id) +
+            '/observations/' + str(observation.id),
+            self.update_data,
+            admin
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_delete_to_public_with_admin(self):
+        admin = UserF.create(**{'password': '1'})
+        project = ProjectF.create(**{
+            'admins': UserGroupF(add_users=[admin])
+        })
+        self.observationtype.project = project
+        self.observationtype.save()
+
+        location = LocationFactory()
+
+        TextFieldFactory(**{
+            'key': 'key_1',
+            'observationtype': self.observationtype
+        })
+        NumericFieldFactory(**{
+            'key': 'key_2',
+            'observationtype': self.observationtype
+        })
+        observation = Observation.create(
+            data={
+                "key_1": "value 1",
+                "key_2": 12,
+            },
+            observationtype=self.observationtype,
+            project=project,
+            location=location,
+            creator=admin
+        )
+
+        response = self._delete(
+            '/api/projects/' + str(project.id) +
+            '/observations/' + str(observation.id),
+            admin
+        )
+        self.assertEqual(response.status_code, 204)

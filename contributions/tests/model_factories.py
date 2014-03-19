@@ -30,6 +30,16 @@ class ObservationFactory(factory.django.DjangoModelFactory):
     observationtype = factory.SubFactory(ObservationTypeFactory)
 
 
+class ObservationDataFactory(factory.django.DjangoModelFactory):
+    FACTORY_FOR = Observation
+
+    attributes = {'key': 'value'}
+    created_at = datetime.date(2014, 11, 11)
+    creator = factory.SubFactory(UserF)
+    version = 1
+    observation = factory.SubFactory(ObservationFactory)
+
+
 class CommentFactory(factory.django.DjangoModelFactory):
     FACTORY_FOR = Comment
 
