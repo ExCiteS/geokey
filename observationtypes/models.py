@@ -146,20 +146,21 @@ class TrueFalseField(Field):
 
     def validate_input(self, value):
         """
-        Checks if the provided value is one of `True`, `False`, `'True'`,
-        `'true'`, `'1'`, `'t'`, `'False'`, `'false'`, `'0'`, `'f'`, `0`, `1`.
+        Checks if the provided value is one of `True` or `False`
         Returns `True` or `False`.
         """
         return value in [
-            True, False, 'True', 'true', '1', 't', 'False', 'false', '0',
-            'f', 0, 1
+            True, False
         ]
 
     def convert_from_string(self, value):
         """
         Returns the `value` of the field in `Bool` format.
         """
-        return value in [True, 'True', 'true', '1', 't', 1]
+        if value == 'True':
+            return True
+        else:
+            return False
 
 
 class DateTimeField(Field):

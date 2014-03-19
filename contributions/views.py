@@ -1,20 +1,13 @@
-import json
-
-from django.contrib.gis.geos import GEOSGeometry
-
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
-from projects.models import Project
-from observationtypes.models import ObservationType
 
 from core.decorators import (
     handle_exceptions_for_ajax
 )
 
 from .serializers import ContributionSerializer
-from .models import Location, Observation
+from .models import Observation
 
 
 class ProjectObservations(APIView):
@@ -29,47 +22,10 @@ class ProjectObservations(APIView):
         """
         Adds a new contribution to a project
         """
-        properties = request.DATA.get('properties')
-        location_data = properties.pop('location')
-        observationtype_id = properties.pop('observationtype')
-
-        project = Project.objects.as_contributor(request.user, project_id)
-        try:
-            observationtype = ObservationType.objects.get_single(
-                request.user,
-                project_id,
-                observationtype_id
-            )
-        except ObservationType.DoesNotExist, error:
-            return Response(
-                {"error": str(error)},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        location = Location.objects.create(
-            name=location_data.get('name'),
-            description=location_data.get('description'),
-            geometry=GEOSGeometry(
-                json.dumps(request.DATA.get('geometry'))
-            ),
-            creator=request.user,
-            private=location_data.get('private'),
-            private_for_project=location_data.get('private_for_project')
-        )
-
-        observation = Observation.create(
-            data=properties,
-            creator=request.user,
-            location=location,
-            project=project,
-            observationtype=observationtype
-        )
-
-        serializer = ContributionSerializer()
-        return Response(
-            serializer.serialize(observation),
-            status=status.HTTP_201_CREATED
-        )
+        data = request.DATA
+        data['properties']['project'] = project_id
+        serializer = ContributionSerializer(data=data, creator=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class ProjectSingleObservation(APIView):
@@ -81,13 +37,13 @@ class ProjectSingleObservation(APIView):
         observation = Observation.objects.as_contributor(
             request.user, project_id, observation_id
         )
+        serializer = ContributionSerializer(
+            instance=observation, data=request.DATA, creator=request.user
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
         properties = request.DATA.get('properties')
         observation.update(data=properties, creator=request.user)
-        serializer = ContributionSerializer()
-        return Response(
-            serializer.serialize(observation),
-            status=status.HTTP_200_OK
-        )
 
     def delete(self, request, project_id, observation_id, format=None):
         observation = Observation.objects.as_contributor(

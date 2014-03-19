@@ -350,11 +350,7 @@ class FieldTest(TestCase):
     def test_truefalsefield_validate_input(self):
         true_false_field = TrueFalseFieldFactory()
         self.assertTrue(true_false_field.validate_input(True))
-        self.assertTrue(true_false_field.validate_input('true'))
-        self.assertTrue(true_false_field.validate_input(1))
         self.assertTrue(true_false_field.validate_input(False))
-        self.assertTrue(true_false_field.validate_input('false'))
-        self.assertTrue(true_false_field.validate_input(0))
         self.assertFalse(true_false_field.validate_input('bla'))
         self.assertFalse(true_false_field.validate_input(None))
         self.assertFalse(true_false_field.validate_input(12))

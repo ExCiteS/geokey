@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.response import Response
 
+from core.exceptions import MalformedRequestData
 from projects.models import Project, UserGroup
 from observationtypes.models import ObservationType, Field, LookupValue
 from dataviews.models import View, ViewGroup
@@ -48,6 +49,11 @@ def handle_exceptions_for_ajax(func):
         except ValidationError, error:
             return Response(
                 {"error": error.messages},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except MalformedRequestData, error:
+            return Response(
+                {"error": str(error)},
                 status=status.HTTP_400_BAD_REQUEST
             )
         except (
