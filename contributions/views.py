@@ -33,19 +33,25 @@ class ProjectSingleObservation(APIView):
     Public API endpoint for updating a single observation in a project
     /api/projects/:project_id/observations/:observationtype_id
     """
+
+    @handle_exceptions_for_ajax
     def put(self, request, project_id, observation_id, format=None):
+        """
+        Updates a single observation
+        """
         observation = Observation.objects.as_contributor(
             request.user, project_id, observation_id
         )
         serializer = ContributionSerializer(
-            instance=observation, data=request.DATA, creator=request.user
+            observation, data=request.DATA, creator=request.user
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-        properties = request.DATA.get('properties')
-        observation.update(data=properties, creator=request.user)
-
+    @handle_exceptions_for_ajax
     def delete(self, request, project_id, observation_id, format=None):
+        """
+        Deletes a single observation
+        """
         observation = Observation.objects.as_contributor(
             request.user, project_id, observation_id
         )

@@ -94,7 +94,7 @@ class Observation(models.Model):
         Returns the ObservationData instance with the largest version number,
         i.e. the one that is most current
         """
-        return self.data.order_by("-version")[0]
+        return self.data.order_by('-version')[0]
 
     def update(self, data=None, creator=None):
         is_valid = True

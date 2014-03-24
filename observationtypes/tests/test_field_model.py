@@ -358,11 +358,7 @@ class FieldTest(TestCase):
     def test_truefalsefield_convert_from_string(self):
         true_false_field = TrueFalseFieldFactory()
         self.assertTrue(true_false_field.convert_from_string('True'))
-        self.assertTrue(true_false_field.convert_from_string('1'))
-        self.assertTrue(true_false_field.convert_from_string('t'))
         self.assertFalse(true_false_field.convert_from_string('False'))
-        self.assertFalse(true_false_field.convert_from_string('0'))
-        self.assertFalse(true_false_field.convert_from_string('f'))
 
     #
     # LOOKUP FIELD

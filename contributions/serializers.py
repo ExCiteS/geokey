@@ -44,7 +44,26 @@ class ObservationDataSerializer(serializers.ModelSerializer):
 
 
 class ContributionSerializer(object):
+    """
+    Serializes and deserializes contribution object from and to its GeoJSON
+    conterparts.
+    """
     def __init__(self, instance=None, data=None, creator=None):
+        """
+        Creates a new serializer by deserializing the data dictionary.
+
+        Parameters
+        ----------
+        instance : contributions.Observation
+           An existing observation that is supposed to be updated.
+        data : Dictionary
+           The data as POSTed with the request. Used to create ob update an
+           observation.
+        data : creator
+           The user signed in with the request
+        """
+
+        # Extract the information from the data dictionary
         properties = data.get('properties')
         try:
             location_data = properties.pop('location')
@@ -87,11 +106,15 @@ class ContributionSerializer(object):
             )
             self.instance = observation
         else:
+            # Update the existing contribution
             self.instance = instance
             self.instance.update(data=properties, creator=creator)
 
     @property
     def data(self):
+        """
+        Serializes the instance into a GeoJSON format
+        """
         location_serializer = LocationSerializer(self.instance.location)
         observation_serializer = ObservationSerializer(self.instance)
         observation_data_serializer = ObservationDataSerializer(

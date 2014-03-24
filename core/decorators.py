@@ -9,6 +9,7 @@ from projects.models import Project, UserGroup
 from observationtypes.models import ObservationType, Field, LookupValue
 from dataviews.models import View, ViewGroup
 from applications.models import Application
+from contributions.models import Observation
 
 
 def handle_exceptions_for_admin(func):
@@ -65,7 +66,8 @@ def handle_exceptions_for_ajax(func):
             LookupValue.DoesNotExist,
             View.DoesNotExist,
             ViewGroup.DoesNotExist,
-            Application.DoesNotExist
+            Application.DoesNotExist,
+            Observation.DoesNotExist
         ) as error:
             return Response(
                 {"error": str(error)},
