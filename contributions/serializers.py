@@ -1,6 +1,7 @@
 import json
 
 from django.contrib.gis.geos import GEOSGeometry
+from django.core.exceptions import PermissionDenied
 
 from rest_framework import serializers
 from rest_framework.renderers import JSONRenderer
@@ -86,16 +87,27 @@ class ContributionSerializer(object):
                                            'used with the project or does not '
                                            'exist.')
 
-            location = Location.objects.create(
-                name=location_data.get('name'),
-                description=location_data.get('description'),
-                geometry=GEOSGeometry(
-                    json.dumps(data.get('geometry'))
-                ),
-                creator=creator,
-                private=location_data.get('private'),
-                private_for_project=location_data.get('private_for_project')
-            )
+            if 'id' in location_data:
+                try:
+                    location = Location.objects.get_single(
+                        creator,
+                        project_id,
+                        location_data.get('id')
+                    )
+                except PermissionDenied, error:
+                    raise MalformedRequestData(error)
+            else:
+                location = Location.objects.create(
+                    name=location_data.get('name'),
+                    description=location_data.get('description'),
+                    geometry=GEOSGeometry(
+                        json.dumps(data.get('geometry'))
+                    ),
+                    creator=creator,
+                    private=location_data.get('private'),
+                    private_for_project=location_data.get(
+                        'private_for_project')
+                )
 
             observation = Observation.create(
                 data=properties,
@@ -124,11 +136,13 @@ class ContributionSerializer(object):
             'geometry': json.loads(self.instance.location.geometry.geojson),
             'properties': {}
         }
-        json_object['properties']['location'] = location_serializer.data
+
         json_object['properties'] = dict(
             observation_serializer.data.items() +
             observation_data_serializer.data.items()
         )
+        json_object['properties']['location'] = location_serializer.data
+
         for field in self.instance.observationtype.fields.all():
             json_object['properties'][field.key] = field.convert_from_string(
                 self.instance.current_data.attributes.get(field.key)

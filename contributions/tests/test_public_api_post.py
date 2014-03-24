@@ -10,6 +10,8 @@ from observationtypes.tests.model_factories import (
     ObservationTypeFactory, TextFieldFactory, NumericFieldFactory
 )
 
+from .model_factories import LocationFactory
+
 
 class ProjectPublicApiTest(TestCase):
     def setUp(self):
@@ -113,18 +115,128 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
+                "key_1": "value 1",
+                "key_2": "jsdbdjhsb",
+                "observationtype": self.observationtype.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
                     "private": True
                 },
-                "observationtype": self.observationtype.id,
-                "data": {
-                    "key_1": "value 1",
-                    "key_2": "jsdbdjhsb"
-                }
             }
         }
+        response = self._post(
+            '/api/projects/' + str(self.project.id) + '/observations',
+            data,
+            self.admin
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_contribute_with_existing_location(self):
+        location = LocationFactory()
+        data = {
+            "type": "Feature",
+            "geometry": location.geometry.geojson,
+            "properties": {
+                "location": {
+                    "id": location.id,
+                    "name": location.name,
+                    "description": location.description,
+                    "private": location.private
+                },
+                "observationtype": self.observationtype.id,
+                "key_1": "value 1",
+                "key_2": 12
+            }
+        }
+
+        response = self._post(
+            '/api/projects/' + str(self.project.id) + '/observations',
+            data,
+            self.admin
+        )
+        self.assertEqual(response.status_code, 201)
+
+    def test_contribute_with_private_for_project_location(self):
+        location = LocationFactory(**{
+            'private': True,
+            'private_for_project': self.project
+        })
+
+        data = {
+            "type": "Feature",
+            "geometry": location.geometry.geojson,
+            "properties": {
+                "location": {
+                    "id": location.id,
+                    "name": location.name,
+                    "description": location.description,
+                    "private": location.private
+                },
+                "observationtype": self.observationtype.id,
+                "key_1": "value 1",
+                "key_2": 12
+            }
+        }
+
+        response = self._post(
+            '/api/projects/' + str(self.project.id) + '/observations',
+            data,
+            self.admin
+        )
+        self.assertEqual(response.status_code, 201)
+
+    def test_contribute_with_wrong_project_location(self):
+        project = ProjectF()
+        location = LocationFactory(**{
+            'private': True,
+            'private_for_project': project
+        })
+
+        data = {
+            "type": "Feature",
+            "geometry": location.geometry.geojson,
+            "properties": {
+                "location": {
+                    "id": location.id,
+                    "name": location.name,
+                    "description": location.description,
+                    "private": location.private
+                },
+                "observationtype": self.observationtype.id,
+                "key_1": "value 1",
+                "key_2": 12
+            }
+        }
+
+        response = self._post(
+            '/api/projects/' + str(self.project.id) + '/observations',
+            data,
+            self.admin
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_contribute_with_private_location(self):
+        location = LocationFactory(**{
+            'private': True
+        })
+
+        data = {
+            "type": "Feature",
+            "geometry": location.geometry.geojson,
+            "properties": {
+                "location": {
+                    "id": location.id,
+                    "name": location.name,
+                    "description": location.description,
+                    "private": location.private
+                },
+                "observationtype": self.observationtype.id,
+                "key_1": "value 1",
+                "key_2": 12
+            }
+        }
+
         response = self._post(
             '/api/projects/' + str(self.project.id) + '/observations',
             data,
