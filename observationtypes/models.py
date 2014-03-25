@@ -3,6 +3,8 @@ import iso8601
 from django.db import models
 from django.db.models.loading import get_model
 
+from core.exceptions import InputError
+
 from .manager import ObservationTypeManager, FieldManager, LookupValueManager
 from .base import STATUS, FIELD_TYPES
 
@@ -93,7 +95,9 @@ class TextField(Field):
         checking if the provided value is of type `String`.
         Returns `True` or `False`.
         """
-        return isinstance(value, basestring)
+        if not isinstance(value, basestring):
+            raise InputError('The input value for text field is not a valid '
+                             'string.')
 
 
 class NumericField(Field):
@@ -111,26 +115,28 @@ class NumericField(Field):
         Float value. Then checks if the value is between bounds of minval and
         maxval. Returns `True` or `False`.
         """
-        valid = False
 
-        if not isinstance(value, bool):
-            try:
-                value = float(value)
-            except (ValueError, TypeError):
-                pass
+        if isinstance(value, (int, long, float, complex)):
+            if self.minval and self.maxval and (
+                    not (value >= self.minval) and (value <= self.maxval)):
+                raise InputError('The value provided for field %s must be '
+                                 ' greater than %s and lower than %s.'
+                                 % (self.name, self.minval, self.maxval))
 
-        valid = isinstance(value, float)
-
-        if valid:
-            if self.minval and self.maxval:
-                valid = (value >= self.minval) and (value <= self.maxval)
             else:
-                if self.minval:
-                    valid = (value >= self.minval)
-                if self.maxval:
-                    valid = (value <= self.maxval)
+                if self.minval and (not (value >= self.minval)):
+                    raise InputError('The value provided for field %s must '
+                                     'be greater than %s.'
+                                     % (self.name, self.minval))
 
-        return valid
+                if self.maxval and (not (value <= self.maxval)):
+                    raise InputError('The value provided for field %s must '
+                                     'be lower than %s.'
+                                     % (self.name, self.maxval))
+
+        else:
+            raise InputError('The value provided for field %s is not a '
+                             'number,' % self.name)
 
     def convert_from_string(self, value):
         """
@@ -149,9 +155,9 @@ class TrueFalseField(Field):
         Checks if the provided value is one of `True` or `False`
         Returns `True` or `False`.
         """
-        return value in [
-            True, False
-        ]
+        if value not in [True, False]:
+            raise InputError('The value for TrueFalseField %s must be one of '
+                             'True or False' % self.name)
 
     def convert_from_string(self, value):
         """
@@ -176,9 +182,9 @@ class DateTimeField(Field):
 
         try:
             iso8601.parse_date(value)
-            return True
         except iso8601.iso8601.ParseError:
-            return False
+            raise InputError('The value for DateTimeField %s is not a valid '
+                             'date.' % self.name)
 
 
 class LookupField(Field):
@@ -196,7 +202,9 @@ class LookupField(Field):
             if lookupvalue.id == value:
                 valid = True
 
-        return valid
+        if not valid:
+            raise InputError('The value for lookup field %s is not an '
+                             'accepted value for the field' % self.name)
 
     def convert_from_string(self, value):
         """

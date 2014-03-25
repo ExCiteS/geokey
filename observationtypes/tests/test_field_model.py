@@ -4,6 +4,7 @@ from django.core.exceptions import PermissionDenied
 from nose.tools import raises
 
 from projects.tests.model_factories import UserF, ProjectF, UserGroupF
+from core.exceptions import InputError
 
 from ..models import Field
 
@@ -282,7 +283,11 @@ class FieldTest(TestCase):
     #
     def test_textfield_validate_input(self):
         textfield = TextFieldFactory()
-        self.assertTrue(textfield.validate_input('Bla'))
+        try:
+            textfield.validate_input('Bla')
+        except InputError:
+            self.fail('TextField.validate_input() raised InputError '
+                      'unexpectedly!')
 
     def test_textfield_convert_from_String(self):
         textfield = TextFieldFactory()
@@ -294,32 +299,55 @@ class FieldTest(TestCase):
 
     def test_numericfield_validate_input_number(self):
         numeric_field = NumericFieldFactory()
-        self.assertTrue(numeric_field.validate_input(158))
+        try:
+            numeric_field.validate_input(158)
+        except InputError:
+            self.fail('NumericField.validate_input() raised InputError '
+                      'unexpectedly!')
 
+    @raises(InputError)
     def test_numericfield_validate_input_string_number(self):
         numeric_field = NumericFieldFactory()
-        self.assertTrue(numeric_field.validate_input('12'))
+        numeric_field.validate_input('12')
 
+    @raises(InputError)
     def test_numericfield_validate_input_string_char(self):
         numeric_field = NumericFieldFactory()
-        self.assertFalse(numeric_field.validate_input('bla'))
-
-    def test_numericfield_validate_input_bool(self):
-        numeric_field = NumericFieldFactory()
-        self.assertFalse(numeric_field.validate_input(True))
+        numeric_field.validate_input('bla')
 
     def test_numericfield_validate_input_minval(self):
         numeric_field = NumericFieldFactory(**{
             'minval': 10
         })
-        self.assertFalse(numeric_field.validate_input(5))
-        self.assertTrue(numeric_field.validate_input(12))
+        try:
+            numeric_field.validate_input(12)
+        except InputError:
+            self.fail('NumericField.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    @raises(InputError)
+    def test_numericfield_validate_input_too_small_minval(self):
+        numeric_field = NumericFieldFactory(**{
+            'minval': 10
+        })
+        numeric_field.validate_input(5)
 
     def test_numericfield_validate_input_maxval(self):
         numeric_field = NumericFieldFactory(**{
             'maxval': 20
         })
-        self.assertFalse(numeric_field.validate_input(21))
+        try:
+            numeric_field.validate_input(12)
+        except InputError:
+            self.fail('NumericField.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    @raises(InputError)
+    def test_numericfield_validate_input_too_big_maxval(self):
+        numeric_field = NumericFieldFactory(**{
+            'maxval': 20
+        })
+        numeric_field.validate_input(21)
         self.assertTrue(numeric_field.validate_input(12))
 
     def test_numericfield_validate_input_minval_maxval(self):
@@ -327,9 +355,27 @@ class FieldTest(TestCase):
             'minval': 10,
             'maxval': 20
         })
-        self.assertFalse(numeric_field.validate_input(5))
-        self.assertFalse(numeric_field.validate_input(21))
-        self.assertTrue(numeric_field.validate_input(12))
+        try:
+            numeric_field.validate_input(12)
+        except InputError:
+            self.fail('NumericField.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    @raises(InputError)
+    def test_numericfield_validate_input_minval_maxval_too_small(self):
+        numeric_field = NumericFieldFactory(**{
+            'minval': 10,
+            'maxval': 20
+        })
+        numeric_field.validate_input(5)
+
+    @raises(InputError)
+    def test_numericfield_validate_input_minval_maxval_too_big(self):
+        numeric_field = NumericFieldFactory(**{
+            'minval': 10,
+            'maxval': 20
+        })
+        numeric_field.validate_input(21)
 
     def test_numericfield_convert_from_string(self):
         numeric_field = NumericFieldFactory()
@@ -340,8 +386,16 @@ class FieldTest(TestCase):
     #
     def test_datetimefield_validate_input(self):
         date_time_field = DateTimeFieldFactory()
-        self.assertTrue(date_time_field.validate_input('2014-12-01'))
-        self.assertFalse(date_time_field.validate_input('2014-15-01'))
+        try:
+            date_time_field.validate_input('2014-12-01')
+        except InputError:
+            self.fail('DateTimeField.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    @raises(InputError)
+    def test_datetimefield_validate_false_input(self):
+        date_time_field = DateTimeFieldFactory()
+        date_time_field.validate_input('2014-15-01')
 
     #
     # TRUE FALSE FIELD
@@ -349,11 +403,27 @@ class FieldTest(TestCase):
 
     def test_truefalsefield_validate_input(self):
         true_false_field = TrueFalseFieldFactory()
-        self.assertTrue(true_false_field.validate_input(True))
-        self.assertTrue(true_false_field.validate_input(False))
-        self.assertFalse(true_false_field.validate_input('bla'))
-        self.assertFalse(true_false_field.validate_input(None))
-        self.assertFalse(true_false_field.validate_input(12))
+        try:
+            true_false_field.validate_input(True)
+            true_false_field.validate_input(False)
+        except InputError:
+            self.fail('TrueFalseField.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    @raises(InputError)
+    def test_truefalsefield_validate_input_string(self):
+        true_false_field = TrueFalseFieldFactory()
+        true_false_field.validate_input('bla')
+
+    @raises(InputError)
+    def test_truefalsefield_validate_input_none_type(self):
+        true_false_field = TrueFalseFieldFactory()
+        true_false_field.validate_input(None)
+
+    @raises(InputError)
+    def test_truefalsefield_validate_input_number(self):
+        true_false_field = TrueFalseFieldFactory()
+        true_false_field.validate_input(12)
 
     def test_truefalsefield_convert_from_string(self):
         true_false_field = TrueFalseFieldFactory()
@@ -370,8 +440,20 @@ class FieldTest(TestCase):
             'name': 'Ms. Piggy',
             'field': lookup_field
         })
-        self.assertTrue(lookup_field.validate_input(lookup_value.id))
-        self.assertFalse(lookup_field.validate_input(781865458))
+        try:
+            lookup_field.validate_input(lookup_value.id)
+        except InputError:
+            self.fail('LookupField.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    @raises(InputError)
+    def test_lookupfield_validate_wrong_input(self):
+        lookup_field = LookupFieldFactory()
+        LookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': lookup_field
+        })
+        lookup_field.validate_input(781865458)
 
     def test_lookupfield_convert_from_string(self):
         lookup_field = LookupFieldFactory()

@@ -5,6 +5,8 @@ from django.core.exceptions import ValidationError
 
 from django_hstore import hstore
 
+from core.exceptions import InputError
+
 from .base import LOCATION_STATUS, OBSERVATION_STATUS, COMMENT_STATUS
 from .manager import LocationManager, ObservationManager, CommentManager
 
@@ -43,16 +45,16 @@ class Observation(models.Model):
     """
     Stores a single observation.
     """
-    status = models.CharField(
-        choices=OBSERVATION_STATUS,
-        default=OBSERVATION_STATUS.active,
-        max_length=20
-    )
     location = models.ForeignKey('Location', related_name='observations')
     project = models.ForeignKey(
         'projects.Project', related_name='observations'
     )
     observationtype = models.ForeignKey('observationtypes.ObservationType')
+    status = models.CharField(
+        choices=OBSERVATION_STATUS,
+        default=OBSERVATION_STATUS.active,
+        max_length=20
+    )
 
     objects = ObservationManager()
 
@@ -65,9 +67,13 @@ class Observation(models.Model):
         Creates the object if all fields are valid.
         """
         is_valid = True
+        error_messages = []
         for field in observationtype.fields.all():
-            if not field.validate_input(data.get(field.key)):
+            try:
+                field.validate_input(data.get(field.key))
+            except InputError, error:
                 is_valid = False
+                error_messages.append(error)
 
         if is_valid:
             observation = cls(
@@ -84,9 +90,7 @@ class Observation(models.Model):
             )
             return observation
         else:
-            raise ValidationError('One or more fields did not validate. The '
-                                  'contribution has not been save to the '
-                                  'database')
+            raise ValidationError(error_messages)
 
     @property
     def current_data(self):
@@ -98,10 +102,15 @@ class Observation(models.Model):
 
     def update(self, data=None, creator=None):
         is_valid = True
+        error_messages = []
+
         for field in self.observationtype.fields.all():
-            if (field.key in data and
-                    not field.validate_input(data.get(field.key))):
-                is_valid = False
+            if field.key in data:
+                try:
+                    field.validate_input(data.get(field.key))
+                except InputError, error:
+                    is_valid = False
+                    error_messages.append(error)
 
         if is_valid:
             version = self.current_data.version + 1
@@ -112,8 +121,7 @@ class Observation(models.Model):
                 version=version
             )
         else:
-            raise ValidationError('One or more fields did not validate. The '
-                                  'observation has not been updated.')
+            raise ValidationError(error_messages)
 
     def delete(self):
         """

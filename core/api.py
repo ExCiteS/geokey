@@ -45,6 +45,10 @@ urlpatterns = patterns(
         name='project_single_location'),
 
     # ###########################
+    # COMMENTS
+    # ###########################
+
+    # ###########################
     # OBSERVATION TYPES
     # ###########################
     url(

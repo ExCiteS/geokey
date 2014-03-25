@@ -36,7 +36,7 @@ class ObservationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Observation
         depth = 0
-        fields = ('id', 'status', 'observationtype')
+        fields = ('status', 'observationtype')
 
 
 class ObservationDataSerializer(serializers.ModelSerializer):
@@ -136,6 +136,7 @@ class ContributionSerializer(object):
         observation_data_serializer = ObservationDataSerializer(
             self.instance.current_data)
         json_object = {
+            'id': self.instance.id,
             'type': 'Feature',
             'geometry': json.loads(self.instance.location.geometry.geojson),
             'properties': {}
