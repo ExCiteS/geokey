@@ -5,18 +5,24 @@ from django.core.exceptions import PermissionDenied
 
 from rest_framework import serializers
 from rest_framework.renderers import JSONRenderer
+from rest_framework_gis import serializers as geoserializers
 
 from core.exceptions import MalformedRequestData
 from projects.models import Project
 from projects.serializers import ProjectSerializer
 from observationtypes.models import ObservationType
-from users.serializers import UserSerializer
-from observationtypes.serializer import ObservationTypeSerializer
 
 from .models import Location, Observation, ObservationData
 
 
-class LocationSerializer(serializers.ModelSerializer):
+class LocationSerializer(geoserializers.GeoFeatureModelSerializer):
+    class Meta:
+        model = Location
+        geo_field = 'geometry'
+        fields = ('id', 'name', 'description', 'status', 'created_at')
+
+
+class LocationContributionSerializer(serializers.ModelSerializer):
     private_for_project = ProjectSerializer(read_only=True, partial=True)
 
     class Meta:
@@ -45,6 +51,7 @@ class ContributionSerializer(object):
     Serializes and deserializes contribution object from and to its GeoJSON
     conterparts.
     """
+
     def __init__(self, instance=None, data=None, creator=None):
         """
         Creates a new serializer by deserializing the data dictionary.
@@ -56,7 +63,7 @@ class ContributionSerializer(object):
         data : Dictionary
            The data as POSTed with the request. Used to create ob update an
            observation.
-        data : creator
+        creator : User
            The user signed in with the request
         """
 
@@ -123,7 +130,8 @@ class ContributionSerializer(object):
         """
         Serializes the instance into a GeoJSON format
         """
-        location_serializer = LocationSerializer(self.instance.location)
+        location_serializer = LocationContributionSerializer(
+            self.instance.location)
         observation_serializer = ObservationSerializer(self.instance)
         observation_data_serializer = ObservationDataSerializer(
             self.instance.current_data)

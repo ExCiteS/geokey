@@ -6,11 +6,11 @@ from core.decorators import (
     handle_exceptions_for_ajax
 )
 
-from .serializers import ContributionSerializer
-from .models import Observation
+from .serializers import ContributionSerializer, LocationSerializer
+from .models import Observation, Location
 
 
-class ProjectObservations(APIView):
+class Observations(APIView):
     """
     Public API endpoint for all observations in a project. Used to add new
     contributions to a project
@@ -28,7 +28,7 @@ class ProjectObservations(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class ProjectSingleObservation(APIView):
+class SingleObservation(APIView):
     """
     Public API endpoint for updating a single observation in a project
     /api/projects/:project_id/observations/:observationtype_id
@@ -59,3 +59,20 @@ class ProjectSingleObservation(APIView):
         return Response(
             status=status.HTTP_204_NO_CONTENT
         )
+
+
+class Locations(APIView):
+    """
+    Public API endpoint for all locations in a project.
+    /api/projects/:project_id/locations
+    """
+
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, format=None):
+        """
+        Returns a list of locations that can be used for contributions to the
+        given project.
+        """
+        locations = Location.objects.get_list(request.user, project_id)
+        serializer = LocationSerializer(locations, many=True)
+        return Response(serializer.data)

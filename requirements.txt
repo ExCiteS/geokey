@@ -6,3 +6,4 @@ django-oauth2-provider==0.2.6
 South==0.8.4
 django-model-utils==2.0.1
 djangorestframework==2.3.12
+djangorestframework-gis==0.2
