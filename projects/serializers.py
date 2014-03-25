@@ -1,7 +1,9 @@
 from rest_framework import serializers
 
+from core.serializers import FieldSelectorSerializer
 from users.serializers import UserSerializer
 from dataviews.serializers import ViewSerializer
+from observationtypes.serializer import ObservationTypeSerializer
 
 from .models import Project, UserGroup
 
@@ -17,33 +19,18 @@ class UserGroupSerializer(serializers.ModelSerializer):
         depth = 1
         fields = ('id', 'name', 'users')
 
-    def __init__(self, *args, **kwargs):
-        # Don't pass the 'fields' arg up to the superclass
-        fields = kwargs.pop('fields', None)
 
-        # Instantiate the superclass normally
-        super(UserGroupSerializer, self).__init__(*args, **kwargs)
-
-        if fields:
-            # Drop any fields that are not specified in the `fields` argument.
-            allowed = set(fields)
-            existing = set(self.fields.keys())
-            for field_name in existing - allowed:
-                self.fields.pop(field_name)
-
-
-class ProjectSerializer(serializers.ModelSerializer):
+class ProjectSerializer(FieldSelectorSerializer):
     """
     Serializer for projects.
     """
     views = ViewSerializer(read_only=True, many=True)
-    # creator = UserSerializer(read_only=True)
-    # admins = UserGroupSerializer(read_only=True, fields=('id', 'name'))
-    # contributors = UserGroupSerializer(read_only=True, fields=('id', 'name'))
+    observationtypes = ObservationTypeSerializer(read_only=True, many=True)
 
     class Meta:
         model = Project
         depth = 1
         fields = ('id', 'name', 'description', 'isprivate', 'status',
-                  'everyonecontributes', 'created_at', 'views')
+                  'everyonecontributes', 'created_at', 'views',
+                  'observationtypes')
         read_only_fields = ('id', 'name')

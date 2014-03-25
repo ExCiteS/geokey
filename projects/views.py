@@ -199,7 +199,10 @@ class ProjectApiList(APIView):
         Returns a list a all projects accessable to the user
         """
         projects = Project.objects.get_list(request.user)
-        serializer = ProjectSerializer(projects, many=True)
+        serializer = ProjectSerializer(
+            projects, many=True,
+            fields=('id', 'name', 'description', 'status')
+        )
         return Response(serializer.data)
 
 

@@ -5,6 +5,9 @@ from django.test import TestCase
 from provider.oauth2.models import Client as OAuthClient
 
 from dataviews.tests.model_factories import ViewFactory, ViewGroupFactory
+from observationtypes.tests.model_factories import (
+    ObservationTypeFactory, TextFieldFactory, NumericFieldFactory
+)
 
 from .model_factories import UserF, UserGroupF, ProjectF
 
@@ -38,6 +41,18 @@ class ProjectPublicApiTest(TestCase):
             'view': ViewFactory(**{
                 'project': self.private_project
             })
+        })
+        observationtype = ObservationTypeFactory(**{
+            'status': 'active',
+            'project': self.private_project
+        })
+        TextFieldFactory.create(**{
+            'key': 'key_1',
+            'observationtype': observationtype
+        })
+        NumericFieldFactory.create(**{
+            'key': 'key_2',
+            'observationtype': observationtype
         })
 
         self.inactive_project = ProjectF.create(**{
@@ -157,6 +172,7 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.private_project.name)
+        print response
 
     def test_get_inactive_project_with_admin(self):
         response = self._get(

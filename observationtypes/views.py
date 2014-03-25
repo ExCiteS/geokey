@@ -24,6 +24,12 @@ from .serializer import (
 )
 
 
+# ############################################################################
+#
+# Administration views
+#
+# ############################################################################
+
 class ObservationTypeAdminCreateView(LoginRequiredMixin, CreateView):
     """
     Displays the create ObservationType page and creates the ObservationType
@@ -93,30 +99,6 @@ class ObservationTypeAdminDetailView(LoginRequiredMixin, TemplateView):
         }
 
 
-class ObservationTypeApiDetail(APIView):
-    """
-    API Endpoints for a observationtype in the AJAX API.
-    /ajax/projects/:project_id/observationtypes/:observationtype_id
-    """
-
-    @handle_exceptions_for_ajax
-    def put(self, request, project_id, observationtype_id, format=None):
-        """
-        Updates an observationtype
-        """
-
-        observation_type = ObservationType.objects.as_admin(
-            request.user, project_id, observationtype_id)
-        serializer = ObservationTypeSerializer(
-            observation_type, data=request.DATA, partial=True)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class FieldAdminCreateView(LoginRequiredMixin, CreateView):
     """
     Displays the create field page
@@ -179,6 +161,38 @@ class FieldAdminDetailView(LoginRequiredMixin, TemplateView):
         return context
 
 
+# ############################################################################
+#
+# AJAX API views
+#
+# ############################################################################
+
+class ObservationTypeApiDetail(APIView):
+    """
+    API Endpoints for a observationtype in the AJAX API.
+    /ajax/projects/:project_id/observationtypes/:observationtype_id
+    """
+
+    @handle_exceptions_for_ajax
+    def put(self, request, project_id, observationtype_id, format=None):
+        """
+        Updates an observationtype
+        """
+
+        observation_type = ObservationType.objects.as_admin(
+            request.user, project_id, observationtype_id)
+
+        serializer = ObservationTypeSerializer(
+            observation_type, data=request.DATA, partial=True,
+            fields=('id', 'name', 'description', 'status'))
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class FieldApiDetail(APIView):
     """
     API endpoints for fields
@@ -189,7 +203,7 @@ class FieldApiDetail(APIView):
     def put(self, request, project_id, observationtype_id, field_id,
             format=None):
         """
-        Updates an field
+        Updates a field
         """
         field = Field.objects.as_admin(
             request.user, project_id, observationtype_id, field_id)
@@ -261,3 +275,26 @@ class FieldApiLookupsDetail(APIView):
                 {'error': 'This field is not a lookup field'},
                 status=status.HTTP_404_NOT_FOUND
             )
+
+
+# ############################################################################
+#
+# Public API views
+#
+# ############################################################################
+
+class ObservationTypeApiSingle(APIView):
+    """
+    API endpoint for a single observationtype
+    /api/projects/:project_id/observationtypes/:observationtype_id
+    """
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, observationtype_id, format=None):
+        """
+        Returns the observationtype and all fields
+        """
+        observationtype = ObservationType.objects.get_single(
+            request.user, project_id, observationtype_id)
+
+        serializer = ObservationTypeSerializer(observationtype)
+        return Response(serializer.data)

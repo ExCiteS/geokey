@@ -27,21 +27,17 @@ class LocationSerializer(serializers.ModelSerializer):
 
 
 class ObservationSerializer(serializers.ModelSerializer):
-    observationtype = ObservationTypeSerializer(read_only=True)
-
     class Meta:
         model = Observation
-        depth = 1
+        depth = 0
         fields = ('id', 'status', 'observationtype')
 
 
 class ObservationDataSerializer(serializers.ModelSerializer):
-    creator = UserSerializer(read_only=True)
-
     class Meta:
         model = ObservationData
         depth = 1
-        fields = ('created_at', 'creator', 'version')
+        fields = ('created_at', 'version')
 
 
 class ContributionSerializer(object):
