@@ -39,6 +39,10 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/locations$',
         contribution_views.Locations.as_view(),
         name='project_locations'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/locations/(?P<location_id>[0-9]+)$',
+        contribution_views.SingleLocation.as_view(),
+        name='project_single_location'),
 
     # ###########################
     # OBSERVATION TYPES

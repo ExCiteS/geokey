@@ -253,7 +253,6 @@ class ProjectPublicApiTest(TestCase):
             self.data,
             self.admin
         )
-        print response
         self.assertEqual(response.status_code, 201)
 
     def test_contribute_to_public_with_contributor(self):
