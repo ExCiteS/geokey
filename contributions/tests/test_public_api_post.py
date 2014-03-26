@@ -115,7 +115,7 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "key_1": "value 1",
+                "key_1": 12,
                 "key_2": "jsdbdjhsb",
                 "observationtype": self.observationtype.id,
                 "location": {

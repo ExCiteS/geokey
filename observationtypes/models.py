@@ -136,13 +136,16 @@ class NumericField(Field):
 
         else:
             raise InputError('The value provided for field %s is not a '
-                             'number,' % self.name)
+                             'number.' % self.name)
 
     def convert_from_string(self, value):
         """
         Returns the `value` of the field in `Float` format.
         """
-        return float(value)
+        try:
+            return int(value)
+        except ValueError:
+            return float(value)
 
 
 class TrueFalseField(Field):

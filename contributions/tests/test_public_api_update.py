@@ -67,6 +67,7 @@ class ProjectPublicApiTest(TestCase):
 
         self.update_data = {
             "properties": {
+                "version": 1,
                 "key_2": 15,
             }
         }
@@ -101,6 +102,52 @@ class ProjectPublicApiTest(TestCase):
             url,
             content_type='application/json', **auth_headers
         )
+
+    def test_update_without_version(self):
+        data = {"properties": {"key_2": 15}}
+
+        response = self._put(
+            '/api/projects/' + str(self.project.id) +
+            '/observations/' + str(self.observation.id),
+            data,
+            self.admin
+        )
+        self.assertEqual(response.status_code, 400)
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(
+            observation.current_data.attributes.get('key_2'), '12')
+
+    def test_update_with_wrong_version(self):
+        data = {"properties": {"version": 3000, "key_2": 15}}
+
+        response = self._put(
+            '/api/projects/' + str(self.project.id) +
+            '/observations/' + str(self.observation.id),
+            data,
+            self.admin
+        )
+        self.assertEqual(response.status_code, 400)
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(
+            observation.current_data.attributes.get('key_2'), '12')
+
+    def test_update_conflict(self):
+        response = self._put(
+            '/api/projects/' + str(self.project.id) +
+            '/observations/' + str(self.observation.id),
+            self.update_data,
+            self.admin
+        )
+        self.assertEqual(response.status_code, 200)
+
+        data = {"properties": {"version": 1, "key_2": 2}}
+        response = self._put(
+            '/api/projects/' + str(self.project.id) +
+            '/observations/' + str(self.observation.id),
+            data,
+            self.contributor
+        )
+        self.assertEqual(response.status_code, 200)
 
     def test_updated_deleted_observation(self):
         self.observation.status = 'deleted'

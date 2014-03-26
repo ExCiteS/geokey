@@ -70,6 +70,9 @@ class LocationUpdateApiTest(TestCase):
             **auth_headers
         )
 
+    # def test_update_geomtery(self):
+    #     response = self._put({'geometry': 'Bla'}, self.admin)
+
     def test_update_location_with_wrong_status(self):
         response = self._put({'status': 'Bla'}, self.admin)
         self.assertEqual(response.status_code, 400)
@@ -79,7 +82,10 @@ class LocationUpdateApiTest(TestCase):
 
     def test_update_not_existing_location(self):
         response = self._put(
-            {'name': 'UCL'}, self.admin, location_id=10000000000000000000000)
+            {'properties': {'name': 'UCL'}},
+            self.admin,
+            location_id=10000000000000000000000
+        )
         self.assertEqual(response.status_code, 404)
 
     def test_update_private_location(self):
@@ -94,7 +100,19 @@ class LocationUpdateApiTest(TestCase):
         self.assertEqual(location.name, private.name)
 
     def test_update_location_with_admin(self):
-        response = self._put({'name': 'UCL'}, self.admin)
+        response = self._put(
+            {
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [
+                        -0.14061212539672852,
+                        51.501763857255106
+                    ]
+                },
+                'name': 'UCL'
+            },
+            self.admin
+        )
         self.assertEqual(response.status_code, 200)
 
         location = Location.objects.get(pk=self.location.id)

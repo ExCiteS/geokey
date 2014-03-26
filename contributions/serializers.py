@@ -36,7 +36,9 @@ class ObservationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Observation
         depth = 0
-        fields = ('status', 'observationtype')
+        fields = (
+            'status', 'observationtype', 'review_comment', 'conflict_version'
+        )
 
 
 class ObservationDataSerializer(serializers.ModelSerializer):

@@ -7,6 +7,7 @@ from projects.tests.model_factories import ProjectF, UserGroupF, UserF
 from observationtypes.tests.model_factories import (
     ObservationTypeFactory, TextFieldFactory, NumericFieldFactory
 )
+from core.exceptions import MalformedRequestData
 
 from ..models import Location, Observation, Comment
 
@@ -130,11 +131,106 @@ class LocationTest(TestCase):
         )
 
         updater = UserF()
+        update = {'text': 'Udpated Text', 'number': 13, 'version': 1}
+        observation.update(data=update, creator=updater)
+
+        ref_observation = Observation.objects.get(pk=observation.id)
+        self.assertEqual(
+            ref_observation.current_data.attributes,
+            update
+        )
+        self.assertEqual(ref_observation.current_data.version, 2)
+
+    @raises(MalformedRequestData)
+    def test_update_observation_without_version(self):
+        creator = UserF()
+        location = LocationFactory()
+        observationtype = ObservationTypeFactory()
+        TextFieldFactory(**{
+            'key': 'text',
+            'observationtype': observationtype
+        })
+        NumericFieldFactory(**{
+            'key': 'number',
+            'observationtype': observationtype
+        })
+        data = {'text': 'Text', 'number': 12}
+        observation = Observation.create(
+            data=data, creator=creator, location=location,
+            observationtype=observationtype, project=observationtype.project
+        )
+
+        updater = UserF()
         update = {'text': 'Udpated Text', 'number': 13}
         observation.update(data=update, creator=updater)
 
-        self.assertEqual(observation.current_data.attributes, update)
-        self.assertEqual(observation.current_data.version, 2)
+        ref_observation = Observation.objects.get(pk=observation.id)
+        self.assertEqual(
+            ref_observation.current_data.attributes,
+            observation.current_data
+        )
+        self.assertEqual(ref_observation.current_data.version, 1)
+
+    def test_update_observation_with_conflict(self):
+        creator = UserF()
+
+        location = LocationFactory()
+        observationtype = ObservationTypeFactory()
+        TextFieldFactory(**{
+            'key': 'text',
+            'observationtype': observationtype
+        })
+        NumericFieldFactory(**{
+            'key': 'number',
+            'observationtype': observationtype
+        })
+        data = {'text': 'Text', 'number': 12}
+        observation = Observation.create(
+            data=data, creator=creator, location=location,
+            observationtype=observationtype, project=observationtype.project
+        )
+
+        updater = UserF()
+        update = {'text': 'Udpated Text', 'number': 13, 'version': 1}
+        observation.update(data=update, creator=updater)
+
+        updater2 = UserF()
+        update2 = {'number': 5, 'version': 1}
+        observation.update(data=update2, creator=updater2)
+
+        ref_observation = Observation.objects.get(pk=observation.id)
+        self.assertEqual(ref_observation.status, 'review')
+        self.assertEqual(ref_observation.current_data.version, 2)
+
+    @raises(MalformedRequestData)
+    def test_update_observation_with_wrong_version(self):
+        creator = UserF()
+        location = LocationFactory()
+        observationtype = ObservationTypeFactory()
+        TextFieldFactory(**{
+            'key': 'text',
+            'observationtype': observationtype
+        })
+        NumericFieldFactory(**{
+            'key': 'number',
+            'observationtype': observationtype
+        })
+        data = {'text': 'Text', 'number': 12}
+        observation = Observation.create(
+            data=data, creator=creator, location=location,
+            observationtype=observationtype, project=observationtype.project
+        )
+
+        updater = UserF()
+        update = {'text': 'Udpated Text', 'number': 13, 'version': 3}
+        observation.update(data=update, creator=updater)
+
+        ref_observation = Observation.objects.get(pk=observation.id)
+        self.assertEqual(
+            ref_observation.current_data.attributes,
+            observation.current_data
+        )
+        self.assertEqual(ref_observation.current_data.version, 1)
 
     @raises(ValidationError)
     def test_update_invalid_observation(self):
