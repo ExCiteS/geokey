@@ -3,7 +3,7 @@ body {
 }
 
 body#home {
-	background: url(../img/city.jpg) no-repeat 50% 50%;
+	background: url(../img/sf.jpg) no-repeat 50% 50%;
 }
 
 body#home div.jumbotron {
@@ -91,6 +91,10 @@ div.page-header {
 	background-color: #fafafa;
 }
 
+	div.page-header div.row {
+		margin-bottom: 0;
+	}
+
 div.page-header .breadcrumb {
 	background-color: #fafafa;
 	border-bottom: 1px solid #eee;
@@ -128,6 +132,9 @@ div.page-header .breadcrumb > li + li:before {
 			div.page-header .form-inline > .form-group {
 				width: 583px;
 			}
+			div.page-header .form-inline > .form-group > input[type="text"] {
+				width: 100%;
+			}
 		}
 
 		div.page-header .form-inline p.error {
@@ -149,18 +156,6 @@ div#map {
 
 .panel-title + p {
 	margin-top: 0.5em;
-}
-
-ul.newsfeed li {
-	margin-top: 0.7em;
-}
-
-ul.newsfeed li:first-child {
-	margin-top: 0;
-}
-
-ul.newsfeed li span.glyphicon {
-	margin-right: 0.5em;
 }
 
 ul.type-away {
@@ -204,17 +199,6 @@ ol.comments > li {
 
 	ol.comments > li > ol.comments {
 		margin-left: 30px;
-	}
-
-div.quick-stats {
-	border-left: 5px solid #f0ad4e;
-	background-color: #fcf8f2;
-	padding: 20px;
-	font-size: 1.3em
-}
-
-	div.quick-stats span.number {
-		font-size: 1.75em;
 	}
 
 footer {

@@ -23,30 +23,39 @@
         <div class="jumbotron">
             <div class="container">
                 <div class="row">
-                    <div class="col-sm-7 super-heading"> <!-- Info -->
+                    <div class="col-sm-12 super-heading">
                         <h1>Community Maps</h1>
+                    </div>
+                    <div class="col-sm-12 col-md-7 super-heading"> <!-- Info -->
                         <p>Community Maps is an open platform for participatory mapping, that enables citizens to record, view and analyse geographically referenced observations and discussions for different purposes.</p>
                     </div> <!-- / Info -->
-                    <div class="col-sm-5">
-                        <div class="panel panel-default">
-                            <div class="panel-body">
-                                <h3>Sign in</h3>
-                                <form method="POST" action="{% url 'admin:login' %}">
-                                    {% csrf_token %}
-                                    <div class="form-group">
-                                        <input type="text" placeholder="Username" name="username" class="form-control">
+
+                    <div class="col-sm-12 col-md-5">
+                        <div class="row">
+                            <div class="col-sm-6 col-md-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <h3>Sign in</h3>
+                                        <form method="POST" action="{% url 'admin:login' %}">
+                                            {% csrf_token %}
+                                            <div class="form-group">
+                                                <input type="text" placeholder="Username" name="username" class="form-control">
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="password" placeholder="Password"  name="password" class="form-control">
+                                            </div>
+                                            <button type="submit" class="btn btn-success">Sign in</button>
+                                        </form>
                                     </div>
-                                    <div class="form-group">
-                                        <input type="password" placeholder="Password"  name="password" class="form-control">
-                                    </div>
-                                    <button type="submit" class="btn btn-success">Sign in</button>
-                                </form>
+                                </div>
                             </div>
-                        </div>
-                        <div class="panel panel-default">
-                            <div class="panel-body">
-                                <h3>New to Community Maps?</h3>
-                                <a href="{% url 'admin:signup' %}" class="btn btn-primary">Sign up here</a>
+                            <div class="col-sm-6 col-md-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <h3>New to Community Maps?</h3>
+                                        <a href="{% url 'admin:signup' %}" class="btn btn-primary">Sign up here</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

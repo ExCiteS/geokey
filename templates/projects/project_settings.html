@@ -31,15 +31,21 @@
 		</div>
 
 		<div class="container">
-			<div class="quick-stats">
-				<span class="number">12 users</span> have contributed <a href="{% url 'admin:project_detail' project.id %}"><span class="number">73 observations</span></a> to this project.
-			</div>
-			<hr>
-			<div class="row" id="users">
-				<div class="col-md-10 col-md-offset-1">
-					<h3>Permissions</h3>
+			<div class="row">
+				<div class="col-sm-12">
+					<ul class="nav nav-tabs">
+						<li class="active"><a href="#users" data-toggle="tab">User permissions</a></li>
+						<li><a href="#views" data-toggle="tab">Views</a></li>
+						<li><a href="#observationtypes" data-toggle="tab">Oberservation types</a></li>
+						<li><a href="#general-settings" data-toggle="tab">General</a></li>
+					</ul>
 				</div>
-				<div class="col-md-5 col-md-offset-1">
+			</div>
+		</div>
+
+		<div class="container tab-content">
+			<div class="row tab-pane active" id="users">
+				<div class="col-sm-6">
 					<div class="panel panel-default" id="administrators" data-group-id="{{ project.admins.id }}"> <!-- Administrators list -->
 						<div class="panel-heading">
 							<h2 class="panel-title">Administrators</h2>
@@ -49,7 +55,7 @@
 						{% include 'snippets/usergroup-editor.html' with users=project.admins.users.all %}
 					</div> <!-- /Administrators List -->
 				</div>
-				<div class="col-md-5">
+				<div class="col-sm-6">
 					<div class="panel panel-default" id="contributors" data-group-id="{{ project.contributors.id }}"> <!-- Contributors list -->
 						<div class="panel-heading">
 							<h2 class="panel-title">Contributors</h2>
@@ -59,34 +65,9 @@
 					</div> <!-- /Contributors List -->
 				</div>
 			</div>
-			<hr>
-			<div class="row" id="featuretypes">
-				<div class="col-md-5 col-md-offset-1">
-					<h3>Observation types</h3>
-					<div class="panel panel-default"> <!-- Observation type list List -->
-						<div class="panel-heading">
-							<h2 class="panel-title">Observation types in this project</h2>
-						</div>
-						<div class="list-group">
-							{% for observationtype in project.observationtypes.all %}
-							<a href="{% url 'admin:observationtype_detail' project.id observationtype.id %}" class="list-group-item">
-								<h4 class="list-group-item-heading">{{ observationtype.name }}{% if observationtype.status == status_types.inactive %} <small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
-								<p class="list-group-item-text">{{ observationtype.description }}</p>
-							</a>
-							{% empty %}
-							<div class="list-group-item">
-								No observation types have been added to the project.
-							</div>
-							{% endfor %}
-						</div>
-						<div class="panel-footer">
-							<a href="{% url 'admin:observationtype_create' project.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new observation type</a>
-						</div>
-					</div> <!-- /Observation type list List -->
-				</div>
 
-				<div class="col-md-5">
-					<h3>Views</h3>
+			<div class="row tab-pane" id="views">
+				<div class="col-sm-8 col-sm-offset-2">
 					<div class="panel panel-default"> <!-- Observation type list List -->
 						<div class="panel-heading">
 							<h2 class="panel-title">Views in this project</h2>
@@ -109,19 +90,40 @@
 					</div> <!-- /Observation type list List -->
 				</div>
 			</div>
-			<hr>
-			<div class="row" id="general-settings">
-				<div class="col-md-10 col-md-offset-1">
-					<h3>General settings</h3>
-				</div>
 
-				<div class="col-md-5 col-md-offset-1 col-lg-3">
+			<div class="row tab-pane" id="observationtypes">
+				<div class="col-sm-8 col-sm-offset-2">
+					<div class="panel panel-default"> <!-- Observation type list List -->
+						<div class="panel-heading">
+							<h2 class="panel-title">Observation types in this project</h2>
+						</div>
+						<div class="list-group">
+							{% for observationtype in project.observationtypes.all %}
+							<a href="{% url 'admin:observationtype_detail' project.id observationtype.id %}" class="list-group-item">
+								<h4 class="list-group-item-heading">{{ observationtype.name }}{% if observationtype.status == status_types.inactive %} <small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
+								<p class="list-group-item-text">{{ observationtype.description }}</p>
+							</a>
+							{% empty %}
+							<div class="list-group-item">
+								No observation types have been added to the project.
+							</div>
+							{% endfor %}
+						</div>
+						<div class="panel-footer">
+							<a href="{% url 'admin:observationtype_create' project.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new observation type</a>
+						</div>
+					</div> <!-- /Observation type list List -->
+				</div>
+			</div>
+
+			<div class="row tab-pane" id="general-settings">
+				<div class="col-sm-8 col-sm-offset-2">
 					<div class="panel panel-warning toggle-private {% if not project.isprivate %} hidden{% endif %}">
 						<div class="panel-heading">
 							<h2 class="panel-title">Make this project public</h2>
 						</div>
 						<div class="panel-body">
-							<p>Make this project accessibale to every registered user.</p>
+							<p>A public project is accessible to every registered user of the platform. However, access to data contributed to the project may still be restricted by settings of individual views.</p>
 							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-public-confirm">Make public</button>
 						</div>
 					</div>
@@ -131,19 +133,19 @@
 							<h2 class="panel-title">Make this project private</h2>
 						</div>
 						<div class="panel-body">
-							<p>Hide this project from the public.</p>
+							<p>A private project is only accessible by project administrators, contributors and members of any user group that is assigned to one of the project views.</p>
 							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-private-confirm">Make private</button>
 						</div>
 					</div>
 				</div>
 
-				<div class="col-md-5 col-lg-3 col-lg-offset-0">
+				<div class="col-sm-8 col-sm-offset-2">
 					<div class="panel panel-warning toggle-active {% if project.status == status_types.inactive %} hidden{% endif %}">
 						<div class="panel-heading">
 							<h2 class="panel-title">Make this project inactive</h2>
 						</div>
 						<div class="panel-body">
-							<p>Users will not be able to contribute and read data from the project.</p>
+							<p>Users will not be able to contribute and read data from the project any longer.</p>
 							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-inactive-confirm">Make inactive</button>
 						</div>
 					</div>
@@ -153,19 +155,19 @@
 							<h2 class="panel-title">Make this project active</h2>
 						</div>
 						<div class="panel-body">
-							<p>Users will be able to contribute and read data from the project.</p>
+							<p>Users will be able to contribute and read data from the project from now on.</p>
 							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-active-confirm">Make active</button>
 						</div>
 					</div>
 				</div>
 
-				<div class="col-md-5 col-md-offset-1 col-lg-3 col-lg-offset-0">
+				<div class="col-sm-8 col-sm-offset-2">
 					<div class="panel panel-danger">
 						<div class="panel-heading">
 							<h2 class="panel-title">Delete project</h2>
 						</div>
 						<div class="panel-body">
-							<p>If you delete the project there's no way back.</p>
+							<p>Deleting a project can not be undone and will delete all data contributed to the project.</p>
 							<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-confirm">Delete this project</button>
 						</div>
 					</div>
@@ -184,8 +186,11 @@
 						<h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
 					</div>
 					<div class="modal-body panel-body">
-						<p class="text-danger">You are about to delete the project <strong>{{project.name}}</strong>. This can not be undone.</p>
-						<p>Deleting a project will delete all data contributed to the project.</p>
+						<p><strong>Before you delete the project, please read through the consequences of this action.</strong></p>
+						<ul>
+							<li>Deleting a project can not be undone.</li>
+							<li>Deleting a project will delete all data contributed to the project.</li>
+						</ul>
 					</div>
 					<div class="modal-footer panel-footer">
 						<button type="button" name="confirm" value="delete" class="btn btn-danger" data-loading-text="Loading...">I'm absolutely sure, delete the project!</button>
@@ -203,7 +208,7 @@
 						<h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
 					</div>
 					<div class="modal-body panel-body">
-						<p>Before you make the project public, please read through the consequences of this action.</p>
+						<p><strong>Before you make the project public, please read through the consequences of this action.</strong></p>
 						<p>A public project is accessible to every registered user of the platform. However, access to data contributed to the project may still be restricted by settings of individual views.</p>
 					</div>
 					<div class="modal-footer panel-footer">
@@ -221,7 +226,7 @@
 						<h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
 					</div>
 					<div class="modal-body panel-body">
-						<p>Before you make the project private, please read through the consequences of this action.</p>
+						<p><strong>Before you make the project private, please read through the consequences of this action.</strong></p>
 						<p>A private project is only accessible by the following users:</p>
 						<ul>
 							<li>Project administrators</li>
@@ -250,7 +255,7 @@
 						<ul>
 							<li>The project will be accessible to project administrators only.</li>
 							<li>All data, user groups and views will be kept in the data base.</li>
-							<li>It is not possible to contribute new data to the project.</li>
+							<li>It will not possible to access exisiting data or contribute new data to the project.</li>
 						</ul>
 					</div>
 					<div class="modal-footer panel-footer">

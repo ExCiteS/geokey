@@ -51,7 +51,7 @@
                 {% if field.numericfield %}
                 <form role="form" id="valuesForm" class="form-horizontal col-md-8 col-md-offset-2" novalidate>
                     <div class="form-group">
-                        <label for="name" class="col-sm-3 control-label">Minimun value</label>
+                        <label for="name" class="col-sm-3 control-label">Minimum value</label>
                         <div class="col-sm-9">
                             <input type="number" step="0.001" class="form-control" id="minval" name="minval" placeholder="e.g.; 1.642" {% if field.numericfield.minval %} value="{{ field.numericfield.minval }}" {% endif %}>
                         </div>
@@ -74,7 +74,7 @@
                 {% endif %}
 
                 {% if field.lookupfield %}
-                <div class=" col-md-8  col-md-offset-2">
+                <div class=" col-md-8 col-md-offset-2">
                     <div id="lookupValuesPanel" class="panel panel-default" id="lookupValuesPanel">
                         <div class="panel-heading">
                             <h2 class="panel-title">Lookup values</h2>
@@ -101,7 +101,7 @@
             {% endif %}
 
             <div class="row" id="general-settings">
-                <div class="col-md-4 col-md-offset-2">
+                <div class="col-sm-8 col-sm-offset-2">
                     <div class="panel panel-default toggle-mandatory {% if field.required %} hidden{% endif %}">
                         <div class="panel-heading">
                             <h2 class="panel-title">Make this field mandatory</h2>
@@ -123,13 +123,13 @@
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-sm-8 col-sm-offset-2">
                     <div class="panel panel-warning toggle-active {% if field.status == status_types.inactive %} hidden{% endif %}">
                         <div class="panel-heading">
                             <h2 class="panel-title">Make this field inactive</h2>
                         </div>
                         <div class="panel-body">
-                            <p>The field shall no longer be used for data contribution.</p>
+                            <p>The field can no longer be used for data contributions.</p>
                             <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-inactive-confirm">Make inactive</button>
                         </div>
                     </div>
@@ -139,7 +139,7 @@
                             <h2 class="panel-title">Make this field active</h2>
                         </div>
                         <div class="panel-body">
-                            <p>The field shall available for data contribution.</p>
+                            <p>The field can be used data contributions.</p>
                             <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-active-confirm">Make active</button>
                         </div>
                     </div>
@@ -157,7 +157,7 @@
                         <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
                     </div>
                     <div class="modal-body panel-body">
-                        <p>Before you make the field inactive, please read through the consequences of this action:</p>
+                        <p><strong>Before you make the field inactive, please read through the consequences of this action:</strong></p>
                         <ul>
                             <li>Users will not be able to contribute new data using this field.</li>
                             <li>Existing data will no longer be validated against this field.</li>
@@ -178,7 +178,7 @@
                         <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
                     </div>
                     <div class="modal-body panel-body">
-                        <p>Before you make the field active, please read through the consequences of this action:</p>
+                        <p><strong>Before you make the field active, please read through the consequences of this action:</strong></p>
                         <ul>
                             <li>Users will be able to contribute new data using this field.</li>
                             <li>Existing data will be validated against this field.</li>
