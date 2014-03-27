@@ -6,6 +6,8 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from provider.oauth2.models import Client
+
 from core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
@@ -32,6 +34,14 @@ class AppCreateView(LoginRequiredMixin, CreateView):
         )
 
     def form_valid(self, form):
+        client = Client.objects.create(
+            user=self.request.user,
+            name=form.instance.name,
+            client_type=0,
+            url=form.instance.download_url,
+            redirect_uri=form.instance.redirect_url
+        )
+        form.instance.client = client
         form.instance.creator = self.request.user
         return super(AppCreateView, self).form_valid(form)
 
