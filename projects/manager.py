@@ -40,7 +40,7 @@ class ProjectManager(models.Manager):
         Returns a single project or raises PermissionDenied if the user is not
         allowed to access the project.
         """
-        project = super(ProjectManager, self).get(pk=project_id)
+        project = self.get(pk=project_id)
         if project.can_access(user):
             return project
         else:

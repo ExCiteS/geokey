@@ -1,6 +1,7 @@
 from django.views.generic import CreateView, TemplateView
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -198,7 +199,8 @@ class ProjectApiList(APIView):
         """
         Returns a list a all projects accessable to the user
         """
-        projects = Project.objects.get_list(request.user)
+        projects = Project.objects.get_list(
+            request.user).filter(status='active')
         serializer = ProjectSerializer(
             projects, many=True,
             fields=('id', 'name', 'description', 'status')
@@ -217,5 +219,11 @@ class ProjectApiSingle(APIView):
         Returns a list a all projects accessable to the user
         """
         project = Project.objects.get_single(request.user, project_id)
-        serializer = ProjectSerializer(project)
-        return Response(serializer.data)
+        if project.status == 'active':
+            serializer = ProjectSerializer(
+                project, context={'request': request}
+            )
+            return Response(serializer.data)
+        else:
+            raise PermissionDenied('The project is inactive and therefore '
+                                   'not accessable through the public API.')

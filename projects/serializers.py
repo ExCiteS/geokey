@@ -34,3 +34,10 @@ class ProjectSerializer(FieldSelectorSerializer):
                   'everyonecontributes', 'created_at', 'views',
                   'observationtypes')
         read_only_fields = ('id', 'name')
+
+    def to_native(self, project):
+        native = super(ProjectSerializer, self).to_native(project)
+        request = self.context.get('request')
+        if request is not None:
+            native['can_contribute'] = project.can_contribute(request.user)
+        return native

@@ -130,7 +130,7 @@ class ProjectPublicApiTest(TestCase):
         response = self._get('/api/projects', self.admin)
         projects = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(projects), 5)
+        self.assertEqual(len(projects), 4)
         self.assertNotContains(response, self.deleted_project.name)
 
     def test_get_projects_with_contributor(self):
@@ -172,15 +172,14 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.private_project.name)
-        print response
+        self.assertContains(response, '"can_contribute": true')
 
     def test_get_inactive_project_with_admin(self):
         response = self._get(
             '/api/projects/' + str(self.inactive_project.id),
             self.admin
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, self.inactive_project.name)
+        self.assertEqual(response.status_code, 403)
 
     def test_get_public_project_with_admin(self):
         response = self._get(
@@ -189,6 +188,7 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.public_project.name)
+        self.assertContains(response, '"can_contribute": true')
 
     def test_get_deleted_project_with_contributor(self):
         response = self._get(
@@ -204,6 +204,7 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.private_project.name)
+        self.assertContains(response, '"can_contribute": true')
 
     def test_get_inactive_project_with_contributor(self):
         response = self._get(
@@ -219,11 +220,12 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.public_project.name)
+        self.assertContains(response, '"can_contribute": true')
 
     def test_get_deleted_project_with_view_member(self):
         response = self._get(
             '/api/projects/' + str(self.deleted_project.id),
-            self.contributor
+            self.view_member
         )
         self.assertEqual(response.status_code, 404)
 
@@ -234,6 +236,7 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.private_project.name)
+        self.assertContains(response, '"can_contribute": false')
 
     def test_get_inactive_project_with_view_member(self):
         response = self._get(
@@ -245,10 +248,11 @@ class ProjectPublicApiTest(TestCase):
     def test_get_public_project_with_view_member(self):
         response = self._get(
             '/api/projects/' + str(self.public_project.id),
-            self.contributor
+            self.view_member
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.public_project.name)
+        self.assertContains(response, '"can_contribute": false')
 
     def test_get_deleted_project_with_non_member(self):
         response = self._get(
@@ -278,3 +282,4 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.public_project.name)
+        self.assertContains(response, '"can_contribute": false')
