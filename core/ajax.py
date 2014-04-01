@@ -12,15 +12,15 @@ urlpatterns = patterns(
     # PROJECTS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)$',
+        r'^projects/(?P<project_id>[0-9]+)/$',
         project_views.ProjectApiDetail.as_view(),
         name='project'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users$',
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users/$',
         project_views.ProjectApiUserGroup.as_view(),
         name='project_usergroup'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users/(?P<user_id>[0-9]+)$',
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users/(?P<user_id>[0-9]+)/$',
         project_views.ProjectApiUserGroupUser.as_view(),
         name='project_usergroup_user'),
 
@@ -28,7 +28,7 @@ urlpatterns = patterns(
     # OBSERVATION TYPES
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)$',
+        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/$',
         observationtypes_views.ObservationTypeApiDetail.as_view(),
         name='project_observationtype'),
 
@@ -36,15 +36,15 @@ urlpatterns = patterns(
     # FIELDS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)$',
+        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/$',
         observationtypes_views.FieldApiDetail.as_view(),
         name='project_observationtype_field'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/lookupvalues$',
+        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/lookupvalues/$',
         observationtypes_views.FieldApiLookups.as_view(),
         name='project_observationtype_lookupvalues'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/lookupvalues/(?P<value_id>[0-9]+)$',
+        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/lookupvalues/(?P<value_id>[0-9]+)/$',
         observationtypes_views.FieldApiLookupsDetail.as_view(),
         name='project_observationtype_lookupvalues_detail'),
 
@@ -52,19 +52,19 @@ urlpatterns = patterns(
     # VIEWS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)$',
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/$',
         view_views.ViewApiDetail.as_view(),
         name='view'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)$',
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/$',
         view_views.ViewUserGroupApiDetail.as_view(),
         name='view_group'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users$',
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users/$',
         view_views.ViewUserGroupUsersApi.as_view(),
         name='view_group_users'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users/(?P<user_id>[0-9]+)$',
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users/(?P<user_id>[0-9]+)/$',
         view_views.ViewUserGroupUsersApiDetail.as_view(),
         name='view_group_users_user'),
 
@@ -72,12 +72,12 @@ urlpatterns = patterns(
     # APPS
     # ###########################
     url(
-        r'^apps/(?P<app_id>[0-9]+)$',
+        r'^apps/(?P<app_id>[0-9]+)/$',
         app_views.AppUpdateView.as_view(),
         name='app'),
 
     # ###########################
     # USER
     # ###########################
-    url(r'^users$', user_views.QueryUsers.as_view(), name='users_users'),
+    url(r'^users/$', user_views.QueryUsers.as_view(), name='users_users'),
 )

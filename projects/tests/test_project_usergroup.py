@@ -31,7 +31,7 @@ class ProjectUsergroupTest(TestCase):
         self.client.login(username=user.username, password='1')
         return self.client.post(
             '/ajax/projects/' + str(self.project.id) + '/usergroups/' +
-            str(group) + '/users',
+            str(group) + '/users/',
             json.dumps(data),
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             content_type='application/json'
@@ -42,7 +42,7 @@ class ProjectUsergroupTest(TestCase):
         return self.client.delete(
             '/ajax/projects/' + str(self.project.id) + '/usergroups/' +
             str(group) + '/users/' +
-            str(user_to_remove.id),
+            str(user_to_remove.id) + '/',
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             content_type='application/json'
         )

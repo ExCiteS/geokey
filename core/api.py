@@ -10,11 +10,11 @@ urlpatterns = patterns(
     # PROJECTS
     # ###########################
     url(
-        r'^projects$',
+        r'^projects/$',
         project_views.ProjectApiList.as_view(),
         name='project'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)$',
+        r'^projects/(?P<project_id>[0-9]+)/$',
         project_views.ProjectApiSingle.as_view(),
         name='project_single'),
 
@@ -23,11 +23,11 @@ urlpatterns = patterns(
     # ###########################
 
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observations$',
+        r'^projects/(?P<project_id>[0-9]+)/observations/$',
         contribution_views.Observations.as_view(),
         name='project_observations'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)$',
+        r'^projects/(?P<project_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)/$',
         contribution_views.SingleObservation.as_view(),
         name='project_single_observation'),
 
@@ -36,11 +36,11 @@ urlpatterns = patterns(
     # ###########################
 
     url(
-        r'^projects/(?P<project_id>[0-9]+)/locations$',
+        r'^projects/(?P<project_id>[0-9]+)/locations/$',
         contribution_views.Locations.as_view(),
         name='project_locations'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/locations/(?P<location_id>[0-9]+)$',
+        r'^projects/(?P<project_id>[0-9]+)/locations/(?P<location_id>[0-9]+)/$',
         contribution_views.SingleLocation.as_view(),
         name='project_single_location'),
 
@@ -52,7 +52,7 @@ urlpatterns = patterns(
     # OBSERVATION TYPES
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)$',
+        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/$',
         observationtype_views.ObservationTypeApiSingle.as_view(),
         name='project_observation_types'),
 )

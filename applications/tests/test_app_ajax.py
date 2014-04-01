@@ -39,7 +39,7 @@ class ApplicationAjaxTest(TestCase):
 
     def test_update_descrtiption_with_creator(self):
         response = self._put(
-            '/ajax/apps/' + str(self.application.id),
+            '/ajax/apps/' + str(self.application.id) + '/',
             {'description': 'bockwurst'},
             self.creator
         )
@@ -51,7 +51,7 @@ class ApplicationAjaxTest(TestCase):
 
     def test_update_descrtiption_with_user(self):
         response = self._put(
-            '/ajax/apps/' + str(self.application.id),
+            '/ajax/apps/' + str(self.application.id) + '/',
             {'description': 'bockwurst'},
             self.user
         )
@@ -64,7 +64,7 @@ class ApplicationAjaxTest(TestCase):
     @raises(Application.DoesNotExist)
     def test_delete_with_creator(self):
         response = self._delete(
-            '/ajax/apps/' + str(self.application.id),
+            '/ajax/apps/' + str(self.application.id) + '/',
             self.creator
         )
         self.assertEqual(response.status_code, 204)
@@ -72,7 +72,7 @@ class ApplicationAjaxTest(TestCase):
 
     def test_delete_with_user(self):
         response = self._delete(
-            '/ajax/apps/' + str(self.application.id),
+            '/ajax/apps/' + str(self.application.id) + '/',
             self.user
         )
         self.assertEqual(response.status_code, 403)

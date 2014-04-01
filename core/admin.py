@@ -19,15 +19,15 @@ urlpatterns = patterns(
     # PROJECTS
     # ###########################
     url(
-        r'^projects/new$',
+        r'^projects/new/$',
         project_views.ProjectAdminCreateView.as_view(),
         name='project_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)$',
+        r'^projects/(?P<project_id>[0-9]+)/$',
         project_views.ProjectAdminSettings.as_view(),
         name='project_settings'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/data$',
+        r'^projects/(?P<project_id>[0-9]+)/data/$',
         project_views.ProjectAdminDetailView.as_view(),
         name='project_detail'),
 
@@ -35,11 +35,11 @@ urlpatterns = patterns(
     # OBSERVATION TYPES
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/new$',
+        r'^projects/(?P<project_id>[0-9]+)/observationtypes/new/$',
         observationtype_views.ObservationTypeAdminCreateView.as_view(),
         name='observationtype_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)$',
+        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/$',
         observationtype_views.ObservationTypeAdminDetailView.as_view(),
         name='observationtype_detail'),
 
@@ -47,11 +47,11 @@ urlpatterns = patterns(
     # FIELDS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/new$',
+        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/new/$',
         observationtype_views.FieldAdminCreateView.as_view(),
         name='observationtype_field_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)$',
+        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/$',
         observationtype_views.FieldAdminDetailView.as_view(),
         name='observationtype_field_detail'),
 
@@ -59,23 +59,23 @@ urlpatterns = patterns(
     # VIEWS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/new$',
+        r'^projects/(?P<project_id>[0-9]+)/views/new/$',
         view_views.ViewAdminCreateView.as_view(),
         name='view_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)$',
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/$',
         view_views.ViewAdminSettingsView.as_view(),
         name='view_settings'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/data$',
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/data/$',
         view_views.ViewAdminDataView.as_view(),
         name='view_data'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/new$',
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/new/$',
         view_views.ViewGroupAdminCreateView.as_view(),
         name='view_group_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)$',
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/$',
         view_views.ViewGroupAdminSettingsView.as_view(),
         name='view_group_settings'),
 
@@ -84,11 +84,11 @@ urlpatterns = patterns(
     # ###########################
 
     url(
-        r'^apps/register$',
+        r'^apps/register/$',
         app_views.AppCreateView.as_view(),
         name='app_register'),
     url(
-        r'^apps/(?P<app_id>[0-9]+)$',
+        r'^apps/(?P<app_id>[0-9]+)/$',
         app_views.AppSettingsView.as_view(),
         name='app_settings'),
 )

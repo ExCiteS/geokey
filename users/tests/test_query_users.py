@@ -8,7 +8,7 @@ from .model_factories import UserF
 class QueryUsersTest(TestCase):
     def _get(self, query):
         # self.client.login(username=user.username, password='123456')
-        return self.client.get('/ajax/users?query=' + query)
+        return self.client.get('/ajax/users/?query=' + query)
 
     def setUp(self):
         UserF.create(**{

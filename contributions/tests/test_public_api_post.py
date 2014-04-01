@@ -89,7 +89,7 @@ class ProjectPublicApiTest(TestCase):
     def _post(self, url, data, user):
         auth_headers = self._get_auth_headers(user)
         return self.client.post(
-            url,
+            url + '/',
             json.dumps(data),
             content_type='application/json', **auth_headers
         )

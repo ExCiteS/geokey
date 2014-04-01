@@ -124,7 +124,7 @@ class ProjectPublicApiTest(TestCase):
             'HTTP_AUTHORIZATION': 'Bearer '
             '' + json.loads(token.content).get('access_token'),
         }
-        return self.client.get(url, **auth_headers)
+        return self.client.get(url + '/', **auth_headers)
 
     def test_get_projects_with_admin(self):
         response = self._get('/api/projects', self.admin)

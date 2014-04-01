@@ -10,14 +10,18 @@ class ProjectQuerySet(models.query.QuerySet):
     Returns the queryset of all projects that the user is allowed to access.
     """
     def for_user(self, user):
-        return self.filter(
-            Q(admins__users=user) |
-            (
-                Q(status=STATUS.active) &
-                (Q(isprivate=False) | Q(contributors__users=user) |
-                    Q(views__viewgroups__users=user))
-            )
-        ).distinct()
+        if user.is_anonymous():
+            return self.filter(
+                Q(status=STATUS.active) & Q(isprivate=False)).distinct()
+        else:
+            return self.filter(
+                Q(admins__users=user) |
+                (
+                    Q(status=STATUS.active) &
+                    (Q(isprivate=False) | Q(contributors__users=user) |
+                        Q(views__viewgroups__users=user))
+                )
+            ).distinct()
 
 
 class ProjectManager(models.Manager):

@@ -33,13 +33,6 @@ def handle_exceptions_for_admin(func):
 
 def handle_exceptions_for_ajax(func):
     def wrapped(*args, **kwargs):
-        # Check if user is logged in
-        if args[1].user.is_anonymous():
-            return Response(
-                {"error": "You are not logged in. We were unable to " +
-                    "authorise your request"},
-                status=status.HTTP_403_FORBIDDEN
-            )
         try:
             return func(*args, **kwargs)
         except PermissionDenied, error:

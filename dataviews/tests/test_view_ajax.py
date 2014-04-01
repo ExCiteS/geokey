@@ -33,7 +33,7 @@ class ViewAjaxTest(TestCase):
     def _put(self, url, data, user):
         self.client.login(username=user.username, password='1')
         return self.client.put(
-            url,
+            url + '/',
             json.dumps(data),
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             content_type='application/json'
@@ -42,7 +42,7 @@ class ViewAjaxTest(TestCase):
     def _delete(self, url, user):
         self.client.login(username=user.username, password='1')
         return self.client.delete(
-            url,
+            url + '/',
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             content_type='application/json'
         )

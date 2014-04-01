@@ -91,7 +91,7 @@ class ProjectPublicApiTest(TestCase):
     def _put(self, url, data, user):
         auth_headers = self._get_auth_headers(user)
         return self.client.put(
-            url,
+            url + '/',
             json.dumps(data),
             content_type='application/json', **auth_headers
         )
@@ -99,7 +99,7 @@ class ProjectPublicApiTest(TestCase):
     def _delete(self, url, user):
         auth_headers = self._get_auth_headers(user)
         return self.client.delete(
-            url,
+            url + '/',
             content_type='application/json', **auth_headers
         )
 

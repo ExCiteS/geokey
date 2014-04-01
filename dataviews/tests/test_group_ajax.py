@@ -39,7 +39,7 @@ class ViewGroupAjaxTest(TestCase):
     def _post(self, url, data, user):
         self.client.login(username=user.username, password='1')
         return self.client.post(
-            url,
+            url + '/',
             json.dumps(data),
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             content_type='application/json'
@@ -48,7 +48,7 @@ class ViewGroupAjaxTest(TestCase):
     def _put(self, url, data, user):
         self.client.login(username=user.username, password='1')
         return self.client.put(
-            url,
+            url + '/',
             json.dumps(data),
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             content_type='application/json'
@@ -57,7 +57,7 @@ class ViewGroupAjaxTest(TestCase):
     def _delete(self, url, user):
         self.client.login(username=user.username, password='1')
         return self.client.delete(
-            url,
+            url + '/',
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             content_type='application/json'
         )
