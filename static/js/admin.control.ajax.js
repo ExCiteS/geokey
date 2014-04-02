@@ -56,6 +56,13 @@
      * @param  {Object}   data            Optional. Data to be send with the request body
      */
     function request(url, method, successCallback, errorCallback, data) {
+        // Append a forward slash to the URL if not present. Needed for POST
+        // requests to Django as the forward to the corrent URL drops the POST
+        // data.
+        if (url.indexOf('?') === -1 && url[url.length -1] !== '/') {
+            url = url + '/';
+        }
+
         $.ajax({
             url: baseUrl + url,
             method: method,

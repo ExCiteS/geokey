@@ -49,7 +49,7 @@ class ObservationTypeAdminCreateView(LoginRequiredMixin, CreateView):
             ObservationTypeAdminCreateView, self).get_context_data(**kwargs)
 
         context['project'] = Project.objects.as_admin(
-            self.request.user, pk=project_id
+            self.request.user, project_id
         )
         return context
 
@@ -72,7 +72,7 @@ class ObservationTypeAdminCreateView(LoginRequiredMixin, CreateView):
         type.
         """
         project_id = self.kwargs['project_id']
-        project = Project.objects.as_admin(self.request.user, pk=project_id)
+        project = Project.objects.as_admin(self.request.user, project_id)
         form.instance.project = project
 
         return super(ObservationTypeAdminCreateView, self).form_valid(form)
