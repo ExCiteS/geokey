@@ -95,9 +95,9 @@ class TextField(Field):
         checking if the provided value is of type `String`.
         Returns `True` or `False`.
         """
-        if not isinstance(value, basestring):
-            raise InputError('The input value for text field is not a valid '
-                             'string.')
+        return True
+        # raise InputError('The input value for text field %s is not a valid'
+        #                  ' string.' % self.name)
 
 
 class NumericField(Field):
@@ -207,7 +207,7 @@ class LookupField(Field):
 
         if not valid:
             raise InputError('The value for lookup field %s is not an '
-                             'accepted value for the field' % self.name)
+                             'accepted value for the field.' % self.name)
 
     def convert_from_string(self, value):
         """

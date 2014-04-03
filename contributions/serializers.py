@@ -71,12 +71,9 @@ class ContributionSerializer(object):
 
         # Extract the information from the data dictionary
         properties = data.get('properties')
-        try:
-            location_data = properties.pop('location')
-            observationtype_id = properties.pop('observationtype')
-            project_id = properties.pop('project')
-        except KeyError:
-            pass
+
+        observationtype_id = properties.pop('observationtype')
+        project_id = properties.pop('project')
 
         if instance is None:
             #Create a new contribution from the GeoJSON data
@@ -92,26 +89,33 @@ class ContributionSerializer(object):
                                            'used with the project or does not '
                                            'exist.')
 
-            if 'id' in location_data:
-                try:
-                    location = Location.objects.get_single(
-                        creator,
-                        project_id,
-                        location_data.get('id')
+            try:
+                location_data = properties.pop('location')
+                if 'id' in location_data:
+                    try:
+                        location = Location.objects.get_single(
+                            creator,
+                            project_id,
+                            location_data.get('id')
+                        )
+                    except PermissionDenied, error:
+                        raise MalformedRequestData(error)
+                else:
+                    location = Location.objects.create(
+                        name=location_data.get('name'),
+                        description=location_data.get('description'),
+                        geometry=GEOSGeometry(
+                            json.dumps(data.get('geometry'))
+                        ),
+                        creator=creator,
+                        private=location_data.get('private'),
+                        private_for_project=location_data.get(
+                            'private_for_project')
                     )
-                except PermissionDenied, error:
-                    raise MalformedRequestData(error)
-            else:
+            except KeyError:
                 location = Location.objects.create(
-                    name=location_data.get('name'),
-                    description=location_data.get('description'),
-                    geometry=GEOSGeometry(
-                        json.dumps(data.get('geometry'))
-                    ),
-                    creator=creator,
-                    private=location_data.get('private'),
-                    private_for_project=location_data.get(
-                        'private_for_project')
+                    geometry=GEOSGeometry(json.dumps(data.get('geometry'))),
+                    creator=creator
                 )
 
             observation = Observation.create(
