@@ -72,11 +72,10 @@ class ContributionSerializer(object):
         # Extract the information from the data dictionary
         properties = data.get('properties')
 
-        observationtype_id = properties.pop('observationtype')
-        project_id = properties.pop('project')
-
         if instance is None:
             #Create a new contribution from the GeoJSON data
+            project_id = properties.pop('project')
+            observationtype_id = properties.pop('observationtype')
             project = Project.objects.as_contributor(creator, project_id)
             try:
                 observationtype = ObservationType.objects.get_single(
