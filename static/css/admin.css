@@ -150,6 +150,22 @@ div.page-header .breadcrumb > li + li:before {
 			margin: 5px 0 0 0;
 		}
 
+div.page-header div.stats {
+	margin-top: 20px;
+}
+
+	div.page-header div.stats a {
+		text-decoration: none;
+	}
+
+		div.page-header div.stats span.number {
+			font-size: 4em;
+			font-weight: bold;
+			line-height: 1;
+			display: block;
+			text-align: right;
+		}
+
 div#map {
 	height: 300px;
 }
