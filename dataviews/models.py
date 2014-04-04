@@ -19,6 +19,15 @@ class View(models.Model):
 
     objects = ViewManager()
 
+    @property
+    def data(self):
+        querysets = []
+        for rule in self.rules.all():
+            querysets.append(self.project.observations.filter(
+                observationtype=rule.observation_type))
+
+        return [item for sublist in querysets for item in sublist]
+
     def delete(self):
         """
         Deletes the view by setting its status to DELETED.
