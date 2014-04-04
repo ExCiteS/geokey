@@ -32,6 +32,18 @@
 
 		<div class="container">
 			<div class="row">
+				<div class="col-sm-12">
+					<ul class="nav nav-tabs">
+						<li class="active"><a href="#users" data-toggle="tab">Usergroups</a></li>
+						<li><a href="#rules" data-toggle="tab">Filter definitions</a></li>
+						<li><a href="#general-settings" data-toggle="tab">General</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="container tab-content">
+			<div class="row tab-pane active" id="users">
 				<div class="col-md-12">
 					<div class="panel panel-default"> <!-- User group list -->
 						<div class="panel-heading">
@@ -71,8 +83,26 @@
 				</div>
 			</div>
 
-			<div class="row" id="general-settings">
-				<div class="col-md-6">
+			<div class="row tab-pane" id="rules">
+				<div class="col-md-12">
+					<div class="panel panel-default"> <!-- User group list -->
+						<div class="panel-heading">
+							<h2 class="panel-title">Filter definitions</h2>
+						</div>
+						<ul class="list-group">
+							{% for rule in view.rules.all %}
+                                <li class="list-group-item">{{rule.observation_type.name}}</li>
+                            {% endfor %}
+						</ul>
+						<div class="panel-footer">
+							<a href="{% url 'admin:view_rule_create' view.project.id view.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Define new filter</a>
+						</div>
+					</div> <!-- /Filter definition List -->
+				</div>
+			</div>
+
+			<div class="row tab-pane" id="general-settings">
+				<div class="col-sm-8 col-sm-offset-2">
 					<div class="panel panel-danger">
 						<div class="panel-heading">
 							<h2 class="panel-title">Delete view</h2>

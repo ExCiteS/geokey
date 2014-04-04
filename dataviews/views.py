@@ -1,6 +1,7 @@
 from django.views.generic import CreateView, TemplateView
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.shortcuts import redirect
 
 from braces.views import LoginRequiredMixin
 
@@ -13,14 +14,21 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from projects.models import Project
+from observationtypes.models import ObservationType
 
 from .base import STATUS
 from .forms import ViewCreateForm, ViewGroupCreateForm
-from .models import View, ViewGroup
+from .models import View, ViewGroup, Rule
 from .serializers import (
     ViewSerializer, ViewGroupSerializer
 )
 
+
+# ############################################################################
+#
+# Administration views
+#
+# ############################################################################
 
 class ViewAdminCreateView(LoginRequiredMixin, CreateView):
     """
@@ -47,7 +55,7 @@ class ViewAdminCreateView(LoginRequiredMixin, CreateView):
             ViewAdminCreateView, self).get_context_data(**kwargs)
 
         context['project'] = Project.objects.as_admin(
-            self.request.user, pk=project_id
+            self.request.user, project_id
         )
         return context
 
@@ -57,7 +65,7 @@ class ViewAdminCreateView(LoginRequiredMixin, CreateView):
         type.
         """
         project_id = self.kwargs['project_id']
-        project = Project.objects.as_admin(self.request.user, pk=project_id)
+        project = Project.objects.as_admin(self.request.user, project_id)
 
         form.instance.project = project
         form.instance.creator = self.request.user
@@ -93,35 +101,6 @@ class ViewAdminDataView(LoginRequiredMixin, TemplateView):
             'admin': view.project.is_admin(user),
             'project_views': project_views
         }
-
-
-class ViewApiDetail(APIView):
-    """
-    API Endpoints for a view in the AJAX API.
-    /ajax/projects/:project_id/views/:view_id
-    """
-    @handle_exceptions_for_ajax
-    def put(self, request, project_id, view_id, format=None):
-        """
-        Updates a view
-        """
-        view = View.objects.as_admin(request.user, project_id, view_id)
-        serializer = ViewSerializer(view, data=request.DATA, partial=True)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @handle_exceptions_for_ajax
-    def delete(self, request, project_id, view_id, format=None):
-        """
-        Deletes a view
-        """
-        view = View.objects.as_admin(request.user, project_id, view_id)
-        view.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ViewGroupAdminCreateView(LoginRequiredMixin, CreateView):
@@ -166,9 +145,10 @@ class ViewGroupAdminCreateView(LoginRequiredMixin, CreateView):
         """
         project_id = self.kwargs['project_id']
         view_id = self.kwargs['view_id']
-        view = View.objects.as_admin(self.request.user, project_id, view_id)
 
+        view = View.objects.as_admin(self.request.user, project_id, view_id)
         form.instance.view = view
+
         return super(ViewGroupAdminCreateView, self).form_valid(form)
 
 
@@ -192,6 +172,44 @@ class ViewGroupAdminSettingsView(LoginRequiredMixin, TemplateView):
         )
         return context
 
+
+class RuleCreateView(LoginRequiredMixin, CreateView):
+    """
+    Displays the rule create page
+    """
+    template_name = 'views/view_rule_create.html'
+    model = Rule
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, form, **kwargs):
+        project_id = self.kwargs['project_id']
+        view_id = self.kwargs['view_id']
+
+        context = super(
+            RuleCreateView, self).get_context_data(**kwargs)
+
+        context['view'] = View.objects.as_admin(
+            self.request.user, project_id, view_id
+        )
+        return context
+
+    @handle_exceptions_for_admin
+    def post(self, request, project_id, view_id):
+        view = View.objects.as_admin(self.request.user, project_id, view_id)
+        observation_type = ObservationType.objects.as_admin(
+            self.request.user, project_id, request.POST.get('observationtype'))
+
+        Rule.objects.create(view=view, observation_type=observation_type)
+
+        return redirect('admin:view_settings',
+                        project_id=project_id, view_id=view_id)
+
+
+# ############################################################################
+#
+# AJAX API views
+#
+# ############################################################################
 
 class ViewUserGroupApiDetail(APIView):
     """
@@ -266,4 +284,39 @@ class ViewUserGroupUsersApiDetail(APIView):
 
         user = group.users.get(pk=user_id)
         group.users.remove(user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# ############################################################################
+#
+# Public API views
+#
+# ############################################################################
+
+class ViewApiDetail(APIView):
+    """
+    API Endpoints for a view in the AJAX API.
+    /ajax/projects/:project_id/views/:view_id
+    """
+    @handle_exceptions_for_ajax
+    def put(self, request, project_id, view_id, format=None):
+        """
+        Updates a view
+        """
+        view = View.objects.as_admin(request.user, project_id, view_id)
+        serializer = ViewSerializer(view, data=request.DATA, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, view_id, format=None):
+        """
+        Deletes a view
+        """
+        view = View.objects.as_admin(request.user, project_id, view_id)
+        view.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

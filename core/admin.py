@@ -78,6 +78,10 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/$',
         view_views.ViewGroupAdminSettingsView.as_view(),
         name='view_group_settings'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/rules/new/$',
+        view_views.RuleCreateView.as_view(),
+        name='view_rule_create'),
 
     # ###########################
     # APPS

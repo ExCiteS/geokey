@@ -45,3 +45,9 @@ class ViewGroupManager(models.Manager):
     def as_admin(self, user, project_id, view_id, group_id):
         project = Project.objects.as_admin(user, project_id)
         return project.views.get(pk=view_id).viewgroups.get(pk=group_id)
+
+
+class RuleManager(models.Manager):
+    def get_query_set(self):
+        return super(RuleManager, self).get_query_set().exclude(
+            status=STATUS.deleted)

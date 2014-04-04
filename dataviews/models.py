@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 
 from .base import STATUS
-from .manager import ViewManager, ViewGroupManager
+from .manager import ViewManager, ViewGroupManager, RuleManager
 
 
 class View(models.Model):
@@ -22,6 +22,25 @@ class View(models.Model):
     def delete(self):
         """
         Deletes the view by setting its status to DELETED.
+        """
+        self.status = STATUS.deleted
+        self.save()
+
+
+class Rule(models.Model):
+    view = models.ForeignKey('View', related_name='rules')
+    observation_type = models.ForeignKey('observationtypes.ObservationType')
+    status = models.CharField(
+        choices=STATUS,
+        default=STATUS.active,
+        max_length=20
+    )
+
+    objects = RuleManager()
+
+    def delete(self):
+        """
+        Deletes the Filter by setting its status to DELETED.
         """
         self.status = STATUS.deleted
         self.save()
