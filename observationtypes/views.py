@@ -172,6 +172,13 @@ class ObservationTypeApiDetail(APIView):
     API Endpoints for a observationtype in the AJAX API.
     /ajax/projects/:project_id/observationtypes/:observationtype_id
     """
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, observationtype_id, format=None):
+        observation_type = ObservationType.objects.as_admin(
+            request.user, project_id, observationtype_id)
+
+        serializer = ObservationTypeSerializer(observation_type)
+        return Response(serializer.data)
 
     @handle_exceptions_for_ajax
     def put(self, request, project_id, observationtype_id, format=None):

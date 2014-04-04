@@ -22,78 +22,7 @@
 
 		<div class="container">
 			<div class="row">
-				<div class="col-lg-12">
-					<div id="map"></div>
-				</div>
-			</div>
-
-			<div class="row">
-				<div class="col-sm-7">
-					<div class="panel panel-default"> <!-- View list -->
-						<div class="panel-heading">
-							<h2 class="panel-title">Feature info</h2>
-						</div>
-						<div class="panel-body bordered-panel">
-							<!-- Nav tabs -->
-							<ul class="nav nav-tabs">
-								<li class="active"><a href="#feature_info" data-toggle="tab">Info</a></li>
-								<li><a href="#feature_observations" data-toggle="tab">Observations <span class="badge">5</span></a></li>
-								<li><a href="#feature_comments" data-toggle="tab">Comments <span class="badge">3</span></a></li>
-							</ul>
-
-							<!-- Tab panes -->
-							<div class="tab-content">
-								<div class="tab-pane active" id="feature_info">
-									<h4>Info</h4>
-								</div>
-								<div class="tab-pane" id="feature_observations">
-									<h4>Observations</h4>
-								</div>
-								<div class="tab-pane" id="feature_comments">
-									<ol class="list-unstyled comments">
-										<li>
-											<header><span class="glyphicon glyphicon-comment"></span><a href="#">Peter Scheichel</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
-											<p>This is a really cool place, but it's rather expensive. But I like it though.</p>
-
-											<ol class="list-unstyled comments">
-												<li>
-													<header><span class="glyphicon glyphicon-comment"></span><a href="#">Carlos Valderama</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
-													<p>What? That place sucks. Coffee is really really bad. And the waiter is ugly.</p>
-												</li>
-											</ol>
-										</li>
-										<li>
-											<header><span class="glyphicon glyphicon-comment"></span><a href="#">George Best</a> commented <time datetime="2010-12-16T11:15Z">Two hours ago</time></header>
-											<p>The toilet just stinks. </p>
-										</li>
-									</ol>
-								</div>
-							</div>
-						</div>
-					</div> <!-- /View List -->
-				</div>
-
-				<div class="col-sm-5">
-					<div class="panel panel-default"> <!-- View list -->
-						<div class="panel-heading">
-							<h2 class="panel-title">Filter data by view</h2>
-						</div>
-						<div class="list-group">
-							{% if admin %}
-							<a class="list-group-item" href="{% url 'admin:project_detail' view.project.id %}">
-								<h4 class="list-group-item-heading">All data</h4>
-								<p class="list-group-item-text">Displays all data contributed to the project.</p>
-							</a>
-							{% endif %}
-							{% for view_item in project_views %}
-							<a class="list-group-item {% if view_item.id == view.id %} active {% endif %}" href="{% url 'admin:view_data' view.project.id view_item.id %}">
-								<h4 class="list-group-item-heading">{{ view_item.name }}</h4>
-								<p class="list-group-item-text">{{ view_item.description }}</p>
-							</a>
-							{% endfor %}
-						</div>
-					</div> <!-- /View List -->
-				</div>
+				<div id="map" class="col-sm-12"></div>
 			</div>
 		</div>
 {% endblock %}
@@ -107,9 +36,9 @@
 			<script src="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.js"></script>
 		<!-- /LEAFLET -->
 
+		<script src="/static/lib/moment/moment.min.js"></script>
 		<!-- CUSTOM SPECIALS-->
 			<script src="/static/js/admin.control.ajax.js"></script>
 			<script src="/static/js/admin.ui.map.js"></script>
-			<script src="/static/js/admin.ui.map.data.js"></script>
 		<!-- /CUSTOM SPECIALS-->
 {% endblock %}

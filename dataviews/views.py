@@ -290,7 +290,7 @@ class ViewUserGroupUsersApiDetail(APIView):
 
 class ViewApiData(APIView):
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, view_id):
+    def get(self, request, project_id, view_id, format=None):
         """
         Returns all data in a view
         /ajax/projects/:project_id/views/:view_id/data

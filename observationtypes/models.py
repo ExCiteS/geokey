@@ -83,6 +83,13 @@ class Field(models.Model):
         """
         return value
 
+    @property
+    def fieldtype(self):
+        raise NotImplementedError(
+            'The property `type` has not been implemented for this '
+            'child class of Field.'
+        )
+
 
 class TextField(Field):
     """
@@ -98,6 +105,10 @@ class TextField(Field):
         return True
         # raise InputError('The input value for text field %s is not a valid'
         #                  ' string.' % self.name)
+
+    @property
+    def fieldtype(self):
+        return 'text'
 
 
 class NumericField(Field):
@@ -147,6 +158,10 @@ class NumericField(Field):
         except ValueError:
             return float(value)
 
+    @property
+    def fieldtype(self):
+        return 'numeric'
+
 
 class TrueFalseField(Field):
     """
@@ -171,6 +186,10 @@ class TrueFalseField(Field):
         else:
             return False
 
+    @property
+    def fieldtype(self):
+        return 'truefalse'
+
 
 class DateTimeField(Field):
     """
@@ -188,6 +207,10 @@ class DateTimeField(Field):
         except iso8601.iso8601.ParseError:
             raise InputError('The value for DateTimeField %s is not a valid '
                              'date.' % self.name)
+
+    @property
+    def fieldtype(self):
+        return 'date'
 
 
 class LookupField(Field):
@@ -214,6 +237,10 @@ class LookupField(Field):
         Returns the `value` of the field in `int` format.
         """
         return int(value)
+
+    @property
+    def fieldtype(self):
+        return 'lookup'
 
 
 class LookupValue(models.Model):

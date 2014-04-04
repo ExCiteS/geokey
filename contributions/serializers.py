@@ -4,7 +4,6 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.core.exceptions import PermissionDenied
 
 from rest_framework import serializers
-from rest_framework.renderers import JSONRenderer
 from rest_framework_gis import serializers as geoserializers
 
 from core.exceptions import MalformedRequestData
@@ -172,7 +171,7 @@ class ContributionSerializer(object):
             for observation in self.instance:
                 json_object['features'].append(
                     self._serialize_instance(observation))
-        else:
-            json_object = self._serialize_instance(self.instance)
 
-        return JSONRenderer().render(json_object)
+            return json_object
+        else:
+            return self._serialize_instance(self.instance)

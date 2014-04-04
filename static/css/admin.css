@@ -167,7 +167,11 @@ div.page-header div.stats {
 		}
 
 div#map {
-	height: 300px;
+	height: 500px;
+	transition: width 0.2s ease;
+	-moz-transition: width 0.2s ease; /* Firefox 4 */
+	-webkit-transition: width 0.2s ease; /* Safari and Chrome */
+	-o-transition: width 0.2s ease;
 }
 
 .panel-title + p {

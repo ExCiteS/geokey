@@ -12,10 +12,14 @@ class FieldSerializer(serializers.ModelSerializer):
     Serializer for fields.
     Used in .views.FieldApiDetail
     """
+    fieldtype = serializers.Field()
+
     class Meta:
         model = Field
         depth = 1
-        fields = ('id', 'name', 'key', 'description', 'status', 'required')
+        fields = (
+            'id', 'name', 'key', 'fieldtype', 'description', 'status', 'required'
+        )
         read_only_fields = ('id', 'name', 'key')
 
 
@@ -24,11 +28,13 @@ class NumericFieldSerializer(serializers.ModelSerializer):
     Serializer for numeric fields.
     Used in .views.FieldApiDetail
     """
+    fieldtype = serializers.Field()
+
     class Meta:
         model = NumericField
         depth = 1
         fields = (
-            'id', 'name', 'key', 'description', 'status', 'required',
+            'id', 'name', 'key', 'fieldtype', 'description', 'status', 'required',
             'minval', 'maxval'
         )
         read_only_fields = ('id', 'name', 'key')
@@ -52,12 +58,13 @@ class LookupFieldSerializer(serializers.ModelSerializer):
     Used in .views.FieldApiLookups
     """
     lookupvalues = LookupValueSerializer(many=True, read_only=True)
+    fieldtype = serializers.Field()
 
     class Meta:
         model = LookupField
         depth = 1
         fields = (
-            'id', 'name', 'key', 'description', 'status', 'required',
+            'id', 'name', 'key', 'fieldtype', 'description', 'status', 'required',
             'lookupvalues'
         )
         read_only_fields = ('id', 'name', 'key')
