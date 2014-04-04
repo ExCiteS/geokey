@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+{% block bodydata %} data-project-id="{{view.project.id}}" data-view-id="{{view.id}}"{% endblock %}
 {% block title %} | View: {{view.name}}{% endblock %}
 
 {% block main %}
@@ -15,16 +16,11 @@
 				<h1>{{view.name}} </h1>
 				<p class="lead">
 					{% if view.description %} {{view.description}} {% endif %}
-
-					{% if admin %}
-						<a href="{% url 'view_settings' view.project.id view.id %}" class="btn btn-link"><span class="glyphicon glyphicon-cog"></span> Settings</a>
-					{% endif %}
 				</p>
 			</div>
 		</div>
 
 		<div class="container">
-			<div class="alert alert-danger">This is hard coded dummy page. No actual data is shown here.</div>
 			<div class="row">
 				<div class="col-lg-12">
 					<div id="map"></div>
@@ -96,11 +92,6 @@
 							</a>
 							{% endfor %}
 						</div>
-						{% if admin %}
-						<div class="panel-footer">
-							<a href="{% url 'view_create' view.project.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new view</a>
-						</div>
-						{% endif %}
 					</div> <!-- /View List -->
 				</div>
 			</div>
@@ -117,6 +108,8 @@
 		<!-- /LEAFLET -->
 
 		<!-- CUSTOM SPECIALS-->
+			<script src="/static/js/admin.control.ajax.js"></script>
 			<script src="/static/js/admin.ui.map.js"></script>
+			<script src="/static/js/admin.ui.map.data.js"></script>
 		<!-- /CUSTOM SPECIALS-->
 {% endblock %}

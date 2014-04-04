@@ -54,7 +54,7 @@ class ContributionSerializer(object):
     conterparts.
     """
 
-    def __init__(self, instance=None, data=None, creator=None):
+    def __init__(self, instance=None, data=None, creator=None, many=False):
         """
         Creates a new serializer by deserializing the data dictionary.
 
@@ -68,9 +68,11 @@ class ContributionSerializer(object):
         creator : User
            The user signed in with the request
         """
+        self.many = many
 
         # Extract the information from the data dictionary
-        properties = data.get('properties')
+        if not self.many:
+            properties = data.get('properties')
 
         if instance is None:
             #Create a new contribution from the GeoJSON data
@@ -126,24 +128,24 @@ class ContributionSerializer(object):
             )
             self.instance = observation
         else:
-            # Update the existing contribution
             self.instance = instance
-            self.instance.update(data=properties, creator=creator)
+            # Update the existing contribution
+            if not self.many and data is not None:
+                self.instance.update(data=properties, creator=creator)
 
-    @property
-    def data(self):
+    def _serialize_instance(self, instance):
         """
         Serializes the instance into a GeoJSON format
         """
         location_serializer = LocationContributionSerializer(
-            self.instance.location)
-        observation_serializer = ObservationSerializer(self.instance)
+            instance.location)
+        observation_serializer = ObservationSerializer(instance)
         observation_data_serializer = ObservationDataSerializer(
-            self.instance.current_data)
+            instance.current_data)
         json_object = {
-            'id': self.instance.id,
+            'id': instance.id,
             'type': 'Feature',
-            'geometry': json.loads(self.instance.location.geometry.geojson),
+            'geometry': json.loads(instance.location.geometry.geojson),
             'properties': {}
         }
 
@@ -153,9 +155,24 @@ class ContributionSerializer(object):
         )
         json_object['properties']['location'] = location_serializer.data
 
-        for field in self.instance.observationtype.fields.all():
+        for field in instance.observationtype.fields.all():
             json_object['properties'][field.key] = field.convert_from_string(
-                self.instance.current_data.attributes.get(field.key)
+                instance.current_data.attributes.get(field.key)
             )
+
+        return json_object
+
+    @property
+    def data(self):
+        if self.many:
+            json_object = {
+                "type": "FeatureCollection",
+                "features": []
+            }
+            for observation in self.instance:
+                json_object['features'].append(
+                    self._serialize_instance(observation))
+        else:
+            json_object = self._serialize_instance(self.instance)
 
         return JSONRenderer().render(json_object)

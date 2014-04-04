@@ -56,6 +56,10 @@ urlpatterns = patterns(
         view_views.ViewApiDetail.as_view(),
         name='view'),
     url(
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/data/$',
+        view_views.ViewApiData.as_view(),
+        name='view_data'),
+    url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/$',
         view_views.ViewUserGroupApiDetail.as_view(),
         name='view_group'),

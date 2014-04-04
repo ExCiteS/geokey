@@ -15,6 +15,7 @@ from rest_framework.response import Response
 
 from projects.models import Project
 from observationtypes.models import ObservationType
+from contributions.serializers import ContributionSerializer
 
 from .base import STATUS
 from .forms import ViewCreateForm, ViewGroupCreateForm
@@ -285,6 +286,18 @@ class ViewUserGroupUsersApiDetail(APIView):
         user = group.users.get(pk=user_id)
         group.users.remove(user)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ViewApiData(APIView):
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, view_id):
+        """
+        Returns all data in a view
+        /ajax/projects/:project_id/views/:view_id/data
+        """
+        view = View.objects.get_single(request.user, project_id, view_id)
+        serializer = ContributionSerializer(view.data, many=True)
+        return Response(serializer.data)
 
 
 # ############################################################################
