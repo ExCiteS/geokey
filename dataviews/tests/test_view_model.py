@@ -4,10 +4,12 @@ from django.core.exceptions import PermissionDenied
 from nose.tools import raises
 
 from projects.tests.model_factories import UserF, UserGroupF, ProjectF
+from observationtypes.tests.model_factories import ObservationTypeFactory
+from contributions.tests.model_factories import ObservationFactory
 
-from ..models import View
+from ..models import View, Rule
 
-from .model_factories import ViewFactory, ViewGroupFactory
+from .model_factories import ViewFactory, ViewGroupFactory, RuleFactory
 
 
 class ViewTest(TestCase):
@@ -107,3 +109,74 @@ class ViewTest(TestCase):
     def test_get_single_view_as_admin_with_non_member(self):
         View.objects.as_admin(
             self.non_member, self.project.id, self.view1.id)
+
+    @raises(Rule.DoesNotExist)
+    def test_delete_rules(self):
+        rule = RuleFactory()
+        rule.delete()
+        self.assertEqual(rule.status, 'deleted')
+        Rule.objects.get(pk=rule.id)
+
+    def test_get_rules(self):
+        RuleFactory(**{
+            'status': 'active'
+        })
+        RuleFactory(**{
+            'status': 'active'
+        })
+        inactive = RuleFactory(**{
+            'status': 'deleted'
+        })
+        rules = Rule.objects.all()
+
+        self.assertEqual(len(rules), 2)
+        self.assertNotIn(inactive, rules)
+
+    def test_get_data(self):
+        project = ProjectF()
+        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        view = ViewFactory(**{'project': project})
+        for x in range(0, 5):
+            ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1}
+            )
+            ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_2}
+            )
+
+        RuleFactory(**{'view': view, 'observation_type': observation_type_1})
+
+        self.assertEqual(len(view.data), 5)
+        for observation in view.data:
+            self.assertEqual(observation.observationtype, observation_type_1)
+
+    def test_get_data_combined(self):
+        project = ProjectF()
+        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        observation_type_3 = ObservationTypeFactory(**{'project': project})
+        view = ViewFactory(**{'project': project})
+        for x in range(0, 5):
+            ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1}
+            )
+            ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_2}
+            )
+            ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_3}
+            )
+
+        RuleFactory(**{'view': view, 'observation_type': observation_type_1})
+        RuleFactory(**{'view': view, 'observation_type': observation_type_2})
+
+        self.assertEqual(len(view.data), 10)
+        for observation in view.data:
+            self.assertNotEqual(
+                observation.observationtype, observation_type_3)

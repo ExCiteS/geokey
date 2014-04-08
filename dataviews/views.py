@@ -212,6 +212,35 @@ class RuleCreateView(LoginRequiredMixin, CreateView):
 #
 # ############################################################################
 
+class ViewApiDetail(APIView):
+    """
+    API Endpoints for a view in the AJAX API.
+    /ajax/projects/:project_id/views/:view_id
+    """
+    @handle_exceptions_for_ajax
+    def put(self, request, project_id, view_id, format=None):
+        """
+        Updates a view
+        """
+        view = View.objects.as_admin(request.user, project_id, view_id)
+        serializer = ViewSerializer(view, data=request.DATA, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, view_id, format=None):
+        """
+        Deletes a view
+        """
+        view = View.objects.as_admin(request.user, project_id, view_id)
+        view.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class ViewUserGroupApiDetail(APIView):
     """
     API Endpoints for a view in the AJAX API.
@@ -305,31 +334,3 @@ class ViewApiData(APIView):
 # Public API views
 #
 # ############################################################################
-
-class ViewApiDetail(APIView):
-    """
-    API Endpoints for a view in the AJAX API.
-    /ajax/projects/:project_id/views/:view_id
-    """
-    @handle_exceptions_for_ajax
-    def put(self, request, project_id, view_id, format=None):
-        """
-        Updates a view
-        """
-        view = View.objects.as_admin(request.user, project_id, view_id)
-        serializer = ViewSerializer(view, data=request.DATA, partial=True)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @handle_exceptions_for_ajax
-    def delete(self, request, project_id, view_id, format=None):
-        """
-        Deletes a view
-        """
-        view = View.objects.as_admin(request.user, project_id, view_id)
-        view.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)

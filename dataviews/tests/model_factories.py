@@ -2,8 +2,9 @@ import datetime
 import factory
 
 from projects.tests.model_factories import UserF, ProjectF
+from observationtypes.tests.model_factories import ObservationTypeFactory
 
-from ..models import View, ViewGroup
+from ..models import View, ViewGroup, Rule
 
 
 class ViewFactory(factory.django.DjangoModelFactory):
@@ -15,6 +16,14 @@ class ViewFactory(factory.django.DjangoModelFactory):
     created_at = datetime.date(2014, 11, 11)
     status = 'active'
     project = factory.SubFactory(ProjectF)
+
+
+class RuleFactory(factory.django.DjangoModelFactory):
+    FACTORY_FOR = Rule
+
+    observation_type = factory.SubFactory(ObservationTypeFactory)
+    view = factory.SubFactory(ViewFactory)
+    status = 'active'
 
 
 class ViewGroupFactory(factory.django.DjangoModelFactory):

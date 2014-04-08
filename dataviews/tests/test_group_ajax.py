@@ -74,7 +74,6 @@ class ViewGroupAjaxTest(TestCase):
             ViewGroup.objects.get(pk=self.group.id).description,
             'new description'
         )
-        print response
 
     @raises(ViewGroup.DoesNotExist)
     def test_delete_with_admin(self):
