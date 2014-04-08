@@ -20,7 +20,7 @@
 					<td>{{field.name}} {% if field.status == status_types.inactive %} <span class="label label-default">INACTIVE</span> {% endif %}</td>
 					<td>{{field.key}}</td>
 					<td>{{field.description}}</td>
-					<td>{{field.get_type_name}}</td>
+					<td>{{field.type_name}}</td>
 					<td align="center">{% if field.required %} <span class="glyphicon glyphicon-ok"></span> {% endif %}</td>
 					<td align="right">{% if field.numericfield %} {% if field.numericfield.minval %} {{field.numericfield.minval}} {% endif %} {% else %} &mdash; {% endif %}</td>
 					<td align="right">{% if field.numericfield %} {% if field.numericfield.maxval %} {{field.numericfield.maxval}} {% endif %} {% else %} &mdash; {% endif %}</td>

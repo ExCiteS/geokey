@@ -35,7 +35,9 @@ class FieldTest(TestCase):
             'observationtype': observation_type
         })
         self.assertEqual(
-            len(Field.objects.get_list(admin, project.id, observation_type.id)), 2
+            len(Field.objects.get_list(
+                admin, project.id, observation_type.id)),
+            2
         )
 
     def test_access_active_field_with_admin(self):
@@ -247,36 +249,51 @@ class FieldTest(TestCase):
     def test_create_textfield(self):
         observation_type = ObservationTypeFactory()
         field = Field.create(
-            'name', 'key', 'description', False, observation_type, 'TextField')
+            'name', 'key', 'description', False, observation_type,
+            'TextField'
+        )
         self.assertEqual(field.__class__.__name__, 'TextField')
 
     def test_create_numericfield(self):
         observation_type = ObservationTypeFactory()
         field = Field.create(
-            'name', 'key', 'description', False, observation_type, 'NumericField')
+            'name', 'key', 'description', False, observation_type,
+            'NumericField'
+        )
         self.assertEqual(field.__class__.__name__, 'NumericField')
 
     def test_create_truefalsefield(self):
         observation_type = ObservationTypeFactory()
         field = Field.create(
-            'name', 'key', 'description', False, observation_type, 'TrueFalseField')
+            'name', 'key', 'description', False, observation_type,
+            'TrueFalseField'
+        )
         self.assertEqual(field.__class__.__name__, 'TrueFalseField')
 
     def test_create_datetimefield(self):
         observation_type = ObservationTypeFactory()
         field = Field.create(
-            'name', 'key', 'description', False, observation_type, 'DateTimeField')
+            'name', 'key', 'description', False, observation_type,
+            'DateTimeField'
+        )
         self.assertEqual(field.__class__.__name__, 'DateTimeField')
 
     def test_create_lookupfield(self):
         observation_type = ObservationTypeFactory()
         field = Field.create(
-            'name', 'key', 'description', False, observation_type, 'LookupField')
+            'name', 'key', 'description', False, observation_type,
+            'LookupField'
+        )
         self.assertEqual(field.__class__.__name__, 'LookupField')
 
     def test_get_name(self):
         field = TextFieldFactory()
-        self.assertEqual(field.get_type_name(), 'Text')
+        self.assertEqual(field.type_name, 'Text')
+        self.assertEqual(field.fieldtype, 'TextField')
+
+    def test_get_field_types(self):
+        field_types = Field.get_field_types()
+        self.assertEqual(len(field_types), 5)
 
     #
     # TEXT FIELD

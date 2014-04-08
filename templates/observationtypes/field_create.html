@@ -38,8 +38,8 @@
 						<label for="status" class="control-label">Type</label>
 							<select name="type" id="type" class="form-control" required>
 							<option value="">Please select the data type of the field.</option>
-							{% for key, value in fieldtypes.items %}
-								<option value="{{ key }}">{{ value.name }}</option>
+							{% for field in fieldtypes %}
+								<option value="{{ field.fieldtype }}">{{ field.type_name }}</option>
 							{% endfor %}
 						</select>
 					</div>

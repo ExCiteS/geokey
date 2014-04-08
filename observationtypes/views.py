@@ -13,7 +13,7 @@ from core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
 
-from .base import STATUS, FIELD_TYPES
+from .base import STATUS
 from .models import (
     ObservationType, Field, NumericField, LookupField, LookupValue
 )
@@ -116,7 +116,7 @@ class FieldAdminCreateView(LoginRequiredMixin, CreateView):
         context['observationtype'] = ObservationType.objects.as_admin(
             self.request.user, project_id, observationtype_id
         )
-        context['fieldtypes'] = FIELD_TYPES
+        context['fieldtypes'] = Field.get_field_types()
         return context
 
     def form_valid(self, form):

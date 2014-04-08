@@ -6,7 +6,7 @@ from django.db.models.loading import get_model
 from core.exceptions import InputError
 
 from .manager import ObservationTypeManager, FieldManager, LookupValueManager
-from .base import STATUS, FIELD_TYPES
+from .base import STATUS
 
 
 class ObservationType(models.Model):
@@ -61,8 +61,9 @@ class Field(models.Model):
         field.save()
         return field
 
-    def get_type_name(self):
-        return FIELD_TYPES.get(self.__class__.__name__).get('name')
+    @classmethod
+    def get_field_types(cls):
+        return cls.__subclasses__()
 
     def validate_input(self, value):
         """
@@ -85,8 +86,12 @@ class Field(models.Model):
 
     @property
     def fieldtype(self):
+        return self.__class__.__name__
+
+    @property
+    def type_name(self):
         raise NotImplementedError(
-            'The property `type` has not been implemented for this '
+            'The property `type_name` has not been implemented for this '
             'child class of Field.'
         )
 
@@ -103,12 +108,10 @@ class TextField(Field):
         Returns `True` or `False`.
         """
         return True
-        # raise InputError('The input value for text field %s is not a valid'
-        #                  ' string.' % self.name)
 
     @property
-    def fieldtype(self):
-        return 'text'
+    def type_name(self):
+        return 'Text'
 
 
 class NumericField(Field):
@@ -159,8 +162,8 @@ class NumericField(Field):
             return float(value)
 
     @property
-    def fieldtype(self):
-        return 'numeric'
+    def type_name(self):
+        return 'Numeric'
 
 
 class TrueFalseField(Field):
@@ -187,8 +190,8 @@ class TrueFalseField(Field):
             return False
 
     @property
-    def fieldtype(self):
-        return 'truefalse'
+    def type_name(self):
+        return 'True/False'
 
 
 class DateTimeField(Field):
@@ -209,8 +212,8 @@ class DateTimeField(Field):
                              'date.' % self.name)
 
     @property
-    def fieldtype(self):
-        return 'date'
+    def type_name(self):
+        return 'Date and Time'
 
 
 class LookupField(Field):
@@ -239,8 +242,8 @@ class LookupField(Field):
         return int(value)
 
     @property
-    def fieldtype(self):
-        return 'lookup'
+    def type_name(self):
+        return 'Lookup'
 
 
 class LookupValue(models.Model):

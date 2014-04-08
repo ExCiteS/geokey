@@ -68,12 +68,13 @@ $(function() {
 
         Control.Ajax.get('projects/' + projectId + '/observationtypes/' + feature.properties.observationtype + '/', handleObservationtypeSuccess, handleObservationtypeError);
 
-        map.fitBounds([[feature.geometry.coordinates[1], feature.geometry.coordinates[0]]]);
+        map.fitBounds(L.featureGroup([L.geoJson(feature)]).getBounds());
     }
 
     function handleDataLoadSuccess(response) {
         var dataLayer = L.geoJson(response, {
             onEachFeature: function (feature, layer) {
+                console.log(feature)
                 layer.on('click', showFeatureInfo);
             }
         });
