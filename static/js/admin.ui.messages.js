@@ -14,7 +14,7 @@
 	 */
 	function MessageDisplay (container) {
 		if (container) {
-			this.container = $(container);	
+			this.container = $(container);
 		}
 	}
 
@@ -22,13 +22,13 @@
 	 * Displays the message
 	 * @param  {String} type     Class name of the error message alert. Currently accepts 'success' and 'danger. for errors.
 	 * @param  {String} message  The message text
-	 * @param  {Boolean} append  Optional. If true the message will be appended to the container, otherwise it will be inserted as the first element in the container. 
+	 * @param  {Boolean} append  Optional. If true the message will be appended to the container, otherwise it will be inserted as the first element in the container.
 	 */
 	MessageDisplay.prototype.showMessage = function showError(type, message, append) {
 		var html = $('<div class="col-sm-12"><div class="alert alert-' + type + '">' + message + '</div></div>').hide();
 		if (append) { this.container.append(html); }
 		else { this.container.prepend(html); }
-		
+
 		html.show('slow').delay(5000).hide('slow', function() {
 			html.remove();
 		});
@@ -37,7 +37,7 @@
 	/**
 	 * Displays a success message
 	 * @param  {String} message  The message text
-	 * @param  {Boolean} append  Optional. If true the message will be appended to the container, otherwise it will be inserted as the first element in the container. 
+	 * @param  {Boolean} append  Optional. If true the message will be appended to the container, otherwise it will be inserted as the first element in the container.
 	 */
 	MessageDisplay.prototype.showSuccess = function showSuccess(message, append) {
 		this.showMessage('success', message, append);
@@ -46,47 +46,62 @@
 	/**
 	 * Displays a error message
 	 * @param  {String} message  The message text
-	 * @param  {Boolean} append  Optional. If true the message will be appended to the container, otherwise it will be inserted as the first element in the container. 
+	 * @param  {Boolean} append  Optional. If true the message will be appended to the container, otherwise it will be inserted as the first element in the container.
 	 */
 	MessageDisplay.prototype.showError = function showError(message, append) {
 		this.showMessage('danger', message, append);
 	};
 
 	/**
-	 * Displays a message within a panel above an element. 
+	 * Displays a message within a panel above an element.
 	 * @param  {String}  type      Class name of the error message alert. Currently accepts 'success' and 'danger. for errors.
 	 * @param  {Element} container The element above which the message is displayed.
 	 * @param  {String}  message   The message text
 	 */
-	MessageDisplay.prototype.showPanelMessage = function showPanelMessage(type, container, message) {	
+	MessageDisplay.prototype.showPanelMessage = function showPanelMessage(type, container, message, autohide) {
 		var html = $('<div class="alert alert-' + type + '">' + message + '</div>').hide();
 		container.prepend(html);
-		
-		html.show('slow').delay(5000).hide('slow', function() {
-			html.remove();
+
+		if (autohide) {
+			html.show('slow').delay(5000).hide('slow', function() {
+				html.remove();
+			});
+		}
+	};
+
+	/**
+	 * Displays a success message within a panel above an element.
+	 * @param  {Element} container The element above which the message is displayed.
+	 * @param  {String}  message   The message text
+	 */
+	MessageDisplay.prototype.showPanelSuccess = function showPanelSuccess(container, message) {
+		container.children('.info-loading').remove();
+		this.showPanelMessage('success', container, message, true);
+	};
+
+	/**
+	 * Displays a error message within a panel above an element.
+	 * @param  {Element} container The element above which the message is displayed.
+	 * @param  {String}  message   The message text
+	 */
+	MessageDisplay.prototype.showPanelError = function showPanelError(container, message) {
+		container.children('.info-loading').hide('slow', function() {
+			this.remove();
 		});
+		this.showPanelMessage('danger', container, message, true);
 	};
 
 	/**
-	 * Displays a success message within a panel above an element. 
+	 * Displays a loading message within a panel above an element.
 	 * @param  {Element} container The element above which the message is displayed.
 	 * @param  {String}  message   The message text
 	 */
-	MessageDisplay.prototype.showPanelSuccess = function showPanelSuccess(container, message) {	
-		this.showPanelMessage('success', container, message);
+	MessageDisplay.prototype.showPanelLoading = function showPanelError(container, message) {
+		this.showPanelMessage('info info-loading', container, message, false);
 	};
 
 	/**
-	 * Displays a error message within a panel above an element. 
-	 * @param  {Element} container The element above which the message is displayed.
-	 * @param  {String}  message   The message text
-	 */
-	MessageDisplay.prototype.showPanelError = function showPanelError(container, message) {	
-		this.showPanelMessage('danger', container, message);
-	};
-
-	/**
-	 * Displays a little green tick within an element as indicator for an successful actions. 
+	 * Displays a little green tick within an element as indicator for an successful actions.
 	 * @param  {Element} container The element in which the tick is displayed.
 	 */
 	MessageDisplay.prototype.showInlineSuccess = function showInlineSuccess(container) {
@@ -97,7 +112,7 @@
 	};
 
 	/**
-	 * Displays a error message within a panel. 
+	 * Displays a error message within a panel.
 	 * @param  {Element} container The element above which the message is displayed.
 	 * @param  {String}  message   The message text
 	 */

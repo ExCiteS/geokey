@@ -53,3 +53,7 @@ Thumbs.db
 *.pyc
 .coverage
 local_settings.py
+
+# Grunt #
+##########
+node_modules

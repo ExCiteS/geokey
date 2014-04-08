@@ -1,5 +1,5 @@
 /* ***********************************************
- * Mangages view groups. Used to update the permissions. 
+ * Mangages view groups. Used to update the permissions.
  * Members are managed using admin.ui.usergroup.js
  *
  * @author Oliver Roick (http://github.com/oliverroick)
@@ -13,7 +13,7 @@ $(function() {
 		groupId = $('body').attr('data-group-id');
 
 	var url = 'projects/' + projectId + '/views/' + viewId + '/usergroups/' + groupId;
-	
+
 	var usergroupPanel =  new Ui.Usergroup('#users #members', projectId, viewId),
 		messages = new Ui.MessageDisplay();
 
@@ -27,7 +27,7 @@ $(function() {
 		var state = $(event.target).prop('checked');
 
 		/**
-		 * Handles the response after the update of the permissions failed. 
+		 * Handles the response after the update of the permissions failed.
 		 * @param  {Object} response JSON object of the response
 		 */
 		function handleGroupUpdateError(response) {
@@ -36,7 +36,7 @@ $(function() {
 		}
 
 		/**
-		 * Handles the response after a successful update of the permissions. 
+		 * Handles the response after a successful update of the permissions.
 		 */
 		function handleGroupUpdateSuccess() {
 			messages.showInlineSuccess(target);

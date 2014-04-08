@@ -52,6 +52,13 @@ body.login div.page-header {
 	background-position: right 10px top 50%;
 }
 
+.info-loading {
+	background-image: url(/static/img/ajax-loader-blue.gif);
+	background-repeat: no-repeat;
+	background-position: left 10px top 50%;
+	padding-left: 35px;
+}
+
 .panel-heading.loading {
 	background-position: right 10px top 10px;
 }
@@ -220,6 +227,22 @@ ol.comments > li {
 	ol.comments > li > ol.comments {
 		margin-left: 30px;
 	}
+
+.field-filter {
+	padding: 15px 5px;
+	border-top: 1px solid #e7e7e7;
+	font-weight: bold;
+}
+
+.field-filter label,
+.field-filter input,
+.field-filter select {
+	font-weight: normal;
+}
+
+ .field-filter input[type="number"] {
+ 	width: 100px;
+ }
 
 footer {
 	text-align: center;

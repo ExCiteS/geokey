@@ -1,0 +1,22 @@
+{{#each fields}}
+    <div class="field-filter" data-id="{{id}}" data-type="{{fieldtype}}">
+        <div class="form-inline">
+            {{name}}
+            {{#ifCond fieldtype 'TextField'}}
+                {{> textfield}}
+            {{/ifCond}}
+            {{#ifCond fieldtype 'NumericField'}}
+                {{> numericfield}}
+            {{/ifCond}}
+            {{#ifCond fieldtype 'DateTimeField'}}
+                {{> datefield}}
+            {{/ifCond}}
+            {{#ifCond fieldtype 'TrueFalseField'}}
+                {{> truefalsefield}}
+            {{/ifCond}}
+            {{#ifCond fieldtype 'LookupField'}}
+                {{> lookupfield}}
+            {{/ifCond}}
+        </div>
+    </div>
+{{/each}}

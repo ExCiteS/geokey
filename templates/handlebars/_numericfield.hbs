@@ -1,0 +1,6 @@
+<div class="form-group">
+    <label for="{{key}}-min">is larger than</label>
+    <input type="number" class="form-control" name="{{key}}-min" id="minval" {{#if minval}}min="{{minval}}" value="{{minval}}" {{/if}}>
+    <label for="{{key}}-max">and lower than</label>
+    <input type="number" class="form-control" name="{{key}}-max" id="maxval" {{#if maxval}}max="{{maxval}}" value="{{maxval}}" {{/if}}>
+</div>

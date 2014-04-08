@@ -1,0 +1,8 @@
+<div class="form-group">
+    <label for="{{key}}-ref">is one of</label>
+    <select name="{{key}}-ref" id="reference-value" multiple size="5" class="form-control">
+        {{#each lookupvalues}}
+            <option value="{{id}}">{{name}}</option>
+        {{/each}}
+    </select>
+</div>
