@@ -35,58 +35,42 @@ $(function() {
         );
     }
 
-    function getRule(field) {
-        console.log(field);
-        var rule;
-        var val = field.find('#reference-value').val();
-
-        if (val && val.length > 0) {
-            rule = {
-                id: field.attr('data-id'),
-                value: val
-            };
-        }
-        return rule;
+    function getValue(field) {
+        var value = field.find('#reference-value').val();
+        return (value && value.length > 0 ? value : undefined);
     }
 
-    function getRangeRule(field) {
-        console.log(field);
-        var rule;
+    function getRangeValue(field) {
+        var value = {};
         var minval = field.find('#minval').val();
         var maxval = field.find('#maxval').val();
 
-        if (minval || maxval) {
-            rule = {
-                id: field.attr('data-id'),
-                minval: minval,
-                maxval: maxval
-            };
-        }
-        return rule;
+        if (minval) { value.minval = minval; }
+        if (maxval) { value.maxval = maxval; }
+
+        return (value.minval || value.maxval ? value : undefined);
     }
 
     function handleSubmit() {
-        var rules = [];
+        var rules = {};
         var fields = $('.field-filter');
 
         for (var i = 0, len = fields.length; i < len; i++) {
             var field = $(fields[i]);
-            var rule;
+            var value;
             switch (field.attr('data-type')) {
                 case 'DateTimeField':
                 case 'NumericField':
-                    rule = getRangeRule(field);
+                    value = getRangeValue(field);
                     break;
                 default:
-                    rule = getRule(field);
+                    value = getValue(field);
                     break;
             }
-
-            if (rule) { rules.push(rule); }
+            if (value) { rules[field.attr('data-key')] = value; }
         }
-        console.log(rules);
-
-
+        $('input[name="rules"]').val(JSON.stringify(rules));
+        $('form#rule-form').submit();
     }
 
     $('#observationtype').change(handleTypeSelection);

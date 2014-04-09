@@ -1,3 +1,5 @@
+import json
+
 from django.views.generic import CreateView, TemplateView
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -200,7 +202,11 @@ class RuleCreateView(LoginRequiredMixin, CreateView):
         observation_type = ObservationType.objects.as_admin(
             self.request.user, project_id, request.POST.get('observationtype'))
 
-        Rule.objects.create(view=view, observation_type=observation_type)
+        Rule.objects.create(
+            view=view,
+            observation_type=observation_type,
+            filters=json.loads(request.POST.get('rules'))
+        )
 
         return redirect('admin:view_settings',
                         project_id=project_id, view_id=view_id)

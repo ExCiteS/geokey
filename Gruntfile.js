@@ -13,7 +13,7 @@ module.exports = function(grunt) {
                 },
                 processPartialName: function(filePath) {
                     var file = filePath.split('/')[2];
-                    return file.substring(0, file.indexOf('.hbs'));
+                    return file.substring(1, file.indexOf('.hbs'));
                 }
             },
             compile: {
