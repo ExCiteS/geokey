@@ -18,8 +18,21 @@ module.exports = function(grunt) {
             },
             compile: {
                 files: {
-                    "static/js/templates.js": "templates/handlebars/**/*.hbs",
+                    "templates/templates.js": "templates/handlebars/**/*.hbs",
                 }
+            }
+        },
+
+        concat: {
+            options: {
+                // define a string to put between each file in the concatenated output
+                separator: ';'
+            },
+            handlebars: {
+                // the files to concatenate
+                src: ['templates/handlebars/helpers.js', 'templates/templates.js'],
+                // the location of the resulting JS file
+                dest: 'static/js/templates.js'
             }
         },
 
@@ -35,13 +48,22 @@ module.exports = function(grunt) {
                     spawn: false,
                 }
             },
+
+            concat: {
+                files: ['templates/handlebars/helpers.js', 'templates/templates.js'],
+                tasks: ['concat'],
+                options: {
+                    spawn: false,
+                }
+            }
         }
     });
 
     // 3. Where we tell Grunt we plan to use this plug-in.
     grunt.loadNpmTasks('grunt-contrib-handlebars');
+    grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-watch');
 
     // 4. Where we tell Grunt what to do when we type "grunt" into the terminal.
-    grunt.registerTask('default', ['handlebars', 'watch']);
+    grunt.registerTask('default', ['handlebars', 'concat', 'watch']);
 };

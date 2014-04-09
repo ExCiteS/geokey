@@ -1,21 +1,4 @@
-Handlebars.registerHelper('value', function(feature, field) {
-    var value = (feature.properties[field.key] ? feature.properties[field.key] : '—');
-
-    switch (field.fieldtype) {
-        case 'LookupField':
-            for (var j = 0, lenj = field.lookupvalues.length; j < lenj; j++) {
-                if (field.lookupvalues[j].id === value) {
-                    value = field.lookupvalues[j].name;
-                    break;
-                }
-            }
-            break;
-        case 'DateTimeField':
-            value = moment(value).fromNow() + ' ('+ moment(value).format('llll') +')';
-            break;
-    }
-    return value;
-});;this["Templates"] = this["Templates"] || {};
+this["Templates"] = this["Templates"] || {};
 
 Handlebars.registerPartial("datefield", Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
