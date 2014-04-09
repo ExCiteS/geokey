@@ -47,6 +47,9 @@ class Field(models.Model):
 
     objects = FieldManager()
 
+    class Meta:
+        unique_together = ('key', 'observationtype')
+
     @classmethod
     def create(self, name, key, description, required, observation_type,
                field_type):
