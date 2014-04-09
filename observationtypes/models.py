@@ -92,7 +92,13 @@ class Field(models.Model):
     def type_name(self):
         raise NotImplementedError(
             'The property `type_name` has not been implemented for this '
-            'child class of Field.'
+            'subclass of Field.'
+        )
+
+    def filter(self, key, reference, result_set):
+        raise NotImplementedError(
+            'The method `filter` has not been implemented for this '
+            'subclass of Field.'
         )
 
 
@@ -112,6 +118,9 @@ class TextField(Field):
     @property
     def type_name(self):
         return 'Text'
+
+    def filter(self, key, reference, result_set):
+        return result_set.filter(data__attributes__icontains=reference)
 
 
 class NumericField(Field):
@@ -165,6 +174,20 @@ class NumericField(Field):
     def type_name(self):
         return 'Numeric'
 
+    def filter(self, key, reference, result_set):
+        minval = reference.get('minval')
+        maxval = reference.get('maxval')
+
+        if minval is not None:
+            result_set = result_set.filter(
+                data__attributes__gt={key: minval})
+
+        if maxval is not None:
+            result_set = result_set.filter(
+                data__attributes__lt={key: maxval})
+
+        return result_set
+
 
 class TrueFalseField(Field):
     """
@@ -193,6 +216,9 @@ class TrueFalseField(Field):
     def type_name(self):
         return 'True/False'
 
+    def filter(self, key, reference, result_set):
+        return result_set.filter(data__attributes={key: reference})
+
 
 class DateTimeField(Field):
     """
@@ -214,6 +240,20 @@ class DateTimeField(Field):
     @property
     def type_name(self):
         return 'Date and Time'
+
+    def filter(self, key, reference, result_set):
+        minval = reference.get('minval')
+        maxval = reference.get('maxval')
+
+        if minval is not None:
+            result_set = result_set.filter(
+                data__attributes__gt={key: minval})
+
+        if maxval is not None:
+            result_set = result_set.filter(
+                data__attributes__lt={key: maxval})
+
+        return result_set
 
 
 class LookupField(Field):
@@ -244,6 +284,9 @@ class LookupField(Field):
     @property
     def type_name(self):
         return 'Lookup'
+
+    def filter(self, key, reference, result_set):
+        return result_set.filter(data__attributes__contains={key: reference})
 
 
 class LookupValue(models.Model):

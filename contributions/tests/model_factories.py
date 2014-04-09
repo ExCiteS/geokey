@@ -4,7 +4,7 @@ import factory
 from projects.tests.model_factories import UserF, ProjectF
 from observationtypes.tests.model_factories import ObservationTypeFactory
 
-from ..models import Location, Observation, Comment
+from ..models import Location, Observation, ObservationData, Comment
 
 
 class LocationFactory(factory.django.DjangoModelFactory):
@@ -31,7 +31,7 @@ class ObservationFactory(factory.django.DjangoModelFactory):
 
 
 class ObservationDataFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = Observation
+    FACTORY_FOR = ObservationData
 
     attributes = {'key': 'value'}
     created_at = datetime.date(2014, 11, 11)

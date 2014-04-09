@@ -23,6 +23,7 @@ class RuleFactory(factory.django.DjangoModelFactory):
 
     observation_type = factory.SubFactory(ObservationTypeFactory)
     view = factory.SubFactory(ViewFactory)
+    filters = None
     status = 'active'
 
 

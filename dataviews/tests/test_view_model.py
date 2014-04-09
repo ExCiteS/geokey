@@ -4,12 +4,20 @@ from django.core.exceptions import PermissionDenied
 from nose.tools import raises
 
 from projects.tests.model_factories import UserF, UserGroupF, ProjectF
-from observationtypes.tests.model_factories import ObservationTypeFactory
-from contributions.tests.model_factories import ObservationFactory
+from observationtypes.tests.model_factories import (
+    ObservationTypeFactory, TextFieldFactory, NumericFieldFactory,
+    TrueFalseFieldFactory, LookupFieldFactory, LookupValueFactory,
+    DateTimeFieldFactory
+)
+from contributions.tests.model_factories import (
+    ObservationFactory, ObservationDataFactory
+)
 
 from ..models import View, Rule
 
-from .model_factories import ViewFactory, ViewGroupFactory, RuleFactory
+from .model_factories import (
+    ViewFactory, ViewGroupFactory, RuleFactory
+)
 
 
 class ViewTest(TestCase):
@@ -180,3 +188,367 @@ class ViewTest(TestCase):
         for observation in view.data:
             self.assertNotEqual(
                 observation.observationtype, observation_type_3)
+
+    def test_get_data_text_filter(self):
+        project = ProjectF()
+        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        TextFieldFactory(**{
+            'key': 'text',
+            'observationtype': observation_type_1
+        })
+        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        TextFieldFactory(**{
+            'key': 'bla',
+            'observationtype': observation_type_2
+        })
+
+        for x in range(0, 5):
+            observation_1 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_1,
+                'attributes': {'text': 'yes ' + str(x)}
+            })
+
+            observation_2 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_2,
+                'attributes': {'text': 'no ' + str(x)}
+            })
+
+            observation_3 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_2}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_3,
+                'attributes': {'bla': 'yes ' + str(x)}
+            })
+
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{
+            'view': view,
+            'observation_type': observation_type_1,
+            'filters': {'text': 'yes'}
+        })
+
+        self.assertEqual(len(view.data), 5)
+
+    def test_get_data_min_number_filter(self):
+        project = ProjectF()
+        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        NumericFieldFactory(**{
+            'key': 'number',
+            'observationtype': observation_type_1
+        })
+        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        NumericFieldFactory(**{
+            'key': 'bla',
+            'observationtype': observation_type_2
+        })
+
+        for x in range(0, 5):
+            observation_1 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_1,
+                'attributes': {'number': 12}
+            })
+
+            observation_2 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_2,
+                'attributes': {'number': 20}
+            })
+
+            observation_3 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_2}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_3,
+                'attributes': {'number': 12}
+            })
+
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{
+            'view': view,
+            'observation_type': observation_type_1,
+            'filters': {'number': {'minval': 15}}
+        })
+
+        self.assertEqual(len(view.data), 5)
+
+    def test_get_data_max_number_filter(self):
+        project = ProjectF()
+        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        NumericFieldFactory(**{
+            'key': 'number',
+            'observationtype': observation_type_1
+        })
+        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        NumericFieldFactory(**{
+            'key': 'bla',
+            'observationtype': observation_type_2
+        })
+
+        for x in range(0, 5):
+            observation_1 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_1,
+                'attributes': {'number': 12}
+            })
+
+            observation_2 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_2,
+                'attributes': {'number': 20}
+            })
+
+            observation_3 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_2}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_3,
+                'attributes': {'number': 12}
+            })
+
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{
+            'view': view,
+            'observation_type': observation_type_1,
+            'filters': {'number': {'maxval': 15}}
+        })
+
+        self.assertEqual(len(view.data), 5)
+
+    def test_get_data_min_max_number_filter(self):
+        project = ProjectF()
+        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        NumericFieldFactory(**{
+            'key': 'number',
+            'observationtype': observation_type_1
+        })
+        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        NumericFieldFactory(**{
+            'key': 'bla',
+            'observationtype': observation_type_2
+        })
+
+        for x in range(0, 5):
+            observation_1 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_1,
+                'attributes': {'number': x}
+            })
+
+            observation_2 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_2,
+                'attributes': {'number': x}
+            })
+
+            observation_3 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_2}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_3,
+                'attributes': {'number': x}
+            })
+
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{
+            'view': view,
+            'observation_type': observation_type_1,
+            'filters': {'number': {'minval': 1, 'maxval': 4}}
+        })
+
+        self.assertEqual(len(view.data), 4)
+
+    def test_get_data_true_false_filter(self):
+        project = ProjectF()
+        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        TrueFalseFieldFactory(**{
+            'key': 'true',
+            'observationtype': observation_type_1
+        })
+        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        TrueFalseFieldFactory(**{
+            'key': 'bla',
+            'observationtype': observation_type_2
+        })
+
+        for x in range(0, 5):
+            observation_1 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_1,
+                'attributes': {'true': True}
+            })
+
+            observation_2 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_2,
+                'attributes': {'true': False}
+            })
+
+            observation_3 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_2}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_3,
+                'attributes': {'true': True}
+            })
+
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{
+            'view': view,
+            'observation_type': observation_type_1,
+            'filters': {'true': True}
+        })
+
+        self.assertEqual(len(view.data), 5)
+
+    def test_get_data_lookup_filter(self):
+        project = ProjectF()
+        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        lookup_field = LookupFieldFactory(**{
+            'key': 'lookup',
+            'observationtype': observation_type_1
+        })
+        lookup_1 = LookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': lookup_field
+        })
+        lookup_2 = LookupValueFactory(**{
+            'name': 'Kermit',
+            'field': lookup_field
+        })
+        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        lookup_field_2 = LookupFieldFactory(**{
+            'key': 'bla',
+            'observationtype': observation_type_2
+        })
+        lookup_3 = LookupValueFactory(**{
+            'name': 'Gonzo',
+            'field': lookup_field_2
+        })
+
+        for x in range(0, 5):
+            observation_1 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_1,
+                'attributes': {'lookup': lookup_1.id}
+            })
+
+            observation_2 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_2,
+                'attributes': {'lookup': lookup_2.id}
+            })
+
+            observation_3 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_2}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_3,
+                'attributes': {'bla': lookup_3.id}
+            })
+
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{
+            'view': view,
+            'observation_type': observation_type_1,
+            'filters': {'lookup': [lookup_1.id, lookup_2.id]}
+        })
+
+        self.assertEqual(len(view.data), 10)
+
+    def test_get_data_min_max_date_filter(self):
+        project = ProjectF()
+        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        DateTimeFieldFactory(**{
+            'key': 'date',
+            'observationtype': observation_type_1
+        })
+        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        DateTimeFieldFactory(**{
+            'key': 'bla',
+            'observationtype': observation_type_2
+        })
+
+        for x in range(0, 5):
+            observation_1 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_1,
+                'attributes': {'date': '2014/04/09'}
+            })
+
+            observation_2 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_2,
+                'attributes': {'date': '2013/04/09'}
+            })
+
+            observation_3 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_2}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_3,
+                'attributes': {'bla': '2014/04/09'}
+            })
+
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{
+            'view': view,
+            'observation_type': observation_type_1,
+            'filters': {'date': {
+                'minval': '2014/01/01', 'maxval': '2014/06/09'}
+            }
+        })
+
+        self.assertEqual(len(view.data), 5)
