@@ -277,6 +277,66 @@ class LocationTest(TestCase):
             observationtype=observationtype, project=observationtype.project
         )
 
+    @raises(ValidationError)
+    def test_create_invalid_observation_with_empty_textfield(self):
+        creator = UserF()
+        location = LocationFactory()
+        observationtype = ObservationTypeFactory()
+        TextFieldFactory(**{
+            'key': 'text',
+            'required': True,
+            'observationtype': observationtype
+        })
+        NumericFieldFactory(**{
+            'key': 'number',
+            'observationtype': observationtype
+        })
+        data = {'number': 1000}
+        Observation.create(
+            data=data, creator=creator, location=location,
+            observationtype=observationtype, project=observationtype.project
+        )
+
+    @raises(ValidationError)
+    def test_create_invalid_observation_with_zero_textfield(self):
+        creator = UserF()
+        location = LocationFactory()
+        observationtype = ObservationTypeFactory()
+        TextFieldFactory(**{
+            'key': 'text',
+            'required': True,
+            'observationtype': observationtype
+        })
+        NumericFieldFactory(**{
+            'key': 'number',
+            'observationtype': observationtype
+        })
+        data = {'text': '', 'number': 1000}
+        Observation.create(
+            data=data, creator=creator, location=location,
+            observationtype=observationtype, project=observationtype.project
+        )
+
+    @raises(ValidationError)
+    def test_create_invalid_observation_with_empty_number(self):
+        creator = UserF()
+        location = LocationFactory()
+        observationtype = ObservationTypeFactory()
+        TextFieldFactory(**{
+            'key': 'text',
+            'observationtype': observationtype
+        })
+        NumericFieldFactory(**{
+            'key': 'number',
+            'required': True,
+            'observationtype': observationtype
+        })
+        data = {'text': 'bla'}
+        Observation.create(
+            data=data, creator=creator, location=location,
+            observationtype=observationtype, project=observationtype.project
+        )
+
     # ########################################################################
     #
     # COMMENTS

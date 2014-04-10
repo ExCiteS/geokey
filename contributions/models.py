@@ -70,6 +70,7 @@ class Observation(models.Model):
         """
         is_valid = True
         error_messages = []
+
         for field in observationtype.fields.all():
             try:
                 field.validate_input(data.get(field.key))

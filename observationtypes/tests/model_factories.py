@@ -25,6 +25,7 @@ class FieldFactory(factory.django.DjangoModelFactory):
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     observationtype = factory.SubFactory(ObservationTypeFactory)
     status = 'active'
+    required = False
 
 
 class TextFieldFactory(factory.django.DjangoModelFactory):
@@ -35,6 +36,7 @@ class TextFieldFactory(factory.django.DjangoModelFactory):
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     observationtype = factory.SubFactory(ObservationTypeFactory)
     status = 'active'
+    required = False
 
 
 class NumericFieldFactory(factory.django.DjangoModelFactory):
@@ -45,6 +47,7 @@ class NumericFieldFactory(factory.django.DjangoModelFactory):
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     observationtype = factory.SubFactory(ObservationTypeFactory)
     status = 'active'
+    required = False
 
 
 class TrueFalseFieldFactory(factory.django.DjangoModelFactory):
@@ -55,6 +58,7 @@ class TrueFalseFieldFactory(factory.django.DjangoModelFactory):
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     observationtype = factory.SubFactory(ObservationTypeFactory)
     status = 'active'
+    required = False
 
 
 class DateTimeFieldFactory(factory.django.DjangoModelFactory):
@@ -65,6 +69,7 @@ class DateTimeFieldFactory(factory.django.DjangoModelFactory):
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     observationtype = factory.SubFactory(ObservationTypeFactory)
     status = 'active'
+    required = False
 
 
 class LookupFieldFactory(factory.django.DjangoModelFactory):
@@ -75,6 +80,7 @@ class LookupFieldFactory(factory.django.DjangoModelFactory):
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     observationtype = factory.SubFactory(ObservationTypeFactory)
     status = 'active'
+    required = False
 
 
 class LookupValueFactory(factory.django.DjangoModelFactory):

@@ -78,6 +78,10 @@ class Field(models.Model):
             'child class of Field.'
         )
 
+    def validate_required(self, value):
+        if self.required and (value is None or len(value) == 0):
+            raise InputError('The field %s is required.' % self.name)
+
     def convert_from_string(self, value):
         """
         Converts the given `value` of an `Observation`'s field from `String`
@@ -116,7 +120,7 @@ class TextField(Field):
         checking if the provided value is of type `String`.
         Returns `True` or `False`.
         """
-        return True
+        self.validate_required(value)
 
     @property
     def type_name(self):
@@ -141,6 +145,7 @@ class NumericField(Field):
         Float value. Then checks if the value is between bounds of minval and
         maxval. Returns `True` or `False`.
         """
+        self.validate_required(value)
 
         if isinstance(value, (int, long, float, complex)):
             if self.minval and self.maxval and (
@@ -202,6 +207,8 @@ class TrueFalseField(Field):
         Checks if the provided value is one of `True` or `False`
         Returns `True` or `False`.
         """
+        self.validate_required(value)
+
         if value not in [True, False]:
             raise InputError('The value for TrueFalseField %s must be one of '
                              'True or False' % self.name)
@@ -233,6 +240,7 @@ class DateTimeField(Field):
         Checks if the provided value is a valid and ISO8601 compliant date
         string.
         """
+        self.validate_required(value)
 
         try:
             iso8601.parse_date(value)
@@ -269,6 +277,8 @@ class LookupField(Field):
         Checks if the provided value is in the list of `LookupValue`'s.
         Returns `True` or `False`.
         """
+        self.validate_required(value)
+
         valid = False
         for lookupvalue in self.lookupvalues.all():
             if lookupvalue.id == value:
