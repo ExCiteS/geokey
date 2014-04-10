@@ -119,8 +119,7 @@ class Observation(models.Model):
             raise ValidationError(error_messages)
 
     def update(self, data=None, creator=None):
-        self.validate_update(data)
-
+        version_in_database = self.current_data.version
         try:
             version_on_client = data.pop('version')
         except KeyError:
@@ -128,8 +127,6 @@ class Observation(models.Model):
                                        'version number of the observation.'
                                        ' The observation has not been '
                                        'updated.')
-
-        version_in_database = self.current_data.version
 
         if version_on_client > version_in_database:
             raise MalformedRequestData('The version number you provided '
@@ -147,6 +144,11 @@ class Observation(models.Model):
                                        '%s' % version)
                 self.conflict_version = version
                 self.save()
+
+            update = self.current_data.attributes.copy()
+            update.update(data)
+
+            self.validate_update(update)
 
             ObservationData.objects.create(
                 attributes=data,

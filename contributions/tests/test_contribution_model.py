@@ -252,7 +252,7 @@ class LocationTest(TestCase):
         )
 
         updater = UserF()
-        update = {'text': 'Udpated Text', 'number': 'abc'}
+        update = {'text': 'Udpated Text', 'number': 'abc', 'version': 1}
         observation.update(data=update, creator=updater)
 
         self.assertEqual(observation.current_data.attributes, data)
