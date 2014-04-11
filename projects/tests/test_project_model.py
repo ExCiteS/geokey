@@ -155,6 +155,7 @@ class ProjectTest(TestCase):
             self.admin, self.private_project.id)
         self.assertEqual(project, self.private_project)
 
+    @raises(PermissionDenied)
     def test_get_inactive_project_with_admin(self):
         project = Project.objects.get_single(
             self.admin, self.inactive_project.id)

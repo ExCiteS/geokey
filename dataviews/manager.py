@@ -27,8 +27,9 @@ class ViewManager(models.Manager):
     def get_single(self, user, project_id, view_id):
         project = Project.objects.get_single(user, project_id)
         view = project.views.get(pk=view_id)
-        if (project.is_admin(user) or
-                view.viewgroups.filter(users=user).count() > 0):
+        if (view.status == STATUS.active and (
+                project.is_admin(user) or
+                view.viewgroups.filter(users=user).count() > 0)):
             return view
         else:
             raise PermissionDenied('You are not allowed to access this view.')

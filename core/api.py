@@ -3,6 +3,7 @@ from django.conf.urls import patterns, url
 from projects import views as project_views
 from observationtypes import views as observationtype_views
 from contributions import views as contribution_views
+from dataviews import views as view_views
 
 urlpatterns = patterns(
     '',
@@ -30,6 +31,14 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)/$',
         contribution_views.SingleObservation.as_view(),
         name='project_single_observation'),
+
+    # ###########################
+    # VIEWS
+    # ###########################
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)$',
+        view_views.SingleView.as_view(),
+        name='single_view'),
 
     # ###########################
     # LOCATIONS
