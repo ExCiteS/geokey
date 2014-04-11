@@ -77,11 +77,9 @@ class Project(models.Model):
         -if active- the contributors group or one the Viewgroups of the
         project.
         """
-        return self.is_admin(user) or (
+        return self.status == STATUS.active and (self.is_admin(user) or (
             (not self.isprivate or user in self.contributors.users.all() or
-                (self.views.filter(viewgroups__users=user).count() > 0))
-            and self.status == STATUS.active
-        )
+                (self.views.filter(viewgroups__users=user).count() > 0))))
 
     def can_contribute(self, user):
         return self.status == STATUS.active and (
