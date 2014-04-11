@@ -79,12 +79,7 @@ class Project(models.Model):
         """
         return self.status == STATUS.active and (self.is_admin(user) or (
             (not self.isprivate or user in self.contributors.users.all() or
-<<<<<<< HEAD
                 (self.views.filter(viewgroups__users=user).count() > 0))))
-=======
-                (self.views.filter(viewgroups__users=user).count() > 0))
-        ))
->>>>>>> FETCH_HEAD
 
     def can_contribute(self, user):
         return self.status == STATUS.active and (
