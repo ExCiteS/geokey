@@ -41,6 +41,14 @@ urlpatterns = patterns(
         name='project_single_observation'),
 
     # ###########################
+    # VIEWS
+    # ###########################
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)$',
+        view_views.SingleView.as_view(),
+        name='single_view'),
+
+    # ###########################
     # LOCATIONS
     # ###########################
 

@@ -1,0 +1,558 @@
+[
+{
+    "pk": "qksr0zcr447zxh8eydme7wiveja160vr", 
+    "model": "sessions.session", 
+    "fields": {
+        "expire_date": "2014-04-25T10:29:50.348Z", 
+        "session_data": "ZjliMmZmMjM3NDRmNmMwODM2Y2UxODY4ZjAyYTJjMzQ1ZWNlMGFiZDp7Il9hdXRoX3VzZXJfYmFja2VuZCI6ImRqYW5nby5jb250cmliLmF1dGguYmFja2VuZHMuTW9kZWxCYWNrZW5kIiwiX2F1dGhfdXNlcl9pZCI6MX0="
+    }
+},
+{
+    "pk": 1, 
+    "model": "auth.user", 
+    "fields": {
+        "username": "Admin", 
+        "first_name": "Peter", 
+        "last_name": "Schmeichel", 
+        "is_active": true, 
+        "is_superuser": false, 
+        "is_staff": false, 
+        "last_login": "2014-04-11T10:29:50.345Z", 
+        "groups": [], 
+        "user_permissions": [], 
+        "password": "pbkdf2_sha256$12000$rPJwQHyEf6vz$yv9rFrceH5BdtRjU/zC97sZj0vETH3KQi9Ba/D9C+V4=", 
+        "email": "peter@schmeichel.dk", 
+        "date_joined": "2014-04-11T10:13:46.093Z"
+    }
+},
+{
+    "pk": 2, 
+    "model": "auth.user", 
+    "fields": {
+        "username": "contributor", 
+        "first_name": "Carlos", 
+        "last_name": "Valderama", 
+        "is_active": true, 
+        "is_superuser": false, 
+        "is_staff": false, 
+        "last_login": "2014-04-11T10:14:10.760Z", 
+        "groups": [], 
+        "user_permissions": [], 
+        "password": "pbkdf2_sha256$12000$xvE1OHrialDn$6ZkKVBb3UX2W8LC98wKYxDIsk+uhef+nrpHnDs5iR7I=", 
+        "email": "carlos@valderama.co", 
+        "date_joined": "2014-04-11T10:14:10.618Z"
+    }
+},
+{
+    "pk": 3, 
+    "model": "auth.user", 
+    "fields": {
+        "username": "viewmember", 
+        "first_name": "", 
+        "last_name": "", 
+        "is_active": true, 
+        "is_superuser": false, 
+        "is_staff": false, 
+        "last_login": "2014-04-11T10:14:32.016Z", 
+        "groups": [], 
+        "user_permissions": [], 
+        "password": "pbkdf2_sha256$12000$xEO8MtV0dr09$KIfXiBclab4l4IW+RMbuGLqicCRdJThsrL6ajPL4pK8=", 
+        "email": "luis@figo.pt", 
+        "date_joined": "2014-04-11T10:14:31.855Z"
+    }
+},
+{
+    "pk": 4, 
+    "model": "auth.user", 
+    "fields": {
+        "username": "nonmember", 
+        "first_name": "Mehmet", 
+        "last_name": "Scholl", 
+        "is_active": true, 
+        "is_superuser": false, 
+        "is_staff": false, 
+        "last_login": "2014-04-11T10:15:01.648Z", 
+        "groups": [], 
+        "user_permissions": [], 
+        "password": "pbkdf2_sha256$12000$xGIhG5v3RN0d$yN3jTNR5cjRM4dQgVtglgftebB7t2XuZSqk7SkeOo48=", 
+        "email": "mehmet@scholl.de", 
+        "date_joined": "2014-04-11T10:15:01.475Z"
+    }
+},
+{
+    "pk": 5, 
+    "model": "auth.user", 
+    "fields": {
+        "username": "inactiveviewmember", 
+        "first_name": "Zinedine", 
+        "last_name": "Zidane", 
+        "is_active": true, 
+        "is_superuser": false, 
+        "is_staff": false, 
+        "last_login": "2014-04-11T10:29:36.689Z", 
+        "groups": [], 
+        "user_permissions": [], 
+        "password": "pbkdf2_sha256$12000$8zFslEVkELFd$n09gExucgV+fuIVMUq8++C5S0o/DIqMY6IuyNQMbpkY=", 
+        "email": "zinedine@zidane.fr", 
+        "date_joined": "2014-04-11T10:29:36.536Z"
+    }
+},
+
+{
+    "pk": 1, 
+    "model": "projects.project", 
+    "fields": {
+        "status": "active", 
+        "name": "Public project", 
+        "contributors": 2, 
+        "creator": 1, 
+        "created_at": "2014-04-11T10:15:39.056Z", 
+        "admins": 1, 
+        "everyonecontributes": false, 
+        "isprivate": false, 
+        "description": "This is a public project"
+    }
+},
+{
+    "pk": 2, 
+    "model": "projects.project", 
+    "fields": {
+        "status": "active", 
+        "name": "Private project", 
+        "contributors": 4, 
+        "creator": 1, 
+        "created_at": "2014-04-11T10:17:08.408Z", 
+        "admins": 3, 
+        "everyonecontributes": false, 
+        "isprivate": true, 
+        "description": "This is private project"
+    }
+},
+{
+    "pk": 3, 
+    "model": "projects.project", 
+    "fields": {
+        "status": "inactive", 
+        "name": "Inactive project", 
+        "contributors": 6, 
+        "creator": 1, 
+        "created_at": "2014-04-11T10:19:25.741Z", 
+        "admins": 5, 
+        "everyonecontributes": false, 
+        "isprivate": true, 
+        "description": "This is an inactive project"
+    }
+},
+{
+    "pk": 4, 
+    "model": "projects.project", 
+    "fields": {
+        "status": "deleted", 
+        "name": "Deleted project", 
+        "contributors": 8, 
+        "creator": 1, 
+        "created_at": "2014-04-11T10:24:01.318Z", 
+        "admins": 7, 
+        "everyonecontributes": false, 
+        "isprivate": true, 
+        "description": "A deleted project"
+    }
+},
+{
+    "pk": 5, 
+    "model": "projects.project", 
+    "fields": {
+        "status": "active", 
+        "name": "Public Everyone Contributes", 
+        "contributors": 10, 
+        "creator": 1, 
+        "created_at": "2014-04-11T10:25:52.199Z", 
+        "admins": 9, 
+        "everyonecontributes": true, 
+        "isprivate": false, 
+        "description": "A public project where everyone can contribute"
+    }
+},
+{
+    "pk": 6, 
+    "model": "projects.project", 
+    "fields": {
+        "status": "active", 
+        "name": "Private everyone contributes project", 
+        "contributors": 12, 
+        "creator": 1, 
+        "created_at": "2014-04-11T10:27:52.221Z", 
+        "admins": 11, 
+        "everyonecontributes": true, 
+        "isprivate": true, 
+        "description": "Private project where all project members can contribute"
+    }
+},
+{
+    "pk": 1, 
+    "model": "projects.usergroup", 
+    "fields": {
+        "name": "Administrators", 
+        "users": [
+            1
+        ]
+    }
+},
+{
+    "pk": 2, 
+    "model": "projects.usergroup", 
+    "fields": {
+        "name": "Contributors", 
+        "users": [
+            2
+        ]
+    }
+},
+{
+    "pk": 3, 
+    "model": "projects.usergroup", 
+    "fields": {
+        "name": "Administrators", 
+        "users": [
+            1
+        ]
+    }
+},
+{
+    "pk": 4, 
+    "model": "projects.usergroup", 
+    "fields": {
+        "name": "Contributors", 
+        "users": [
+            2
+        ]
+    }
+},
+{
+    "pk": 5, 
+    "model": "projects.usergroup", 
+    "fields": {
+        "name": "Administrators", 
+        "users": [
+            1
+        ]
+    }
+},
+{
+    "pk": 6, 
+    "model": "projects.usergroup", 
+    "fields": {
+        "name": "Contributors", 
+        "users": [
+            2
+        ]
+    }
+},
+{
+    "pk": 7, 
+    "model": "projects.usergroup", 
+    "fields": {
+        "name": "Administrators", 
+        "users": [
+            1
+        ]
+    }
+},
+{
+    "pk": 8, 
+    "model": "projects.usergroup", 
+    "fields": {
+        "name": "Contributors", 
+        "users": [
+            2
+        ]
+    }
+},
+{
+    "pk": 9, 
+    "model": "projects.usergroup", 
+    "fields": {
+        "name": "Administrators", 
+        "users": [
+            1
+        ]
+    }
+},
+{
+    "pk": 10, 
+    "model": "projects.usergroup", 
+    "fields": {
+        "name": "Contributors", 
+        "users": []
+    }
+},
+{
+    "pk": 11, 
+    "model": "projects.usergroup", 
+    "fields": {
+        "name": "Administrators", 
+        "users": [
+            1
+        ]
+    }
+},
+{
+    "pk": 12, 
+    "model": "projects.usergroup", 
+    "fields": {
+        "name": "Contributors", 
+        "users": []
+    }
+},
+{
+    "pk": 1, 
+    "model": "dataviews.view", 
+    "fields": {
+        "status": "active", 
+        "name": "Active View", 
+        "creator": 1, 
+        "created_at": "2014-04-11T10:16:06.538Z", 
+        "project": 1, 
+        "description": "Active view of public project"
+    }
+},
+{
+    "pk": 2, 
+    "model": "dataviews.view", 
+    "fields": {
+        "status": "active", 
+        "name": "Active View", 
+        "creator": 1, 
+        "created_at": "2014-04-11T10:17:38.633Z", 
+        "project": 2, 
+        "description": "Active View for private project"
+    }
+},
+{
+    "pk": 3, 
+    "model": "dataviews.view", 
+    "fields": {
+        "status": "active", 
+        "name": "Active view", 
+        "creator": 1, 
+        "created_at": "2014-04-11T10:20:39.127Z", 
+        "project": 3, 
+        "description": "Active view of inactive project"
+    }
+},
+{
+    "pk": 4, 
+    "model": "dataviews.view", 
+    "fields": {
+        "status": "active", 
+        "name": "Active view", 
+        "creator": 1, 
+        "created_at": "2014-04-11T10:24:30.954Z", 
+        "project": 4, 
+        "description": "Active view of deleted project"
+    }
+},
+{
+    "pk": 5, 
+    "model": "dataviews.view", 
+    "fields": {
+        "status": "active", 
+        "name": "Active view", 
+        "creator": 1, 
+        "created_at": "2014-04-11T10:26:23.620Z", 
+        "project": 5, 
+        "description": "Active view of public project where everyone can contribute"
+    }
+},
+{
+    "pk": 6, 
+    "model": "dataviews.view", 
+    "fields": {
+        "status": "active", 
+        "name": "Active view", 
+        "creator": 1, 
+        "created_at": "2014-04-11T10:28:32.946Z", 
+        "project": 6, 
+        "description": "Active view of a project where all members can contribute"
+    }
+},
+{
+    "pk": 7, 
+    "model": "dataviews.view", 
+    "fields": {
+        "status": "active", 
+        "name": "Inactive view", 
+        "creator": 1, 
+        "created_at": "2014-04-11T10:30:14.842Z", 
+        "project": 1, 
+        "description": "Inactive view of public project"
+    }
+},
+{
+    "pk": 8, 
+    "model": "dataviews.view", 
+    "fields": {
+        "status": "active", 
+        "name": "Deleted View", 
+        "creator": 1, 
+        "created_at": "2014-04-11T10:31:55.169Z", 
+        "project": 5, 
+        "description": "Deleted View of Public Everyone Contributes project"
+    }
+},
+{
+    "pk": 9, 
+    "model": "dataviews.view", 
+    "fields": {
+        "status": "active", 
+        "name": "Deleted view", 
+        "creator": 1, 
+        "created_at": "2014-04-11T10:33:49.380Z", 
+        "project": 2, 
+        "description": "Deleted view of private project"
+    }
+},
+{
+    "pk": 1, 
+    "model": "dataviews.viewgroup", 
+    "fields": {
+        "status": "active", 
+        "can_edit": false, 
+        "name": "Active View User group", 
+        "description": "Active View User group of public project", 
+        "can_view": true, 
+        "can_read": true, 
+        "users": [
+            3
+        ], 
+        "view": 1
+    }
+},
+{
+    "pk": 2, 
+    "model": "dataviews.viewgroup", 
+    "fields": {
+        "status": "active", 
+        "can_edit": false, 
+        "name": "Active View User group", 
+        "description": "Active View User group of private project", 
+        "can_view": true, 
+        "can_read": false, 
+        "users": [
+            3
+        ], 
+        "view": 2
+    }
+},
+{
+    "pk": 3, 
+    "model": "dataviews.viewgroup", 
+    "fields": {
+        "status": "active", 
+        "can_edit": false, 
+        "name": "Active View User group", 
+        "description": "Active View User group of inactive project", 
+        "can_view": true, 
+        "can_read": false, 
+        "users": [
+            3
+        ], 
+        "view": 3
+    }
+},
+{
+    "pk": 4, 
+    "model": "dataviews.viewgroup", 
+    "fields": {
+        "status": "active", 
+        "can_edit": false, 
+        "name": "Active View User group", 
+        "description": "Active View User group of deleted project", 
+        "can_view": true, 
+        "can_read": false, 
+        "users": [
+            3
+        ], 
+        "view": 4
+    }
+},
+{
+    "pk": 5, 
+    "model": "dataviews.viewgroup", 
+    "fields": {
+        "status": "active", 
+        "can_edit": false, 
+        "name": "Active View User group", 
+        "description": "Active View User group of a project where everyone can contribute", 
+        "can_view": true, 
+        "can_read": false, 
+        "users": [
+            3
+        ], 
+        "view": 5
+    }
+},
+{
+    "pk": 6, 
+    "model": "dataviews.viewgroup", 
+    "fields": {
+        "status": "active", 
+        "can_edit": false, 
+        "name": "Active View User group", 
+        "description": "Active View User group of a private project where everyone can contribute.", 
+        "can_view": true, 
+        "can_read": false, 
+        "users": [
+            3
+        ], 
+        "view": 6
+    }
+},
+{
+    "pk": 7, 
+    "model": "dataviews.viewgroup", 
+    "fields": {
+        "status": "active", 
+        "can_edit": false, 
+        "name": "Inactive view group", 
+        "description": "Inactive view user group of public project", 
+        "can_view": true, 
+        "can_read": false, 
+        "users": [
+            5
+        ], 
+        "view": 7
+    }
+},
+{
+    "pk": 8, 
+    "model": "dataviews.viewgroup", 
+    "fields": {
+        "status": "active", 
+        "can_edit": false, 
+        "name": "Deleted group", 
+        "description": "Delete group of Public Everyone Contributes project", 
+        "can_view": true, 
+        "can_read": false, 
+        "users": [
+            5
+        ], 
+        "view": 8
+    }
+},
+{
+    "pk": 9, 
+    "model": "dataviews.viewgroup", 
+    "fields": {
+        "status": "active", 
+        "can_edit": false, 
+        "name": "Deleted group", 
+        "description": "Deleted group of private project", 
+        "can_view": true, 
+        "can_read": false, 
+        "users": [
+            5
+        ], 
+        "view": 9
+    }
+}]

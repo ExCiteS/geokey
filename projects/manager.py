@@ -56,7 +56,7 @@ class ProjectManager(models.Manager):
         Returns the project if the user is member of the administrators group
         of raises PermissionDenied if not.
         """
-        project = super(ProjectManager, self).get(pk=project_id)
+        project = self.get(pk=project_id)
         if project.is_admin(user):
             return project
         else:
