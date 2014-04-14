@@ -57,4 +57,23 @@
             <![endif]-->
             <script src="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.js"></script>
         <!-- /LEAFLET -->
+
+        <script type="text/javascript">
+            $(function() {
+                var feature = {{observation.location.geometry.geojson|safe}};
+
+                var map = L.map('observation-map', {
+                    center: [51.505, -0.09],
+                    zoom: 13,
+                    zoomControl: false
+                });
+
+                // add an OpenStreetMap tile layer
+                L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+                var l = L.geoJson(feature).addTo(map);
+                map.fitBounds(l.getBounds());
+            });
+        </script>
 {% endblock %}
