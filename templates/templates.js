@@ -10,11 +10,11 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "-min\">is older than</label>\n    <input type=\"datetime\" class=\"form-control\" name=\"";
+    + "-min\">is older than</label>\n    <input data-date-format=\"YYYY/MM/DD hh:mm\" type=\"datetime\" class=\"form-control\" name=\"";
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "-min\" id=\"minval\">\n    <label for=\"younger\">and younger than</label>\n    <input type=\"datetime\" class=\"form-control\" name=\"";
+    + "-min\" id=\"minval\">\n\n    <label for=\"younger\">and younger than</label>\n    <input data-date-format=\"YYYY/MM/DD hh:mm\" type=\"datetime\" class=\"form-control\" name=\"";
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
