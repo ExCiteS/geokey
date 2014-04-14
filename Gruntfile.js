@@ -41,17 +41,17 @@ module.exports = function(grunt) {
                 livereload: true,
             },
 
-            handlebars: {
-                files: ['templates/**/*.hbs'],
-                tasks: ['handlebars'],
+            concat: {
+                files: ['templates/handlebars/helpers.js', 'templates/templates.js'],
+                tasks: ['concat'],
                 options: {
                     spawn: false,
                 }
             },
 
-            concat: {
-                files: ['templates/handlebars/helpers.js', 'templates/templates.js'],
-                tasks: ['concat'],
+            handlebars: {
+                files: ['templates/handlebars/**/*.hbs'],
+                tasks: ['handlebars'],
                 options: {
                     spawn: false,
                 }

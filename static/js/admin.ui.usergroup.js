@@ -51,22 +51,6 @@
 	};
 
 	/**
-	 * Returns the user name display to be used in type away drop down and in the user list
-	 * @param  {Object} user The user to be displayed
-	 */
-	function getUserDisplay(user) {
-		var username = user.username;
-		if (user.first_name || user.last_name) {
-			username += ' (';
-			if (user.first_name) {username += user.first_name; }
-			if (user.first_name && user.last_name) {username += ' '; }
-			if (user.last_name) {username += user.last_name; }
-			username += ')';
-		}
-		return username;
-	}
-
-	/**
 	 * Handles the click event when the user clicks on the remove link in the user list.
 	 * @param  {Event} event The click event fired by the link.
 	 */
@@ -103,13 +87,10 @@
 	 * @param  {Object} response JSON object of the response
 	 */
 	Usergroup.prototype.handleAddUserSucess = function handleAddUserSucess(response) {
-		var users = response.users;
+		// var users = response.users;
 
 		this.userList.empty();
-		for (var i = 0, len = users.length; i < len; i++) {
-			var user = users[i];
-			this.userList.append('<li class="list-group-item">' + getUserDisplay(user) + ' <a class="text-danger remove" data-user-id="' + user.id + '" href="#"><small>remove</small></a></li>');
-		}
+		this.userList.append(Templates.usergroupusers(response));
 		this.userList.find('li a.remove').click(this.handleRemoveUser.bind(this));
 
 		this.formField.val('');
@@ -153,9 +134,7 @@
 			this.formField.removeClass('loading');
 		}
 
-		for (var i = 0, len = users.length; i < len; i++) {
-			this.typeAwayResults.append('<li role="presentation"><a role="menuitem" tabindex="-1" href="#" data-user-id="' + users[i].id + '">' + getUserDisplay(users[i]) + '</a></li>');
-		}
+		this.typeAwayResults.append(Templates.userstypeaway(response));
 
 		this.typeAwayResults.children('.dropdown-header').text(header);
 		this.typeAwayResults.find('li a').click(this.handleAddUser.bind(this));

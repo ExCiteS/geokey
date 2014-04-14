@@ -76,7 +76,7 @@
 	 * Handles the addition of a lookup value to the lookup field. Is called when
 	 * the user clicks the 'Add' button next the bottom text field of the panel.
 	 */
-	LookupPanel.prototype.handleAddValue = function handleAddValue() {
+	LookupPanel.prototype.handleAddValue = function handleAddValue(event) {
 		/**
 		 * Handles successful addition of the lookup values. Removes all items
 		 * from the list of lookup values and adds the updated list that has been
@@ -88,9 +88,8 @@
 
 			this.formField.val(null);
 			this.lookuplist.empty();
-			for (var i = 0, len = lookupValues.length; i < len; i++) {
-				this.lookuplist.append('<li class="list-group-item">' + lookupValues[i].name + ' (<a data-lookup-id="' + lookupValues[i].id + '" class="text-danger" href="#">remove</a>)</li>');
-			}
+			this.lookuplist.append(Templates.lookupvalues(response));
+
 			this.lookuplist.find('li a').click(this.handleRemoveValue.bind(this));
 			this.addButton.button('reset');
 			this.displaySuccess();
@@ -106,6 +105,7 @@
 
 		this.addButton.button('loading');
 		Control.Ajax.post(this.url, handleAddValueSuccess.bind(this), handleAddValueError.bind(this), {name: this.formField.val()});
+		event.preventDefault();
 	};
 
 	global.LookupPanel = LookupPanel;

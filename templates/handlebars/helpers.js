@@ -16,3 +16,15 @@ Handlebars.registerHelper('value', function(feature, field) {
     }
     return value;
 });
+
+Handlebars.registerHelper('user', function(user) {
+     var username = user.username;
+    if (user.first_name || user.last_name) {
+        username += ' (';
+        if (user.first_name) {username += user.first_name; }
+        if (user.first_name && user.last_name) {username += ' '; }
+        if (user.last_name) {username += user.last_name; }
+        username += ')';
+    }
+    return username;
+});

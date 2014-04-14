@@ -36,7 +36,7 @@
                 <div class="form-group">
                     <label class="col-sm-2 col-md-offset-2 control-label">Field type</label>
                     <div class="col-sm-6">
-                        <p class="form-control-static">{{ field.get_type_name }}</p>
+                        <p class="form-control-static">{{ field.type_name }}</p>
                     </div>
                 </div>
                 <div class="form-group">
@@ -194,6 +194,9 @@
 {% endblock %}
 
 {% block libraries %}
+            <script src="/static/lib/handlebars/handlebars.js"></script>
+            <script src="/static/js/templates.js"></script>
+
             <script src="/static/js/admin.ui.forms.validate.js"></script>
             <script src="/static/js/admin.ui.messages.js"></script>
             <script src="/static/js/admin.ui.descriptioneditor.js"></script>
