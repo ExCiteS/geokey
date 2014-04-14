@@ -101,7 +101,7 @@ class ContributionSerializer(object):
                     except PermissionDenied, error:
                         raise MalformedRequestData(error)
                 else:
-                    location = Location.objects.create(
+                    location = Location(
                         name=location_data.get('name'),
                         description=location_data.get('description'),
                         geometry=GEOSGeometry(
@@ -113,7 +113,7 @@ class ContributionSerializer(object):
                             'private_for_project')
                     )
             except KeyError:
-                location = Location.objects.create(
+                location = Location(
                     geometry=GEOSGeometry(json.dumps(data.get('geometry'))),
                     creator=creator
                 )

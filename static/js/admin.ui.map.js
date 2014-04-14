@@ -26,7 +26,7 @@ $(function() {
     }).addTo(map);
 
     function showFeatureInfo(event) {
-        $('#map').removeClass('col-sm-12').addClass('col-sm-6');
+        $('#map').removeClass('col-sm-12').addClass('col-sm-4');
 
         var feature = event.target.feature;
 
@@ -52,7 +52,8 @@ $(function() {
     function handleDataLoadSuccess(response) {
         var dataLayer = L.geoJson(response, {
             onEachFeature: function (feature, layer) {
-                layer.on('click', showFeatureInfo);
+                layer.bindPopup(Templates.observation(feature));
+                // layer.on('click', showFeatureInfo);
             }
         });
         map.fitBounds(dataLayer.getBounds());

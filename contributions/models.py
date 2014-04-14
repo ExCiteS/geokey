@@ -79,6 +79,7 @@ class Observation(models.Model):
                 error_messages.append(error)
 
         if is_valid:
+            location.save()
             observation = cls(
                 location=location,
                 observationtype=observationtype,

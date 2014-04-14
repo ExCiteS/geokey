@@ -300,6 +300,24 @@ function program1(depth0,data) {
   else { return ''; }
   });
 
+this["Templates"]["observation"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, helper, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<h4>Observation type name</h4>\n<table class=\"table table-condensed\">\n    <tr><th>Field name</th><th>Value</th></tr>\n    <tr><td>Contributor:</td><td>Oliver Roick</td></tr>\n    <tr><td>Version:</td><td>"
+    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.properties)),stack1 == null || stack1 === false ? stack1 : stack1.version)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "</td></tr>\n    <tr><td>Status:</td><td>"
+    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.properties)),stack1 == null || stack1 === false ? stack1 : stack1.status)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "</td></tr>\n</table>\n<a class=\"btn btn-primary btn-sm btn-block\" href=\"";
+  if (helper = helpers.id) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.id); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "\">Open observation</a>";
+  return buffer;
+  });
+
 this["Templates"]["observationinfo"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
@@ -318,7 +336,7 @@ function program1(depth0,data,depth1) {
   return buffer;
   }
 
-  buffer += "<div class=\"col-sm-6\" id=\"info\">\n    <h4>"
+  buffer += "<div class=\"col-sm-8\" id=\"info\">\n    <h4>"
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.observationtype)),stack1 == null || stack1 === false ? stack1 : stack1.name)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "</h4>\n    <p>"
     + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.observationtype)),stack1 == null || stack1 === false ? stack1 : stack1.description)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))

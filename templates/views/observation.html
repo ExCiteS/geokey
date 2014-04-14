@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% load value %}
+{% load meta %}
+
+{% block bodydata %} data-project-id="{{view.project.id}}" data-view-id="{{view.id}}" data-observation-id="{{observation.id}}"{% endblock %}
+{% block title %} | Observation{% endblock %}
+
+{% block main %}
+        <div class="page-header">
+            <div class="container">
+                <ol class="breadcrumb">
+                    <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
+                    <li><a href="{% url 'admin:project_settings' view.project.id %}">{{ view.project.name }}</a></li>
+                    <li><a href="{% url 'admin:view_settings' view.project.id view.id %}">{{ view.name }}</a></li>
+                    <li><a href="{% url 'admin:view_data' view.project.id view.id %}">{{ Data }}</a></li>
+                    <li class="active">Observation</li>
+                </ol>
+
+                <h1>{{view.name}} </h1>
+                <p class="lead">
+                    {% if view.description %} {{view.description}} {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-4">
+                    <div id="observation-map"></div>
+                    <p>{% meta observation %}</p>
+                    <hr>
+                    <button class="btn btn-warning btn-block" id="review">Flag this observation for review</button>
+                </div>
+                <div class="col-sm-8">
+                    <h3>{{observation.observationtype.name}}</h3>
+                    <p>{{observation.observationtype.description}}</p>
+                    <table class="table table-striped">
+                        <tr><th>Field name</th><th>Value</th></tr>
+                        {% for field in observation.observationtype.fields.all %}
+                            <tr><td>{{field.name}}</td><td>{% value observation.current_data.attributes field %}</td></tr>
+                        {% endfor %}
+                    </table>
+
+                    <h4>Comments</h4>
+                    <p>No comments yet.</p>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block libraries %}
+        <!-- LEAFLET -->
+            <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.css" />
+            <!--[if lte IE 8]>
+                <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.ie.css" />
+            <![endif]-->
+            <script src="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.js"></script>
+        <!-- /LEAFLET -->
+{% endblock %}

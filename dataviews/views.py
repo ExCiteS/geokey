@@ -106,6 +106,26 @@ class ViewAdminDataView(LoginRequiredMixin, TemplateView):
         }
 
 
+class ViewSingleObservation(LoginRequiredMixin, TemplateView):
+    template_name = 'views/observation.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, view_id, observation_id):
+        """
+        Creates the request context for rendering the page
+        """
+        user = self.request.user
+        view = View.objects.get_single(user, project_id, view_id)
+        # check if the observation can be access through that view
+        observation = Project.objects.get(pk=project_id).observations.get(
+            pk=observation_id)
+
+        return {
+            'view': view,
+            'observation': observation
+        }
+
+
 class ViewGroupAdminCreateView(LoginRequiredMixin, CreateView):
     """
     Displays the create usergroup page
