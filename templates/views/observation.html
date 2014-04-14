@@ -13,7 +13,7 @@
                     <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
                     <li><a href="{% url 'admin:project_settings' view.project.id %}">{{ view.project.name }}</a></li>
                     <li><a href="{% url 'admin:view_settings' view.project.id view.id %}">{{ view.name }}</a></li>
-                    <li><a href="{% url 'admin:view_data' view.project.id view.id %}">{{ Data }}</a></li>
+                    <li><a href="{% url 'admin:view_data' view.project.id view.id %}">Data</a></li>
                     <li class="active">Observation</li>
                 </ol>
 
@@ -30,7 +30,7 @@
                     <div id="observation-map"></div>
                     <p>{% meta observation %}</p>
                     <hr>
-                    <button class="btn btn-warning btn-block" id="review">Flag this observation for review</button>
+                    <button class="btn btn-warning btn-block" data-toggle="modal" data-target="#flag-review">Flag this observation for review</button>
                 </div>
                 <div class="col-sm-8">
                     <h3>{{observation.observationtype.name}}</h3>
@@ -44,6 +44,27 @@
 
                     <h4>Comments</h4>
                     <p>No comments yet.</p>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block modals %}
+    <div class="modal fade" id="flag-review" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content panel-warning">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Flag this observation for review.</h4>
+                    </div>
+                    <div class="modal-body panel-body">
+                        <p>Flag this observation for review, if you think that the observation contains errors or should be revisited.</p>
+                        <p>Please use the text field below to describe your objection as detailed as possible.</p>
+                        <textarea class="form-control" rows="5" placeholder="Describe your objection here."></textarea>
+                    </div>
+                    <div class="modal-footer panel-footer">
+                        <button type="button" name="confirm" class="btn btn-warning" data-loading-text="Loading...">Set flag.</button>
+                    </div>
                 </div>
             </div>
         </div>
