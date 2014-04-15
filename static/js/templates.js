@@ -47,11 +47,11 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "-min\" class=\"col-sm-3 col-sm-offset-1 control-label\">is older than</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"YYYY/MM/DD hh:mm\" type=\"datetime\" class=\"form-control\" name=\"";
+    + "-min\" class=\"col-sm-3 col-sm-offset-1 control-label\">is older than</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"YYYY-MM-DD hh:mm\" type=\"datetime\" class=\"form-control\" name=\"";
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "-min\" id=\"minval\">\n    </div>\n</div>\n<div class=\"form-group\">\n    <label for=\"younger\" class=\"col-sm-3 col-sm-offset-1 control-label\">and younger than</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"YYYY/MM/DD hh:mm\" type=\"datetime\" class=\"form-control\" name=\"";
+    + "-min\" id=\"minval\">\n    </div>\n</div>\n<div class=\"form-group\">\n    <label for=\"younger\" class=\"col-sm-3 col-sm-offset-1 control-label\">and younger than</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"YYYY-MM-DD hh:mm\" type=\"datetime\" class=\"form-control\" name=\"";
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)

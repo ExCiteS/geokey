@@ -19,6 +19,6 @@ def value(attributes, field):
                 return lookup.name
 
     if field.fieldtype == 'DateTimeField':
-        return moment.date(iso8601.parse_date(value)).format('D/M/YYYY h:m A')
+        return moment.date(iso8601.parse_date(value)).format('YYYY-M-D h:m A')
 
     return value

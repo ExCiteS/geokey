@@ -257,17 +257,17 @@ class DateTimeField(Field):
 
     def filter(self, item, reference):
         value = parse_date(item.current_data.attributes[self.key])
-        minval = parse_date(reference.get('minval'))
-        maxval = parse_date(reference.get('maxval'))
+        minval = reference.get('minval')
+        maxval = reference.get('maxval')
 
         if minval is not None and maxval is not None:
-            return value > minval and value < maxval
+            return value > parse_date(minval) and value < parse_date(maxval)
         else:
             if minval is not None:
-                return value > minval
+                return value > parse_date(minval)
 
             if maxval is not None:
-                return value > maxval
+                return value > parse_date(maxval)
 
 
 class LookupField(Field):

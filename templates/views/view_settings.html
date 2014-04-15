@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load filters %}
+
 {% block bodydata %} data-project-id="{{view.project.id}}" data-view-id="{{view.id}}"{% endblock %}
 {% block title %} | View: {{view.name}}{% endblock %}
 
@@ -38,8 +40,8 @@
 			<div class="row">
 				<div class="col-sm-12">
 					<ul class="nav nav-tabs">
-						<li class="active"><a href="#users" data-toggle="tab">Usergroups</a></li>
-						<li><a href="#rules" data-toggle="tab">Filter definitions</a></li>
+						<li class="active"><a href="#rules" data-toggle="tab">Filter definitions</a></li>
+						<li><a href="#users" data-toggle="tab">Usergroups</a></li>
 						<li><a href="#general-settings" data-toggle="tab">General</a></li>
 					</ul>
 				</div>
@@ -47,7 +49,7 @@
 		</div>
 
 		<div class="container tab-content">
-			<div class="row tab-pane active" id="users">
+			<div class="row tab-pane" id="users">
 				<div class="col-md-12">
 					<div class="panel panel-default"> <!-- User group list -->
 						<div class="panel-heading">
@@ -87,17 +89,22 @@
 				</div>
 			</div>
 
-			<div class="row tab-pane" id="rules">
+			<div class="row tab-pane active" id="rules">
 				<div class="col-md-12">
 					<div class="panel panel-default"> <!-- User group list -->
 						<div class="panel-heading">
 							<h2 class="panel-title">Filter definitions</h2>
 						</div>
-						<ul class="list-group">
+						<div class="list-group">
 							{% for rule in view.rules.all %}
-                                <li class="list-group-item">{{rule.observation_type.name}}</li>
+								<a href="#" class="list-group-item">
+									Includes observations of type <strong>{{ rule.observation_type.name }}</strong> where
+									<ul>
+										{% filters rule %}
+									</ul>
+								</a>
                             {% endfor %}
-						</ul>
+						</div>
 						<div class="panel-footer">
 							<a href="{% url 'admin:view_rule_create' view.project.id view.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Define new filter</a>
 						</div>
