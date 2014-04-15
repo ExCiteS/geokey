@@ -38,7 +38,7 @@ class View(models.Model):
                     rule_filter = rule.filters[key]
 
                 field = rule.observation_type.fields.get_subclass(key=key)
-                result = field.filter(key, rule_filter, result)
+                result = (x for x in result if field.filter(x, rule_filter))
 
             querysets.append(result)
 

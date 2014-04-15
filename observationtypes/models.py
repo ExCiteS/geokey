@@ -1,4 +1,5 @@
 import iso8601
+import json
 
 from django.db import models
 from django.db.models.loading import get_model
@@ -102,7 +103,7 @@ class Field(models.Model):
             'subclass of Field.'
         )
 
-    def filter(self, key, reference, result_set):
+    def filter(self, item, reference):
         raise NotImplementedError(
             'The method `filter` has not been implemented for this '
             'subclass of Field.'
@@ -126,8 +127,8 @@ class TextField(Field):
     def type_name(self):
         return 'Text'
 
-    def filter(self, key, reference, result_set):
-        return result_set.filter(data__attributes__icontains=reference)
+    def filter(self, item, reference):
+        return reference.lower() in item.current_data.attributes[self.key].lower()
 
 
 class NumericField(Field):
@@ -182,19 +183,19 @@ class NumericField(Field):
     def type_name(self):
         return 'Numeric'
 
-    def filter(self, key, reference, result_set):
+    def filter(self, item, reference):
+        value = json.loads(item.current_data.attributes[self.key])
         minval = reference.get('minval')
         maxval = reference.get('maxval')
 
-        if minval is not None:
-            result_set = result_set.filter(
-                data__attributes__gt={key: minval})
+        if minval is not None and maxval is not None:
+            return value > minval and value < maxval
+        else:
+            if minval is not None:
+                return value > minval
 
-        if maxval is not None:
-            result_set = result_set.filter(
-                data__attributes__lt={key: maxval})
-
-        return result_set
+            if maxval is not None:
+                return value < maxval
 
 
 class TrueFalseField(Field):
@@ -226,8 +227,8 @@ class TrueFalseField(Field):
     def type_name(self):
         return 'True/False'
 
-    def filter(self, key, reference, result_set):
-        return result_set.filter(data__attributes={key: reference})
+    def filter(self, item, reference):
+        return reference == json.loads(item.current_data.attributes[self.key])
 
 
 class DateTimeField(Field):
@@ -252,19 +253,19 @@ class DateTimeField(Field):
     def type_name(self):
         return 'Date and Time'
 
-    def filter(self, key, reference, result_set):
+    def filter(self, item, reference):
+        value = item.current_data.attributes[self.key]
         minval = reference.get('minval')
         maxval = reference.get('maxval')
 
-        if minval is not None:
-            result_set = result_set.filter(
-                data__attributes__gt={key: minval})
+        if minval is not None and maxval is not None:
+            return value > minval and value < maxval
+        else:
+            if minval is not None:
+                return value > minval
 
-        if maxval is not None:
-            result_set = result_set.filter(
-                data__attributes__lt={key: maxval})
-
-        return result_set
+            if maxval is not None:
+                return value > maxval
 
 
 class LookupField(Field):
@@ -298,8 +299,8 @@ class LookupField(Field):
     def type_name(self):
         return 'Lookup'
 
-    def filter(self, key, reference, result_set):
-        return result_set.filter(data__attributes__contains={key: reference})
+    def filter(self, item, reference):
+        return json.loads(item.current_data.attributes[self.key]) in reference
 
 
 class LookupValue(models.Model):

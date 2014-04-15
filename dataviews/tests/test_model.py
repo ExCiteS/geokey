@@ -161,6 +161,55 @@ class ViewTest(TestCase):
         for observation in view.data:
             self.assertEqual(observation.observationtype, observation_type_1)
 
+    def test_get_updated_data(self):
+        project = ProjectF()
+        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        TextFieldFactory(**{
+            'key': 'text',
+            'observationtype': observation_type_1
+        })
+
+        observation = ObservationFactory(**{
+            'project': project,
+            'observationtype': observation_type_1}
+        )
+        ObservationDataFactory(**{
+            'observation': observation,
+            'attributes': {'text': 'yes to update'}
+        })
+
+        for x in range(0, 5):
+            observation_1 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_1,
+                'attributes': {'text': 'yes ' + str(x)}
+            })
+
+            observation_2 = ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1}
+            )
+            ObservationDataFactory(**{
+                'observation': observation_2,
+                'attributes': {'text': 'no ' + str(x)}
+            })
+
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{
+            'view': view,
+            'observation_type': observation_type_1,
+            'filters': {'text': 'yes'}
+        })
+
+        updater = UserF()
+        update = {'text': 'yes, this has been updated', 'version': 1}
+        observation.update(data=update, creator=updater)
+
+        self.assertEqual(len(view.data), 6)
+
     def test_get_data_combined(self):
         project = ProjectF()
         observation_type_1 = ObservationTypeFactory(**{'project': project})

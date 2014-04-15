@@ -1,6 +1,8 @@
 import datetime
 import factory
 
+from django.utils.timezone import utc
+
 from provider.oauth2.models import Client, AccessToken
 
 from projects.tests.model_factories import UserF
@@ -22,5 +24,5 @@ class AccessTokenFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory(UserF)
     token = 'aaaaasdffdsflsdkfkljdskjfkjdsfkjsdkfjklsdjfuywe8932y89y3892yr78gew7gf7wegf7yw8f9dys8998sdc78sy78cys8dyf78dsyf78ysdh7ds8fg78dsfaaaaasdffdsflsdkfkljdskjfkjdsfkjsdkfjklsdjfuywe8932y89y3892yr78gew7gf7wegf7yw8f9dys8998sdc78sy78cys8dyf78dsyf78ysdh7ds8fg78dskdsj'
     client = factory.SubFactory(ClientFactory)
-    expires = datetime.date(2014, 12, 31)
+    expires = datetime.datetime(2014, 12, 31, tzinfo=utc)
     scope = 1
