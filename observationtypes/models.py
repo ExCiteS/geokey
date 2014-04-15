@@ -1,5 +1,7 @@
-import iso8601
 import json
+
+from iso8601 import parse_date
+from iso8601.iso8601 import ParseError
 
 from django.db import models
 from django.db.models.loading import get_model
@@ -244,8 +246,8 @@ class DateTimeField(Field):
         self.validate_required(value)
 
         try:
-            iso8601.parse_date(value)
-        except iso8601.iso8601.ParseError:
+            parse_date(value)
+        except ParseError:
             raise InputError('The value for DateTimeField %s is not a valid '
                              'date.' % self.name)
 
@@ -254,9 +256,9 @@ class DateTimeField(Field):
         return 'Date and Time'
 
     def filter(self, item, reference):
-        value = item.current_data.attributes[self.key]
-        minval = reference.get('minval')
-        maxval = reference.get('maxval')
+        value = parse_date(item.current_data.attributes[self.key])
+        minval = parse_date(reference.get('minval'))
+        maxval = parse_date(reference.get('maxval'))
 
         if minval is not None and maxval is not None:
             return value > minval and value < maxval

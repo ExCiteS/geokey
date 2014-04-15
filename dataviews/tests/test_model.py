@@ -570,7 +570,7 @@ class ViewTest(TestCase):
             )
             ObservationDataFactory(**{
                 'observation': observation_1,
-                'attributes': {'date': '2014/04/09'}
+                'attributes': {'date': '2014-04-09'}
             })
 
             observation_2 = ObservationFactory(**{
@@ -579,7 +579,7 @@ class ViewTest(TestCase):
             )
             ObservationDataFactory(**{
                 'observation': observation_2,
-                'attributes': {'date': '2013/04/09'}
+                'attributes': {'date': '2013-04-09'}
             })
 
             observation_3 = ObservationFactory(**{
@@ -588,7 +588,7 @@ class ViewTest(TestCase):
             )
             ObservationDataFactory(**{
                 'observation': observation_3,
-                'attributes': {'bla': '2014/04/09'}
+                'attributes': {'bla': '2014-04-09'}
             })
 
         view = ViewFactory(**{'project': project})
@@ -596,7 +596,7 @@ class ViewTest(TestCase):
             'view': view,
             'observation_type': observation_type_1,
             'filters': {'date': {
-                'minval': '2014/01/01', 'maxval': '2014/06/09'}
+                'minval': '2014-01-01', 'maxval': '2014-06-09 00:00'}
             }
         })
 
