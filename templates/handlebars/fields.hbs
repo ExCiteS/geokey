@@ -1,22 +1,19 @@
 {{#each fields}}
-    <div class="field-filter" data-key="{{key}}" data-type="{{fieldtype}}">
-        <div class="form-inline">
-            {{name}}
-            {{#ifCond fieldtype 'TextField'}}
-                {{> textfield}}
-            {{/ifCond}}
-            {{#ifCond fieldtype 'NumericField'}}
-                {{> numericfield}}
-            {{/ifCond}}
-            {{#ifCond fieldtype 'DateTimeField'}}
-                {{> datefield}}
-            {{/ifCond}}
-            {{#ifCond fieldtype 'TrueFalseField'}}
-                {{> truefalsefield}}
-            {{/ifCond}}
-            {{#ifCond fieldtype 'LookupField'}}
-                {{> lookupfield}}
-            {{/ifCond}}
-        </div>
+    <div class="field-filter form-horizontal" data-key="{{key}}" data-type="{{fieldtype}}">
+        {{#ifCond fieldtype 'TextField'}}
+            {{> textfield}}
+        {{/ifCond}}
+        {{#ifCond fieldtype 'NumericField'}}
+            {{> numericfield}}
+        {{/ifCond}}
+        {{#ifCond fieldtype 'DateTimeField'}}
+            {{> datefield}}
+        {{/ifCond}}
+        {{#ifCond fieldtype 'TrueFalseField'}}
+            {{> truefalsefield}}
+        {{/ifCond}}
+        {{#ifCond fieldtype 'LookupField'}}
+            {{> lookupfield}}
+        {{/ifCond}}
     </div>
 {{/each}}

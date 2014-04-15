@@ -21,9 +21,9 @@ $(function() {
                 this.remove();
             });
 
+            $('#field-options').empty();
             $('#field-options').append(Templates.fields(response));
             if (!Modernizr.inputtypes.datetime) {
-                console.log('in bootstrap mode');
                 $('input[type="datetime"]').datetimepicker();
             }
         }
