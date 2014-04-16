@@ -2,6 +2,7 @@ from django.views.generic import CreateView, TemplateView
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -47,7 +48,7 @@ class ProjectAdminCreateView(LoginRequiredMixin, CreateView):
         return redirect('admin:project_settings', project_id=project.id)
 
 
-class ProjectAdminDetailView(LoginRequiredMixin, TemplateView):
+class ProjectObservations(LoginRequiredMixin, TemplateView):
     """
     Displays the project overview page
     """
@@ -86,6 +87,18 @@ class ProjectAdminSettings(LoginRequiredMixin, TemplateView):
             'project': project,
             'status_types': STATUS
         }
+
+    def dispatch(self, request, *args, **kwargs):
+        project_id = kwargs.get('project_id')
+        try:
+            Project.objects.as_admin(request.user, project_id)
+        except PermissionDenied:
+            return redirect(reverse('admin:project_observations', kwargs={
+                'project_id': project_id,
+            }))
+
+        return super(ProjectAdminSettings, self).dispatch(
+            request, *args, **kwargs)
 
 
 # ############################################################################
