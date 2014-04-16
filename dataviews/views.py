@@ -1,5 +1,6 @@
 import json
 
+from django.core.exceptions import PermissionDenied
 from django.views.generic import CreateView, TemplateView
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -86,6 +87,20 @@ class ViewAdminSettingsView(LoginRequiredMixin, TemplateView):
         user = self.request.user
         view = View.objects.as_admin(user, project_id, view_id)
         return {'view': view, 'status_types': STATUS}
+
+    def dispatch(self, request, *args, **kwargs):
+        project_id = kwargs.get('project_id')
+        view_id = kwargs.get('view_id')
+        try:
+            View.objects.as_admin(request.user, project_id, view_id)
+        except PermissionDenied:
+            return redirect(reverse('admin:view_data', kwargs={
+                'project_id': project_id,
+                'view_id': view_id
+            }))
+
+        return super(ViewAdminSettingsView, self).dispatch(
+            request, *args, **kwargs)
 
 
 class ViewAdminDataView(LoginRequiredMixin, TemplateView):
