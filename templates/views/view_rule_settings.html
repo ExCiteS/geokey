@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% load key %}
+{% load is_in %}
+
+{% block bodydata %} data-project-id="{{rule.view.project.id}}" data-view-id="{{rule.view.id}}" data-view-id="{{rule.id}}"{% endblock %}
+{% block title %} | Filter settings{% endblock %}
+
+{% block main %}
+        <div class="page-header">
+            <div class="container">
+                <ol class="breadcrumb">
+                    <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
+                    <li><a href="{% url 'admin:project_settings' rule.view.project.id %}">{{ rule.view.project.name }}</a></li>
+                    <li><a href="{% url 'admin:view_settings' rule.view.project.id rule.view.id %}">{{rule.view.name}}</a></li>
+                    <li class="active">Filter Settings</li>
+                </ol>
+
+                <h1>Filter Settings</h1>
+                <p class="lead">Filters apply to observations of type <em>{{rule.observation_type.name}}</em></p>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <form id="rule-form" role="form" class="form-horizontal col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url 'admin:rule_settings' rule.view.project.id rule.view.id rule.id %}" novalidate>
+                    {% csrf_token %}
+                    {% for field in rule.observation_type.fields.all %}
+                        <div class="field-filter" data-key="{{field.key}}" data-type="{{field.fieldtype}}">
+                            <h5>{{field.name}} ({{field.key}})</h5>
+                            {% if field.fieldtype == 'TextField' %}
+                                <div class="form-group">
+                                    <label for="{{field.key}}-ref" class="col-sm-3 col-sm-offset-1 control-label">contains</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" name="{{field.key}}-ref" id="reference-value" class="reference-value" value="{{ rule.filters|key:field.key }}">
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {% if field.fieldtype == 'NumericField' %}
+                                <div class="form-group">
+                                    <label for="{{field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is larger than</label>
+                                    <div class="col-sm-7">
+                                        <input type="number" class="form-control" name="{{field.key}}-min" id="minval" {% if field.maxval %}max="{{field.maxval}}" placeholder="{{maxval}}" {% endif %} {% if fielf.minval %}min="{{field.minval}}"{% endif %} {{ rule.filters|minval:field.key }}>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="{{field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">is lower than</label>
+                                    <div class="col-sm-7">
+                                        <input type="number" class="form-control" name="{{field.key}}-max" id="maxval" {% if field.maxval %}max="{{field.maxval}}" placeholder="{{maxval}}" {% endif %} {% if fielf.minval %}min="{{field.minval}}"{% endif %} {{ rule.filters|maxval:field.key }}>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {% if field.fieldtype == 'DateTimeField' %}
+                                <div class="form-group">
+                                    <label for="{{field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is older than</label>
+                                    <div class="col-sm-7">
+                                        <input data-date-format="YYYY-MM-DD hh:mm" type="datetime" class="form-control" name="{{field.key}}-min" id="minval" {{ rule.filters|minval:field.key }}>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="younger" class="col-sm-3 col-sm-offset-1 control-label">and younger than</label>
+                                    <div class="col-sm-7">
+                                        <input data-date-format="YYYY-MM-DD hh:mm" type="datetime" class="form-control" name="{{field.key}}-max" id="maxval" {{ rule.filters|maxval:field.key }}>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {% if field.fieldtype == 'TrueFalseField' %}
+                                <div class="form-group">
+                                    <label for="{{field.key}}-ref" class="col-sm-3 col-sm-offset-1 control-label">is</label>
+                                    <div class="col-sm-7">
+                                        <select name="{{field.key}}-ref" id="reference-value" class="form-control">
+                                            <option></option>
+                                            <option value="true" {% if rule.filters|key:field.key == 'true' %}selected{% endif %}>True</option>
+                                            <option value="false" {% if rule.filters|key:field.key == 'false' %}selected{% endif %}>False</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {% if field.fieldtype == 'LookupField' %}
+                                <div class="form-group">
+                                    <label for="{{field.key}}-ref" class="col-sm-3 col-sm-offset-1 control-label">is one of</label>
+                                    <div class="col-sm-7">
+                                        <select name="{{field.key}}-ref" id="reference-value" multiple size="3" class="form-control">
+                                            {% for value in field.lookupvalues.all %}
+                                                <option value="{{value.id}}" {% is_in value.id field.key rule.filters %}>{{value.name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </form>
+            </div>
+
+            <div class="row">
+                <div id="field-options" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2"></div>
+            </div>
+
+            <div class="row">
+                <div id="field-options" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2">
+                    <button type="button" class="btn btn-primary">Save</button>
+                    <a href="{% url 'admin:view_settings' rule.view.project.id rule.view.id %}" class="btn btn-default" role="button">Cancel</a>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block libraries %}
+            <script src="/static/lib/handlebars/handlebars.js"></script>
+            <script src="/static/js/templates.js"></script>
+            <script src="/static/lib/moment/moment.min.js"></script>
+            <link rel="stylesheet" href="/static/lib/bootstrap-datetime/css/bootstrap-datetimepicker.min.css">
+            <script src="/static/lib/bootstrap-datetime/js/bootstrap-datetimepicker.min.js"></script>
+            <script src="/static/js/admin.ui.view.rules.js"></script>
+            <script src="/static/js/admin.control.ajax.js"></script>
+            <script src="/static/js/admin.ui.messages.js"></script>
+{% endblock %}

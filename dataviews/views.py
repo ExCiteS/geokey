@@ -232,6 +232,24 @@ class RuleCreateView(LoginRequiredMixin, CreateView):
                         project_id=project_id, view_id=view_id)
 
 
+class RuleSettingsView(LoginRequiredMixin, TemplateView):
+    """
+    Displays the settings page
+    """
+    template_name = 'views/view_rule_settings.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, view_id, rule_id, **kwargs):
+        """
+        Creates the request context for rendering the page
+        """
+        view = View.objects.as_admin(self.request.user, project_id, view_id)
+        context = super(RuleSettingsView, self).get_context_data(**kwargs)
+
+        context['rule'] = view.rules.get(pk=rule_id)
+        return context
+
+
 # ############################################################################
 #
 # AJAX API views

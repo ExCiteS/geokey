@@ -86,6 +86,10 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/rules/new/$',
         view_views.RuleCreateView.as_view(),
         name='view_rule_create'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/rules/(?P<rule_id>[0-9]+)/$',
+        view_views.RuleSettingsView.as_view(),
+        name='rule_settings'),
 
     # ###########################
     # APPS

@@ -97,7 +97,7 @@
 						</div>
 						<div class="list-group">
 							{% for rule in view.rules.all %}
-								<a href="#" class="list-group-item">
+								<a href="{% url 'admin:rule_settings' rule.view.project.id rule.view.id rule.id %}" class="list-group-item">
 									Includes observations of type <strong>{{ rule.observation_type.name }}</strong> where
 									<ul>
 										{% filters rule %}

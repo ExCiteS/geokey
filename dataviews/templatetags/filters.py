@@ -23,7 +23,6 @@ def filters(rule):
 
                 if minval is not None:
                     s = s + 'greater than %s' % minval
-                    print s
                 if minval is not None and maxval is not None:
                     s = s + ' and '
                 if maxval is not None:
@@ -38,7 +37,6 @@ def filters(rule):
 
                 if minval is not None:
                     s = s + 'after %s' % minval
-                    print s
                 if minval is not None and maxval is not None:
                     s = s + ' and '
                 if maxval is not None:
@@ -46,7 +44,7 @@ def filters(rule):
                 s = s + '</li>'
 
             if field.fieldtype == 'TrueFalseField':
-                s = s + '<li> %s contains %s</li>' % (field.name, rule_filter)
+                s = s + '<li> %s is %s</li>' % (field.name, rule_filter)
 
             if field.fieldtype == 'LookupField':
                 values = []

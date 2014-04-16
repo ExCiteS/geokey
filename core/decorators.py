@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from core.exceptions import MalformedRequestData
 from projects.models import Project, UserGroup
 from observationtypes.models import ObservationType, Field, LookupValue
-from dataviews.models import View, ViewGroup
+from dataviews.models import View, ViewGroup, Rule
 from applications.models import Application
 from contributions.models import Observation, Location
 
@@ -24,6 +24,7 @@ def handle_exceptions_for_admin(func):
             Field.DoesNotExist,
             View.DoesNotExist,
             ViewGroup.DoesNotExist,
+            Rule.DoesNotExist,
             Application.DoesNotExist
         ) as error:
             return {"error": str(error), "head": "Not found."}
