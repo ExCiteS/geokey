@@ -27,6 +27,13 @@ Handlebars.registerHelper('user', function(user) {
         username += ')';
     }
     return username;
+});
+
+Handlebars.registerHelper('ifCond', function(v1, v2, options) {
+  if(v1 === v2) {
+    return options.fn(this);
+  }
+  return options.inverse(this);
 });;this["Templates"] = this["Templates"] || {};
 
 Handlebars.registerPartial("datefield", Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {

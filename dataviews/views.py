@@ -249,6 +249,17 @@ class RuleSettingsView(LoginRequiredMixin, TemplateView):
         context['rule'] = view.rules.get(pk=rule_id)
         return context
 
+    @handle_exceptions_for_admin
+    def post(self, request, project_id, view_id, rule_id):
+        view = View.objects.as_admin(self.request.user, project_id, view_id)
+        rule = view.rules.get(pk=rule_id)
+        print request.POST.get('rules')
+        rule.filters = json.loads(request.POST.get('rules'))
+        rule.save()
+
+        return redirect('admin:view_settings',
+                        project_id=project_id, view_id=view_id)
+
 
 # ############################################################################
 #
