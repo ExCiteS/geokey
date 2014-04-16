@@ -37,7 +37,7 @@
 		this.userList.find('li a.remove').click(this.handleRemoveUser.bind(this));
 
 		// Register the keyup event on the text field.
-		this.formField.keyup(this.handleFormType.bind(this));
+		this.formField.keydown(this.handleFormType.bind(this));
 	}
 
 	Usergroup.prototype.displaySuccess = function displaySuccess() {
@@ -87,8 +87,6 @@
 	 * @param  {Object} response JSON object of the response
 	 */
 	Usergroup.prototype.handleAddUserSucess = function handleAddUserSucess(response) {
-		// var users = response.users;
-
 		this.userList.empty();
 		this.userList.append(Templates.usergroupusers(response));
 		this.userList.find('li a.remove').click(this.handleRemoveUser.bind(this));
@@ -159,12 +157,40 @@
 	 * @param  {Event} event The keyup event fired by the field.
 	 */
 	Usergroup.prototype.handleFormType = function handleFormType(event) {
-		if (event.target.value.length === 0) {
-			this.typeAwayResults.hide();
-		} else if (event.target.value.length >= 3) {
-			this.formField.addClass('loading');
-			this.numberOfRequests++;
-			Control.Ajax.get('users?query=' + event.target.value, this.handleSuccess.bind(this), this.handleError.bind(this));
+		var activeLink = this.typeAwayResults.find('li.active');
+		if (event.keyCode === 13) {
+			if (activeLink.length > 0) {
+				activeLink.children().click();
+			}
+		}
+		else if ((event.keyCode === 40 || event.keyCode === 38) && this.typeAwayResults.is(":visible")) {
+			event.preventDefault();
+			if (activeLink.length > 0) {
+				if (event.keyCode === 38) {
+					// move up
+					if (activeLink.prev().not('.dropdown-header').length) {
+						activeLink.removeClass('active');
+						activeLink.prev().addClass('active');
+					}
+				}
+				if (event.keyCode === 40) {
+					// move down
+					if (activeLink.next().length) {
+						activeLink.removeClass('active');
+						activeLink.next().addClass('active');
+					}
+				}
+			} else {
+				this.typeAwayResults.find('li').not('.dropdown-header').first().addClass('active');
+			}
+		} else {
+			if (event.target.value.length === 1) {
+				this.typeAwayResults.hide();
+			} else if (event.target.value.length >= 2) {
+				this.formField.addClass('loading');
+				this.numberOfRequests++;
+				Control.Ajax.get('users?query=' + event.target.value, this.handleSuccess.bind(this), this.handleError.bind(this));
+			}
 		}
 	};
 
