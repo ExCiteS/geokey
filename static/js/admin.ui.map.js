@@ -42,7 +42,11 @@ $(function() {
 
     function handleDataLoadError(response) {
         $('.info-loading').hide('slow', function() { this.remove(); });
-        messages.showPanelError($('#map').parent(), 'An Error occurred while loading the observations. Error text was: ' + response.responseJSON.error);
+        if (response.status === 403) {
+            messages.showPanelError($('#map').parent(), 'You are not allowed to access this view. Please select a different view from the list.');
+        } else {
+            messages.showPanelError($('#map').parent(), 'An Error occurred while loading the observations. Error text was: ' + response.responseJSON.error);
+        }
     }
 
     messages.showPanelLoading($('#map').parent(), 'Loading observations...');
