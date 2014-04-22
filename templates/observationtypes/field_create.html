@@ -7,7 +7,7 @@
 			<div class="container">
 				<ol class="breadcrumb">
 					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
-					<li><a href="{% url 'admin:project_detail' observationtype.project.id %}">{{ observationtype.project.name }}</a></li>
+					<li><a href="{% url 'admin:project_settings' observationtype.project.id %}">{{ observationtype.project.name }}</a></li>
 					<li><a href="{% url 'admin:observationtype_detail' observationtype.project.id observationtype.id %}">{{ observationtype.name }}</a></li>
 					<li class="active">Create new field</li>
 				</ol>

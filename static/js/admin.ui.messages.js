@@ -59,7 +59,7 @@
 	 * @param  {String}  message   The message text
 	 */
 	MessageDisplay.prototype.showPanelMessage = function showPanelMessage(type, container, message, autohide) {
-		var html = $('<div class="alert alert-' + type + '">' + message + '</div>').hide();
+		var html = $('<div class="alert alert-' + type + '">' + message + '</div>');
 		container.prepend(html);
 
 		if (autohide) {

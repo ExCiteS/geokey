@@ -14,6 +14,7 @@ from core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
 from dataviews.models import View
+from contributions.serializers import ContributionSerializer
 
 from .base import STATUS
 from .models import Project, UserGroup
@@ -70,6 +71,26 @@ class ProjectObservations(LoginRequiredMixin, TemplateView):
         }
 
 
+class ProjectSingleObservation(LoginRequiredMixin, TemplateView):
+    template_name = 'contributions/observation.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, observation_id):
+        """
+        Creates the request context for rendering the page
+        """
+        user = self.request.user
+        project = Project.objects.as_admin(user, project_id)
+        # check if the observation can be access through that view
+        observation = project.observations.get(
+            pk=observation_id)
+
+        return {
+            'project': project,
+            'observation': observation
+        }
+
+
 class ProjectAdminSettings(LoginRequiredMixin, TemplateView):
     """
     Displays the project settings page
@@ -109,7 +130,7 @@ class ProjectAdminSettings(LoginRequiredMixin, TemplateView):
 
 class ProjectApiDetail(APIView):
     """
-    API Endpoints for a project in the AJAX API.
+    API Endpoint for a project in the AJAX API.
     /ajax/projects/:project_id
     """
 
@@ -136,6 +157,18 @@ class ProjectApiDetail(APIView):
         project = Project.objects.as_admin(request.user, project_id)
         project.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ProjectAjaxObservations(APIView):
+    """
+    API Endpoint for a project in the AJAX API.
+    /ajax/projects/:project_id/observations/
+    """
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, format=None):
+        project = Project.objects.as_admin(request.user, project_id)
+        serializer = ContributionSerializer(project.observations.all(), many=True)
+        return Response(serializer.data)
 
 
 class ProjectApiUserGroup(APIView):

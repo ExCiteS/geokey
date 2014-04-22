@@ -8,11 +8,15 @@
 $(function() {
     'use strict';
 
+    var messages = new Ui.MessageDisplay();
+
     // Reads the IDs from the body's attributes
     var projectId = $('body').attr('data-project-id'),
         viewId = $('body').attr('data-view-id');
 
-    var url = 'projects/' + projectId + '/views/' + viewId + '/data/';
+    var url = 'projects/' + projectId;
+    if (viewId) { url += '/views/' + viewId; }
+    url += '/observations/';
 
     var map = L.map('map', {
         center: [51.505, -0.09],
@@ -25,44 +29,22 @@ $(function() {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    function showFeatureInfo(event) {
-        $('#map').removeClass('col-sm-12').addClass('col-sm-4');
-
-        var feature = event.target.feature;
-
-        function handleObservationtypeSuccess(response) {
-            $('#info').remove();
-            var context = {
-                feature: feature,
-                observationtype: response
-            };
-            $('#map').parent().append(Templates.observationinfo(context));
-            map.invalidateSize();
-        }
-
-        function handleObservationtypeError(response) {
-            alert(response);
-        }
-
-        Control.Ajax.get('projects/' + projectId + '/observationtypes/' + feature.properties.observationtype + '/', handleObservationtypeSuccess, handleObservationtypeError);
-
-        map.fitBounds(L.featureGroup([L.geoJson(feature)]).getBounds());
-    }
-
     function handleDataLoadSuccess(response) {
         var dataLayer = L.geoJson(response, {
             onEachFeature: function (feature, layer) {
                 layer.bindPopup(Templates.observation(feature));
-                // layer.on('click', showFeatureInfo);
             }
         });
-        map.fitBounds(dataLayer.getBounds());
         dataLayer.addTo(map);
+        map.fitBounds(dataLayer.getBounds());
+        $('.info-loading').hide('slow', function() { this.remove(); });
     }
 
     function handleDataLoadError(response) {
-        alert(response);
+        $('.info-loading').hide('slow', function() { this.remove(); });
+        messages.showPanelError($('#map').parent(), 'An Error occurred while loading the observations. Error text was: ' + response.responseJSON.error);
     }
 
+    messages.showPanelLoading($('#map').parent(), 'Loading observations...');
     Control.Ajax.get(url, handleDataLoadSuccess, handleDataLoadError);
 });

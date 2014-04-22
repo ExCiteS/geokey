@@ -8,8 +8,8 @@ from rest_framework_gis import serializers as geoserializers
 
 from core.exceptions import MalformedRequestData
 from projects.models import Project
-from projects.serializers import ProjectSerializer
 from observationtypes.models import ObservationType
+from observationtypes.serializer import ObservationTypeSerializer
 
 from .models import Location, Observation, ObservationData
 
@@ -22,13 +22,10 @@ class LocationSerializer(geoserializers.GeoFeatureModelSerializer):
 
 
 class LocationContributionSerializer(serializers.ModelSerializer):
-    private_for_project = ProjectSerializer(read_only=True, partial=True)
-
     class Meta:
         model = Location
         depth = 1
-        fields = ('id', 'name', 'description', 'status',
-                  'created_at', 'private', 'private_for_project')
+        fields = ('id', 'name', 'description', 'status', 'created_at')
 
 
 class ObservationSerializer(serializers.ModelSerializer):
@@ -136,11 +133,6 @@ class ContributionSerializer(object):
         """
         Serializes the instance into a GeoJSON format
         """
-        location_serializer = LocationContributionSerializer(
-            instance.location)
-        observation_serializer = ObservationSerializer(instance)
-        observation_data_serializer = ObservationDataSerializer(
-            instance.current_data)
         json_object = {
             'id': instance.id,
             'type': 'Feature',
@@ -148,11 +140,21 @@ class ContributionSerializer(object):
             'properties': {}
         }
 
+        observation_serializer = ObservationSerializer(instance)
+        observation_data_serializer = ObservationDataSerializer(
+            instance.current_data)
         json_object['properties'] = dict(
             observation_serializer.data.items() +
             observation_data_serializer.data.items()
         )
-        json_object['properties']['location'] = location_serializer.data
+
+        location_serializer = LocationContributionSerializer(
+            instance.location)
+        json_object['location'] = location_serializer.data
+
+        observationtype_serializer = ObservationTypeSerializer(
+            instance.observationtype)
+        json_object['observationtype'] = observationtype_serializer.data
 
         for field in instance.observationtype.fields.all():
             json_object['properties'][field.key] = field.convert_from_string(

@@ -22,7 +22,30 @@
 
 		<div class="container">
 			<div class="row">
-				<div id="map" class="col-sm-12"></div>
+				<div class="col-sm-4">
+                    <div class="panel panel-default"> <!-- View list -->
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Views</h2>
+                        </div>
+                        <div class="list-group">
+                            {% if admin %}
+                            <a class="list-group-item" href="{% url 'admin:project_observations' view.project.id %}">
+                                <h4 class="list-group-item-heading">All data</h4>
+                                <p class="list-group-item-text">All data contributed to the project.</p>
+                            </a>
+                            {% endif %}
+                            {% for dataview in views %}
+                            <a class="list-group-item {% if dataview.id == view.id%}active{% endif %}" href="{% url 'admin:view_data' dataview.project.id dataview.id %}">
+                                <h4 class="list-group-item-heading">{{ dataview.name }}</h4>
+                                <p class="list-group-item-text">{{ dataview.description }}</p>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div> <!-- /View List -->
+                </div>
+                <div class="col-sm-8">
+                	<div id="map"></div>
+                </div>
 			</div>
 		</div>
 {% endblock %}
@@ -40,6 +63,7 @@
 
 		<script src="/static/lib/moment/moment.min.js"></script>
 		<!-- CUSTOM SPECIALS-->
+			<script src="/static/js/admin.ui.messages.js"></script>
 			<script src="/static/js/admin.control.ajax.js"></script>
 			<script src="/static/js/admin.ui.map.js"></script>
 		<!-- /CUSTOM SPECIALS-->

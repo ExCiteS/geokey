@@ -117,12 +117,12 @@ class ViewAdminDataView(LoginRequiredMixin, TemplateView):
         return {
             'view': view,
             'admin': view.project.is_admin(user),
-            'project_views': project_views
+            'views': project_views
         }
 
 
 class ViewSingleObservation(LoginRequiredMixin, TemplateView):
-    template_name = 'views/observation.html'
+    template_name = 'contributions/observation.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, view_id, observation_id):
@@ -392,7 +392,7 @@ class ViewApiData(APIView):
     def get(self, request, project_id, view_id, format=None):
         """
         Returns all data in a view
-        /ajax/projects/:project_id/views/:view_id/data
+        /ajax/projects/:project_id/views/:view_id/observations/
         """
         view = View.objects.get_single(request.user, project_id, view_id)
         serializer = ContributionSerializer(view.data, many=True)

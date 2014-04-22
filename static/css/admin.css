@@ -186,6 +186,10 @@ div#map {
 	margin-bottom: 1em;
 }
 
+.leaflet-container a.btn {
+	color: #fff;
+}
+
 .panel-title + p {
 	margin-top: 0.5em;
 }
