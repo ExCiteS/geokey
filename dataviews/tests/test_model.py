@@ -207,7 +207,6 @@ class ViewTest(TestCase):
         updater = UserF()
         update = {'text': 'yes, this has been updated', 'version': 1}
         observation.update(data=update, creator=updater)
-
         self.assertEqual(len(view.data), 6)
 
     def test_get_data_combined(self):
@@ -285,7 +284,6 @@ class ViewTest(TestCase):
             'observation_type': observation_type_1,
             'filters': {'text': 'yes'}
         })
-
         self.assertEqual(len(view.data), 5)
 
     def test_get_data_min_number_filter(self):

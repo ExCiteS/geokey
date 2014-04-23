@@ -114,7 +114,6 @@ class LocationUpdateApiTest(TestCase):
             self.admin
         )
         self.assertEqual(response.status_code, 200)
-
         location = Location.objects.get(pk=self.location.id)
         self.assertEqual(location.name, 'UCL')
 

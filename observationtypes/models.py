@@ -132,6 +132,9 @@ class TextField(Field):
     def filter(self, item, reference):
         return reference.lower() in item.current_data.attributes[self.key].lower()
 
+    def get_sql_filter(self, reference):
+        return 'lower(attributes->\'%s\') LIKE \'%%%s%%\'' % (self.key, reference.lower())
+
 
 class NumericField(Field):
     """
@@ -199,6 +202,19 @@ class NumericField(Field):
             if maxval is not None:
                 return value < maxval
 
+    def get_sql_filter(self, reference):
+        minval = reference.get('minval')
+        maxval = reference.get('maxval')
+
+        if minval is not None and maxval is not None:
+            return 'attributes->\'%s\' > %s and attributes->\'%s\' < %s' % (self.key, minval, self.key, maxval)
+        else:
+            if minval is not None:
+                return 'attributes->\'%s\' > %s' % (self.key, minval)
+
+            if maxval is not None:
+                return 'attributes->\'%s\' < %s' % (self.key, maxval)
+
 
 class TrueFalseField(Field):
     """
@@ -231,6 +247,9 @@ class TrueFalseField(Field):
 
     def filter(self, item, reference):
         return reference == json.loads(item.current_data.attributes[self.key])
+
+    def get_sql_filter(self, reference):
+        return 'attributes->\'%s\' = \'%s\'' % (self.key, reference)
 
 
 class DateTimeField(Field):
@@ -269,6 +288,19 @@ class DateTimeField(Field):
             if maxval is not None:
                 return value > parse_date(maxval)
 
+    def get_sql_filter(self, reference):
+        minval = reference.get('minval')
+        maxval = reference.get('maxval')
+
+        if minval is not None and maxval is not None:
+            return 'attributes->\'%s\' > \'%s\' and attributes->\'%s\' < \'%s\'' % (self.key, parse_date(minval), self.key, parse_date(maxval))
+        else:
+            if minval is not None:
+                return 'attributes->\'%s\' > \'%s\'' % (self.key, parse_date(minval))
+
+            if maxval is not None:
+                return 'attributes->\'%s\' < \'%s\'' % (self.key, parse_date(maxval))
+
 
 class LookupField(Field):
     """
@@ -303,6 +335,9 @@ class LookupField(Field):
 
     def filter(self, item, reference):
         return json.loads(item.current_data.attributes[self.key]) in reference
+
+    def get_sql_filter(self, reference):
+        return 'attributes->\'%s\' = ANY(string_to_array(\'%s\', \',\'))' % (self.key, reference)
 
 
 class LookupValue(models.Model):

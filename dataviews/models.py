@@ -5,6 +5,8 @@ from django.conf import settings
 
 from django_hstore import hstore
 
+from contributions.models import Observation
+
 from .base import STATUS
 from .manager import ViewManager, ViewGroupManager, RuleManager
 
@@ -25,6 +27,28 @@ class View(models.Model):
 
     @property
     def data(self):
+        # sql = 'SELECT * FROM public.contributions_observation LEFT JOIN (SELECT * FROM public.contributions_observationdata GROUP BY contributions_observationdata.id HAVING max(created_at) = contributions_observationdata.created_at) as foo on (contributions_observation.id = observation_id) WHERE '
+
+        # for idx, rule in enumerate(self.rules.all()):
+        #     sub_sql = '(observationtype_id=%s' % rule.observation_type.id
+
+        #     for key in rule.filters:
+        #         field = rule.observation_type.fields.get_subclass(key=key)
+        #         try:
+        #             rule_filter = json.loads(rule.filters[key])
+        #         except ValueError:
+        #             rule_filter = rule.filters[key]
+
+        #         sub_sql = sub_sql + ' AND ' + field.get_sql_filter(rule_filter)
+
+        #     sub_sql = sub_sql + ')'
+
+        #     if idx > 0:
+        #         sql = sql + ' OR '
+
+        #     sql = sql + sub_sql
+
+        # return list(self.project.observations.raw(sql))
         querysets = []
 
         for rule in self.rules.all():
