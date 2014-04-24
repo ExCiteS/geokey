@@ -42,14 +42,14 @@
                                 <div class="form-group">
                                     <label for="{{field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is larger than</label>
                                     <div class="col-sm-7">
-                                        <input type="number" class="form-control" name="{{field.key}}-min" id="minval" {% if field.maxval %}max="{{field.maxval}}" placeholder="{{maxval}}" {% endif %} {% if fielf.minval %}min="{{field.minval}}"{% endif %} {{ rule.filters|minval:field.key }}>
+                                        <input type="number" class="form-control" name="{{field.key}}-min" id="minval" {% if field.minval %}min="{{field.minval}}" placeholder="{{field.minval}}" {% endif %} {% if field.maxval %}max="{{field.maxval}}"{% endif %} {{ rule.filters|minval:field.key }}>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="{{field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">is lower than</label>
                                     <div class="col-sm-7">
-                                        <input type="number" class="form-control" name="{{field.key}}-max" id="maxval" {% if field.maxval %}max="{{field.maxval}}" placeholder="{{maxval}}" {% endif %} {% if fielf.minval %}min="{{field.minval}}"{% endif %} {{ rule.filters|maxval:field.key }}>
+                                        <input type="number" class="form-control" name="{{field.key}}-max" id="maxval" {% if field.maxval %}max="{{field.maxval}}" placeholder="{{field.maxval}}" {% endif %} {% if field.minval %}min="{{field.minval}}"{% endif %} {{ rule.filters|maxval:field.key }}>
                                     </div>
                                 </div>
                             {% endif %}
