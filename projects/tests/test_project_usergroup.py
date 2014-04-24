@@ -2,13 +2,16 @@ import json
 
 from django.test import TestCase
 
+from rest_framework.test import APIRequestFactory, force_authenticate
+
 from .model_factories import UserF, UserGroupF, ProjectF
 from ..models import Project
+from ..views import ProjectApiUserGroup, ProjectApiUserGroupUser
 
 
 class ProjectUsergroupTest(TestCase):
     def setUp(self):
-        self.creator = UserF.create(**{'password': '1'})
+        self.factory = APIRequestFactory()
         self.admin = UserF.create(**{'password': '1'})
         self.contributor = UserF.create(**{'password': '1'})
         self.non_member = UserF.create(**{'password': '1'})
@@ -18,9 +21,8 @@ class ProjectUsergroupTest(TestCase):
         self.some_user = UserF.create()
 
         self.project = ProjectF.create(**{
-            'creator': self.creator,
             'admins': UserGroupF(add_users=[
-                self.creator, self.admin, self.admin_to_remove
+                self.admin, self.admin_to_remove
             ]),
             'contributors': UserGroupF(add_users=[
                 self.contributor, self.contrib_to_remove
@@ -54,24 +56,48 @@ class ProjectUsergroupTest(TestCase):
     #
 
     def test_add_to_not_existing_usergroup(self):
-        response = self.post(
-            {'userId': self.user_to_add.id},
-            6545454844545648,
-            self.admin)
+        request = self.factory.post(
+            '/ajax/projects/%s/usergroups/%s/users/' % (self.project.id, 6545454844545648),
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectApiUserGroup.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=6545454844545648
+        ).render()
+
         self.assertEqual(response.status_code, 404)
 
     def test_add_not_existing_user(self):
-        response = self.post(
-            {'userId': 4445468756454},
-            self.project.admins.id,
-            self.admin)
+        request = self.factory.post(
+            '/ajax/projects/%s/usergroups/%s/users/' % (self.project.id, self.project.admins.id),
+            {'userId': 4445468756454}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectApiUserGroup.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=self.project.admins.id
+        ).render()
+
         self.assertEqual(response.status_code, 400)
 
     def test_add_admin_with_admin(self):
-        response = self.post(
-            {'userId': self.user_to_add.id},
-            self.project.admins.id,
-            self.admin)
+        request = self.factory.post(
+            '/ajax/projects/%s/usergroups/%s/users/' % (self.project.id, self.project.admins.id),
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectApiUserGroup.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=self.project.admins.id
+        ).render()
+
         self.assertEqual(response.status_code, 201)
         self.assertIn(
             self.user_to_add,
@@ -80,10 +106,18 @@ class ProjectUsergroupTest(TestCase):
         )
 
     def test_add_admin_with_contributor(self):
-        response = self.post(
-            {'userId': self.user_to_add.id},
-            self.project.admins.id,
-            self.contributor)
+        request = self.factory.post(
+            '/ajax/projects/%s/usergroups/%s/users/' % (self.project.id, self.project.admins.id),
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.contributor)
+        view = ProjectApiUserGroup.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=self.project.admins.id
+        ).render()
+
         self.assertEqual(response.status_code, 403)
         self.assertNotIn(
             self.user_to_add,
@@ -92,10 +126,18 @@ class ProjectUsergroupTest(TestCase):
         )
 
     def test_add_admin_with_non_member(self):
-        response = self.post(
-            {'userId': self.user_to_add.id},
-            self.project.admins.id,
-            self.non_member)
+        request = self.factory.post(
+            '/ajax/projects/%s/usergroups/%s/users/' % (self.project.id, self.project.admins.id),
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.non_member)
+        view = ProjectApiUserGroup.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=self.project.admins.id
+        ).render()
+
         self.assertEqual(response.status_code, 403)
         self.assertNotIn(
             self.user_to_add,
@@ -104,10 +146,18 @@ class ProjectUsergroupTest(TestCase):
         )
 
     def test_add_contributor_with_admin(self):
-        response = self.post(
-            {'userId': self.user_to_add.id},
-            self.project.contributors.id,
-            self.admin)
+        request = self.factory.post(
+            '/ajax/projects/%s/usergroups/%s/users/' % (self.project.id, self.project.contributors.id),
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectApiUserGroup.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=self.project.contributors.id
+        ).render()
+
         self.assertEqual(response.status_code, 201)
         self.assertIn(
             self.user_to_add,
@@ -116,10 +166,18 @@ class ProjectUsergroupTest(TestCase):
         )
 
     def test_add_contributor_with_contributor(self):
-        response = self.post(
-            {'userId': self.user_to_add.id},
-            self.project.contributors.id,
-            self.contributor)
+        request = self.factory.post(
+            '/ajax/projects/%s/usergroups/%s/users/' % (self.project.id, self.project.contributors.id),
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.contributor)
+        view = ProjectApiUserGroup.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=self.project.contributors.id
+        ).render()
+
         self.assertEqual(response.status_code, 403)
         self.assertNotIn(
             self.user_to_add,
@@ -128,10 +186,18 @@ class ProjectUsergroupTest(TestCase):
         )
 
     def test_add_contributor_with_non_member(self):
-        response = self.post(
-            {'userId': self.user_to_add.id},
-            self.project.contributors.id,
-            self.non_member)
+        request = self.factory.post(
+            '/ajax/projects/%s/usergroups/%s/users/' % (self.project.id, self.project.contributors.id),
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.non_member)
+        view = ProjectApiUserGroup.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=self.project.contributors.id
+        ).render()
+
         self.assertEqual(response.status_code, 403)
         self.assertNotIn(
             self.user_to_add,
@@ -146,24 +212,54 @@ class ProjectUsergroupTest(TestCase):
     #
 
     def test_delete_not_existing_user(self):
-        response = self.delete(
-            self.some_user,
-            self.project.admins.id,
-            self.admin)
+        request = self.factory.delete(
+            '/ajax/projects/%s/usergroups/%s/users/%s/' %
+            (self.project.id, self.project.admins.id, self.some_user.id),
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectApiUserGroupUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=self.project.contributors.id,
+            user_id=self.some_user.id
+        ).render()
+
         self.assertEqual(response.status_code, 404)
 
     def test_delete_from_not_existing_usergroup(self):
-        response = self.delete(
-            self.admin_to_remove,
-            455646445484545,
-            self.admin)
+        request = self.factory.delete(
+            '/ajax/projects/%s/usergroups/%s/users/%s/' %
+            (self.project.id, 455646445484545, self.admin_to_remove),
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectApiUserGroupUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=455646445484545,
+            user_id=self.admin_to_remove.id
+        ).render()
+
         self.assertEqual(response.status_code, 404)
 
     def test_delete_adminuser_with_admin(self):
-        response = self.delete(
-            self.admin_to_remove,
-            self.project.admins.id,
-            self.admin)
+        request = self.factory.delete(
+            '/ajax/projects/%s/usergroups/%s/users/%s/' %
+            (self.project.id, self.project.admins.id, self.admin_to_remove.id),
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectApiUserGroupUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=self.project.admins.id,
+            user_id=self.admin_to_remove.id
+        ).render()
+
         self.assertEqual(response.status_code, 204)
         self.assertNotIn(
             self.admin_to_remove,
@@ -172,10 +268,20 @@ class ProjectUsergroupTest(TestCase):
         )
 
     def test_delete_adminuser_with_contributor(self):
-        response = self.delete(
-            self.admin_to_remove,
-            self.project.admins.id,
-            self.contributor)
+        request = self.factory.delete(
+            '/ajax/projects/%s/usergroups/%s/users/%s/' %
+            (self.project.id, self.project.admins.id, self.admin_to_remove.id),
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.contributor)
+        view = ProjectApiUserGroupUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=self.project.admins.id,
+            user_id=self.admin_to_remove.id
+        ).render()
+
         self.assertEqual(response.status_code, 403)
         self.assertIn(
             self.admin_to_remove,
@@ -184,10 +290,20 @@ class ProjectUsergroupTest(TestCase):
         )
 
     def test_delete_adminuser_with_non_member(self):
-        response = self.delete(
-            self.admin_to_remove,
-            self.project.admins.id,
-            self.non_member)
+        request = self.factory.delete(
+            '/ajax/projects/%s/usergroups/%s/users/%s/' %
+            (self.project.id, self.project.admins.id, self.admin_to_remove.id),
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.non_member)
+        view = ProjectApiUserGroupUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=self.project.admins.id,
+            user_id=self.admin_to_remove.id
+        ).render()
+
         self.assertEqual(response.status_code, 403)
         self.assertIn(
             self.admin_to_remove,
@@ -196,10 +312,20 @@ class ProjectUsergroupTest(TestCase):
         )
 
     def test_delete_contributor_with_admin(self):
-        response = self.delete(
-            self.contrib_to_remove,
-            self.project.contributors.id,
-            self.admin)
+        request = self.factory.delete(
+            '/ajax/projects/%s/usergroups/%s/users/%s/' %
+            (self.project.id, self.project.contributors.id, self.contrib_to_remove.id),
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectApiUserGroupUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=self.project.contributors.id,
+            user_id=self.contrib_to_remove.id
+        ).render()
+
         self.assertEqual(response.status_code, 204)
         self.assertNotIn(
             self.contrib_to_remove,
@@ -208,10 +334,20 @@ class ProjectUsergroupTest(TestCase):
         )
 
     def test_delete_contributor_with_contributor(self):
-        response = self.delete(
-            self.contrib_to_remove,
-            self.project.contributors.id,
-            self.contributor)
+        request = self.factory.delete(
+            '/ajax/projects/%s/usergroups/%s/users/%s/' %
+            (self.project.id, self.project.contributors.id, self.contrib_to_remove.id),
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.contributor)
+        view = ProjectApiUserGroupUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=self.project.contributors.id,
+            user_id=self.contrib_to_remove.id
+        ).render()
+
         self.assertEqual(response.status_code, 403)
         self.assertIn(
             self.contrib_to_remove,
@@ -220,10 +356,19 @@ class ProjectUsergroupTest(TestCase):
         )
 
     def test_delete_contributor_with_non_member(self):
-        response = self.delete(
-            self.contrib_to_remove,
-            self.project.contributors.id,
-            self.non_member)
+        request = self.factory.delete(
+            '/ajax/projects/%s/usergroups/%s/users/%s/' %
+            (self.project.id, self.project.contributors.id, self.contrib_to_remove.id),
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.non_member)
+        view = ProjectApiUserGroupUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=self.project.contributors.id,
+            user_id=self.contrib_to_remove.id
+        ).render()
         self.assertEqual(response.status_code, 403)
         self.assertIn(
             self.contrib_to_remove,
