@@ -10,8 +10,9 @@ from core.exceptions import MalformedRequestData
 from projects.models import Project
 from observationtypes.models import ObservationType
 from observationtypes.serializer import ObservationTypeSerializer
+from users.serializers import UserSerializer
 
-from .models import Location, Observation, ObservationData
+from .models import Location, Observation, ObservationData, Comment
 
 
 class LocationSerializer(geoserializers.GeoFeatureModelSerializer):
@@ -177,3 +178,13 @@ class ContributionSerializer(object):
             return json_object
         else:
             return self._serialize_instance(self.instance)
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    creator = UserSerializer()
+    commentto = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ('id', 'text', 'creator', 'commentto', 'respondsto',
+                  'created_at')

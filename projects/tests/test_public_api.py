@@ -91,7 +91,6 @@ class ProjectApiListTest(TestCase):
         response = view(request).render()
 
         projects = json.loads(response.content)
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(projects), 4)
         self.assertNotContains(response, self.deleted_project.name)

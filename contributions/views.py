@@ -6,8 +6,46 @@ from core.decorators import (
     handle_exceptions_for_ajax
 )
 
-from .serializers import ContributionSerializer, LocationSerializer
-from .models import Observation, Location
+from .serializers import (
+    ContributionSerializer, LocationSerializer, CommentSerializer
+)
+from .models import Observation, Location, Comment
+
+
+class Locations(APIView):
+    """
+    Public API endpoint for all locations in a project.
+    /api/projects/:project_id/locations
+    """
+
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, format=None):
+        """
+        Returns a list of locations that can be used for contributions to the
+        given project.
+        """
+        locations = Location.objects.get_list(request.user, project_id)
+        serializer = LocationSerializer(locations, many=True)
+        return Response(serializer.data)
+
+
+class SingleLocation(APIView):
+    """
+    Public API endpoint for a single location in a project.
+    /api/projects/:project_id/locations/:location_id
+    """
+    @handle_exceptions_for_ajax
+    def put(self, request, project_id, location_id, format=None):
+        location = Location.objects.get_single(
+            request.user, project_id, location_id)
+        serializer = LocationSerializer(
+            location, data=request.DATA, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Observations(APIView):
@@ -61,37 +99,19 @@ class SingleObservation(APIView):
         )
 
 
-class Locations(APIView):
-    """
-    Public API endpoint for all locations in a project.
-    /api/projects/:project_id/locations
-    """
-
-    @handle_exceptions_for_ajax
-    def get(self, request, project_id, format=None):
+class Comments(APIView):
+    def post(self, request, project_id, observation_id, format=None):
         """
-        Returns a list of locations that can be used for contributions to the
-        given project.
+        Adds a new comment to the observation
         """
-        locations = Location.objects.get_list(request.user, project_id)
-        serializer = LocationSerializer(locations, many=True)
-        return Response(serializer.data)
+        observation = Observation.objects.as_contributor(
+            request.user, project_id, observation_id
+        )
+        comment = Comment.objects.create(
+            text=request.DATA.get('text'),
+            commentto=observation,
+            creator=request.user
+        )
 
-
-class SingleLocation(APIView):
-    """
-    Public API endpoint for a single location in a project.
-    /api/projects/:project_id/locations/:location_id
-    """
-    @handle_exceptions_for_ajax
-    def put(self, request, project_id, location_id, format=None):
-        location = Location.objects.get_single(
-            request.user, project_id, location_id)
-        serializer = LocationSerializer(
-            location, data=request.DATA, partial=True)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = CommentSerializer(comment)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

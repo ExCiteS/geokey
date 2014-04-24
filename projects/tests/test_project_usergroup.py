@@ -12,9 +12,9 @@ from ..views import ProjectApiUserGroup, ProjectApiUserGroupUser
 class ProjectUsergroupTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create(**{'password': '1'})
-        self.contributor = UserF.create(**{'password': '1'})
-        self.non_member = UserF.create(**{'password': '1'})
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
         self.user_to_add = UserF.create()
         self.admin_to_remove = UserF.create()
         self.contrib_to_remove = UserF.create()
