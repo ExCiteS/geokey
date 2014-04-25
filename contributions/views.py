@@ -2,9 +2,8 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from core.decorators import (
-    handle_exceptions_for_ajax
-)
+from core.decorators import handle_exceptions_for_ajax
+from core.exceptions import MalformedRequestData
 
 from .serializers import (
     ContributionSerializer, LocationSerializer, CommentSerializer
@@ -108,8 +107,20 @@ class Comments(APIView):
         observation = Observation.objects.as_contributor(
             request.user, project_id, observation_id
         )
+
+        respondsto = None
+        if request.DATA.get('respondsto') is not None:
+            try:
+                respondsto = observation.comments.get(
+                    pk=request.DATA.get('respondsto'))
+            except Comment.DoesNotExist:
+                raise MalformedRequestData('The comment you try to respond to'
+                                           ' is not a comment to the '
+                                           'observation.')
+
         comment = Comment.objects.create(
             text=request.DATA.get('text'),
+            respondsto=respondsto,
             commentto=observation,
             creator=request.user
         )

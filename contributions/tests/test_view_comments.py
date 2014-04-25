@@ -7,7 +7,7 @@ from rest_framework import status
 from projects.tests.model_factories import UserF, UserGroupF, ProjectF
 from dataviews.tests.model_factories import ViewFactory, ViewGroupFactory
 
-from .model_factories import ObservationFactory
+from .model_factories import ObservationFactory, CommentFactory
 from ..views import Comments
 
 
@@ -295,3 +295,100 @@ class AddCommentToDeletedProject(APITestCase):
             observation_id=observation.id
         ).render()
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class AddCommentToWrongObservation(APITestCase):
+    def test(self):
+        admin = UserF.create()
+        project = ProjectF.create(**{
+            'admins': UserGroupF(add_users=[admin])
+        })
+        observation = ObservationFactory.create()
+
+        factory = APIRequestFactory()
+        request = factory.post(
+            '/api/projects/%s/observations/%s/comments/' %
+            (project.id, observation.id),
+            {'text': 'A comment to the observation'}
+        )
+        force_authenticate(request, user=admin)
+        view = Comments.as_view()
+        response = view(
+            request,
+            project_id=project.id,
+            observation_id=observation.id
+        ).render()
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class AddResponseToCommentTest(APITestCase):
+    def test(self):
+        admin = UserF.create()
+        project = ProjectF.create(**{
+            'admins': UserGroupF(add_users=[admin])
+        })
+        observation = ObservationFactory.create(**{
+            'project': project
+        })
+        comment = CommentFactory.create(**{
+            'commentto': observation
+        })
+
+        factory = APIRequestFactory()
+        request = factory.post(
+            '/api/projects/%s/observations/%s/comments/' %
+            (project.id, observation.id),
+            {
+                'text': 'Response to a comment',
+                'respondsto': comment.id
+            }
+        )
+        force_authenticate(request, user=admin)
+        view = Comments.as_view()
+        response = view(
+            request,
+            project_id=project.id,
+            observation_id=observation.id
+        ).render()
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            json.loads(response.content).get('respondsto'),
+            comment.id
+        )
+
+
+class AddResponseToWrongCommentTest(APITestCase):
+    def test(self):
+        admin = UserF.create()
+        project = ProjectF.create(**{
+            'admins': UserGroupF(add_users=[admin])
+        })
+        observation = ObservationFactory.create(**{
+            'project': project
+        })
+        comment = CommentFactory.create()
+
+        factory = APIRequestFactory()
+        request = factory.post(
+            '/api/projects/%s/observations/%s/comments/' %
+            (project.id, observation.id),
+            {
+                'text': 'Response to a comment',
+                'respondsto': comment.id
+            }
+        )
+        force_authenticate(request, user=admin)
+        view = Comments.as_view()
+        response = view(
+            request,
+            project_id=project.id,
+            observation_id=observation.id
+        ).render()
+        print response
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            json.loads(response.content).get('error'),
+            'The comment you try to respond to is not a comment to the '
+            'observation.'
+        )

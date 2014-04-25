@@ -170,8 +170,9 @@ class Comment(models.Model):
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
-    commentto = models.ForeignKey('Observation')
-    respondsto = models.ForeignKey('Comment', null=True, blank=True)
+    commentto = models.ForeignKey('Observation', related_name='comments')
+    respondsto = models.ForeignKey('Comment', null=True, blank=True,
+                                   related_name='responses')
     status = models.CharField(
         choices=COMMENT_STATUS,
         default=COMMENT_STATUS.active,
