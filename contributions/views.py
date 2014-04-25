@@ -1,3 +1,5 @@
+from django.core.exceptions import PermissionDenied
+
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -127,3 +129,21 @@ class Comments(APIView):
 
         serializer = CommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class SingleComment(APIView):
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, observation_id, comment_id,
+               format=None):
+        observation = Observation.objects.as_contributor(
+            request.user, project_id, observation_id
+        )
+        comment = observation.comments.get(pk=comment_id)
+        if (comment.creator == request.user or
+                observation.project.is_admin(request.user)):
+            comment.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            raise PermissionDenied('You are neither the author if this comment'
+                                   ' nor a project administrator and therefore'
+                                   ' not eligable to delete this comment.')

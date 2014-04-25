@@ -39,10 +39,6 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)/$',
         contribution_views.SingleObservation.as_view(),
         name='project_single_observation'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)/comments/$',
-        contribution_views.Comments.as_view(),
-        name='comments'),
 
     # ###########################
     # VIEWS
@@ -68,6 +64,14 @@ urlpatterns = patterns(
     # ###########################
     # COMMENTS
     # ###########################
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)/comments/$',
+        contribution_views.Comments.as_view(),
+        name='comments'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
+        contribution_views.SingleComment.as_view(),
+        name='single_comment'),
 
     # ###########################
     # OBSERVATION TYPES
