@@ -182,9 +182,13 @@ class ContributionSerializer(object):
 
 class CommentSerializer(serializers.ModelSerializer):
     creator = UserSerializer()
-    commentto = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    def to_native(self, obj):
+        native = super(CommentSerializer, self).to_native(obj)
+        native['responses'] = CommentSerializer(obj.responses.all(), many=True).data
+
+        return native
 
     class Meta:
         model = Comment
-        fields = ('id', 'text', 'creator', 'commentto', 'respondsto',
-                  'created_at')
+        fields = ('id', 'text', 'creator', 'respondsto', 'created_at')

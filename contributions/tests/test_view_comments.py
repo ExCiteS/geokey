@@ -12,6 +12,56 @@ from ..views import Comments, SingleComment
 from ..models import Observation
 
 
+class GetComments(APITestCase):
+    def setUp(self):
+        self.contributor = UserF.create()
+        self.admin = UserF.create()
+        self.non_member = UserF.create()
+        self.project = ProjectF.create(**{
+            'admins': UserGroupF(add_users=[self.admin]),
+            'contributors': UserGroupF(add_users=[self.contributor]),
+        })
+        self.observation = ObservationFactory.create(**{
+            'project': self.project
+        })
+        comment = CommentFactory.create(**{
+            'commentto': self.observation
+        })
+        response = CommentFactory.create(**{
+            'commentto': self.observation,
+            'respondsto': comment
+        })
+        CommentFactory.create(**{
+            'commentto': self.observation,
+            'respondsto': response
+        })
+        CommentFactory.create(**{
+            'commentto': self.observation,
+            'respondsto': comment
+        })
+        CommentFactory.create(**{
+            'commentto': self.observation
+        })
+
+    def get_response(self, user):
+        factory = APIRequestFactory()
+        request = factory.get(
+            '/api/projects/%s/observations/%s/comments/' %
+            (self.project.id, self.observation.id)
+        )
+        force_authenticate(request, user=user)
+        view = Comments.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            observation_id=self.observation.id
+        ).render()
+
+    def test_get_comments_with_admin(self):
+        response = self.get_response(self.admin)
+        print response
+
+
 class AddCommentToPrivateProjectTest(APITestCase):
     def setUp(self):
         self.contributor = UserF.create()
