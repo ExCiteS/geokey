@@ -100,6 +100,7 @@ class SingleObservation(APIView):
 
 
 class Comments(APIView):
+    @handle_exceptions_for_ajax
     def post(self, request, project_id, observation_id, format=None):
         """
         Adds a new comment to the observation
