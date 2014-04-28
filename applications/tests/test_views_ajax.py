@@ -24,7 +24,7 @@ class ApplicationAjaxTest(TestCase):
     def _put(self, user):
         request = self.factory.put(
             '/ajax/apps/%s/' % self.application.id,
-            {'description': 'bockwurst'},
+            {'description': 'bockwurst'}
         )
         force_authenticate(request, user=user)
         view = AppUpdateView.as_view()
