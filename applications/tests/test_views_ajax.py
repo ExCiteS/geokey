@@ -1,48 +1,43 @@
-import json
-
 from django.test import TestCase
+from rest_framework.test import APIRequestFactory, force_authenticate
 
 from nose.tools import raises
 
 from projects.tests.model_factories import UserF
 
 from ..models import Application
+from ..views import AppUpdateView
 
 from .model_factories import ApplicationFactory
 
 
 class ApplicationAjaxTest(TestCase):
     def setUp(self):
-        self.creator = UserF.create(**{'password': '1'})
-        self.user = UserF.create(**{'password': '1'})
+        self.factory = APIRequestFactory()
+        self.creator = UserF.create()
+        self.user = UserF.create()
 
         self.application = ApplicationFactory(**{
             'creator': self.creator
         })
 
-    def _put(self, url, data, user):
-        self.client.login(username=user.username, password='1')
-        return self.client.put(
-            url,
-            json.dumps(data),
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
-            content_type='application/json'
+    def _put(self, user):
+        request = self.factory.put(
+            '/ajax/apps/%s/' % self.application.id,
+            {'description': 'bockwurst'},
         )
+        force_authenticate(request, user=user)
+        view = AppUpdateView.as_view()
+        return view(request, app_id=self.application.id).render()
 
-    def _delete(self, url, user):
-        self.client.login(username=user.username, password='1')
-        return self.client.delete(
-            url,
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
-            content_type='application/json'
-        )
+    def _delete(self, user):
+        request = self.factory.delete('/ajax/apps/%s/' % self.application.id)
+        force_authenticate(request, user=user)
+        view = AppUpdateView.as_view()
+        return view(request, app_id=self.application.id).render()
 
     def test_update_descrtiption_with_creator(self):
-        response = self._put(
-            '/ajax/apps/' + str(self.application.id) + '/',
-            {'description': 'bockwurst'},
-            self.creator
-        )
+        response = self._put(self.creator)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             Application.objects.get(pk=self.application.id).description,
@@ -50,11 +45,7 @@ class ApplicationAjaxTest(TestCase):
         )
 
     def test_update_descrtiption_with_user(self):
-        response = self._put(
-            '/ajax/apps/' + str(self.application.id) + '/',
-            {'description': 'bockwurst'},
-            self.user
-        )
+        response = self._put(self.user)
         self.assertEqual(response.status_code, 403)
         self.assertNotEqual(
             Application.objects.get(pk=self.application.id).description,
@@ -63,18 +54,12 @@ class ApplicationAjaxTest(TestCase):
 
     @raises(Application.DoesNotExist)
     def test_delete_with_creator(self):
-        response = self._delete(
-            '/ajax/apps/' + str(self.application.id) + '/',
-            self.creator
-        )
+        response = self._delete(self.creator)
         self.assertEqual(response.status_code, 204)
         Application.objects.get(pk=self.application.id)
 
     def test_delete_with_user(self):
-        response = self._delete(
-            '/ajax/apps/' + str(self.application.id) + '/',
-            self.user
-        )
+        response = self._delete(self.user)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
             Application.objects.get(pk=self.application.id),
