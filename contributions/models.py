@@ -60,6 +60,12 @@ class Observation(models.Model):
 
     objects = ObservationManager()
 
+    def is_contributor(self, user):
+        """
+        Returns True if the user has contributed data to the observation
+        """
+        return self.data.filter(creator=user).exists()
+
     @classmethod
     def create(cls, data=None, creator=None, location=None,
                observationtype=None, project=None):

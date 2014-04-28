@@ -11,6 +11,7 @@ from .serializers import (
     ContributionSerializer, LocationSerializer, CommentSerializer
 )
 from .models import Observation, Location, Comment
+from projects.models import Project
 
 
 class Locations(APIView):
@@ -106,12 +107,17 @@ class Comments(APIView):
         """
         Returns a list of all comments of the observation
         """
-        observation = Observation.objects.as_contributor(
-            request.user, project_id, observation_id
-        )
-        comments = observation.comments.filter(respondsto=None)
-        serializer = CommentSerializer(comments, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        observation = Project.objects.get(
+            pk=project_id).observations.get(pk=observation_id)
+
+        if observation.project.is_admin(request.user):
+            comments = observation.comments.filter(respondsto=None)
+            serializer = CommentSerializer(comments, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            raise PermissionDenied('You are not an administrator of this '
+                                   'project. You must therefore access '
+                                   'observations thorugh one of the views')
 
     @handle_exceptions_for_ajax
     def post(self, request, project_id, observation_id, format=None):

@@ -59,7 +59,7 @@ class GetComments(APITestCase):
 
     def test_get_comments_with_admin(self):
         response = self.get_response(self.admin)
-        print response
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class AddCommentToPrivateProjectTest(APITestCase):

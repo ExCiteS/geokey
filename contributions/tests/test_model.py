@@ -12,8 +12,51 @@ from core.exceptions import MalformedRequestData
 from ..models import Location, Observation, Comment
 
 from .model_factories import (
-    LocationFactory, ObservationFactory, CommentFactory
+    LocationFactory, ObservationFactory, ObservationDataFactory, CommentFactory
 )
+
+
+class IsContributorTest(TestCase):
+    def setUp(self):
+        self.creator = UserF.create()
+        self.observation = ObservationFactory.create()
+        ObservationDataFactory.create(**{
+            'creator': self.creator,
+            'observation': self.observation
+        })
+
+    def test_basic_with_creator(self):
+        self.assertTrue(self.observation.is_contributor(self.creator))
+
+    def test_basic_with_some_dude(self):
+        some_dude = UserF.create()
+        self.assertFalse(self.observation.is_contributor(some_dude))
+
+    def test_updated_with_creator(self):
+        updator = UserF.create()
+        ObservationDataFactory.create(**{
+            'creator': updator,
+            'observation': self.observation
+        })
+        self.assertTrue(self.observation.is_contributor(self.creator))
+
+    def test_updated_with_updator(self):
+        updator = UserF.create()
+        ObservationDataFactory.create(**{
+            'creator': updator,
+            'version': 2,
+            'observation': self.observation
+        })
+        self.assertTrue(self.observation.is_contributor(updator))
+
+    def test_updated_with_some_dude(self):
+        some_dude = UserF.create()
+        ObservationDataFactory.create(**{
+            'creator': UserF.create(),
+            'version': 2,
+            'observation': self.observation
+        })
+        self.assertFalse(self.observation.is_contributor(some_dude))
 
 
 class LocationTest(TestCase):
