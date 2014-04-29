@@ -1,8 +1,9 @@
 import json
 
 from django.test import TestCase
+from django.core.urlresolvers import reverse
 
-from provider.oauth2.models import Client as OAuthClient
+from rest_framework.test import APIRequestFactory, force_authenticate
 
 from nose.tools import raises
 
@@ -14,14 +15,16 @@ from observationtypes.tests.model_factories import (
 from contributions.models import Observation
 
 from .model_factories import LocationFactory
+from ..views import SingleObservation
 
 
-class ProjectPublicApiTest(TestCase):
+class UpdateObservation(TestCase):
     def setUp(self):
-        self.admin = UserF.create(**{'password': '1'})
-        self.contributor = UserF.create(**{'password': '1'})
-        self.view_member = UserF.create(**{'password': '1'})
-        self.non_member = UserF.create(**{'password': '1'})
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.view_member = UserF.create()
+        self.non_member = UserF.create()
 
         self.project = ProjectF.create(**{
             'admins': UserGroupF(add_users=[self.admin]),
@@ -60,11 +63,6 @@ class ProjectPublicApiTest(TestCase):
             creator=self.admin
         )
 
-        self.oauth = OAuthClient.objects.create(
-            user=UserF.create(), name="Test App", client_type=1,
-            url="http://ucl.ac.uk"
-        )
-
         self.update_data = {
             "properties": {
                 "version": 1,
@@ -72,43 +70,40 @@ class ProjectPublicApiTest(TestCase):
             }
         }
 
-    def _get_auth_headers(self, user):
-        token = self.client.post(
-            '/oauth2/access_token/',
-            {
-                "client_id": self.oauth.client_id,
-                "client_secret": self.oauth.client_secret,
-                "grant_type": "password",
-                "username": user.username,
-                "password": '1'
+    def _put(self, data, user):
+        url = reverse(
+            'api:project_single_observation',
+            kwargs={
+                'project_id': self.project.id,
+                'observation_id': self.observation.id
             }
         )
-        return {
-            'HTTP_AUTHORIZATION': 'Bearer '
-            '' + json.loads(token.content).get('access_token'),
-        }
+        request = self.factory.put(url, json.dumps(data), content_type='application/json')
+        force_authenticate(request, user=user)
+        view = SingleObservation.as_view()
+        return view(
+            request, project_id=self.project.id,
+            observation_id=self.observation.id).render()
 
-    def _put(self, url, data, user):
-        auth_headers = self._get_auth_headers(user)
-        return self.client.put(
-            url + '/',
-            json.dumps(data),
-            content_type='application/json', **auth_headers
+    def _delete(self, user):
+        url = reverse(
+            'api:project_single_observation',
+            kwargs={
+                'project_id': self.project.id,
+                'observation_id': self.observation.id
+            }
         )
-
-    def _delete(self, url, user):
-        auth_headers = self._get_auth_headers(user)
-        return self.client.delete(
-            url + '/',
-            content_type='application/json', **auth_headers
-        )
+        request = self.factory.delete(url, content_type='application/json')
+        force_authenticate(request, user=user)
+        view = SingleObservation.as_view()
+        return view(
+            request, project_id=self.project.id,
+            observation_id=self.observation.id).render()
 
     def test_update_without_version(self):
         data = {"properties": {"key_2": 15}}
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             data,
             self.admin
         )
@@ -120,8 +115,6 @@ class ProjectPublicApiTest(TestCase):
         data = {"properties": {"version": 3000, "key_2": 15}}
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             data,
             self.admin
         )
@@ -131,8 +124,6 @@ class ProjectPublicApiTest(TestCase):
 
     def test_update_conflict(self):
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.admin
         )
@@ -140,8 +131,6 @@ class ProjectPublicApiTest(TestCase):
 
         data = {"properties": {"version": 1, "key_2": 2}}
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             data,
             self.contributor
         )
@@ -152,8 +141,6 @@ class ProjectPublicApiTest(TestCase):
         self.observation.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.admin
         )
@@ -164,8 +151,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.admin
         )
@@ -181,8 +166,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.admin
         )
         self.assertEqual(response.status_code, 204)
@@ -193,8 +176,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.contributor
         )
@@ -210,8 +191,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.contributor
         )
         self.assertEqual(response.status_code, 204)
@@ -222,8 +201,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.view_member
         )
@@ -237,8 +214,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.view_member
         )
         self.assertEqual(response.status_code, 403)
@@ -252,8 +227,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.non_member
         )
@@ -267,8 +240,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.non_member
         )
         self.assertEqual(response.status_code, 403)
@@ -283,8 +254,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.admin
         )
@@ -301,8 +270,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.admin
         )
         self.assertEqual(response.status_code, 204)
@@ -314,8 +281,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.contributor
         )
@@ -332,8 +297,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.contributor
         )
         self.assertEqual(response.status_code, 204)
@@ -345,8 +308,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.view_member
         )
@@ -363,8 +324,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.view_member
         )
         self.assertEqual(response.status_code, 204)
@@ -376,8 +335,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.non_member
         )
@@ -394,8 +351,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.non_member
         )
         self.assertEqual(response.status_code, 204)
@@ -403,8 +358,6 @@ class ProjectPublicApiTest(TestCase):
 
     def test_update_to_private_with_admin(self):
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.admin
         )
@@ -417,8 +370,6 @@ class ProjectPublicApiTest(TestCase):
     @raises(Observation.DoesNotExist)
     def test_delete_private_with_admin(self):
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.admin
         )
         self.assertEqual(response.status_code, 204)
@@ -426,8 +377,6 @@ class ProjectPublicApiTest(TestCase):
 
     def test_update_to_private_with_contributor(self):
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.contributor
         )
@@ -440,8 +389,6 @@ class ProjectPublicApiTest(TestCase):
     @raises(Observation.DoesNotExist)
     def test_delete_private_with_contributor(self):
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.contributor
         )
         self.assertEqual(response.status_code, 204)
@@ -449,8 +396,6 @@ class ProjectPublicApiTest(TestCase):
 
     def test_update_to_private_with_view_member(self):
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.view_member
         )
@@ -461,8 +406,6 @@ class ProjectPublicApiTest(TestCase):
 
     def test_delete_private_with_view_member(self):
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.view_member
         )
         self.assertEqual(response.status_code, 403)
@@ -473,8 +416,6 @@ class ProjectPublicApiTest(TestCase):
 
     def test_update_to_private_with_non_member(self):
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.non_member
         )
@@ -485,8 +426,6 @@ class ProjectPublicApiTest(TestCase):
 
     def test_delete_private_with_non_member(self):
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.non_member
         )
         self.assertEqual(response.status_code, 403)
@@ -500,8 +439,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.admin
         )
@@ -517,8 +454,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.admin
         )
         self.assertEqual(response.status_code, 204)
@@ -529,8 +464,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.contributor
         )
@@ -546,8 +479,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.contributor
         )
         self.assertEqual(response.status_code, 204)
@@ -558,8 +489,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.view_member
         )
@@ -575,8 +504,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.view_member
         )
         self.assertEqual(response.status_code, 204)
@@ -587,8 +514,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.non_member
         )
@@ -602,8 +527,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.non_member
         )
         self.assertEqual(response.status_code, 403)
@@ -617,8 +540,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.admin
         )
@@ -632,8 +553,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.admin
         )
         self.assertEqual(response.status_code, 403)
@@ -647,8 +566,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.contributor
         )
@@ -662,8 +579,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.contributor
         )
         self.assertEqual(response.status_code, 403)
@@ -677,8 +592,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.view_member
         )
@@ -692,8 +605,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.view_member
         )
         self.assertEqual(response.status_code, 403)
@@ -707,8 +618,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.non_member
         )
@@ -722,8 +631,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.non_member
         )
         self.assertEqual(response.status_code, 403)
@@ -737,8 +644,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.admin
         )
@@ -752,8 +657,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.admin
         )
         self.assertEqual(response.status_code, 404)
@@ -767,8 +670,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.contributor
         )
@@ -782,8 +683,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.contributor
         )
         self.assertEqual(response.status_code, 404)
@@ -797,8 +696,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.view_member
         )
@@ -812,8 +709,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.view_member
         )
         self.assertEqual(response.status_code, 404)
@@ -827,8 +722,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._put(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.update_data,
             self.non_member
         )
@@ -842,8 +735,6 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._delete(
-            '/api/projects/' + str(self.project.id) +
-            '/observations/' + str(self.observation.id),
             self.non_member
         )
         self.assertEqual(response.status_code, 404)

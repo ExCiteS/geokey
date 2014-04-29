@@ -3,7 +3,7 @@ import json
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
-from provider.oauth2.models import Client as OAuthClient
+from rest_framework.test import APIRequestFactory, force_authenticate
 
 from projects.tests.model_factories import UserF, UserGroupF, ProjectF
 from dataviews.tests.model_factories import ViewFactory, ViewGroupFactory
@@ -11,14 +11,16 @@ from dataviews.tests.model_factories import ViewFactory, ViewGroupFactory
 from .model_factories import LocationFactory
 
 from ..models import Location
+from ..views import SingleLocation
 
 
 class LocationUpdateApiTest(TestCase):
     def setUp(self):
-        self.admin = UserF.create(**{'password': '1'})
-        self.contributor = UserF.create(**{'password': '1'})
-        self.view_member = UserF.create(**{'password': '1'})
-        self.non_member = UserF.create(**{'password': '1'})
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.view_member = UserF.create()
+        self.non_member = UserF.create()
 
         self.project = ProjectF.create(**{
             'admins': UserGroupF(add_users=[self.admin]),
@@ -36,38 +38,25 @@ class LocationUpdateApiTest(TestCase):
             'private_for_project': self.project
         })
 
-        self.oauth = OAuthClient.objects.create(
-            user=self.admin, name="Test App", client_type=1,
-            url="http://ucl.ac.uk"
-        )
-
     def _put(self, data, user, location_id=None):
-        token = self.client.post(
-            '/oauth2/access_token/',
-            {
-                "client_id": self.oauth.client_id,
-                "client_secret": self.oauth.client_secret,
-                "grant_type": "password",
-                "username": user.username,
-                "password": '1'
-            }
-        )
-        auth_headers = {
-            'HTTP_AUTHORIZATION': 'Bearer '
-            '' + json.loads(token.content).get('access_token'),
-        }
+        l_id = location_id or self.location.id
         url = reverse(
             'api:project_single_location',
             kwargs={
                 'project_id': self.project.id,
-                'location_id': location_id or self.location.id
+                'location_id': l_id
             }
         )
+        request = self.factory.put(
+            url, json.dumps(data), content_type='application/json')
+        force_authenticate(request, user=user)
+        view = SingleLocation.as_view()
+        return view(
+            request, project_id=self.project.id, location_id=l_id).render()
         return self.client.put(
             url,
             json.dumps(data),
-            content_type='application/json',
-            **auth_headers
+            content_type='application/json'
         )
 
     # def test_update_geomtery(self):
