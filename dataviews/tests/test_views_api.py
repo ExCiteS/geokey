@@ -1,165 +1,97 @@
-from django.test import TestCase
 from django.core.urlresolvers import reverse
 
-from core.tests.oauthfactories import AccessTokenFactory
+from django.test import TestCase
+from rest_framework.test import APIRequestFactory, force_authenticate
+
 from projects.tests.model_factories import UserF, ProjectF, UserGroupF
-from dataviews.tests.model_factories import ViewFactory, ViewGroupFactory
+
+from ..views import SingleView
+from .model_factories import ViewFactory, ViewGroupFactory
 
 
-class TestDataViewsPublicAoi(TestCase):
-    def test_get_active_view_with_admin(self):
-        admin = UserF.create(**{'password': '1'})
-        token = AccessTokenFactory.create(**{
-            'user': admin
+class TestDataViewsPublicApi(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.view_member = UserF.create()
+        self.some_dude = UserF.create()
+
+        self.project = ProjectF.create(**{
+            'admins': UserGroupF(add_users=[self.admin]),
+            'contributors': UserGroupF(add_users=[self.contributor])
         })
-        project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[admin]),
-        })
-        view = ViewFactory(**{'project': project})
+        # view = ViewFactory(**{'project': project})
 
+    def get(self, view, user):
         url = reverse('api:single_view', kwargs={
             'project_id': view.project.id,
             'view_id': view.id
         })
-        response = self.client.get(
-            url, **{'HTTP_AUTHORIZATION': 'Bearer ' + token.token})
+        request = self.factory.get(url)
+        force_authenticate(request, user=user)
+        theview = SingleView.as_view()
+        return theview(
+            request,
+            project_id=view.project.id,
+            view_id=view.id).render()
+
+    def test_get_active_view_with_admin(self):
+        view = ViewFactory(**{'project': self.project})
+        response = self.get(view, self.admin)
 
         self.assertEquals(response.status_code, 200)
 
     def test_get_inactive_view_with_admin(self):
-        admin = UserF.create(**{'password': '1'})
-        token = AccessTokenFactory.create(**{
-            'user': admin
-        })
-        project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[admin])
-        })
         view = ViewFactory(**{
-            'project': project,
+            'project': self.project,
             'status': 'deleted'
         })
-
-        url = reverse('api:single_view', kwargs={
-            'project_id': view.project.id,
-            'view_id': view.id
-        })
-        response = self.client.get(
-            url, **{'HTTP_AUTHORIZATION': 'Bearer ' + token.token})
+        response = self.get(view, self.admin)
         self.assertEquals(response.status_code, 404)
 
     def test_get_active_view_with_contributor(self):
-        user = UserF.create(**{'password': '1'})
-        token = AccessTokenFactory.create(**{
-            'user': user
-        })
-        project = ProjectF.create(**{
-            'contributors': UserGroupF(add_users=[user])
-        })
-        view = ViewFactory(**{'project': project})
-
-        url = reverse('api:single_view', kwargs={
-            'project_id': view.project.id,
-            'view_id': view.id
-        })
-        response = self.client.get(
-            url, **{'HTTP_AUTHORIZATION': 'Bearer ' + token.token})
+        view = ViewFactory(**{'project': self.project})
+        response = self.get(view, self.contributor)
 
         self.assertEquals(response.status_code, 403)
 
     def test_get_inactive_view_with_contributor(self):
-        user = UserF.create(**{'password': '1'})
-        token = AccessTokenFactory.create(**{
-            'user': user
-        })
-        project = ProjectF.create(**{
-            'contributors': UserGroupF(add_users=[user])
-        })
         view = ViewFactory(**{
-            'project': project,
+            'project': self.project,
             'status': 'deleted'
         })
-
-        url = reverse('api:single_view', kwargs={
-            'project_id': view.project.id,
-            'view_id': view.id
-        })
-        response = self.client.get(
-            url, **{'HTTP_AUTHORIZATION': 'Bearer ' + token.token})
+        response = self.get(view, self.contributor)
         self.assertEquals(response.status_code, 404)
 
     def test_get_active_view_with_view_member(self):
-        user = UserF.create(**{'password': '1'})
-        token = AccessTokenFactory.create(**{
-            'user': user
-        })
-        project = ProjectF.create()
-        view = ViewFactory(**{'project': project})
-        ViewGroupFactory(add_users=[user], **{
+        view = ViewFactory(**{'project': self.project})
+        ViewGroupFactory(add_users=[self.view_member], **{
             'view': view
         })
-
-        url = reverse('api:single_view', kwargs={
-            'project_id': view.project.id,
-            'view_id': view.id
-        })
-        response = self.client.get(
-            url, **{'HTTP_AUTHORIZATION': 'Bearer ' + token.token})
+        response = self.get(view, self.view_member)
 
         self.assertEquals(response.status_code, 200)
 
     def test_get_inactive_view_with_view_member(self):
-        user = UserF.create(**{'password': '1'})
-        token = AccessTokenFactory.create(**{
-            'user': user
-        })
-        project = ProjectF.create()
-        view = ViewFactory(**{'project': project, 'status': 'deleted'})
-        ViewGroupFactory(add_users=[user], **{
+        view = ViewFactory(**{'project': self.project, 'status': 'deleted'})
+        ViewGroupFactory(add_users=[self.view_member], **{
             'view': view
         })
-
-        url = reverse('api:single_view', kwargs={
-            'project_id': view.project.id,
-            'view_id': view.id
-        })
-        response = self.client.get(
-            url, **{'HTTP_AUTHORIZATION': 'Bearer ' + token.token})
+        response = self.get(view, self.view_member)
         self.assertEquals(response.status_code, 403)
 
     def test_get_active_view_with_non_member(self):
-        user = UserF.create(**{'password': '1'})
-        token = AccessTokenFactory.create(**{
-            'user': user
-        })
-        project = ProjectF.create()
-        view = ViewFactory(**{'project': project})
-
-        url = reverse('api:single_view', kwargs={
-            'project_id': view.project.id,
-            'view_id': view.id
-        })
-        response = self.client.get(
-            url, **{'HTTP_AUTHORIZATION': 'Bearer ' + token.token})
+        view = ViewFactory(**{'project': self.project})
+        response = self.get(view, self.some_dude)
 
         self.assertEquals(response.status_code, 403)
 
     def test_get_inactive_view_with_non_member(self):
-        user = UserF.create(**{'password': '1'})
-        token = AccessTokenFactory.create(**{
-            'user': user
-        })
-        project = ProjectF.create(**{
-            'isprivate': False
-        })
         view = ViewFactory(**{
-            'project': project,
+            'project': self.project,
             'status': 'deleted'
         })
 
-        url = reverse('api:single_view', kwargs={
-            'project_id': view.project.id,
-            'view_id': view.id
-        })
-        response = self.client.get(
-            url, **{'HTTP_AUTHORIZATION': 'Bearer ' + token.token})
-        self.assertEquals(response.status_code, 404)
+        response = self.get(view, self.some_dude)
+        self.assertEquals(response.status_code, 403)
