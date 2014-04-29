@@ -130,6 +130,8 @@ class LocationTest(TestCase):
     #
     # ########################################################################
 
+
+class ObservationTest(TestCase):
     @raises(Observation.DoesNotExist)
     def test_delete_observation(self):
         observation = ObservationFactory()
@@ -386,6 +388,8 @@ class LocationTest(TestCase):
     #
     # ########################################################################
 
+
+class CommentTest(TestCase):
     @raises(Comment.DoesNotExist)
     def test_delete_comment(self):
         comment = CommentFactory()
