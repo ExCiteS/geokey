@@ -9,9 +9,7 @@ from observationtypes.tests.model_factories import (
     TrueFalseFieldFactory, LookupFieldFactory, LookupValueFactory,
     DateTimeFieldFactory
 )
-from contributions.tests.model_factories import (
-    ObservationFactory, ObservationDataFactory
-)
+from contributions.tests.model_factories import ObservationFactory
 
 from ..models import View, Rule
 
@@ -171,29 +169,20 @@ class ViewTest(TestCase):
 
         observation = ObservationFactory(**{
             'project': project,
-            'observationtype': observation_type_1}
-        )
-        ObservationDataFactory(**{
-            'observation': observation,
+            'observationtype': observation_type_1,
             'attributes': {'text': 'yes to update'}
         })
 
         for x in range(0, 5):
-            observation_1 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1}
-            )
-            ObservationDataFactory(**{
-                'observation': observation_1,
+                'observationtype': observation_type_1,
                 'attributes': {'text': 'yes ' + str(x)}
             })
 
-            observation_2 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1}
-            )
-            ObservationDataFactory(**{
-                'observation': observation_2,
+                'observationtype': observation_type_1,
                 'attributes': {'text': 'no ' + str(x)}
             })
 
@@ -251,32 +240,23 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            observation_1 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1}
+                'observationtype': observation_type_1,
+                'attributes': {'text': 'yes ' + str(x)}}
             )
-            ObservationDataFactory(**{
-                'observation': observation_1,
-                'attributes': {'text': 'yes ' + str(x)}
-            })
 
-            observation_2 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1}
+                'observationtype': observation_type_1,
+                'attributes': {'text': 'no ' + str(x)}}
             )
-            ObservationDataFactory(**{
-                'observation': observation_2,
-                'attributes': {'text': 'no ' + str(x)}
-            })
 
-            observation_3 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_2}
+                'observationtype': observation_type_2,
+                'attributes': {'bla': 'yes ' + str(x)}}
             )
-            ObservationDataFactory(**{
-                'observation': observation_3,
-                'attributes': {'bla': 'yes ' + str(x)}
-            })
 
         view = ViewFactory(**{'project': project})
         RuleFactory(**{
@@ -300,32 +280,23 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            observation_1 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1}
+                'observationtype': observation_type_1,
+                'attributes': {'number': 12}}
             )
-            ObservationDataFactory(**{
-                'observation': observation_1,
-                'attributes': {'number': 12}
-            })
 
-            observation_2 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1}
+                'observationtype': observation_type_1,
+                'attributes': {'number': 20}}
             )
-            ObservationDataFactory(**{
-                'observation': observation_2,
-                'attributes': {'number': 20}
-            })
 
-            observation_3 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_2}
+                'observationtype': observation_type_2,
+                'attributes': {'number': 12}}
             )
-            ObservationDataFactory(**{
-                'observation': observation_3,
-                'attributes': {'number': 12}
-            })
 
         view = ViewFactory(**{'project': project})
         RuleFactory(**{
@@ -350,30 +321,21 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            observation_1 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1}
-            )
-            ObservationDataFactory(**{
-                'observation': observation_1,
+                'observationtype': observation_type_1,
                 'attributes': {'number': 12}
             })
 
-            observation_2 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1}
-            )
-            ObservationDataFactory(**{
-                'observation': observation_2,
+                'observationtype': observation_type_1,
                 'attributes': {'number': 20}
             })
 
-            observation_3 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_2}
-            )
-            ObservationDataFactory(**{
-                'observation': observation_3,
+                'observationtype': observation_type_2,
                 'attributes': {'number': 12}
             })
 
@@ -400,30 +362,21 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            observation_1 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1}
-            )
-            ObservationDataFactory(**{
-                'observation': observation_1,
+                'observationtype': observation_type_1,
                 'attributes': {'number': x}
             })
 
-            observation_2 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1}
-            )
-            ObservationDataFactory(**{
-                'observation': observation_2,
+                'observationtype': observation_type_1,
                 'attributes': {'number': x}
             })
 
-            observation_3 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_2}
-            )
-            ObservationDataFactory(**{
-                'observation': observation_3,
+                'observationtype': observation_type_2,
                 'attributes': {'number': x}
             })
 
@@ -450,30 +403,21 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            observation_1 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1}
-            )
-            ObservationDataFactory(**{
-                'observation': observation_1,
+                'observationtype': observation_type_1,
                 'attributes': {'true': True}
             })
 
-            observation_2 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1}
-            )
-            ObservationDataFactory(**{
-                'observation': observation_2,
+                'observationtype': observation_type_1,
                 'attributes': {'true': False}
             })
 
-            observation_3 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_2}
-            )
-            ObservationDataFactory(**{
-                'observation': observation_3,
+                'observationtype': observation_type_2,
                 'attributes': {'true': True}
             })
 
@@ -512,30 +456,21 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            observation_1 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1}
-            )
-            ObservationDataFactory(**{
-                'observation': observation_1,
+                'observationtype': observation_type_1,
                 'attributes': {'lookup': lookup_1.id}
             })
 
-            observation_2 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1}
-            )
-            ObservationDataFactory(**{
-                'observation': observation_2,
+                'observationtype': observation_type_1,
                 'attributes': {'lookup': lookup_2.id}
             })
 
-            observation_3 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_2}
-            )
-            ObservationDataFactory(**{
-                'observation': observation_3,
+                'observationtype': observation_type_2,
                 'attributes': {'bla': lookup_3.id}
             })
 
@@ -562,30 +497,21 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            observation_1 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1}
-            )
-            ObservationDataFactory(**{
-                'observation': observation_1,
+                'observationtype': observation_type_1,
                 'attributes': {'date': '2014-04-09'}
             })
 
-            observation_2 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1}
-            )
-            ObservationDataFactory(**{
-                'observation': observation_2,
+                'observationtype': observation_type_1,
                 'attributes': {'date': '2013-04-09'}
             })
 
-            observation_3 = ObservationFactory(**{
+            ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_2}
-            )
-            ObservationDataFactory(**{
-                'observation': observation_3,
+                'observationtype': observation_type_2,
                 'attributes': {'bla': '2014-04-09'}
             })
 

@@ -130,7 +130,7 @@ class TextField(Field):
         return 'Text'
 
     def filter(self, item, reference):
-        return reference.lower() in item.current_data.attributes[self.key].lower()
+        return reference.lower() in item.attributes[self.key].lower()
 
     def get_sql_filter(self, reference):
         return 'lower(attributes->\'%s\') LIKE \'%%%s%%\'' % (self.key, reference.lower())
@@ -189,7 +189,7 @@ class NumericField(Field):
         return 'Numeric'
 
     def filter(self, item, reference):
-        value = json.loads(item.current_data.attributes[self.key])
+        value = json.loads(item.attributes[self.key])
         minval = reference.get('minval')
         maxval = reference.get('maxval')
 
@@ -246,7 +246,7 @@ class TrueFalseField(Field):
         return 'True/False'
 
     def filter(self, item, reference):
-        return reference == json.loads(item.current_data.attributes[self.key])
+        return reference == json.loads(item.attributes[self.key])
 
     def get_sql_filter(self, reference):
         return 'attributes->\'%s\' = \'%s\'' % (self.key, reference)
@@ -275,7 +275,7 @@ class DateTimeField(Field):
         return 'Date and Time'
 
     def filter(self, item, reference):
-        value = parse_date(item.current_data.attributes[self.key])
+        value = parse_date(item.attributes[self.key])
         minval = reference.get('minval')
         maxval = reference.get('maxval')
 
@@ -334,7 +334,7 @@ class LookupField(Field):
         return 'Lookup'
 
     def filter(self, item, reference):
-        return json.loads(item.current_data.attributes[self.key]) in reference
+        return json.loads(item.attributes[self.key]) in reference
 
     def get_sql_filter(self, reference):
         return 'attributes->\'%s\' = ANY(string_to_array(\'%s\', \',\'))' % (self.key, reference)

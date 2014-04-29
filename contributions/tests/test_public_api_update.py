@@ -50,7 +50,7 @@ class ProjectPublicApiTest(TestCase):
         location = LocationFactory()
 
         self.observation = Observation.create(
-            data={
+            attributes={
                 "key_1": "value 1",
                 "key_2": 12,
             },
@@ -113,9 +113,8 @@ class ProjectPublicApiTest(TestCase):
             self.admin
         )
         self.assertEqual(response.status_code, 400)
-        observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '12')
+            self.observation.attributes.get('key_2'), '12')
 
     def test_update_with_wrong_version(self):
         data = {"properties": {"version": 3000, "key_2": 15}}
@@ -127,9 +126,8 @@ class ProjectPublicApiTest(TestCase):
             self.admin
         )
         self.assertEqual(response.status_code, 400)
-        observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '12')
+            self.observation.attributes.get('key_2'), '12')
 
     def test_update_conflict(self):
         response = self._put(
@@ -175,7 +173,7 @@ class ProjectPublicApiTest(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '15')
+            observation.attributes.get('key_2'), '15')
 
     @raises(Observation.DoesNotExist)
     def test_delete_public_with_admin(self):
@@ -204,7 +202,7 @@ class ProjectPublicApiTest(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '15')
+            observation.attributes.get('key_2'), '15')
 
     @raises(Observation.DoesNotExist)
     def test_delete_public_with_contributor(self):
@@ -231,9 +229,8 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-        observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '12')
+            self.observation.attributes.get('key_2'), '12')
 
     def test_delete_public_with_view_member(self):
         self.project.isprivate = False
@@ -262,9 +259,8 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-        observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '12')
+            self.observation.attributes.get('key_2'), '12')
 
     def test_delete_public_with_non_member(self):
         self.project.isprivate = False
@@ -296,7 +292,7 @@ class ProjectPublicApiTest(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '15')
+            observation.attributes.get('key_2'), '15')
 
     @raises(Observation.DoesNotExist)
     def test_delete_public_everyone_with_admin(self):
@@ -327,7 +323,7 @@ class ProjectPublicApiTest(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '15')
+            observation.attributes.get('key_2'), '15')
 
     @raises(Observation.DoesNotExist)
     def test_delete_public_everyone_with_contributor(self):
@@ -358,7 +354,7 @@ class ProjectPublicApiTest(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '15')
+            observation.attributes.get('key_2'), '15')
 
     @raises(Observation.DoesNotExist)
     def test_delete_public_everyone_with_view_member(self):
@@ -389,7 +385,7 @@ class ProjectPublicApiTest(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '15')
+            observation.attributes.get('key_2'), '15')
 
     @raises(Observation.DoesNotExist)
     def test_delete_public_everyone_with_non_member(self):
@@ -416,7 +412,7 @@ class ProjectPublicApiTest(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '15')
+            observation.attributes.get('key_2'), '15')
 
     @raises(Observation.DoesNotExist)
     def test_delete_private_with_admin(self):
@@ -439,7 +435,7 @@ class ProjectPublicApiTest(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '15')
+            observation.attributes.get('key_2'), '15')
 
     @raises(Observation.DoesNotExist)
     def test_delete_private_with_contributor(self):
@@ -460,9 +456,8 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-        observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '12')
+            self.observation.attributes.get('key_2'), '12')
 
     def test_delete_private_with_view_member(self):
         response = self._delete(
@@ -485,9 +480,8 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-        observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '12')
+            self.observation.attributes.get('key_2'), '12')
 
     def test_delete_private_with_non_member(self):
         response = self._delete(
@@ -515,7 +509,7 @@ class ProjectPublicApiTest(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '15')
+            observation.attributes.get('key_2'), '15')
 
     @raises(Observation.DoesNotExist)
     def test_delete_private_everyone_with_admin(self):
@@ -544,7 +538,7 @@ class ProjectPublicApiTest(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '15')
+            observation.attributes.get('key_2'), '15')
 
     @raises(Observation.DoesNotExist)
     def test_delete_private_everyone_with_contributor(self):
@@ -573,7 +567,7 @@ class ProjectPublicApiTest(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '15')
+            observation.attributes.get('key_2'), '15')
 
     @raises(Observation.DoesNotExist)
     def test_delete_private_everyone_with_view_member(self):
@@ -600,9 +594,8 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-        observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '12')
+            self.observation.attributes.get('key_2'), '12')
 
     def test_delete_private_everyone_with_non_member(self):
         self.project.everyonecontributes = True
@@ -631,9 +624,8 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-        observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '12')
+            self.observation.attributes.get('key_2'), '12')
 
     def test_delete_inactive_with_admin(self):
         self.project.status = 'inactive'
@@ -662,9 +654,8 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-        observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '12')
+            self.observation.attributes.get('key_2'), '12')
 
     def test_delete_inactive_with_contributor(self):
         self.project.status = 'inactive'
@@ -693,9 +684,8 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-        observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '12')
+            self.observation.attributes.get('key_2'), '12')
 
     def test_delete_inactive_with_view_member(self):
         self.project.status = 'inactive'
@@ -724,9 +714,8 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-        observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '12')
+            self.observation.attributes.get('key_2'), '12')
 
     def test_delete_inactive_with_non_member(self):
         self.project.status = 'inactive'
@@ -755,9 +744,8 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 404)
 
-        observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '12')
+            self.observation.attributes.get('key_2'), '12')
 
     def test_delete_deleted_with_admin(self):
         self.project.status = 'deleted'
@@ -786,9 +774,8 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 404)
 
-        observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '12')
+            self.observation.attributes.get('key_2'), '12')
 
     def test_delete_deleted_with_contributor(self):
         self.project.status = 'deleted'
@@ -817,9 +804,8 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 404)
 
-        observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '12')
+            self.observation.attributes.get('key_2'), '12')
 
     def test_delete_deleted_with_view_member(self):
         self.project.status = 'deleted'
@@ -848,9 +834,8 @@ class ProjectPublicApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 404)
 
-        observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.current_data.attributes.get('key_2'), '12')
+            self.observation.attributes.get('key_2'), '12')
 
     def test_delete_deleted_with_non_member(self):
         self.project.status = 'deleted'

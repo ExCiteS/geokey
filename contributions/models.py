@@ -4,6 +4,7 @@ from django.contrib.gis.db import models as gis
 from django.core.exceptions import ValidationError
 
 from django_hstore import hstore
+from simple_history.models import HistoricalRecords
 
 from core.exceptions import InputError, MalformedRequestData
 
@@ -33,14 +34,6 @@ class Location(models.Model):
     objects = LocationManager()
 
 
-class ObservationData(models.Model):
-    attributes = hstore.DictionaryField(db_index=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL)
-    version = models.IntegerField(default=1)
-    observation = models.ForeignKey('Observation', related_name='data')
-
-
 class Observation(models.Model):
     """
     Stores a single observation.
@@ -57,17 +50,22 @@ class Observation(models.Model):
     )
     review_comment = models.TextField(blank=True, null=True)
     conflict_version = models.IntegerField(blank=True, null=True)
+    attributes = hstore.DictionaryField(db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL)
+    version = models.IntegerField(default=1)
 
+    history = HistoricalRecords()
     objects = ObservationManager()
 
     def is_contributor(self, user):
         """
         Returns True if the user has contributed data to the observation
         """
-        return self.data.filter(creator=user).exists()
+        return self.history.filter(creator_id=user.id).exists()
 
     @classmethod
-    def create(cls, data=None, creator=None, location=None,
+    def create(cls, attributes=None, creator=None, location=None,
                observationtype=None, project=None):
         """
         Creates a new observation. Validates all fields first and raises a
@@ -79,36 +77,31 @@ class Observation(models.Model):
 
         for field in observationtype.fields.all():
             try:
-                field.validate_input(data.get(field.key))
+                field.validate_input(attributes.get(field.key))
             except InputError, error:
                 is_valid = False
                 error_messages.append(error)
 
         if is_valid:
             location.save()
-            observation = cls(
+            observation = cls.objects.create(
                 location=location,
                 observationtype=observationtype,
-                project=project
-            )
-            observation.save()
-
-            ObservationData.objects.create(
-                attributes=data,
-                creator=creator,
-                observation=observation
+                project=project,
+                attributes=attributes,
+                creator=creator
             )
             return observation
         else:
             raise ValidationError(error_messages)
 
-    @property
-    def current_data(self):
-        """
-        Returns the ObservationData instance with the largest version number,
-        i.e. the one that is most current
-        """
-        return self.data.latest('created_at')
+    # @property
+    # def current_data(self):
+    #     """
+    #     Returns the ObservationData instance with the largest version number,
+    #     i.e. the one that is most current
+    #     """
+    #     return self.data.latest('created_at')
 
     def validate_update(self, data):
         is_valid = True
@@ -125,10 +118,10 @@ class Observation(models.Model):
         if not is_valid:
             raise ValidationError(error_messages)
 
-    def update(self, data=None, creator=None):
-        version_in_database = self.current_data.version
+    def update(self, attributes=None, creator=None):
+        version_in_database = self.version
         try:
-            version_on_client = data.pop('version')
+            version_on_client = attributes.pop('version')
         except KeyError:
             raise MalformedRequestData('You must provide the current '
                                        'version number of the observation.'
@@ -152,17 +145,14 @@ class Observation(models.Model):
                 self.conflict_version = version
                 self.save()
 
-            update = self.current_data.attributes.copy()
-            update.update(data)
+            update = self.attributes.copy()
+            update.update(attributes)
 
             self.validate_update(update)
-
-            ObservationData.objects.create(
-                attributes=data,
-                creator=creator,
-                observation=self,
-                version=version
-            )
+            self.attributes = update
+            self.version = version
+            self.creator = creator
+            self.save()
 
     def delete(self):
         """

@@ -12,7 +12,7 @@ from observationtypes.models import ObservationType
 from observationtypes.serializer import ObservationTypeSerializer
 from users.serializers import UserSerializer
 
-from .models import Location, Observation, ObservationData, Comment
+from .models import Location, Observation, Comment
 
 
 class LocationSerializer(geoserializers.GeoFeatureModelSerializer):
@@ -34,15 +34,9 @@ class ObservationSerializer(serializers.ModelSerializer):
         model = Observation
         depth = 0
         fields = (
-            'status', 'observationtype', 'review_comment', 'conflict_version'
+            'status', 'observationtype', 'review_comment', 'conflict_version',
+            'creator', 'created_at', 'version', 'attributes'
         )
-
-
-class ObservationDataSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ObservationData
-        depth = 1
-        fields = ('created_at', 'version')
 
 
 class ContributionSerializer(object):
@@ -117,7 +111,7 @@ class ContributionSerializer(object):
                 )
 
             observation = Observation.create(
-                data=properties,
+                attributes=properties,
                 creator=creator,
                 location=location,
                 project=project,
@@ -128,7 +122,7 @@ class ContributionSerializer(object):
             self.instance = instance
             # Update the existing contribution
             if not self.many and data is not None:
-                self.instance.update(data=properties, creator=creator)
+                self.instance.update(attributes=properties, creator=creator)
 
     def _serialize_instance(self, instance):
         """
@@ -142,12 +136,7 @@ class ContributionSerializer(object):
         }
 
         observation_serializer = ObservationSerializer(instance)
-        observation_data_serializer = ObservationDataSerializer(
-            instance.current_data)
-        json_object['properties'] = dict(
-            observation_serializer.data.items() +
-            observation_data_serializer.data.items()
-        )
+        json_object['properties'] = observation_serializer.data
 
         location_serializer = LocationContributionSerializer(
             instance.location)
@@ -159,7 +148,7 @@ class ContributionSerializer(object):
 
         for field in instance.observationtype.fields.all():
             json_object['properties'][field.key] = field.convert_from_string(
-                instance.current_data.attributes.get(field.key)
+                instance.attributes.get(field.key)
             )
 
         return json_object

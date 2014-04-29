@@ -12,17 +12,15 @@ from core.exceptions import MalformedRequestData
 from ..models import Location, Observation, Comment
 
 from .model_factories import (
-    LocationFactory, ObservationFactory, ObservationDataFactory, CommentFactory
+    LocationFactory, ObservationFactory, CommentFactory
 )
 
 
 class IsContributorTest(TestCase):
     def setUp(self):
         self.creator = UserF.create()
-        self.observation = ObservationFactory.create()
-        ObservationDataFactory.create(**{
-            'creator': self.creator,
-            'observation': self.observation
+        self.observation = ObservationFactory.create(**{
+            'creator': self.creator
         })
 
     def test_basic_with_creator(self):
@@ -34,28 +32,26 @@ class IsContributorTest(TestCase):
 
     def test_updated_with_creator(self):
         updator = UserF.create()
-        ObservationDataFactory.create(**{
-            'creator': updator,
-            'observation': self.observation
+        ObservationFactory.create(**{
+            'creator': updator
         })
         self.assertTrue(self.observation.is_contributor(self.creator))
 
     def test_updated_with_updator(self):
         updator = UserF.create()
-        ObservationDataFactory.create(**{
-            'creator': updator,
-            'version': 2,
-            'observation': self.observation
-        })
+        self.observation.update(
+            attributes={'key': 'new', 'version': 1},
+            creator=updator
+        )
         self.assertTrue(self.observation.is_contributor(updator))
 
     def test_updated_with_some_dude(self):
         some_dude = UserF.create()
-        ObservationDataFactory.create(**{
-            'creator': UserF.create(),
-            'version': 2,
-            'observation': self.observation
-        })
+        updator = UserF.create()
+        self.observation.update(
+            attributes={'key': 'new', 'version': 1},
+            creator=updator
+        )
         self.assertFalse(self.observation.is_contributor(some_dude))
 
 
@@ -152,14 +148,12 @@ class ObservationTest(TestCase):
         })
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
-            data=data, creator=creator, location=location,
+            attributes=data, creator=creator, location=location,
             observationtype=observationtype, project=observationtype.project
         )
-        self.assertEqual(observation.current_data.attributes, data)
+        self.assertEqual(observation.attributes, data)
 
     def test_update_observation(self):
-        creator = UserF()
-        location = LocationFactory()
         observationtype = ObservationTypeFactory()
         TextFieldFactory(**{
             'key': 'text',
@@ -169,22 +163,23 @@ class ObservationTest(TestCase):
             'key': 'number',
             'observationtype': observationtype
         })
-        data = {'text': 'Text', 'number': 12}
-        observation = Observation.create(
-            data=data, creator=creator, location=location,
-            observationtype=observationtype, project=observationtype.project
-        )
+
+        observation = ObservationFactory.create(**{
+            'attributes': {'text': 'Text', 'number': 12},
+            'observationtype': observationtype,
+            'project': observationtype.project
+        })
 
         updater = UserF()
         update = {'text': 'Udpated Text', 'number': 13, 'version': 1}
-        observation.update(data=update, creator=updater)
+        observation.update(attributes=update, creator=updater)
 
-        ref_observation = Observation.objects.get(pk=observation.id)
+        # ref_observation = Observation.objects.get(pk=observation.id)
         self.assertEqual(
-            ref_observation.current_data.attributes,
-            update
+            observation.attributes,
+            {'text': 'Udpated Text', 'number': '13'}
         )
-        self.assertEqual(ref_observation.current_data.version, 2)
+        self.assertEqual(observation.version, 2)
 
     @raises(MalformedRequestData)
     def test_update_observation_without_version(self):
@@ -201,18 +196,18 @@ class ObservationTest(TestCase):
         })
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
-            data=data, creator=creator, location=location,
+            attributes=data, creator=creator, location=location,
             observationtype=observationtype, project=observationtype.project
         )
 
         updater = UserF()
         update = {'text': 'Udpated Text', 'number': 13}
-        observation.update(data=update, creator=updater)
+        observation.update(attributes=update, creator=updater)
 
         ref_observation = Observation.objects.get(pk=observation.id)
         self.assertEqual(
-            ref_observation.current_data.attributes,
-            observation.current_data
+            ref_observation.attributes,
+            data
         )
         self.assertEqual(ref_observation.current_data.version, 1)
 
@@ -231,21 +226,21 @@ class ObservationTest(TestCase):
         })
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
-            data=data, creator=creator, location=location,
+            attributes=data, creator=creator, location=location,
             observationtype=observationtype, project=observationtype.project
         )
 
         updater = UserF()
         update = {'text': 'Udpated Text', 'number': 13, 'version': 1}
-        observation.update(data=update, creator=updater)
+        observation.update(attributes=update, creator=updater)
 
         updater2 = UserF()
         update2 = {'number': 5, 'version': 1}
-        observation.update(data=update2, creator=updater2)
+        observation.update(attributes=update2, creator=updater2)
 
         ref_observation = Observation.objects.get(pk=observation.id)
         self.assertEqual(ref_observation.status, 'review')
-        self.assertEqual(ref_observation.current_data.version, 2)
+        self.assertEqual(ref_observation.version, 2)
 
     @raises(MalformedRequestData)
     def test_update_observation_with_wrong_version(self):
@@ -262,20 +257,20 @@ class ObservationTest(TestCase):
         })
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
-            data=data, creator=creator, location=location,
+            attributes=data, creator=creator, location=location,
             observationtype=observationtype, project=observationtype.project
         )
 
         updater = UserF()
         update = {'text': 'Udpated Text', 'number': 13, 'version': 3}
-        observation.update(data=update, creator=updater)
+        observation.update(attributes=update, creator=updater)
 
         ref_observation = Observation.objects.get(pk=observation.id)
         self.assertEqual(
-            ref_observation.current_data.attributes,
-            observation.current_data
+            ref_observation.attributes,
+            data
         )
-        self.assertEqual(ref_observation.current_data.version, 1)
+        self.assertEqual(ref_observation.version, 1)
 
     @raises(ValidationError)
     def test_update_invalid_observation(self):
@@ -292,16 +287,16 @@ class ObservationTest(TestCase):
         })
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
-            data=data, creator=creator, location=location,
+            attributes=data, creator=creator, location=location,
             observationtype=observationtype, project=observationtype.project
         )
 
         updater = UserF()
         update = {'text': 'Udpated Text', 'number': 'abc', 'version': 1}
-        observation.update(data=update, creator=updater)
+        observation.update(attributes=update, creator=updater)
 
-        self.assertEqual(observation.current_data.attributes, data)
-        self.assertEqual(observation.current_data.version, 1)
+        self.assertEqual(observation.attributes, data)
+        self.assertEqual(observation.version, 1)
 
     @raises(ValidationError)
     def test_create_invalid_observation(self):
@@ -318,7 +313,7 @@ class ObservationTest(TestCase):
         })
         data = {'text': 'Text', 'number': 'abc'}
         Observation.create(
-            data=data, creator=creator, location=location,
+            attributes=data, creator=creator, location=location,
             observationtype=observationtype, project=observationtype.project
         )
 
@@ -338,7 +333,7 @@ class ObservationTest(TestCase):
         })
         data = {'number': 1000}
         Observation.create(
-            data=data, creator=creator, location=location,
+            attributes=data, creator=creator, location=location,
             observationtype=observationtype, project=observationtype.project
         )
 
@@ -358,7 +353,7 @@ class ObservationTest(TestCase):
         })
         data = {'text': '', 'number': 1000}
         Observation.create(
-            data=data, creator=creator, location=location,
+            attributes=data, creator=creator, location=location,
             observationtype=observationtype, project=observationtype.project
         )
 
@@ -378,7 +373,7 @@ class ObservationTest(TestCase):
         })
         data = {'text': 'bla'}
         Observation.create(
-            data=data, creator=creator, location=location,
+            attributes=data, creator=creator, location=location,
             observationtype=observationtype, project=observationtype.project
         )
 
