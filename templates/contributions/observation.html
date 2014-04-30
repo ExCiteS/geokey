@@ -55,7 +55,7 @@
                     <table class="table table-striped">
                         <tr><th>Field name</th><th>Value</th></tr>
                         {% for field in observation.observationtype.fields.all %}
-                            <tr><td>{{field.name}}</td><td>{% value observation.current_data.attributes field %}</td></tr>
+                            <tr><td>{{field.name}}</td><td>{% value observation.attributes field %}</td></tr>
                         {% endfor %}
                     </table>
 

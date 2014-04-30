@@ -12,6 +12,7 @@ from .serializers import (
 )
 from .models import Observation, Location, Comment
 from projects.models import Project
+from dataviews.models import View
 
 
 class Locations(APIView):
@@ -101,33 +102,13 @@ class SingleObservation(APIView):
         )
 
 
-class Comments(APIView):
-    @handle_exceptions_for_ajax
-    def get(self, request, project_id, observation_id, format=None):
-        """
-        Returns a list of all comments of the observation
-        """
-        observation = Project.objects.get(
-            pk=project_id).observations.get(pk=observation_id)
+class CommentApiView(object):
+    def get_list_response(self, observation):
+        comments = observation.comments.filter(respondsto=None)
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-        if observation.project.is_admin(request.user):
-            comments = observation.comments.filter(respondsto=None)
-            serializer = CommentSerializer(comments, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            raise PermissionDenied('You are not an administrator of this '
-                                   'project. You must therefore access '
-                                   'observations thorugh one of the views')
-
-    @handle_exceptions_for_ajax
-    def post(self, request, project_id, observation_id, format=None):
-        """
-        Adds a new comment to the observation
-        """
-        observation = Observation.objects.as_contributor(
-            request.user, project_id, observation_id
-        )
-
+    def create_and_response(self, request, observation):
         respondsto = None
         if request.DATA.get('respondsto') is not None:
             try:
@@ -148,20 +129,88 @@ class Comments(APIView):
         serializer = CommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-
-class SingleComment(APIView):
-    @handle_exceptions_for_ajax
-    def delete(self, request, project_id, observation_id, comment_id,
-               format=None):
-        observation = Observation.objects.as_contributor(
-            request.user, project_id, observation_id
-        )
-        comment = observation.comments.get(pk=comment_id)
+    def delete_and_respond(self, request, comment):
         if (comment.creator == request.user or
-                observation.project.is_admin(request.user)):
+                comment.commentto.project.is_admin(request.user)):
             comment.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             raise PermissionDenied('You are neither the author if this comment'
                                    ' nor a project administrator and therefore'
                                    ' not eligable to delete this comment.')
+
+
+class ProjectComment(APIView):
+    def get_object(self, request, project_id, observation_id):
+        observation = Project.objects.get_single(
+            request.user, project_id).observations.get(pk=observation_id)
+
+        if observation.project.is_admin(request.user):
+            return observation
+        else:
+            raise PermissionDenied('You are not an administrator of this '
+                                   'project. You must therefore access '
+                                   'observations through one of the views')
+
+
+class ProjectComments(CommentApiView, ProjectComment):
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, observation_id, format=None):
+        """
+        Returns a list of all comments of the observation
+        """
+        observation = self.get_object(request, project_id, observation_id)
+        return self.get_list_response(observation)
+
+    @handle_exceptions_for_ajax
+    def post(self, request, project_id, observation_id, format=None):
+        """
+        Adds a new comment to the observation
+        """
+        observation = self.get_object(request, project_id, observation_id)
+        return self.create_and_response(request, observation)
+
+
+class ProjectSingleComment(CommentApiView, ProjectComment):
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, observation_id, comment_id,
+               format=None):
+        observation = self.get_object(request, project_id, observation_id)
+        comment = observation.comments.get(pk=comment_id)
+        return self.delete_and_respond(request, comment)
+
+
+class ViewComment(APIView):
+    def get_object(self, request, project_id, view_id, observation_id):
+        return View.objects.get_single(
+            request.user, project_id, view_id).data.get(pk=observation_id)
+
+
+class ViewComments(CommentApiView, ViewComment):
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, view_id, observation_id, format=None):
+        """
+        Returns a list of all comments of the observation
+        """
+        observation = self.get_object(
+            request, project_id, view_id, observation_id)
+        return self.get_list_response(observation)
+
+    @handle_exceptions_for_ajax
+    def post(self, request, project_id, view_id, observation_id, format=None):
+        """
+        Adds a new comment to the observation
+        """
+        observation = self.get_object(
+            request, project_id, view_id, observation_id)
+        return self.create_and_response(request, observation)
+
+
+class ViewSingleComment(CommentApiView, ViewComment):
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, view_id, observation_id, comment_id,
+               format=None):
+        observation = self.get_object(
+            request, project_id, view_id, observation_id)
+        comment = observation.comments.get(pk=comment_id)
+        return self.delete_and_respond(request, comment)

@@ -131,9 +131,7 @@ class ViewSingleObservation(LoginRequiredMixin, TemplateView):
         """
         user = self.request.user
         view = View.objects.get_single(user, project_id, view_id)
-        # check if the observation can be access through that view
-        observation = Project.objects.get(pk=project_id).observations.get(
-            pk=observation_id)
+        observation = view.data.get(pk=observation_id)
 
         return {
             'view': view,

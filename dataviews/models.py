@@ -28,11 +28,15 @@ class View(models.Model):
     def data(self):
         queries = [rule.get_query() for rule in self.rules.all()]
 
-        query = queries.pop()
-        for item in queries:
-            query |= item
+        if len(queries) > 0:
+            query = queries.pop()
+            for item in queries:
+                query |= item
 
-        return self.project.observations.filter(query)
+            return self.project.observations.filter(query)
+
+        else:
+            return []
 
     def delete(self):
         """
@@ -81,14 +85,15 @@ class Rule(models.Model):
     def get_query(self):
         queries = [Q(observationtype=self.observation_type)]
 
-        for key in self.filters:
-            try:
-                rule_filter = json.loads(self.filters[key])
-            except ValueError:
-                rule_filter = self.filters[key]
+        if self.filters is not None:
+            for key in self.filters:
+                try:
+                    rule_filter = json.loads(self.filters[key])
+                except ValueError:
+                    rule_filter = self.filters[key]
 
-            field = self.observation_type.fields.get_subclass(key=key)
-            queries.append(field.get_filter(rule_filter))
+                field = self.observation_type.fields.get_subclass(key=key)
+                queries.append(field.get_filter(rule_filter))
 
         query = queries.pop()
         for item in queries:
