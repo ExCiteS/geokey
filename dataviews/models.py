@@ -1,6 +1,7 @@
 import json
 
 from django.db import models
+from django.db.models import Q
 from django.conf import settings
 
 from django_hstore import hstore
@@ -25,24 +26,13 @@ class View(models.Model):
 
     @property
     def data(self):
-        querysets = []
+        queries = [rule.get_query() for rule in self.rules.all()]
 
-        for rule in self.rules.all():
-            result = self.project.observations.filter(
-                observationtype=rule.observation_type)
+        query = queries.pop()
+        for item in queries:
+            query |= item
 
-            for key in rule.filters:
-                try:
-                    rule_filter = json.loads(rule.filters[key])
-                except ValueError:
-                    rule_filter = rule.filters[key]
-
-                field = rule.observation_type.fields.get_subclass(key=key)
-                result = (x for x in result if field.filter(x, rule_filter))
-
-            querysets.append(result)
-
-        return [item for sublist in querysets for item in sublist]
+        return self.project.observations.filter(query)
 
     def delete(self):
         """
@@ -87,6 +77,23 @@ class Rule(models.Model):
     )
 
     objects = RuleManager()
+
+    def get_query(self):
+        queries = [Q(observationtype=self.observation_type)]
+
+        for key in self.filters:
+            try:
+                rule_filter = json.loads(self.filters[key])
+            except ValueError:
+                rule_filter = self.filters[key]
+
+            field = self.observation_type.fields.get_subclass(key=key)
+            queries.append(field.get_filter(rule_filter))
+
+        query = queries.pop()
+        for item in queries:
+            query &= item
+        return query
 
     def delete(self):
         """

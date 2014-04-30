@@ -5,6 +5,7 @@ from iso8601.iso8601 import ParseError
 
 from django.db import models
 from django.db.models.loading import get_model
+from django.db.models import Q
 
 from core.exceptions import InputError
 
@@ -132,6 +133,9 @@ class TextField(Field):
     def filter(self, item, reference):
         return reference.lower() in item.attributes[self.key].lower()
 
+    def get_filter(self, rule):
+        return Q(attributes__icontains=rule)
+
 
 class NumericField(Field):
     """
@@ -199,6 +203,20 @@ class NumericField(Field):
             if maxval is not None:
                 return value < maxval
 
+    def get_filter(self, rule):
+        minval = rule.get('minval')
+        maxval = rule.get('maxval')
+
+        if minval is not None and maxval is not None:
+            return (Q(attributes__gt={self.key: minval}) &
+                    Q(attributes__lt={self.key: maxval}))
+        else:
+            if minval is not None:
+                return Q(attributes__gt={self.key: minval})
+
+            if maxval is not None:
+                return Q(attributes__lt={self.key: maxval})
+
 
 class TrueFalseField(Field):
     """
@@ -231,6 +249,9 @@ class TrueFalseField(Field):
 
     def filter(self, item, reference):
         return reference == json.loads(item.attributes[self.key])
+
+    def get_filter(self, rule):
+        return Q(attributes={self.key: rule})
 
 
 class DateTimeField(Field):
@@ -269,6 +290,20 @@ class DateTimeField(Field):
             if maxval is not None:
                 return value > parse_date(maxval)
 
+    def get_filter(self, rule):
+        minval = rule.get('minval')
+        maxval = rule.get('maxval')
+
+        if minval is not None and maxval is not None:
+            return (Q(attributes__gt={self.key: minval}) &
+                    Q(attributes__lt={self.key: maxval}))
+        else:
+            if minval is not None:
+                return Q(attributes__gt={self.key: minval})
+
+            if maxval is not None:
+                return Q(attributes__lt={self.key: maxval})
+
 
 class LookupField(Field):
     """
@@ -303,6 +338,9 @@ class LookupField(Field):
 
     def filter(self, item, reference):
         return json.loads(item.attributes[self.key]) in reference
+
+    def get_filter(self, rule):
+        return Q(attributes__contains={self.key: rule})
 
 
 class LookupValue(models.Model):
