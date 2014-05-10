@@ -10,7 +10,7 @@ from core.exceptions import MalformedRequestData
 from .serializers import (
     ContributionSerializer, LocationSerializer, CommentSerializer
 )
-from .models import Observation, Location, Comment
+from .models import Location, Comment
 from projects.models import Project
 from dataviews.models import View
 
@@ -164,6 +164,27 @@ class MyObservations(APIView):
 
         serializer = ContributionSerializer(observations, many=True)
         return Response(serializer.data)
+
+
+class MySingleObservation(SingleObservation):
+    def get_object(self, user, project_id, observation_id):
+        try:
+            project = Project.objects.as_contributor(user, project_id)
+            return project.observations.filter(creator=user).get(
+                pk=observation_id)
+        except PermissionDenied:
+            raise Project.DoesNotExist('You are not a contributor of this'
+                                       'project.')
+
+    @handle_exceptions_for_ajax
+    def put(self, request, project_id, observation_id, format=None):
+        observation = self.get_object(request.user, project_id, observation_id)
+        return self.update_observation(request, observation, format=format)
+
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, observation_id, format=None):
+        observation = self.get_object(request.user, project_id, observation_id)
+        return self.delete_observation(request, observation, format=format)
 
 
 # ############################################################################
