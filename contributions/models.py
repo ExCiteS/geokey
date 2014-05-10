@@ -58,12 +58,6 @@ class Observation(models.Model):
     history = HistoricalRecords()
     objects = ObservationManager()
 
-    def is_contributor(self, user):
-        """
-        Returns True if the user has contributed data to the observation
-        """
-        return self.history.filter(creator_id=user.id).exists()
-
     @classmethod
     def create(cls, attributes=None, creator=None, location=None,
                observationtype=None, project=None):

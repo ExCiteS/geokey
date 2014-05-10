@@ -21,7 +21,6 @@ class TestDataViewsPublicApi(TestCase):
             'admins': UserGroupF(add_users=[self.admin]),
             'contributors': UserGroupF(add_users=[self.contributor])
         })
-        # view = ViewFactory(**{'project': project})
 
     def get(self, view, user):
         url = reverse('api:single_view', kwargs={

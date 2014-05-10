@@ -16,45 +16,6 @@ from .model_factories import (
 )
 
 
-class IsContributorTest(TestCase):
-    def setUp(self):
-        self.creator = UserF.create()
-        self.observation = ObservationFactory.create(**{
-            'creator': self.creator
-        })
-
-    def test_basic_with_creator(self):
-        self.assertTrue(self.observation.is_contributor(self.creator))
-
-    def test_basic_with_some_dude(self):
-        some_dude = UserF.create()
-        self.assertFalse(self.observation.is_contributor(some_dude))
-
-    def test_updated_with_creator(self):
-        updator = UserF.create()
-        ObservationFactory.create(**{
-            'creator': updator
-        })
-        self.assertTrue(self.observation.is_contributor(self.creator))
-
-    def test_updated_with_updator(self):
-        updator = UserF.create()
-        self.observation.update(
-            attributes={'key': 'new', 'version': 1},
-            creator=updator
-        )
-        self.assertTrue(self.observation.is_contributor(updator))
-
-    def test_updated_with_some_dude(self):
-        some_dude = UserF.create()
-        updator = UserF.create()
-        self.observation.update(
-            attributes={'key': 'new', 'version': 1},
-            creator=updator
-        )
-        self.assertFalse(self.observation.is_contributor(some_dude))
-
-
 class LocationTest(TestCase):
     def setUp(self):
         self.admin = UserF.create()

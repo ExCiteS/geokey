@@ -102,6 +102,16 @@ class SingleObservation(APIView):
         )
 
 
+class MyObservations(APIView):
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, format=None):
+        project = Project.objects.as_contributor(request.user, project_id)
+        observations = project.observations.filter(creator=request.user)
+
+        serializer = ContributionSerializer(observations, many=True)
+        return Response(serializer.data)
+
+
 class CommentApiView(object):
     def get_list_response(self, observation):
         comments = observation.comments.filter(respondsto=None)
