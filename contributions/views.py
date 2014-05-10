@@ -15,6 +15,12 @@ from projects.models import Project
 from dataviews.models import View
 
 
+# ############################################################################
+#
+# Locations
+#
+# ############################################################################
+
 class Locations(APIView):
     """
     Public API endpoint for all locations in a project.
@@ -51,6 +57,12 @@ class SingleLocation(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# ############################################################################
+#
+# Observations
+#
+# ############################################################################
+
 class Observations(APIView):
     """
     Public API endpoint for all observations in a project. Used to add new
@@ -70,36 +82,78 @@ class Observations(APIView):
 
 
 class SingleObservation(APIView):
-    """
-    Public API endpoint for updating a single observation in a project
-    /api/projects/:project_id/observations/:observationtype_id
-    """
-
-    @handle_exceptions_for_ajax
-    def put(self, request, project_id, observation_id, format=None):
+    def update_observation(self, request, observation, format=None):
         """
         Updates a single observation
         """
-        observation = Observation.objects.as_contributor(
-            request.user, project_id, observation_id
-        )
         serializer = ContributionSerializer(
             observation, data=request.DATA, creator=request.user
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @handle_exceptions_for_ajax
-    def delete(self, request, project_id, observation_id, format=None):
+    def delete_observation(self, request, observation, format=None):
         """
         Deletes a single observation
         """
-        observation = Observation.objects.as_contributor(
-            request.user, project_id, observation_id
-        )
         observation.delete()
         return Response(
             status=status.HTTP_204_NO_CONTENT
         )
+
+
+class SingleProjectObservation(SingleObservation):
+    """
+    Public API endpoint for updating a single observation in a project
+    /api/projects/:project_id/observations/:observation_id
+    """
+
+    def get_object(self, user, project_id, observation_id):
+        project = Project.objects.as_contributor(user, project_id)
+        if project.is_admin(user):
+            return project.observations.get(pk=observation_id)
+        else:
+            raise PermissionDenied('You are not an administrator of this '
+                                   'project. You must therefore access '
+                                   'observations through one of the views')
+
+    @handle_exceptions_for_ajax
+    def put(self, request, project_id, observation_id, format=None):
+        observation = self.get_object(request.user, project_id, observation_id)
+        return self.update_observation(request, observation, format=format)
+
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, observation_id, format=None):
+        observation = self.get_object(request.user, project_id, observation_id)
+        return self.delete_observation(request, observation, format=format)
+
+
+class SingleViewObservation(SingleObservation):
+    """
+    Public API endpoint for updating a single observation in a project
+    /api/projects/:project_id/views/:view_id/observations/:observation_id
+    """
+
+    def get_object(self, user, project_id, view_id, observation_id):
+        view = View.objects.get_single(user, project_id, view_id)
+        if view.can_edit(user):
+            return view.data.get(pk=observation_id)
+        else:
+            raise PermissionDenied(
+                'You are not eligable to data of this view.')
+
+    @handle_exceptions_for_ajax
+    def put(self, request, project_id, view_id, observation_id, format=None):
+        observation = self.get_object(
+            request.user, project_id, view_id, observation_id)
+        return self.update_observation(request, observation, format=format)
+
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, view_id, observation_id,
+               format=None):
+        observation = self.get_object(
+            request.user, project_id, view_id, observation_id)
+        return self.delete_observation(request, observation, format=format)
 
 
 class MyObservations(APIView):
@@ -111,6 +165,12 @@ class MyObservations(APIView):
         serializer = ContributionSerializer(observations, many=True)
         return Response(serializer.data)
 
+
+# ############################################################################
+#
+# Comments
+#
+# ############################################################################
 
 class CommentApiView(object):
     def get_list_response(self, observation):

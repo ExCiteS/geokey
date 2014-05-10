@@ -29,8 +29,12 @@ urlpatterns = patterns(
         name='project_observations'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)/$',
-        contribution_views.SingleObservation.as_view(),
+        contribution_views.SingleProjectObservation.as_view(),
         name='project_single_observation'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)/$',
+        contribution_views.SingleViewObservation.as_view(),
+        name='view_single_observation'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/mycontributions/$',
         contribution_views.MyObservations.as_view(),

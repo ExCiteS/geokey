@@ -45,6 +45,10 @@ class View(models.Model):
         self.status = STATUS.deleted
         self.save()
 
+    def can_edit(self, user):
+        return (self.project.is_admin(user) or
+                self.viewgroups.filter(users=user, can_edit=True).exists())
+
 
 class ViewGroup(models.Model):
     name = models.CharField(max_length=100)
