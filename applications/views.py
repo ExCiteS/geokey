@@ -37,7 +37,7 @@ class AppCreateView(LoginRequiredMixin, CreateView):
         client = Client.objects.create(
             user=self.request.user,
             name=form.instance.name,
-            client_type=0,
+            client_type=1,
             url=form.instance.download_url,
             redirect_uri=form.instance.redirect_url
         )
