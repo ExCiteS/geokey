@@ -6,7 +6,7 @@ from nose.tools import raises
 from projects.tests.model_factories import UserF
 
 from ..models import Application
-from ..views import AppUpdateView
+from ..views import ApplicationUpdate
 
 from .model_factories import ApplicationFactory
 
@@ -27,13 +27,13 @@ class ApplicationAjaxTest(TestCase):
             {'description': 'bockwurst'}
         )
         force_authenticate(request, user=user)
-        view = AppUpdateView.as_view()
+        view = ApplicationUpdate.as_view()
         return view(request, app_id=self.application.id).render()
 
     def _delete(self, user):
         request = self.factory.delete('/ajax/apps/%s/' % self.application.id)
         force_authenticate(request, user=user)
-        view = AppUpdateView.as_view()
+        view = ApplicationUpdate.as_view()
         return view(request, app_id=self.application.id).render()
 
     def test_update_descrtiption_with_creator(self):

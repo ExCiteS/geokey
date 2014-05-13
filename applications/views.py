@@ -23,7 +23,7 @@ from .serializer import AppSerializer
 #
 # ############################################################################
 
-class AppCreateView(LoginRequiredMixin, CreateView):
+class ApplicationCreate(LoginRequiredMixin, CreateView):
     form_class = AppCreateForm
     template_name = 'applications/application_create.html'
 
@@ -43,15 +43,15 @@ class AppCreateView(LoginRequiredMixin, CreateView):
         )
         form.instance.client = client
         form.instance.creator = self.request.user
-        return super(AppCreateView, self).form_valid(form)
+        return super(ApplicationCreate, self).form_valid(form)
 
 
-class AppSettingsView(LoginRequiredMixin, TemplateView):
+class ApplicationSettings(LoginRequiredMixin, TemplateView):
     template_name = 'applications/application_settings.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, app_id, **kwargs):
-        context = super(AppSettingsView, self).get_context_data(**kwargs)
+        context = super(ApplicationSettings, self).get_context_data(**kwargs)
 
         app = Application.objects.as_owner(self.request.user, app_id)
         context['app'] = app
@@ -66,7 +66,7 @@ class AppSettingsView(LoginRequiredMixin, TemplateView):
 # ############################################################################
 
 
-class AppUpdateView(APIView):
+class ApplicationUpdate(APIView):
     @handle_exceptions_for_ajax
     def put(self, request, app_id, format=None):
         app = Application.objects.as_owner(self.request.user, app_id)

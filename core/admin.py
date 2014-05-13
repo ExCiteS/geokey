@@ -105,10 +105,10 @@ urlpatterns = patterns(
 
     url(
         r'^apps/register/$',
-        app_views.AppCreateView.as_view(),
+        app_views.ApplicationCreate.as_view(),
         name='app_register'),
     url(
         r'^apps/(?P<app_id>[0-9]+)/$',
-        app_views.AppSettingsView.as_view(),
+        app_views.ApplicationSettings.as_view(),
         name='app_settings'),
 )

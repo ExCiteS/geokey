@@ -89,8 +89,8 @@ urlpatterns = patterns(
     # ###########################
     url(
         r'^apps/(?P<app_id>[0-9]+)/$',
-        app_views.AppUpdateView.as_view(),
-        name='app'),
+        app_views.ApplicationUpdate.as_view(),
+        name='app_update'),
 
     # ###########################
     # USER
