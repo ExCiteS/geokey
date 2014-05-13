@@ -58,16 +58,16 @@
                         {% endif %}
                         {% if contributor %}
                         {% if view %}
-                        <a class="list-group-item" href="{% url 'admin:my_observations' view.project.id %}">
+                        <a class="list-group-item" href="{% url 'admin:project_my_observations' view.project.id %}">
                         {% else %}
-                        <a class="list-group-item {% if my_contributions %}active{% endif %}" href="{% url 'admin:my_observations' project.id %}">
+                        <a class="list-group-item {% if my_contributions %}active{% endif %}" href="{% url 'admin:project_my_observations' project.id %}">
                         {% endif %}
                             <h4 class="list-group-item-heading">My contributions</h4>
                             <p class="list-group-item-text">All data you have contributed to the project.</p>
                         </a>
                         {% endif %}
                         {% for dataview in views %}
-                        <a class="list-group-item {% if dataview.id == view.id%}active{% endif %}" href="{% url 'admin:view_data' dataview.project.id dataview.id %}">
+                        <a class="list-group-item {% if dataview.id == view.id%}active{% endif %}" href="{% url 'admin:view_observations' dataview.project.id dataview.id %}">
                             <h4 class="list-group-item-heading">{{ dataview.name }}</h4>
                             <p class="list-group-item-text">{{ dataview.description }}</p>
                         </a>

@@ -73,7 +73,7 @@ urlpatterns = patterns(
     url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/observations/$',
         dataviews.ViewObservations.as_view(),
-        name='view_data'),
+        name='view_observations'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)$',
         dataviews.ViewSingleObservation.as_view(),

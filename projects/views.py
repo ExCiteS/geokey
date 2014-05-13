@@ -69,18 +69,19 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         project_id = kwargs.get('project_id')
+        print project_id
         project = Project.objects.get_single(request.user, project_id)
 
         if project.is_admin(request.user):
             return super(ProjectSettings, self).dispatch(
                 request, *args, **kwargs)
         elif project.can_contribute(request.user):
-            return redirect(reverse('admin:my_observations', kwargs={
+            return redirect(reverse('admin:project_my_observations', kwargs={
                 'project_id': project_id,
             }))
         else:
             views = View.objects.get_list(request.user, project_id)
-            return redirect(reverse('admin:view_data', kwargs={
+            return redirect(reverse('admin:view_observations', kwargs={
                 'project_id': project_id,
                 'view_id': views[0].id
             }))

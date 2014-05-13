@@ -94,7 +94,7 @@ class ViewSettings(LoginRequiredMixin, TemplateView):
         try:
             View.objects.as_admin(request.user, project_id, view_id)
         except PermissionDenied:
-            return redirect(reverse('admin:view_data', kwargs={
+            return redirect(reverse('admin:view_observations', kwargs={
                 'project_id': project_id,
                 'view_id': view_id
             }))

@@ -16,7 +16,7 @@
 				</ol>
 
 				<div class="stats pull-right">
-					<a href="{% url 'admin:view_data' view.project.id view.id %}"><span class="number">{{view.data|length}}</span> observations in this view</a>
+					<a href="{% url 'admin:view_observations' view.project.id view.id %}"><span class="number">{{view.data|length}}</span> observations in this view</a>
 				</div>
 
 				<h1>{{view.name}}</h1>
