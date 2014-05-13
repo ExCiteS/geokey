@@ -8,7 +8,7 @@ from nose.tools import raises
 from projects.tests.model_factories import ProjectF, UserF, UserGroupF
 
 from ..models import View
-from ..views import ViewApiDetail
+from ..views import ViewUpdate
 
 from .model_factories import ViewFactory, ViewGroupFactory
 
@@ -36,7 +36,7 @@ class ViewAjaxTest(TestCase):
         })
         request = self.factory.put(url, data)
         force_authenticate(request, user=user)
-        theview = ViewApiDetail.as_view()
+        theview = ViewUpdate.as_view()
         return theview(
             request,
             project_id=self.project.id,
@@ -49,7 +49,7 @@ class ViewAjaxTest(TestCase):
         })
         request = self.factory.delete(url)
         force_authenticate(request, user=user)
-        theview = ViewApiDetail.as_view()
+        theview = ViewUpdate.as_view()
         return theview(
             request,
             project_id=self.project.id,

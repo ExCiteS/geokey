@@ -49,19 +49,19 @@ urlpatterns = patterns(
     # ###########################
     url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/$',
-        view_views.ViewApiDetail.as_view(),
+        view_views.ViewUpdate.as_view(),
         name='view'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/$',
-        view_views.ViewUserGroupApiDetail.as_view(),
+        view_views.ViewUserGroupUpdate.as_view(),
         name='view_group'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users/$',
-        view_views.ViewUserGroupUsersApi.as_view(),
+        view_views.ViewUserGroupUsers.as_view(),
         name='view_group_users'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users/(?P<user_id>[0-9]+)/$',
-        view_views.ViewUserGroupUsersApiDetail.as_view(),
+        view_views.ViewUserGroupUsersUpdate.as_view(),
         name='view_group_users_user'),
 
     # ###########################
@@ -77,7 +77,7 @@ urlpatterns = patterns(
         name='project_my_contributions'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/observations/$',
-        view_views.ViewApiData.as_view(),
+        view_views.ViewAjaxObservations.as_view(),
         name='view_data'),
 
     # ###########################

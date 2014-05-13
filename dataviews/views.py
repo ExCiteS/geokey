@@ -34,7 +34,7 @@ from .serializers import (
 #
 # ############################################################################
 
-class ViewAdminCreateView(LoginRequiredMixin, CreateView):
+class ViewCreate(LoginRequiredMixin, CreateView):
     """
     Displays the create view page
     """
@@ -56,7 +56,7 @@ class ViewAdminCreateView(LoginRequiredMixin, CreateView):
         project_id = self.kwargs['project_id']
 
         context = super(
-            ViewAdminCreateView, self).get_context_data(**kwargs)
+            ViewCreate, self).get_context_data(**kwargs)
 
         context['project'] = Project.objects.as_admin(
             self.request.user, project_id
@@ -73,10 +73,10 @@ class ViewAdminCreateView(LoginRequiredMixin, CreateView):
 
         form.instance.project = project
         form.instance.creator = self.request.user
-        return super(ViewAdminCreateView, self).form_valid(form)
+        return super(ViewCreate, self).form_valid(form)
 
 
-class ViewAdminSettingsView(LoginRequiredMixin, TemplateView):
+class ViewSettings(LoginRequiredMixin, TemplateView):
     template_name = 'views/view_settings.html'
 
     @handle_exceptions_for_admin
@@ -99,11 +99,11 @@ class ViewAdminSettingsView(LoginRequiredMixin, TemplateView):
                 'view_id': view_id
             }))
 
-        return super(ViewAdminSettingsView, self).dispatch(
+        return super(ViewSettings, self).dispatch(
             request, *args, **kwargs)
 
 
-class ViewAdminDataView(LoginRequiredMixin, TemplateView):
+class ViewObservations(LoginRequiredMixin, TemplateView):
     template_name = 'contributions/observations.html'
 
     @handle_exceptions_for_admin
@@ -140,7 +140,7 @@ class ViewSingleObservation(LoginRequiredMixin, TemplateView):
         }
 
 
-class ViewGroupAdminCreateView(LoginRequiredMixin, CreateView):
+class ViewGroupCreate(LoginRequiredMixin, CreateView):
     """
     Displays the create usergroup page
     """
@@ -169,7 +169,7 @@ class ViewGroupAdminCreateView(LoginRequiredMixin, CreateView):
         view_id = self.kwargs['view_id']
 
         context = super(
-            ViewGroupAdminCreateView, self).get_context_data(**kwargs)
+            ViewGroupCreate, self).get_context_data(**kwargs)
 
         context['view'] = View.objects.as_admin(
             self.request.user, project_id, view_id
@@ -186,10 +186,10 @@ class ViewGroupAdminCreateView(LoginRequiredMixin, CreateView):
         view = View.objects.as_admin(self.request.user, project_id, view_id)
         form.instance.view = view
 
-        return super(ViewGroupAdminCreateView, self).form_valid(form)
+        return super(ViewGroupCreate, self).form_valid(form)
 
 
-class ViewGroupAdminSettingsView(LoginRequiredMixin, TemplateView):
+class ViewGroupSettings(LoginRequiredMixin, TemplateView):
     """
     Displays the usergroup admin page
     """
@@ -202,7 +202,7 @@ class ViewGroupAdminSettingsView(LoginRequiredMixin, TemplateView):
         """
 
         context = super(
-            ViewGroupAdminSettingsView, self).get_context_data(**kwargs)
+            ViewGroupSettings, self).get_context_data(**kwargs)
 
         context['group'] = ViewGroup.objects.as_admin(
             self.request.user, project_id, view_id, group_id
@@ -210,7 +210,7 @@ class ViewGroupAdminSettingsView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class RuleCreateView(LoginRequiredMixin, CreateView):
+class RuleCreate(LoginRequiredMixin, CreateView):
     """
     Displays the rule create page
     """
@@ -223,7 +223,7 @@ class RuleCreateView(LoginRequiredMixin, CreateView):
         view_id = self.kwargs['view_id']
 
         context = super(
-            RuleCreateView, self).get_context_data(**kwargs)
+            RuleCreate, self).get_context_data(**kwargs)
 
         context['view'] = View.objects.as_admin(
             self.request.user, project_id, view_id
@@ -246,7 +246,7 @@ class RuleCreateView(LoginRequiredMixin, CreateView):
                         project_id=project_id, view_id=view_id)
 
 
-class RuleSettingsView(LoginRequiredMixin, TemplateView):
+class RuleSettings(LoginRequiredMixin, TemplateView):
     """
     Displays the settings page
     """
@@ -258,7 +258,7 @@ class RuleSettingsView(LoginRequiredMixin, TemplateView):
         Creates the request context for rendering the page
         """
         view = View.objects.as_admin(self.request.user, project_id, view_id)
-        context = super(RuleSettingsView, self).get_context_data(**kwargs)
+        context = super(RuleSettings, self).get_context_data(**kwargs)
 
         context['rule'] = view.rules.get(pk=rule_id)
         return context
@@ -281,7 +281,7 @@ class RuleSettingsView(LoginRequiredMixin, TemplateView):
 #
 # ############################################################################
 
-class ViewApiDetail(APIView):
+class ViewUpdate(APIView):
     """
     API Endpoints for a view in the AJAX API.
     /ajax/projects/:project_id/views/:view_id
@@ -310,7 +310,7 @@ class ViewApiDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ViewUserGroupApiDetail(APIView):
+class ViewUserGroupUpdate(APIView):
     """
     API Endpoints for a view in the AJAX API.
     /ajax/projects/:project_id/views/:view_id/usergroups/:group_id
@@ -343,7 +343,7 @@ class ViewUserGroupApiDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ViewUserGroupUsersApi(APIView):
+class ViewUserGroupUsers(APIView):
     """
     API Endpoints for a usergroup of a project in the AJAX API.
     /ajax/projects/:project_id/views/:view_id/usergroups/:usergroup_id/users
@@ -371,7 +371,7 @@ class ViewUserGroupUsersApi(APIView):
             )
 
 
-class ViewUserGroupUsersApiDetail(APIView):
+class ViewUserGroupUsersUpdate(APIView):
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, view_id, group_id, user_id,
                format=None):
@@ -386,7 +386,7 @@ class ViewUserGroupUsersApiDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ViewApiData(APIView):
+class ViewAjaxObservations(APIView):
     @handle_exceptions_for_ajax
     def get(self, request, project_id, view_id, format=None):
         """

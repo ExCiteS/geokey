@@ -9,7 +9,7 @@ from projects.tests.model_factories import UserF, UserGroupF, ProjectF
 from .model_factories import ViewFactory, ViewGroupFactory
 from ..models import ViewGroup
 from ..views import (
-    ViewUserGroupUsersApi, ViewUserGroupApiDetail, ViewUserGroupUsersApiDetail
+    ViewUserGroupUsers, ViewUserGroupUpdate, ViewUserGroupUsersUpdate
 )
 
 
@@ -44,7 +44,7 @@ class UpdateViewGroupTest(TestCase):
         })
         request = self.factory.put(url, data)
         force_authenticate(request, user=user)
-        theview = ViewUserGroupApiDetail.as_view()
+        theview = ViewUserGroupUpdate.as_view()
         return theview(
             request,
             project_id=self.project.id,
@@ -117,7 +117,7 @@ class TestDeleteUserGroupTest(TestCase):
         })
         request = self.factory.delete(url)
         force_authenticate(request, user=user)
-        theview = ViewUserGroupApiDetail.as_view()
+        theview = ViewUserGroupUpdate.as_view()
         return theview(
             request,
             project_id=self.project.id,
@@ -184,7 +184,7 @@ class AddUserToGroup(TestCase):
         })
         request = self.factory.post(url, data)
         force_authenticate(request, user=user)
-        theview = ViewUserGroupUsersApi.as_view()
+        theview = ViewUserGroupUsers.as_view()
         return theview(
             request,
             project_id=self.project.id,
@@ -276,7 +276,7 @@ class DeleteUserFromGroup(TestCase):
         })
         request = self.factory.delete(url)
         force_authenticate(request, user=user)
-        theview = ViewUserGroupUsersApiDetail.as_view()
+        theview = ViewUserGroupUsersUpdate.as_view()
         return theview(
             request,
             project_id=self.project.id,
@@ -293,7 +293,7 @@ class DeleteUserFromGroup(TestCase):
         })
         request = self.factory.delete(url)
         force_authenticate(request, user=self.admin)
-        theview = ViewUserGroupUsersApiDetail.as_view()
+        theview = ViewUserGroupUsersUpdate.as_view()
         response = theview(
             request,
             project_id=self.project.id,

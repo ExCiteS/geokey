@@ -3,7 +3,7 @@ from django.conf.urls import patterns, url
 from projects import views as project_views
 from observationtypes import views as observationtype_views
 from users import views as login_views
-from dataviews import views as view_views
+from dataviews import views as dataviews
 from applications import views as app_views
 
 
@@ -64,35 +64,35 @@ urlpatterns = patterns(
     # ###########################
     url(
         r'^projects/(?P<project_id>[0-9]+)/views/new/$',
-        view_views.ViewAdminCreateView.as_view(),
+        dataviews.ViewCreate.as_view(),
         name='view_create'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/$',
-        view_views.ViewAdminSettingsView.as_view(),
+        dataviews.ViewSettings.as_view(),
         name='view_settings'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/observations/$',
-        view_views.ViewAdminDataView.as_view(),
+        dataviews.ViewObservations.as_view(),
         name='view_data'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)$',
-        view_views.ViewSingleObservation.as_view(),
+        dataviews.ViewSingleObservation.as_view(),
         name='view_single_observation'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/new/$',
-        view_views.ViewGroupAdminCreateView.as_view(),
+        dataviews.ViewGroupCreate.as_view(),
         name='view_group_create'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/$',
-        view_views.ViewGroupAdminSettingsView.as_view(),
+        dataviews.ViewGroupSettings.as_view(),
         name='view_group_settings'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/rules/new/$',
-        view_views.RuleCreateView.as_view(),
+        dataviews.RuleCreate.as_view(),
         name='view_rule_create'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/rules/(?P<rule_id>[0-9]+)/$',
-        view_views.RuleSettingsView.as_view(),
+        dataviews.RuleSettings.as_view(),
         name='rule_settings'),
 
     # ###########################
