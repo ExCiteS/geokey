@@ -3,7 +3,14 @@
 {% load value %}
 {% load meta %}
 
-{% block bodydata %} data-project-id="{{view.project.id}}" data-view-id="{{view.id}}" data-observation-id="{{observation.id}}"{% endblock %}
+{% block bodydata %} 
+    {% if project %}
+        data-project-id="{{project.id}}" data-observation-id="{{observation.id}}"
+    {% endif %}
+    {% if view %}
+        data-project-id="{{view.project.id}}" data-view-id="{{view.id}}" data-observation-id="{{observation.id}}"
+    {% endif %}
+{% endblock %}
 {% block title %} | Observation{% endblock %}
 
 {% block main %}

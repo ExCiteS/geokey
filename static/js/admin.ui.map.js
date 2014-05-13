@@ -12,11 +12,16 @@ $(function() {
 
     // Reads the IDs from the body's attributes
     var projectId = $('body').attr('data-project-id'),
-        viewId = $('body').attr('data-view-id');
+        viewId = $('body').attr('data-view-id'),
+        mycontributions = $('body').attr('my-contributions');
 
     var url = 'projects/' + projectId;
     if (viewId) { url += '/views/' + viewId; }
-    url += '/observations/';
+    if (projectId && mycontributions) {
+        url += '/mycontributions/';    
+    } else {
+        url += '/observations/';
+    }
 
     var map = L.map('map', {
         center: [51.505, -0.09],
@@ -30,14 +35,18 @@ $(function() {
     }).addTo(map);
 
     function handleDataLoadSuccess(response) {
-        var dataLayer = L.geoJson(response, {
-            onEachFeature: function (feature, layer) {
-                layer.bindPopup(Templates.observation(feature));
-            }
-        });
-        dataLayer.addTo(map);
-        map.fitBounds(dataLayer.getBounds());
         $('.info-loading').hide('slow', function() { this.remove(); });
+        if (response.features.length) {
+            var dataLayer = L.geoJson(response, {
+                onEachFeature: function (feature, layer) {
+                    layer.bindPopup(Templates.observation(feature));
+                }
+            });
+            dataLayer.addTo(map);
+            map.fitBounds(dataLayer.getBounds());
+        } else {
+            messages.showPanelError($('#map').parent(), 'There are no contributions in this view.');
+        }
     }
 
     function handleDataLoadError(response) {

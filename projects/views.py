@@ -54,7 +54,7 @@ class ProjectObservations(LoginRequiredMixin, TemplateView):
     Displays the project overview page
     """
     model = Project
-    template_name = 'projects/project_view.html'
+    template_name = 'contributions/observations.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id):
@@ -67,7 +67,29 @@ class ProjectObservations(LoginRequiredMixin, TemplateView):
         return {
             'project': project,
             'views': views,
-            'admin': project.is_admin(user)
+            'admin': project.is_admin(user),
+            'contributor': project.can_contribute(user),
+        }
+
+
+class ProjectMyObservations(LoginRequiredMixin, TemplateView):
+    model = Project
+    template_name = 'contributions/observations.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id):
+        """
+        Creates the request context for rendering the page
+        """
+        user = self.request.user
+        project = Project.objects.get_single(user, project_id)
+        views = View.objects.get_list(user, project_id)
+        return {
+            'project': project,
+            'views': views,
+            'admin': project.is_admin(user),
+            'contributor': project.can_contribute(user),
+            'my_contributions': True
         }
 
 
@@ -81,7 +103,6 @@ class ProjectSingleObservation(LoginRequiredMixin, TemplateView):
         """
         user = self.request.user
         project = Project.objects.as_admin(user, project_id)
-        # check if the observation can be access through that view
         observation = project.observations.get(
             pk=observation_id)
 
@@ -111,15 +132,21 @@ class ProjectAdminSettings(LoginRequiredMixin, TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         project_id = kwargs.get('project_id')
-        try:
-            Project.objects.as_admin(request.user, project_id)
-        except PermissionDenied:
-            return redirect(reverse('admin:project_observations', kwargs={
+        project = Project.objects.get_single(request.user, project_id)
+
+        if project.is_admin(request.user):
+            return super(ProjectAdminSettings, self).dispatch(
+                request, *args, **kwargs)
+        elif project.can_contribute(request.user):
+            return redirect(reverse('admin:my_observations', kwargs={
                 'project_id': project_id,
             }))
-
-        return super(ProjectAdminSettings, self).dispatch(
-            request, *args, **kwargs)
+        else:
+            views = View.objects.get_list(request.user, project_id)
+            return redirect(reverse('admin:view_data', kwargs={
+                'project_id': project_id,
+                'view_id': views[0].id
+            }))
 
 
 # ############################################################################
@@ -167,7 +194,21 @@ class ProjectAjaxObservations(APIView):
     @handle_exceptions_for_ajax
     def get(self, request, project_id, format=None):
         project = Project.objects.as_admin(request.user, project_id)
-        serializer = ContributionSerializer(project.observations.all(), many=True)
+        serializer = ContributionSerializer(
+            project.observations.all(), many=True)
+        return Response(serializer.data)
+
+
+class ProjectAjaxMyObservations(APIView):
+    """
+    API Endpoint for a project in the AJAX API.
+    /ajax/projects/:project_id/mycontributions/
+    """
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, format=None):
+        project = Project.objects.as_contributor(request.user, project_id)
+        serializer = ContributionSerializer(
+            project.observations.filter(creator=request.user), many=True)
         return Response(serializer.data)
 
 

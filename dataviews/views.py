@@ -104,7 +104,7 @@ class ViewAdminSettingsView(LoginRequiredMixin, TemplateView):
 
 
 class ViewAdminDataView(LoginRequiredMixin, TemplateView):
-    template_name = 'views/view_view.html'
+    template_name = 'contributions/observations.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, view_id):
@@ -117,6 +117,7 @@ class ViewAdminDataView(LoginRequiredMixin, TemplateView):
         return {
             'view': view,
             'admin': view.project.is_admin(user),
+            'contributor': view.project.can_contribute(user),
             'views': project_views
         }
 
