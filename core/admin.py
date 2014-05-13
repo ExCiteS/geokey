@@ -20,11 +20,11 @@ urlpatterns = patterns(
     # ###########################
     url(
         r'^projects/new/$',
-        project_views.ProjectAdminCreateView.as_view(),
+        project_views.ProjectCreate.as_view(),
         name='project_create'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/$',
-        project_views.ProjectAdminSettings.as_view(),
+        project_views.ProjectSettings.as_view(),
         name='project_settings'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/observations/$',
@@ -37,7 +37,7 @@ urlpatterns = patterns(
     url(
         r'^projects/(?P<project_id>[0-9]+)/mycontributions/',
         project_views.ProjectMyObservations.as_view(),
-        name='my_observations'),
+        name='project_my_observations'),
 
     # ###########################
     # OBSERVATION TYPES

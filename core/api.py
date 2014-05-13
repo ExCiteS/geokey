@@ -12,11 +12,11 @@ urlpatterns = patterns(
     # ###########################
     url(
         r'^projects/$',
-        project_views.ProjectApiList.as_view(),
+        project_views.Projects.as_view(),
         name='project'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/$',
-        project_views.ProjectApiSingle.as_view(),
+        project_views.SingleProject.as_view(),
         name='project_single'),
 
     # ###########################

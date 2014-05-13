@@ -28,7 +28,7 @@ from .serializers import ProjectSerializer, UserGroupSerializer
 #
 # ############################################################################
 
-class ProjectAdminCreateView(LoginRequiredMixin, CreateView):
+class ProjectCreate(LoginRequiredMixin, CreateView):
     """
     Displays the create project page
     """
@@ -47,6 +47,43 @@ class ProjectAdminCreateView(LoginRequiredMixin, CreateView):
             self.request.user
         )
         return redirect('admin:project_settings', project_id=project.id)
+
+
+class ProjectSettings(LoginRequiredMixin, TemplateView):
+    """
+    Displays the project settings page
+    """
+    model = Project
+    template_name = 'projects/project_settings.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id):
+        """
+        Creates the request context for rendering the page
+        """
+        project = Project.objects.as_admin(self.request.user, project_id)
+        return {
+            'project': project,
+            'status_types': STATUS
+        }
+
+    def dispatch(self, request, *args, **kwargs):
+        project_id = kwargs.get('project_id')
+        project = Project.objects.get_single(request.user, project_id)
+
+        if project.is_admin(request.user):
+            return super(ProjectSettings, self).dispatch(
+                request, *args, **kwargs)
+        elif project.can_contribute(request.user):
+            return redirect(reverse('admin:my_observations', kwargs={
+                'project_id': project_id,
+            }))
+        else:
+            views = View.objects.get_list(request.user, project_id)
+            return redirect(reverse('admin:view_data', kwargs={
+                'project_id': project_id,
+                'view_id': views[0].id
+            }))
 
 
 class ProjectObservations(LoginRequiredMixin, TemplateView):
@@ -112,50 +149,13 @@ class ProjectSingleObservation(LoginRequiredMixin, TemplateView):
         }
 
 
-class ProjectAdminSettings(LoginRequiredMixin, TemplateView):
-    """
-    Displays the project settings page
-    """
-    model = Project
-    template_name = 'projects/project_settings.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id):
-        """
-        Creates the request context for rendering the page
-        """
-        project = Project.objects.as_admin(self.request.user, project_id)
-        return {
-            'project': project,
-            'status_types': STATUS
-        }
-
-    def dispatch(self, request, *args, **kwargs):
-        project_id = kwargs.get('project_id')
-        project = Project.objects.get_single(request.user, project_id)
-
-        if project.is_admin(request.user):
-            return super(ProjectAdminSettings, self).dispatch(
-                request, *args, **kwargs)
-        elif project.can_contribute(request.user):
-            return redirect(reverse('admin:my_observations', kwargs={
-                'project_id': project_id,
-            }))
-        else:
-            views = View.objects.get_list(request.user, project_id)
-            return redirect(reverse('admin:view_data', kwargs={
-                'project_id': project_id,
-                'view_id': views[0].id
-            }))
-
-
 # ############################################################################
 #
 # AJAX API views
 #
 # ############################################################################
 
-class ProjectApiDetail(APIView):
+class ProjectUpdate(APIView):
     """
     API Endpoint for a project in the AJAX API.
     /ajax/projects/:project_id
@@ -186,33 +186,7 @@ class ProjectApiDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ProjectAjaxObservations(APIView):
-    """
-    API Endpoint for a project in the AJAX API.
-    /ajax/projects/:project_id/observations/
-    """
-    @handle_exceptions_for_ajax
-    def get(self, request, project_id, format=None):
-        project = Project.objects.as_admin(request.user, project_id)
-        serializer = ContributionSerializer(
-            project.observations.all(), many=True)
-        return Response(serializer.data)
-
-
-class ProjectAjaxMyObservations(APIView):
-    """
-    API Endpoint for a project in the AJAX API.
-    /ajax/projects/:project_id/mycontributions/
-    """
-    @handle_exceptions_for_ajax
-    def get(self, request, project_id, format=None):
-        project = Project.objects.as_contributor(request.user, project_id)
-        serializer = ContributionSerializer(
-            project.observations.filter(creator=request.user), many=True)
-        return Response(serializer.data)
-
-
-class ProjectApiUserGroup(APIView):
+class ProjectUserGroup(APIView):
     """
     API Endpoints for a usergroup of a project in the AJAX API.
     /ajax/projects/:project_id/usergroups/:usergroup_id/users
@@ -246,7 +220,7 @@ class ProjectApiUserGroup(APIView):
             )
 
 
-class ProjectApiUserGroupUser(APIView):
+class ProjectUserGroupUser(APIView):
     """
     API Endpoints for a user in a usergroup of a project in the AJAX API.
     /ajax/projects/:project_id/usergroups/:usergroup_id/users/:user_id
@@ -270,13 +244,39 @@ class ProjectApiUserGroupUser(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class ProjectAjaxObservations(APIView):
+    """
+    API Endpoint for a project in the AJAX API.
+    /ajax/projects/:project_id/observations/
+    """
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, format=None):
+        project = Project.objects.as_admin(request.user, project_id)
+        serializer = ContributionSerializer(
+            project.observations.all(), many=True)
+        return Response(serializer.data)
+
+
+class ProjectAjaxMyObservations(APIView):
+    """
+    API Endpoint for a project in the AJAX API.
+    /ajax/projects/:project_id/mycontributions/
+    """
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, format=None):
+        project = Project.objects.as_contributor(request.user, project_id)
+        serializer = ContributionSerializer(
+            project.observations.filter(creator=request.user), many=True)
+        return Response(serializer.data)
+
+
 # ############################################################################
 #
 # Public API views
 #
 # ############################################################################
 
-class ProjectApiList(APIView):
+class Projects(APIView):
     """
     API Endpoint for project list in the public API.
     /api/projects
@@ -295,7 +295,7 @@ class ProjectApiList(APIView):
         return Response(serializer.data)
 
 
-class ProjectApiSingle(APIView):
+class SingleProject(APIView):
     """
     API Endpoint for single project in the public API.
     /api/projects

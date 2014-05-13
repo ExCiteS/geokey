@@ -7,10 +7,10 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from dataviews.tests.model_factories import ViewFactory, ViewGroupFactory
 
 from .model_factories import UserF, UserGroupF, ProjectF
-from ..views import ProjectApiList, ProjectApiSingle
+from ..views import Projects, SingleProject
 
 
-class ProjectApiListTest(TestCase):
+class ProjectsTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserF.create()
@@ -87,7 +87,7 @@ class ProjectApiListTest(TestCase):
     def test_get_projects_with_admin(self):
         request = self.factory.get('/api/projects/')
         force_authenticate(request, user=self.admin)
-        view = ProjectApiList.as_view()
+        view = Projects.as_view()
         response = view(request).render()
 
         projects = json.loads(response.content)
@@ -98,7 +98,7 @@ class ProjectApiListTest(TestCase):
     def test_get_projects_with_contributor(self):
         request = self.factory.get('/api/projects/')
         force_authenticate(request, user=self.contributor)
-        view = ProjectApiList.as_view()
+        view = Projects.as_view()
         response = view(request).render()
 
         projects = json.loads(response.content)
@@ -110,7 +110,7 @@ class ProjectApiListTest(TestCase):
     def test_get_projects_with_view_member(self):
         request = self.factory.get('/api/projects/')
         force_authenticate(request, user=self.view_member)
-        view = ProjectApiList.as_view()
+        view = Projects.as_view()
         response = view(request).render()
 
         projects = json.loads(response.content)
@@ -122,7 +122,7 @@ class ProjectApiListTest(TestCase):
     def test_get_projects_with_non_member(self):
         request = self.factory.get('/api/projects/')
         force_authenticate(request, user=self.non_member)
-        view = ProjectApiList.as_view()
+        view = Projects.as_view()
         response = view(request).render()
 
         projects = json.loads(response.content)
@@ -133,7 +133,7 @@ class ProjectApiListTest(TestCase):
         self.assertNotContains(response, self.private_project.name)
 
 
-class ProjectApiSingleTest(TestCase):
+class SingleProjectTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
 
@@ -148,7 +148,7 @@ class ProjectApiSingleTest(TestCase):
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
-        view = ProjectApiSingle.as_view()
+        view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
         self.assertEqual(response.status_code, 404)
@@ -163,7 +163,7 @@ class ProjectApiSingleTest(TestCase):
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
-        view = ProjectApiSingle.as_view()
+        view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
         self.assertEqual(response.status_code, 200)
@@ -181,7 +181,7 @@ class ProjectApiSingleTest(TestCase):
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
-        view = ProjectApiSingle.as_view()
+        view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
         self.assertEqual(response.status_code, 403)
@@ -197,7 +197,7 @@ class ProjectApiSingleTest(TestCase):
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
-        view = ProjectApiSingle.as_view()
+        view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
         self.assertEqual(response.status_code, 200)
@@ -215,7 +215,7 @@ class ProjectApiSingleTest(TestCase):
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
-        view = ProjectApiSingle.as_view()
+        view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
         self.assertEqual(response.status_code, 404)
@@ -230,7 +230,7 @@ class ProjectApiSingleTest(TestCase):
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
-        view = ProjectApiSingle.as_view()
+        view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
         self.assertEqual(response.status_code, 200)
@@ -248,7 +248,7 @@ class ProjectApiSingleTest(TestCase):
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
-        view = ProjectApiSingle.as_view()
+        view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
         self.assertEqual(response.status_code, 403)
@@ -263,7 +263,7 @@ class ProjectApiSingleTest(TestCase):
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
-        view = ProjectApiSingle.as_view()
+        view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
         self.assertEqual(response.status_code, 200)
@@ -285,7 +285,7 @@ class ProjectApiSingleTest(TestCase):
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
-        view = ProjectApiSingle.as_view()
+        view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
         self.assertEqual(response.status_code, 404)
@@ -303,7 +303,7 @@ class ProjectApiSingleTest(TestCase):
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
-        view = ProjectApiSingle.as_view()
+        view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
         self.assertEqual(response.status_code, 200)
@@ -325,7 +325,7 @@ class ProjectApiSingleTest(TestCase):
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
-        view = ProjectApiSingle.as_view()
+        view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
         self.assertEqual(response.status_code, 403)
@@ -345,7 +345,7 @@ class ProjectApiSingleTest(TestCase):
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
-        view = ProjectApiSingle.as_view()
+        view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
         self.assertEqual(response.status_code, 200)
@@ -362,7 +362,7 @@ class ProjectApiSingleTest(TestCase):
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
-        view = ProjectApiSingle.as_view()
+        view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
         self.assertEqual(response.status_code, 404)
@@ -375,7 +375,7 @@ class ProjectApiSingleTest(TestCase):
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
-        view = ProjectApiSingle.as_view()
+        view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
         self.assertEqual(response.status_code, 403)
@@ -390,7 +390,7 @@ class ProjectApiSingleTest(TestCase):
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
-        view = ProjectApiSingle.as_view()
+        view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
         self.assertEqual(response.status_code, 403)
@@ -405,7 +405,7 @@ class ProjectApiSingleTest(TestCase):
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
-        view = ProjectApiSingle.as_view()
+        view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
         self.assertEqual(response.status_code, 200)

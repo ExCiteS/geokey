@@ -6,7 +6,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 
 from .model_factories import UserF, UserGroupF, ProjectF
 from ..models import Project
-from ..views import ProjectApiUserGroup, ProjectApiUserGroupUser
+from ..views import ProjectUserGroup, ProjectUserGroupUser
 
 
 class ProjectUsergroupTest(TestCase):
@@ -61,7 +61,7 @@ class ProjectUsergroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
-        view = ProjectApiUserGroup.as_view()
+        view = ProjectUserGroup.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -76,7 +76,7 @@ class ProjectUsergroupTest(TestCase):
             {'userId': 4445468756454}
         )
         force_authenticate(request, user=self.admin)
-        view = ProjectApiUserGroup.as_view()
+        view = ProjectUserGroup.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -91,7 +91,7 @@ class ProjectUsergroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
-        view = ProjectApiUserGroup.as_view()
+        view = ProjectUserGroup.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -111,7 +111,7 @@ class ProjectUsergroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.contributor)
-        view = ProjectApiUserGroup.as_view()
+        view = ProjectUserGroup.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -131,7 +131,7 @@ class ProjectUsergroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.non_member)
-        view = ProjectApiUserGroup.as_view()
+        view = ProjectUserGroup.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -151,7 +151,7 @@ class ProjectUsergroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
-        view = ProjectApiUserGroup.as_view()
+        view = ProjectUserGroup.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -171,7 +171,7 @@ class ProjectUsergroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.contributor)
-        view = ProjectApiUserGroup.as_view()
+        view = ProjectUserGroup.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -191,7 +191,7 @@ class ProjectUsergroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.non_member)
-        view = ProjectApiUserGroup.as_view()
+        view = ProjectUserGroup.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -218,7 +218,7 @@ class ProjectUsergroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
-        view = ProjectApiUserGroupUser.as_view()
+        view = ProjectUserGroupUser.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -235,7 +235,7 @@ class ProjectUsergroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
-        view = ProjectApiUserGroupUser.as_view()
+        view = ProjectUserGroupUser.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -252,7 +252,7 @@ class ProjectUsergroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
-        view = ProjectApiUserGroupUser.as_view()
+        view = ProjectUserGroupUser.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -274,7 +274,7 @@ class ProjectUsergroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.contributor)
-        view = ProjectApiUserGroupUser.as_view()
+        view = ProjectUserGroupUser.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -296,7 +296,7 @@ class ProjectUsergroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.non_member)
-        view = ProjectApiUserGroupUser.as_view()
+        view = ProjectUserGroupUser.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -318,7 +318,7 @@ class ProjectUsergroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
-        view = ProjectApiUserGroupUser.as_view()
+        view = ProjectUserGroupUser.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -340,7 +340,7 @@ class ProjectUsergroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.contributor)
-        view = ProjectApiUserGroupUser.as_view()
+        view = ProjectUserGroupUser.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -362,7 +362,7 @@ class ProjectUsergroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.non_member)
-        view = ProjectApiUserGroupUser.as_view()
+        view = ProjectUserGroupUser.as_view()
         response = view(
             request,
             project_id=self.project.id,

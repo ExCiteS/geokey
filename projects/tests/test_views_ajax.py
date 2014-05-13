@@ -6,7 +6,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 
 from .model_factories import UserF, UserGroupF, ProjectF
 from ..models import Project
-from ..views import ProjectApiDetail
+from ..views import ProjectUpdate
 
 
 class ProjectAjaxTest(TestCase):
@@ -26,7 +26,7 @@ class ProjectAjaxTest(TestCase):
             '/api/projects/%s/' % self.project.id,
             {'status': 'bockwurst'}
         )
-        view = ProjectApiDetail.as_view()
+        view = ProjectUpdate.as_view()
         response = view(request, project_id=self.project.id).render()
 
         self.assertEqual(response.status_code, 403)
@@ -37,7 +37,7 @@ class ProjectAjaxTest(TestCase):
             {'status': 'bockwurst'}
         )
         force_authenticate(request, user=self.admin)
-        view = ProjectApiDetail.as_view()
+        view = ProjectUpdate.as_view()
         response = view(request, project_id=self.project.id).render()
 
         self.assertEqual(response.status_code, 400)
@@ -48,7 +48,7 @@ class ProjectAjaxTest(TestCase):
             {'status': 'inactive'}
         )
         force_authenticate(request, user=self.admin)
-        view = ProjectApiDetail.as_view()
+        view = ProjectUpdate.as_view()
         response = view(request, project_id=self.project.id).render()
 
         self.assertEqual(response.status_code, 200)
@@ -63,7 +63,7 @@ class ProjectAjaxTest(TestCase):
             {'description': 'new description'}
         )
         force_authenticate(request, user=self.admin)
-        view = ProjectApiDetail.as_view()
+        view = ProjectUpdate.as_view()
         response = view(request, project_id=self.project.id).render()
 
         self.assertEqual(response.status_code, 200)
@@ -78,7 +78,7 @@ class ProjectAjaxTest(TestCase):
             {'description': 'new description'}
         )
         force_authenticate(request, user=self.contributor)
-        view = ProjectApiDetail.as_view()
+        view = ProjectUpdate.as_view()
         response = view(request, project_id=self.project.id).render()
 
         self.assertEqual(response.status_code, 403)
@@ -93,7 +93,7 @@ class ProjectAjaxTest(TestCase):
             {'description': 'new description'}
         )
         force_authenticate(request, user=self.non_member)
-        view = ProjectApiDetail.as_view()
+        view = ProjectUpdate.as_view()
         response = view(request, project_id=self.project.id).render()
 
         self.assertEqual(response.status_code, 403)
@@ -106,7 +106,7 @@ class ProjectAjaxTest(TestCase):
     def test_delete_project_with_admin(self):
         request = self.factory.delete('/api/projects/%s/' % self.project.id)
         force_authenticate(request, user=self.admin)
-        view = ProjectApiDetail.as_view()
+        view = ProjectUpdate.as_view()
         response = view(request, project_id=self.project.id).render()
 
         self.assertEqual(response.status_code, 204)
@@ -115,7 +115,7 @@ class ProjectAjaxTest(TestCase):
     def test_delete_project_with_contributor(self):
         request = self.factory.delete('/api/projects/%s/' % self.project.id)
         force_authenticate(request, user=self.contributor)
-        view = ProjectApiDetail.as_view()
+        view = ProjectUpdate.as_view()
         response = view(request, project_id=self.project.id).render()
 
         self.assertEqual(response.status_code, 403)
@@ -127,7 +127,7 @@ class ProjectAjaxTest(TestCase):
     def test_delete_project_with_non_member(self):
         request = self.factory.delete('/api/projects/%s/' % self.project.id)
         force_authenticate(request, user=self.non_member)
-        view = ProjectApiDetail.as_view()
+        view = ProjectUpdate.as_view()
         response = view(request, project_id=self.project.id).render()
 
         self.assertEqual(response.status_code, 403)
