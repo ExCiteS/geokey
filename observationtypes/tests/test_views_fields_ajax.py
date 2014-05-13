@@ -11,7 +11,7 @@ from .model_factories import (
 )
 
 from ..models import Field
-from ..views import FieldApiDetail, FieldApiLookupsDetail, FieldApiLookups
+from ..views import FieldUpdate, FieldLookupsUpdate, FieldLookups
 
 
 class UpdateFieldTest(TestCase):
@@ -37,7 +37,7 @@ class UpdateFieldTest(TestCase):
 
     def _put(self, data, user):
         url = reverse(
-            'ajax:project_observationtype_field',
+            'ajax:observationtype_field',
             kwargs={
                 'project_id': self.project.id,
                 'observationtype_id': self.observationtype.id,
@@ -46,7 +46,7 @@ class UpdateFieldTest(TestCase):
         )
         request = self.factory.put(url, data)
         force_authenticate(request, user=user)
-        view = FieldApiDetail.as_view()
+        view = FieldUpdate.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -56,7 +56,7 @@ class UpdateFieldTest(TestCase):
 
     def test_update_non_existing_field(self):
         url = reverse(
-            'ajax:project_observationtype_field',
+            'ajax:observationtype_field',
             kwargs={
                 'project_id': self.project.id,
                 'observationtype_id': self.observationtype.id,
@@ -65,7 +65,7 @@ class UpdateFieldTest(TestCase):
         )
         request = self.factory.put(url, {'description': 'new description'})
         force_authenticate(request, user=self.admin)
-        view = FieldApiDetail.as_view()
+        view = FieldUpdate.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -157,7 +157,7 @@ class UpdateNumericField(TestCase):
 
     def _put(self, data, user):
         url = reverse(
-            'ajax:project_observationtype_field',
+            'ajax:observationtype_field',
             kwargs={
                 'project_id': self.project.id,
                 'observationtype_id': self.observationtype.id,
@@ -166,7 +166,7 @@ class UpdateNumericField(TestCase):
         )
         request = self.factory.put(url, data)
         force_authenticate(request, user=user)
-        view = FieldApiDetail.as_view()
+        view = FieldUpdate.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -236,7 +236,7 @@ class AddLookupValueTest(TestCase):
         })
 
         url = reverse(
-            'ajax:project_observationtype_lookupvalues',
+            'ajax:observationtype_lookupvalues',
             kwargs={
                 'project_id': self.project.id,
                 'observationtype_id': self.active_type.id,
@@ -245,7 +245,7 @@ class AddLookupValueTest(TestCase):
         )
         request = self.factory.post(url, {'name': 'Ms. Piggy'})
         force_authenticate(request, user=self.admin)
-        view = FieldApiLookups.as_view()
+        view = FieldLookups.as_view()
 
         response = view(
             request,
@@ -259,7 +259,7 @@ class AddLookupValueTest(TestCase):
 
     def test_add_lookupvalue_to_not_existing_field(self):
         url = reverse(
-            'ajax:project_observationtype_lookupvalues',
+            'ajax:observationtype_lookupvalues',
             kwargs={
                 'project_id': self.project.id,
                 'observationtype_id': self.active_type.id,
@@ -268,7 +268,7 @@ class AddLookupValueTest(TestCase):
         )
         request = self.factory.post(url, {'name': 'Ms. Piggy'})
         force_authenticate(request, user=self.admin)
-        view = FieldApiLookups.as_view()
+        view = FieldLookups.as_view()
 
         response = view(
             request,
@@ -283,7 +283,7 @@ class AddLookupValueTest(TestCase):
             'observationtype': self.active_type
         })
         url = reverse(
-            'ajax:project_observationtype_lookupvalues',
+            'ajax:observationtype_lookupvalues',
             kwargs={
                 'project_id': self.project.id,
                 'observationtype_id': self.active_type.id,
@@ -292,7 +292,7 @@ class AddLookupValueTest(TestCase):
         )
         request = self.factory.post(url, {'name': 'Ms. Piggy'})
         force_authenticate(request, user=self.admin)
-        view = FieldApiLookups.as_view()
+        view = FieldLookups.as_view()
 
         response = view(
             request,
@@ -326,7 +326,7 @@ class RemoveLookupValues(TestCase):
         })
 
         url = reverse(
-            'ajax:project_observationtype_lookupvalues_detail',
+            'ajax:observationtype_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
                 'observationtype_id': self.active_type.id,
@@ -336,7 +336,7 @@ class RemoveLookupValues(TestCase):
         )
         request = self.factory.delete(url)
         force_authenticate(request, user=self.admin)
-        view = FieldApiLookupsDetail.as_view()
+        view = FieldLookupsUpdate.as_view()
 
         response = view(
             request,
@@ -355,7 +355,7 @@ class RemoveLookupValues(TestCase):
         lookup_value = LookupValueFactory()
 
         url = reverse(
-            'ajax:project_observationtype_lookupvalues_detail',
+            'ajax:observationtype_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
                 'observationtype_id': self.active_type.id,
@@ -365,7 +365,7 @@ class RemoveLookupValues(TestCase):
         )
         request = self.factory.delete(url)
         force_authenticate(request, user=self.admin)
-        view = FieldApiLookupsDetail.as_view()
+        view = FieldLookupsUpdate.as_view()
 
         response = view(
             request,
@@ -383,7 +383,7 @@ class RemoveLookupValues(TestCase):
         })
 
         url = reverse(
-            'ajax:project_observationtype_lookupvalues_detail',
+            'ajax:observationtype_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
                 'observationtype_id': self.active_type.id,
@@ -393,7 +393,7 @@ class RemoveLookupValues(TestCase):
         )
         request = self.factory.delete(url)
         force_authenticate(request, user=self.admin)
-        view = FieldApiLookupsDetail.as_view()
+        view = FieldLookupsUpdate.as_view()
 
         response = view(
             request,
@@ -411,7 +411,7 @@ class RemoveLookupValues(TestCase):
         })
 
         url = reverse(
-            'ajax:project_observationtype_lookupvalues_detail',
+            'ajax:observationtype_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
                 'observationtype_id': self.active_type.id,
@@ -421,7 +421,7 @@ class RemoveLookupValues(TestCase):
         )
         request = self.factory.delete(url)
         force_authenticate(request, user=self.admin)
-        view = FieldApiLookupsDetail.as_view()
+        view = FieldLookupsUpdate.as_view()
 
         response = view(
             request,

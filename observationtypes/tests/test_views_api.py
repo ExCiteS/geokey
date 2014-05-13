@@ -11,7 +11,7 @@ from .model_factories import (
     LookupFieldFactory, LookupValueFactory
 )
 
-from ..views import ObservationTypeApiSingle
+from ..views import SingleObservationType
 
 
 class ObservationTypePublicApiTest(TestCase):
@@ -70,7 +70,7 @@ class ObservationTypePublicApiTest(TestCase):
 
     def _get(self, user):
         url = reverse(
-            'api:project_observation_types',
+            'api:observationtype',
             kwargs={
                 'project_id': self.project.id,
                 'observationtype_id': self.observationtype.id
@@ -78,7 +78,7 @@ class ObservationTypePublicApiTest(TestCase):
         )
         request = self.factory.get(url)
         force_authenticate(request, user=user)
-        view = ObservationTypeApiSingle.as_view()
+        view = SingleObservationType.as_view()
         return view(
             request,
             project_id=self.project.id,

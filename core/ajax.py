@@ -25,28 +25,24 @@ urlpatterns = patterns(
         name='project_usergroup_user'),
 
     # ###########################
-    # OBSERVATION TYPES
+    # OBSERVATION TYPES & FIELDS
     # ###########################
     url(
         r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/$',
-        observationtypes_views.ObservationTypeApiDetail.as_view(),
-        name='project_observationtype'),
-
-    # ###########################
-    # FIELDS
-    # ###########################
+        observationtypes_views.ObservationTypeUpdate.as_view(),
+        name='observationtype'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/$',
-        observationtypes_views.FieldApiDetail.as_view(),
-        name='project_observationtype_field'),
+        observationtypes_views.FieldUpdate.as_view(),
+        name='observationtype_field'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/lookupvalues/$',
-        observationtypes_views.FieldApiLookups.as_view(),
-        name='project_observationtype_lookupvalues'),
+        observationtypes_views.FieldLookups.as_view(),
+        name='observationtype_lookupvalues'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/lookupvalues/(?P<value_id>[0-9]+)/$',
-        observationtypes_views.FieldApiLookupsDetail.as_view(),
-        name='project_observationtype_lookupvalues_detail'),
+        observationtypes_views.FieldLookupsUpdate.as_view(),
+        name='observationtype_lookupvalues_detail'),
 
     # ###########################
     # VIEWS

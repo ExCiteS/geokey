@@ -90,6 +90,6 @@ urlpatterns = patterns(
     # ###########################
     url(
         r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/$',
-        observationtype_views.ObservationTypeApiSingle.as_view(),
-        name='project_observation_types'),
+        observationtype_views.SingleObservationType.as_view(),
+        name='observationtype'),
 )

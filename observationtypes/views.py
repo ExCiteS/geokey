@@ -30,7 +30,7 @@ from .serializer import (
 #
 # ############################################################################
 
-class ObservationTypeAdminCreateView(LoginRequiredMixin, CreateView):
+class ObservationTypeCreate(LoginRequiredMixin, CreateView):
     """
     Displays the create ObservationType page and creates the ObservationType
     when POST is requested
@@ -46,7 +46,7 @@ class ObservationTypeAdminCreateView(LoginRequiredMixin, CreateView):
         project_id = self.kwargs['project_id']
 
         context = super(
-            ObservationTypeAdminCreateView, self).get_context_data(**kwargs)
+            ObservationTypeCreate, self).get_context_data(**kwargs)
 
         context['project'] = Project.objects.as_admin(
             self.request.user, project_id
@@ -75,10 +75,10 @@ class ObservationTypeAdminCreateView(LoginRequiredMixin, CreateView):
         project = Project.objects.as_admin(self.request.user, project_id)
         form.instance.project = project
 
-        return super(ObservationTypeAdminCreateView, self).form_valid(form)
+        return super(ObservationTypeCreate, self).form_valid(form)
 
 
-class ObservationTypeAdminDetailView(LoginRequiredMixin, TemplateView):
+class ObservationTypeSettings(LoginRequiredMixin, TemplateView):
     """
     Displays the observation type detail page
     """
@@ -99,7 +99,7 @@ class ObservationTypeAdminDetailView(LoginRequiredMixin, TemplateView):
         }
 
 
-class FieldAdminCreateView(LoginRequiredMixin, CreateView):
+class FieldCreate(LoginRequiredMixin, CreateView):
     """
     Displays the create field page
     """
@@ -111,7 +111,7 @@ class FieldAdminCreateView(LoginRequiredMixin, CreateView):
         project_id = self.kwargs['project_id']
         observationtype_id = self.kwargs['observationtype_id']
 
-        context = super(FieldAdminCreateView, self).get_context_data(**kwargs)
+        context = super(FieldCreate, self).get_context_data(**kwargs)
 
         context['observationtype'] = ObservationType.objects.as_admin(
             self.request.user, project_id, observationtype_id
@@ -142,7 +142,7 @@ class FieldAdminCreateView(LoginRequiredMixin, CreateView):
         )
 
 
-class FieldAdminDetailView(LoginRequiredMixin, TemplateView):
+class FieldSettings(LoginRequiredMixin, TemplateView):
     """
     Displays the field detail page
     """
@@ -154,7 +154,7 @@ class FieldAdminDetailView(LoginRequiredMixin, TemplateView):
         user = self.request.user
         field = Field.objects.get_single(
             user, project_id, observationtype_id, field_id)
-        context = super(FieldAdminDetailView, self).get_context_data(**kwargs)
+        context = super(FieldSettings, self).get_context_data(**kwargs)
         context['field'] = field
         context['status_types'] = STATUS
 
@@ -167,7 +167,7 @@ class FieldAdminDetailView(LoginRequiredMixin, TemplateView):
 #
 # ############################################################################
 
-class ObservationTypeApiDetail(APIView):
+class ObservationTypeUpdate(APIView):
     """
     API Endpoints for a observationtype in the AJAX API.
     /ajax/projects/:project_id/observationtypes/:observationtype_id
@@ -200,7 +200,7 @@ class ObservationTypeApiDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class FieldApiDetail(APIView):
+class FieldUpdate(APIView):
     """
     API endpoints for fields
     /ajax/projects/:project_id/observationtypes/:observationtype_id/fields/
@@ -231,7 +231,7 @@ class FieldApiDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class FieldApiLookups(APIView):
+class FieldLookups(APIView):
     """
     API endpoint for lookupvalues
     /ajax/projects/:project_id/observationtypes/:observationtype_id/fields/
@@ -259,7 +259,7 @@ class FieldApiLookups(APIView):
             )
 
 
-class FieldApiLookupsDetail(APIView):
+class FieldLookupsUpdate(APIView):
     """
     API endpoint for lookupvalues
     /ajax/projects/:project_id/observationtypes/:observationtype_id/fields/
@@ -290,7 +290,7 @@ class FieldApiLookupsDetail(APIView):
 #
 # ############################################################################
 
-class ObservationTypeApiSingle(APIView):
+class SingleObservationType(APIView):
     """
     API endpoint for a single observationtype
     /api/projects/:project_id/observationtypes/:observationtype_id

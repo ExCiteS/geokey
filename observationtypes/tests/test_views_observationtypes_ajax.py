@@ -6,7 +6,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from projects.tests.model_factories import UserF, UserGroupF, ProjectF
 
 from ..models import ObservationType
-from ..views import ObservationTypeApiDetail
+from ..views import ObservationTypeUpdate
 
 from .model_factories import ObservationTypeFactory
 
@@ -30,7 +30,7 @@ class ObservationtypeAjaxTest(TestCase):
 
     def _put(self, data, user):
         url = reverse(
-            'ajax:project_observationtype',
+            'ajax:observationtype',
             kwargs={
                 'project_id': self.project.id,
                 'observationtype_id': self.active_type.id
@@ -38,7 +38,7 @@ class ObservationtypeAjaxTest(TestCase):
         )
         request = self.factory.put(url, data)
         force_authenticate(request, user=user)
-        view = ObservationTypeApiDetail.as_view()
+        view = ObservationTypeUpdate.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -47,7 +47,7 @@ class ObservationtypeAjaxTest(TestCase):
 
     def test_update_not_existing_type(self):
         url = reverse(
-            'ajax:project_observationtype',
+            'ajax:observationtype',
             kwargs={
                 'project_id': self.project.id,
                 'observationtype_id': 2376
@@ -55,7 +55,7 @@ class ObservationtypeAjaxTest(TestCase):
         )
         request = self.factory.put(url, {'status': 'inactive'})
         force_authenticate(request, user=self.admin)
-        view = ObservationTypeApiDetail.as_view()
+        view = ObservationTypeUpdate.as_view()
         response = view(
             request,
             project_id=self.project.id,
