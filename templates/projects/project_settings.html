@@ -13,6 +13,10 @@
                     <li class="active">{{ project.name }}: Settings</li>
                 </ol>
 
+                <div class="stats pull-right">
+                    <a href="{% url 'admin:project_observations' project.id %}"><span class="number">{{project.observations.all|length}}</span> observations in this project</a>
+                </div>
+
                 <h1>{{project.name}}</h1>
                 <p class="lead">
                     <span id="descriptionText">{% if project.description %} {{project.description}} {% endif %}</span>

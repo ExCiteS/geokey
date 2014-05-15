@@ -306,6 +306,24 @@ class FieldTest(TestCase):
             self.fail('TextField.validate_input() raised InputError '
                       'unexpectedly!')
 
+    def test_textfield_validate_required(self):
+        textfield = TextFieldFactory.create(**{'required': True})
+        try:
+            textfield.validate_input('Bla')
+        except InputError:
+            self.fail('TextField.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    @raises(InputError)
+    def test_textfield_validate_required_empty_string(self):
+        textfield = TextFieldFactory.create(**{'required': True})
+        textfield.validate_input('')
+
+    @raises(InputError)
+    def test_textfield_validate_required_none_type(self):
+        textfield = TextFieldFactory.create(**{'required': True})
+        textfield.validate_input(None)
+
     def test_textfield_convert_from_String(self):
         textfield = TextFieldFactory()
         self.assertEqual('Bla', textfield.convert_from_string('Bla'))
@@ -313,6 +331,19 @@ class FieldTest(TestCase):
     #
     # NUMERIC FIELD
     #
+    #
+    def test_numericfield_validate_required(self):
+        numericfield = NumericFieldFactory.create(**{'required': True})
+        try:
+            numericfield.validate_input(2)
+        except InputError:
+            self.fail('NumericField.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    @raises(InputError)
+    def test_numericfield_validate_required_none_type(self):
+        numericfield = NumericFieldFactory.create(**{'required': True})
+        numericfield.validate_input(None)
 
     def test_numericfield_validate_input_number(self):
         numeric_field = NumericFieldFactory()
@@ -394,13 +425,26 @@ class FieldTest(TestCase):
         })
         numeric_field.validate_input(21)
 
-    def test_numericfield_convert_from_string(self):
+    def test_datetimefield_convert_from_string(self):
         numeric_field = NumericFieldFactory()
         self.assertEqual(100, numeric_field.convert_from_string('100'))
 
     #
     # DATE TIME FIELD
     #
+    def test_datetimefield_validate_required(self):
+        datetimefield = DateTimeFieldFactory.create(**{'required': True})
+        try:
+            datetimefield.validate_input('2014-01-01')
+        except InputError:
+            self.fail('datetimefield.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    @raises(InputError)
+    def test_datetimefield_validate_required_none_type(self):
+        datetimefield = DateTimeFieldFactory.create(**{'required': True})
+        datetimefield.validate_input(None)
+
     def test_datetimefield_validate_input(self):
         date_time_field = DateTimeFieldFactory()
         try:
@@ -417,6 +461,14 @@ class FieldTest(TestCase):
     #
     # TRUE FALSE FIELD
     #
+    def test_truefalsefield_validate_required(self):
+        true_false_field = TrueFalseFieldFactory.create(**{'required': True})
+        true_false_field.validate_input(True)
+
+    @raises(InputError)
+    def test_truefalsefield_validate_required_none_type(self):
+        true_false_field = TrueFalseFieldFactory.create(**{'required': True})
+        true_false_field.validate_input(None)
 
     def test_truefalsefield_validate_input(self):
         true_false_field = TrueFalseFieldFactory()
@@ -433,11 +485,6 @@ class FieldTest(TestCase):
         true_false_field.validate_input('bla')
 
     @raises(InputError)
-    def test_truefalsefield_validate_input_none_type(self):
-        true_false_field = TrueFalseFieldFactory()
-        true_false_field.validate_input(None)
-
-    @raises(InputError)
     def test_truefalsefield_validate_input_number(self):
         true_false_field = TrueFalseFieldFactory()
         true_false_field.validate_input(12)
@@ -450,6 +497,18 @@ class FieldTest(TestCase):
     #
     # LOOKUP FIELD
     #
+    def test_lookupfield_validate_required(self):
+        lookup_field = LookupFieldFactory.create(**{'required': True})
+        lookup_value = LookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': lookup_field
+        })
+        lookup_field.validate_input(lookup_value.id)
+
+    @raises(InputError)
+    def test_lookupfield_validate_required_none_type(self):
+        lookup_field = LookupFieldFactory.create(**{'required': True})
+        lookup_field.validate_input(None)
 
     def test_lookupfield_validate_input(self):
         lookup_field = LookupFieldFactory()

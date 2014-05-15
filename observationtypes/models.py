@@ -83,7 +83,7 @@ class Field(models.Model):
         )
 
     def validate_required(self, value):
-        if self.required and (value is None or len(value) == 0):
+        if self.required and (value is None):
             raise InputError('The field %s is required.' % self.name)
 
     def convert_from_string(self, value):
@@ -117,6 +117,10 @@ class TextField(Field):
     """
     A field for character strings.
     """
+
+    def validate_required(self, value):
+        if self.required and (value is None or len(value) == 0):
+            raise InputError('The field %s is required.' % self.name)
 
     def validate_input(self, value):
         """
@@ -230,7 +234,7 @@ class TrueFalseField(Field):
         """
         self.validate_required(value)
 
-        if value not in [True, False]:
+        if value is not None and value not in [True, False]:
             raise InputError('The value for TrueFalseField %s must be one of '
                              'True or False' % self.name)
 
@@ -251,13 +255,17 @@ class TrueFalseField(Field):
         return reference == json.loads(item.attributes[self.key])
 
     def get_filter(self, rule):
-        return Q(attributes={self.key: rule})
+        return Q(attributes__contains={self.key: json.dumps(rule)})
 
 
 class DateTimeField(Field):
     """
     A field for storing dates and times.
     """
+
+    def validate_required(self, value):
+        if self.required and (value is None or len(value) == 0):
+            raise InputError('The field %s is required.' % self.name)
 
     def validate_input(self, value):
         """

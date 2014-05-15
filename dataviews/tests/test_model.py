@@ -406,7 +406,7 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'observationtype': observation_type_1,
-                'attributes': {'true': True}
+                'attributes': {'true': True, 'bla': 'bla'}
             })
 
             ObservationFactory(**{

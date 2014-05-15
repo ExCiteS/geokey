@@ -30,6 +30,8 @@ class LocationContributionSerializer(serializers.ModelSerializer):
 
 
 class ObservationSerializer(serializers.ModelSerializer):
+    creator = UserSerializer()
+
     class Meta:
         model = Observation
         depth = 0
@@ -100,7 +102,7 @@ class ContributionSerializer(object):
                             json.dumps(data.get('geometry'))
                         ),
                         creator=creator,
-                        private=location_data.get('private'),
+                        private=location_data.get('private') or False,
                         private_for_project=location_data.get(
                             'private_for_project')
                     )

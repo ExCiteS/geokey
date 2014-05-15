@@ -375,16 +375,26 @@ function program1(depth0,data) {
 this["Templates"]["observation"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, helper, functionType="function", escapeExpression=this.escapeExpression;
+  var buffer = "", stack1, helper, functionType="function", escapeExpression=this.escapeExpression, self=this;
 
+function program1(depth0,data) {
+  
+  var stack1;
+  return escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.location)),stack1 == null || stack1 === false ? stack1 : stack1.name)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1));
+  }
 
-  buffer += "<h4>"
-    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.observationtype)),stack1 == null || stack1 === false ? stack1 : stack1.name)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</h4>\n<table class=\"table table-condensed\">\n    <tr><th>Field name</th><th>Value</th></tr>\n    <tr><td>Contributor:</td><td>Oliver Roick</td></tr>\n    <tr><td>Version:</td><td>"
-    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.properties)),stack1 == null || stack1 === false ? stack1 : stack1.version)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</td></tr>\n    <tr><td>Status:</td><td>"
-    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.properties)),stack1 == null || stack1 === false ? stack1 : stack1.status)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</td></tr>\n</table>\n<a class=\"btn btn-sm btn-block btn-primary\" href=\"";
+function program3(depth0,data) {
+  
+  var stack1;
+  return escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.observationtype)),stack1 == null || stack1 === false ? stack1 : stack1.name)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1));
+  }
+
+  buffer += "<h4>";
+  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.location)),stack1 == null || stack1 === false ? stack1 : stack1.name), {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "</h4>\n<p>Created by "
+    + escapeExpression(((stack1 = ((stack1 = ((stack1 = (depth0 && depth0.properties)),stack1 == null || stack1 === false ? stack1 : stack1.creator)),stack1 == null || stack1 === false ? stack1 : stack1.username)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "</p>\n<a class=\"btn btn-sm btn-block btn-primary\" href=\"";
   if (helper = helpers.id) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.id); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)

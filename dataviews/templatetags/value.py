@@ -14,8 +14,9 @@ def value(attributes, field):
         return '&mdash;'
 
     if field.fieldtype == 'LookupField':
-        for lookup in field.lookupvalues:
-            if lookup.id == value:
+        for lookup in field.lookupvalues.all():
+            print lookup.name, lookup.id, value
+            if lookup.id == int(value):
                 return lookup.name
 
     if field.fieldtype == 'DateTimeField':

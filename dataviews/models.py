@@ -32,7 +32,6 @@ class View(models.Model):
             query = queries.pop()
             for item in queries:
                 query |= item
-
             return self.project.observations.filter(query)
 
         else:

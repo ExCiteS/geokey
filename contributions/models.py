@@ -38,7 +38,7 @@ class Observation(models.Model):
     """
     Stores a single observation.
     """
-    location = models.ForeignKey('Location', related_name='observations')
+    location = models.ForeignKey('Location', related_name='locations')
     project = models.ForeignKey(
         'projects.Project', related_name='observations'
     )
