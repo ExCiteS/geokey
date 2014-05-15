@@ -31,13 +31,18 @@ urlpatterns = patterns(
         project_views.ProjectObservations.as_view(),
         name='project_observations'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)$',
+        r'^projects/(?P<project_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)/$',
         project_views.ProjectSingleObservation.as_view(),
         name='project_single_observation'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/mycontributions/',
+        r'^projects/(?P<project_id>[0-9]+)/mycontributions/$',
         project_views.ProjectMyObservations.as_view(),
         name='project_my_observations'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/mycontributions/(?P<observation_id>[0-9]+)/$',
+        project_views.ProjectSingleMyObservation.as_view(),
+        name='project_my_single_observation'), 
+
 
     # ###########################
     # OBSERVATION TYPES & FIELDS

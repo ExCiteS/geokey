@@ -150,6 +150,25 @@ class ProjectSingleObservation(LoginRequiredMixin, TemplateView):
         }
 
 
+class ProjectSingleMyObservation(LoginRequiredMixin, TemplateView):
+    template_name = 'contributions/observation.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, observation_id):
+        """
+        Creates the request context for rendering the page
+        """
+        user = self.request.user
+        project = Project.objects.as_contributor(user, project_id)
+        observation = project.observations.filter(creator=user).get(
+            pk=observation_id)
+
+        return {
+            'project': project,
+            'observation': observation
+        }
+
+
 # ############################################################################
 #
 # AJAX API views

@@ -20,13 +20,13 @@
                     <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
                     {% if project %}
                     <li><a href="{% url 'admin:project_settings' project.id %}">{{ project.name }}</a></li>
-                    <li><a href="{% url 'admin:project_observations' project.id %}">Data</a></li>
+                    <li><a href="{% url 'admin:project_observations' project.id %}">Observations</a></li>
                     {% endif %}
 
                     {% if view %}
                     <li><a href="{% url 'admin:project_settings' view.project.id %}">{{ view.project.name }}</a></li>
                     <li><a href="{% url 'admin:view_settings' view.project.id view.id %}">{{ view.name }}</a></li>
-                    <li><a href="{% url 'admin:view_observations' view.project.id view.id %}">Data</a></li>
+                    <li><a href="{% url 'admin:view_observations' view.project.id view.id %}">Observations</a></li>
                     {% endif %}
                         
                     <li class="active">Observation</li>
