@@ -71,6 +71,18 @@ class Observations(APIView):
     """
 
     @handle_exceptions_for_ajax
+    def get(self, request, project_id, format=None):
+        project = Project.objects.get_single(request.user, project_id)
+        if project.is_admin(request.user):
+            data = project.observations.all()
+            serializer = ContributionSerializer(data, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            raise PermissionDenied('You are not an administrator of this '
+                                   'project. You must therefore access '
+                                   'observations through one of the views.')
+
+    @handle_exceptions_for_ajax
     def post(self, request, project_id, format=None):
         """
         Adds a new contribution to a project

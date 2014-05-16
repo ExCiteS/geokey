@@ -75,7 +75,8 @@ class ProjectPublicApiTest(TestCase):
                 'project_id': self.project.id
             }
         )
-        request = self.factory.post(url, json.dumps(data), content_type='application/json')
+        request = self.factory.post(
+            url, json.dumps(data), content_type='application/json')
         force_authenticate(request, user=user)
         view = Observations.as_view()
         return view(request, project_id=self.project.id).render()

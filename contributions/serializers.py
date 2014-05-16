@@ -65,7 +65,7 @@ class ContributionSerializer(object):
         self.many = many
 
         # Extract the information from the data dictionary
-        if not self.many:
+        if not self.many and data is not None:
             properties = data.get('properties')
 
         if instance is None:
@@ -177,7 +177,8 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def to_native(self, obj):
         native = super(CommentSerializer, self).to_native(obj)
-        native['responses'] = CommentSerializer(obj.responses.all(), many=True).data
+        native['responses'] = CommentSerializer(
+            obj.responses.all(), many=True).data
 
         return native
 
