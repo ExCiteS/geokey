@@ -105,28 +105,6 @@ class UpdateObservationInProject(TestCase):
             request, project_id=self.project.id,
             observation_id=self.observation.id).render()
 
-    def test_update_without_version(self):
-        data = {"properties": {"key_2": 15}}
-
-        response = self._put(
-            data,
-            self.admin
-        )
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            self.observation.attributes.get('key_2'), '12')
-
-    def test_update_with_wrong_version(self):
-        data = {"properties": {"version": 3000, "key_2": 15}}
-
-        response = self._put(
-            data,
-            self.admin
-        )
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            self.observation.attributes.get('key_2'), '12')
-
     def test_update_conflict(self):
         response = self._put(
             self.update_data,
@@ -307,22 +285,6 @@ class UpdateObservationInView(TestCase):
             request, project_id=self.project.id, view_id=self.view.id,
             observation_id=self.observation.id).render()
 
-    def test_update_without_version(self):
-        data = {"properties": {"key_2": 15}}
-
-        response = self._put(data, self.admin)
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            self.observation.attributes.get('key_2'), '12')
-
-    def test_update_with_wrong_version(self):
-        data = {"properties": {"version": 3000, "key_2": 15}}
-
-        response = self._put(data, self.admin)
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            self.observation.attributes.get('key_2'), '12')
-
     def test_update_conflict(self):
         response = self._put(
             self.update_data,
@@ -368,22 +330,13 @@ class UpdateObservationInView(TestCase):
             self.update_data,
             self.view_member
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 403)
 
-        observation = Observation.objects.get(pk=self.observation.id)
-        self.assertEqual(
-            observation.attributes.get('key_2'), '15')
-
-        self.assertEqual(
-            self.observation.attributes.get('key_2'), '12')
-
-    @raises(Observation.DoesNotExist)
     def test_delete_with_view_member(self):
         response = self._delete(
             self.view_member
         )
-        self.assertEqual(response.status_code, 204)
-        Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(response.status_code, 403)
 
     def test_update_with_non_member(self):
         response = self._put(
@@ -409,10 +362,12 @@ class UpdateObservationInView(TestCase):
 class UpdateMyObservation(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
+        self.admin = UserF.create()
         self.contributor = UserF.create()
         self.non_member = UserF.create()
 
         self.project = ProjectF.create(**{
+            'admins': UserGroupF(add_users=[self.admin]),
             'contributors': UserGroupF(add_users=[self.contributor])
         })
         self.observationtype = ObservationTypeFactory(**{
@@ -480,30 +435,6 @@ class UpdateMyObservation(TestCase):
             request, project_id=self.project.id,
             observation_id=self.observation.id).render()
 
-    def test_update_without_version(self):
-        data = {"properties": {"key_2": 15}}
-
-        response = self._put(data, self.contributor)
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            self.observation.attributes.get('key_2'), '12')
-
-    def test_update_with_wrong_version(self):
-        data = {"properties": {"version": 3000, "key_2": 15}}
-
-        response = self._put(data, self.contributor)
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            self.observation.attributes.get('key_2'), '12')
-
-    def test_update_conflict(self):
-        response = self._put(self.update_data, self.contributor)
-        self.assertEqual(response.status_code, 200)
-
-        data = {"properties": {"version": 1, "key_2": 2}}
-        response = self._put(data, self.contributor)
-        self.assertEqual(response.status_code, 200)
-
     def test_update_with_contributor(self):
         response = self._put(self.update_data, self.contributor)
         self.assertEqual(response.status_code, 200)
@@ -511,6 +442,19 @@ class UpdateMyObservation(TestCase):
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
             observation.attributes.get('key_2'), '15')
+
+    def test_delete_with_admin(self):
+        response = self._delete(self.admin)
+        self.assertEqual(response.status_code, 404)
+        Observation.objects.get(pk=self.observation.id)
+
+    def test_update_with_admin(self):
+        response = self._put(self.update_data, self.admin)
+        self.assertEqual(response.status_code, 404)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(
+            observation.attributes.get('key_2'), '12')
 
     @raises(Observation.DoesNotExist)
     def test_delete_with_contributor(self):
@@ -520,8 +464,8 @@ class UpdateMyObservation(TestCase):
 
     def test_update_with_non_member(self):
         response = self._put(self.update_data, self.non_member)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 403)
 
     def test_delete_with_non_member(self):
         response = self._delete(self.non_member)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 403)

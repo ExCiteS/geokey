@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django_hstore import hstore
 from simple_history.models import HistoricalRecords
 
-from core.exceptions import InputError, MalformedRequestData
+from core.exceptions import InputError
 
 from .base import LOCATION_STATUS, OBSERVATION_STATUS, COMMENT_STATUS
 from .manager import LocationManager, ObservationManager, CommentManager
@@ -49,10 +49,17 @@ class Observation(models.Model):
         max_length=20
     )
     review_comment = models.TextField(blank=True, null=True)
-    conflict_version = models.IntegerField(blank=True, null=True)
     attributes = hstore.DictionaryField(db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL)
+    creator = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='creator'
+    )
+    updator = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='updator',
+        null=True
+    )
     version = models.IntegerField(default=1)
 
     history = HistoricalRecords()
@@ -89,14 +96,6 @@ class Observation(models.Model):
         else:
             raise ValidationError(error_messages)
 
-    # @property
-    # def current_data(self):
-    #     """
-    #     Returns the ObservationData instance with the largest version number,
-    #     i.e. the one that is most current
-    #     """
-    #     return self.data.latest('created_at')
-
     def validate_update(self, data):
         is_valid = True
         error_messages = []
@@ -112,41 +111,22 @@ class Observation(models.Model):
         if not is_valid:
             raise ValidationError(error_messages)
 
-    def update(self, attributes=None, creator=None):
-        version_in_database = self.version
-        try:
-            version_on_client = attributes.pop('version')
-        except KeyError:
-            raise MalformedRequestData('You must provide the current '
-                                       'version number of the observation.'
-                                       ' The observation has not been '
-                                       'updated.')
+    def update(self, attributes, updator, review_comment=None, status=None):
+        version = self.version + 1
 
-        if version_on_client > version_in_database:
-            raise MalformedRequestData('The version number you provided '
-                                       'for the observation does not '
-                                       'exist.')
-        else:
-            if version_on_client == version_in_database:
-                version = version_in_database + 1
+        update = self.attributes.copy()
+        update.update(attributes)
 
-            elif version_on_client < version_in_database:
-                version = version_in_database
+        self.validate_update(update)
 
-                self.status = 'review'
-                self.review_comment = ('Conflicting updates in version '
-                                       '%s' % version)
-                self.conflict_version = version
-                self.save()
+        self.attributes = update
+        self.version = version
+        self.updator = updator
 
-            update = self.attributes.copy()
-            update.update(attributes)
+        self.review_comment = review_comment
+        self.status = status or self.status
 
-            self.validate_update(update)
-            self.attributes = update
-            self.version = version
-            self.creator = creator
-            self.save()
+        self.save()
 
     def delete(self):
         """

@@ -31,13 +31,14 @@ class LocationContributionSerializer(serializers.ModelSerializer):
 
 class ObservationSerializer(serializers.ModelSerializer):
     creator = UserSerializer()
+    updator = UserSerializer()
 
     class Meta:
         model = Observation
         depth = 0
         fields = (
-            'status', 'observationtype', 'review_comment', 'conflict_version',
-            'creator', 'created_at', 'version', 'attributes'
+            'status', 'observationtype', 'review_comment',
+            'creator', 'updator', 'created_at', 'version', 'attributes'
         )
 
 
@@ -124,7 +125,7 @@ class ContributionSerializer(object):
             self.instance = instance
             # Update the existing contribution
             if not self.many and data is not None:
-                self.instance.update(attributes=properties, creator=creator)
+                self.instance.update(attributes=properties, updator=creator)
 
     def _serialize_instance(self, instance):
         """

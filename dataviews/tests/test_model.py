@@ -195,7 +195,7 @@ class ViewTest(TestCase):
 
         updater = UserF()
         update = {'text': 'yes, this has been updated', 'version': 1}
-        observation.update(attributes=update, creator=updater)
+        observation.update(attributes=update, updator=updater)
         self.assertEqual(len(view.data), 6)
 
     def test_get_data_combined(self):

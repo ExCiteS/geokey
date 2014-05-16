@@ -59,9 +59,6 @@ class LocationUpdateApiTest(TestCase):
             content_type='application/json'
         )
 
-    # def test_update_geomtery(self):
-    #     response = self._put({'geometry': 'Bla'}, self.admin)
-
     def test_update_location_with_wrong_status(self):
         response = self._put({'status': 'Bla'}, self.admin)
         self.assertEqual(response.status_code, 400)

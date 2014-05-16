@@ -10,7 +10,7 @@ from core.exceptions import MalformedRequestData
 from .serializers import (
     ContributionSerializer, LocationSerializer, CommentSerializer
 )
-from .models import Location, Comment
+from .models import Location, Comment, Observation
 from projects.models import Project
 from dataviews.models import View
 
@@ -81,6 +81,16 @@ class Observations(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+class MyObservations(APIView):
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, format=None):
+        project = Project.objects.as_contributor(request.user, project_id)
+        observations = project.observations.filter(creator=request.user)
+
+        serializer = ContributionSerializer(observations, many=True)
+        return Response(serializer.data)
+
+
 class SingleObservation(APIView):
     def update_observation(self, request, observation, format=None):
         """
@@ -91,15 +101,12 @@ class SingleObservation(APIView):
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @handle_exceptions_for_ajax
     def delete_observation(self, request, observation, format=None):
         """
         Deletes a single observation
         """
         observation.delete()
-        return Response(
-            status=status.HTTP_204_NO_CONTENT
-        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class SingleProjectObservation(SingleObservation):
@@ -109,13 +116,13 @@ class SingleProjectObservation(SingleObservation):
     """
 
     def get_object(self, user, project_id, observation_id):
-        project = Project.objects.as_contributor(user, project_id)
+        project = Project.objects.get_single(user, project_id)
         if project.is_admin(user):
             return project.observations.get(pk=observation_id)
         else:
             raise PermissionDenied('You are not an administrator of this '
                                    'project. You must therefore access '
-                                   'observations through one of the views')
+                                   'observations through one of the views.')
 
     @handle_exceptions_for_ajax
     def put(self, request, project_id, observation_id, format=None):
@@ -136,11 +143,14 @@ class SingleViewObservation(SingleObservation):
 
     def get_object(self, user, project_id, view_id, observation_id):
         view = View.objects.get_single(user, project_id, view_id)
-        if view.can_edit(user):
-            return view.data.get(pk=observation_id)
+        observation = view.data.get(pk=observation_id)
+        if observation.creator == user or observation.project.is_admin(user):
+            return observation
         else:
-            raise PermissionDenied(
-                'You are not eligable to data of this view.')
+            raise PermissionDenied('You are not the creator of this '
+                                   'observation or a project administrator '
+                                   'and therefore not eligable to update '
+                                   'this observation.')
 
     @handle_exceptions_for_ajax
     def put(self, request, project_id, view_id, observation_id, format=None):
@@ -156,25 +166,17 @@ class SingleViewObservation(SingleObservation):
         return self.delete_observation(request, observation, format=format)
 
 
-class MyObservations(APIView):
-    @handle_exceptions_for_ajax
-    def get(self, request, project_id, format=None):
-        project = Project.objects.as_contributor(request.user, project_id)
-        observations = project.observations.filter(creator=request.user)
-
-        serializer = ContributionSerializer(observations, many=True)
-        return Response(serializer.data)
-
-
 class MySingleObservation(SingleObservation):
     def get_object(self, user, project_id, observation_id):
-        try:
-            project = Project.objects.as_contributor(user, project_id)
-            return project.observations.filter(creator=user).get(
-                pk=observation_id)
-        except PermissionDenied:
-            raise Project.DoesNotExist('You are not a contributor of this'
-                                       'project.')
+        observation = Observation.objects.as_editor(
+            user, project_id, observation_id)
+
+        if observation.creator == user:
+            return observation
+        else:
+            raise Observation.DoesNotExist('You are not the creator of this '
+                                           'observation or the observation '
+                                           'has been deleted.')
 
     @handle_exceptions_for_ajax
     def put(self, request, project_id, observation_id, format=None):
@@ -232,12 +234,11 @@ class CommentApiView(object):
 
 
 class ProjectComment(APIView):
-    def get_object(self, request, project_id, observation_id):
-        observation = Project.objects.get_single(
-            request.user, project_id).observations.get(pk=observation_id)
+    def get_object(self, user, project_id, observation_id):
+        project = Project.objects.get_single(user, project_id)
 
-        if observation.project.is_admin(request.user):
-            return observation
+        if project.is_admin(user):
+            return project.observations.get(pk=observation_id)
         else:
             raise PermissionDenied('You are not an administrator of this '
                                    'project. You must therefore access '
@@ -250,7 +251,7 @@ class ProjectComments(CommentApiView, ProjectComment):
         """
         Returns a list of all comments of the observation
         """
-        observation = self.get_object(request, project_id, observation_id)
+        observation = self.get_object(request.user, project_id, observation_id)
         return self.get_list_response(observation)
 
     @handle_exceptions_for_ajax
@@ -258,7 +259,7 @@ class ProjectComments(CommentApiView, ProjectComment):
         """
         Adds a new comment to the observation
         """
-        observation = self.get_object(request, project_id, observation_id)
+        observation = self.get_object(request.user, project_id, observation_id)
         return self.create_and_response(request, observation)
 
 
@@ -266,15 +267,15 @@ class ProjectSingleComment(CommentApiView, ProjectComment):
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, observation_id, comment_id,
                format=None):
-        observation = self.get_object(request, project_id, observation_id)
+        observation = self.get_object(request.user, project_id, observation_id)
         comment = observation.comments.get(pk=comment_id)
         return self.delete_and_respond(request, comment)
 
 
 class ViewComment(APIView):
-    def get_object(self, request, project_id, view_id, observation_id):
+    def get_object(self, user, project_id, view_id, observation_id):
         return View.objects.get_single(
-            request.user, project_id, view_id).data.get(pk=observation_id)
+            user, project_id, view_id).data.get(pk=observation_id)
 
 
 class ViewComments(CommentApiView, ViewComment):
@@ -284,7 +285,7 @@ class ViewComments(CommentApiView, ViewComment):
         Returns a list of all comments of the observation
         """
         observation = self.get_object(
-            request, project_id, view_id, observation_id)
+            request.user, project_id, view_id, observation_id)
         return self.get_list_response(observation)
 
     @handle_exceptions_for_ajax
@@ -293,7 +294,7 @@ class ViewComments(CommentApiView, ViewComment):
         Adds a new comment to the observation
         """
         observation = self.get_object(
-            request, project_id, view_id, observation_id)
+            request.user, project_id, view_id, observation_id)
         return self.create_and_response(request, observation)
 
 
@@ -302,6 +303,6 @@ class ViewSingleComment(CommentApiView, ViewComment):
     def delete(self, request, project_id, view_id, observation_id, comment_id,
                format=None):
         observation = self.get_object(
-            request, project_id, view_id, observation_id)
+            request.user, project_id, view_id, observation_id)
         comment = observation.comments.get(pk=comment_id)
         return self.delete_and_respond(request, comment)
