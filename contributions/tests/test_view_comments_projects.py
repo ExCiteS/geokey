@@ -4,7 +4,7 @@ from rest_framework.test import APITestCase
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 
-from projects.tests.model_factories import UserF, UserGroupF, ProjectF
+from projects.tests.model_factories import UserF, ProjectF
 from dataviews.tests.model_factories import ViewFactory, ViewGroupFactory
 
 from .model_factories import ObservationFactory, CommentFactory
@@ -17,10 +17,10 @@ class GetComments(APITestCase):
         self.contributor = UserF.create()
         self.admin = UserF.create()
         self.non_member = UserF.create()
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor]),
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
         self.observation = ObservationFactory.create(**{
             'project': self.project
         })
@@ -85,10 +85,10 @@ class AddCommentToPrivateProjectTest(APITestCase):
         self.contributor = UserF.create()
         self.admin = UserF.create()
         self.non_member = UserF.create()
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor]),
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
         self.observation = ObservationFactory.create(**{
             'project': self.project
         })
@@ -148,9 +148,7 @@ class AddCommentToPrivateProjectTest(APITestCase):
 class AddCommentToWrongObservation(APITestCase):
     def test(self):
         admin = UserF.create()
-        project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[admin])
-        })
+        project = ProjectF(add_admins=[admin])
         observation = ObservationFactory.create()
 
         factory = APIRequestFactory()
@@ -172,9 +170,7 @@ class AddCommentToWrongObservation(APITestCase):
 class AddResponseToCommentTest(APITestCase):
     def test(self):
         admin = UserF.create()
-        project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[admin])
-        })
+        project = ProjectF(add_admins=[admin])
         observation = ObservationFactory.create(**{
             'project': project
         })
@@ -209,9 +205,7 @@ class AddResponseToCommentTest(APITestCase):
 class AddResponseToWrongCommentTest(APITestCase):
     def test(self):
         admin = UserF.create()
-        project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[admin])
-        })
+        project = ProjectF(add_admins=[admin])
         observation = ObservationFactory.create(**{
             'project': project
         })
@@ -247,11 +241,11 @@ class DeleteCommentTest(APITestCase):
         self.contributor = UserF.create()
         self.admin = UserF.create()
         self.non_member = UserF.create()
-        self.project = ProjectF.create(**{
-            'isprivate': False,
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor]),
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            **{'isprivate': False}
+        )
         self.observation = ObservationFactory.create(**{
             'project': self.project
         })
@@ -318,9 +312,7 @@ class DeleteCommentTest(APITestCase):
 class DeleteWrongComment(APITestCase):
     def test(self):
         admin = UserF.create()
-        project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[admin])
-        })
+        project = ProjectF(add_admins=[admin])
         observation = ObservationFactory.create(**{
             'project': project
         })

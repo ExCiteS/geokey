@@ -3,8 +3,7 @@ from django.core.urlresolvers import reverse
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from projects.tests.model_factories import UserF, UserGroupF, ProjectF
-from dataviews.tests.model_factories import ViewFactory, ViewGroupFactory
+from projects.tests.model_factories import UserF, ProjectF
 
 from .model_factories import (
     ObservationTypeFactory, TextFieldFactory, NumericFieldFactory,
@@ -17,22 +16,16 @@ from ..views import SingleObservationType
 class ObservationTypePublicApiTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.creator = UserF.create()
         self.admin = UserF.create()
         self.contributor = UserF.create()
         self.non_member = UserF.create()
         self.view_member = UserF.create()
 
-        self.project = ProjectF.create(**{
-            'creator': self.creator,
-            'admins': UserGroupF(add_users=[self.creator, self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.project
-            })
-        })
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member]
+        )
         self.observationtype = ObservationTypeFactory(**{
             'status': 'active',
             'project': self.project

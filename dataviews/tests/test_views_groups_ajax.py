@@ -4,7 +4,7 @@ from django.test import TestCase
 from nose.tools import raises
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from projects.tests.model_factories import UserF, UserGroupF, ProjectF
+from projects.tests.model_factories import UserF, ProjectF
 
 from .model_factories import ViewFactory, ViewGroupFactory
 from ..models import ViewGroup
@@ -21,10 +21,10 @@ class UpdateViewGroupTest(TestCase):
         self.non_member = UserF.create()
         self.view_user = UserF.create()
 
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
         self.view = ViewFactory(**{
             'project': self.project
         })
@@ -94,10 +94,10 @@ class TestDeleteUserGroupTest(TestCase):
         self.non_member = UserF.create()
         self.view_user = UserF.create()
 
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
         self.view = ViewFactory(**{
             'project': self.project
         })
@@ -161,10 +161,10 @@ class AddUserToGroup(TestCase):
         self.view_user = UserF.create()
         self.user_to_add = UserF.create()
 
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
         self.view = ViewFactory(**{
             'project': self.project
         })
@@ -252,10 +252,10 @@ class DeleteUserFromGroup(TestCase):
         self.view_user = UserF.create()
         self.user_to_remove = UserF.create()
 
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
         self.view = ViewFactory(**{
             'project': self.project
         })

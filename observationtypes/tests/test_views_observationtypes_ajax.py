@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from projects.tests.model_factories import UserF, UserGroupF, ProjectF
+from projects.tests.model_factories import UserF, ProjectF
 
 from ..models import ObservationType
 from ..views import ObservationTypeUpdate
@@ -18,10 +18,10 @@ class ObservationtypeAjaxTest(TestCase):
         self.contributor = UserF.create()
         self.non_member = UserF.create()
 
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
 
         self.active_type = ObservationTypeFactory(**{
             'project': self.project,

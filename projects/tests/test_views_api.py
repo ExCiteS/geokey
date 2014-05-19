@@ -4,9 +4,7 @@ from django.test import TestCase
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from dataviews.tests.model_factories import ViewFactory, ViewGroupFactory
-
-from .model_factories import UserF, UserGroupF, ProjectF
+from .model_factories import UserF, ProjectF
 from ..views import Projects, SingleProject
 
 
@@ -18,48 +16,37 @@ class ProjectsTest(TestCase):
         self.non_member = UserF.create()
         self.view_member = UserF.create()
 
-        self.public_project = ProjectF.create(**{
-            'isprivate': False,
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.public_project
-            })
-        })
+        self.public_project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member],
+            **{
+                'isprivate': False
+            }
+        )
 
-        self.private_project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.private_project
-            })
-        })
+        self.private_project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member]
+        )
 
-        self.inactive_project = ProjectF.create(**{
-            'status': 'inactive',
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.inactive_project
-            })
-        })
+        self.inactive_project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member],
+            **{
+                'status': 'inactive'
+            }
+        )
 
-        self.deleted_project = ProjectF.create(**{
-            'status': 'deleted',
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.deleted_project
-            })
-        })
+        self.deleted_project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member],
+            **{'isprivate': False}
+        )
+        self.deleted_project.delete()
 
     def test_get_projects_with_admin(self):
         request = self.factory.get('/api/projects/')
@@ -117,10 +104,10 @@ class SingleProjectTest(TestCase):
     def test_get_deleted_project_with_admin(self):
         user = UserF.create()
 
-        project = ProjectF.create(**{
-            'status': 'deleted',
-            'admins': UserGroupF(add_users=[user])
-        })
+        project = ProjectF.create(
+            add_admins=[user]
+        )
+        project.delete()
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
@@ -133,9 +120,9 @@ class SingleProjectTest(TestCase):
     def test_get_private_project_with_admin(self):
         user = UserF.create()
 
-        project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[user])
-        })
+        project = ProjectF.create(
+            add_admins=[user]
+        )
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
@@ -150,10 +137,10 @@ class SingleProjectTest(TestCase):
     def test_get_inactive_project_with_admin(self):
         user = UserF.create()
 
-        project = ProjectF.create(**{
-            'status': 'inactive',
-            'admins': UserGroupF(add_users=[user])
-        })
+        project = ProjectF.create(
+            add_admins=[user],
+            **{'status': 'inactive'}
+        )
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
@@ -166,10 +153,10 @@ class SingleProjectTest(TestCase):
     def test_get_public_project_with_admin(self):
         user = UserF.create()
 
-        project = ProjectF.create(**{
-            'isprivate': False,
-            'admins': UserGroupF(add_users=[user])
-        })
+        project = ProjectF.create(
+            add_admins=[user],
+            **{'isprivate': False}
+        )
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
@@ -184,10 +171,10 @@ class SingleProjectTest(TestCase):
     def test_get_deleted_project_with_contributor(self):
         user = UserF.create()
 
-        project = ProjectF.create(**{
-            'status': 'deleted',
-            'contributors': UserGroupF(add_users=[user])
-        })
+        project = ProjectF.create(
+            add_contributors=[user]
+        )
+        project.delete()
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
@@ -200,9 +187,9 @@ class SingleProjectTest(TestCase):
     def test_get_private_project_with_contributor(self):
         user = UserF.create()
 
-        project = ProjectF.create(**{
-            'contributors': UserGroupF(add_users=[user])
-        })
+        project = ProjectF.create(
+            add_contributors=[user]
+        )
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
@@ -217,10 +204,10 @@ class SingleProjectTest(TestCase):
     def test_get_inactive_project_with_contributor(self):
         user = UserF.create()
 
-        project = ProjectF.create(**{
-            'status': 'inactive',
-            'contributors': UserGroupF(add_users=[user])
-        })
+        project = ProjectF.create(
+            add_contributors=[user],
+            **{'status': 'inactive'}
+        )
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
@@ -233,9 +220,10 @@ class SingleProjectTest(TestCase):
     def test_get_public_project_with_contributor(self):
         user = UserF.create()
 
-        project = ProjectF.create(**{
-            'contributors': UserGroupF(add_users=[user])
-        })
+        project = ProjectF.create(
+            add_contributors=[user],
+            **{'isprivate': False}
+        )
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
@@ -250,14 +238,10 @@ class SingleProjectTest(TestCase):
     def test_get_deleted_project_with_view_member(self):
         user = UserF.create()
 
-        project = ProjectF.create(**{
-            'status': 'deleted'
-        })
-        ViewGroupFactory(add_users=[user], **{
-            'view': ViewFactory(**{
-                'project': project
-            })
-        })
+        project = ProjectF.create(
+            add_viewers=[user]
+        )
+        project.delete()
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
@@ -270,12 +254,9 @@ class SingleProjectTest(TestCase):
     def test_get_private_project_with_view_member(self):
         user = UserF.create()
 
-        project = ProjectF.create()
-        ViewGroupFactory(add_users=[user], **{
-            'view': ViewFactory(**{
-                'project': project
-            })
-        })
+        project = ProjectF.create(
+            add_viewers=[user]
+        )
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
@@ -290,14 +271,10 @@ class SingleProjectTest(TestCase):
     def test_get_inactive_project_with_view_member(self):
         user = UserF.create()
 
-        project = ProjectF.create(**{
-            'status': 'inactive'
-        })
-        ViewGroupFactory(add_users=[user], **{
-            'view': ViewFactory(**{
-                'project': project
-            })
-        })
+        project = ProjectF.create(
+            add_viewers=[user],
+            **{'status': 'inactive'}
+        )
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
@@ -310,14 +287,10 @@ class SingleProjectTest(TestCase):
     def test_get_public_project_with_view_member(self):
         user = UserF.create()
 
-        project = ProjectF.create(**{
-            'isprivate': False
-        })
-        ViewGroupFactory(add_users=[user], **{
-            'view': ViewFactory(**{
-                'project': project
-            })
-        })
+        project = ProjectF.create(
+            add_viewers=[user],
+            **{'isprivate': False}
+        )
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
@@ -332,9 +305,8 @@ class SingleProjectTest(TestCase):
     def test_get_deleted_project_with_non_member(self):
         user = UserF.create()
 
-        project = ProjectF.create(**{
-            'status': 'deleted'
-        })
+        project = ProjectF.create()
+        project.delete()
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)

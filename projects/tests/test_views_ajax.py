@@ -4,7 +4,7 @@ from nose.tools import raises
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from .model_factories import UserF, UserGroupF, ProjectF
+from .model_factories import UserF, ProjectF
 from ..models import Project
 from ..views import ProjectUpdate
 
@@ -16,10 +16,10 @@ class ProjectAjaxTest(TestCase):
         self.contributor = UserF.create()
         self.non_member = UserF.create()
 
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
 
     def test_unauthenticated(self):
         request = self.factory.put(

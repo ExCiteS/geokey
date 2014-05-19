@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 
 from nose.tools import raises
 
-from projects.tests.model_factories import ProjectF, UserGroupF, UserF
+from projects.tests.model_factories import ProjectF, UserF
 
 from ..models import Location, Observation, Comment
 from .model_factories import (
@@ -15,12 +15,8 @@ class LocationTest(TestCase):
     def setUp(self):
         self.admin = UserF.create()
 
-        self.project1 = ProjectF(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-        })
-        self.project2 = ProjectF(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-        })
+        self.project1 = ProjectF(add_admins=[self.admin])
+        self.project2 = ProjectF(add_admins=[self.admin])
         self.public_location = LocationFactory(**{
             'private': False
         })
@@ -75,10 +71,10 @@ class ObservationTest(TestCase):
     def setUp(self):
         self.creator = UserF.create()
         self.admin = UserF.create()
-        self.project = ProjectF(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.creator])
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.creator]
+        )
         self.observation = ObservationFactory.create(**{
             'project': self.project,
             'creator': self.creator

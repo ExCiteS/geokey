@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 
 from nose.tools import raises
 
-from projects.tests.model_factories import UserF, ProjectF, UserGroupF
+from projects.tests.model_factories import UserF, ProjectF
 from core.exceptions import InputError
 
 from ..models import Field
@@ -18,10 +18,10 @@ from .model_factories import (
 class FieldTest(TestCase):
     def test_access_fields_with_admin(self):
         admin = UserF.create()
-        project = ProjectF.create(**{
-            'isprivate': True,
-            'admins': UserGroupF(add_users=[admin]),
-        })
+        project = ProjectF.create(
+            add_admins=[admin],
+            **{'isprivate': True}
+        )
         observation_type = ObservationTypeFactory(**{
             'project': project,
             'status': 'active'
@@ -42,10 +42,10 @@ class FieldTest(TestCase):
 
     def test_access_active_field_with_admin(self):
         user = UserF.create()
-        project = ProjectF.create(**{
-            'isprivate': True,
-            'admins': UserGroupF(add_users=[user]),
-        })
+        project = ProjectF.create(
+            add_admins=[user],
+            **{'isprivate': True}
+        )
         observation_type = ObservationTypeFactory(**{
             'project': project,
             'status': 'active'
@@ -60,10 +60,10 @@ class FieldTest(TestCase):
 
     def test_access_inactive_field_with_admin(self):
         user = UserF.create()
-        project = ProjectF.create(**{
-            'isprivate': True,
-            'admins': UserGroupF(add_users=[user]),
-        })
+        project = ProjectF.create(
+            add_admins=[user],
+            **{'isprivate': True}
+        )
         observation_type = ObservationTypeFactory(**{
             'project': project,
             'status': 'active'
@@ -78,10 +78,10 @@ class FieldTest(TestCase):
 
     def test_admin_access_active_field_with_admin(self):
         user = UserF.create()
-        project = ProjectF.create(**{
-            'isprivate': True,
-            'admins': UserGroupF(add_users=[user]),
-        })
+        project = ProjectF.create(
+            add_admins=[user],
+            **{'isprivate': True}
+        )
         observation_type = ObservationTypeFactory(**{
             'project': project,
             'status': 'active'
@@ -96,10 +96,10 @@ class FieldTest(TestCase):
 
     def test_access_fields_with_contributor(self):
         user = UserF.create()
-        project = ProjectF.create(**{
-            'isprivate': True,
-            'contributors': UserGroupF(add_users=[user]),
-        })
+        project = ProjectF.create(
+            add_contributors=[user],
+            **{'isprivate': True}
+        )
         observation_type = ObservationTypeFactory(**{
             'project': project,
             'status': 'active'
@@ -118,10 +118,10 @@ class FieldTest(TestCase):
 
     def test_access_active_field_with_contributor(self):
         user = UserF.create()
-        project = ProjectF.create(**{
-            'isprivate': True,
-            'contributors': UserGroupF(add_users=[user]),
-        })
+        project = ProjectF.create(
+            add_contributors=[user],
+            **{'isprivate': True}
+        )
         observation_type = ObservationTypeFactory(**{
             'project': project,
             'status': 'active'
@@ -137,10 +137,10 @@ class FieldTest(TestCase):
     @raises(PermissionDenied)
     def test_access_inactive_field_with_contributor(self):
         user = UserF.create()
-        project = ProjectF.create(**{
-            'isprivate': True,
-            'contributors': UserGroupF(add_users=[user]),
-        })
+        project = ProjectF.create(
+            add_contributors=[user],
+            **{'isprivate': True}
+        )
         observation_type = ObservationTypeFactory(**{
             'project': project,
             'status': 'active'
@@ -155,10 +155,10 @@ class FieldTest(TestCase):
     @raises(PermissionDenied)
     def test_admin_access_active_field_with_contributor(self):
         user = UserF.create()
-        project = ProjectF.create(**{
-            'isprivate': True,
-            'contributors': UserGroupF(add_users=[user]),
-        })
+        project = ProjectF.create(
+            add_contributors=[user],
+            **{'isprivate': True}
+        )
         observation_type = ObservationTypeFactory(**{
             'project': project,
             'status': 'active'
@@ -173,9 +173,7 @@ class FieldTest(TestCase):
     @raises(PermissionDenied)
     def test_access_fields_with_non_member(self):
         user = UserF.create()
-        project = ProjectF.create(**{
-            'isprivate': True
-        })
+        project = ProjectF.create(**{'isprivate': True})
         observation_type = ObservationTypeFactory(**{
             'project': project,
             'status': 'active'
@@ -193,9 +191,7 @@ class FieldTest(TestCase):
     @raises(PermissionDenied)
     def test_access_active_field_with_non_member(self):
         user = UserF.create()
-        project = ProjectF.create(**{
-            'isprivate': True
-        })
+        project = ProjectF.create(**{'isprivate': True})
         observation_type = ObservationTypeFactory(**{
             'project': project,
             'status': 'active'
@@ -210,9 +206,7 @@ class FieldTest(TestCase):
     @raises(PermissionDenied)
     def test_access_inactive_field_with_non_member(self):
         user = UserF.create()
-        project = ProjectF.create(**{
-            'isprivate': True
-        })
+        project = ProjectF.create(**{'isprivate': True})
         observation_type = ObservationTypeFactory(**{
             'project': project,
             'status': 'active'
@@ -227,9 +221,7 @@ class FieldTest(TestCase):
     @raises(PermissionDenied)
     def test_admin_access_active_field_with_non_member(self):
         user = UserF.create()
-        project = ProjectF.create(**{
-            'isprivate': True
-        })
+        project = ProjectF.create(**{'isprivate': True})
         observation_type = ObservationTypeFactory(**{
             'project': project,
             'status': 'active'

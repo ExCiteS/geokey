@@ -5,7 +5,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 
 from nose.tools import raises
 
-from projects.tests.model_factories import ProjectF, UserF, UserGroupF
+from projects.tests.model_factories import ProjectF, UserF
 
 from ..models import View
 from ..views import ViewUpdate
@@ -20,10 +20,10 @@ class ViewAjaxTest(TestCase):
         self.contributor = UserF.create()
         self.non_member = UserF.create()
 
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
         self.view = ViewFactory(**{
             'project': self.project,
             'description': 'description'

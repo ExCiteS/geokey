@@ -4,7 +4,8 @@ import factory
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from ..models import Project, UserGroup
+from ..models import Project
+from users.models import UserGroup
 
 
 class UserF(factory.django.DjangoModelFactory):
@@ -42,21 +43,6 @@ class UserF(factory.django.DjangoModelFactory):
         return user
 
 
-class UserGroupF(factory.django.DjangoModelFactory):
-    FACTORY_FOR = UserGroup
-
-    name = factory.Sequence(lambda n: 'name_%d' % n)
-
-    @factory.post_generation
-    def add_users(self, create, extracted, **kwargs):
-        if not create:
-            return
-
-        if extracted:
-            for user in extracted:
-                self.users.add(user)
-
-
 class ProjectF(factory.django.DjangoModelFactory):
     FACTORY_FOR = Project
 
@@ -66,5 +52,56 @@ class ProjectF(factory.django.DjangoModelFactory):
     created_at = datetime.date(2014, 11, 11)
     creator = factory.SubFactory(UserF)
     status = 'active'
-    admins = factory.SubFactory(UserGroupF)
-    contributors = factory.SubFactory(UserGroupF)
+
+    @factory.post_generation
+    def add_admins(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            for user in extracted:
+                self.admins.add(user)
+
+    @factory.post_generation
+    def add_contributors(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            UserGroupF(add_users=extracted, **{
+                'project': self,
+                'can_contribute': True
+            })
+
+    @factory.post_generation
+    def add_viewers(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            from dataviews.tests.model_factories import (
+                ViewFactory, ViewGroupFactory
+            )
+
+            ViewGroupFactory(add_users=extracted, **{
+                'view': ViewFactory(**{
+                    'project': self
+                })
+            })
+
+
+class UserGroupF(factory.django.DjangoModelFactory):
+    FACTORY_FOR = UserGroup
+
+    name = factory.Sequence(lambda n: 'name_%d' % n)
+    project = factory.SubFactory(ProjectF)
+    can_contribute = True
+
+    @factory.post_generation
+    def add_users(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            for user in extracted:
+                self.users.add(user)

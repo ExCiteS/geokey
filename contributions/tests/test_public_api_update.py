@@ -7,7 +7,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 
 from nose.tools import raises
 
-from projects.tests.model_factories import UserF, UserGroupF, ProjectF
+from projects.tests.model_factories import UserF, ProjectF
 from dataviews.tests.model_factories import (
     ViewFactory, ViewGroupFactory, RuleFactory
 )
@@ -30,10 +30,10 @@ class UpdateObservationInProject(TestCase):
         self.view_member = UserF.create()
         self.non_member = UserF.create()
 
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
         self.observationtype = ObservationTypeFactory(**{
             'status': 'active',
             'project': self.project
@@ -200,10 +200,10 @@ class UpdateObservationInView(TestCase):
         self.view_member = UserF.create()
         self.non_member = UserF.create()
 
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
         self.observationtype = ObservationTypeFactory(**{
             'status': 'active',
             'project': self.project
@@ -366,10 +366,10 @@ class UpdateMyObservation(TestCase):
         self.contributor = UserF.create()
         self.non_member = UserF.create()
 
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
         self.observationtype = ObservationTypeFactory(**{
             'status': 'active',
             'project': self.project

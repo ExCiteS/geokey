@@ -6,9 +6,11 @@ from django.core.urlresolvers import reverse
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 
-from projects.tests.model_factories import UserF, UserGroupF, ProjectF
+from projects.tests.model_factories import UserF, ProjectF
 from observationtypes.tests.model_factories import ObservationTypeFactory
-from dataviews.tests.model_factories import ViewFactory, ViewGroupFactory, RuleFactory
+from dataviews.tests.model_factories import (
+    ViewFactory, ViewGroupFactory, RuleFactory
+)
 
 from .model_factories import ObservationFactory, CommentFactory
 from ..views import ViewComments, ViewSingleComment
@@ -20,10 +22,10 @@ class GetCommentsView(APITestCase):
         self.contributor = UserF.create()
         self.admin = UserF.create()
         self.non_member = UserF.create()
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor]),
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
         observation_type = ObservationTypeFactory(**{'project': self.project})
         self.view = ViewFactory(**{'project': self.project})
         RuleFactory(**{'view': self.view, 'observation_type': observation_type})
@@ -99,10 +101,10 @@ class AddCommentToViewTest(APITestCase):
         self.contributor = UserF.create()
         self.admin = UserF.create()
         self.non_member = UserF.create()
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor]),
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
         observation_type = ObservationTypeFactory(**{'project': self.project})
         self.view = ViewFactory(**{'project': self.project})
         RuleFactory(**{'view': self.view, 'observation_type': observation_type})
@@ -160,9 +162,9 @@ class AddCommentToViewTest(APITestCase):
 class AddCommentToWrongObservation(APITestCase):
     def test(self):
         admin = UserF.create()
-        project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[admin])
-        })
+        project = ProjectF(
+            add_admins=[admin]
+        )
         observation = ObservationFactory.create()
         observation_type = ObservationTypeFactory(**{'project': project})
         view = ViewFactory(**{'project': project})
@@ -193,9 +195,9 @@ class AddCommentToWrongObservation(APITestCase):
 class AddResponseToCommentTest(APITestCase):
     def test(self):
         admin = UserF.create()
-        project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[admin])
-        })
+        project = ProjectF(
+            add_admins=[admin]
+        )
         observation_type = ObservationTypeFactory(**{'project': project})
         view = ViewFactory(**{'project': project})
         RuleFactory(**{'view': view, 'observation_type': observation_type})
@@ -243,9 +245,9 @@ class AddResponseToCommentTest(APITestCase):
 class AddResponseToWrongCommentTest(APITestCase):
     def test(self):
         admin = UserF.create()
-        project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[admin])
-        })
+        project = ProjectF(
+            add_admins=[admin]
+        )
         observation_type = ObservationTypeFactory(**{'project': project})
         view = ViewFactory(**{'project': project})
         RuleFactory(**{'view': view, 'observation_type': observation_type})
@@ -296,10 +298,10 @@ class DeleteCommentTest(APITestCase):
         self.non_member = UserF.create()
         self.view_member = UserF.create()
         self.commentor = UserF.create()
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor]),
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
         observation_type = ObservationTypeFactory(**{'project': self.project})
         self.view = ViewFactory(**{'project': self.project})
         ViewGroupFactory(add_users=[self.view_member, self.commentor], **{
@@ -388,9 +390,7 @@ class DeleteCommentTest(APITestCase):
 class DeleteWrongComment(APITestCase):
     def test(self):
         admin = UserF.create()
-        project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[admin])
-        })
+        project = ProjectF(add_admins=[admin])
         observation_type = ObservationTypeFactory(**{'project': project})
         view = ViewFactory(**{'project': project})
         RuleFactory(**{'view': view, 'observation_type': observation_type})

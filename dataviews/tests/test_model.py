@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 
 from nose.tools import raises
 
-from projects.tests.model_factories import UserF, UserGroupF, ProjectF
+from projects.tests.model_factories import UserF, ProjectF
 from observationtypes.tests.model_factories import (
     ObservationTypeFactory, TextFieldFactory, NumericFieldFactory,
     TrueFalseFieldFactory, LookupFieldFactory, LookupValueFactory,
@@ -25,10 +25,10 @@ class ViewTest(TestCase):
         self.view1_user = UserF.create()
         self.view2_user = UserF.create()
         self.non_member = UserF.create()
-        self.project = ProjectF(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor]),
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
         self.view1 = ViewFactory(**{
             'project': self.project
         })

@@ -2,10 +2,8 @@ from django.test import TestCase
 
 from nose.tools import raises
 
-from dataviews.tests.model_factories import ViewFactory, ViewGroupFactory
-
-from .model_factories import UserF, UserGroupF, ProjectF
-from ..models import Project, UserGroup
+from .model_factories import UserF, ProjectF
+from ..models import Project
 
 
 class ProjectTest(TestCase):
@@ -16,16 +14,11 @@ class ProjectTest(TestCase):
         self.non_member = UserF.create()
         self.view_member = UserF.create()
 
-        self.private_project = ProjectF.create(**{
-            'creator': self.creator,
-            'admins': UserGroupF(add_users=[self.creator, self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.private_project
-            })
-        })
+        self.private_project = ProjectF.create(
+            add_admins=[self.admin, self.creator],
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member]
+        )
 
     def test_create_project(self):
         creator = UserF.create()
@@ -33,9 +26,7 @@ class ProjectTest(TestCase):
         project = Project.create(
             'Test', 'Test desc', True, creator
         )
-        self.assertIsInstance(project.admins, UserGroup)
-        self.assertIsInstance(project.contributors, UserGroup)
-        self.assertIn(creator, project.admins.users.all())
+        self.assertIn(creator, project.admins.all())
 
     @raises(Project.DoesNotExist)
     def test_delete_project(self):
@@ -59,3 +50,18 @@ class ProjectTest(TestCase):
         self.assertTrue(self.private_project.is_admin(self.creator))
         self.assertFalse(self.private_project.is_admin(self.contributor))
         self.assertFalse(self.private_project.is_admin(self.non_member))
+        self.assertFalse(self.private_project.is_admin(self.view_member))
+
+    def test_can_contribute(self):
+        self.assertTrue(self.private_project.can_contribute(self.admin))
+        self.assertTrue(self.private_project.can_contribute(self.creator))
+        self.assertTrue(self.private_project.can_contribute(self.contributor))
+        self.assertFalse(self.private_project.can_contribute(self.non_member))
+        self.assertFalse(self.private_project.can_contribute(self.view_member))
+
+    def test_can_access(self):
+        self.assertTrue(self.private_project.can_access(self.admin))
+        self.assertTrue(self.private_project.can_access(self.creator))
+        self.assertTrue(self.private_project.can_access(self.contributor))
+        self.assertFalse(self.private_project.can_access(self.non_member))
+        self.assertTrue(self.private_project.can_access(self.view_member))

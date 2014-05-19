@@ -15,10 +15,12 @@ class ProjectQuerySet(models.query.QuerySet):
                 Q(status=STATUS.active) & Q(isprivate=False)).distinct()
         else:
             return self.filter(
-                Q(admins__users=user) |
+                Q(admins=user) |
                 (
                     Q(status=STATUS.active) &
-                    (Q(isprivate=False) | Q(contributors__users=user) |
+                    (Q(isprivate=False) |
+                        Q(usergroups__can_contribute=True,
+                            usergroups__users=user) |
                         Q(views__viewgroups__users=user))
                 )
             ).distinct()

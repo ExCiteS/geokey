@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 
 from nose.tools import raises
 
-from projects.tests.model_factories import UserF, UserGroupF, ProjectF
+from projects.tests.model_factories import UserF, ProjectF
 from observationtypes.tests.model_factories import ObservationTypeFactory
 from dataviews.tests.model_factories import (
     ViewFactory, RuleFactory, ViewGroupFactory
@@ -22,10 +22,10 @@ class SingleProjectObservationTest(TestCase):
     def setUp(self):
         self.admin = UserF.create()
         self.creator = UserF.create()
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.creator])
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.creator]
+        )
         self.observation = ObservationFactory.create(**{
             'project': self.project,
             'creator': self.creator
@@ -55,10 +55,10 @@ class SingleViewObservationTest(TestCase):
     def setUp(self):
         self.admin = UserF.create()
         self.creator = UserF.create()
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.creator])
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.creator]
+        )
 
         observation_type = ObservationTypeFactory(**{'project': self.project})
 
@@ -118,10 +118,10 @@ class MySingleObservationTest(TestCase):
     def setUp(self):
         self.admin = UserF.create()
         self.creator = UserF.create()
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.creator])
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.creator]
+        )
         self.observation = ObservationFactory.create(**{
             'project': self.project,
             'creator': self.creator
@@ -151,10 +151,10 @@ class ProjectCommentTest(TestCase):
     def setUp(self):
         self.admin = UserF.create()
         self.creator = UserF.create()
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.creator])
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.creator]
+        )
         self.observation = ObservationFactory.create(**{
             'project': self.project,
             'creator': self.creator
@@ -182,10 +182,10 @@ class ViewCommentTest(TestCase):
     def setUp(self):
         self.admin = UserF.create()
         self.creator = UserF.create()
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.creator])
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.creator]
+        )
 
         observation_type = ObservationTypeFactory(**{'project': self.project})
 

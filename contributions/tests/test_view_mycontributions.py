@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from projects.tests.model_factories import UserF, ProjectF, UserGroupF
+from projects.tests.model_factories import UserF, ProjectF
 from dataviews.tests.model_factories import ViewFactory, ViewGroupFactory
 
 from ..views import MyObservations
@@ -17,9 +17,7 @@ class MyContributionsTest(TestCase):
         self.contributor = UserF.create()
         self.some_dude = UserF.create()
 
-        self.project = ProjectF.create(**{
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
+        self.project = ProjectF.create(add_contributors=[self.contributor])
 
         for x in range(0, 5):
             ObservationFactory.create(**{

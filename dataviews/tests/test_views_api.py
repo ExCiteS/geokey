@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from projects.tests.model_factories import UserF, ProjectF, UserGroupF
+from projects.tests.model_factories import UserF, ProjectF
 
 from ..views import SingleView
 from .model_factories import ViewFactory, ViewGroupFactory
@@ -17,10 +17,10 @@ class TestDataViewsPublicApi(TestCase):
         self.view_member = UserF.create()
         self.some_dude = UserF.create()
 
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
 
     def get(self, view, user):
         url = reverse('api:single_view', kwargs={

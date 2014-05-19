@@ -20,12 +20,7 @@ class Project(models.Model):
         default=STATUS.active,
         max_length=20
     )
-    admins = models.OneToOneField(
-        'UserGroup', related_name='admingroup'
-    )
-    contributors = models.OneToOneField(
-        'UserGroup', related_name='contributorgroup'
-    )
+    admins = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='admins')
 
     objects = ProjectManager()
 
@@ -38,20 +33,16 @@ class Project(models.Model):
         Creates a new project. Creates two usergroups and adds the creator to
         the administrators user group.
         """
-        admingroup = UserGroup.objects.create(name='Administrators')
-        admingroup.users.add(creator)
-
-        contributorgroup = UserGroup.objects.create(name='Contributors')
 
         project = cls(
             name=name,
             description=description,
             isprivate=isprivate,
-            creator=creator,
-            admins=admingroup,
-            contributors=contributorgroup
+            creator=creator
         )
+
         project.save()
+        project.admins.add(creator)
 
         return project
 
@@ -68,7 +59,7 @@ class Project(models.Model):
         Returns True if the user is member of the administrators group, False
         if not.
         """
-        return user in self.admins.users.all()
+        return user in self.admins.all()
 
     def can_access(self, user):
         """
@@ -78,18 +69,11 @@ class Project(models.Model):
         """
         return self.status == STATUS.active and (self.is_admin(user) or (
             (not self.isprivate or
-                self.contributors.users.filter(id=user.id).exists() or
+                self.usergroups.filter(can_contribute=True, users=user).exists() or
                 self.views.filter(viewgroups__users=user).exists())))
 
     def can_contribute(self, user):
         return self.status == STATUS.active and (
             self.is_admin(user) or (
-                self.contributors.users.filter(id=user.id).exists()))
-
-
-class UserGroup(models.Model):
-    """
-    UserGroup for a project, either Administrators or contributors
-    """
-    name = models.CharField(max_length=100)
-    users = models.ManyToManyField(settings.AUTH_USER_MODEL)
+                self.usergroups.filter(can_contribute=True, users=user).exists()
+            ))

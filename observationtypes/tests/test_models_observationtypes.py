@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 
 from nose.tools import raises
 
-from projects.tests.model_factories import UserF, ProjectF, UserGroupF
+from projects.tests.model_factories import UserF, ProjectF
 
 from .model_factories import ObservationTypeFactory
 
@@ -17,11 +17,10 @@ class ObservationtypeTest(TestCase):
     def test_access_with_projct_admin(self):
         admin = UserF.create()
 
-        project = ProjectF.create(**{
-            'isprivate': True,
-            'creator': admin,
-            'admins': UserGroupF(add_users=[admin]),
-        })
+        project = ProjectF.create(
+            add_admins=[admin],
+            **{'isprivate': True}
+        )
 
         ObservationTypeFactory(**{
             'project': project,
@@ -39,9 +38,10 @@ class ObservationtypeTest(TestCase):
     def test_access_with_projct_contributor(self):
         contributor = UserF.create()
 
-        project = ProjectF.create(**{
-            'contributors': UserGroupF(add_users=[contributor]),
-        })
+        project = ProjectF.create(
+            add_contributors=[contributor],
+            **{'isprivate': True}
+        )
 
         active = ObservationTypeFactory(**{
             'project': project,
@@ -75,10 +75,10 @@ class ObservationtypeTest(TestCase):
     def test_access_active_with_admin(self):
         admin = UserF.create()
 
-        project = ProjectF.create(**{
-            'isprivate': True,
-            'admins': UserGroupF(add_users=[admin]),
-        })
+        project = ProjectF.create(
+            add_admins=[admin],
+            **{'isprivate': True}
+        )
 
         active_type = ObservationTypeFactory(**{
             'project': project,
@@ -90,10 +90,10 @@ class ObservationtypeTest(TestCase):
 
     def test_access_inactive_with_admin(self):
         admin = UserF.create()
-        project = ProjectF.create(**{
-            'isprivate': True,
-            'admins': UserGroupF(add_users=[admin]),
-        })
+        project = ProjectF.create(
+            add_admins=[admin],
+            **{'isprivate': True}
+        )
         inactive_type = ObservationTypeFactory(**{
             'project': project,
             'status': 'inactive'
@@ -104,10 +104,10 @@ class ObservationtypeTest(TestCase):
     def test_access_active_with_contributor(self):
         contributor = UserF.create()
 
-        project = ProjectF.create(**{
-            'isprivate': True,
-            'contributors': UserGroupF(add_users=[contributor]),
-        })
+        project = ProjectF.create(
+            add_contributors=[contributor],
+            **{'isprivate': True}
+        )
 
         active_type = ObservationTypeFactory(**{
             'project': project,
@@ -121,10 +121,10 @@ class ObservationtypeTest(TestCase):
     def test_access_inactive_with_contributor(self):
         contributor = UserF.create()
 
-        project = ProjectF.create(**{
-            'isprivate': True,
-            'contributors': UserGroupF(add_users=[contributor]),
-        })
+        project = ProjectF.create(
+            add_contributors=[contributor],
+            **{'isprivate': True}
+        )
         inactive_type = ObservationTypeFactory(**{
             'project': project,
             'status': 'inactive'
@@ -165,10 +165,10 @@ class ObservationtypeTest(TestCase):
     def test_admin_access_with_admin(self):
         admin = UserF.create()
 
-        project = ProjectF.create(**{
-            'isprivate': True,
-            'admins': UserGroupF(add_users=[admin]),
-        })
+        project = ProjectF.create(
+            add_admins=[admin],
+            **{'isprivate': True}
+        )
 
         active_type = ObservationTypeFactory(**{
             'project': project
@@ -181,10 +181,10 @@ class ObservationtypeTest(TestCase):
     def test_admin_access_with_contributor(self):
         user = UserF.create()
 
-        project = ProjectF.create(**{
-            'isprivate': True,
-            'contributors': UserGroupF(add_users=[user]),
-        })
+        project = ProjectF.create(
+            add_contributors=[user],
+            **{'isprivate': True}
+        )
 
         active_type = ObservationTypeFactory(**{
             'project': project

@@ -1,24 +1,9 @@
-from rest_framework import serializers
-
 from core.serializers import FieldSelectorSerializer
-from users.serializers import UserSerializer
 from dataviews.serializers import ViewSerializer
 from dataviews.models import View
 from observationtypes.serializer import ObservationTypeSerializer
 
-from .models import Project, UserGroup
-
-
-class UserGroupSerializer(serializers.ModelSerializer):
-    """
-    Serializer for project user groups.
-    """
-    users = UserSerializer(many=True)
-
-    class Meta:
-        model = UserGroup
-        depth = 1
-        fields = ('id', 'name', 'users')
+from .models import Project
 
 
 class ProjectSerializer(FieldSelectorSerializer):

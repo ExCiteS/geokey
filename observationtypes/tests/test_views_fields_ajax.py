@@ -21,10 +21,10 @@ class UpdateFieldTest(TestCase):
         self.contributor = UserF.create()
         self.non_member = UserF.create()
 
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
 
         self.observationtype = ObservationTypeFactory(**{
             'project': self.project,
@@ -141,10 +141,10 @@ class UpdateNumericField(TestCase):
         self.contributor = UserF.create()
         self.non_member = UserF.create()
 
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
 
         self.observationtype = ObservationTypeFactory(**{
             'project': self.project,
@@ -221,9 +221,9 @@ class AddLookupValueTest(TestCase):
         self.factory = APIRequestFactory()
         self.admin = UserF.create()
 
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin])
-        })
+        self.project = ProjectF.create(
+            add_admins=[self.admin]
+        )
 
         self.active_type = ObservationTypeFactory(**{
             'project': self.project,
@@ -308,9 +308,9 @@ class RemoveLookupValues(TestCase):
         self.factory = APIRequestFactory()
         self.admin = UserF.create()
 
-        self.project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin])
-        })
+        self.project = ProjectF.create(
+            add_admins=[self.admin]
+        )
 
         self.active_type = ObservationTypeFactory(**{
             'project': self.project,

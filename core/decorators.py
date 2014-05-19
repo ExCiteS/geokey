@@ -5,7 +5,8 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from core.exceptions import MalformedRequestData
-from projects.models import Project, UserGroup
+from projects.models import Project
+from users.models import UserGroup
 from observationtypes.models import ObservationType, Field, LookupValue
 from dataviews.models import View, ViewGroup, Rule
 from applications.models import Application

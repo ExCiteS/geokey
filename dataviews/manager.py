@@ -9,7 +9,7 @@ from .base import STATUS
 
 class ViewQuerySet(models.query.QuerySet):
     def for_user(self, user):
-        return self.filter(Q(project__admins__users=user) |
+        return self.filter(Q(project__admins=user) |
                            Q(viewgroups__users=user)).distinct()
 
 

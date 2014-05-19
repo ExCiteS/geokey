@@ -5,7 +5,7 @@ from nose.tools import raises
 
 from dataviews.tests.model_factories import ViewFactory, ViewGroupFactory
 
-from .model_factories import UserF, UserGroupF, ProjectF
+from .model_factories import UserF, ProjectF
 from ..models import Project
 
 
@@ -17,53 +17,37 @@ class ProjectListTest(TestCase):
         self.non_member = UserF.create()
         self.view_member = UserF.create()
 
-        self.public_project = ProjectF.create(**{
-            'isprivate': False,
-            'creator': self.creator,
-            'admins': UserGroupF(add_users=[self.creator, self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.public_project
-            })
-        })
+        self.public_project = ProjectF.create(
+            add_admins=[self.admin, self.creator],
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member],
+            **{
+                'isprivate': False
+            }
+        )
 
-        self.private_project = ProjectF.create(**{
-            'creator': self.creator,
-            'admins': UserGroupF(add_users=[self.creator, self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.private_project
-            })
-        })
+        self.private_project = ProjectF.create(
+            add_admins=[self.admin, self.creator],
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member]
+        )
 
-        self.inactive_project = ProjectF.create(**{
-            'status': 'inactive',
-            'creator': self.creator,
-            'admins': UserGroupF(add_users=[self.creator, self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.inactive_project
-            })
-        })
+        self.inactive_project = ProjectF.create(
+            add_admins=[self.admin, self.creator],
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member],
+            **{
+                'status': 'inactive'
+            }
+        )
 
-        self.deleted_project = ProjectF.create(**{
-            'status': 'deleted',
-            'isprivate': False,
-            'creator': self.creator,
-            'admins': UserGroupF(add_users=[self.creator, self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.deleted_project
-            })
-        })
+        self.deleted_project = ProjectF.create(
+            add_admins=[self.admin, self.creator],
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member],
+            **{'isprivate': False}
+        )
+        self.deleted_project.delete()
 
     def test_get_projects_with_admin(self):
         projects = Project.objects.get_list(self.admin)
@@ -97,12 +81,11 @@ class DeletedProjectTest(TestCase):
         self.contributor = UserF.create()
         self.non_member = UserF.create()
 
-        self.deleted_project = ProjectF.create(**{
-            'status': 'deleted',
-            'creator': self.creator,
-            'admins': UserGroupF(add_users=[self.creator, self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
+        self.deleted_project = ProjectF.create(
+            add_admins=[self.admin, self.creator],
+            add_contributors=[self.contributor]
+        )
+        self.deleted_project.delete()
 
     @raises(Project.DoesNotExist)
     def test_get_deleted_project_as_contributor_with_view_member(self):
@@ -172,11 +155,10 @@ class PrivateProjectTest(TestCase):
         self.contributor = UserF.create()
         self.non_member = UserF.create()
 
-        self.private_project = ProjectF.create(**{
-            'creator': self.creator,
-            'admins': UserGroupF(add_users=[self.creator, self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
+        self.private_project = ProjectF.create(
+            add_admins=[self.admin, self.creator],
+            add_contributors=[self.contributor]
+        )
 
     def test_get_private_project_with_admin(self):
         project = Project.objects.get_single(
@@ -255,12 +237,13 @@ class InactiveProjectTest(TestCase):
         self.contributor = UserF.create()
         self.non_member = UserF.create()
 
-        self.inactive_project = ProjectF.create(**{
-            'status': 'inactive',
-            'creator': self.creator,
-            'admins': UserGroupF(add_users=[self.creator, self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
+        self.inactive_project = ProjectF.create(
+            add_admins=[self.admin, self.creator],
+            add_contributors=[self.contributor],
+            **{
+                'status': 'inactive'
+            }
+        )
 
     @raises(PermissionDenied)
     def test_get_inactive_project_with_admin(self):
@@ -339,12 +322,13 @@ class PublicProjectTest(TestCase):
         self.contributor = UserF.create()
         self.non_member = UserF.create()
 
-        self.public_project = ProjectF.create(**{
-            'isprivate': False,
-            'creator': self.creator,
-            'admins': UserGroupF(add_users=[self.creator, self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor])
-        })
+        self.public_project = ProjectF.create(
+            add_admins=[self.admin, self.creator],
+            add_contributors=[self.contributor],
+            **{
+                'isprivate': False
+            }
+        )
 
     def test_get_public_project_with_admin(self):
         project = Project.objects.get_single(

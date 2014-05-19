@@ -16,6 +16,14 @@ urlpatterns = patterns(
         project_views.ProjectUpdate.as_view(),
         name='project'),
     url(
+        r'^projects/(?P<project_id>[0-9]+)/admins/$',
+        project_views.ProjectAdmins.as_view(),
+        name='project_admins'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/admins/(?P<user_id>[0-9]+)/$',
+        project_views.ProjectAdminsUser.as_view(),
+        name='project_admins_user'),
+    url(
         r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users/$',
         project_views.ProjectUserGroup.as_view(),
         name='project_usergroup'),
