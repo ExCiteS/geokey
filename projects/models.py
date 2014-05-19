@@ -13,7 +13,6 @@ class Project(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
     isprivate = models.BooleanField(default=False)
-    everyonecontributes = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     status = models.CharField(
@@ -78,13 +77,14 @@ class Project(models.Model):
         project.
         """
         return self.status == STATUS.active and (self.is_admin(user) or (
-            (not self.isprivate or user in self.contributors.users.all() or
-                (self.views.filter(viewgroups__users=user).count() > 0))))
+            (not self.isprivate or
+                self.contributors.users.filter(id=user.id).exists() or
+                self.views.filter(viewgroups__users=user).exists())))
 
     def can_contribute(self, user):
         return self.status == STATUS.active and (
-            self.is_admin(user) or self.everyonecontributes or (
-                user in self.contributors.users.all()))
+            self.is_admin(user) or (
+                self.contributors.users.filter(id=user.id).exists()))
 
 
 class UserGroup(models.Model):

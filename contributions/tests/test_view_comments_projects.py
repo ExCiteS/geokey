@@ -249,7 +249,6 @@ class DeleteCommentTest(APITestCase):
         self.non_member = UserF.create()
         self.project = ProjectF.create(**{
             'isprivate': False,
-            'everyonecontributes': True,
             'admins': UserGroupF(add_users=[self.admin]),
             'contributors': UserGroupF(add_users=[self.contributor]),
         })

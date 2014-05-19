@@ -234,39 +234,6 @@ class ProjectPublicApiTest(TestCase):
         response = self._post(self.data, self.non_member)
         self.assertEqual(response.status_code, 403)
 
-    def test_contribute_to_public_everyone_with_admin(self):
-        self.project.isprivate = False
-        self.project.everyonecontributes = True
-        self.project.save()
-
-        response = self._post(self.data, self.admin)
-        self.assertEqual(response.status_code, 201)
-
-    def test_contribute_to_public_everyone_with_contributor(self):
-        self.project.isprivate = False
-        self.project.everyonecontributes = True
-        self.project.save()
-
-        response = self._post(self.data, self.contributor)
-        self.assertEqual(response.status_code, 201)
-
-    def test_contribute_to_public_everyone_with_view_member(self):
-        self.project.isprivate = False
-        self.project.everyonecontributes = True
-        self.project.save()
-
-        response = self._post(self.data, self.view_member)
-        self.assertEqual(response.status_code, 201)
-
-    def test_contribute_to_public_everyone_with_non_member(self):
-        self.project.isprivate = False
-        self.project.everyonecontributes = True
-        self.project.save()
-
-        response = self._post(self.data, self.non_member)
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(len(self.project.observations.all()), 1)
-
     def test_contribute_to_private_with_admin(self):
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 201)
@@ -283,38 +250,6 @@ class ProjectPublicApiTest(TestCase):
         self.assertEqual(len(self.project.observations.all()), 0)
 
     def test_contribute_to_private_with_non_member(self):
-        response = self._post(self.data, self.non_member)
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual(len(self.project.observations.all()), 0)
-
-    def test_contribute_to_private_everyone_with_admin(self):
-        self.project.everyonecontributes = True
-        self.project.save()
-
-        response = self._post(self.data, self.admin)
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(len(self.project.observations.all()), 1)
-
-    def test_contribute_to_private_everyone_with_contributor(self):
-        self.project.everyonecontributes = True
-        self.project.save()
-
-        response = self._post(self.data, self.contributor)
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(len(self.project.observations.all()), 1)
-
-    def test_contribute_to_private_everyone_with_view_member(self):
-        self.project.everyonecontributes = True
-        self.project.save()
-
-        response = self._post(self.data, self.view_member)
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(len(self.project.observations.all()), 1)
-
-    def test_contribute_to_private_everyone_with_non_member(self):
-        self.project.everyonecontributes = True
-        self.project.save()
-
         response = self._post(self.data, self.non_member)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(len(self.project.observations.all()), 0)

@@ -52,31 +52,6 @@ class ProjectListTest(TestCase):
             })
         })
 
-        self.private_everyone_project = ProjectF.create(**{
-            'creator': self.creator,
-            'admins': UserGroupF(add_users=[self.creator, self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor]),
-            'everyonecontributes': True
-        })
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.private_everyone_project
-            })
-        })
-
-        self.public_everyone_project = ProjectF.create(**{
-            'isprivate': False,
-            'creator': self.creator,
-            'admins': UserGroupF(add_users=[self.creator, self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor]),
-            'everyonecontributes': True
-        })
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.public_everyone_project
-            })
-        })
-
         self.deleted_project = ProjectF.create(**{
             'status': 'deleted',
             'isprivate': False,
@@ -92,24 +67,24 @@ class ProjectListTest(TestCase):
 
     def test_get_projects_with_admin(self):
         projects = Project.objects.get_list(self.admin)
-        self.assertEqual(projects.count(), 5)
+        self.assertEqual(projects.count(), 3)
         self.assertNotIn(self.deleted_project, projects)
 
     def test_get_projects_with_contributor(self):
         projects = Project.objects.get_list(self.contributor)
-        self.assertEqual(projects.count(), 4)
+        self.assertEqual(projects.count(), 2)
         self.assertNotIn(self.inactive_project, projects)
         self.assertNotIn(self.deleted_project, projects)
 
     def test_get_projects_with_view_member(self):
         projects = Project.objects.get_list(self.view_member)
-        self.assertEqual(projects.count(), 4)
+        self.assertEqual(projects.count(), 2)
         self.assertNotIn(self.inactive_project, projects)
         self.assertNotIn(self.deleted_project, projects)
 
     def test_get_projects_with_non_member(self):
         projects = Project.objects.get_list(self.non_member)
-        self.assertEqual(projects.count(), 2)
+        self.assertEqual(projects.count(), 1)
         self.assertNotIn(self.private_project, projects)
         self.assertNotIn(self.inactive_project, projects)
         self.assertNotIn(self.deleted_project, projects)
@@ -435,88 +410,3 @@ class PublicProjectTest(TestCase):
 
         Project.objects.as_contributor(
             self.view_member, self.public_project.id)
-
-
-class TestPrivateEveryoneProject(TestCase):
-    def setUp(self):
-        self.creator = UserF.create()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
-
-        self.private_everyone_project = ProjectF.create(**{
-            'creator': self.creator,
-            'admins': UserGroupF(add_users=[self.creator, self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor]),
-            'everyonecontributes': True
-        })
-
-    def test_get_private_everyone_project_as_contributor_with_admin(self):
-        project = Project.objects.as_contributor(
-            self.admin, self.private_everyone_project.id)
-        self.assertEqual(project, self.private_everyone_project)
-
-    def test_get_private_everyone_project_as_contributor_with_contrib(self):
-        project = Project.objects.as_contributor(
-            self.contributor, self.private_everyone_project.id)
-        self.assertEqual(project, self.private_everyone_project)
-
-    def test_get_private_everyone_project_as_contributor_with_view_member(self):
-        self.view_member = UserF.create()
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.private_everyone_project
-            })
-        })
-
-        project = Project.objects.as_contributor(
-            self.view_member, self.private_everyone_project.id)
-        self.assertEqual(project, self.private_everyone_project)
-
-    @raises(PermissionDenied)
-    def test_get_private_everyone_project_as_contributor_with_non_member(self):
-        Project.objects.as_contributor(
-            self.non_member, self.private_everyone_project.id)
-
-
-class TestPublicEveryoneProject(TestCase):
-    def setUp(self):
-        self.creator = UserF.create()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
-
-        self.public_everyone_project = ProjectF.create(**{
-            'isprivate': False,
-            'creator': self.creator,
-            'admins': UserGroupF(add_users=[self.creator, self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor]),
-            'everyonecontributes': True
-        })
-
-    def test_get_public_everyone_project_as_contributor_with_admin(self):
-        project = Project.objects.as_contributor(
-            self.admin, self.public_everyone_project.id)
-        self.assertEqual(project, self.public_everyone_project)
-
-    def test_get_public_everyone_project_as_contributor_with_contrib(self):
-        project = Project.objects.as_contributor(
-            self.contributor, self.public_everyone_project.id)
-        self.assertEqual(project, self.public_everyone_project)
-
-    def test_get_public_everyone_project_as_contributor_with_non_member(self):
-        project = Project.objects.as_contributor(
-            self.non_member, self.public_everyone_project.id)
-        self.assertEqual(project, self.public_everyone_project)
-
-    def test_get_public_everyone_project_as_contributor_with_view_member(self):
-        self.view_member = UserF.create()
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.public_everyone_project
-            })
-        })
-
-        project = Project.objects.as_contributor(
-            self.view_member, self.public_everyone_project.id)
-        self.assertEqual(project, self.public_everyone_project)

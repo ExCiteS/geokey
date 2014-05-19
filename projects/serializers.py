@@ -31,16 +31,15 @@ class ProjectSerializer(FieldSelectorSerializer):
         model = Project
         depth = 1
         fields = ('id', 'name', 'description', 'isprivate', 'status',
-                  'everyonecontributes', 'created_at', 'isprivate',
-                  'observationtypes')
+                  'created_at', 'isprivate', 'observationtypes')
         read_only_fields = ('id', 'name')
-        write_only_fields = ('everyonecontributes',)
 
     def to_native(self, project):
         native = super(ProjectSerializer, self).to_native(project)
         request = self.context.get('request')
         if request is not None:
             native['can_contribute'] = project.can_contribute(request.user)
+            native['is_admin'] = project.is_admin(request.user)
 
             views = View.objects.get_list(request.user, project.id)
             view_serializer = ViewSerializer(views, many=True)

@@ -61,29 +61,6 @@ class ProjectsTest(TestCase):
             })
         })
 
-        self.private_everyone_project = ProjectF.create(**{
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor]),
-            'everyonecontributes': True
-        })
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.private_everyone_project
-            })
-        })
-
-        self.public_everyone_project = ProjectF.create(**{
-            'isprivate': False,
-            'admins': UserGroupF(add_users=[self.admin]),
-            'contributors': UserGroupF(add_users=[self.contributor]),
-            'everyonecontributes': True
-        })
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.public_everyone_project
-            })
-        })
-
     def test_get_projects_with_admin(self):
         request = self.factory.get('/api/projects/')
         force_authenticate(request, user=self.admin)
@@ -92,7 +69,7 @@ class ProjectsTest(TestCase):
 
         projects = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(projects), 4)
+        self.assertEqual(len(projects), 2)
         self.assertNotContains(response, self.deleted_project.name)
 
     def test_get_projects_with_contributor(self):
@@ -103,7 +80,7 @@ class ProjectsTest(TestCase):
 
         projects = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(projects), 4)
+        self.assertEqual(len(projects), 2)
         self.assertNotContains(response, self.inactive_project.name)
         self.assertNotContains(response, self.deleted_project.name)
 
@@ -115,7 +92,7 @@ class ProjectsTest(TestCase):
 
         projects = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(projects), 4)
+        self.assertEqual(len(projects), 2)
         self.assertNotContains(response, self.inactive_project.name)
         self.assertNotContains(response, self.deleted_project.name)
 
@@ -127,7 +104,7 @@ class ProjectsTest(TestCase):
 
         projects = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(projects), 2)
+        self.assertEqual(len(projects), 1)
         self.assertNotContains(response, self.inactive_project.name)
         self.assertNotContains(response, self.deleted_project.name)
         self.assertNotContains(response, self.private_project.name)
