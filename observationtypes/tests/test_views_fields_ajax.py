@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from projects.tests.model_factories import UserF, UserGroupF, ProjectF
+from projects.tests.model_factories import UserF, ProjectF
 
 from .model_factories import (
     ObservationTypeFactory, TextFieldFactory, NumericFieldFactory,

@@ -3,6 +3,10 @@ import factory
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+from projects.tests.model_factories import ProjectF
+
+from ..models import UserGroup
+
 
 class UserF(factory.django.DjangoModelFactory):
     FACTORY_FOR = User
@@ -37,3 +41,20 @@ class UserF(factory.django.DjangoModelFactory):
             if create:
                 user.save()
         return user
+
+
+class UserGroupF(factory.django.DjangoModelFactory):
+    FACTORY_FOR = UserGroup
+
+    name = factory.Sequence(lambda n: 'name_%d' % n)
+    project = factory.SubFactory(ProjectF)
+    can_contribute = True
+
+    @factory.post_generation
+    def add_users(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            for user in extracted:
+                self.users.add(user)

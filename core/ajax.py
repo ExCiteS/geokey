@@ -25,12 +25,12 @@ urlpatterns = patterns(
         name='project_admins_user'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users/$',
-        project_views.ProjectUserGroup.as_view(),
-        name='project_usergroup'),
+        user_views.UserGroup.as_view(),
+        name='usergroup'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users/(?P<user_id>[0-9]+)/$',
-        project_views.ProjectUserGroupUser.as_view(),
-        name='project_usergroup_user'),
+        user_views.UserGroupUser.as_view(),
+        name='usergroup_user'),
 
     # ###########################
     # OBSERVATION TYPES & FIELDS

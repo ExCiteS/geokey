@@ -15,7 +15,7 @@ from core.decorators import (
 )
 from dataviews.models import View
 from contributions.serializers import ContributionSerializer
-from users.serializers import UserSerializer, UserGroupSerializer
+from users.serializers import UserSerializer
 
 from .base import STATUS
 from .models import Project
@@ -239,53 +239,6 @@ class ProjectAdminsUser(APIView):
         project = Project.objects.as_admin(request.user, project_id)
         user = project.admins.get(pk=user_id)
         project.admins.remove(user)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class ProjectUserGroup(APIView):
-    """
-    API Endpoints for a usergroup of a project in the AJAX API.
-    /ajax/projects/:project_id/usergroups/:usergroup_id/users
-    """
-
-    @handle_exceptions_for_ajax
-    def post(self, request, project_id, group_id, format=None):
-        """
-        Adds a user to the usergroup
-        """
-        project = Project.objects.as_admin(request.user, project_id)
-        group = project.usergroups.get(pk=group_id)
-
-        try:
-            user = User.objects.get(pk=request.DATA.get('userId'))
-            group.users.add(user)
-
-            serializer = UserGroupSerializer(group)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        except User.DoesNotExist:
-            return Response(
-                'The user you are trying to add to the user group does ' +
-                'not exist',
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-
-class ProjectUserGroupUser(APIView):
-    """
-    API Endpoints for a user in a usergroup of a project in the AJAX API.
-    /ajax/projects/:project_id/usergroups/:usergroup_id/users/:user_id
-    """
-
-    @handle_exceptions_for_ajax
-    def delete(self, request, project_id, group_id, user_id, format=None):
-        """
-        Removes a user from the user group
-        """
-        project = Project.objects.as_admin(request.user, project_id)
-        group = project.usergroups.get(pk=group_id)
-
-        user = group.users.get(pk=user_id)
-        group.users.remove(user)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
