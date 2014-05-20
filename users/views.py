@@ -226,3 +226,17 @@ class UserGroupViews(APIView):
                 'assigned to this project.',
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class UserGroupSingleView(APIView):
+    def get_object(self, user, project_id, group_id, view_id):
+        project = Project.objects.as_admin(user, project_id)
+        group = project.usergroups.get(pk=group_id)
+        return group.viewgroups.get(view_id=view_id)
+
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, group_id, view_id, format=None):
+        view_group = self.get_object(
+            request.user, project_id, group_id, view_id)
+        view_group.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

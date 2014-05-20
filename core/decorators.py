@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from core.exceptions import MalformedRequestData
 from projects.models import Project
-from users.models import UserGroup
+from users.models import UserGroup, ViewUserGroup
 from observationtypes.models import ObservationType, Field, LookupValue
 from dataviews.models import View, Rule
 from applications.models import Application
@@ -54,6 +54,7 @@ def handle_exceptions_for_ajax(func):
         except (
             Project.DoesNotExist,
             UserGroup.DoesNotExist,
+            ViewUserGroup.DoesNotExist,
             User.DoesNotExist,
             ObservationType.DoesNotExist,
             Field.DoesNotExist,
