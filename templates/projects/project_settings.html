@@ -50,23 +50,24 @@
         <div class="container tab-content">
             <div class="row tab-pane active" id="users">
                 <div class="col-sm-6">
-                    <div class="panel panel-default" id="administrators" data-group-id="{{ project.admins.id }}"> <!-- Administrators list -->
+                    <div class="panel panel-default" id="usergroup-users"> <!-- Administrators list -->
                         <div class="panel-heading">
                             <h2 class="panel-title">Administrators</h2>
                             <p>Members of this group can edit and delete the project, create and alter views as well as access, edit and remove all data contributed to the project.<p>
                         </div>
 
-                        {% include 'snippets/usergroup-editor.html' with users=project.admins.users.all %}
+                        {% include 'snippets/usergroup-editor.html' with users=project.admins.all %}
                     </div> <!-- /Administrators List -->
                 </div>
                 <div class="col-sm-6">
-                    <div class="panel panel-default" id="contributors" data-group-id="{{ project.contributors.id }}"> <!-- Contributors list -->
+                    <div class="panel panel-default" id="user-groups">
                         <div class="panel-heading">
-                            <h2 class="panel-title">Contributors</h2>
-                            <p>Members of this group can contribute new features and observations to the project.<p>
+                            <h2 class="panel-title">User groups</h2>
                         </div>
-                        {% include 'snippets/usergroup-editor.html' with users=project.contributors.users.all contributors=True %}
-                    </div> <!-- /Contributors List -->
+                        <div class="panel-footer dropdown">
+                            <a href="#" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new user group</a>
+                        </div>
+                    </div> 
                 </div>
             </div>
 
@@ -299,6 +300,5 @@
             <script src="/static/js/admin.ui.descriptioneditor.js"></script>
             <script src="/static/js/admin.ui.updater.js"></script>
             <script src="/static/js/admin.control.ajax.js"></script>
-            <script src="/static/js/admin.ui.project.usergroups.js"></script>
             <script src="/static/js/admin.ui.usergroup.js"></script>
 {% endblock %}
