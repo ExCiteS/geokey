@@ -6,7 +6,6 @@ from django.core.urlresolvers import reverse
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from projects.tests.model_factories import UserF, ProjectF
-from dataviews.tests.model_factories import ViewFactory, ViewGroupFactory
 
 from .model_factories import LocationFactory
 
@@ -24,14 +23,9 @@ class LocationUpdateApiTest(TestCase):
 
         self.project = ProjectF(
             add_admins=[self.admin],
-            add_contributors=[self.contributor]
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member]
         )
-
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.project
-            })
-        })
 
         self.location = LocationFactory(**{
             'private': True,

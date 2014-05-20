@@ -84,14 +84,6 @@ urlpatterns = patterns(
         dataviews.ViewSingleObservation.as_view(),
         name='view_single_observation'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/new/$',
-        dataviews.ViewGroupCreate.as_view(),
-        name='view_group_create'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/$',
-        dataviews.ViewGroupSettings.as_view(),
-        name='view_group_settings'),
-    url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/rules/new/$',
         dataviews.RuleCreate.as_view(),
         name='view_rule_create'),

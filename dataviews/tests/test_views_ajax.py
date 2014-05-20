@@ -6,11 +6,12 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from nose.tools import raises
 
 from projects.tests.model_factories import ProjectF, UserF
+from users.tests.model_factories import ViewUserGroupFactory, UserGroupF
 
 from ..models import View
 from ..views import ViewUpdate
 
-from .model_factories import ViewFactory, ViewGroupFactory
+from .model_factories import ViewFactory
 
 
 class ViewAjaxTest(TestCase):
@@ -72,9 +73,13 @@ class ViewAjaxTest(TestCase):
 
     def test_update_description_with_view_member(self):
         view_member = UserF.create()
-        ViewGroupFactory(add_users=[view_member], **{
-            'view': self.view
-        })
+        group = UserGroupF.create(
+            add_users=[view_member],
+            **{'project': self.view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': self.view, 'usergroup': group}
+        )
 
         response = self._put({'description': 'bockwurst'}, view_member)
         self.assertEqual(response.status_code, 403)
@@ -100,9 +105,13 @@ class ViewAjaxTest(TestCase):
 
     def test_delete_with_view_member(self):
         view_member = UserF.create()
-        ViewGroupFactory(add_users=[view_member], **{
-            'view': self.view
-        })
+        group = UserGroupF.create(
+            add_users=[view_member],
+            **{'project': self.view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': self.view, 'usergroup': group}
+        )
 
         response = self._delete(
             view_member

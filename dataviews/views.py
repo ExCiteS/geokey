@@ -3,7 +3,6 @@ import json
 from django.core.exceptions import PermissionDenied
 from django.views.generic import CreateView, TemplateView
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
 from django.shortcuts import redirect
 
 from braces.views import LoginRequiredMixin
@@ -21,11 +20,9 @@ from observationtypes.models import ObservationType
 from contributions.serializers import ContributionSerializer
 
 from .base import STATUS
-from .forms import ViewCreateForm, ViewGroupCreateForm
-from .models import View, ViewGroup, Rule
-from .serializers import (
-    ViewSerializer, ViewGroupSerializer
-)
+from .forms import ViewCreateForm
+from .models import View, Rule
+from .serializers import ViewSerializer
 
 
 # ############################################################################
@@ -140,76 +137,6 @@ class ViewSingleObservation(LoginRequiredMixin, TemplateView):
         }
 
 
-class ViewGroupCreate(LoginRequiredMixin, CreateView):
-    """
-    Displays the create usergroup page
-    """
-    form_class = ViewGroupCreateForm
-    template_name = 'views/view_group_create.html'
-
-    def get_success_url(self):
-        project_id = self.kwargs['project_id']
-        view_id = self.kwargs['view_id']
-        group_id = self.object.id
-        return reverse(
-            'admin:view_group_settings',
-            kwargs={
-                'project_id': project_id,
-                'view_id': view_id,
-                'group_id': group_id
-            }
-        )
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, form, **kwargs):
-        """
-        Creates the request context for rendering the page
-        """
-        project_id = self.kwargs['project_id']
-        view_id = self.kwargs['view_id']
-
-        context = super(
-            ViewGroupCreate, self).get_context_data(**kwargs)
-
-        context['view'] = View.objects.as_admin(
-            self.request.user, project_id, view_id
-        )
-        return context
-
-    def form_valid(self, form):
-        """
-        Is called when the POSTed data is valid and creates the view group.
-        """
-        project_id = self.kwargs['project_id']
-        view_id = self.kwargs['view_id']
-
-        view = View.objects.as_admin(self.request.user, project_id, view_id)
-        form.instance.view = view
-
-        return super(ViewGroupCreate, self).form_valid(form)
-
-
-class ViewGroupSettings(LoginRequiredMixin, TemplateView):
-    """
-    Displays the usergroup admin page
-    """
-    template_name = 'views/view_group_view.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id, view_id, group_id, **kwargs):
-        """
-        Creates the request context for rendering the page
-        """
-
-        context = super(
-            ViewGroupSettings, self).get_context_data(**kwargs)
-
-        context['group'] = ViewGroup.objects.as_admin(
-            self.request.user, project_id, view_id, group_id
-        )
-        return context
-
-
 class RuleCreate(LoginRequiredMixin, CreateView):
     """
     Displays the rule create page
@@ -307,82 +234,6 @@ class ViewUpdate(APIView):
         """
         view = View.objects.as_admin(request.user, project_id, view_id)
         view.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class ViewUserGroupUpdate(APIView):
-    """
-    API Endpoints for a view in the AJAX API.
-    /ajax/projects/:project_id/views/:view_id/usergroups/:group_id
-    """
-    @handle_exceptions_for_ajax
-    def put(self, request, project_id, view_id, group_id, format=None):
-        """
-        Updates a view
-        """
-        group = ViewGroup.objects.as_admin(
-            request.user, project_id, view_id, group_id)
-        serializer = ViewGroupSerializer(
-            group, data=request.DATA, partial=True
-        )
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @handle_exceptions_for_ajax
-    def delete(self, request, project_id, view_id, group_id, format=None):
-        """
-        Deletes a view
-        """
-        group = ViewGroup.objects.as_admin(
-            request.user, project_id, view_id, group_id)
-        group.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class ViewUserGroupUsers(APIView):
-    """
-    API Endpoints for a usergroup of a project in the AJAX API.
-    /ajax/projects/:project_id/views/:view_id/usergroups/:usergroup_id/users
-    """
-
-    @handle_exceptions_for_ajax
-    def post(self, request, project_id, view_id, group_id, format=None):
-        """
-        Adds a user to the usergroup
-        """
-        group = ViewGroup.objects.as_admin(
-            request.user, project_id, view_id, group_id)
-
-        try:
-            user = User.objects.get(pk=request.DATA.get('userId'))
-            group.users.add(user)
-
-            serializer = ViewGroupSerializer(group)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        except User.DoesNotExist:
-            return Response(
-                'The user you are trying to add to the user group does ' +
-                'not exist',
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-
-class ViewUserGroupUsersUpdate(APIView):
-    @handle_exceptions_for_ajax
-    def delete(self, request, project_id, view_id, group_id, user_id,
-               format=None):
-        """
-        Removes a user from the user group
-        """
-        group = ViewGroup.objects.as_admin(
-            request.user, project_id, view_id, group_id)
-
-        user = group.users.get(pk=user_id)
-        group.users.remove(user)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

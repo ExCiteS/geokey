@@ -6,7 +6,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from projects.tests.model_factories import UserF, ProjectF
 
 from ..views import SingleView
-from .model_factories import ViewFactory, ViewGroupFactory
+from .model_factories import ViewFactory
 
 
 class TestDataViewsPublicApi(TestCase):
@@ -64,19 +64,19 @@ class TestDataViewsPublicApi(TestCase):
         self.assertEquals(response.status_code, 404)
 
     def test_get_active_view_with_view_member(self):
-        view = ViewFactory(**{'project': self.project})
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': view
-        })
+        view = ViewFactory(
+            add_viewers=[self.view_member],
+            **{'project': self.project}
+        )
         response = self.get(view, self.view_member)
 
         self.assertEquals(response.status_code, 200)
 
     def test_get_inactive_view_with_view_member(self):
-        view = ViewFactory(**{'project': self.project, 'status': 'deleted'})
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': view
-        })
+        view = ViewFactory(
+            add_viewers=[self.view_member],
+            **{'project': self.project, 'status': 'inactive'}
+        )
         response = self.get(view, self.view_member)
         self.assertEquals(response.status_code, 403)
 

@@ -79,12 +79,8 @@ class ProjectF(factory.django.DjangoModelFactory):
             return
 
         if extracted:
-            from dataviews.tests.model_factories import (
-                ViewFactory, ViewGroupFactory
-            )
+            from dataviews.tests.model_factories import ViewFactory
 
-            ViewGroupFactory(add_users=extracted, **{
-                'view': ViewFactory(**{
-                    'project': self
-                })
+            ViewFactory(add_viewers=extracted, **{
+                'project': self
             })

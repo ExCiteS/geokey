@@ -5,7 +5,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 
 from projects.tests.model_factories import UserF, ProjectF
-from dataviews.tests.model_factories import ViewFactory, ViewGroupFactory
+from dataviews.tests.model_factories import ViewFactory
 
 from .model_factories import ObservationFactory, CommentFactory
 from ..views import ProjectComments, ProjectSingleComment
@@ -63,10 +63,9 @@ class GetComments(APITestCase):
 
     def test_get_comments_with_view_member(self):
         view_member = UserF.create()
-        ViewGroupFactory(add_users=[view_member], **{
-            'view': ViewFactory(**{
-                'project': self.project
-            })
+
+        ViewFactory(add_viewers=[view_member], **{
+            'project': self.project
         })
         response = self.get_response(view_member)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -131,10 +130,8 @@ class AddCommentToPrivateProjectTest(APITestCase):
 
     def test_add_comment_to_observation_with_view_member(self):
         view_member = UserF.create()
-        ViewGroupFactory(add_users=[view_member], **{
-            'view': ViewFactory(**{
-                'project': self.project
-            })
+        ViewFactory(add_viewers=[view_member], **{
+            'project': self.project
         })
         response = self.get_response(view_member)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

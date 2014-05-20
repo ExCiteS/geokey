@@ -9,8 +9,9 @@ from rest_framework import status
 from projects.tests.model_factories import UserF, ProjectF
 from observationtypes.tests.model_factories import ObservationTypeFactory
 from dataviews.tests.model_factories import (
-    ViewFactory, ViewGroupFactory, RuleFactory
+    ViewFactory, RuleFactory
 )
+from users.tests.model_factories import UserGroupF, ViewUserGroupFactory
 
 from .model_factories import ObservationFactory, CommentFactory
 from ..views import ViewComments, ViewSingleComment
@@ -79,11 +80,11 @@ class GetCommentsView(APITestCase):
 
     def test_get_comments_with_view_member(self):
         view_member = UserF.create()
-        ViewGroupFactory(add_users=[view_member], **{
-            'view': ViewFactory(**{
-                'project': self.project
-            })
-        })
+        ViewFactory.create(
+            add_viewers=[view_member],
+            **{'project': self.project}
+        )
+
         response = self.get_response(view_member)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -152,9 +153,13 @@ class AddCommentToViewTest(APITestCase):
 
     def test_add_comment_to_observation_with_view_member(self):
         view_member = UserF.create()
-        ViewGroupFactory(add_users=[view_member], **{
-            'view': self.view
-        })
+        group = UserGroupF.create(
+            add_users=[view_member],
+            **{'project': self.view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': self.view, 'usergroup': group}
+        )
         response = self.get_response(view_member)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -304,9 +309,13 @@ class DeleteCommentTest(APITestCase):
         )
         observation_type = ObservationTypeFactory(**{'project': self.project})
         self.view = ViewFactory(**{'project': self.project})
-        ViewGroupFactory(add_users=[self.view_member, self.commentor], **{
-            'view': self.view
-        })
+        group = UserGroupF.create(
+            add_users=[self.view_member, self.commentor],
+            **{'project': self.view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': self.view, 'usergroup': group}
+        )
         RuleFactory(**{'view': self.view, 'observation_type': observation_type})
 
         self.observation = ObservationFactory.create(**{

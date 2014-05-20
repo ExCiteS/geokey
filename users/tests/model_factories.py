@@ -4,8 +4,9 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 from projects.tests.model_factories import ProjectF
+from dataviews.tests.model_factories import ViewFactory
 
-from ..models import UserGroup
+from ..models import UserGroup, ViewUserGroup
 
 
 class UserF(factory.django.DjangoModelFactory):
@@ -58,3 +59,13 @@ class UserGroupF(factory.django.DjangoModelFactory):
         if extracted:
             for user in extracted:
                 self.users.add(user)
+
+
+class ViewUserGroupFactory(factory.django.DjangoModelFactory):
+    FACTORY_FOR = ViewUserGroup
+
+    usergroup = factory.SubFactory(UserGroupF)
+    view = factory.SubFactory(ViewFactory)
+    can_moderate = False
+    can_read = False
+    can_view = True

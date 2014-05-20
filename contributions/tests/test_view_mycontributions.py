@@ -6,7 +6,7 @@ from django.test import TestCase
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from projects.tests.model_factories import UserF, ProjectF
-from dataviews.tests.model_factories import ViewFactory, ViewGroupFactory
+from dataviews.tests.model_factories import ViewFactory
 
 from ..views import MyObservations
 
@@ -59,8 +59,8 @@ class MyContributionsTest(TestCase):
 
     def test_my_contributions_with_non_contributor(self):
         view_user = UserF.create()
-        ViewGroupFactory(add_users=[view_user], **{
-            'view': ViewFactory(**{'project': self.project})
+        ViewFactory(add_viewers=[view_user], **{
+            'project': self.project
         })
 
         response = self.get(view_user)

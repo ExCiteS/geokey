@@ -8,9 +8,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from nose.tools import raises
 
 from projects.tests.model_factories import UserF, ProjectF
-from dataviews.tests.model_factories import (
-    ViewFactory, ViewGroupFactory, RuleFactory
-)
+from dataviews.tests.model_factories import ViewFactory, RuleFactory
 from observationtypes.tests.model_factories import (
     ObservationTypeFactory, TextFieldFactory, NumericFieldFactory
 )
@@ -32,17 +30,12 @@ class UpdateObservationInProject(TestCase):
 
         self.project = ProjectF(
             add_admins=[self.admin],
-            add_contributors=[self.contributor]
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member]
         )
         self.observationtype = ObservationTypeFactory(**{
             'status': 'active',
             'project': self.project
-        })
-
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.project
-            })
         })
 
         TextFieldFactory.create(**{
@@ -202,7 +195,8 @@ class UpdateObservationInView(TestCase):
 
         self.project = ProjectF(
             add_admins=[self.admin],
-            add_contributors=[self.contributor]
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member]
         )
         self.observationtype = ObservationTypeFactory(**{
             'status': 'active',
@@ -216,11 +210,6 @@ class UpdateObservationInView(TestCase):
         RuleFactory.create(**{
             'view': self.view,
             'observation_type': self.observationtype
-        })
-
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': self.view,
-            'can_edit': True
         })
 
         TextFieldFactory.create(**{

@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import View, ViewGroup
+from .models import View
 
 
 class ViewCreateForm(forms.ModelForm):
@@ -10,14 +10,4 @@ class ViewCreateForm(forms.ModelForm):
     """
     class Meta:
         model = View
-        fields = ('name', 'description')
-
-
-class ViewGroupCreateForm(forms.ModelForm):
-    """
-    Validates the inputs against the model definition.
-    Used in .views.ViewGroupAdminCreateView
-    """
-    class Meta:
-        model = ViewGroup
         fields = ('name', 'description')

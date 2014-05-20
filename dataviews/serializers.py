@@ -1,9 +1,8 @@
 from rest_framework import serializers
 
-from users.serializers import UserSerializer
 from contributions.serializers import ContributionSerializer
 
-from .models import View, ViewGroup
+from .models import View
 
 
 class ViewSerializer(serializers.ModelSerializer):
@@ -22,19 +21,3 @@ class ViewSerializer(serializers.ModelSerializer):
     def get_data(self, obj):
         serializer = ContributionSerializer(obj.data, many=True)
         return serializer.data
-
-
-class ViewGroupSerializer(serializers.ModelSerializer):
-    """
-    Serializer for ViewGroups.
-    """
-    users = UserSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = ViewGroup
-        depth = 1
-        fields = (
-            'id', 'name', 'description', 'status', 'can_view', 'can_read',
-            'can_edit', 'users'
-        )
-        read_only_fields = ('id', 'name', 'status')

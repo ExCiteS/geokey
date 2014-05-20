@@ -8,7 +8,7 @@ from core.exceptions import MalformedRequestData
 from projects.models import Project
 from users.models import UserGroup
 from observationtypes.models import ObservationType, Field, LookupValue
-from dataviews.models import View, ViewGroup, Rule
+from dataviews.models import View, Rule
 from applications.models import Application
 from contributions.models import Observation, Location, Comment
 
@@ -24,7 +24,6 @@ def handle_exceptions_for_admin(func):
             ObservationType.DoesNotExist,
             Field.DoesNotExist,
             View.DoesNotExist,
-            ViewGroup.DoesNotExist,
             Rule.DoesNotExist,
             Application.DoesNotExist
         ) as error:
@@ -60,7 +59,6 @@ def handle_exceptions_for_ajax(func):
             Field.DoesNotExist,
             LookupValue.DoesNotExist,
             View.DoesNotExist,
-            ViewGroup.DoesNotExist,
             Application.DoesNotExist,
             Observation.DoesNotExist,
             Location.DoesNotExist,

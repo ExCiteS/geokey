@@ -14,7 +14,7 @@ from contributions.tests.model_factories import ObservationFactory
 from ..models import View, Rule
 
 from .model_factories import (
-    ViewFactory, ViewGroupFactory, RuleFactory
+    ViewFactory, RuleFactory
 )
 
 
@@ -29,17 +29,11 @@ class ViewTest(TestCase):
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
-        self.view1 = ViewFactory(**{
+        self.view1 = ViewFactory(add_viewers=[self.view1_user], **{
             'project': self.project
         })
-        ViewGroupFactory(add_users=[self.view1_user], **{
-            'view': self.view1
-        })
-        self.view2 = ViewFactory(**{
+        self.view2 = ViewFactory(add_viewers=[self.view2_user], **{
             'project': self.project
-        })
-        ViewGroupFactory(add_users=[self.view2_user], **{
-            'view': self.view2
         })
 
     @raises(View.DoesNotExist)

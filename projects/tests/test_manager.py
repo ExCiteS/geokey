@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 
 from nose.tools import raises
 
-from dataviews.tests.model_factories import ViewFactory, ViewGroupFactory
+from dataviews.tests.model_factories import ViewFactory
 
 from .model_factories import UserF, ProjectF
 from ..models import Project
@@ -90,10 +90,8 @@ class DeletedProjectTest(TestCase):
     @raises(Project.DoesNotExist)
     def test_get_deleted_project_as_contributor_with_view_member(self):
         self.view_member = UserF.create()
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.deleted_project
-            })
+        ViewFactory(add_viewers=[self.view_member], **{
+            'project': self.deleted_project
         })
 
         Project.objects.as_contributor(
@@ -132,10 +130,8 @@ class DeletedProjectTest(TestCase):
     @raises(Project.DoesNotExist)
     def test_get_deleted_project_with_view_member(self):
         self.view_member = UserF.create()
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.deleted_project
-            })
+        ViewFactory(add_viewers=[self.view_member], **{
+            'project': self.deleted_project
         })
         Project.objects.get_single(self.view_member, self.deleted_project.id)
 
@@ -174,10 +170,8 @@ class PrivateProjectTest(TestCase):
 
     def test_get_private_project_with_view_member(self):
         self.view_member = UserF.create()
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.private_project
-            })
+        ViewFactory(add_viewers=[self.view_member], **{
+            'project': self.private_project
         })
 
         project = Project.objects.get_single(
@@ -220,10 +214,8 @@ class PrivateProjectTest(TestCase):
     @raises(PermissionDenied)
     def test_get_private_project_as_contributor_with_view_member(self):
         self.view_member = UserF.create()
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.private_project
-            })
+        ViewFactory(add_viewers=[self.view_member], **{
+            'project': self.private_project
         })
 
         Project.objects.as_contributor(
@@ -257,10 +249,8 @@ class InactiveProjectTest(TestCase):
     @raises(PermissionDenied)
     def test_get_inactive_project_with_view_member(self):
         self.view_member = UserF.create()
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.inactive_project
-            })
+        ViewFactory(add_viewers=[self.view_member], **{
+            'project': self.inactive_project
         })
 
         Project.objects.get_single(self.view_member, self.inactive_project.id)
@@ -305,10 +295,8 @@ class InactiveProjectTest(TestCase):
     @raises(PermissionDenied)
     def test_get_inactive_project_as_contributor_with_view_member(self):
         self.view_member = UserF.create()
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.inactive_project
-            })
+        ViewFactory(add_viewers=[self.view_member], **{
+            'project': self.inactive_project
         })
 
         Project.objects.as_contributor(
@@ -342,10 +330,8 @@ class PublicProjectTest(TestCase):
 
     def test_get_public_project_with_view_member(self):
         self.view_member = UserF.create()
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.public_project
-            })
+        ViewFactory(add_viewers=[self.view_member], **{
+            'project': self.public_project
         })
 
         project = Project.objects.get_single(
@@ -386,10 +372,8 @@ class PublicProjectTest(TestCase):
     @raises(PermissionDenied)
     def test_get_public_project_as_contributor_with_view_member(self):
         self.view_member = UserF.create()
-        ViewGroupFactory(add_users=[self.view_member], **{
-            'view': ViewFactory(**{
-                'project': self.public_project
-            })
+        ViewFactory(add_viewers=[self.view_member], **{
+            'project': self.public_project
         })
 
         Project.objects.as_contributor(

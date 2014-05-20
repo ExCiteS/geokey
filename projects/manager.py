@@ -21,7 +21,8 @@ class ProjectQuerySet(models.query.QuerySet):
                     (Q(isprivate=False) |
                         Q(usergroups__can_contribute=True,
                             usergroups__users=user) |
-                        Q(views__viewgroups__users=user))
+                        Q(usergroups__users=user,
+                            usergroups__viewgroups__isnull=False))
                 )
             ).distinct()
 

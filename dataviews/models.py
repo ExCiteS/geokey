@@ -7,7 +7,7 @@ from django.conf import settings
 from django_hstore import hstore
 
 from .base import STATUS
-from .manager import ViewManager, ViewGroupManager, RuleManager
+from .manager import ViewManager, RuleManager
 
 
 class View(models.Model):
@@ -47,30 +47,6 @@ class View(models.Model):
     def can_edit(self, user):
         return (self.project.is_admin(user) or
                 self.viewgroups.filter(users=user, can_edit=True).exists())
-
-
-class ViewGroup(models.Model):
-    name = models.CharField(max_length=100)
-    description = models.TextField()
-    users = models.ManyToManyField(settings.AUTH_USER_MODEL)
-    can_edit = models.BooleanField(default=False)
-    can_read = models.BooleanField(default=False)
-    can_view = models.BooleanField(default=True)
-    view = models.ForeignKey('View', related_name='viewgroups')
-    status = models.CharField(
-        choices=STATUS,
-        default=STATUS.active,
-        max_length=20
-    )
-
-    objects = ViewGroupManager()
-
-    def delete(self):
-        """
-        Deletes the view by setting its status to DELETED.
-        """
-        self.status = STATUS.deleted
-        self.save()
 
 
 class Rule(models.Model):

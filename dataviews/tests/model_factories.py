@@ -4,7 +4,7 @@ import factory
 from projects.tests.model_factories import UserF, ProjectF
 from observationtypes.tests.model_factories import ObservationTypeFactory
 
-from ..models import View, ViewGroup, Rule
+from ..models import View, Rule
 
 
 class ViewFactory(factory.django.DjangoModelFactory):
@@ -17,6 +17,25 @@ class ViewFactory(factory.django.DjangoModelFactory):
     status = 'active'
     project = factory.SubFactory(ProjectF)
 
+    @factory.post_generation
+    def add_viewers(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            from users.tests.model_factories import (
+                UserGroupF, ViewUserGroupFactory
+            )
+            group = UserGroupF(add_users=extracted, **{
+                'project': self.project,
+                'can_contribute': False
+            })
+
+            ViewUserGroupFactory(**{
+                'view': self,
+                'usergroup': group
+            })
+
 
 class RuleFactory(factory.django.DjangoModelFactory):
     FACTORY_FOR = Rule
@@ -25,23 +44,3 @@ class RuleFactory(factory.django.DjangoModelFactory):
     view = factory.SubFactory(ViewFactory)
     filters = None
     status = 'active'
-
-
-class ViewGroupFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = ViewGroup
-
-    name = factory.Sequence(lambda n: 'name_%d' % n)
-    description = factory.LazyAttribute(lambda o: '%s description' % o.name)
-    can_edit = False
-    can_read = False
-    can_view = True
-    view = factory.SubFactory(ViewFactory)
-
-    @factory.post_generation
-    def add_users(self, create, extracted, **kwargs):
-        if not create:
-            return
-
-        if extracted:
-            for user in extracted:
-                self.users.add(user)

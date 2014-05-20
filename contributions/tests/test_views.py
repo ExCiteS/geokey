@@ -6,8 +6,9 @@ from nose.tools import raises
 from projects.tests.model_factories import UserF, ProjectF
 from observationtypes.tests.model_factories import ObservationTypeFactory
 from dataviews.tests.model_factories import (
-    ViewFactory, RuleFactory, ViewGroupFactory
+    ViewFactory, RuleFactory
 )
+from users.tests.model_factories import UserGroupF, ViewUserGroupFactory
 
 from .model_factories import ObservationFactory
 
@@ -83,9 +84,14 @@ class SingleViewObservationTest(TestCase):
         )
 
     def test_get_object_with_creator_is_viewmember(self):
-        ViewGroupFactory(add_users=[self.creator], **{
-            'view': self.view
-        })
+        group = UserGroupF.create(
+            add_users=[self.creator],
+            **{'project': self.view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': self.view, 'usergroup': group}
+        )
+
         view = SingleViewObservation()
         observation = view.get_object(
             self.creator, self.observation.project.id,
@@ -104,9 +110,13 @@ class SingleViewObservationTest(TestCase):
     @raises(PermissionDenied)
     def test_get_object_with_view_member_not_creator(self):
         view_member = UserF.create()
-        ViewGroupFactory(add_users=[view_member], **{
-            'view': self.view
-        })
+        group = UserGroupF.create(
+            add_users=[view_member],
+            **{'project': self.view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': self.view, 'usergroup': group}
+        )
         view = SingleViewObservation()
         view.get_object(
             view_member, self.observation.project.id,
@@ -215,9 +225,13 @@ class ViewCommentTest(TestCase):
         )
 
     def test_get_object_with_creator_is_viewmember(self):
-        ViewGroupFactory(add_users=[self.creator], **{
-            'view': self.view
-        })
+        group = UserGroupF.create(
+            add_users=[self.creator],
+            **{'project': self.view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': self.view, 'usergroup': group}
+        )
         view = ViewComment()
         observation = view.get_object(
             self.creator, self.observation.project.id,
@@ -227,9 +241,13 @@ class ViewCommentTest(TestCase):
 
     def test_get_object_with_view_member_not_creator(self):
         view_member = UserF.create()
-        ViewGroupFactory(add_users=[view_member], **{
-            'view': self.view
-        })
+        group = UserGroupF.create(
+            add_users=[view_member],
+            **{'project': self.view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': self.view, 'usergroup': group}
+        )
         view = ViewComment()
         view.get_object(
             view_member, self.observation.project.id,
