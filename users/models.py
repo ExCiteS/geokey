@@ -16,3 +16,5 @@ class ViewUserGroup(models.Model):
     can_moderate = models.BooleanField(default=False)
     can_read = models.BooleanField(default=False)
     can_view = models.BooleanField(default=True)
+
+    unique_together = ('usergroup', 'view')

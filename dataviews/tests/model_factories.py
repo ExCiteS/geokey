@@ -1,7 +1,8 @@
 import datetime
 import factory
 
-from projects.tests.model_factories import UserF, ProjectF
+from users.tests.model_factories import UserF
+from projects.tests.model_factories import ProjectF
 from observationtypes.tests.model_factories import ObservationTypeFactory
 
 from ..models import View, Rule

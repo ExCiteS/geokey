@@ -3,9 +3,6 @@ import factory
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from projects.tests.model_factories import ProjectF
-from dataviews.tests.model_factories import ViewFactory
-
 from ..models import UserGroup, ViewUserGroup
 
 
@@ -48,7 +45,7 @@ class UserGroupF(factory.django.DjangoModelFactory):
     FACTORY_FOR = UserGroup
 
     name = factory.Sequence(lambda n: 'name_%d' % n)
-    project = factory.SubFactory(ProjectF)
+    project = factory.SubFactory('projects.tests.model_factories.ProjectF')
     can_contribute = True
 
     @factory.post_generation
@@ -65,7 +62,7 @@ class ViewUserGroupFactory(factory.django.DjangoModelFactory):
     FACTORY_FOR = ViewUserGroup
 
     usergroup = factory.SubFactory(UserGroupF)
-    view = factory.SubFactory(ViewFactory)
+    view = factory.SubFactory('dataviews.tests.model_factories.ViewFactory')
     can_moderate = False
     can_read = False
     can_view = True

@@ -3,7 +3,7 @@ import factory
 
 from provider.oauth2.models import Client
 
-from projects.tests.model_factories import UserF
+from users.tests.model_factories import UserF
 
 from ..models import Application
 

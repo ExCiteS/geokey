@@ -1,10 +1,16 @@
+import json
+
 from django.test import TestCase
+from django.core.urlresolvers import reverse
 
 from rest_framework.test import APIRequestFactory, force_authenticate
+from rest_framework import status
 
-from .model_factories import UserF, UserGroupF, ProjectF
+from projects.tests.model_factories import ProjectF
+from dataviews.tests.model_factories import ViewFactory
 
-from ..views import UserGroup, UserGroupUser
+from .model_factories import UserF, UserGroupF
+from ..views import UserGroup, UserGroupUser, UserGroupViews
 
 
 class UserGroupTest(TestCase):
@@ -227,3 +233,64 @@ class UserGroupUserTest(TestCase):
             self.contrib_to_remove,
             self.contributors.users.all()
         )
+
+
+class UserGroupViewsTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
+        self.user_to_add = UserF.create()
+
+        self.project = ProjectF.create(
+            add_admins=[self.admin]
+        )
+
+        self.contributors = UserGroupF(
+            add_users=[self.contributor],
+            **{'project': self.project}
+        )
+
+        self.view = ViewFactory(**{
+            'project': self.project
+        })
+
+    def post(self, user):
+        url = reverse('ajax:usergroup_views', kwargs={
+            'project_id': self.project.id,
+            'group_id': self.contributors.id
+        })
+        request = self.factory.post(
+            url,
+            json.dumps({"view": self.view.id}),
+            content_type='application/json'
+        )
+        force_authenticate(request, user=user)
+        view = UserGroupViews.as_view()
+
+        return view(
+            request,
+            project_id=self.project.id,
+            group_id=self.contributors.id).render()
+
+    def test_add_view_with_admin(self):
+        response = self.post(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            self.contributors.viewgroups.filter(
+                usergroup=self.contributors, view=self.view).count(), 1)
+
+    def test_add_view_with_contributor(self):
+        response = self.post(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            self.contributors.viewgroups.filter(
+                usergroup=self.contributors, view=self.view).count(), 0)
+
+    def test_add_view_with_non_member(self):
+        response = self.post(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            self.contributors.viewgroups.filter(
+                usergroup=self.contributors, view=self.view).count(), 0)

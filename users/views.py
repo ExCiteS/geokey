@@ -15,8 +15,10 @@ from core.decorators import handle_exceptions_for_ajax
 from projects.models import Project
 from projects.base import STATUS
 from applications.models import Application
+from dataviews.models import View
 
 from .serializers import UserSerializer, UserGroupSerializer
+from .models import ViewUserGroup
 
 
 class Index(TemplateView):
@@ -206,3 +208,21 @@ class UserGroupUser(APIView):
         user = group.users.get(pk=user_id)
         group.users.remove(user)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserGroupViews(APIView):
+    @handle_exceptions_for_ajax
+    def post(self, request, project_id, group_id, format=None):
+        project = Project.objects.as_admin(request.user, project_id)
+        group = project.usergroups.get(pk=group_id)
+        try:
+            view = project.views.get(pk=request.DATA.get('view'))
+            ViewUserGroup.objects.create(view=view, usergroup=group)
+            serializer = UserGroupSerializer(group)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except View.DoesNotExist:
+            return Response(
+                'The view you are trying to add to the user group is not'
+                'assigned to this project.',
+                status=status.HTTP_400_BAD_REQUEST
+            )

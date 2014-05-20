@@ -5,7 +5,8 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from projects.tests.model_factories import UserF, ProjectF
+from users.tests.model_factories import UserF
+from projects.tests.model_factories import ProjectF
 from dataviews.tests.model_factories import ViewFactory
 
 from ..views import MyObservations
