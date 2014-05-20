@@ -327,6 +327,23 @@ class UserGroupSingleViewTest(TestCase):
             'view': self.view
         })
 
+    def put(self, user, data):
+        url = reverse('ajax:usergroup_single_view', kwargs={
+            'project_id': self.project.id,
+            'group_id': self.contributors.id,
+            'view_id': self.view.id
+        })
+        request = self.factory.put(
+            url, json.dumps(data), content_type='application/json')
+        force_authenticate(request, user=user)
+        view = UserGroupSingleView.as_view()
+
+        return view(
+            request,
+            project_id=self.project.id,
+            group_id=self.contributors.id,
+            view_id=self.view.id).render()
+
     def delete(self, user, view_to_delete=None):
         the_view = view_to_delete or self.view
         url = reverse('ajax:usergroup_single_view', kwargs={
@@ -368,3 +385,46 @@ class UserGroupSingleViewTest(TestCase):
         self.assertEqual(
             self.contributors.viewgroups.filter(
                 usergroup=self.contributors, view=self.view).count(), 1)
+
+    def test_update_partial_with_admin(self):
+        response = self.put(self.admin, {'can_moderate': True})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        view_group = self.contributors.viewgroups.get(
+            usergroup=self.contributors, view=self.view)
+        self.assertTrue(view_group.can_moderate)
+        self.assertFalse(view_group.can_read)
+        self.assertTrue(view_group.can_view)
+
+    def test_update_conplete_with_admin(self):
+        response = self.put(
+            self.admin,
+            {'can_moderate': True, 'can_read': True, 'can_view': False}
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        view_group = self.contributors.viewgroups.get(
+            usergroup=self.contributors, view=self.view)
+        self.assertTrue(view_group.can_moderate)
+        self.assertTrue(view_group.can_read)
+        self.assertFalse(view_group.can_view)
+
+    def test_update_with_contributor(self):
+        response = self.put(self.contributor, {'can_moderate': True})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        view_group = self.contributors.viewgroups.get(
+            usergroup=self.contributors, view=self.view)
+        self.assertFalse(view_group.can_moderate)
+        self.assertFalse(view_group.can_read)
+        self.assertTrue(view_group.can_view)
+
+    def test_update_with_non_member(self):
+        response = self.put(self.non_member, {'can_moderate': True})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        view_group = self.contributors.viewgroups.get(
+            usergroup=self.contributors, view=self.view)
+        self.assertFalse(view_group.can_moderate)
+        self.assertFalse(view_group.can_read)
+        self.assertTrue(view_group.can_view)

@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
-from .models import UserGroup
+from .models import UserGroup, ViewUserGroup
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -21,3 +21,9 @@ class UserGroupSerializer(serializers.ModelSerializer):
         model = UserGroup
         depth = 1
         fields = ('id', 'name', 'description', 'users')
+
+
+class ViewGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ViewUserGroup
+        fields = ('can_read', 'can_view', 'can_moderate')

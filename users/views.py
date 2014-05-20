@@ -17,7 +17,9 @@ from projects.base import STATUS
 from applications.models import Application
 from dataviews.models import View
 
-from .serializers import UserSerializer, UserGroupSerializer
+from .serializers import (
+    UserSerializer, UserGroupSerializer, ViewGroupSerializer
+)
 from .models import ViewUserGroup
 
 
@@ -233,6 +235,20 @@ class UserGroupSingleView(APIView):
         project = Project.objects.as_admin(user, project_id)
         group = project.usergroups.get(pk=group_id)
         return group.viewgroups.get(view_id=view_id)
+
+    @handle_exceptions_for_ajax
+    def put(self, request, project_id, group_id, view_id, format=None):
+        view_group = self.get_object(
+            request.user, project_id, group_id, view_id)
+
+        serializer = ViewGroupSerializer(
+            view_group, data=request.DATA, partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, group_id, view_id, format=None):
