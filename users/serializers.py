@@ -26,4 +26,4 @@ class UserGroupSerializer(serializers.ModelSerializer):
 class ViewGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = ViewUserGroup
-        fields = ('can_read', 'can_view', 'can_moderate')
+        fields = ('view', 'can_read', 'can_view', 'can_moderate')

@@ -5,7 +5,7 @@
  * @version 0.1
  * ***********************************************/
 
-(function (global) {
+(function () {
     'use strict';
 
     var panel = $('#usergroup-users');

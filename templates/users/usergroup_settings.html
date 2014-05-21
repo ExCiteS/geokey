@@ -61,12 +61,12 @@
                         </div>
                         <div class="panel-body">
                             <div class="checkbox">
-                                <label><input type="checkbox" {% if group.can_contribute %} checked="true" {% endif %}> Members of this user group can contribute to the project.</label>
+                                <label><input name="can_contribute" type="checkbox" {% if group.can_contribute %} checked="true" {% endif %}> Members of this user group can contribute to the project.</label>
                             </div>
                         </div>
                     </div>
 
-                    <div class="panel panel-default">
+                    <div class="panel panel-default" id="viewgroups">
                         <div class="panel-heading">
                             <h2 class="panel-title">View permissions</h2>
                         </div>
@@ -125,4 +125,5 @@
             <script src="/static/js/admin.ui.updater.js"></script>
             <script src="/static/js/admin.control.ajax.js"></script>
             <script src="/static/js/admin.ui.usergroup.js"></script>
+            <script src="/static/js/admin.ui.usergroup.views.js"></script>
 {% endblock %}

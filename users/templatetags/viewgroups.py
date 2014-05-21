@@ -10,11 +10,11 @@ def get_view_group(view, group):
         view_group = group.viewgroups.get(view=view)
 
         return '<tr data-view-id="%s">\
-            <td><input type="checkbox" checked="true"></td>\
+            <td><input type="checkbox" name="active" checked="true"></td>\
             <td>%s</td>\
-            <td><input type="checkbox" %s></td>\
-            <td><input type="checkbox" %s></td>\
-            <td><input type="checkbox" %s></td>\
+            <td><input type="checkbox" name="can_view" %s></td>\
+            <td><input type="checkbox" name="can_read" %s></td>\
+            <td><input type="checkbox" name="can_moderate" %s></td>\
         </tr>' % (
             view.id,
             view.name,
@@ -23,11 +23,11 @@ def get_view_group(view, group):
             'checked' if view_group.can_moderate else '')
     except ViewUserGroup.DoesNotExist:
         return '<tr data-view-id="%s">\
-            <td><input type="checkbox"></td>\
+            <td><input type="checkbox" name="active"></td>\
             <td>%s</td>\
-            <td><input type="checkbox" checked="true" disabled="true"></td>\
-            <td><input type="checkbox" disabled="true"></td>\
-            <td><input type="checkbox" disabled="true"></td>\
+            <td><input type="checkbox" name="can_view" checked="true" disabled="true"></td>\
+            <td><input type="checkbox" name="can_read" disabled="true"></td>\
+            <td><input type="checkbox" name="can_moderate" disabled="true"></td>\
         </tr>' % (view.id, view.name)
 
 

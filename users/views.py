@@ -239,8 +239,14 @@ class UserGroupViews(APIView):
         group = project.usergroups.get(pk=group_id)
         try:
             view = project.views.get(pk=request.DATA.get('view'))
-            ViewUserGroup.objects.create(view=view, usergroup=group)
-            serializer = UserGroupSerializer(group)
+            view_group = ViewUserGroup.objects.create(
+                view=view,
+                usergroup=group,
+                can_view=request.DATA.get('can_view'),
+                can_read=request.DATA.get('can_read'),
+                can_moderate=request.DATA.get('can_moderate'),
+            )
+            serializer = ViewGroupSerializer(view_group)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except View.DoesNotExist:
             return Response(

@@ -60,7 +60,7 @@
 	 */
 	MessageDisplay.prototype.showPanelMessage = function showPanelMessage(type, container, message, autohide) {
 		var html = $('<div class="alert alert-' + type + '">' + message + '</div>');
-		container.prepend(html);
+		container.before(html);
 
 		if (autohide) {
 			html.show('slow').delay(5000).hide('slow', function() {
