@@ -241,13 +241,20 @@ class UserGroupViews(APIView):
             view = project.views.get(pk=request.DATA.get('view'))
             view_group = ViewUserGroup.objects.create(
                 view=view,
-                usergroup=group,
-                can_view=request.DATA.get('can_view'),
-                can_read=request.DATA.get('can_read'),
-                can_moderate=request.DATA.get('can_moderate'),
+                usergroup=group
+                # can_view=request.DATA.get('can_view'),
+                # can_read=request.DATA.get('can_read'),
+                # can_moderate=request.DATA.get('can_moderate'),
             )
-            serializer = ViewGroupSerializer(view_group)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            serializer = ViewGroupSerializer(
+                view_group, data=request.DATA, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(
+                    serializer.data, status=status.HTTP_201_CREATED)
+
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except View.DoesNotExist:
             return Response(
                 'The view you are trying to add to the user group is not'
