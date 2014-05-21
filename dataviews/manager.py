@@ -10,9 +10,9 @@ from .base import STATUS
 class ViewQuerySet(models.query.QuerySet):
     def for_user(self, user):
         if user.is_anonymous():
-            return []
+            return self.filter(isprivate=False)
         else:
-            return self.filter(Q(project__admins=user) |
+            return self.filter(Q(isprivate=False) | Q(project__admins=user) |
                                Q(usergroups__usergroup__users=user)).distinct()
 
 
@@ -30,8 +30,9 @@ class ViewManager(models.Manager):
     def get_single(self, user, project_id, view_id):
         project = Project.objects.get_single(user, project_id)
         view = project.views.get(pk=view_id)
-        if (view.status == STATUS.active and (
-                project.is_admin(user) or
+        if view.status == STATUS.active and (
+            project.is_admin(user) or not view.isprivate or (
+                not user.is_anonymous() and
                 view.usergroups.filter(usergroup__users=user).exists())):
             return view
         else:

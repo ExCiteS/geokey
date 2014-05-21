@@ -64,7 +64,7 @@
 		function handleRemoveValueSucces() {
 			itemToRemove.remove();
 			this.displaySuccess();
-		}
+		} 
 
 		/**
 		 * Handles the response after the removal of a lookup value failed.
