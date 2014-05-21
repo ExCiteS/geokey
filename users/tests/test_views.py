@@ -2,6 +2,7 @@ import json
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.test import RequestFactory
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
@@ -11,7 +12,8 @@ from dataviews.tests.model_factories import ViewFactory
 
 from .model_factories import UserF, UserGroupF, ViewUserGroupFactory
 from ..views import (
-    UserGroup, UserGroupUser, UserGroupViews, UserGroupSingleView
+    UserGroup, UserGroupUser, UserGroupViews, UserGroupSingleView,
+    UserGroupCreate, UserGroupSettings
 )
 
 
@@ -428,3 +430,88 @@ class UserGroupSingleViewTest(TestCase):
         self.assertFalse(view_group.can_moderate)
         self.assertFalse(view_group.can_read)
         self.assertTrue(view_group.can_view)
+
+
+class UserGroupCreateTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
+
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+
+    def get(self, user):
+        view = UserGroupCreate.as_view()
+        url = reverse('admin:usergroup_create', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.get(url)
+        request.user = user
+        return view(request, project_id=self.project.id).render()
+
+    def test_get_create_with_admin(self):
+        response = self.get(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+    def test_get_create_with_contributor(self):
+        response = self.get(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+    def test_get_create_with_non_member(self):
+        response = self.get(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+
+class UserGroupSettingTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
+
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+        self.usergroup = UserGroupF(**{'project': self.project})
+
+    def get(self, user):
+        view = UserGroupSettings.as_view()
+        url = reverse('admin:usergroup_settings', kwargs={
+            'project_id': self.project.id,
+            'group_id': self.usergroup.id
+        })
+        request = self.factory.get(url)
+        request.user = user
+        return view(
+            request,
+            project_id=self.project.id,
+            group_id=self.usergroup.id).render()
+
+    def test_get_create_with_admin(self):
+        response = self.get(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )

@@ -1,8 +1,8 @@
 from django.db.models import Q
-from django import forms
 from django.views.generic import TemplateView, CreateView
 from django.contrib import auth
 from django.shortcuts import redirect
+from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
 from braces.views import LoginRequiredMixin
@@ -11,7 +11,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from core.decorators import handle_exceptions_for_ajax
+from core.decorators import (
+    handle_exceptions_for_ajax, handle_exceptions_for_admin
+)
 from projects.models import Project
 from projects.base import STATUS
 from applications.models import Application
@@ -21,6 +23,7 @@ from .serializers import (
     UserSerializer, UserGroupSerializer, ViewGroupSerializer
 )
 from .models import ViewUserGroup
+from .forms import UserRegistrationForm, UsergroupCreateForm
 
 
 class Index(TemplateView):
@@ -93,12 +96,6 @@ class Logout(TemplateView):
         Return the context data to display the 'Succesfully logged out message'
         """
         return {'logged_out': True}
-
-
-class UserRegistrationForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'password', 'first_name', 'last_name', )
 
 
 class Signup(CreateView):
@@ -256,3 +253,40 @@ class UserGroupSingleView(APIView):
             request.user, project_id, group_id, view_id)
         view_group.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserGroupCreate(LoginRequiredMixin, CreateView):
+    template_name = 'users/usergroup_create.html'
+    form_class = UsergroupCreateForm
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, **kwargs):
+        """
+        Creates the request context for rendering the page
+        """
+        project_id = self.kwargs['project_id']
+
+        context = super(
+            UserGroupCreate, self).get_context_data(**kwargs)
+
+        context['project'] = Project.objects.as_admin(
+            self.request.user, project_id
+        )
+        return context
+
+    def get_success_url(self):
+        project_id = self.kwargs['project_id']
+        return reverse(
+            'admin:project_settings',
+            kwargs={'project_id': project_id}
+        )
+
+    def form_valid(self, form):
+        """
+        Creates the project and redirects to the project overview page
+        """
+        project_id = self.kwargs['project_id']
+        project = Project.objects.as_admin(self.request.user, project_id)
+
+        form.instance.project = project
+        return super(UserGroupCreate, self).form_valid(form)

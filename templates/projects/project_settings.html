@@ -64,8 +64,20 @@
                         <div class="panel-heading">
                             <h2 class="panel-title">User groups</h2>
                         </div>
+                        <div class="list-group">
+                            {% for group in project.usergroups.all %}
+                            <a href="#" class="list-group-item">
+                                <h4 class="list-group-item-heading">{{group.name}}</h4>
+                                <p>{{group.description}}</p>
+                            </a>
+                            {% empty %}
+                            <div class="list-group-item">
+                                No user groups have been added to the project.
+                            </div>
+                            {% endfor %}
+                        </div>
                         <div class="panel-footer dropdown">
-                            <a href="#" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new user group</a>
+                            <a href="{% url 'admin:usergroup_create' project.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new user group</a>
                         </div>
                     </div> 
                 </div>

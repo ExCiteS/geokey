@@ -41,8 +41,16 @@ urlpatterns = patterns(
     url(
         r'^projects/(?P<project_id>[0-9]+)/mycontributions/(?P<observation_id>[0-9]+)/$',
         project_views.ProjectSingleMyObservation.as_view(),
-        name='project_my_single_observation'), 
+        name='project_my_single_observation'),
 
+
+    # ###########################
+    # USER GROUPS
+    # ###########################
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/new$',
+        login_views.UserGroupCreate.as_view(),
+        name='usergroup_create'),
 
     # ###########################
     # OBSERVATION TYPES & FIELDS
