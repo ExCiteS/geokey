@@ -23,9 +23,16 @@
 
 		this.addButton.click(this.handleAddValue.bind(this));
 		this.lookuplist.find('li a').click(this.handleRemoveValue.bind(this));
+		this.formField.keyup(this.handleFormType.bind(this));
 
 		this.messages = new Ui.MessageDisplay();
 	}
+
+	LookupPanel.prototype.handleFormType = function handleFormType(event) {
+		if (event.keyCode === 13) {
+            this.addButton.click();
+        }
+	};
 
 	/**
 	 * Displays the success tick in the panel heading.
