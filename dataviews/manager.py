@@ -9,8 +9,11 @@ from .base import STATUS
 
 class ViewQuerySet(models.query.QuerySet):
     def for_user(self, user):
-        return self.filter(Q(project__admins=user) |
-                           Q(usergroups__usergroup__users=user)).distinct()
+        if user.is_anonymous():
+            return []
+        else:
+            return self.filter(Q(project__admins=user) |
+                               Q(usergroups__usergroup__users=user)).distinct()
 
 
 class ViewManager(models.Manager):

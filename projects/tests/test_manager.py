@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth.models import AnonymousUser
 
 from nose.tools import raises
 
@@ -73,6 +74,13 @@ class ProjectListTest(TestCase):
         self.assertNotIn(self.inactive_project, projects)
         self.assertNotIn(self.deleted_project, projects)
 
+    def test_get_project_with_anonymous(self):
+        projects = Project.objects.get_list(AnonymousUser())
+        self.assertEqual(projects.count(), 1)
+        self.assertNotIn(self.private_project, projects)
+        self.assertNotIn(self.inactive_project, projects)
+        self.assertNotIn(self.deleted_project, projects)
+
 
 class DeletedProjectTest(TestCase):
     def setUp(self):
@@ -98,6 +106,11 @@ class DeletedProjectTest(TestCase):
             self.view_member, self.deleted_project.id)
 
     @raises(Project.DoesNotExist)
+    def test_get_deleted_project_as_contributor_with_anonymous(self):
+        Project.objects.as_contributor(
+            AnonymousUser(), self.deleted_project.id)
+
+    @raises(Project.DoesNotExist)
     def test_get_deleted_project_as_contributor_with_non_member(self):
         Project.objects.as_contributor(
             self.non_member, self.deleted_project.id)
@@ -114,6 +127,10 @@ class DeletedProjectTest(TestCase):
     @raises(Project.DoesNotExist)
     def test_get_deleted_project_as_admin_with_non_member(self):
         Project.objects.as_admin(self.non_member, self.deleted_project.id)
+
+    @raises(Project.DoesNotExist)
+    def test_get_deleted_project_as_admin_with_anonymous(self):
+        Project.objects.as_admin(AnonymousUser(), self.deleted_project.id)
 
     @raises(Project.DoesNotExist)
     def test_get_deleted_project_as_admin_with_contributor(self):
@@ -142,6 +159,10 @@ class DeletedProjectTest(TestCase):
     @raises(Project.DoesNotExist)
     def test_get_deleted_project_with_contributor(self):
         Project.objects.get_single(self.contributor, self.deleted_project.id)
+
+    @raises(Project.DoesNotExist)
+    def test_get_deleted_project_with_anonymous(self):
+        Project.objects.get_single(AnonymousUser(), self.deleted_project.id)
 
 
 class PrivateProjectTest(TestCase):
@@ -184,6 +205,10 @@ class PrivateProjectTest(TestCase):
     def test_get_private_project_with_non_member(self):
         Project.objects.get_single(self.non_member, self.private_project.id)
 
+    @raises(PermissionDenied)
+    def test_get_private_project_with_anoymous(self):
+        Project.objects.get_single(AnonymousUser(), self.private_project.id)
+
     def test_get_private_project_as_admin_with_admin(self):
         project = Project.objects.as_admin(self.admin, self.private_project.id)
         self.assertEqual(project, self.private_project)
@@ -195,6 +220,10 @@ class PrivateProjectTest(TestCase):
     @raises(PermissionDenied)
     def test_get_private_project_as_admin_with_non_member(self):
         Project.objects.as_admin(self.non_member, self.private_project.id)
+
+    @raises(PermissionDenied)
+    def test_get_private_project_as_admin_with_anonymous(self):
+        Project.objects.as_admin(AnonymousUser(), self.private_project.id)
 
     def test_get_private_project_as_contributor_with_admin(self):
         project = Project.objects.as_contributor(
@@ -210,6 +239,11 @@ class PrivateProjectTest(TestCase):
     def test_get_private_project_as_contributor_with_non_member(self):
         Project.objects.as_contributor(
             self.non_member, self.private_project.id)
+
+    @raises(PermissionDenied)
+    def test_get_private_project_as_contributor_with_anonymous(self):
+        Project.objects.as_contributor(
+            AnonymousUser(), self.private_project.id)
 
     @raises(PermissionDenied)
     def test_get_private_project_as_contributor_with_view_member(self):
@@ -247,6 +281,10 @@ class InactiveProjectTest(TestCase):
         Project.objects.get_single(self.contributor, self.inactive_project.id)
 
     @raises(PermissionDenied)
+    def test_get_inactive_project_with_anonymous(self):
+        Project.objects.get_single(AnonymousUser(), self.inactive_project.id)
+
+    @raises(PermissionDenied)
     def test_get_inactive_project_with_view_member(self):
         self.view_member = UserF.create()
         ViewFactory(add_viewers=[self.view_member], **{
@@ -271,6 +309,10 @@ class InactiveProjectTest(TestCase):
         Project.objects.as_admin(self.contributor, self.inactive_project.id)
 
     @raises(PermissionDenied)
+    def test_get_inactive_project_as_admin_with_anonymous(self):
+        Project.objects.as_admin(AnonymousUser(), self.inactive_project.id)
+
+    @raises(PermissionDenied)
     def test_get_inactive_project_as_admin_with_non_member(self):
         Project.objects.as_admin(self.non_member, self.inactive_project.id)
 
@@ -291,6 +333,11 @@ class InactiveProjectTest(TestCase):
     def test_get_inactive_project_as_contributor_with_non_member(self):
         Project.objects.as_contributor(
             self.non_member, self.inactive_project.id)
+
+    @raises(PermissionDenied)
+    def test_get_inactive_project_as_contributor_with_anonymous(self):
+        Project.objects.as_contributor(
+            AnonymousUser(), self.inactive_project.id)
 
     @raises(PermissionDenied)
     def test_get_inactive_project_as_contributor_with_view_member(self):
@@ -323,6 +370,11 @@ class PublicProjectTest(TestCase):
             self.admin, self.public_project.id)
         self.assertEqual(project, self.public_project)
 
+    def test_get_public_project_with_anonymous(self):
+        project = Project.objects.get_single(
+            AnonymousUser(), self.public_project.id)
+        self.assertEqual(project, self.public_project)
+
     def test_get_public_project_with_contributor(self):
         project = Project.objects.get_single(
             self.contributor, self.public_project.id)
@@ -352,6 +404,10 @@ class PublicProjectTest(TestCase):
         Project.objects.as_admin(self.contributor, self.public_project.id)
 
     @raises(PermissionDenied)
+    def test_get_public_project_as_admin_with_anonymous(self):
+        Project.objects.as_admin(AnonymousUser(), self.public_project.id)
+
+    @raises(PermissionDenied)
     def test_get_public_project_as_admin_with_non_member(self):
         Project.objects.as_admin(self.non_member, self.public_project.id)
 
@@ -368,6 +424,10 @@ class PublicProjectTest(TestCase):
     @raises(PermissionDenied)
     def test_get_public_project_as_contributor_with_non_member(self):
         Project.objects.as_contributor(self.non_member, self.public_project.id)
+
+    @raises(PermissionDenied)
+    def test_get_public_project_as_contributor_with_anonymous(self):
+        Project.objects.as_contributor(AnonymousUser(), self.public_project.id)
 
     @raises(PermissionDenied)
     def test_get_public_project_as_contributor_with_view_member(self):

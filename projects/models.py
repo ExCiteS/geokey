@@ -68,15 +68,18 @@ class Project(models.Model):
         project.
         """
         return self.status == STATUS.active and (self.is_admin(user) or (
-            (not self.isprivate or
-                self.usergroups.filter(
-                    can_contribute=True, users=user).exists()) or
-            self.usergroups.filter(users=user, viewgroups__isnull=False)
+            not self.isprivate or (
+                not user.is_anonymous() and (
+                    self.usergroups.filter(
+                        can_contribute=True, users=user).exists() or
+                    self.usergroups.filter(
+                        users=user, viewgroups__isnull=False))
+                )
             )
         )
 
     def can_contribute(self, user):
         return self.status == STATUS.active and (
-            self.is_admin(user) or (
+            self.is_admin(user) or (not user.is_anonymous() and (
                 self.usergroups.filter(can_contribute=True, users=user).exists()
-            ))
+            )))

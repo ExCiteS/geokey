@@ -1,6 +1,7 @@
 import json
 
 from django.test import TestCase
+from django.contrib.auth.models import AnonymousUser
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
@@ -86,6 +87,19 @@ class ProjectsTest(TestCase):
     def test_get_projects_with_non_member(self):
         request = self.factory.get('/api/projects/')
         force_authenticate(request, user=self.non_member)
+        view = Projects.as_view()
+        response = view(request).render()
+
+        projects = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(projects), 1)
+        self.assertNotContains(response, self.inactive_project.name)
+        self.assertNotContains(response, self.deleted_project.name)
+        self.assertNotContains(response, self.private_project.name)
+
+    def test_get_projects_with_anonymous(self):
+        request = self.factory.get('/api/projects/')
+        force_authenticate(request, user=AnonymousUser())
         view = Projects.as_view()
         response = view(request).render()
 
@@ -346,6 +360,23 @@ class SingleProjectTest(TestCase):
 
     def test_get_public_project_with_non_member(self):
         user = UserF.create()
+
+        project = ProjectF.create(**{
+            'isprivate': False
+        })
+
+        request = self.factory.get(
+            '/api/projects/%s/' % project.id)
+        force_authenticate(request, user=user)
+        view = SingleProject.as_view()
+        response = view(request, project_id=project.id).render()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, project.name)
+        self.assertContains(response, '"can_contribute": false')
+
+    def test_get_public_project_with_anonymous(self):
+        user = AnonymousUser()
 
         project = ProjectF.create(**{
             'isprivate': False
