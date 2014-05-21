@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load viewgroups %}
+
 {% block bodydata %} data-project-id="{{group.project.id}}" data-group-id="{{group.id}}"{% endblock %}
 {% block title %} | User group: {{group.name}}{% endblock %}
 
@@ -32,43 +34,15 @@
 
         <div class="container">
             <div class="row" id="users">
-                <div class="col-md-6" id="permissions">
-                    <div class="panel panel-default"> <!-- Members list -->
-                        <div class="panel-heading">
-                            <h2 class="panel-title">Permissions</h2>
-                        </div>
-                        <div class="list-group">
-                            <div class="list-group-item">
-                                <div class="checkbox">
-                                    <label><input type="checkbox" name="can_edit" {% if group.can_edit %} checked="true" {% endif %}> <strong>Edit.</strong> If checked, members are permitted to edit existing Features and Observations of the View. </label>
-                                </div>
-                            </div>
-                            <div class="list-group-item">
-                                <div class="checkbox">
-                                    <label><input type="checkbox" name="can_read" {% if group.can_read %} checked="true" {% endif %}> <strong>Read.</strong> If checked, members are permitted to access pre-rendered maps of the data through a web-compliant image format.</label>
-                                </div>
-                            </div>
-                            <div class="list-group-item">
-                                <div class="checkbox">
-                                    <label><input type="checkbox" name="can_view" {% if group.can_view %} checked="true" {% endif %}> <strong>View.</strong> If checked, members are permitted to access the data and download in machine readable formats &ndash; such as JSON, XML or CSV.</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div> <!-- /Members List -->
-                </div>
-                <div class="col-md-6">
-                    <div class="panel panel-default" id="members" data-group-id="{{ group.id }}"> <!-- Administrators list -->
+                <div class="col-md-5">
+                    <div class="panel panel-default" id="usergroup-users">
                         <div class="panel-heading">
                             <h2 class="panel-title">Members</h2>
                         </div>
 
                         {% include 'snippets/usergroup-editor.html' with users=group.users.all %}
                     </div> <!-- /Administrators List -->
-                </div>
-            </div>
 
-            <div class="row" id="general-settings">
-                <div class="col-md-6">
                     <div class="panel panel-danger">
                         <div class="panel-heading">
                             <h2 class="panel-title">Delete user group</h2>
@@ -79,7 +53,42 @@
                         </div>
                     </div>
                 </div>
+                
+                <div class="col-md-7" id="permissions">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Contributors</h2>
+                        </div>
+                        <div class="panel-body">
+                            <div class="checkbox">
+                                <label><input type="checkbox" {% if group.can_contribute %} checked="true" {% endif %}> Members of this user group can contribute to the project.</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">View permissions</h2>
+                        </div>
+                        <table class="table table-striped table-hover">
+                            <tr>
+                                <th></th>
+                                <th>View</th>
+                                <th>view</th>
+                                <th>read</th>
+                                <th>moderate</th>
+                            </tr>
+                            {% viewgroups group %}
+                        </table>
+                    </div>
+                </div>
             </div>
+
+            <!-- <div class="row" id="general-settings">
+                <div class="col-md-5">
+                    
+                </div>
+            </div> -->
         </div>
 {% endblock %}
 
@@ -116,5 +125,4 @@
             <script src="/static/js/admin.ui.updater.js"></script>
             <script src="/static/js/admin.control.ajax.js"></script>
             <script src="/static/js/admin.ui.usergroup.js"></script>
-            <script src="/static/js/admin.ui.view.usergroups.js"></script>
 {% endblock %}

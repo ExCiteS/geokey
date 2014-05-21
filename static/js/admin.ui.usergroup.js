@@ -10,7 +10,7 @@
 
     var panel = $('#usergroup-users');
     var projectId = $('body').attr('data-project-id');
-    var groupId = panel.attr('data-group-id');
+    var groupId = $('body').attr('data-group-id');
 
     // Initializes the message display
     var messages = new Ui.MessageDisplay();

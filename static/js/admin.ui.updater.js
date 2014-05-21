@@ -90,8 +90,8 @@ $(function () {
 		 */
 		function handleSuccess() {
 			var link = '<a href="/admin/dashboard" class="alert-link">Return to dashboard</a>';
-			if (projectId && viewId) { link = '<a href="/admin/projects/' + projectId +'" class="alert-link">Return to project</a>'; }
-			if (projectId && viewId && groupId) { link = '<a href="/admin/projects/' + projectId +'/views/' + groupId + '" class="alert-link">Return to view</a>'; }
+			if (projectId && viewId) { link = '<a href="/admin/projects/' + projectId + '" class="alert-link">Return to project</a>'; }
+			if (projectId && groupId) { link = '<a href="/admin/projects/' + projectId + '/" class="alert-link">Return to project</a>'; }
 
 			updateUi();
 			$('.row').remove();

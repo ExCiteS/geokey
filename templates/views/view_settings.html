@@ -41,7 +41,6 @@
 				<div class="col-sm-12">
 					<ul class="nav nav-tabs">
 						<li class="active"><a href="#rules" data-toggle="tab">Filter definitions</a></li>
-						<li><a href="#users" data-toggle="tab">Usergroups</a></li>
 						<li><a href="#general-settings" data-toggle="tab">General</a></li>
 					</ul>
 				</div>
@@ -49,46 +48,6 @@
 		</div>
 
 		<div class="container tab-content">
-			<div class="row tab-pane" id="users">
-				<div class="col-md-12">
-					<div class="panel panel-default"> <!-- User group list -->
-						<div class="panel-heading">
-							<h2 class="panel-title">User Groups</h2>
-						</div>
-						<div class="table-responsive">
-							<table class="table table-striped">
-								<thead>
-									<tr>
-										<th>Name</th>
-										<th>Description</th>
-										<th>View</th>
-										<th>Read</th>
-										<th>Edit</th>
-										<th></th>
-									</tr>
-								</thead>
-								<tbody>
-									{% for group in view.viewgroups.all %}
-									<tr>
-										<td>{{group.name}}</td>
-										<td>{{group.description}}</td>
-										<td>{% if group.can_view %}<span class="glyphicon glyphicon-ok"></span>{% endif %}</td>
-										<td>{% if group.can_read %}<span class="glyphicon glyphicon-ok"></span>{% endif %}</td>
-										<td>{% if group.can_edit %}<span class="glyphicon glyphicon-ok"></span>{% endif %}</td>
-										<td><a href="{% url 'admin:view_group_settings' view.project.id view.id group.id %}"><span class="glyphicon glyphicon-edit"></span></a></td>
-									</tr>
-
-									{% endfor %}
-								</tbody>
-							</table>
-						</div>
-						<div class="panel-footer">
-							<a href="{% url 'admin:view_group_create' view.project.id view.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new user group</a>
-						</div>
-					</div> <!-- /User Group List -->
-				</div>
-			</div>
-
 			<div class="row tab-pane active" id="rules">
 				<div class="col-md-12">
 					<div class="panel panel-default"> <!-- User group list -->
