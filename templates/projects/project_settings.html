@@ -66,7 +66,7 @@
                         </div>
                         <div class="list-group">
                             {% for group in project.usergroups.all %}
-                            <a href="#" class="list-group-item">
+                            <a href="{% url 'admin:usergroup_settings' project.id group.id %}" class="list-group-item">
                                 <h4 class="list-group-item-heading">{{group.name}}</h4>
                                 <p>{{group.description}}</p>
                             </a>

@@ -29,7 +29,7 @@ $(function() {
 	// sets the request URL according to the IDs read above
 	var url = 'projects/' + projectId;
 	if (projectId && viewId) { url += '/views/' + viewId; }
-	if (projectId && viewId && groupId) { url += '/usergroups/' + groupId; }
+	if (projectId && groupId) { url += '/usergroups/' + groupId; }
 	if (projectId && observationtypeId) { url += '/observationtypes/' + observationtypeId; }
 	if (projectId && observationtypeId && fieldId) { url += '/fields/' + fieldId; }
 

@@ -45,6 +45,7 @@ class UserGroupF(factory.django.DjangoModelFactory):
     FACTORY_FOR = UserGroup
 
     name = factory.Sequence(lambda n: 'name_%d' % n)
+    description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     project = factory.SubFactory('projects.tests.model_factories.ProjectF')
     can_contribute = True
 

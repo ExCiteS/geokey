@@ -24,16 +24,20 @@ urlpatterns = patterns(
         project_views.ProjectAdminsUser.as_view(),
         name='project_admins_user'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users/$',
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/$',
         user_views.UserGroup.as_view(),
         name='usergroup'),
     url(
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users/$',
+        user_views.UserGroupUsers.as_view(),
+        name='usergroup_users'),
+    url(
         r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users/(?P<user_id>[0-9]+)/$',
-        user_views.UserGroupUser.as_view(),
-        name='usergroup_user'),
+        user_views.UserGroupSingleUser.as_view(),
+        name='usergroup_single_user'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/views/$',
-        user_views.UserGroup.as_view(),
+        user_views.UserGroupViews.as_view(),
         name='usergroup_views'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/views/(?P<view_id>[0-9]+)/$',

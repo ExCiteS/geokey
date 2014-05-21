@@ -4,6 +4,8 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 
+from nose.tools import raises
+
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 
@@ -12,12 +14,99 @@ from dataviews.tests.model_factories import ViewFactory
 
 from .model_factories import UserF, UserGroupF, ViewUserGroupFactory
 from ..views import (
-    UserGroup, UserGroupUser, UserGroupViews, UserGroupSingleView,
-    UserGroupCreate, UserGroupSettings
+    UserGroup, UserGroupUsers, UserGroupSingleUser, UserGroupViews,
+    UserGroupSingleView, UserGroupCreate, UserGroupSettings
 )
+from ..models import UserGroup as Group
 
 
 class UserGroupTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
+        self.user_to_add = UserF.create()
+
+        self.project = ProjectF.create(
+            add_admins=[self.admin]
+        )
+
+        self.contributors = UserGroupF(
+            add_users=[self.contributor],
+            **{'project': self.project}
+        )
+
+    def put(self, user, data):
+        url = reverse('ajax:usergroup', kwargs={
+            'project_id': self.project.id,
+            'group_id': self.contributors.id
+        })
+        request = self.factory.put(
+            url, json.dumps(data), content_type='application/json')
+        force_authenticate(request, user=user)
+        view = UserGroup.as_view()
+
+        return view(
+            request,
+            project_id=self.project.id,
+            group_id=self.contributors.id).render()
+
+    def delete(self, user):
+        url = reverse('ajax:usergroup', kwargs={
+            'project_id': self.project.id,
+            'group_id': self.contributors.id
+        })
+        request = self.factory.delete(url)
+        force_authenticate(request, user=user)
+        view = UserGroup.as_view()
+
+        return view(
+            request,
+            project_id=self.project.id,
+            group_id=self.contributors.id).render()
+
+    def test_update_description_with_admin(self):
+        response = self.put(self.admin, {'description': 'new description'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            Group.objects.get(pk=self.contributors.id).description,
+            'new description')
+
+    def test_update_description_with_contributor(self):
+        response = self.put(
+            self.contributor, {'description': 'new description'})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertNotEqual(
+            Group.objects.get(pk=self.contributors.id).description,
+            'new description')
+
+    def test_update_description_with_non_member(self):
+        response = self.put(
+            self.non_member, {'description': 'new description'})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertNotEqual(
+            Group.objects.get(pk=self.contributors.id).description,
+            'new description')
+
+    @raises(Group.DoesNotExist)
+    def test_delete_description_with_admin(self):
+        response = self.delete(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        Group.objects.get(pk=self.contributors.id)
+
+    def test_delete_description_with_contributor(self):
+        response = self.delete(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        Group.objects.get(pk=self.contributors.id)
+
+    def test_delete_description_with_non_member(self):
+        response = self.delete(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        Group.objects.get(pk=self.contributors.id)
+
+
+class UserGroupUsersTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserF.create()
@@ -41,7 +130,7 @@ class UserGroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
-        view = UserGroup.as_view()
+        view = UserGroupUsers.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -57,7 +146,7 @@ class UserGroupTest(TestCase):
             {'userId': 4445468756454}
         )
         force_authenticate(request, user=self.admin)
-        view = UserGroup.as_view()
+        view = UserGroupUsers.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -73,7 +162,7 @@ class UserGroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
-        view = UserGroup.as_view()
+        view = UserGroupUsers.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -93,7 +182,7 @@ class UserGroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.contributor)
-        view = UserGroup.as_view()
+        view = UserGroupUsers.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -113,7 +202,7 @@ class UserGroupTest(TestCase):
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.non_member)
-        view = UserGroup.as_view()
+        view = UserGroupUsers.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -127,7 +216,7 @@ class UserGroupTest(TestCase):
         )
 
 
-class UserGroupUserTest(TestCase):
+class UserGroupSingleUserTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserF.create()
@@ -153,7 +242,7 @@ class UserGroupUserTest(TestCase):
             (self.project.id, self.contributors.id, user.id),
         )
         force_authenticate(request, user=self.admin)
-        view = UserGroupUser.as_view()
+        view = UserGroupSingleUser.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -169,7 +258,7 @@ class UserGroupUserTest(TestCase):
             (self.project.id, 455646445484545, self.contrib_to_remove.id),
         )
         force_authenticate(request, user=self.admin)
-        view = UserGroupUser.as_view()
+        view = UserGroupSingleUser.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -185,7 +274,7 @@ class UserGroupUserTest(TestCase):
             (self.project.id, self.contributors.id, self.contrib_to_remove.id),
         )
         force_authenticate(request, user=self.admin)
-        view = UserGroupUser.as_view()
+        view = UserGroupSingleUser.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -205,7 +294,7 @@ class UserGroupUserTest(TestCase):
             (self.project.id, self.contributors.id, self.contrib_to_remove.id)
         )
         force_authenticate(request, user=self.contributor)
-        view = UserGroupUser.as_view()
+        view = UserGroupSingleUser.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -225,7 +314,7 @@ class UserGroupUserTest(TestCase):
             (self.project.id, self.contributors.id, self.contrib_to_remove.id)
         )
         force_authenticate(request, user=self.non_member)
-        view = UserGroupUser.as_view()
+        view = UserGroupSingleUser.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -507,10 +596,28 @@ class UserGroupSettingTest(TestCase):
             project_id=self.project.id,
             group_id=self.usergroup.id).render()
 
-    def test_get_create_with_admin(self):
+    def test_get_settings_with_admin(self):
         response = self.get(self.admin)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+    def test_get_settings_with_contributor(self):
+        response = self.get(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+    def test_get_settings_with_non_member(self):
+        response = self.get(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
             response,
             'You are not member of the administrators group of this project '
             'and therefore not allowed to alter the settings of the project'

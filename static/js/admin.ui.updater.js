@@ -48,7 +48,7 @@ $(function () {
 		url += '/views/' + viewId;
 		name = 'view';
 	}
-	if (projectId && viewId && groupId) {
+	if (projectId && groupId) {
 		url += '/usergroups/' + groupId;
 		name = 'user group';
 	}
@@ -121,7 +121,6 @@ $(function () {
 		 * @param  {Object} response JSON object of the response
 		 */
 		function handleSuccess(response) {
-			console.log(response)
 			updateUi('active');
 			messages.showPanelSuccess(getMessageTarget('active'), 'The ' + name + ' is now ' + response.status + '.');
 		}

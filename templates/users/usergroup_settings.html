@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block bodydata %} data-project-id="{{group.view.project.id}}" data-view-id="{{group.view.id}}"  data-group-id="{{group.id}}"{% endblock %}
+{% block bodydata %} data-project-id="{{group.project.id}}" data-group-id="{{group.id}}"{% endblock %}
 {% block title %} | User group: {{group.name}}{% endblock %}
 
 {% block main %}
@@ -9,8 +9,7 @@
 
                 <ol class="breadcrumb">
                     <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
-                    <li><a href="{% url 'admin:project_settings' group.view.project.id %}">{{ group.view.project.name }}</a></li>
-                    <li><a href="{% url 'admin:view_settings' group.view.project.id group.view.id %}">{{group.view.name}}</a></li>
+                    <li><a href="{% url 'admin:project_settings' group.project.id %}">{{ group.project.name }}</a></li>
                     <li class="active">{{group.name}}</li>
                 </ol>
 
@@ -22,7 +21,7 @@
                 <form class="form-inline hidden" id="description-form" role="form">
                     {% csrf_token %}
                     <div class="form-group">
-                        <label class="sr-only" for="desription">Project description</label>
+                        <label class="sr-only" for="desription">Userg group description</label>
                         <input type="text" class="form-control" id="description" name="description" placeholder="Enter a view desription" {% if group.description %}value="{{group.description}}"{% endif %}>
                     </div>
                     <button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>

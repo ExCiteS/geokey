@@ -163,6 +163,29 @@ class QueryUsers(APIView):
 
 
 class UserGroup(APIView):
+    @handle_exceptions_for_ajax
+    def put(self, request, project_id, group_id, format=None):
+        project = Project.objects.as_admin(request.user, project_id)
+        group = project.usergroups.get(pk=group_id)
+        serializer = UserGroupSerializer(
+            group, data=request.DATA, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, group_id, format=None):
+        project = Project.objects.as_admin(request.user, project_id)
+        group = project.usergroups.get(pk=group_id)
+
+        group.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserGroupUsers(APIView):
     """
     API Endpoints for a usergroup of a project in the AJAX API.
     /ajax/projects/:project_id/usergroups/:usergroup_id/users
@@ -190,7 +213,7 @@ class UserGroup(APIView):
             )
 
 
-class UserGroupUser(APIView):
+class UserGroupSingleUser(APIView):
     """
     API Endpoints for a user in a usergroup of a project in the AJAX API.
     /ajax/projects/:project_id/usergroups/:usergroup_id/users/:user_id
@@ -290,3 +313,17 @@ class UserGroupCreate(LoginRequiredMixin, CreateView):
 
         form.instance.project = project
         return super(UserGroupCreate, self).form_valid(form)
+
+
+class UserGroupSettings(LoginRequiredMixin, TemplateView):
+    template_name = 'users/usergroup_settings.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, group_id):
+        """
+        Creates the request context for rendering the page
+        """
+        project = Project.objects.as_admin(self.request.user, project_id)
+        group = project.usergroups.get(pk=group_id)
+
+        return {'group': group, 'status_types': STATUS}
