@@ -59,8 +59,8 @@
 	 * @param  {String}  message   The message text
 	 */
 	MessageDisplay.prototype.showPanelMessage = function showPanelMessage(type, container, message, autohide) {
-		var html = $('<div class="alert alert-' + type + '">' + message + '</div>');
-		container.before(html);
+		var html = $('<div class="alert alert-' + type + '">' + message + '</div>').hide();
+		container.prepend(html);
 
 		if (autohide) {
 			html.show('slow').delay(5000).hide('slow', function() {
@@ -104,7 +104,7 @@
 	 * Displays a little green tick within an element as indicator for an successful actions.
 	 * @param  {Element} container The element in which the tick is displayed.
 	 */
-	MessageDisplay.prototype.showInlineSuccess = function showInlineSuccess(container) {
+	MessageDisplay.prototype.showInlineSuccess = function showInlineSuccess(container, mess) {
 		container.addClass('success');
 		setTimeout(function () {
 			container.removeClass('success');
@@ -117,7 +117,7 @@
 	 * @param  {String}  message   The message text
 	 */
 	MessageDisplay.prototype.showInlineError = function showInlineError(container, message) {
-		var html = $('<p class="error text-danger">' + message + '</p>').hide();
+		var html = $('<p class="error text-danger"><span class="glyphicon glyphicon-warning-sign"></span> ' + message + '</p>').hide();
 		container.append(html);
 		html.show('slow').delay(5000).hide('slow', function() {
 			html.remove();

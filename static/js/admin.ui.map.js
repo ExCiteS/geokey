@@ -45,19 +45,19 @@ $(function() {
             dataLayer.addTo(map);
             map.fitBounds(dataLayer.getBounds());
         } else {
-            messages.showPanelError($('#map'), 'There are no contributions in this view.');
+            messages.showPanelError($('#map').parent(), 'There are no contributions in this view.');
         }
     }
 
     function handleDataLoadError(response) {
         $('.info-loading').hide('slow', function() { this.remove(); });
         if (response.status === 403) {
-            messages.showPanelError($('#map'), 'You are not allowed to access this view. Please select a different view from the list.');
+            messages.showPanelError($('#map').parent(), 'You are not allowed to access this view. Please select a different view from the list.');
         } else {
-            messages.showPanelError($('#map'), 'An Error occurred while loading the observations. Error text was: ' + response.responseJSON.error);
+            messages.showPanelError($('#map').parent(), 'An Error occurred while loading the observations. Error text was: ' + response.responseJSON.error);
         }
     }
 
-    messages.showPanelLoading($('#map'), 'Loading observations...');
+    messages.showPanelLoading($('#map').parent(), 'Loading observations...');
     Control.Ajax.get(url, handleDataLoadSuccess, handleDataLoadError);
 });

@@ -54,7 +54,6 @@ $(function() {
 		toggle();
 		submitbtn.button('reset');
 		descriptionFormField.removeClass('loading');
-		messages.showInlineSuccess(descriptionText.children('#descriptionText'));
 	}
 
 	/**

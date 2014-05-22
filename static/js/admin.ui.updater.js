@@ -77,7 +77,7 @@ $(function () {
 	 * @param  {String} id HTML element id or class name
 	 */
 	function getMessageTarget(id) {
-		return $('.toggle-' + id);
+		return $('.toggle-' + id).parent();
 	}
 
 	/**

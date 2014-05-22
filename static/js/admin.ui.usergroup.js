@@ -32,7 +32,6 @@
 
     function displaySuccess() {
         header.removeClass('loading');
-        messages.showInlineSuccess(header);
     }
 
     function displayError(msg) {
