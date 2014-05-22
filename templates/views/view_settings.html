@@ -73,6 +73,27 @@
 
 			<div class="row tab-pane" id="general-settings">
 				<div class="col-sm-8 col-sm-offset-2">
+                    <div class="panel panel-warning toggle-private {% if not view.isprivate %} hidden{% endif %}">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Make this view public</h2>
+                        </div>
+                        <div class="panel-body">
+                            <p>A public view will be accesible by all users who have access to the project.</p>
+                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-public-confirm">Make public</button>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-warning toggle-private {% if view.isprivate %} hidden{% endif %}">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Make this view private</h2>
+                        </div>
+                        <div class="panel-body">
+                            <p>A private view is only accessible by project administrators and members of any user group that is assigned to the view.</p>
+                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-private-confirm">Make private</button>
+                        </div>
+                    </div>
+                </div>
+				<div class="col-sm-8 col-sm-offset-2">
 					<div class="panel panel-danger">
 						<div class="panel-heading">
 							<h2 class="panel-title">Delete view</h2>
@@ -110,6 +131,46 @@
 			</div>
 		</div>
 		<!-- /Delete confirmation modal -->
+
+		<div class="modal fade" id="make-public-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content panel-warning">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+                    </div>
+                    <div class="modal-body panel-body">
+                        <p><strong>Before you make the view public, please read through the consequences of this action.</strong></p>
+                        <p>A public view will be accesible by all users who have access to the project.</p>
+                    </div>
+                    <div class="modal-footer panel-footer">
+                        <button type="button" name="confirm" value="false" class="btn btn-warning" data-loading-text="Loading...">Yes, make the view public.</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="make-private-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content panel-warning">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+                    </div>
+                    <div class="modal-body panel-body">
+                        <p><strong>Before you make the view private, please read through the consequences of this action.</strong></p>
+                        <p>A view project is only accessible by the following users:</p>
+                        <ul>
+                            <li>Project administrators</li>
+                            <li>Members of any user group that is assigned to the view.</li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer panel-footer">
+                        <button type="button" name="confirm" value="true" class="btn btn-warning" data-loading-text="Loading...">Yes, make the view private.</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 {% endblock %}
 
 {% block libraries %}
