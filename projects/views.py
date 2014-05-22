@@ -70,8 +70,8 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         project_id = kwargs.get('project_id')
-        print project_id
-        project = Project.objects.get_single(request.user, project_id)
+
+        project = Project.objects.get(pk=project_id)
 
         if project.is_admin(request.user):
             return super(ProjectSettings, self).dispatch(
@@ -82,10 +82,15 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
             }))
         else:
             views = View.objects.get_list(request.user, project_id)
-            return redirect(reverse('admin:view_observations', kwargs={
-                'project_id': project_id,
-                'view_id': views[0].id
-            }))
+
+            if len(views) > 0:
+                return redirect(reverse('admin:view_observations', kwargs={
+                    'project_id': project_id,
+                    'view_id': views[0].id
+                }))
+
+        return super(ProjectSettings, self).dispatch(
+            request, *args, **kwargs)
 
 
 class ProjectObservations(LoginRequiredMixin, TemplateView):

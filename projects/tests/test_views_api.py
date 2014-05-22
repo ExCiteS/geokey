@@ -5,6 +5,8 @@ from django.contrib.auth.models import AnonymousUser
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
+from dataviews.tests.model_factories import ViewFactory
+
 from .model_factories import UserF, ProjectF
 from ..views import Projects, SingleProject
 
@@ -364,6 +366,7 @@ class SingleProjectTest(TestCase):
         project = ProjectF.create(**{
             'isprivate': False
         })
+        ViewFactory(**{'project': project, 'isprivate': False})
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
@@ -381,6 +384,7 @@ class SingleProjectTest(TestCase):
         project = ProjectF.create(**{
             'isprivate': False
         })
+        ViewFactory(**{'project': project, 'isprivate': False})
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)

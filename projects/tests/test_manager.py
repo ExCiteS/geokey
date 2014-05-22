@@ -21,11 +21,14 @@ class ProjectListTest(TestCase):
         self.public_project = ProjectF.create(
             add_admins=[self.admin, self.creator],
             add_contributors=[self.contributor],
-            add_viewers=[self.view_member],
             **{
                 'isprivate': False
             }
         )
+
+        ViewFactory(
+            add_viewers=[self.view_member],
+            **{'isprivate': False, 'project': self.public_project})
 
         self.private_project = ProjectF.create(
             add_admins=[self.admin, self.creator],
@@ -63,9 +66,9 @@ class ProjectListTest(TestCase):
 
     def test_get_projects_with_view_member(self):
         projects = Project.objects.get_list(self.view_member)
-        self.assertEqual(projects.count(), 2)
         self.assertNotIn(self.inactive_project, projects)
         self.assertNotIn(self.deleted_project, projects)
+        self.assertEqual(projects.count(), 2)
 
     def test_get_projects_with_non_member(self):
         projects = Project.objects.get_list(self.non_member)
@@ -80,6 +83,63 @@ class ProjectListTest(TestCase):
         self.assertNotIn(self.private_project, projects)
         self.assertNotIn(self.inactive_project, projects)
         self.assertNotIn(self.deleted_project, projects)
+
+
+class PublicProjectButNoPublicViewsTest(TestCase):
+    def setUp(self):
+        self.creator = UserF.create()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.view_member = UserF.create()
+
+        self.public_project = ProjectF.create(
+            add_admins=[self.admin, self.creator],
+            add_contributors=[self.contributor],
+            **{
+                'isprivate': False
+            }
+        )
+
+        ViewFactory.create(add_viewers=[self.view_member], **{
+            'project': self.public_project,
+        })
+
+    # def test_get_list_with_non_member(self):
+    #     non_member = UserF.create()
+    #     projects = Project.objects.get_list(non_member)
+    #     self.assertEqual(len(projects), 0)
+
+    @raises(PermissionDenied)
+    def test_get_single_with_non_member(self):
+        non_member = UserF.create()
+        Project.objects.get_single(non_member, self.public_project.id)
+
+    def test_get_list_with_admin(self):
+        projects = Project.objects.get_list(self.admin)
+        self.assertEqual(len(projects), 1)
+
+    def test_get_single_with_admin(self):
+        project = Project.objects.get_single(
+            self.admin, self.public_project.id)
+        self.assertEqual(self.public_project, project)
+
+    def test_get_list_with_contributor(self):
+        projects = Project.objects.get_list(self.contributor)
+        self.assertEqual(len(projects), 1)
+
+    def test_get_single_with_contributor(self):
+        project = Project.objects.get_single(
+            self.contributor, self.public_project.id)
+        self.assertEqual(self.public_project, project)
+
+    def test_get_list_with_view_member(self):
+        projects = Project.objects.get_list(self.view_member)
+        self.assertEqual(len(projects), 1)
+
+    def test_get_single_with_view_member(self):
+        project = Project.objects.get_single(
+            self.view_member, self.public_project.id)
+        self.assertEqual(self.public_project, project)
 
 
 class DeletedProjectTest(TestCase):
@@ -364,6 +424,8 @@ class PublicProjectTest(TestCase):
                 'isprivate': False
             }
         )
+
+        ViewFactory(**{'project': self.public_project, 'isprivate': False})
 
     def test_get_public_project_with_admin(self):
         project = Project.objects.get_single(

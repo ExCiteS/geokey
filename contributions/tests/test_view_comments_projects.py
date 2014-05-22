@@ -291,20 +291,6 @@ class DeleteCommentTest(APITestCase):
         self.assertIn(self.comment, observation.comments.all())
         self.assertIn(self.comment_to_remove, observation.comments.all())
 
-    def test_delete_comment_with_view_member(self):
-        response = self.get_response(self.non_member)
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(
-            json.loads(response.content).get('error'),
-            'You are not an administrator of this project. You must therefore'
-            ' access observations through one of the views'
-        )
-
-        observation = Observation.objects.get(pk=self.observation.id)
-        self.assertIn(self.comment, observation.comments.all())
-        self.assertIn(self.comment_to_remove, observation.comments.all())
-
 
 class DeleteWrongComment(APITestCase):
     def test(self):
