@@ -1,3 +1,4 @@
+from core.serializers import FieldSelectorSerializer
 from rest_framework import serializers
 
 from contributions.serializers import ContributionSerializer
@@ -5,7 +6,7 @@ from contributions.serializers import ContributionSerializer
 from .models import View
 
 
-class ViewSerializer(serializers.ModelSerializer):
+class ViewSerializer(FieldSelectorSerializer):
     """
     Serializer for Views.
     """

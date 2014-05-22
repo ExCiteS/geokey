@@ -27,7 +27,8 @@ class ProjectSerializer(FieldSelectorSerializer):
             native['is_admin'] = project.is_admin(request.user)
 
             views = View.objects.get_list(request.user, project.id)
-            view_serializer = ViewSerializer(views, many=True)
+            view_serializer = ViewSerializer(
+                views, many=True, fields=('id', 'name', 'description'))
             native['views'] = view_serializer.data
 
         return native
