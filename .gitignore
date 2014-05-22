@@ -53,6 +53,7 @@ Thumbs.db
 *.pyc
 .coverage
 local_settings.py
+core/settings/project.py
 
 # Grunt #
 ##########
