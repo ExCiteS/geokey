@@ -14,7 +14,19 @@
                     <li class="active">{{ field.name }}</li>
                 </ol>
 
-                <h1>{{ field.name }}</h1>
+                <h1>
+                    {{ field.name }}
+                    <div class="field-info">
+                        <div>
+                            <span class="info-label">Type</span>
+                            <span class="info-value">{{ field.type_name }}</span>
+                        </div>
+                        <div>
+                            <span class="info-label">Key</span>
+                            <span class="info-value">{{ field.key }}</span>
+                        </div>
+                    </div>
+                </h1>
                 <p class="lead">
                     <span id="descriptionText">{% if field.description %} {{ field.description }} {% endif %}</span>
                     <button id="edit" type="button" class="btn btn-link"><span class="glyphicon glyphicon-edit"></span> Edit</button>
@@ -32,20 +44,6 @@
         </div>
 
         <div class="container">
-            <div class="row form-horizontal">
-                <div class="form-group">
-                    <label class="col-sm-2 col-md-offset-2 control-label">Field type</label>
-                    <div class="col-sm-6">
-                        <p class="form-control-static">{{ field.type_name }}</p>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 col-md-offset-2 control-label">Field key</label>
-                    <div class="col-sm-6">
-                        <p class="form-control-static">{{ field.key }}</p>
-                    </div>
-                </div>
-            </div>
             {% if field.numericfield or field.lookupfield %}
             <div class="row" id="constraints">
                 {% if field.numericfield %}
