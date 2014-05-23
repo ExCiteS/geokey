@@ -61,6 +61,26 @@
         Control.Ajax.put(url + 'views/' + parent.attr('data-view-id') +'/', removeLoading, handleError, data);
     }
 
+    function handleContributeUpdateSuccess(response) {
+        $('#can-contribute .panel-heading').removeClass('loading');
+    }
+
+    function handleContributeUpdateError(response) {
+        $('#can-contribute .panel-heading').removeClass('loading');
+        messages.showInlineError($('#can-contribute .panel-heading'), 'An error occurred while updating the user group. Error text was: ' + response.responseJSON.error);
+        $('#can-contribute input[name="can_contribute"]').prop('checked', !$('#can-contribute input[name="can_contribute"]').prop('checked'));
+    }
+
+    function handleContributeChange(event) {
+        var target = $(event.target);
+        var data = {
+            'can_contribute': target.prop('checked')
+        };
+        $('#can-contribute .panel-heading').addClass('loading');
+        Control.Ajax.put(url, handleContributeUpdateSuccess, handleContributeUpdateError, data);
+    }
+
     $('input[name="active"]').change(handleActivateChange);
+    $('input[name="can_contribute"]').change(handleContributeChange);
     $('input[type="checkbox"]').not('input[name="can_contribute"]').not('input[name="active"]').change(handlePermissionChange);
 }());
