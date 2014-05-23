@@ -104,9 +104,17 @@ class PublicProjectButNoPublicViewsTest(TestCase):
             'project': self.public_project,
         })
 
-    def test_get_list_with_non_member(self):
+    def test_get_list_with_anonymous(self):
+        projects = Project.objects.get_list(AnonymousUser())
+        self.assertEqual(len(projects), 0)
+
+    @raises(PermissionDenied)
+    def test_get_single_with_anonymous(self):
         non_member = UserF.create()
-        projects = Project.objects.get_list(non_member)
+        Project.objects.get_single(non_member, self.public_project.id)
+
+    def test_get_list_with_non_member(self):
+        projects = Project.objects.get_list(AnonymousUser())
         self.assertEqual(len(projects), 0)
 
     @raises(PermissionDenied)

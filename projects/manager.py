@@ -12,8 +12,10 @@ class ProjectQuerySet(models.query.QuerySet):
     """
     def for_user(self, user):
         if user.is_anonymous():
-            return self.filter(
-                Q(status=STATUS.active) & Q(isprivate=False)).distinct()
+            return self.annotate(public_views=Count(
+                'views', only=Q(views__isprivate=False))).filter(
+                Q(status=STATUS.active) &
+                Q(isprivate=False, public_views__gte=1)).distinct()
         else:
             projects = self.annotate(public_views=Count(
                 'views', only=Q(views__isprivate=False))).filter(
