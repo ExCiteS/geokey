@@ -152,6 +152,7 @@ class SingleProjectTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, project.name)
         self.assertContains(response, '"can_contribute": true')
+        self.assertContains(response, '"is_involved": true')
 
     def test_get_inactive_project_with_admin(self):
         user = UserF.create()

@@ -26,6 +26,7 @@ class ProjectSerializer(FieldSelectorSerializer):
         if request is not None:
             native['can_contribute'] = project.can_contribute(request.user)
             native['is_admin'] = project.is_admin(request.user)
+            native['is_involved'] = project.is_involved(request.user)
 
             views = View.objects.get_list(request.user, project.id)
             view_serializer = ViewSerializer(

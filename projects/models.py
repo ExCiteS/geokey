@@ -20,7 +20,8 @@ class Project(models.Model):
         default=STATUS.active,
         max_length=20
     )
-    admins = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='admins')
+    admins = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, related_name='admins')
 
     objects = ProjectManager()
 
@@ -81,6 +82,12 @@ class Project(models.Model):
 
     def can_contribute(self, user):
         return self.status == STATUS.active and (
-            self.is_admin(user) or (not user.is_anonymous() and (
-                self.usergroups.filter(can_contribute=True, users=user).exists()
-            )))
+            self.is_admin(user) or (
+                not user.is_anonymous() and (
+                    self.usergroups.filter(
+                        can_contribute=True, users=user).exists())))
+
+    def is_involved(self, user):
+        return self.is_admin(user) or (
+            not user.is_anonymous() and (
+                self.usergroups.filter(users=user).exists()))
