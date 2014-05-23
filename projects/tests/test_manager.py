@@ -28,7 +28,7 @@ class ProjectListTest(TestCase):
 
         ViewFactory(
             add_viewers=[self.view_member],
-            **{'ispublic': True, 'project': self.public_project})
+            **{'isprivate': False, 'project': self.public_project})
 
         self.private_project = ProjectF.create(
             add_admins=[self.admin, self.creator],
@@ -425,7 +425,7 @@ class PublicProjectTest(TestCase):
             }
         )
 
-        ViewFactory(**{'project': self.public_project, 'ispublic': True})
+        ViewFactory(**{'project': self.public_project, 'isprivate': False})
 
     def test_get_public_project_with_admin(self):
         project = Project.objects.get_single(

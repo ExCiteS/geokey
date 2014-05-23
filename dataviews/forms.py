@@ -10,4 +10,4 @@ class ViewCreateForm(forms.ModelForm):
     """
     class Meta:
         model = View
-        fields = ('name', 'description', 'ispublic')
+        fields = ('name', 'description', 'isprivate')

@@ -15,7 +15,7 @@ class View(models.Model):
     description = models.TextField()
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     created_at = models.DateTimeField(auto_now_add=True)
-    ispublic = models.BooleanField(default=True)
+    isprivate = models.BooleanField(default=False)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,

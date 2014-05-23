@@ -15,7 +15,8 @@ class ProjectQuerySet(models.query.QuerySet):
             return self.filter(
                 Q(status=STATUS.active) & Q(isprivate=False)).distinct()
         else:
-            projects = self.annotate(public_views=Count('views', only=Q(views__ispublic=True))).filter(
+            projects = self.annotate(public_views=Count(
+                'views', only=Q(views__isprivate=False))).filter(
                 Q(admins=user) |
                 (
                     Q(status=STATUS.active) &
