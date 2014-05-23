@@ -18,9 +18,11 @@ class FieldSerializer(serializers.ModelSerializer):
         model = Field
         depth = 1
         fields = (
-            'id', 'name', 'key', 'fieldtype', 'description', 'status', 'required'
+            'id', 'name', 'key', 'fieldtype', 'description', 'status',
+            'required'
         )
         read_only_fields = ('id', 'name', 'key')
+        write_only_fields = ('status',)
 
 
 class NumericFieldSerializer(serializers.ModelSerializer):
@@ -34,10 +36,11 @@ class NumericFieldSerializer(serializers.ModelSerializer):
         model = NumericField
         depth = 1
         fields = (
-            'id', 'name', 'key', 'fieldtype', 'description', 'status', 'required',
-            'minval', 'maxval'
+            'id', 'name', 'key', 'fieldtype', 'description', 'status',
+            'required', 'minval', 'maxval'
         )
         read_only_fields = ('id', 'name', 'key')
+        write_only_fields = ('status',)
 
 
 class LookupValueSerializer(serializers.ModelSerializer):
@@ -64,10 +67,11 @@ class LookupFieldSerializer(serializers.ModelSerializer):
         model = LookupField
         depth = 1
         fields = (
-            'id', 'name', 'key', 'fieldtype', 'description', 'status', 'required',
-            'lookupvalues'
+            'id', 'name', 'key', 'fieldtype', 'description', 'status',
+            'required', 'lookupvalues'
         )
         read_only_fields = ('id', 'name', 'key')
+        write_only_fields = ('status',)
 
 
 class FieldObjectRelatedField(serializers.RelatedField):
@@ -100,3 +104,4 @@ class ObservationTypeSerializer(FieldSelectorSerializer):
         depth = 1
         fields = ('id', 'name', 'description', 'status', 'fields')
         read_only_fields = ('id', 'name')
+        write_only_fields = ('status',)

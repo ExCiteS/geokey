@@ -149,7 +149,6 @@ class SingleProjectTest(TestCase):
         force_authenticate(request, user=user)
         view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
-
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, project.name)
         self.assertContains(response, '"can_contribute": true')

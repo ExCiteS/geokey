@@ -20,6 +20,7 @@ class LocationSerializer(geoserializers.GeoFeatureModelSerializer):
         model = Location
         geo_field = 'geometry'
         fields = ('id', 'name', 'description', 'status', 'created_at')
+        write_only_fields = ('status',)
 
 
 class LocationContributionSerializer(serializers.ModelSerializer):
@@ -27,6 +28,7 @@ class LocationContributionSerializer(serializers.ModelSerializer):
         model = Location
         depth = 1
         fields = ('id', 'name', 'description', 'status', 'created_at')
+        write_only_fields = ('status',)
 
 
 class ObservationSerializer(serializers.ModelSerializer):

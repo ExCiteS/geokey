@@ -18,6 +18,7 @@ class ViewSerializer(FieldSelectorSerializer):
         fields = ('id', 'name', 'description', 'status',
                   'created_at', 'observations', 'isprivate')
         read_only_fields = ('id', 'name', 'created_at')
+        write_only_fields = ('status', 'isprivate')
 
     def get_data(self, obj):
         serializer = ContributionSerializer(obj.data, many=True)

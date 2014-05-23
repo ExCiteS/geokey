@@ -18,6 +18,7 @@ class ProjectSerializer(FieldSelectorSerializer):
         fields = ('id', 'name', 'description', 'isprivate', 'status',
                   'created_at', 'observationtypes')
         read_only_fields = ('id', 'name')
+        write_only_fields = ('status',)
 
     def to_native(self, project):
         native = super(ProjectSerializer, self).to_native(project)
