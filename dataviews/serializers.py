@@ -16,7 +16,7 @@ class ViewSerializer(FieldSelectorSerializer):
         model = View
         depth = 1
         fields = ('id', 'name', 'description', 'status',
-                  'created_at', 'observations', 'isprivate')
+                  'created_at', 'observations', 'ispublic')
         read_only_fields = ('id', 'name', 'created_at')
 
     def get_data(self, obj):

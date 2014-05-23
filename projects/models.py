@@ -69,7 +69,7 @@ class Project(models.Model):
         """
         return self.status == STATUS.active and (self.is_admin(user) or (
             (not self.isprivate and
-                self.views.filter(isprivate=False).exists()) or (
+                self.views.filter(ispublic=True).exists()) or (
                 not user.is_anonymous() and (
                     self.usergroups.filter(
                         can_contribute=True, users=user).exists() or

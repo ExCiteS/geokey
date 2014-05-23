@@ -27,11 +27,11 @@ class TestPublicViews(TestCase):
         })
         self.view1_public = ViewFactory(add_viewers=[self.view1_user], **{
             'project': self.project,
-            'isprivate': False
+            'ispublic': True
         })
         self.view2_public = ViewFactory(add_viewers=[self.view2_user], **{
             'project': self.project,
-            'isprivate': False
+            'ispublic': True
         })
 
     def test_get_list_with_admin(self):
@@ -85,7 +85,7 @@ class TestSinglePublicView(TestCase):
         })
         self.public_view = ViewFactory(add_viewers=[self.view_user], **{
             'project': self.project,
-            'isprivate': False
+            'ispublic': True
         })
 
     def test_get_public_view_with_admin(self):

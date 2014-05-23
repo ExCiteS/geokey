@@ -22,10 +22,14 @@ class ProjectsTest(TestCase):
         self.public_project = ProjectF.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor],
-            add_viewers=[self.view_member],
             **{
                 'isprivate': False
             }
+        )
+
+        ViewFactory(
+            add_viewers=[self.view_member],
+            **{'project': self.public_project, 'ispublic': True}
         )
 
         self.private_project = ProjectF.create(
@@ -366,7 +370,7 @@ class SingleProjectTest(TestCase):
         project = ProjectF.create(**{
             'isprivate': False
         })
-        ViewFactory(**{'project': project, 'isprivate': False})
+        ViewFactory(**{'project': project, 'ispublic': True})
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
@@ -384,7 +388,7 @@ class SingleProjectTest(TestCase):
         project = ProjectF.create(**{
             'isprivate': False
         })
-        ViewFactory(**{'project': project, 'isprivate': False})
+        ViewFactory(**{'project': project, 'ispublic': True})
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)

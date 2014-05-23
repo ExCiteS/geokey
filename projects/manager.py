@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Q
+from aggregate_if import Count
 from django.core.exceptions import PermissionDenied
 
 from .base import STATUS
@@ -14,17 +15,18 @@ class ProjectQuerySet(models.query.QuerySet):
             return self.filter(
                 Q(status=STATUS.active) & Q(isprivate=False)).distinct()
         else:
-            return self.filter(
+            projects = self.annotate(public_views=Count('views', only=Q(views__ispublic=True))).filter(
                 Q(admins=user) |
                 (
                     Q(status=STATUS.active) &
-                    (Q(isprivate=False) |
+                    (Q(isprivate=False, public_views__gte=1) |
                         Q(usergroups__can_contribute=True,
                             usergroups__users=user) |
                         Q(usergroups__users=user,
                             usergroups__viewgroups__isnull=False))
                 )
             ).distinct()
+            return projects
 
 
 class ProjectManager(models.Manager):

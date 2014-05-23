@@ -16,7 +16,7 @@ class ViewFactory(factory.django.DjangoModelFactory):
     creator = factory.SubFactory(UserF)
     created_at = datetime.date(2014, 11, 11)
     status = 'active'
-    isprivate = True
+    ispublic = False
     project = factory.SubFactory(ProjectF)
 
     @factory.post_generation

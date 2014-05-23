@@ -28,7 +28,7 @@ class ProjectListTest(TestCase):
 
         ViewFactory(
             add_viewers=[self.view_member],
-            **{'isprivate': False, 'project': self.public_project})
+            **{'ispublic': True, 'project': self.public_project})
 
         self.private_project = ProjectF.create(
             add_admins=[self.admin, self.creator],
@@ -104,10 +104,10 @@ class PublicProjectButNoPublicViewsTest(TestCase):
             'project': self.public_project,
         })
 
-    # def test_get_list_with_non_member(self):
-    #     non_member = UserF.create()
-    #     projects = Project.objects.get_list(non_member)
-    #     self.assertEqual(len(projects), 0)
+    def test_get_list_with_non_member(self):
+        non_member = UserF.create()
+        projects = Project.objects.get_list(non_member)
+        self.assertEqual(len(projects), 0)
 
     @raises(PermissionDenied)
     def test_get_single_with_non_member(self):
@@ -425,7 +425,7 @@ class PublicProjectTest(TestCase):
             }
         )
 
-        ViewFactory(**{'project': self.public_project, 'isprivate': False})
+        ViewFactory(**{'project': self.public_project, 'ispublic': True})
 
     def test_get_public_project_with_admin(self):
         project = Project.objects.get_single(
