@@ -62,6 +62,10 @@ $(function() {
 							if (validity.badInput) { showHelp(field, 'Your input contains non-numeric characters. Maybe you used a comma (,) as decimal point?'); }
 							if (validity.stepMismatch) { showHelp(field, 'You entered more than three digits after the decimal point.'); }
 							break;
+						case 'text':
+							if (validity.patternMismatch && field.attr('name') === 'key') {
+								showHelp(field, 'Your input contains special characters. A field key must only contain characters, numbers or underscores.');
+							}
 					}
 				}
 			}
