@@ -47,7 +47,7 @@ $(function() {
 
 	/**
 	 * Event handler for form submission. Reads the values from the from and
-	 * sends the AJax request.
+	 * sends the Ajax request.
 	 * @param  {Event} event The event the fires the event handler.
 	 */
 	function submitForm(event) {
