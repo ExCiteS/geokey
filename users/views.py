@@ -18,6 +18,7 @@ from projects.models import Project
 from projects.base import STATUS
 from applications.models import Application
 from dataviews.models import View
+from contributions.models import Observation, Comment
 
 from .serializers import (
     UserSerializer, UserGroupSerializer, ViewGroupSerializer
@@ -340,3 +341,21 @@ class UserGroupSettings(LoginRequiredMixin, TemplateView):
         group = project.usergroups.get(pk=group_id)
 
         return {'group': group, 'status_types': STATUS}
+
+
+class UserProfile(LoginRequiredMixin, TemplateView):
+    template_name = 'users/profile.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, **kwargs):
+        """
+        Creates the request context for rendering the page
+        """
+        context = super(UserProfile, self).get_context_data(**kwargs)
+        context['num_contributions'] = Observation.objects.filter(
+            creator=self.request.user, project__status='active')
+        context['num_comments'] = Comment.objects.filter(
+            creator=self.request.user,
+            commentto__project__status='active',
+            commentto__status='active')
+        return context

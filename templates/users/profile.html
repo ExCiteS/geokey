@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %} | Your profile{% endblock %}
+
+{% block main %}
+        <div class="page-header">
+            <div class="container">
+                <ol class="breadcrumb">
+                    <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
+                    <li class="active">Your profile</li>
+                </ol>
+
+                <h1>Your profile</h1>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-2 col-sm-offset-1">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Quick stats</h2>
+                        </div>
+                        <div class="panel-body">
+                            <div class="stats">
+                                <span class="number">{{num_contributions|length}}</span> observations
+                            </div>
+                            <div class="stats">
+                                <span class="number">{{num_comments|length}}</span> comments
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-8">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Edit profile</h2>
+                        </div>
+                        <div class="panel-body">
+                        
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}

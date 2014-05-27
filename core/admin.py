@@ -121,6 +121,9 @@ urlpatterns = patterns(
     # ###########################
     # USERS
     # ###########################
+    url(r'^profile/$',
+        login_views.UserProfile.as_view(),
+        name="userprofile"),
     url(r'^profile/password/reset/$',
         'django.contrib.auth.views.password_reset',
         {'post_reset_redirect': '/admin/profile/password/reset/done/'},

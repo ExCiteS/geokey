@@ -3,6 +3,8 @@ import json
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.test import RequestFactory
+from django.contrib.auth.models import AnonymousUser
+from django.http import HttpResponseRedirect
 
 from nose.tools import raises
 
@@ -15,7 +17,7 @@ from dataviews.tests.model_factories import ViewFactory
 from .model_factories import UserF, UserGroupF, ViewUserGroupFactory
 from ..views import (
     UserGroup, UserGroupUsers, UserGroupSingleUser, UserGroupViews,
-    UserGroupSingleView, UserGroupCreate, UserGroupSettings
+    UserGroupSingleView, UserGroupCreate, UserGroupSettings, UserProfile
 )
 from ..models import UserGroup as Group
 
@@ -622,3 +624,23 @@ class UserGroupSettingTest(TestCase):
             'You are not member of the administrators group of this project '
             'and therefore not allowed to alter the settings of the project'
         )
+
+
+class UserProfileTest(TestCase):
+    def test_with_user(self):
+        user = UserF.create()
+        view = UserProfile.as_view()
+        url = reverse('admin:userprofile')
+        request = APIRequestFactory().get(url)
+        request.user = user
+        response = view(request).render()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_with_anonymous(self):
+        user = AnonymousUser()
+        view = UserProfile.as_view()
+        url = reverse('admin:userprofile')
+        request = APIRequestFactory().get(url)
+        request.user = user
+        response = view(request)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
