@@ -352,12 +352,17 @@ class UserProfile(LoginRequiredMixin, TemplateView):
         Creates the request context for rendering the page
         """
         context = super(UserProfile, self).get_context_data(**kwargs)
+
         context['num_contributions'] = Observation.objects.filter(
             creator=self.request.user, project__status='active')
         context['num_comments'] = Comment.objects.filter(
             creator=self.request.user,
             commentto__project__status='active',
             commentto__status='active')
+
+        if 'profile/password/change' in self.request.META.get('HTTP_REFERER'):
+            context['password_reset'] = True
+
         return context
 
     def post(self, request):
@@ -372,3 +377,22 @@ class UserProfile(LoginRequiredMixin, TemplateView):
 
         context = self.get_context_data()
         return self.render_to_response(context)
+
+
+class ChangePassword(LoginRequiredMixin, TemplateView):
+    template_name = 'users/changepassword.html'
+
+    def post(self, request):
+        user = request.user
+        user = auth.authenticate(
+            username=user.username,
+            password=request.POST.get('old_password')
+        )
+
+        if user is not None:
+            user.set_password(request.POST.get('new_password1'))
+            user.save()
+            return redirect('admin:userprofile')
+        else:
+            context = self.get_context_data(wrong_password=True)
+            return self.render_to_response(context)

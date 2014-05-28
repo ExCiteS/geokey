@@ -2,8 +2,10 @@ $(function() {
     'use strict';
 
     function submitForm(event) {
-        console.log('submit');
         if (event.target.checkValidity()) {
+            var validFields = $(event.target).find(':valid');
+            validFields.siblings('.help-block').remove();
+            validFields.parents('.form-group').removeClass('has-error');
 
             if ($('form input#new_password1').val() === $('form input#new_password2').val()) {
                 $(event.target).off('submit');
