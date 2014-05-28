@@ -359,3 +359,16 @@ class UserProfile(LoginRequiredMixin, TemplateView):
             commentto__project__status='active',
             commentto__status='active')
         return context
+
+    def post(self, request):
+        user = request.user
+
+        user.username = request.POST.get('username')
+        user.email = request.POST.get('email')
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
+
+        user.save()
+
+        context = self.get_context_data()
+        return self.render_to_response(context)

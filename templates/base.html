@@ -32,7 +32,7 @@
 				{% if not user.is_anonymous %}
 				<div class="navbar-collapse collapse">
 					<ul class="nav navbar-nav navbar-right">
-						<li><a><span class="glyphicon glyphicon-user"></span> {% if user.first_name %}{{ user.get_full_name }}{% else %}{{user}}{% endif %} </a></li>
+						<li><a href="{% url 'admin:userprofile'%}"><span class="glyphicon glyphicon-user"></span> {% if user.first_name %}{{ user.get_full_name }}{% else %}{{user}}{% endif %} </a></li>
 						<li><a href="{% url 'admin:logout'%}"><span class="glyphicon glyphicon-off"></span> Sign out</a></li>
 					</ul>
 				</div>
