@@ -28,10 +28,6 @@
 								{% csrf_token %}
 								<h4>Required fields</h4>
 								<div class="form-group">
-									<label for="username" class="sr-only">Choose a user name</label>
-									<input type="text" class="form-control input-lg" id="username" name="username" placeholder="Choose a user name" required>
-								</div>
-								<div class="form-group">
 									<label for="email" class="sr-only">Email</label>
 									<input type="email" class="form-control input-lg" id="email" name="email" placeholder="Your email address" required>
 								</div>
@@ -39,15 +35,9 @@
 									<label for="inputPassword" class="sr-only">Password</label>
 									<input type="password" class="form-control input-lg" id="password" name="password" placeholder="Password" required>
 								</div>
-
-								<h4>Optional fields</h4>
 								<div class="form-group">
-									<label for="first_name" class="sr-only">First name</label>
-									<input type="text" class="form-control input-lg" id="first_name" name="first_name" placeholder="Your first name">
-								</div>
-								 <div class="form-group">
-									<label for="last_name" class="sr-only">Last name</label>
-									<input type="text" class="form-control input-lg" id="last_name" name="last_name" placeholder="Your family name">
+									<label for="display_name" class="sr-only">Display name</label>
+									<input type="text" class="form-control input-lg" id="display_name" name="display_name" placeholder="Choose a display name" required>
 								</div>
 								<div class="form-group text-center">
 									<button type="submit" class="btn btn-primary">Sign up</button>

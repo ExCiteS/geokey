@@ -112,15 +112,13 @@ class Signup(CreateView):
         """
         data = form.cleaned_data
         User.objects.create_user(
-            data.get('username'),
             data.get('email'),
-            data.get('password'),
-            last_name=data.get('last_name'),
-            first_name=data.get('first_name'),
+            data.get('display_name'),
+            password=data.get('password')
         ).save()
 
         user = auth.authenticate(
-            username=data.get('username'),
+            username=data.get('email'),
             password=data.get('password')
         )
 
@@ -365,10 +363,8 @@ class UserProfile(LoginRequiredMixin, TemplateView):
     def post(self, request):
         user = request.user
 
-        user.username = request.POST.get('username')
         user.email = request.POST.get('email')
-        user.first_name = request.POST.get('first_name')
-        user.last_name = request.POST.get('last_name')
+        user.display_name = request.POST.get('display_name')
 
         user.save()
 
@@ -382,7 +378,7 @@ class ChangePassword(LoginRequiredMixin, TemplateView):
     def post(self, request):
         user = request.user
         user = auth.authenticate(
-            username=user.username,
+            username=user.email,
             password=request.POST.get('old_password')
         )
 

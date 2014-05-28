@@ -17,18 +17,6 @@ Handlebars.registerHelper('value', function(feature, field) {
     return value;
 });
 
-Handlebars.registerHelper('user', function(user) {
-     var username = user.username;
-    if (user.first_name || user.last_name) {
-        username += ' (';
-        if (user.first_name) {username += user.first_name; }
-        if (user.first_name && user.last_name) {username += ' '; }
-        if (user.last_name) {username += user.last_name; }
-        username += ')';
-    }
-    return username;
-});
-
 Handlebars.registerHelper('ifCond', function(v1, v2, options) {
   if(v1 === v2) {
     return options.fn(this);
@@ -393,7 +381,7 @@ function program3(depth0,data) {
   stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.location)),stack1 == null || stack1 === false ? stack1 : stack1.name), {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "</h4>\n<p>Created by "
-    + escapeExpression(((stack1 = ((stack1 = ((stack1 = (depth0 && depth0.properties)),stack1 == null || stack1 === false ? stack1 : stack1.creator)),stack1 == null || stack1 === false ? stack1 : stack1.username)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + escapeExpression(((stack1 = ((stack1 = ((stack1 = (depth0 && depth0.properties)),stack1 == null || stack1 === false ? stack1 : stack1.creator)),stack1 == null || stack1 === false ? stack1 : stack1.display_name)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "</p>\n<a class=\"btn btn-sm btn-block btn-primary\" href=\"";
   if (helper = helpers.id) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.id); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
@@ -434,13 +422,15 @@ function program1(depth0,data,depth1) {
 this["Templates"]["usergroupusers"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var stack1, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression, functionType="function", self=this;
+  var stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
 
 function program1(depth0,data) {
   
-  var buffer = "", stack1, helper, options;
-  buffer += "\n    <li class=\"list-group-item\">"
-    + escapeExpression((helper = helpers.user || (depth0 && depth0.user),options={hash:{},data:data},helper ? helper.call(depth0, depth0, options) : helperMissing.call(depth0, "user", depth0, options)))
+  var buffer = "", stack1, helper;
+  buffer += "\n    <li class=\"list-group-item\">";
+  if (helper = helpers.display_name) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.display_name); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
     + " <a class=\"text-danger remove\" data-user-id=\"";
   if (helper = helpers.id) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.id); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
@@ -457,17 +447,19 @@ function program1(depth0,data) {
 this["Templates"]["userstypeaway"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var stack1, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
+  var stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
 
 function program1(depth0,data) {
   
-  var buffer = "", stack1, helper, options;
+  var buffer = "", stack1, helper;
   buffer += "\n    <li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"#\" data-user-id=\"";
   if (helper = helpers.id) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.id); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "\">"
-    + escapeExpression((helper = helpers.user || (depth0 && depth0.user),options={hash:{},data:data},helper ? helper.call(depth0, depth0, options) : helperMissing.call(depth0, "user", depth0, options)))
+    + "\">";
+  if (helper = helpers.display_name) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.display_name); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
     + "</a></li>\n";
   return buffer;
   }

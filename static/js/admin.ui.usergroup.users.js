@@ -178,7 +178,7 @@
             } else if (event.target.value.length >= 2) {
                 formField.addClass('loading');
                 numberOfRequests++;
-                Control.Ajax.get('users?query=' + event.target.value, handleSuccess, handleError);
+                Control.Ajax.get('users/?query=' + event.target.value, handleSuccess, handleError);
             }
         }
     }
