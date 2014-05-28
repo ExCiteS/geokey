@@ -1,4 +1,3 @@
-from django.db.models import Q
 from django.views.generic import TemplateView, CreateView
 from django.contrib import auth
 from django.shortcuts import redirect
@@ -64,8 +63,8 @@ class Login(TemplateView):
         Authenticates the user and redirects to next page if available.
         """
         user = auth.authenticate(
-            username=request.POST['username'],
-            password=request.POST['password']
+            username=request.POST.get('email'),
+            password=request.POST.get('password')
         )
         if user is not None:
             auth.login(request, user)

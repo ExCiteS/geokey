@@ -21,6 +21,22 @@ $(function() {
 		field.after('<span class="help-block">' + message  + '</span>');
 	}
 
+	function emailsValid(form) {
+		var valid = true;
+
+		var emailFields = $(form).find('input[type="email"]');
+		for (var i = 0, len = emailFields.length; i < len; i++) {
+			var email = emailFields[i].value;
+			if (email.split('@')[1].indexOf('.') === -1) {
+				valid = false;
+				$(emailFields[i]).parents('.form-group').addClass('has-error');
+				showHelp($(emailFields[i]), 'You forgot to add a top level domain to the address. Please check your input.');
+			}
+		}
+		
+		return false;
+	}
+
 	/**
 	 * Validates a frorm using standard form.checkValidity(). If valid, the form is submitted.
 	 * If not, invalid fields are marked and a help text is provided.
@@ -30,7 +46,7 @@ $(function() {
 		var formSumitted = event.target;
 		if (formSumitted.checkValidity()) {
 			// The form is valid, submit the thing
-			if (form.attr('method') && form.attr('action')) {
+			if (emailsValid(formSumitted) && form.attr('method') && form.attr('action')) {
 				$(formSumitted).off('submit');
 				$(formSumitted).submit();
 			}
