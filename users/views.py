@@ -3,7 +3,6 @@ from django.views.generic import TemplateView, CreateView
 from django.contrib import auth
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
 
 from braces.views import LoginRequiredMixin
 
@@ -23,7 +22,7 @@ from contributions.models import Observation, Comment
 from .serializers import (
     UserSerializer, UserGroupSerializer, ViewGroupSerializer
 )
-from .models import ViewUserGroup
+from .models import User, ViewUserGroup
 from .forms import UserRegistrationForm, UsergroupCreateForm
 
 
@@ -154,10 +153,7 @@ class Dashboard(LoginRequiredMixin, TemplateView):
 class QueryUsers(APIView):
     def get(self, request, format=None):
         q = request.GET.get('query').lower()
-        users = User.objects.filter(
-            Q(username__icontains=q) |
-            Q(last_name__icontains=q) |
-            Q(first_name__icontains=q))[:10]
+        users = User.objects.filter(display_name__icontains=q)[:10]
 
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
@@ -360,7 +356,8 @@ class UserProfile(LoginRequiredMixin, TemplateView):
             commentto__project__status='active',
             commentto__status='active')
 
-        if 'profile/password/change' in self.request.META.get('HTTP_REFERER'):
+        referer = self.request.META.get('HTTP_REFERER')
+        if referer is not None and 'profile/password/change' in referer:
             context['password_reset'] = True
 
         return context

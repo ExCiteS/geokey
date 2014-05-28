@@ -12,8 +12,8 @@ from ..models import Application
 
 class ApplicationModelTest(TestCase):
     def setUp(self):
-        self.user1 = UserF()
-        self.user2 = UserF()
+        self.user1 = UserF.create()
+        self.user2 = UserF.create()
         self.app1 = ApplicationFactory(**{
             'creator': self.user1
         })

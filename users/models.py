@@ -1,5 +1,20 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.auth.models import AbstractBaseUser
+from django.utils import timezone
+
+from .manager import UserManager
+
+
+class User(AbstractBaseUser):
+    email = models.EmailField(unique=True)
+    display_name = models.CharField(max_length=50)
+    date_joined = models.DateTimeField(default=timezone.now)
+    is_active = models.BooleanField(default=True)
+
+    USERNAME_FIELD = 'email'
+
+    objects = UserManager()
 
 
 class UserGroup(models.Model):

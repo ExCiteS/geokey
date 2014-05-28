@@ -12,33 +12,22 @@ class QueryUsersTest(TestCase):
 
     def setUp(self):
         UserF.create(**{
-            'username': 'peter',
-            'first_name': 'Peter',
-            'last_name': 'Schmeichel'
+            'display_name': 'Peter Schmeichel'
         })
         UserF.create(**{
-            'username': 'george',
-            'first_name': 'George',
-            'last_name': 'Best'
+            'display_name': 'George Best'
         })
         UserF.create(**{
-            'username': 'luis',
-            'first_name': 'Luis',
-            'last_name': 'Figo'
+            'display_name': 'Luis Figo'
         })
         UserF.create(**{
-            'username': 'pete23',
-            'first_name': 'Peter',
+            'display_name': 'pete23'
         })
         UserF.create(**{
-            'username': 'pet48',
-            'first_name': 'Frank',
-            'last_name': 'Frank Lehmann'
+            'display_name': 'pet48'
         })
         UserF.create(**{
-            'username': 'frank',
-            'first_name': 'Frank',
-            'last_name': 'Frank Lampard'
+            'display_name': 'Frank Lampard'
         })
 
     def test_query_pet(self):
@@ -47,12 +36,11 @@ class QueryUsersTest(TestCase):
         result_set = json.loads(response.content)
         self.assertEqual(len(result_set), 3)
         self.assertContains(response, 'Schmeichel')
-        self.assertContains(response, 'Lehmann')
         self.assertContains(response, 'pete23')
+        self.assertContains(response, 'pet48')
 
     def test_query_peter(self):
         response = self._get('peter')
         result_set = json.loads(response.content)
-        self.assertEqual(len(result_set), 2)
+        self.assertEqual(len(result_set), 1)
         self.assertContains(response, 'Schmeichel')
-        self.assertContains(response, 'pete23')

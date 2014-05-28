@@ -23,6 +23,9 @@ INSTALLED_APPS += (
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 FIXTURE_DIRS = (normpath(join(BASE_DIR, 'tests')),)
+
+SOUTH_TESTS_MIGRATE = False
+
 # set up django-devserver if installed
 try:
     import devserver

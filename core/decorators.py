@@ -1,12 +1,11 @@
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.contrib.auth.models import User
 
 from rest_framework import status
 from rest_framework.response import Response
 
 from core.exceptions import MalformedRequestData
 from projects.models import Project
-from users.models import UserGroup, ViewUserGroup
+from users.models import User, UserGroup, ViewUserGroup
 from observationtypes.models import ObservationType, Field, LookupValue
 from dataviews.models import View, Rule
 from applications.models import Application

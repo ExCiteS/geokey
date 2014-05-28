@@ -1,6 +1,5 @@
 from django.views.generic import CreateView, TemplateView
 from django.shortcuts import redirect
-from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 
@@ -16,6 +15,7 @@ from core.decorators import (
 from dataviews.models import View
 from contributions.serializers import ContributionSerializer
 from users.serializers import UserSerializer
+from users.models import User
 
 from .base import STATUS
 from .models import Project
