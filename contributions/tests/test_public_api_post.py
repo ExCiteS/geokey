@@ -11,7 +11,7 @@ from observationtypes.tests.model_factories import (
 )
 
 from .model_factories import LocationFactory
-from ..views import Observations
+from ..views import ProjectObservations
 
 
 class ProjectPublicApiTest(TestCase):
@@ -72,7 +72,7 @@ class ProjectPublicApiTest(TestCase):
         request = self.factory.post(
             url, json.dumps(data), content_type='application/json')
         force_authenticate(request, user=user)
-        view = Observations.as_view()
+        view = ProjectObservations.as_view()
         return view(request, project_id=self.project.id).render()
 
     def test_contribute_with_wrong_observation_type(self):

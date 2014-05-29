@@ -247,21 +247,3 @@ class ViewAjaxObservations(APIView):
         view = View.objects.get_single(request.user, project_id, view_id)
         serializer = ContributionSerializer(view.data, many=True)
         return Response(serializer.data)
-
-
-# ############################################################################
-#
-# Public API views
-#
-# ############################################################################
-
-class SingleView(APIView):
-    @handle_exceptions_for_ajax
-    def get(self, request, project_id, view_id, format=None):
-        """
-        Returns a single view and its data
-        /api/projects/:project_id/views/:view_id/
-        """
-        view = View.objects.get_single(request.user, project_id, view_id)
-        serializer = ViewSerializer(view)
-        return Response(serializer.data)

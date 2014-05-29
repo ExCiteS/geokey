@@ -5,8 +5,8 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 
 from projects.tests.model_factories import UserF, ProjectF
 
-from ..views import SingleView
-from .model_factories import ViewFactory
+from ..views import ViewObservations
+from dataviews.tests.model_factories import ViewFactory
 
 
 class TestDataViewsPublicApi(TestCase):
@@ -29,7 +29,7 @@ class TestDataViewsPublicApi(TestCase):
         })
         request = self.factory.get(url)
         force_authenticate(request, user=user)
-        theview = SingleView.as_view()
+        theview = ViewObservations.as_view()
         return theview(
             request,
             project_id=view.project.id,

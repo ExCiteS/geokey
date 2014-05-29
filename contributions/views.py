@@ -13,6 +13,7 @@ from .serializers import (
 from .models import Location, Comment, Observation
 from projects.models import Project
 from dataviews.models import View
+from dataviews.serializers import ViewSerializer
 
 
 # ############################################################################
@@ -63,7 +64,7 @@ class SingleLocation(APIView):
 #
 # ############################################################################
 
-class Observations(APIView):
+class ProjectObservations(APIView):
     """
     Public API endpoint for all observations in a project. Used to add new
     contributions to a project
@@ -100,6 +101,18 @@ class MyObservations(APIView):
         observations = project.observations.filter(creator=request.user)
 
         serializer = ContributionSerializer(observations, many=True)
+        return Response(serializer.data)
+
+
+class ViewObservations(APIView):
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, view_id, format=None):
+        """
+        Returns a single view and its data
+        /api/projects/:project_id/views/:view_id/
+        """
+        view = View.objects.get_single(request.user, project_id, view_id)
+        serializer = ViewSerializer(view)
         return Response(serializer.data)
 
 
