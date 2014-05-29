@@ -46,13 +46,16 @@ class View(models.Model):
         self.save()
 
     def can_view(self, user):
-        return self.project.is_admin(user) or self.usergroups.filter(usergroup__users=user, can_view=True).exists()
+        return self.project.is_admin(user) or self.usergroups.filter(
+            usergroup__users=user, can_view=True).exists()
 
     def can_read(self, user):
-        return self.project.is_admin(user) or self.usergroups.filter(usergroup__users=user, can_read=True).exists()
+        return self.project.is_admin(user) or self.usergroups.filter(
+            usergroup__users=user, can_read=True).exists()
 
     def can_moderate(self, user):
-        return self.project.is_admin(user) or self.usergroups.filter(usergroup__users=user, can_moderate=True).exists()
+        return self.project.is_admin(user) or self.usergroups.filter(
+            usergroup__users=user, can_moderate=True).exists()
 
 
 class Rule(models.Model):

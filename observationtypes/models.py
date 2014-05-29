@@ -106,7 +106,7 @@ class Field(models.Model):
             'subclass of Field.'
         )
 
-    def filter(self, item, reference):
+    def get_filter(self, item, reference):
         raise NotImplementedError(
             'The method `filter` has not been implemented for this '
             'subclass of Field.'
@@ -133,9 +133,6 @@ class TextField(Field):
     @property
     def type_name(self):
         return 'Text'
-
-    def filter(self, item, reference):
-        return reference.lower() in item.attributes[self.key].lower()
 
     def get_filter(self, rule):
         return Q(attributes__icontains=rule)
@@ -193,20 +190,6 @@ class NumericField(Field):
     def type_name(self):
         return 'Numeric'
 
-    def filter(self, item, reference):
-        value = json.loads(item.attributes[self.key])
-        minval = reference.get('minval')
-        maxval = reference.get('maxval')
-
-        if minval is not None and maxval is not None:
-            return value > minval and value < maxval
-        else:
-            if minval is not None:
-                return value > minval
-
-            if maxval is not None:
-                return value < maxval
-
     def get_filter(self, rule):
         minval = rule.get('minval')
         maxval = rule.get('maxval')
@@ -251,9 +234,6 @@ class TrueFalseField(Field):
     def type_name(self):
         return 'True/False'
 
-    def filter(self, item, reference):
-        return reference == json.loads(item.attributes[self.key])
-
     def get_filter(self, rule):
         return Q(attributes__contains={self.key: json.dumps(rule)})
 
@@ -283,20 +263,6 @@ class DateTimeField(Field):
     @property
     def type_name(self):
         return 'Date and Time'
-
-    def filter(self, item, reference):
-        value = parse_date(item.attributes[self.key])
-        minval = reference.get('minval')
-        maxval = reference.get('maxval')
-
-        if minval is not None and maxval is not None:
-            return value > parse_date(minval) and value < parse_date(maxval)
-        else:
-            if minval is not None:
-                return value > parse_date(minval)
-
-            if maxval is not None:
-                return value > parse_date(maxval)
 
     def get_filter(self, rule):
         minval = rule.get('minval')
@@ -343,9 +309,6 @@ class LookupField(Field):
     @property
     def type_name(self):
         return 'Lookup'
-
-    def filter(self, item, reference):
-        return json.loads(item.attributes[self.key]) in reference
 
     def get_filter(self, rule):
         return Q(attributes__contains={self.key: rule})
