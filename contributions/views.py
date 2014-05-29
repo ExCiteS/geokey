@@ -191,8 +191,8 @@ class SingleViewObservation(SingleObservation):
 
 class MySingleObservation(SingleObservation):
     def get_object(self, user, project_id, observation_id):
-        observation = Observation.objects.as_editor(
-            user, project_id, observation_id)
+        observation = Project.objects.get_single(
+            user, project_id).observations.get(pk=observation_id)
 
         if observation.creator == user:
             return observation
@@ -200,6 +200,12 @@ class MySingleObservation(SingleObservation):
             raise Observation.DoesNotExist('You are not the creator of this '
                                            'observation or the observation '
                                            'has been deleted.')
+
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, observation_id, format=None):
+        observation = self.get_object(request.user, project_id, observation_id)
+        serializer = ContributionSerializer(observation, creator=request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @handle_exceptions_for_ajax
     def put(self, request, project_id, observation_id, format=None):

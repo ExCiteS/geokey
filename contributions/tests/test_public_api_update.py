@@ -13,6 +13,7 @@ from observationtypes.tests.model_factories import (
     ObservationTypeFactory, TextFieldFactory, NumericFieldFactory
 )
 from contributions.models import Observation
+from contributions.tests.model_factories import ObservationFactory
 
 from .model_factories import LocationFactory
 from ..views import (
@@ -346,6 +347,54 @@ class UpdateObservationInView(TestCase):
             Observation.objects.get(pk=self.observation.id).status,
             'deleted'
         )
+
+
+class GetMySingleObervation(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.viewer = UserF.create()
+
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            add_viewers=[self.viewer]
+        )
+        self.observation = ObservationFactory.create(
+            **{'creator': self.contributor, 'project': self.project})
+
+    def _get(self, user):
+        url = reverse(
+            'api:project_my_single_observation',
+            kwargs={
+                'project_id': self.project.id,
+                'observation_id': self.observation.id
+            }
+        )
+        request = self.factory.get(url)
+        force_authenticate(request, user=user)
+        view = MySingleObservation.as_view()
+        return view(
+            request, project_id=self.project.id,
+            observation_id=self.observation.id).render()
+
+    def test_with_admin(self):
+        response = self._get(self.admin)
+        self.assertEqual(response.status_code, 404)
+
+    def test_with_viewer(self):
+        response = self._get(self.admin)
+        self.assertEqual(response.status_code, 404)
+
+    def test_with_contributor(self):
+        response = self._get(self.contributor)
+        self.assertEqual(response.status_code, 200)
+
+    def test_with_some_dude(self):
+        user = UserF.create()
+        response = self._get(user)
+        self.assertEqual(response.status_code, 403)
 
 
 class UpdateMyObservation(TestCase):
