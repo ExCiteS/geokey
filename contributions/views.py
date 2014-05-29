@@ -117,6 +117,10 @@ class ViewObservations(APIView):
 
 
 class SingleObservation(APIView):
+    def get_observation(self, request, observation, format=None):
+        serializer = ContributionSerializer(observation)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def update_observation(self, request, observation, format=None):
         """
         Updates a single observation
@@ -148,6 +152,11 @@ class SingleProjectObservation(SingleObservation):
             raise PermissionDenied('You are not an administrator of this '
                                    'project. You must therefore access '
                                    'observations through one of the views.')
+
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, observation_id, format=None):
+        observation = self.get_object(request.user, project_id, observation_id)
+        return self.get_observation(request, observation, format=format)
 
     @handle_exceptions_for_ajax
     def put(self, request, project_id, observation_id, format=None):
@@ -204,8 +213,7 @@ class MySingleObservation(SingleObservation):
     @handle_exceptions_for_ajax
     def get(self, request, project_id, observation_id, format=None):
         observation = self.get_object(request.user, project_id, observation_id)
-        serializer = ContributionSerializer(observation, creator=request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return self.get_observation(request, observation, format=format)
 
     @handle_exceptions_for_ajax
     def put(self, request, project_id, observation_id, format=None):
