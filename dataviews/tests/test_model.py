@@ -2,19 +2,91 @@ from django.test import TestCase
 
 from nose.tools import raises
 
-from projects.tests.model_factories import UserF, ProjectF
+from projects.tests.model_factories import ProjectF
 from observationtypes.tests.model_factories import (
     ObservationTypeFactory, TextFieldFactory, NumericFieldFactory,
     TrueFalseFieldFactory, LookupFieldFactory, LookupValueFactory,
     DateTimeFieldFactory
 )
 from contributions.tests.model_factories import ObservationFactory
+from users.tests.model_factories import UserF, UserGroupF, ViewUserGroupFactory
 
 from ..models import View, Rule
 
 from .model_factories import (
     ViewFactory, RuleFactory
 )
+
+
+class TestViewPermissions(TestCase):
+    def test_admin(self):
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
+        view = ViewFactory.create(**{'project': project})
+
+        self.assertTrue(view.can_view(user))
+        self.assertTrue(view.can_read(user))
+        self.assertTrue(view.can_moderate(user))
+
+    def test_viewer(self):
+        user = UserF.create()
+
+        view = ViewFactory.create()
+        group = UserGroupF.create(
+            add_users=[user],
+            **{'project': view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': view, 'usergroup': group,
+                'can_view': True, 'can_read': False, 'can_moderate': False}
+        )
+
+        self.assertTrue(view.can_view(user))
+        self.assertFalse(view.can_read(user))
+        self.assertFalse(view.can_moderate(user))
+
+    def test_reader(self):
+        user = UserF.create()
+
+        view = ViewFactory.create()
+        group = UserGroupF.create(
+            add_users=[user],
+            **{'project': view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': view, 'usergroup': group,
+                'can_view': True, 'can_read': True, 'can_moderate': False}
+        )
+
+        self.assertTrue(view.can_view(user))
+        self.assertTrue(view.can_read(user))
+        self.assertFalse(view.can_moderate(user))
+
+    def test_moderator(self):
+        user = UserF.create()
+
+        view = ViewFactory.create()
+        group = UserGroupF.create(
+            add_users=[user],
+            **{'project': view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': view, 'usergroup': group,
+                'can_view': True, 'can_read': True, 'can_moderate': True}
+        )
+
+        self.assertTrue(view.can_view(user))
+        self.assertTrue(view.can_read(user))
+        self.assertTrue(view.can_moderate(user))
+
+    def test_some_dude(self):
+        user = UserF.create()
+
+        view = ViewFactory.create()
+
+        self.assertFalse(view.can_view(user))
+        self.assertFalse(view.can_read(user))
+        self.assertFalse(view.can_moderate(user))
 
 
 class ViewTest(TestCase):

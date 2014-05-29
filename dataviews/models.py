@@ -45,9 +45,14 @@ class View(models.Model):
         self.status = STATUS.deleted
         self.save()
 
-    def can_edit(self, user):
-        return (self.project.is_admin(user) or
-                self.viewgroups.filter(users=user, can_edit=True).exists())
+    def can_view(self, user):
+        return self.project.is_admin(user) or self.usergroups.filter(usergroup__users=user, can_view=True).exists()
+
+    def can_read(self, user):
+        return self.project.is_admin(user) or self.usergroups.filter(usergroup__users=user, can_read=True).exists()
+
+    def can_moderate(self, user):
+        return self.project.is_admin(user) or self.usergroups.filter(usergroup__users=user, can_moderate=True).exists()
 
 
 class Rule(models.Model):

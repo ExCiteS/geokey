@@ -156,7 +156,7 @@ class SingleViewObservation(SingleObservation):
     def get_object(self, user, project_id, view_id, observation_id):
         view = View.objects.get_single(user, project_id, view_id)
         observation = view.data.get(pk=observation_id)
-        if observation.creator == user or observation.project.is_admin(user):
+        if (observation.creator == user or observation.project.is_admin(user)):
             return observation
         else:
             raise PermissionDenied('You are not the creator of this '
