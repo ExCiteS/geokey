@@ -177,6 +177,15 @@ class SingleViewObservation(SingleObservation):
 
     def get_object(self, user, project_id, view_id, observation_id):
         view = View.objects.get_single(user, project_id, view_id)
+
+        if view.can_read(user):
+            return view.data.get(pk=observation_id)
+        else:
+            raise PermissionDenied('You are not eligable to read data from '
+                                   'this view')
+
+    def get_object_for_update(self, user, project_id, view_id, observation_id):
+        view = View.objects.get_single(user, project_id, view_id)
         observation = view.data.get(pk=observation_id)
         if observation.creator == user or view.can_moderate(user):
             return observation
@@ -185,15 +194,21 @@ class SingleViewObservation(SingleObservation):
                                    'this observation.')
 
     @handle_exceptions_for_ajax
-    def put(self, request, project_id, view_id, observation_id, format=None):
+    def get(self, request, project_id, view_id, observation_id, format=None):
         observation = self.get_object(
+            request.user, project_id, view_id, observation_id)
+        return self.get_observation(request, observation, format=format)
+
+    @handle_exceptions_for_ajax
+    def put(self, request, project_id, view_id, observation_id, format=None):
+        observation = self.get_object_for_update(
             request.user, project_id, view_id, observation_id)
         return self.update_observation(request, observation, format=format)
 
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, view_id, observation_id,
                format=None):
-        observation = self.get_object(
+        observation = self.get_object_for_update(
             request.user, project_id, view_id, observation_id)
         return self.delete_observation(request, observation, format=format)
 

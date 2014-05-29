@@ -83,29 +83,13 @@ class SingleViewObservationTest(TestCase):
             self.view.id, self.observation.id
         )
 
-    def test_get_object_with_creator_viewmember(self):
+    def test_get_object_with_reader(self):
         group = UserGroupF.create(
             add_users=[self.creator],
             **{'project': self.view.project}
         )
         ViewUserGroupFactory.create(
-            **{'view': self.view, 'usergroup': group, 'can_moderate': False}
-        )
-
-        view = SingleViewObservation()
-        observation = view.get_object(
-            self.creator, self.observation.project.id,
-            self.view.id, self.observation.id
-        )
-        self.assertEqual(observation, self.observation)
-
-    def test_get_object_with_moderator(self):
-        group = UserGroupF.create(
-            add_users=[self.creator],
-            **{'project': self.view.project}
-        )
-        ViewUserGroupFactory.create(
-            **{'view': self.view, 'usergroup': group, 'can_moderate': True}
+            **{'view': self.view, 'usergroup': group, 'can_read': True}
         )
 
         view = SingleViewObservation()
@@ -116,14 +100,14 @@ class SingleViewObservationTest(TestCase):
         self.assertEqual(observation, self.observation)
 
     @raises(PermissionDenied)
-    def test_get_object_with_not_moderator(self):
+    def test_get_object_with_not_reader(self):
         view_member = UserF.create()
         group = UserGroupF.create(
             add_users=[view_member],
             **{'project': self.view.project}
         )
         ViewUserGroupFactory.create(
-            **{'view': self.view, 'usergroup': group, 'can_moderate': False}
+            **{'view': self.view, 'usergroup': group, 'can_read': False}
         )
         view = SingleViewObservation()
         view.get_object(
@@ -134,6 +118,89 @@ class SingleViewObservationTest(TestCase):
     def test_get_object_with_admin(self):
         view = SingleViewObservation()
         observation = view.get_object(
+            self.admin, self.observation.project.id,
+            self.view.id, self.observation.id
+        )
+        self.assertEqual(observation, self.observation)
+
+    @raises(PermissionDenied)
+    def test_get_object_for_update_with_creator_not_viewmember(self):
+        view = SingleViewObservation()
+        view.get_object_for_update(
+            self.creator, self.observation.project.id,
+            self.view.id, self.observation.id
+        )
+
+    def test_get_object_with_moderator(self):
+        moderator = UserF.create()
+        group = UserGroupF.create(
+            add_users=[moderator],
+            **{'project': self.view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': self.view, 'usergroup': group, 'can_moderate': True}
+        )
+
+        view = SingleViewObservation()
+        observation = view.get_object_for_update(
+            moderator, self.observation.project.id,
+            self.view.id, self.observation.id
+        )
+        self.assertEqual(observation, self.observation)
+
+    def test_get_object_with_creator_moderator(self):
+        group = UserGroupF.create(
+            add_users=[self.creator],
+            **{'project': self.view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': self.view, 'usergroup': group, 'can_moderate': True}
+        )
+
+        view = SingleViewObservation()
+        observation = view.get_object_for_update(
+            self.creator, self.observation.project.id,
+            self.view.id, self.observation.id
+        )
+        self.assertEqual(observation, self.observation)
+
+    @raises(PermissionDenied)
+    def test_get_object_with_non_moderator(self):
+        non_moderator = UserF.create()
+        group = UserGroupF.create(
+            add_users=[non_moderator],
+            **{'project': self.view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': self.view, 'usergroup': group, 'can_read': True}
+        )
+
+        view = SingleViewObservation()
+        observation = view.get_object_for_update(
+            non_moderator, self.observation.project.id,
+            self.view.id, self.observation.id
+        )
+        self.assertEqual(observation, self.observation)
+
+    def test_get_object_with_creator_non_moderator(self):
+        group = UserGroupF.create(
+            add_users=[self.creator],
+            **{'project': self.view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': self.view, 'usergroup': group, 'can_read': True}
+        )
+
+        view = SingleViewObservation()
+        observation = view.get_object_for_update(
+            self.creator, self.observation.project.id,
+            self.view.id, self.observation.id
+        )
+        self.assertEqual(observation, self.observation)
+
+    def test_get_object_for_update_with_admin(self):
+        view = SingleViewObservation()
+        observation = view.get_object_for_update(
             self.admin, self.observation.project.id,
             self.view.id, self.observation.id
         )

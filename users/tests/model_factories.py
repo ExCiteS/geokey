@@ -60,5 +60,5 @@ class ViewUserGroupFactory(factory.django.DjangoModelFactory):
     usergroup = factory.SubFactory(UserGroupF)
     view = factory.SubFactory('dataviews.tests.model_factories.ViewFactory')
     can_moderate = False
-    can_read = False
+    can_read = True
     can_view = True

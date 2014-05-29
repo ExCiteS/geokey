@@ -487,7 +487,7 @@ class UserGroupSingleViewTest(TestCase):
         view_group = self.contributors.viewgroups.get(
             usergroup=self.contributors, view=self.view)
         self.assertTrue(view_group.can_moderate)
-        self.assertFalse(view_group.can_read)
+        self.assertTrue(view_group.can_read)
         self.assertTrue(view_group.can_view)
 
     def test_update_conplete_with_admin(self):
@@ -510,7 +510,7 @@ class UserGroupSingleViewTest(TestCase):
         view_group = self.contributors.viewgroups.get(
             usergroup=self.contributors, view=self.view)
         self.assertFalse(view_group.can_moderate)
-        self.assertFalse(view_group.can_read)
+        self.assertTrue(view_group.can_read)
         self.assertTrue(view_group.can_view)
 
     def test_update_with_non_member(self):
@@ -520,7 +520,7 @@ class UserGroupSingleViewTest(TestCase):
         view_group = self.contributors.viewgroups.get(
             usergroup=self.contributors, view=self.view)
         self.assertFalse(view_group.can_moderate)
-        self.assertFalse(view_group.can_read)
+        self.assertTrue(view_group.can_read)
         self.assertTrue(view_group.can_view)
 
 

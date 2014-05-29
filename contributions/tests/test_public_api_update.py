@@ -234,6 +234,71 @@ class UpdateObservationInProject(TestCase):
         )
 
 
+class GetObservationInView(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.view_member = UserF.create()
+
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+
+        self.view = ViewFactory(add_viewers=[self.view_member], **{
+            'project': self.project,
+        })
+
+        observationtype = ObservationTypeFactory(**{
+            'status': 'active',
+            'project': self.project
+        })
+        RuleFactory.create(**{
+            'view': self.view,
+            'observation_type': observationtype
+        })
+
+        self.observation = ObservationFactory.create(**{
+            'project': self.project,
+            'observationtype': observationtype,
+            'creator': self.contributor
+        })
+
+    def _get(self, user):
+        url = reverse(
+            'api:view_single_observation',
+            kwargs={
+                'project_id': self.project.id,
+                'view_id': self.view.id,
+                'observation_id': self.observation.id
+            }
+        )
+        request = self.factory.get(url)
+        force_authenticate(request, user=user)
+        view = SingleViewObservation.as_view()
+        return view(
+            request, project_id=self.project.id, view_id=self.view.id,
+            observation_id=self.observation.id).render()
+
+    def test_get_with_admin(self):
+        response = self._get(self.admin)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_contributor(self):
+        response = self._get(self.contributor)
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_with_view_member(self):
+        response = self._get(self.view_member)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_non_member(self):
+        some_dude = UserF.create()
+        response = self._get(some_dude)
+        self.assertEqual(response.status_code, 403)
+
+
 class UpdateObservationInView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
