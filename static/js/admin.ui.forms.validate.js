@@ -34,7 +34,7 @@ $(function() {
 			}
 		}
 		
-		return false;
+		return valid;
 	}
 
 	/**
