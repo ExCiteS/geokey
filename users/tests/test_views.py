@@ -566,7 +566,7 @@ class UserGroupViewsTest(TestCase):
             project_id=self.project.id,
             group_id=self.contributors.id).render()
 
-    def test_add_not_existing_user(self):
+    def test_add_not_existing_view(self):
         view = ViewFactory.create()
         response = self.post(self.admin, view_id=view.id)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
