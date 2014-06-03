@@ -4,6 +4,9 @@ from django.utils import timezone
 
 class UserManager(BaseUserManager):
     def create_user(self, email, display_name, password=None, **extra_fields):
+        """
+        Creates a new user in the data base
+        """
         if not email:
             raise ValueError('The given email must be set')
         if not display_name:

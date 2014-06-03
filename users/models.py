@@ -7,6 +7,9 @@ from .manager import UserManager
 
 
 class User(AbstractBaseUser):
+    """
+    A user registered in the platform.
+    """
     email = models.EmailField(unique=True)
     display_name = models.CharField(max_length=50)
     date_joined = models.DateTimeField(default=timezone.now)
@@ -18,6 +21,9 @@ class User(AbstractBaseUser):
 
 
 class UserGroup(models.Model):
+    """
+    A user gropup assigned to a project.
+    """
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL)
@@ -26,6 +32,10 @@ class UserGroup(models.Model):
 
 
 class ViewUserGroup(models.Model):
+    """
+    The relation between user groups and views. Used to grant permissions on
+    the given view to users.
+    """
     usergroup = models.ForeignKey('UserGroup', related_name="viewgroups")
     view = models.ForeignKey('dataviews.View', related_name="usergroups")
     can_moderate = models.BooleanField(default=False)

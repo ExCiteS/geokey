@@ -23,6 +23,203 @@ from ..views import (
 from ..models import UserGroup as Group
 
 
+# ############################################################################
+#
+# ADMIN VIEWS
+#
+# ############################################################################
+
+class UserGroupCreateTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
+
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+
+    def get(self, user):
+        view = UserGroupCreate.as_view()
+        url = reverse('admin:usergroup_create', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.get(url)
+        request.user = user
+        return view(request, project_id=self.project.id).render()
+
+    def test_get_create_with_admin(self):
+        response = self.get(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+    def test_get_create_with_contributor(self):
+        response = self.get(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+    def test_get_create_with_non_member(self):
+        response = self.get(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+
+class UserGroupSettingTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
+
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+        self.usergroup = UserGroupF(**{'project': self.project})
+
+    def get(self, user):
+        view = UserGroupSettings.as_view()
+        url = reverse('admin:usergroup_settings', kwargs={
+            'project_id': self.project.id,
+            'group_id': self.usergroup.id
+        })
+        request = self.factory.get(url)
+        request.user = user
+        return view(
+            request,
+            project_id=self.project.id,
+            group_id=self.usergroup.id).render()
+
+    def test_get_settings_with_admin(self):
+        response = self.get(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+    def test_get_settings_with_contributor(self):
+        response = self.get(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+    def test_get_settings_with_non_member(self):
+        response = self.get(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+
+class UserProfileTest(TestCase):
+    def test_with_user(self):
+        user = UserF.create()
+        view = UserProfile.as_view()
+        url = reverse('admin:userprofile')
+        request = APIRequestFactory().get(url)
+        request.user = user
+        response = view(request).render()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_with_anonymous(self):
+        user = AnonymousUser()
+        view = UserProfile.as_view()
+        url = reverse('admin:userprofile')
+        request = APIRequestFactory().get(url)
+        request.user = user
+        response = view(request)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+
+class ChangePasswordTest(TestCase):
+    def test_with_user(self):
+        user = UserF.create()
+        view = ChangePassword.as_view()
+        url = reverse('admin:changepassword')
+        request = APIRequestFactory().get(url)
+        request.user = user
+        response = view(request).render()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_with_anonymous(self):
+        user = AnonymousUser()
+        view = ChangePassword.as_view()
+        url = reverse('admin:changepassword')
+        request = APIRequestFactory().get(url)
+        request.user = user
+        response = view(request)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+
+# ############################################################################
+#
+# AJAX VIEWS
+#
+# ############################################################################
+
+
+class QueryUsersTest(TestCase):
+    def _get(self, query):
+        # self.client.login(username=user.username, password='123456')
+        return self.client.get('/ajax/users/?query=' + query)
+
+    def setUp(self):
+        UserF.create(**{
+            'display_name': 'Peter Schmeichel'
+        })
+        UserF.create(**{
+            'display_name': 'George Best'
+        })
+        UserF.create(**{
+            'display_name': 'Luis Figo'
+        })
+        UserF.create(**{
+            'display_name': 'pete23'
+        })
+        UserF.create(**{
+            'display_name': 'pet48'
+        })
+        UserF.create(**{
+            'display_name': 'Frank Lampard'
+        })
+
+    def test_query_pet(self):
+        response = self._get('pet')
+
+        result_set = json.loads(response.content)
+        self.assertEqual(len(result_set), 3)
+        self.assertContains(response, 'Schmeichel')
+        self.assertContains(response, 'pete23')
+        self.assertContains(response, 'pet48')
+
+    def test_query_peter(self):
+        response = self._get('peter')
+        result_set = json.loads(response.content)
+        self.assertEqual(len(result_set), 1)
+        self.assertContains(response, 'Schmeichel')
+
+
 class UserGroupTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
@@ -522,146 +719,3 @@ class UserGroupSingleViewTest(TestCase):
         self.assertFalse(view_group.can_moderate)
         self.assertTrue(view_group.can_read)
         self.assertTrue(view_group.can_view)
-
-
-class UserGroupCreateTest(TestCase):
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
-
-        self.project = ProjectF.create(
-            add_admins=[self.admin],
-            add_contributors=[self.contributor]
-        )
-
-    def get(self, user):
-        view = UserGroupCreate.as_view()
-        url = reverse('admin:usergroup_create', kwargs={
-            'project_id': self.project.id
-        })
-        request = self.factory.get(url)
-        request.user = user
-        return view(request, project_id=self.project.id).render()
-
-    def test_get_create_with_admin(self):
-        response = self.get(self.admin)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertNotContains(
-            response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
-        )
-
-    def test_get_create_with_contributor(self):
-        response = self.get(self.contributor)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertContains(
-            response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
-        )
-
-    def test_get_create_with_non_member(self):
-        response = self.get(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertContains(
-            response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
-        )
-
-
-class UserGroupSettingTest(TestCase):
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
-
-        self.project = ProjectF.create(
-            add_admins=[self.admin],
-            add_contributors=[self.contributor]
-        )
-        self.usergroup = UserGroupF(**{'project': self.project})
-
-    def get(self, user):
-        view = UserGroupSettings.as_view()
-        url = reverse('admin:usergroup_settings', kwargs={
-            'project_id': self.project.id,
-            'group_id': self.usergroup.id
-        })
-        request = self.factory.get(url)
-        request.user = user
-        return view(
-            request,
-            project_id=self.project.id,
-            group_id=self.usergroup.id).render()
-
-    def test_get_settings_with_admin(self):
-        response = self.get(self.admin)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertNotContains(
-            response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
-        )
-
-    def test_get_settings_with_contributor(self):
-        response = self.get(self.contributor)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertContains(
-            response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
-        )
-
-    def test_get_settings_with_non_member(self):
-        response = self.get(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertContains(
-            response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
-        )
-
-
-class UserProfileTest(TestCase):
-    def test_with_user(self):
-        user = UserF.create()
-        view = UserProfile.as_view()
-        url = reverse('admin:userprofile')
-        request = APIRequestFactory().get(url)
-        request.user = user
-        response = view(request).render()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_with_anonymous(self):
-        user = AnonymousUser()
-        view = UserProfile.as_view()
-        url = reverse('admin:userprofile')
-        request = APIRequestFactory().get(url)
-        request.user = user
-        response = view(request)
-        self.assertTrue(isinstance(response, HttpResponseRedirect))
-
-
-class ChangePasswordTest(TestCase):
-    def test_with_user(self):
-        user = UserF.create()
-        view = ChangePassword.as_view()
-        url = reverse('admin:changepassword')
-        request = APIRequestFactory().get(url)
-        request.user = user
-        response = view(request).render()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_with_anonymous(self):
-        user = AnonymousUser()
-        view = ChangePassword.as_view()
-        url = reverse('admin:changepassword')
-        request = APIRequestFactory().get(url)
-        request.user = user
-        response = view(request)
-        self.assertTrue(isinstance(response, HttpResponseRedirect))

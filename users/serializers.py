@@ -4,6 +4,9 @@ from .models import User, UserGroup, ViewUserGroup
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """
+    Serializer for User model.
+    """
     class Meta:
         model = User
         fields = ('id', 'email', 'display_name')
@@ -11,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserGroupSerializer(serializers.ModelSerializer):
     """
-    Serializer for project user groups.
+    Serializer for UserGroup model.
     """
     users = UserSerializer(many=True)
 
@@ -22,6 +25,9 @@ class UserGroupSerializer(serializers.ModelSerializer):
 
 
 class ViewGroupSerializer(serializers.ModelSerializer):
+    """
+    Serializer for ViewGroup model.
+    """
     class Meta:
         model = ViewUserGroup
         fields = ('view', 'can_read', 'can_view', 'can_moderate')
