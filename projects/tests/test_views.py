@@ -1,7 +1,9 @@
 import json
 
 from django.test import TestCase
+from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AnonymousUser
+from django.http import HttpResponseRedirect
 
 from nose.tools import raises
 
@@ -12,8 +14,104 @@ from dataviews.tests.model_factories import ViewFactory
 from .model_factories import UserF, ProjectF
 from ..models import Project
 from ..views import (
-    ProjectUpdate, ProjectAdmins, ProjectAdminsUser, Projects, SingleProject
+    ProjectCreate, ProjectSettings, ProjectUpdate, ProjectAdmins,
+    ProjectAdminsUser, Projects, SingleProject
 )
+
+# ############################################################################
+#
+# ADMIN VIEWS
+#
+# ############################################################################
+
+
+class ProjectCreateTest(TestCase):
+    def test_get_with_user(self):
+        view = ProjectCreate.as_view()
+        url = reverse('admin:project_create')
+        request = APIRequestFactory().get(url)
+        request.user = UserF.create()
+        response = view(request).render()
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_anonymous(self):
+        view = ProjectCreate.as_view()
+        url = reverse('admin:project_create')
+        request = APIRequestFactory().get(url)
+        request.user = AnonymousUser()
+        response = view(request)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+
+class ProjectSettingsTest(TestCase):
+    def setUp(self):
+        self.creator = UserF.create()
+        self.admin = UserF.create()
+        self.view_member = UserF.create()
+        self.contributor = UserF.create()
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member],
+            **{
+                'creator': self.creator
+            }
+        )
+
+    def test_get_with_creator(self):
+        view = ProjectSettings.as_view()
+        url = reverse('admin:project_settings',
+                      kwargs={'project_id': self.project.id})
+        request = APIRequestFactory().get(url)
+        request.user = self.creator
+        response = view(request, project_id=self.project.id).render()
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_admin(self):
+        view = ProjectSettings.as_view()
+        url = reverse('admin:project_settings',
+                      kwargs={'project_id': self.project.id})
+        request = APIRequestFactory().get(url)
+        request.user = self.admin
+        response = view(request, project_id=self.project.id).render()
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_contributor(self):
+        view = ProjectSettings.as_view()
+        url = reverse('admin:project_settings',
+                      kwargs={'project_id': self.project.id})
+        request = APIRequestFactory().get(url)
+        request.user = self.contributor
+        response = view(request, project_id=self.project.id)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+    def test_get_with_view_member(self):
+        view = ProjectSettings.as_view()
+        url = reverse('admin:project_settings',
+                      kwargs={'project_id': self.project.id})
+        request = APIRequestFactory().get(url)
+        request.user = self.view_member
+        response = view(request, project_id=self.project.id)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+    def test_get_with_anonymous(self):
+        view = ProjectCreate.as_view()
+        url = reverse('admin:project_create')
+        request = APIRequestFactory().get(url)
+        request.user = AnonymousUser()
+        response = view(request)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+    def test_get_deleted_project(self):
+        self.project.delete()
+        view = ProjectSettings.as_view()
+        url = reverse('admin:project_settings',
+                      kwargs={'project_id': self.project.id})
+        request = APIRequestFactory().get(url)
+        request.user = self.admin
+        response = view(request, project_id=self.project.id).render()
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Project matching query does not exist.')
 
 
 # ############################################################################
@@ -21,7 +119,6 @@ from ..views import (
 # AJAX VIEWS
 #
 # ############################################################################
-
 
 class ProjectUpdateTest(TestCase):
     def setUp(self):

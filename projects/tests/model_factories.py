@@ -21,6 +21,7 @@ class ProjectF(factory.django.DjangoModelFactory):
         if not create:
             return
 
+        self.admins.add(self.creator)
         if extracted:
             for user in extracted:
                 self.admins.add(user)

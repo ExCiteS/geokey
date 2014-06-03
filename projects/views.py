@@ -80,117 +80,30 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
         """
         project_id = kwargs.get('project_id')
 
-        project = Project.objects.get(pk=project_id)
+        try:
+            project = Project.objects.get(pk=project_id)
 
-        if project.is_admin(request.user):
+            if project.is_admin(request.user):
+                return super(ProjectSettings, self).dispatch(
+                    request, *args, **kwargs)
+            elif project.can_contribute(request.user):
+                return redirect(reverse('admin:project_my_observations', kwargs={
+                    'project_id': project_id,
+                }))
+            else:
+                views = View.objects.get_list(request.user, project_id)
+
+                if len(views) > 0:
+                    return redirect(reverse('admin:view_observations', kwargs={
+                        'project_id': project_id,
+                        'view_id': views[0].id
+                    }))
+
             return super(ProjectSettings, self).dispatch(
                 request, *args, **kwargs)
-        elif project.can_contribute(request.user):
-            return redirect(reverse('admin:project_my_observations', kwargs={
-                'project_id': project_id,
-            }))
-        else:
-            views = View.objects.get_list(request.user, project_id)
-
-            if len(views) > 0:
-                return redirect(reverse('admin:view_observations', kwargs={
-                    'project_id': project_id,
-                    'view_id': views[0].id
-                }))
-
-        return super(ProjectSettings, self).dispatch(
-            request, *args, **kwargs)
-
-
-class ProjectObservations(LoginRequiredMixin, TemplateView):
-    """
-    WILL BE REMOVED IN THE FINAL VERSION
-    """
-    model = Project
-    template_name = 'contributions/observations.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id):
-        """
-        Creates the request context for rendering the page.
-        """
-        user = self.request.user
-        project = Project.objects.get_single(user, project_id)
-        views = View.objects.get_list(user, project_id)
-        return {
-            'project': project,
-            'views': views,
-            'admin': project.is_admin(user),
-            'contributor': project.can_contribute(user),
-        }
-
-
-class ProjectMyObservations(LoginRequiredMixin, TemplateView):
-    """
-    WILL BE REMOVED IN THE FINAL VERSION
-    """
-    model = Project
-    template_name = 'contributions/observations.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id):
-        """
-        Creates the request context for rendering the page
-        """
-        user = self.request.user
-        project = Project.objects.get_single(user, project_id)
-        views = View.objects.get_list(user, project_id)
-        return {
-            'project': project,
-            'views': views,
-            'admin': project.is_admin(user),
-            'contributor': project.can_contribute(user),
-            'my_contributions': True
-        }
-
-
-class ProjectSingleObservation(LoginRequiredMixin, TemplateView):
-    """
-    WILL BE REMOVED IN THE FINAL VERSION
-    """
-    template_name = 'contributions/observation.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id, observation_id):
-        """
-        Creates the request context for rendering the page
-        """
-        user = self.request.user
-        project = Project.objects.as_admin(user, project_id)
-        observation = project.observations.get(
-            pk=observation_id)
-
-        return {
-            'project': project,
-            'observation': observation
-        }
-
-
-class ProjectSingleMyObservation(LoginRequiredMixin, TemplateView):
-    """
-    WILL BE REMOVED IN THE FINAL VERSION
-    """
-    template_name = 'contributions/observation.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id, observation_id):
-        """
-        Creates the request context for rendering the page
-        """
-        user = self.request.user
-        project = Project.objects.as_contributor(user, project_id)
-        observation = project.observations.filter(creator=user).get(
-            pk=observation_id)
-
-        return {
-            'project': project,
-            'observation': observation
-        }
+        except Project.DoesNotExist:
+            return super(ProjectSettings, self).dispatch(
+                request, *args, **kwargs)
 
 
 # ############################################################################
@@ -284,38 +197,6 @@ class ProjectAdminsUser(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ProjectAjaxObservations(APIView):
-    """
-    WILL BE REMOVED IN THE FINAL VERSION
-    """
-    """
-    API Endpoint for a project in the AJAX API.
-    /ajax/projects/:project_id/observations/
-    """
-    @handle_exceptions_for_ajax
-    def get(self, request, project_id, format=None):
-        project = Project.objects.as_admin(request.user, project_id)
-        serializer = ContributionSerializer(
-            project.observations.all(), many=True)
-        return Response(serializer.data)
-
-
-class ProjectAjaxMyObservations(APIView):
-    """
-    WILL BE REMOVED IN THE FINAL VERSION
-    """
-    """
-    API Endpoint for a project in the AJAX API.
-    /ajax/projects/:project_id/mycontributions/
-    """
-    @handle_exceptions_for_ajax
-    def get(self, request, project_id, format=None):
-        project = Project.objects.as_contributor(request.user, project_id)
-        serializer = ContributionSerializer(
-            project.observations.filter(creator=request.user), many=True)
-        return Response(serializer.data)
-
-
 # ############################################################################
 #
 # Public API views
@@ -362,3 +243,132 @@ class SingleProject(APIView):
         else:
             raise PermissionDenied('The project is inactive and therefore '
                                    'not accessable through the public API.')
+
+
+# ############################################################################
+#
+# To be removed
+#
+# ############################################################################
+
+class ProjectObservations(LoginRequiredMixin, TemplateView):
+    """
+    WILL BE REMOVED IN THE FINAL VERSION
+    """
+    model = Project
+    template_name = 'contributions/observations.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id):
+        """
+        Creates the request context for rendering the page.
+        """
+        user = self.request.user
+        project = Project.objects.get_single(user, project_id)
+        views = View.objects.get_list(user, project_id)
+        return {
+            'project': project,
+            'views': views,
+            'admin': project.is_admin(user),
+            'contributor': project.can_contribute(user),
+        }
+
+
+class ProjectMyObservations(LoginRequiredMixin, TemplateView):
+    """
+    WILL BE REMOVED IN THE FINAL VERSION
+    """
+    model = Project
+    template_name = 'contributions/observations.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id):
+        """
+        Creates the request context for rendering the page
+        """
+        user = self.request.user
+        project = Project.objects.get_single(user, project_id)
+        views = View.objects.get_list(user, project_id)
+        return {
+            'project': project,
+            'views': views,
+            'admin': project.is_admin(user),
+            'contributor': project.can_contribute(user),
+            'my_contributions': True
+        }
+
+
+class ProjectSingleObservation(LoginRequiredMixin, TemplateView):
+    """
+    WILL BE REMOVED IN THE FINAL VERSION
+    """
+    template_name = 'contributions/observation.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, observation_id):
+        """
+        Creates the request context for rendering the page
+        """
+        user = self.request.user
+        project = Project.objects.as_admin(user, project_id)
+        observation = project.observations.get(
+            pk=observation_id)
+
+        return {
+            'project': project,
+            'observation': observation
+        }
+
+
+class ProjectSingleMyObservation(LoginRequiredMixin, TemplateView):
+    """
+    WILL BE REMOVED IN THE FINAL VERSION
+    """
+    template_name = 'contributions/observation.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, observation_id):
+        """
+        Creates the request context for rendering the page
+        """
+        user = self.request.user
+        project = Project.objects.as_contributor(user, project_id)
+        observation = project.observations.filter(creator=user).get(
+            pk=observation_id)
+
+        return {
+            'project': project,
+            'observation': observation
+        }
+
+
+class ProjectAjaxObservations(APIView):
+    """
+    WILL BE REMOVED IN THE FINAL VERSION
+    """
+    """
+    API Endpoint for a project in the AJAX API.
+    /ajax/projects/:project_id/observations/
+    """
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, format=None):
+        project = Project.objects.as_admin(request.user, project_id)
+        serializer = ContributionSerializer(
+            project.observations.all(), many=True)
+        return Response(serializer.data)
+
+
+class ProjectAjaxMyObservations(APIView):
+    """
+    WILL BE REMOVED IN THE FINAL VERSION
+    """
+    """
+    API Endpoint for a project in the AJAX API.
+    /ajax/projects/:project_id/mycontributions/
+    """
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, format=None):
+        project = Project.objects.as_contributor(request.user, project_id)
+        serializer = ContributionSerializer(
+            project.observations.filter(creator=request.user), many=True)
+        return Response(serializer.data)
