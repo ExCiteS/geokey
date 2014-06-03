@@ -16,7 +16,7 @@ $(function() {
         $('form#appForm input[name="download_url"]').attr('value', response.download_url);
         $('form#appForm input[name="redirect_url"]').attr('value', response.redirect_url);
         valuesSubmitBtn.button('reset');
-        messages.showSuccess('The application details have been updated.');
+        // messages.showSuccess('The application details have been updated.');
     }
 
     function submitForm(event) {

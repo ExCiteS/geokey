@@ -42,7 +42,6 @@ $(function() {
 		$('form#valuesForm input[name="minval"]').attr('value', response.minval);
 		$('form#valuesForm input[name="maxval"]').attr('value', response.maxval);
 		valuesSubmitBtn.button('reset');
-		messages.showSuccess('The field has been updated with new minumum and maximum values.');
 	}
 
 	/**
