@@ -87,9 +87,11 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
                 return super(ProjectSettings, self).dispatch(
                     request, *args, **kwargs)
             elif project.can_contribute(request.user):
-                return redirect(reverse('admin:project_my_observations', kwargs={
-                    'project_id': project_id,
-                }))
+                return redirect(reverse(
+                    'admin:project_my_observations', kwargs={
+                        'project_id': project_id,
+                    }
+                ))
             else:
                 views = View.objects.get_list(request.user, project_id)
 
@@ -127,7 +129,8 @@ class ProjectUpdate(APIView):
         """
         project = Project.objects.as_admin(request.user, project_id)
         serializer = ProjectSerializer(
-            project, data=request.DATA, partial=True
+            project, data=request.DATA, partial=True,
+            fields=('id', 'name', 'description', 'status', 'isprivate')
         )
         if serializer.is_valid():
             serializer.save()
@@ -216,8 +219,8 @@ class Projects(APIView):
         projects = Project.objects.get_list(
             request.user).filter(status='active')
         serializer = ProjectSerializer(
-            projects, many=True,
-            fields=('id', 'name', 'description', 'status')
+            projects, many=True, context={'user': request.user},
+            fields=('id', 'name', 'description', 'is_involved')
         )
         return Response(serializer.data)
 
@@ -237,7 +240,7 @@ class SingleProject(APIView):
         project = Project.objects.get_single(request.user, project_id)
         if project.status == 'active':
             serializer = ProjectSerializer(
-                project, context={'request': request}
+                project, context={'user': request.user}
             )
             return Response(serializer.data)
         else:

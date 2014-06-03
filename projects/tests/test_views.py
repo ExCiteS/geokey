@@ -471,7 +471,6 @@ class ProjectsTest(TestCase):
         force_authenticate(request, user=self.admin)
         view = Projects.as_view()
         response = view(request).render()
-
         projects = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(projects), 2)

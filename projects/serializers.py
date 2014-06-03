@@ -1,3 +1,4 @@
+from rest_framework import serializers
 from core.serializers import FieldSelectorSerializer
 from dataviews.serializers import ViewSerializer
 from dataviews.models import View
@@ -10,34 +11,44 @@ class ProjectSerializer(FieldSelectorSerializer):
     """
     Serializer for projects.
     """
+    is_admin = serializers.SerializerMethodField('get_admin')
+    is_involved = serializers.SerializerMethodField('get_involved')
+    can_contribute = serializers.SerializerMethodField('get_contribute')
+    views = serializers.SerializerMethodField('get_views')
     observationtypes = ObservationTypeSerializer(read_only=True, many=True)
 
     class Meta:
         model = Project
         depth = 1
         fields = ('id', 'name', 'description', 'isprivate', 'status',
-                  'created_at', 'observationtypes')
+                  'created_at', 'observationtypes', 'is_admin',
+                  'can_contribute', 'is_involved', 'views')
         read_only_fields = ('id', 'name')
-        write_only_fields = ('status',)
 
-    def to_native(self, project):
+    def get_admin(self, project):
         """
-        Overides `to_native` of `rest_framework.serializers.ModelSerializer`.
-        If the request context is set, the methods adds additional user
-        specific fields to the serialized project, e.g. if the user is admin,
-        can contribute, is involved in projects and all views the user can
-        access.
+        Method for SerializerMethodField `is_admin`
         """
-        native = super(ProjectSerializer, self).to_native(project)
-        request = self.context.get('request')
-        if request is not None:
-            native['can_contribute'] = project.can_contribute(request.user)
-            native['is_admin'] = project.is_admin(request.user)
-            native['is_involved'] = project.is_involved(request.user)
+        return project.is_admin(self.context.get('user'))
 
-            views = View.objects.get_list(request.user, project.id)
-            view_serializer = ViewSerializer(
-                views, many=True, fields=('id', 'name', 'description'))
-            native['views'] = view_serializer.data
+    def get_contribute(self, project):
+        """
+        Method for SerializerMethodField `can_admin`
+        """
+        return project.can_contribute(self.context.get('user'))
 
-        return native
+    def get_involved(self, project):
+        """
+        Method for SerializerMethodField `is_involved`
+        """
+        return project.is_involved(self.context.get('user'))
+
+    def get_views(self, project):
+        """
+        Method for SerializerMethodField `views`
+        """
+        user = self.context.get('user')
+        views = View.objects.get_list(user, project.id)
+        view_serializer = ViewSerializer(
+            views, many=True, fields=('id', 'name', 'description'))
+        return view_serializer.data
