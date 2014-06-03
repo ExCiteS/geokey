@@ -11,8 +11,8 @@ from .manager import ApplicationManager
 
 class Application(models.Model):
     """
-    Model for storing third-aorty apllication such as mobile phine apps or
-    web apps or connector modules that authorize using oauth.
+    Model for storing third-porty apllication such as mobile phone apps or
+    web apps or connector modules that authorize using OAuth.
     """
     name = models.CharField(max_length=100)
     description = models.TextField()
@@ -31,7 +31,8 @@ class Application(models.Model):
 
     def delete(self):
         """
-        Deletes an application by setting it's status to deleted.
+        Deletes an application by setting it's status to deleted. The record
+        will not be returned from the data base.
         """
         client = Client.objects.get(pk=self.client.id)
         self.client = None
@@ -42,6 +43,10 @@ class Application(models.Model):
 
 @receiver(post_save, sender=Application)
 def update_application_client(sender, **kwargs):
+    """
+    Updates the application's client information. The method is automatically
+    after the application has been saved.
+    """
     app = kwargs.get('instance')
 
     if app.client is not None:

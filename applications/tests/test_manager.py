@@ -10,7 +10,7 @@ from .model_factories import ApplicationFactory
 from ..models import Application
 
 
-class ApplicationModelTest(TestCase):
+class ApplicationManagerTest(TestCase):
     def setUp(self):
         self.user1 = UserF.create()
         self.user2 = UserF.create()
@@ -27,12 +27,6 @@ class ApplicationModelTest(TestCase):
             'creator': self.user1,
             'status': 'deleted'
         })
-
-    @raises(Application.DoesNotExist)
-    def test_delete_app(self):
-        app = ApplicationFactory()
-        app.delete()
-        Application.objects.get(pk=app.id)
 
     def test_get_apps_with_user1(self):
         apps = Application.objects.get_list(self.user1)
