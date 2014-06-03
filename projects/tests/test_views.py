@@ -3,13 +3,327 @@ import json
 from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser
 
+from nose.tools import raises
+
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from dataviews.tests.model_factories import ViewFactory
 
 from .model_factories import UserF, ProjectF
-from ..views import Projects, SingleProject
+from ..models import Project
+from ..views import (
+    ProjectUpdate, ProjectAdmins, ProjectAdminsUser, Projects, SingleProject
+)
 
+
+# ############################################################################
+#
+# AJAX VIEWS
+#
+# ############################################################################
+
+
+class ProjectUpdateTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
+
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+
+    def test_unauthenticated(self):
+        request = self.factory.put(
+            '/api/projects/%s/' % self.project.id,
+            {'status': 'bockwurst'}
+        )
+        view = ProjectUpdate.as_view()
+        response = view(request, project_id=self.project.id).render()
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_update_with_wrong_status(self):
+        request = self.factory.put(
+            '/api/projects/%s/' % self.project.id,
+            {'status': 'bockwurst'}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectUpdate.as_view()
+        response = view(request, project_id=self.project.id).render()
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_update_project_status_with_admin(self):
+        request = self.factory.put(
+            '/api/projects/%s/' % self.project.id,
+            {'status': 'inactive'}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectUpdate.as_view()
+        response = view(request, project_id=self.project.id).render()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            Project.objects.get(pk=self.project.id).status,
+            'inactive'
+        )
+
+    def test_update_project_description_with_admin(self):
+        request = self.factory.put(
+            '/api/projects/%s/' % self.project.id,
+            {'description': 'new description'}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectUpdate.as_view()
+        response = view(request, project_id=self.project.id).render()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            Project.objects.get(pk=self.project.id).description,
+            'new description'
+        )
+
+    def test_update_project_description_with_contributor(self):
+        request = self.factory.put(
+            '/api/projects/%s/' % self.project.id,
+            {'description': 'new description'}
+        )
+        force_authenticate(request, user=self.contributor)
+        view = ProjectUpdate.as_view()
+        response = view(request, project_id=self.project.id).render()
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            Project.objects.get(pk=self.project.id).description,
+            self.project.description
+        )
+
+    def test_update_project_description_with_non_member(self):
+        request = self.factory.put(
+            '/api/projects/%s/' % self.project.id,
+            {'description': 'new description'}
+        )
+        force_authenticate(request, user=self.non_member)
+        view = ProjectUpdate.as_view()
+        response = view(request, project_id=self.project.id).render()
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            Project.objects.get(pk=self.project.id).description,
+            self.project.description
+        )
+
+    @raises(Project.DoesNotExist)
+    def test_delete_project_with_admin(self):
+        request = self.factory.delete('/api/projects/%s/' % self.project.id)
+        force_authenticate(request, user=self.admin)
+        view = ProjectUpdate.as_view()
+        response = view(request, project_id=self.project.id).render()
+
+        self.assertEqual(response.status_code, 204)
+        Project.objects.get(pk=self.project.id)
+
+    def test_delete_project_with_contributor(self):
+        request = self.factory.delete('/api/projects/%s/' % self.project.id)
+        force_authenticate(request, user=self.contributor)
+        view = ProjectUpdate.as_view()
+        response = view(request, project_id=self.project.id).render()
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            Project.objects.get(pk=self.project.id).status,
+            'active'
+        )
+
+    def test_delete_project_with_non_member(self):
+        request = self.factory.delete('/api/projects/%s/' % self.project.id)
+        force_authenticate(request, user=self.non_member)
+        view = ProjectUpdate.as_view()
+        response = view(request, project_id=self.project.id).render()
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            Project.objects.get(pk=self.project.id).status,
+            'active'
+        )
+
+
+class ProjectAdminsTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
+        self.user_to_add = UserF.create()
+
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+
+    def test_add_not_existing_user(self):
+        request = self.factory.post(
+            '/ajax/projects/%s/admins/' % (self.project.id) + '/',
+            {'userId': 468476351545643131}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectAdmins.as_view()
+        response = view(
+            request,
+            project_id=self.project.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_add_admin_with_admin(self):
+        request = self.factory.post(
+            '/ajax/projects/%s/admins/' % (self.project.id) + '/',
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectAdmins.as_view()
+        response = view(
+            request,
+            project_id=self.project.id
+        ).render()
+
+        self.assertEqual(response.status_code, 201)
+        self.assertIn(
+            self.user_to_add,
+            Project.objects.get(pk=self.project.id).admins.all()
+        )
+
+    def test_add_admin_with_contributor(self):
+        request = self.factory.post(
+            '/ajax/projects/%s/admins/' % (self.project.id) + '/',
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.contributor)
+        view = ProjectAdmins.as_view()
+        response = view(
+            request,
+            project_id=self.project.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+        self.assertNotIn(
+            self.user_to_add,
+            Project.objects.get(pk=self.project.id).admins.all()
+        )
+
+    def test_add_admin_with_non_member(self):
+        request = self.factory.post(
+            '/ajax/projects/%s/admins/' % (self.project.id) + '/',
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.non_member)
+        view = ProjectAdmins.as_view()
+        response = view(
+            request,
+            project_id=self.project.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+        self.assertNotIn(
+            self.user_to_add,
+            Project.objects.get(pk=self.project.id).admins.all()
+        )
+
+
+class ProjectAdminsUserTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
+        self.admin_to_remove = UserF.create()
+
+        self.project = ProjectF.create(
+            add_admins=[self.admin, self.admin_to_remove],
+            add_contributors=[self.contributor]
+        )
+
+    def test_delete_not_existing_admin(self):
+        user = UserF.create()
+        request = self.factory.delete(
+            '/ajax/projects/%s/admins/%s/' %
+            (self.project.id, user.id)
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectAdminsUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            user_id=user.id
+        ).render()
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_adminuser_with_admin(self):
+        request = self.factory.delete(
+            '/ajax/projects/%s/admins/%s/' %
+            (self.project.id, self.admin_to_remove.id)
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectAdminsUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            user_id=self.admin_to_remove.id
+        ).render()
+
+        self.assertEqual(response.status_code, 204)
+        self.assertNotIn(
+            self.admin_to_remove,
+            Project.objects.get(pk=self.project.id).admins.all()
+        )
+
+    def test_delete_adminuser_with_contributor(self):
+        request = self.factory.delete(
+            '/ajax/projects/%s/admins/%s/' %
+            (self.project.id, self.admin_to_remove.id)
+        )
+        force_authenticate(request, user=self.contributor)
+        view = ProjectAdminsUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            user_id=self.admin_to_remove.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+        self.assertIn(
+            self.admin_to_remove,
+            Project.objects.get(pk=self.project.id).admins.all()
+        )
+
+    def test_delete_adminuser_with_non_member(self):
+        request = self.factory.delete(
+            '/ajax/projects/%s/admins/%s/' %
+            (self.project.id, self.admin_to_remove.id)
+        )
+        force_authenticate(request, user=self.non_member)
+        view = ProjectAdminsUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            user_id=self.admin_to_remove.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+        self.assertIn(
+            self.admin_to_remove,
+            Project.objects.get(pk=self.project.id).admins.all()
+        )
+
+
+# ############################################################################
+#
+# API VIEWS
+#
+# ############################################################################
 
 class ProjectsTest(TestCase):
     def setUp(self):

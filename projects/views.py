@@ -32,6 +32,7 @@ from .serializers import ProjectSerializer
 class ProjectCreate(LoginRequiredMixin, CreateView):
     """
     Displays the create project page
+    `/admin/projects/new`
     """
     form_class = ProjectCreateForm
     template_name = 'projects/project_create.html'
@@ -53,6 +54,7 @@ class ProjectCreate(LoginRequiredMixin, CreateView):
 class ProjectSettings(LoginRequiredMixin, TemplateView):
     """
     Displays the project settings page
+    `/admin/projects/:project_id`
     """
     model = Project
     template_name = 'projects/project_settings.html'
@@ -60,7 +62,10 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
     @handle_exceptions_for_admin
     def get_context_data(self, project_id):
         """
-        Creates the request context for rendering the page
+        Creates the request context for rendering the page. If the user is not
+        an administrator of the project, `PermissionDenied` is caught and
+        handled in the `handle_exceptions_for_admin` decorator and an error
+        message is displayed.
         """
         project = Project.objects.as_admin(self.request.user, project_id)
         return {
@@ -69,6 +74,10 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
         }
 
     def dispatch(self, request, *args, **kwargs):
+        """
+        Redirects page to one of the observation pages. Subject to change when
+        Observation pages are removed from the system.
+        """
         project_id = kwargs.get('project_id')
 
         project = Project.objects.get(pk=project_id)
@@ -95,7 +104,7 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
 
 class ProjectObservations(LoginRequiredMixin, TemplateView):
     """
-    Displays the project overview page
+    WILL BE REMOVED IN THE FINAL VERSION
     """
     model = Project
     template_name = 'contributions/observations.html'
@@ -103,7 +112,7 @@ class ProjectObservations(LoginRequiredMixin, TemplateView):
     @handle_exceptions_for_admin
     def get_context_data(self, project_id):
         """
-        Creates the request context for rendering the page
+        Creates the request context for rendering the page.
         """
         user = self.request.user
         project = Project.objects.get_single(user, project_id)
@@ -117,6 +126,9 @@ class ProjectObservations(LoginRequiredMixin, TemplateView):
 
 
 class ProjectMyObservations(LoginRequiredMixin, TemplateView):
+    """
+    WILL BE REMOVED IN THE FINAL VERSION
+    """
     model = Project
     template_name = 'contributions/observations.html'
 
@@ -138,6 +150,9 @@ class ProjectMyObservations(LoginRequiredMixin, TemplateView):
 
 
 class ProjectSingleObservation(LoginRequiredMixin, TemplateView):
+    """
+    WILL BE REMOVED IN THE FINAL VERSION
+    """
     template_name = 'contributions/observation.html'
 
     @handle_exceptions_for_admin
@@ -157,6 +172,9 @@ class ProjectSingleObservation(LoginRequiredMixin, TemplateView):
 
 
 class ProjectSingleMyObservation(LoginRequiredMixin, TemplateView):
+    """
+    WILL BE REMOVED IN THE FINAL VERSION
+    """
     template_name = 'contributions/observation.html'
 
     @handle_exceptions_for_admin
@@ -183,14 +201,16 @@ class ProjectSingleMyObservation(LoginRequiredMixin, TemplateView):
 
 class ProjectUpdate(APIView):
     """
-    API Endpoint for a project in the AJAX API.
+    AJAX Endpoint for a project update.
     /ajax/projects/:project_id
     """
 
     @handle_exceptions_for_ajax
     def put(self, request, project_id, format=None):
         """
-        Updates a project
+        Updates a project. If the user is not an administrator of the project,
+        `PermissionDenied` is caught and handled in the
+        `handle_exceptions_for_ajax` decorator and an error 403 is returned.
         """
         project = Project.objects.as_admin(request.user, project_id)
         serializer = ProjectSerializer(
@@ -205,7 +225,9 @@ class ProjectUpdate(APIView):
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, format=None):
         """
-        Deletes a project
+        Deletes a project. If the user is not an administrator of the project,
+        `PermissionDenied` is caught and handled in the
+        `handle_exceptions_for_ajax` decorator and an error 403 is returned.
         """
         project = Project.objects.as_admin(request.user, project_id)
         project.delete()
@@ -213,10 +235,17 @@ class ProjectUpdate(APIView):
 
 
 class ProjectAdmins(APIView):
+    """
+    AJAX Endpoint for project administrators.
+    /ajax/projects/:project_id/admins
+    """
+
     @handle_exceptions_for_ajax
     def post(self, request, project_id, format=None):
         """
-        Adds a user to the usergroup
+        Adds a user to the admin group. . If the user is not an administrator
+        of the project, `PermissionDenied` is caught and handled in the
+        `handle_exceptions_for_ajax` decorator and an error 403 is returned.
         """
         project = Project.objects.as_admin(request.user, project_id)
 
@@ -236,10 +265,18 @@ class ProjectAdmins(APIView):
 
 
 class ProjectAdminsUser(APIView):
+    """
+    AJAX Endpoint for a single project administrator.
+    /ajax/projects/:project_id/admins
+    """
+
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, user_id, format=None):
         """
-        Removes a user from the user group
+        Removes a user from the user group. . If the user is not an
+        administrator of the project, `PermissionDenied` is caught and handled
+        in the `handle_exceptions_for_ajax` decorator and an error 403 is
+        returned.
         """
         project = Project.objects.as_admin(request.user, project_id)
         user = project.admins.get(pk=user_id)
@@ -248,6 +285,9 @@ class ProjectAdminsUser(APIView):
 
 
 class ProjectAjaxObservations(APIView):
+    """
+    WILL BE REMOVED IN THE FINAL VERSION
+    """
     """
     API Endpoint for a project in the AJAX API.
     /ajax/projects/:project_id/observations/
@@ -261,6 +301,9 @@ class ProjectAjaxObservations(APIView):
 
 
 class ProjectAjaxMyObservations(APIView):
+    """
+    WILL BE REMOVED IN THE FINAL VERSION
+    """
     """
     API Endpoint for a project in the AJAX API.
     /ajax/projects/:project_id/mycontributions/
@@ -282,12 +325,12 @@ class ProjectAjaxMyObservations(APIView):
 class Projects(APIView):
     """
     API Endpoint for project list in the public API.
-    /api/projects
+    /api/projects/
     """
     @handle_exceptions_for_ajax
     def get(self, request, format=None):
         """
-        Returns a list a all projects accessable to the user
+        Returns a list a all projects accessable to the user.
         """
         projects = Project.objects.get_list(
             request.user).filter(status='active')
@@ -301,12 +344,14 @@ class Projects(APIView):
 class SingleProject(APIView):
     """
     API Endpoint for single project in the public API.
-    /api/projects
+    /api/projects/:project_id/
     """
     @handle_exceptions_for_ajax
     def get(self, request, project_id, format=None):
         """
-        Returns a list a all projects accessable to the user
+        Returns a single project. If the user is not eligable to access the
+        project, `PermissionDenied` is caught and handled in the
+        `handle_exceptions_for_ajax` decorator and an error 403 is returned.
         """
         project = Project.objects.get_single(request.user, project_id)
         if project.status == 'active':

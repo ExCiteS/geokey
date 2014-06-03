@@ -64,9 +64,10 @@ class Project(models.Model):
 
     def can_access(self, user):
         """
-        Returns True if the user is either member of the administrators group
-        -if active- the contributors group or one the Viewgroups of the
-        project.
+        Returns True if:
+        - the user is member of the administrators group
+        - the user is member of one of the usergroups
+        - the project is public and has at least one public view
         """
         return self.status == STATUS.active and (self.is_admin(user) or (
             (not self.isprivate and
@@ -81,6 +82,11 @@ class Project(models.Model):
         )
 
     def can_contribute(self, user):
+        """
+        Returns True if:
+        - the user is member of the administrators group
+        - the user is member of one usergroup that has can_contribute granted
+        """
         return self.status == STATUS.active and (
             self.is_admin(user) or (
                 not user.is_anonymous() and (
@@ -88,6 +94,11 @@ class Project(models.Model):
                         can_contribute=True, users=user).exists())))
 
     def is_involved(self, user):
+        """
+        Returns True if:
+        - the user is member of the administrators group
+        - the user is member of at least usergroup assigned to the project
+        """
         return self.is_admin(user) or (
             not user.is_anonymous() and (
                 self.usergroups.filter(users=user).exists()))
