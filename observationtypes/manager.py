@@ -9,14 +9,18 @@ from .base import STATUS
 
 
 class ActiveMixin(object):
+    """
+    Mixin to provide a queryset method filtering for all instances of the
+    model that have status active.
+    """
     def active(self, *args, **kwargs):
+        """
+        Returns a queryset of all active instances
+        """
         return self.get_query_set().filter(status=STATUS.active)
 
 
 class ObservationTypeManager(ActiveMixin, models.Manager):
-    def active(self, *args, **kwargs):
-        return self.get_query_set().filter(status=STATUS.active)
-
     def get_list(self, user, project_id):
         """
         Returns all observationtype objects the user is allowed to access
@@ -55,6 +59,10 @@ class FieldManager(ActiveMixin, InheritanceManager):
     use_for_related_fields = True
 
     def all(self):
+        """
+        Overrides the standard all method in order to return the subclasses
+        of each field.
+        """
         return self.get_query_set().select_subclasses()
 
     def get_list(self, user, project_id, observationtype_id):
@@ -74,7 +82,7 @@ class FieldManager(ActiveMixin, InheritanceManager):
 
     def get_single(self, user, project_id, observationtype_id, field_id):
         """
-        Return a single field
+        Returns a single field
         """
         project = Project.objects.get_single(user, project_id)
         observationtype = project.observationtypes.get(pk=observationtype_id)

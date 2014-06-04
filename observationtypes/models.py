@@ -57,6 +57,9 @@ class Field(models.Model):
     @classmethod
     def create(self, name, key, description, required, observation_type,
                field_type):
+        """
+        Creates a new field based on the field type provided.
+        """
         model_class = get_model('observationtypes', field_type)
         field = model_class.objects.create(
             name=name,
@@ -70,6 +73,10 @@ class Field(models.Model):
 
     @classmethod
     def get_field_types(cls):
+        """
+        Returns a list of all available field types. Simply returns the names
+        of the subclasses of `Field`
+        """
         return cls.__subclasses__()
 
     def validate_input(self, value):
@@ -83,6 +90,10 @@ class Field(models.Model):
         )
 
     def validate_required(self, value):
+        """
+        Validates input value against required status. Raises an `InputError`
+        if no value has been provided.
+        """
         if self.required and (value is None):
             raise InputError('The field %s is required.' % self.name)
 
@@ -97,6 +108,9 @@ class Field(models.Model):
 
     @property
     def fieldtype(self):
+        """
+        Returns the class name of the field instance
+        """
         return self.__class__.__name__
 
     @property
@@ -119,6 +133,10 @@ class TextField(Field):
     """
 
     def validate_required(self, value):
+        """
+        Validate teh given value agaist required status. Checks if value is
+        not None and has at least one character.
+        """
         if self.required and (value is None or len(value) == 0):
             raise InputError('The field %s is required.' % self.name)
 
@@ -132,9 +150,16 @@ class TextField(Field):
 
     @property
     def type_name(self):
+        """
+        Returns a human readable name of the field.
+        """
         return 'Text'
 
     def get_filter(self, rule):
+        """
+        Returns the filter object for the given field based on the rule. Used
+        to filter data for a view.
+        """
         return Q(attributes__icontains=rule)
 
 
@@ -188,9 +213,16 @@ class NumericField(Field):
 
     @property
     def type_name(self):
+        """
+        Returns a human readable name of the field.
+        """
         return 'Numeric'
 
     def get_filter(self, rule):
+        """
+        Returns the filter object for the given field based on the rule. Used
+        to filter data for a view.
+        """
         minval = rule.get('minval')
         maxval = rule.get('maxval')
 
@@ -232,9 +264,16 @@ class TrueFalseField(Field):
 
     @property
     def type_name(self):
+        """
+        Returns a human readable name of the field.
+        """
         return 'True/False'
 
     def get_filter(self, rule):
+        """
+        Returns the filter object for the given field based on the rule. Used
+        to filter data for a view.
+        """
         return Q(attributes__contains={self.key: json.dumps(rule)})
 
 
@@ -262,9 +301,16 @@ class DateTimeField(Field):
 
     @property
     def type_name(self):
+        """
+        Returns a human readable name of the field.
+        """
         return 'Date and Time'
 
     def get_filter(self, rule):
+        """
+        Returns the filter object for the given field based on the rule. Used
+        to filter data for a view.
+        """
         minval = rule.get('minval')
         maxval = rule.get('maxval')
 
@@ -308,9 +354,16 @@ class LookupField(Field):
 
     @property
     def type_name(self):
-        return 'Lookup'
+        """
+        Returns a human readable name of the field.
+        """
+        return 'Single lookup'
 
     def get_filter(self, rule):
+        """
+        Returns the filter object for the given field based on the rule. Used
+        to filter data for a view.
+        """
         return Q(attributes__contains={self.key: rule})
 
 
@@ -329,5 +382,8 @@ class LookupValue(models.Model):
     objects = LookupValueManager()
 
     def delete(self):
+        """
+        Deletes the value by settings its status to `deleted`
+        """
         self.status = STATUS.inactive
         self.save()

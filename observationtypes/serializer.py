@@ -44,6 +44,10 @@ class NumericFieldSerializer(serializers.ModelSerializer):
 
 
 class LookupValueSerializer(serializers.ModelSerializer):
+    """
+    Serializer for lookup value.
+    Used in .views.FieldApiLookups
+    """
     class Meta:
         model = LookupValue
         fields = ('id', 'name')

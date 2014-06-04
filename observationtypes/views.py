@@ -90,7 +90,7 @@ class ObservationTypeSettings(LoginRequiredMixin, TemplateView):
         Creates the request context for rendering the page
         """
         user = self.request.user
-        observation_type = ObservationType.objects.get_single(
+        observation_type = ObservationType.objects.as_admin(
             user, project_id, observationtype_id)
         return {
             'observationtype': observation_type,

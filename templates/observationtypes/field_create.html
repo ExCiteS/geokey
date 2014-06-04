@@ -8,7 +8,7 @@
 				<ol class="breadcrumb">
 					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
 					<li><a href="{% url 'admin:project_settings' observationtype.project.id %}">{{ observationtype.project.name }}</a></li>
-					<li><a href="{% url 'admin:observationtype_detail' observationtype.project.id observationtype.id %}">{{ observationtype.name }}</a></li>
+					<li><a href="{% url 'admin:observationtype_settings' observationtype.project.id observationtype.id %}">{{ observationtype.name }}</a></li>
 					<li class="active">Create new field</li>
 				</ol>
 				<h1>Create new field</h1>
@@ -52,7 +52,7 @@
 
 					<div class="form-group">
 						<button type="submit" class="btn btn-primary">Save</button>
-						<a href="{% url 'admin:observationtype_detail' observationtype.project.id observationtype.id %}" class="btn btn-default" role="button">Cancel</a>
+						<a href="{% url 'admin:observationtype_settings' observationtype.project.id observationtype.id %}" class="btn btn-default" role="button">Cancel</a>
 					</div>
 				</form>
 			</div>
