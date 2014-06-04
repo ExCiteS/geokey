@@ -8,7 +8,13 @@ from .base import STATUS
 
 
 class ViewQuerySet(models.query.QuerySet):
+    """
+    Queryset Manager for View model
+    """
     def for_user(self, user):
+        """
+        Returns all views accessable by the user.
+        """
         if user.is_anonymous():
             return self.filter(isprivate=False)
         else:
@@ -18,16 +24,29 @@ class ViewQuerySet(models.query.QuerySet):
 
 class ViewManager(models.Manager):
     def get_query_set(self):
+        """
+        Returns all views excluding those with status deleted.
+        """
         return ViewQuerySet(self.model).exclude(status=STATUS.deleted)
 
     def for_user(self, user):
+        """
+        Returns all views accessable by the user.
+        """
         return self.get_query_set().for_user(user)
 
     def get_list(self, user, project_id):
+        """
+        Returns all views accessable by the user in the given project.
+        """
         project = Project.objects.get_single(user, project_id)
         return project.views.for_user(user)
 
     def get_single(self, user, project_id, view_id):
+        """
+        Returns a single views from the given project, if accessable by the
+        user.
+        """
         project = Project.objects.get_single(user, project_id)
         view = project.views.get(pk=view_id)
         if view.status == STATUS.active and (
@@ -39,11 +58,21 @@ class ViewManager(models.Manager):
             raise PermissionDenied('You are not allowed to access this view.')
 
     def as_admin(self, user, project_id, view_id):
+        """
+        Returns a single views from the given project, if the user is admin of
+        the project.
+        """
         project = Project.objects.as_admin(user, project_id)
         return project.views.get(pk=view_id)
 
 
 class RuleManager(models.Manager):
+    """
+    Queryset Manager for Rule model
+    """
     def get_query_set(self):
+        """
+        Returns all rules excluding deleted ones.
+        """
         return super(RuleManager, self).get_query_set().exclude(
             status=STATUS.deleted)

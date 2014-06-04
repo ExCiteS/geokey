@@ -16,10 +16,12 @@ class ViewSerializer(FieldSelectorSerializer):
         model = View
         depth = 1
         fields = ('id', 'name', 'description', 'status',
-                  'created_at', 'observations', 'isprivate')
+                  'created_at', 'observations', 'isprivate', 'status')
         read_only_fields = ('id', 'name', 'created_at')
-        write_only_fields = ('status', 'isprivate')
 
     def get_data(self, obj):
+        """
+        Returns all serialized observations accessable through the view.
+        """
         serializer = ContributionSerializer(obj.data, many=True)
         return serializer.data

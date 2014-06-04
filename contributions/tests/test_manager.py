@@ -5,7 +5,7 @@ from nose.tools import raises
 
 from projects.tests.model_factories import ProjectF, UserF
 
-from ..models import Location, Observation, Comment
+from ..models import Location, Comment
 from .model_factories import (
     LocationFactory, ObservationFactory, CommentFactory
 )
@@ -67,34 +67,34 @@ class LocationTest(TestCase):
             self.admin, self.project2.id, self.private_location.id)
 
 
-class ObservationTest(TestCase):
-    def setUp(self):
-        self.creator = UserF.create()
-        self.admin = UserF.create()
-        self.project = ProjectF(
-            add_admins=[self.admin],
-            add_contributors=[self.creator]
-        )
-        self.observation = ObservationFactory.create(**{
-            'project': self.project,
-            'creator': self.creator
-        })
+# class ObservationTest(TestCase):
+#     def setUp(self):
+#         self.creator = UserF.create()
+#         self.admin = UserF.create()
+#         self.project = ProjectF(
+#             add_admins=[self.admin],
+#             add_contributors=[self.creator]
+#         )
+#         self.observation = ObservationFactory.create(**{
+#             'project': self.project,
+#             'creator': self.creator
+#         })
 
-    def test_get_as_editor_with_creator(self):
-        observation = Observation.objects.as_editor(
-            self.creator, self.project.id, self.observation.id)
-        self.assertEqual(observation, self.observation)
+#     def test_get_as_editor_with_creator(self):
+#         observation = Observation.objects.as_editor(
+#             self.creator, self.project.id, self.observation.id)
+#         self.assertEqual(observation, self.observation)
 
-    def test_get_as_editor_with_admin(self):
-        observation = Observation.objects.as_editor(
-            self.admin, self.project.id, self.observation.id)
-        self.assertEqual(observation, self.observation)
+#     def test_get_as_editor_with_admin(self):
+#         observation = Observation.objects.as_editor(
+#             self.admin, self.project.id, self.observation.id)
+#         self.assertEqual(observation, self.observation)
 
-    @raises(PermissionDenied)
-    def test_get_as_editor_some_dude(self):
-        some_dude = UserF.create()
-        Observation.objects.as_editor(
-            some_dude, self.project.id, self.observation.id)
+#     @raises(PermissionDenied)
+#     def test_get_as_editor_some_dude(self):
+#         some_dude = UserF.create()
+#         Observation.objects.as_editor(
+#             some_dude, self.project.id, self.observation.id)
 
 
 class CommentTest(TestCase):

@@ -27,6 +27,10 @@ class View(models.Model):
 
     @property
     def data(self):
+        """
+        Provides access to all data accessable through the view. Uses the
+        rules of the view to filter the data.
+        """
         queries = [rule.get_query() for rule in self.rules.all()]
 
         if len(queries) > 0:
@@ -46,14 +50,23 @@ class View(models.Model):
         self.save()
 
     def can_view(self, user):
+        """
+        Returns if the user can view data of the view.
+        """
         return self.project.is_admin(user) or self.usergroups.filter(
             usergroup__users=user, can_view=True).exists()
 
     def can_read(self, user):
+        """
+        Returns if the user can read data of the view.
+        """
         return self.project.is_admin(user) or self.usergroups.filter(
             usergroup__users=user, can_read=True).exists()
 
     def can_moderate(self, user):
+        """
+        Returns if the user can moderate data of the view.
+        """
         return self.project.is_admin(user) or self.usergroups.filter(
             usergroup__users=user, can_moderate=True).exists()
 
@@ -71,6 +84,9 @@ class Rule(models.Model):
     objects = RuleManager()
 
     def get_query(self):
+        """
+        Returns the queryset filter for the Rule
+        """
         queries = [Q(observationtype=self.observation_type)]
 
         if self.filters is not None:

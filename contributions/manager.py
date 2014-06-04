@@ -10,7 +10,13 @@ from .base import OBSERVATION_STATUS, COMMENT_STATUS
 
 
 class LocationQuerySet(models.query.QuerySet):
+    """
+    Querset manager for Locaion model
+    """
     def get_list(self, project):
+        """
+        Returns a list of all locaation avaiable for that project/
+        """
         return self.filter(
             Q(private=False) |
             Q(private_for_project=project)
@@ -18,6 +24,9 @@ class LocationQuerySet(models.query.QuerySet):
 
 
 class LocationManager(models.GeoManager):
+    """
+    Manager for Location Model
+    """
     def get_query_set(self):
         """
         Returns the QuerySet
@@ -49,21 +58,24 @@ class LocationManager(models.GeoManager):
 
 
 class ObservationManager(hstore.HStoreManager):
+    """
+    Manager for Observation Model
+    """
     def get_query_set(self):
+        """
+        Returns all observations excluding those with status `deleted`
+        """
         return super(ObservationManager, self).get_query_set().exclude(
             status=OBSERVATION_STATUS.deleted)
 
-    def as_editor(self, user, project_id, observation_id):
-        project = Project.objects.get_single(user, project_id)
-        observation = project.observations.get(pk=observation_id)
-        if (observation.creator == user or project.is_admin(user)):
-            return observation
-        else:
-            raise PermissionDenied('You are not allowed to update this'
-                                   'observation')
 
-
-class CommentManager(hstore.HStoreManager):
+class CommentManager(models.Manager):
+    """
+    Manager for Comment model
+    """
     def get_query_set(self):
+        """
+        Returns all comments excluding those with status `deleted`
+        """
         return super(CommentManager, self).get_query_set().exclude(
             status=COMMENT_STATUS.deleted)

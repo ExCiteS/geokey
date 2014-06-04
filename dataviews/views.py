@@ -146,6 +146,9 @@ class RuleCreate(LoginRequiredMixin, CreateView):
 
     @handle_exceptions_for_admin
     def get_context_data(self, form, **kwargs):
+        """
+        Returns the context data for creating the view.
+        """
         project_id = self.kwargs['project_id']
         view_id = self.kwargs['view_id']
 
@@ -159,6 +162,9 @@ class RuleCreate(LoginRequiredMixin, CreateView):
 
     @handle_exceptions_for_admin
     def post(self, request, project_id, view_id):
+        """
+        Creates a new Rule with the POSTed data.
+        """
         view = View.objects.as_admin(self.request.user, project_id, view_id)
         observation_type = ObservationType.objects.as_admin(
             self.request.user, project_id, request.POST.get('observationtype'))
@@ -219,7 +225,10 @@ class ViewUpdate(APIView):
         Updates a view
         """
         view = View.objects.as_admin(request.user, project_id, view_id)
-        serializer = ViewSerializer(view, data=request.DATA, partial=True)
+        serializer = ViewSerializer(
+            view, data=request.DATA, partial=True,
+            fields=('id', 'name', 'description', 'status', 'isprivate')
+        )
 
         if serializer.is_valid():
             serializer.save()

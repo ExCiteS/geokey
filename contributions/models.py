@@ -97,10 +97,13 @@ class Observation(models.Model):
             raise ValidationError(error_messages)
 
     def validate_update(self, data):
+        """
+        Validates the update data of the observation
+        """
         is_valid = True
         error_messages = []
 
-        for field in self.observationtype.fields.all():
+        for field in self.observationtype.fields.filter(status='active'):
             if field.key in data:
                 try:
                     field.validate_input(data.get(field.key))
@@ -112,6 +115,9 @@ class Observation(models.Model):
             raise ValidationError(error_messages)
 
     def update(self, attributes, updator, review_comment=None, status=None):
+        """
+        Updates data of the observation
+        """
         version = self.version + 1
 
         update = self.attributes.copy()
