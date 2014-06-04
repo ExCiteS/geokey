@@ -358,3 +358,34 @@ class ViewSingleComment(CommentApiView, ViewComment):
             request.user, project_id, view_id, observation_id)
         comment = observation.comments.get(pk=comment_id)
         return self.delete_and_respond(request, comment)
+
+
+class MyObservationComment(APIView):
+    def get_object(self, user, project_id, observation_id):
+        project = Project.objects.as_contributor(user, project_id)
+        return project.observations.filter(creator=user).get(pk=observation_id)
+
+
+class MyObservationComments(CommentApiView, MyObservationComment):
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, observation_id, format=None):
+        observation = self.get_object(request.user, project_id, observation_id)
+        return self.get_list_response(observation)
+
+    @handle_exceptions_for_ajax
+    def post(self, request, project_id, observation_id, format=None):
+        """
+        Adds a new comment to the observation
+        """
+        observation = self.get_object(request.user, project_id, observation_id)
+        return self.create_and_response(request, observation)
+
+
+class MyObservationSingleComment(CommentApiView, MyObservationComment):
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, observation_id, comment_id,
+               format=None):
+        observation = self.get_object(
+            request.user, project_id, observation_id)
+        comment = observation.comments.get(pk=comment_id)
+        return self.delete_and_respond(request, comment)

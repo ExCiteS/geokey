@@ -79,6 +79,14 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
         contribution_views.ViewSingleComment.as_view(),
         name='view_single_comment'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/mycontributions/(?P<observation_id>[0-9]+)/comments/$',
+        contribution_views.MyObservationComments.as_view(),
+        name='myobservations_comments'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/mycontributions/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
+        contribution_views.MyObservationSingleComment.as_view(),
+        name='myobservations_single_comment'),
 
     # ###########################
     # OBSERVATION TYPES

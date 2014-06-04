@@ -74,11 +74,11 @@ class ObservationTest(TestCase):
         creator = UserF()
         location = LocationFactory()
         observationtype = ObservationTypeFactory()
-        TextFieldFactory(**{
+        TextFieldFactory.create(**{
             'key': 'text',
             'observationtype': observationtype
         })
-        NumericFieldFactory(**{
+        NumericFieldFactory.create(**{
             'key': 'number',
             'observationtype': observationtype
         })
