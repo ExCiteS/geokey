@@ -3,6 +3,9 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
 from django.utils import timezone
 
+from contributions.models import Observation, Comment
+from projects.models import Project
+
 from .manager import UserManager
 
 
@@ -18,6 +21,15 @@ class User(AbstractBaseUser):
     USERNAME_FIELD = 'email'
 
     objects = UserManager()
+
+    def get_stats(self):
+        stats = {}
+
+        stats['observations'] = Observation.objects.filter(creator=self).count()
+        stats['comments'] = Comment.objects.filter(creator=self).count()
+        stats['projects'] = Project.objects.filter(creator=self).count()
+
+        return stats
 
 
 class UserGroup(models.Model):

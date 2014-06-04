@@ -190,6 +190,7 @@ div.page-header div.stats {
 	}
 
 	div.stats {
+		display: inline-block;
 		text-align: right;
 	}
 

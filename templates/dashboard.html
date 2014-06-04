@@ -10,14 +10,13 @@
         </div>
         <div class="container">
             <div class="row">
-                <div class="col-sm-6">
+                <div class="col-sm-4">
+                    <h3>Projects</h3>
                     <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h2 class="panel-title">Your Projects</h2>
-                        </div>
-                        {% if projects %}
+                        <div class="panel-heading">Manage Projects</div>
+                        {% if admin_projects %}
                         <div class="list-group">
-                            {% for project in projects %}
+                            {% for project in admin_projects %}
                             <a href="{% url 'admin:project_settings' project.id %}" class="list-group-item">
                                 <h4 class="list-group-item-heading">{{project.name}}{% if project.status == status_types.inactive %} <small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
                                 {% if project.description %}<p class="list-group-item-text">{{project.description}}</p>{% endif %}
@@ -26,20 +25,37 @@
                         </div>
                         {% else %}
                         <div class="panel-body">
-                            <p>You are not eligible to access any project yet. <a href="{% url 'admin:project_create' %}">You may want to create a new project</a>.</p>
+                            <p>You are not eligible to manage a project. <a href="{% url 'admin:project_create' %}">How about creating your own project?</a></p>
                         </div>
                         {% endif %}
                         <div class="panel-footer">
                             <a href="{% url 'admin:project_create' %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new Project</a>
                         </div>
                     </div>
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Other projects you are involved in</div>
+                        {% if involved_projects %}
+                        <div class="list-group">
+                            {% for project in involved_projects %}
+                            <a href="{% url 'admin:project_settings' project.id %}" class="list-group-item">
+                                <h4 class="list-group-item-heading">{{project.name}}{% if project.status == status_types.inactive %} <small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
+                                {% if project.description %}<p class="list-group-item-text">{{project.description}}</p>{% endif %}
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="panel-body">
+                            <p>There are no projects you are allowed to access.</p>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
 
-                <div class="col-sm-6">
+                <div class="col-sm-4">
+                    <h3>Applications</h3>
                     <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h2 class="panel-title">My Apps</h2>
-                        </div>
+                        <div class="panel-heading">Manage your apps</div>
                         <div class="list-group">
                         {% for app in apps %}
                             <a href="{% url 'admin:app_settings' app.id %}" class="list-group-item">
@@ -57,7 +73,22 @@
                         </div>
                     </div>
                 </div>
-            </div>
+
+                <div class="col-sm-4">
+                    <h3>Quick stats</h3>
+                    You joined on {{user.date_joined|date:"d F Y"}} and since created
+                    <div>
+                        <div class="stats col-sm-4">
+                            <span class="number">{{stats.projects}}</span> Projects
+                        </div>
+                        <div class="stats col-sm-4">
+                            <span class="number">{{stats.observations}}</span> Observations
+                        </div>
+                        <div class="stats col-sm-4">
+                            <span class="number">{{stats.comments}}</span> Comments
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 {% endblock %}

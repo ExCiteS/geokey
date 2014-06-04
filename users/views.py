@@ -16,7 +16,6 @@ from projects.models import Project
 from projects.base import STATUS
 from applications.models import Application
 from dataviews.models import View
-from contributions.models import Observation, Comment
 
 from .serializers import (
     UserSerializer, UserGroupSerializer, ViewGroupSerializer
@@ -107,13 +106,6 @@ class UserProfile(LoginRequiredMixin, TemplateView):
         Creates the request context for rendering the page
         """
         context = super(UserProfile, self).get_context_data(**kwargs)
-
-        context['num_contributions'] = Observation.objects.filter(
-            creator=self.request.user, project__status='active')
-        context['num_comments'] = Comment.objects.filter(
-            creator=self.request.user,
-            commentto__project__status='active',
-            commentto__status='active')
 
         referer = self.request.META.get('HTTP_REFERER')
         if referer is not None and 'profile/password/change' in referer:
@@ -466,7 +458,11 @@ class Dashboard(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self):
         return {
-            'projects': Project.objects.get_list(self.request.user),
+            'stats': self.request.user.get_stats(),
+            'admin_projects': Project.objects.get_list(
+                self.request.user).filter(admins=self.request.user),
+            'involved_projects': Project.objects.get_list(
+                self.request.user).exclude(admins=self.request.user),
             'apps': Application.objects.get_list(self.request.user),
             'status_types': STATUS
         }
