@@ -2,6 +2,8 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
 from django.utils import timezone
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 from contributions.models import Observation, Comment
 from projects.models import Project
@@ -43,6 +45,14 @@ class UserGroup(models.Model):
     project = models.ForeignKey('projects.Project', related_name='usergroups')
     can_contribute = models.BooleanField(default=True)
     can_moderate = models.BooleanField(default=False)
+
+
+@receiver(pre_save, sender=UserGroup)
+def update_application_client(sender, **kwargs):
+    group = kwargs.get('instance')
+
+    if group.can_moderate:
+        group.can_contribute = True
 
 
 class ViewUserGroup(models.Model):

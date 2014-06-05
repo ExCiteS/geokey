@@ -18,9 +18,7 @@ def get_view_group(view, group):
 @register.simple_tag
 def viewgroups(group):
     html = ''
-    print 'bla'
     for view in group.project.views.all():
         html += get_view_group(view, group)
-    print html
 
     return html
