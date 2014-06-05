@@ -40,7 +40,7 @@ class ObservationSerializer(serializers.ModelSerializer):
         depth = 0
         fields = (
             'status', 'observationtype', 'review_comment',
-            'creator', 'updator', 'created_at', 'version', 'attributes'
+            'creator', 'updator', 'created_at', 'version'
         )
 
 
@@ -145,7 +145,7 @@ class ContributionSerializer(object):
 
         location_serializer = LocationContributionSerializer(
             instance.location)
-        json_object['location'] = location_serializer.data
+        json_object['properties']['location'] = location_serializer.data
 
         observationtype_serializer = ObservationTypeSerializer(
             instance.observationtype)

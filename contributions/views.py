@@ -97,11 +97,17 @@ class ProjectObservations(APIView):
 class MyObservations(APIView):
     @handle_exceptions_for_ajax
     def get(self, request, project_id, format=None):
-        project = Project.objects.as_contributor(request.user, project_id)
-        observations = project.observations.filter(creator=request.user)
+        project = Project.objects.get_single(request.user, project_id)
+        if project.can_contribute(request.user):
+            observations = project.observations.filter(creator=request.user)
 
-        serializer = ContributionSerializer(observations, many=True)
-        return Response(serializer.data)
+            serializer = ContributionSerializer(observations, many=True)
+            return Response(serializer.data)
+        else:
+            return Response(
+                {"error": "You are not a contributor of this project."},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
 
 class ViewObservations(APIView):

@@ -21,7 +21,7 @@ class GetComments(APITestCase):
         self.non_member = UserF.create()
         self.project = ProjectF(
             add_admins=[self.admin],
-            add_contributors=[self.contributor]
+            add_contributors=[self.contributor, self.creator]
         )
         self.observation = ObservationFactory.create(**{
             'project': self.project,
@@ -50,7 +50,7 @@ class GetComments(APITestCase):
         factory = APIRequestFactory()
         url = reverse('api:myobservations_comments', kwargs={
             'project_id': self.project.id,
-            'observation_id': self.project.id
+            'observation_id': self.observation.id
         })
         request = factory.get(url)
         force_authenticate(request, user=user)
@@ -84,7 +84,7 @@ class GetComments(APITestCase):
 
     def test_get_comments_with_creator(self):
         response = self.get_response(self.creator)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class AddCommentTest(APITestCase):

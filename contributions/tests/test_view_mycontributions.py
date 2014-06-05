@@ -65,8 +65,8 @@ class MyContributionsTest(TestCase):
         })
 
         response = self.get(view_user)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(
-            'You are not eligable to contribute data to this project',
+            'You are not a contributor of this project.',
             json.loads(response.content).get('error')
         )

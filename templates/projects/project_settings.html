@@ -116,7 +116,7 @@
                         </div>
                         <div class="list-group">
                             {% for observationtype in project.observationtypes.all %}
-                            <a href="{% url 'admin:observationtype_detail' project.id observationtype.id %}" class="list-group-item">
+                            <a href="{% url 'admin:observationtype_settings' project.id observationtype.id %}" class="list-group-item">
                                 <h4 class="list-group-item-heading">{{ observationtype.name }}{% if observationtype.status == status_types.inactive %} <small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
                                 <p class="list-group-item-text">{{ observationtype.description }}</p>
                             </a>
