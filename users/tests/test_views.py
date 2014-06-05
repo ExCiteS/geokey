@@ -683,20 +683,18 @@ class UserGroupSingleViewTest(TestCase):
 
         view_group = self.contributors.viewgroups.get(
             usergroup=self.contributors, view=self.view)
-        self.assertTrue(view_group.can_moderate)
         self.assertTrue(view_group.can_read)
         self.assertTrue(view_group.can_view)
 
     def test_update_conplete_with_admin(self):
         response = self.put(
             self.admin,
-            {'can_moderate': True, 'can_read': True, 'can_view': False}
+            {'can_read': True, 'can_view': False}
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         view_group = self.contributors.viewgroups.get(
             usergroup=self.contributors, view=self.view)
-        self.assertTrue(view_group.can_moderate)
         self.assertTrue(view_group.can_read)
         self.assertFalse(view_group.can_view)
 
@@ -706,7 +704,6 @@ class UserGroupSingleViewTest(TestCase):
 
         view_group = self.contributors.viewgroups.get(
             usergroup=self.contributors, view=self.view)
-        self.assertFalse(view_group.can_moderate)
         self.assertTrue(view_group.can_read)
         self.assertTrue(view_group.can_view)
 
@@ -716,6 +713,5 @@ class UserGroupSingleViewTest(TestCase):
 
         view_group = self.contributors.viewgroups.get(
             usergroup=self.contributors, view=self.view)
-        self.assertFalse(view_group.can_moderate)
         self.assertTrue(view_group.can_read)
         self.assertTrue(view_group.can_view)

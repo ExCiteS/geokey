@@ -34,11 +34,11 @@ class TestViewPermissions(TestCase):
         view = ViewFactory.create()
         group = UserGroupF.create(
             add_users=[user],
-            **{'project': view.project}
+            **{'project': view.project, 'can_moderate': False}
         )
         ViewUserGroupFactory.create(
             **{'view': view, 'usergroup': group,
-                'can_view': True, 'can_read': False, 'can_moderate': False}
+                'can_view': True, 'can_read': False}
         )
 
         self.assertTrue(view.can_view(user))
@@ -51,11 +51,11 @@ class TestViewPermissions(TestCase):
         view = ViewFactory.create()
         group = UserGroupF.create(
             add_users=[user],
-            **{'project': view.project}
+            **{'project': view.project, 'can_moderate': False}
         )
         ViewUserGroupFactory.create(
             **{'view': view, 'usergroup': group,
-                'can_view': True, 'can_read': True, 'can_moderate': False}
+                'can_view': True, 'can_read': True}
         )
 
         self.assertTrue(view.can_view(user))
@@ -68,11 +68,11 @@ class TestViewPermissions(TestCase):
         view = ViewFactory.create()
         group = UserGroupF.create(
             add_users=[user],
-            **{'project': view.project}
+            **{'project': view.project, 'can_moderate': True}
         )
         ViewUserGroupFactory.create(
             **{'view': view, 'usergroup': group,
-                'can_view': True, 'can_read': True, 'can_moderate': True}
+                'can_view': True, 'can_read': True}
         )
 
         self.assertTrue(view.can_view(user))

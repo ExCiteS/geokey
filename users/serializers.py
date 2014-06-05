@@ -22,7 +22,10 @@ class UserGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserGroup
         depth = 1
-        fields = ('id', 'name', 'description', 'users', 'can_contribute')
+        fields = (
+            'id', 'name', 'description', 'users', 'can_contribute',
+            'can_moderate'
+        )
 
 
 class ViewGroupSerializer(serializers.ModelSerializer):
@@ -31,4 +34,4 @@ class ViewGroupSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = ViewUserGroup
-        fields = ('view', 'can_read', 'can_view', 'can_moderate')
+        fields = ('view', 'can_read', 'can_view')

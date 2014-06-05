@@ -135,10 +135,10 @@ class SingleViewObservationTest(TestCase):
         moderator = UserF.create()
         group = UserGroupF.create(
             add_users=[moderator],
-            **{'project': self.view.project}
+            **{'project': self.view.project, 'can_moderate': True}
         )
         ViewUserGroupFactory.create(
-            **{'view': self.view, 'usergroup': group, 'can_moderate': True}
+            **{'view': self.view, 'usergroup': group}
         )
 
         view = SingleViewObservation()
@@ -151,10 +151,10 @@ class SingleViewObservationTest(TestCase):
     def test_get_object_with_creator_moderator(self):
         group = UserGroupF.create(
             add_users=[self.creator],
-            **{'project': self.view.project}
+            **{'project': self.view.project, 'can_moderate': True}
         )
         ViewUserGroupFactory.create(
-            **{'view': self.view, 'usergroup': group, 'can_moderate': True}
+            **{'view': self.view, 'usergroup': group}
         )
 
         view = SingleViewObservation()

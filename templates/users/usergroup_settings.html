@@ -23,7 +23,7 @@
                 <form class="form-inline hidden" id="description-form" role="form">
                     {% csrf_token %}
                     <div class="form-group">
-                        <label class="sr-only" for="desription">Userg group description</label>
+                        <label class="sr-only" for="desription">User group description</label>
                         <input type="text" class="form-control" id="description" name="description" placeholder="Enter a view desription" {% if group.description %}value="{{group.description}}"{% endif %}>
                     </div>
                     <button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
@@ -55,40 +55,29 @@
                 </div>
                 
                 <div class="col-md-7" id="permissions">
-                    <div class="panel panel-default" id="can-contribute">
+                    <div class="panel panel-default">
                         <div class="panel-heading">
-                            <h2 class="panel-title">Contributors</h2>
+                            <h2 class="panel-title">Permissions</h2>
                         </div>
-                        <div class="panel-body">
-                            <div class="checkbox">
-                                <label><input name="can_contribute" type="checkbox" {% if group.can_contribute %} checked="true" {% endif %}> Members of this user group can contribute to the project.</label>
+                        <div class="list-group">
+                            <div class="list-group-item">
+                                <div class="checkbox">
+                                    <label><input class="group-permission" name="can_contribute" type="checkbox" {% if group.can_contribute %} checked="true" {% endif %}> Members of this user group can contribute to the project.</label>
+                                </div>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="checkbox">
+                                    <label><input class="group-permission" name="can_moderate" type="checkbox" {% if group.can_moderate %} checked="true" {% endif %}> Members of this user group can moderate data in the project.</label>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="panel panel-default" id="viewgroups">
-                        <div class="panel-heading">
-                            <h2 class="panel-title">View permissions</h2>
+                        <div class="panel-heading">Views</div>
+                        <div class="list-group">
+                            {% viewgroups group %}    
                         </div>
-                        <table class="table table-striped table-hover">
-                            <tr>
-                                <th></th>
-                                <th>View</th>
-                                <th>view</th>
-                                <th>read</th>
-                                <th>moderate</th>
-                            </tr>
-                            {% viewgroups group %}
-                        </table>
                     </div>
                 </div>
             </div>
-
-            <!-- <div class="row" id="general-settings">
-                <div class="col-md-5">
-                    
-                </div>
-            </div> -->
         </div>
 {% endblock %}
 

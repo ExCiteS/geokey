@@ -43,6 +43,7 @@ class UserGroupF(factory.django.DjangoModelFactory):
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     project = factory.SubFactory('projects.tests.model_factories.ProjectF')
     can_contribute = True
+    can_moderate = False
 
     @factory.post_generation
     def add_users(self, create, extracted, **kwargs):
@@ -59,6 +60,5 @@ class ViewUserGroupFactory(factory.django.DjangoModelFactory):
 
     usergroup = factory.SubFactory(UserGroupF)
     view = factory.SubFactory('dataviews.tests.model_factories.ViewFactory')
-    can_moderate = False
     can_read = True
     can_view = True

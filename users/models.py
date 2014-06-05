@@ -25,7 +25,8 @@ class User(AbstractBaseUser):
     def get_stats(self):
         stats = {}
 
-        stats['observations'] = Observation.objects.filter(creator=self).count()
+        stats['observations'] = Observation.objects.filter(
+            creator=self).count()
         stats['comments'] = Comment.objects.filter(creator=self).count()
         stats['projects'] = Project.objects.filter(creator=self).count()
 
@@ -41,6 +42,7 @@ class UserGroup(models.Model):
     users = models.ManyToManyField(settings.AUTH_USER_MODEL)
     project = models.ForeignKey('projects.Project', related_name='usergroups')
     can_contribute = models.BooleanField(default=True)
+    can_moderate = models.BooleanField(default=False)
 
 
 class ViewUserGroup(models.Model):
@@ -50,7 +52,6 @@ class ViewUserGroup(models.Model):
     """
     usergroup = models.ForeignKey('UserGroup', related_name="viewgroups")
     view = models.ForeignKey('dataviews.View', related_name="usergroups")
-    can_moderate = models.BooleanField(default=False)
     can_read = models.BooleanField(default=False)
     can_view = models.BooleanField(default=True)
 

@@ -68,7 +68,7 @@ class View(models.Model):
         Returns if the user can moderate data of the view.
         """
         return self.project.is_admin(user) or self.usergroups.filter(
-            usergroup__users=user, can_moderate=True).exists()
+            usergroup__users=user, usergroup__can_moderate=True).exists()
 
 
 class Rule(models.Model):
