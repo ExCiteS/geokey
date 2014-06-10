@@ -152,9 +152,11 @@ class ContributionSerializer(object):
         json_object['observationtype'] = observationtype_serializer.data
 
         for field in instance.observationtype.fields.all():
-            json_object['properties'][field.key] = field.convert_from_string(
-                instance.attributes.get(field.key)
-            )
+            value = instance.attributes.get(field.key)
+            if value is not None:
+                json_object['properties'][field.key] = field.convert_from_string(
+                    value
+                )
 
         return json_object
 

@@ -10,7 +10,7 @@ try:
 except:
     XS_SHARING_ALLOWED_ORIGINS = '*'
     XS_SHARING_ALLOWED_METHODS = ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE']
-    XS_SHARING_ALLOWED_HEADERS = ['authorization']
+    XS_SHARING_ALLOWED_HEADERS = ['authorization', 'Content-Type']
 
 
 class XsSharing(object):

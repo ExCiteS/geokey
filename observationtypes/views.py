@@ -60,7 +60,7 @@ class ObservationTypeCreate(LoginRequiredMixin, CreateView):
         """
         project_id = self.kwargs['project_id']
         return reverse(
-            'admin:observationtype_detail',
+            'admin:observationtype_settings',
             kwargs={
                 'project_id': project_id, 'observationtype_id': self.object.id
             }
@@ -135,7 +135,7 @@ class FieldCreate(LoginRequiredMixin, CreateView):
             self.request.POST.get('type')
         )
         return redirect(
-            'admin:observationtype_field_detail',
+            'admin:observationtype_field_settings',
             project_id=observation_type.project.id,
             observationtype_id=observation_type.id,
             field_id=field.id
