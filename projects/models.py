@@ -11,7 +11,7 @@ class Project(models.Model):
     """
 
     name = models.CharField(max_length=100)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     isprivate = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)

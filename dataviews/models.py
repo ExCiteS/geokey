@@ -12,7 +12,7 @@ from .manager import ViewManager, RuleManager
 
 class View(models.Model):
     name = models.CharField(max_length=100)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     created_at = models.DateTimeField(auto_now_add=True)
     isprivate = models.BooleanField(default=False)

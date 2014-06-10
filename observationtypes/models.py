@@ -18,7 +18,7 @@ class ObservationType(models.Model):
     Defines the data structure of a certain type of features.
     """
     name = models.CharField(max_length=100)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     project = models.ForeignKey(
         'projects.Project', related_name='observationtypes'
     )
@@ -38,7 +38,7 @@ class Field(models.Model):
     """
     name = models.CharField(max_length=100)
     key = models.CharField(max_length=30)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     required = models.BooleanField(default=False)
     observationtype = models.ForeignKey(
         'ObservationType', related_name='fields'

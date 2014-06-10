@@ -15,7 +15,7 @@ class Application(models.Model):
     web apps or connector modules that authorize using OAuth.
     """
     name = models.CharField(max_length=100)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     download_url = models.URLField(blank=False)
