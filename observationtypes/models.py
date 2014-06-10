@@ -338,6 +338,11 @@ class LookupField(Field):
         self.validate_required(value)
 
         valid = False
+        try:
+            value = int(value)
+        except ValueError:
+            pass
+
         for lookupvalue in self.lookupvalues.all():
             if lookupvalue.id == value:
                 valid = True
