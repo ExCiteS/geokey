@@ -90,7 +90,8 @@ class ProjectObservations(APIView):
         """
         data = request.DATA
         data['properties']['project'] = project_id
-        serializer = ContributionSerializer(data=data, creator=request.user)
+        data['properties']['user'] = request.user.id
+        serializer = ContributionSerializer(data=data)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -131,9 +132,9 @@ class SingleObservation(APIView):
         """
         Updates a single observation
         """
-        serializer = ContributionSerializer(
-            observation, data=request.DATA, creator=request.user
-        )
+        data = request.DATA
+        data['properties']['user'] = request.user.id
+        serializer = ContributionSerializer(observation, data=data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete_observation(self, request, observation, format=None):
