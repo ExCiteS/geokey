@@ -104,7 +104,6 @@ class RestoreLocationTest(TestCase):
         self.assertEqual(location.private_for_project, None)
         self.assertEqual(json.loads(location.geometry.geojson), geometry)
 
-
     def test_restore_existing_location(self):
         location = LocationFactory()
         serializer = ContributionSerializer(data=self.data)
@@ -352,12 +351,16 @@ class ContributionSerializerIntegrationTests(TestCase):
             observation.location.description)
 
     def test_serialize_bulk(self):
-        ObservationFactory.create_batch(200)
-        observations = Observation.objects.select_related()
+        number = 20
+
+        ObservationFactory.create_batch(number)
+
+        observations = Observation.objects.prefetch_related('location', 'observationtype', 'creator', 'updator')
         serializer = ContributionSerializer(observations, many=True)
         result = serializer.data
+
         self.assertEqual(result.get('type'), 'FeatureCollection')
-        self.assertEqual(len(result.get('features')), 200)
+        self.assertEqual(len(result.get('features')), number)
 
     def test_serialize_update(self):
         observation = ObservationFactory.create(

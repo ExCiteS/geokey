@@ -60,11 +60,7 @@ class ContributionSerializer(object):
     @property
     def data(self):
         if self.many:
-            features = []
-
-            for obj in self.instance:
-                features.append(self.to_native(obj))
-
+            features = [self.to_native_min(obj) for obj in self.instance]
             return {
                 "type": "FeatureCollection",
                 "features": features
@@ -158,6 +154,32 @@ class ContributionSerializer(object):
                 json_object['properties'][field.key] = field.convert_from_string(
                     value
                 )
+
+        return json_object
+
+    def to_native_min(self, obj):
+        location = obj.location
+
+        json_object = {
+            'id': obj.id,
+            'type': 'Feature',
+            'geometry': json.loads(obj.location.geometry.geojson),
+            'observationtype': {
+                'id': obj.observationtype.id,
+                'name': obj.observationtype.name
+            },
+            'properties': {
+                'status': obj.status,
+                'creator': obj.creator.display_name,
+                'updator': obj.updator.display_name if obj.updator is not None else None,
+                'created_at': obj.created_at,
+                'version': obj.version,
+                'location': {
+                    'id': location.id,
+                    'name': location.name
+                }
+            }
+        }
 
         return json_object
 
