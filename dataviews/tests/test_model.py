@@ -22,7 +22,7 @@ class TestViewPermissions(TestCase):
     def test_admin(self):
         user = UserF.create()
         project = ProjectF.create(add_admins=[user])
-        view = ViewFactory.create(**{'project': project})
+        view = ViewFactory.create(**{'project': project, 'isprivate': False})
 
         self.assertTrue(view.can_view(user))
         self.assertTrue(view.can_read(user))

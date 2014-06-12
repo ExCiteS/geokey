@@ -53,20 +53,27 @@ class View(models.Model):
         """
         Returns if the user can view data of the view.
         """
-        return self.project.is_admin(user) or self.usergroups.filter(
-            usergroup__users=user, can_view=True).exists()
+        return ((user.is_anonymous() and not self.isprivate) or
+                self.project.is_admin(user) or
+                self.usergroups.filter(
+                    usergroup__users=user, can_view=True).exists())
 
     def can_read(self, user):
         """
         Returns if the user can read data of the view.
         """
-        return self.project.is_admin(user) or self.usergroups.filter(
-            usergroup__users=user, can_read=True).exists()
+        return ((user.is_anonymous() and not self.isprivate) or
+                self.project.is_admin(user) or
+                self.usergroups.filter(
+                    usergroup__users=user, can_read=True).exists())
 
     def can_moderate(self, user):
         """
         Returns if the user can moderate data of the view.
         """
+        if user.is_anonymous():
+            return False
+
         return self.project.is_admin(user) or self.usergroups.filter(
             usergroup__users=user, usergroup__can_moderate=True).exists()
 

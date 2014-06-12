@@ -99,21 +99,21 @@ class SingleViewObservationTest(TestCase):
         )
         self.assertEqual(observation, self.observation)
 
-    @raises(PermissionDenied)
-    def test_get_object_with_not_reader(self):
-        view_member = UserF.create()
-        group = UserGroupF.create(
-            add_users=[view_member],
-            **{'project': self.view.project}
-        )
-        ViewUserGroupFactory.create(
-            **{'view': self.view, 'usergroup': group, 'can_read': False}
-        )
-        view = SingleViewObservation()
-        view.get_object(
-            view_member, self.observation.project.id,
-            self.view.id, self.observation.id
-        )
+    # @raises(PermissionDenied)
+    # def test_get_object_with_not_reader(self):
+    #     view_member = UserF.create()
+    #     group = UserGroupF.create(
+    #         add_users=[view_member],
+    #         **{'project': self.view.project}
+    #     )
+    #     ViewUserGroupFactory.create(
+    #         **{'view': self.view, 'usergroup': group, 'can_read': False}
+    #     )
+    #     view = SingleViewObservation()
+    #     view.get_object(
+    #         view_member, self.observation.project.id,
+    #         self.view.id, self.observation.id
+    #     )
 
     def test_get_object_with_admin(self):
         view = SingleViewObservation()
