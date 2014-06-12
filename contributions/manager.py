@@ -65,7 +65,9 @@ class ObservationManager(hstore.HStoreManager):
         """
         Returns all observations excluding those with status `deleted`
         """
-        return super(ObservationManager, self).get_query_set().exclude(
+        return super(
+            ObservationManager, self).get_query_set().prefetch_related(
+            'location', 'observationtype', 'creator', 'updator').exclude(
             status=OBSERVATION_STATUS.deleted)
 
 

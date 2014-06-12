@@ -133,6 +133,7 @@ class Observation(models.Model):
         self.status = status or self.status
 
         self.save()
+        return self
 
     def delete(self):
         """

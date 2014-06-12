@@ -1,6 +1,7 @@
 # https://gist.github.com/barrabinfc/426829
 
 from django import http
+from django.db import connection
 
 try:
     import settings
@@ -42,4 +43,14 @@ class XsSharing(object):
         response['Access-Control-Allow-Methods'] = ",".join( XS_SHARING_ALLOWED_METHODS )
         response['Access-Control-Allow-Headers'] = ",".join( XS_SHARING_ALLOWED_HEADERS )
 
+        return response
+
+
+class TerminalLogging:
+    def process_response(self, request, response):
+        from sys import stdout
+        if stdout.isatty():
+            for query in connection.queries :
+                print "\033[1;31m[%s]\033[0m \033[1m%s\033[0m" % (query['time'],
+                    " ".join(query['sql'].split()))
         return response

@@ -362,8 +362,8 @@ class ProjectAjaxObservations(APIView):
     @handle_exceptions_for_ajax
     def get(self, request, project_id, format=None):
         project = Project.objects.as_admin(request.user, project_id)
-        serializer = ContributionSerializer(
-            project.observations.all(), many=True)
+        observations = project.observations.all()
+        serializer = ContributionSerializer(observations, many=True)
         return Response(serializer.data)
 
 
@@ -378,6 +378,6 @@ class ProjectAjaxMyObservations(APIView):
     @handle_exceptions_for_ajax
     def get(self, request, project_id, format=None):
         project = Project.objects.as_contributor(request.user, project_id)
-        serializer = ContributionSerializer(
-            project.observations.filter(creator=request.user), many=True)
+        observations = project.observations.filter(creator=request.user)
+        serializer = ContributionSerializer(observations, many=True)
         return Response(serializer.data)
