@@ -3,6 +3,8 @@ from .contrib import *
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
+AUTH_USER_MODEL = 'users.User'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.

@@ -106,7 +106,6 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
                                 }
                             )
                         )
-
         except Project.DoesNotExist:
             pass
 
