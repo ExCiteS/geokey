@@ -254,7 +254,7 @@ helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partial
 function program1(depth0,data) {
   
   var buffer = "", stack1, helper, options;
-  buffer += "\n    <div class=\"field-filter form-horizontal\" data-key=\"";
+  buffer += "\n    <div class=\"alert alert-info\">Please set the value for each individual field you want to filter for. If you leave a filter blank, the field will not be filtered for.</div>\n\n    <div class=\"field-filter form-horizontal\" data-key=\"";
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
