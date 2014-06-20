@@ -30,6 +30,72 @@ from .forms import UserRegistrationForm, UsergroupCreateForm
 #
 # ############################################################################
 
+class Index(TemplateView):
+    """
+    Displays the splash page. Redirects to dashboard if a user is looged in.
+    """
+    template_name = 'index.html'
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_anonymous():
+            return self.render_to_response(self.get_context_data)
+        else:
+            return redirect('admin:dashboard')
+
+
+class Dashboard(LoginRequiredMixin, TemplateView):
+    """
+    Displays the dashboard.
+    """
+    template_name = 'dashboard.html'
+
+    def get_context_data(self):
+        return {
+            'stats': self.request.user.get_stats(),
+            'admin_projects': Project.objects.get_list(
+                self.request.user).filter(admins=self.request.user),
+            'involved_projects': Project.objects.get_list(
+                self.request.user).exclude(admins=self.request.user),
+            'apps': Application.objects.get_list(self.request.user),
+            'status_types': STATUS
+        }
+
+
+class Signup(CreateView):
+    """
+    Displays the sign-up page
+    """
+    template_name = 'users/signup.html'
+    form_class = UserRegistrationForm
+
+    def form_valid(self, form):
+        """
+        Registers the user if the form is valid and no other has been
+        regstered woth the username.
+        """
+        data = form.cleaned_data
+        User.objects.create_user(
+            data.get('email'),
+            data.get('display_name'),
+            password=data.get('password')
+        ).save()
+
+        user = auth.authenticate(
+            username=data.get('email'),
+            password=data.get('password')
+        )
+
+        auth.login(self.request, user)
+        return redirect('admin:dashboard')
+
+    def form_invalid(self, form):
+        """
+        The form is invalid or another user has already been registerd woth
+        that username. Displays the error message.
+        """
+        context = self.get_context_data(form=form, user_exists=True)
+        return self.render_to_response(context)
+
 class UserGroupCreate(LoginRequiredMixin, CreateView):
     """
     Displays the create user group page
@@ -334,135 +400,3 @@ class UserGroupSingleView(APIView):
 # ############################################################################
 
 # N/A
-
-
-# ############################################################################
-#
-# TRY TO GED RID OF THESE
-#
-# ############################################################################
-
-class Index(TemplateView):
-    """
-    Displays the splash page. Redirects to dashboard if a user is looged in.
-    """
-    template_name = 'index.html'
-
-    def get(self, request, *args, **kwargs):
-        if request.user.is_anonymous():
-            return self.render_to_response(self.get_context_data)
-        else:
-            return redirect('admin:dashboard')
-
-
-class Login(TemplateView):
-    """
-    Displays the login page and handles login requests.
-    """
-    template_name = 'login.html'
-
-    def get(self, request):
-        """
-        Displays the page and an optional message if the user has been
-        redirected here from anonther page.
-        """
-        if request.GET and request.GET.get('next'):
-            context = self.get_context_data(
-                login_required=True,
-                next=request.GET.get('next')
-            )
-        else:
-            context = self.get_context_data
-        return self.render_to_response(context)
-
-    def post(self, request, *args, **kwargs):
-        """
-        Authenticates the user and redirects to next page if available.
-        """
-        user = auth.authenticate(
-            username=request.POST.get('email'),
-            password=request.POST.get('password')
-        )
-        if user is not None:
-            auth.login(request, user)
-            if request.GET and request.GET.get('next'):
-                return redirect(request.GET.get('next'))
-            else:
-                return redirect('admin:dashboard')
-        else:
-            context = self.get_context_data(login_failed=True)
-            return self.render_to_response(context)
-
-
-class Logout(TemplateView):
-    """
-    Displays the logout page
-    """
-    template_name = 'login.html'
-
-    def get(self, request, *args, **kwargs):
-        """
-        Logs the user out
-        """
-        auth.logout(request)
-        return super(Logout, self).get(request, *args, **kwargs)
-
-    def get_context_data(self):
-        """
-        Return the context data to display the 'Succesfully logged out message'
-        """
-        return {'logged_out': True}
-
-
-class Signup(CreateView):
-    """
-    Displays the sign-up page
-    """
-    template_name = 'signup.html'
-    form_class = UserRegistrationForm
-
-    def form_valid(self, form):
-        """
-        Registers the user if the form is valid and no other has been
-        regstered woth the username.
-        """
-        data = form.cleaned_data
-        User.objects.create_user(
-            data.get('email'),
-            data.get('display_name'),
-            password=data.get('password')
-        ).save()
-
-        user = auth.authenticate(
-            username=data.get('email'),
-            password=data.get('password')
-        )
-
-        auth.login(self.request, user)
-        return redirect('admin:dashboard')
-
-    def form_invalid(self, form):
-        """
-        The form is invalid or another user has already been registerd woth
-        that username. Displays the error message.
-        """
-        context = self.get_context_data(form=form, user_exists=True)
-        return self.render_to_response(context)
-
-
-class Dashboard(LoginRequiredMixin, TemplateView):
-    """
-    Displays the dashboard.
-    """
-    template_name = 'dashboard.html'
-
-    def get_context_data(self):
-        return {
-            'stats': self.request.user.get_stats(),
-            'admin_projects': Project.objects.get_list(
-                self.request.user).filter(admins=self.request.user),
-            'involved_projects': Project.objects.get_list(
-                self.request.user).exclude(admins=self.request.user),
-            'apps': Application.objects.get_list(self.request.user),
-            'status_types': STATUS
-        }

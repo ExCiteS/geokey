@@ -13,7 +13,11 @@
 			<div class="container">
 				<div class="row">
 					<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-						<div class="alert alert-danger">You were trying to register a user with an username that already exists.</div>
+						<div class="alert alert-danger">
+							<strong>We were not able to register you as a new user, because: </strong>
+							{{ form.email.errors }}	
+							{{ form.display_name.errors }}	
+						</div>
 					</div>
 				</div>
 			</div>
@@ -44,7 +48,7 @@
 								</div>
 							</form>
 						</div>
-						<p class="text-center">Already signed up? Please <a href="{% url 'admin:login'%}">sign in here</a> &bull; <a href="{% url 'admin:password_reset' %}">Forgot password?</a></p>
+						<p class="text-center">Already signed up? Please <a href="/admin/accounts/login/">sign in here</a> &bull; <a href="{% url 'admin:password_reset' %}">Forgot password?</a></p>
 					</div>
 				</div>
 			</div>

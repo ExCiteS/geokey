@@ -90,8 +90,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-LOGIN_URL = '/admin/login'
+LOGIN_URL = '/admin/accounts/login/'
 
-LOGOUT_URL = '/admin/logout'
+LOGOUT_URL = '/admin/accounts/logout/'
 
-LOGIN_REDIRECT_URL = '/admin/dashboard'
+LOGIN_REDIRECT_URL = '/admin/dashboard/'
