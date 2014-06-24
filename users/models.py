@@ -19,6 +19,7 @@ class User(AbstractBaseUser):
     display_name = models.CharField(max_length=50)
     date_joined = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
+    is_superuser = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
 

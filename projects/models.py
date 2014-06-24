@@ -34,7 +34,6 @@ class Project(models.Model):
         Creates a new project. Creates two usergroups and adds the creator to
         the administrators user group.
         """
-
         project = cls(
             name=name,
             description=description,
