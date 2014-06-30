@@ -7,5 +7,5 @@ urlpatterns = patterns(
     url(r'^admin/', include('core.admin', namespace="admin")),
     url(r'^api/', include('core.api', namespace="api")),
     url(r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),
-    url(r'^', RedirectView.as_view(url='/admin/', permanent=True)),
+    url(r'^$', RedirectView.as_view(url='/admin/', permanent=True)),
 )
