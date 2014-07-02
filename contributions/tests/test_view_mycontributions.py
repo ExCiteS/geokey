@@ -11,6 +11,8 @@ from dataviews.tests.model_factories import ViewFactory
 
 from ..views import MyObservations
 
+# Write test for single observation and comments....
+
 
 class MyContributionsTest(TestCase):
     def setUp(self):

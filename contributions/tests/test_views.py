@@ -1,7 +1,9 @@
 from django.test import TestCase
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 
 from nose.tools import raises
+from rest_framework.test import APIRequestFactory, force_authenticate
 
 from projects.tests.model_factories import UserF, ProjectF
 from observationtypes.tests.model_factories import ObservationTypeFactory
@@ -10,7 +12,7 @@ from dataviews.tests.model_factories import (
 )
 from users.tests.model_factories import UserGroupF, ViewUserGroupFactory
 
-from .model_factories import ObservationFactory
+from .model_factories import ObservationFactory, CommentFactory
 
 from ..views import (
     MySingleObservation, SingleProjectObservation, SingleViewObservation,
@@ -50,6 +52,22 @@ class SingleProjectObservationTest(TestCase):
         view = SingleProjectObservation()
         view.get_object(
             some_dude, self.observation.project.id, self.observation.id)
+
+    def test_api_with_admin(self):
+        CommentFactory.create_batch(5, **{'commentto': self.observation})
+        factory = APIRequestFactory()
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
+        })
+        request = factory.get(url)
+        force_authenticate(request, user=self.admin)
+        theview = SingleProjectObservation.as_view()
+        response = theview(
+            request,
+            project_id=self.project.id,
+            observation_id=self.observation.id).render()
+        self.assertEqual(response.status_code, 200)
 
 
 class SingleViewObservationTest(TestCase):
