@@ -66,9 +66,25 @@ class SingleLocation(APIView):
 
 class ProjectObservations(APIView):
     """
-    Public API endpoint for all observations in a project. Used to add new
-    contributions to a project
-    /api/projects/:project_id/observations
+    Public API endpoint to add new contributions to a project
+    /api/projects/:project_id/contributions
+    """
+    @handle_exceptions_for_ajax
+    def post(self, request, project_id, format=None):
+        """
+        Adds a new contribution to a project
+        """
+        data = request.DATA
+        data['properties']['project'] = project_id
+        data['properties']['user'] = request.user.id
+        serializer = ContributionSerializer(data=data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class ProjectObersvationsView(APIView):
+    """
+    Public API endpoint to get all contributions in a project
+    /api/projects/:project_id/maps/all-contributions
     """
 
     @handle_exceptions_for_ajax
@@ -83,19 +99,14 @@ class ProjectObservations(APIView):
                                    'project. You must therefore access '
                                    'observations through one of the views.')
 
-    @handle_exceptions_for_ajax
-    def post(self, request, project_id, format=None):
-        """
-        Adds a new contribution to a project
-        """
-        data = request.DATA
-        data['properties']['project'] = project_id
-        data['properties']['user'] = request.user.id
-        serializer = ContributionSerializer(data=data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
 
 class MyObservations(APIView):
+    """
+    Public API endpoint for all observations in a project. Used to add new
+    contributions to a project
+    /api/projects/:project_id/maps/my-contributions/
+    """
+
     @handle_exceptions_for_ajax
     def get(self, request, project_id, format=None):
         project = Project.objects.get_single(request.user, project_id)
