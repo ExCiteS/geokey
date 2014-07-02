@@ -53,7 +53,7 @@ class ProjectPublicApiTest(TestCase):
             "properties": {
                 "key_1": "value 1",
                 "key_2": 12,
-                "observationtype": self.observationtype.id,
+                "contributiontype": self.observationtype.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -76,7 +76,7 @@ class ProjectPublicApiTest(TestCase):
         return view(request, project_id=self.project.id).render()
 
     def test_contribute_with_wrong_observation_type(self):
-        self.data['properties']['observationtype'] = 3864
+        self.data['properties']['contributiontype'] = 3864
 
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 400)
@@ -94,7 +94,7 @@ class ProjectPublicApiTest(TestCase):
             "properties": {
                 "key_1": 12,
                 "key_2": "jsdbdjhsb",
-                "observationtype": self.observationtype.id,
+                "contributiontype": self.observationtype.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -118,7 +118,7 @@ class ProjectPublicApiTest(TestCase):
                     "description": location.description,
                     "private": location.private
                 },
-                "observationtype": self.observationtype.id,
+                "contributiontype": self.observationtype.id,
                 "key_1": "value 1",
                 "key_2": 12
             }
@@ -143,7 +143,7 @@ class ProjectPublicApiTest(TestCase):
                     "description": location.description,
                     "private": location.private
                 },
-                "observationtype": self.observationtype.id,
+                "contributiontype": self.observationtype.id,
                 "key_1": "value 1",
                 "key_2": 12
             }
@@ -168,7 +168,7 @@ class ProjectPublicApiTest(TestCase):
                     "description": location.description,
                     "private": location.private
                 },
-                "observationtype": self.observationtype.id,
+                "contributiontype": self.observationtype.id,
                 "key_1": "value 1",
                 "key_2": 12
             }
@@ -192,7 +192,7 @@ class ProjectPublicApiTest(TestCase):
                     "description": location.description,
                     "private": location.private
                 },
-                "observationtype": self.observationtype.id,
+                "contributiontype": self.observationtype.id,
                 "key_1": "value 1",
                 "key_2": 12
             }

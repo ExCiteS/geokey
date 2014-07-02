@@ -23,17 +23,13 @@ urlpatterns = patterns(
     # ###########################
 
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observations/$',
+        r'^projects/(?P<project_id>[0-9]+)/contributions/$',
         contribution_views.ProjectObservations.as_view(),
         name='project_observations'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/$',
         contribution_views.SingleProjectObservation.as_view(),
         name='project_single_observation'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)/$',
-        contribution_views.SingleViewObservation.as_view(),
-        name='view_single_observation'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/mycontributions/$',
         contribution_views.MyObservations.as_view(),
@@ -43,9 +39,13 @@ urlpatterns = patterns(
         contribution_views.MySingleObservation.as_view(),
         name='project_my_single_observation'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/maps/(?P<view_id>[0-9]+)/$',
         contribution_views.ViewObservations.as_view(),
         name='single_view'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/maps/(?P<view_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/$',
+        contribution_views.SingleViewObservation.as_view(),
+        name='view_single_observation'),
 
     # ###########################
     # LOCATIONS
@@ -64,19 +64,19 @@ urlpatterns = patterns(
     # COMMENTS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)/comments/$',
+        r'^projects/(?P<project_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/comments/$',
         contribution_views.ProjectComments.as_view(),
         name='project_comments'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
         contribution_views.ProjectSingleComment.as_view(),
         name='project_single_comment'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)/comments/$',
+        r'^projects/(?P<project_id>[0-9]+)/maps/(?P<view_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/comments/$',
         contribution_views.ViewComments.as_view(),
         name='view_comments'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/maps/(?P<view_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
         contribution_views.ViewSingleComment.as_view(),
         name='view_single_comment'),
     url(
@@ -92,7 +92,7 @@ urlpatterns = patterns(
     # OBSERVATION TYPES
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/contributiontypes/(?P<observationtype_id>[0-9]+)/$',
         observationtype_views.SingleObservationType.as_view(),
         name='observationtype'),
 )

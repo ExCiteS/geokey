@@ -35,14 +35,18 @@ class LocationContributionSerializer(serializers.ModelSerializer):
 class ObservationSerializer(serializers.ModelSerializer):
     creator = UserSerializer()
     updator = UserSerializer()
+    contributiontype = serializers.SerializerMethodField('get_type')
 
     class Meta:
         model = Observation
         depth = 0
         fields = (
-            'status', 'observationtype', 'review_comment',
+            'status', 'contributiontype', 'review_comment',
             'creator', 'updator', 'created_at', 'version'
         )
+
+    def get_type(self, observation):
+        return observation.observationtype.id
 
 
 class ContributionSerializer(object):
@@ -107,11 +111,11 @@ class ContributionSerializer(object):
 
                 try:
                     observationtype = project.observationtypes.get(
-                        pk=properties.pop('observationtype'))
+                        pk=properties.pop('contributiontype'))
                 except ObservationType.DoesNotExist:
-                    raise MalformedRequestData('The observationtype can not be'
-                                               ' used with the project or does'
-                                               ' not exist.')
+                    raise MalformedRequestData('The contributiontype can not'
+                                               'be used with the project or '
+                                               'does not exist.')
 
                 location = self.restore_location(
                     data.get('properties').pop('location', None),
@@ -146,7 +150,7 @@ class ContributionSerializer(object):
 
         observationtype_serializer = ObservationTypeSerializer(
             obj.observationtype)
-        json_object['observationtype'] = observationtype_serializer.data
+        json_object['contributiontype'] = observationtype_serializer.data
 
         for field in obj.observationtype.fields.all():
             value = obj.attributes.get(field.key)
@@ -164,7 +168,7 @@ class ContributionSerializer(object):
             'id': obj.id,
             'type': 'Feature',
             'geometry': json.loads(obj.location.geometry.geojson),
-            'observationtype': {
+            'contributiontype': {
                 'id': obj.observationtype.id,
                 'name': obj.observationtype.name
             },

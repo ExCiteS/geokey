@@ -14,22 +14,27 @@ class ProjectSerializer(FieldSelectorSerializer):
     is_admin = serializers.SerializerMethodField('get_admin')
     is_involved = serializers.SerializerMethodField('get_involved')
     can_contribute = serializers.SerializerMethodField('get_contribute')
-    views = serializers.SerializerMethodField('get_views')
-    num_views = serializers.SerializerMethodField('get_number_views')
+    maps = serializers.SerializerMethodField('get_maps')
+    num_maps = serializers.SerializerMethodField('get_number_maps')
     num_observations = serializers.SerializerMethodField(
         'get_number_observations')
     user_contributions = serializers.SerializerMethodField(
         'get_user_contributions')
-    observationtypes = ObservationTypeSerializer(read_only=True, many=True)
+    contributiontypes = serializers.SerializerMethodField('get_contributiontypes')
 
     class Meta:
         model = Project
         depth = 1
         fields = ('id', 'name', 'description', 'isprivate', 'status',
-                  'created_at', 'observationtypes', 'is_admin',
-                  'can_contribute', 'is_involved', 'views', 'num_views',
+                  'created_at', 'contributiontypes', 'is_admin',
+                  'can_contribute', 'is_involved', 'maps', 'num_maps',
                   'num_observations', 'user_contributions')
         read_only_fields = ('id', 'name')
+
+    def get_contributiontypes(self, project):
+        serializer = ObservationTypeSerializer(
+            project.observationtypes.all(), many=True)
+        return serializer.data
 
     def get_admin(self, project):
         """
@@ -49,29 +54,29 @@ class ProjectSerializer(FieldSelectorSerializer):
         """
         return project.is_involved(self.context.get('user'))
 
-    def get_views(self, project):
+    def get_maps(self, project):
         """
-        Method for SerializerMethodField `views`
+        Method for SerializerMethodField `maps`
         """
         user = self.context.get('user')
-        views = View.objects.get_list(user, project.id)
+        maps = View.objects.get_list(user, project.id)
         view_serializer = ViewSerializer(
-            views, many=True,
+            maps, many=True,
             fields=('id', 'name', 'description', 'num_observations'))
         return view_serializer.data
 
-    def get_number_views(self, project):
+    def get_number_maps(self, project):
         """
-        Method for SerializerMethodField `num_views`. Returns the number of
-        views the user is allowed to access.
+        Method for SerializerMethodField `num_maps`. Returns the number of
+        maps the user is allowed to access.
         """
         user = self.context.get('user')
         return View.objects.get_list(user, project.id).count()
 
     def get_number_observations(self, project):
         """
-        Method for SerializerMethodField `num_observations`. Returns the overall
-        number of observations contributed to the project.
+        Method for SerializerMethodField `num_observations`. Returns the
+        overall number of observations contributed to the project.
         """
         return project.observations.count()
 
