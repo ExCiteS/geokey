@@ -15,6 +15,7 @@ class Project(models.Model):
     isprivate = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
+    everyone_contributes = models.BooleanField(default=True)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
@@ -85,9 +86,10 @@ class Project(models.Model):
         Returns True if:
         - the user is member of the administrators group
         - the user is member of one usergroup that has can_contribute granted
+        - everyone_contributes is True
         """
         return self.status == STATUS.active and (
-            self.is_admin(user) or (
+            self.everyone_contributes or self.is_admin(user) or (
                 not user.is_anonymous() and (
                     self.usergroups.filter(
                         can_contribute=True, users=user).exists())))
