@@ -22,7 +22,7 @@
                 <form id="rule-form" role="form" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url 'admin:view_rule_create' view.project.id view.id %}" novalidate>
                     {% csrf_token %}
                     <div class="form-group">
-                        <label for="observationtype" class="control-label">Select observation type</label>
+                        <label for="observationtype" class="control-label">Select contribution type</label>
                         <select name="observationtype" id="observationtype" class="form-control">
                             <option value="-1"></option>
                             {% for type in view.project.observationtypes.all %}

@@ -22,7 +22,7 @@
 					{% csrf_token %}
 					<div class="form-group">
 						<label class="sr-only" for="desription">Observation type description</label>
-						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a feature type desription" {% if observationtype.description %}value="{{observationtype.description}}"{% endif %}>
+						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a contribution type desription" {% if observationtype.description %}value="{{observationtype.description}}"{% endif %}>
 					</div>
 					<button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
 					<button type="button" class="btn btn-link">Cancel</button>
@@ -50,20 +50,20 @@
 				<div class="col-md-5 col-md-offset-1">
 					<div class="panel panel-warning toggle-active {% if observationtype.status == status_types.inactive %} hidden{% endif %}">
 						<div class="panel-heading">
-							<h2 class="panel-title">Make this feature type inactive</h2>
+							<h2 class="panel-title">Make this contribution type inactive</h2>
 						</div>
 						<div class="panel-body">
-							<p>The feature type shall no longer be used for data contribution.</p>
+							<p>The contribution type shall no longer be used for data contribution.</p>
 							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-inactive-confirm">Make inactive</button>
 						</div>
 					</div>
 
 					<div class="panel panel-warning toggle-active {% if observationtype.status == status_types.active %} hidden{% endif %}">
 						<div class="panel-heading">
-							<h2 class="panel-title">Make this feature type active</h2>
+							<h2 class="panel-title">Make this contribution type active</h2>
 						</div>
 						<div class="panel-body">
-							<p>The feature type shall available for data contribution.</p>
+							<p>The contribution type shall available for data contribution.</p>
 							<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-active-confirm">Make active</button>
 						</div>
 					</div>
@@ -83,14 +83,14 @@
 						<h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
 					</div>
 					<div class="modal-body panel-body">
-						<p><strong>Before you make the feature type inactive, please read through the consequences of this action:</strong></p>
+						<p><strong>Before you make the contribution type inactive, please read through the consequences of this action:</strong></p>
 						<ul>
-							<li>Users will not be able to contribute new data using this feature type.</li>
-							<li>However, data already contributed using this feature type can be edited and the input will be validated against the type.</li>
+							<li>Users will not be able to contribute new data using this contribution type.</li>
+							<li>However, data already contributed using this contribution type can be edited and the input will be validated against the type.</li>
 						</ul>
 					</div>
 					<div class="modal-footer panel-footer">
-						<button type="button" name="confirm" value="{{status_types.inactive}}" class="btn btn-warning" data-loading-text="Loading...">Yes, make the feature type inactive.</button>
+						<button type="button" name="confirm" value="{{status_types.inactive}}" class="btn btn-warning" data-loading-text="Loading...">Yes, make the contribution type inactive.</button>
 					</div>
 				</div>
 			</div>
@@ -104,13 +104,13 @@
 						<h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
 					</div>
 					<div class="modal-body panel-body">
-						<p><strong>Before you make the feature type active, please read through the consequences of this action:</strong></p>
+						<p><strong>Before you make the contribution type active, please read through the consequences of this action:</strong></p>
 						<ul>
-							<li>The feature type can be user for data contribution and validation.</li>
+							<li>The contribution type can be user for data contribution and validation.</li>
 						</ul>
 					</div>
 					<div class="modal-footer panel-footer">
-						<button type="button" name="confirm" value="{{status_types.active}}" class="btn btn-warning" data-dismiss="modal">Yes, make the feature type active.</button>
+						<button type="button" name="confirm" value="{{status_types.active}}" class="btn btn-warning" data-dismiss="modal">Yes, make the contribution type active.</button>
 					</div>
 				</div>
 			</div>

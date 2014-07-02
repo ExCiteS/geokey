@@ -38,7 +38,7 @@ $(function () {
 	// Setting parameters
 	if (projectId && observationtypeId) {
 		url += '/observationtypes/' + observationtypeId;
-		name = 'observation type';
+		name = 'contribution type';
 	}
 	if (projectId && observationtypeId && fieldId) {
 		url += '/fields/' + fieldId;
@@ -46,7 +46,7 @@ $(function () {
 	}
 	if (projectId && viewId) {
 		url += '/views/' + viewId;
-		name = 'view';
+		name = 'map';
 	}
 	if (projectId && groupId) {
 		url += '/usergroups/' + groupId;

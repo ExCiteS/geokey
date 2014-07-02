@@ -27,8 +27,8 @@
 				<form class="form-inline hidden" id="description-form" role="form">
 					{% csrf_token %}
 					<div class="form-group">
-						<label class="sr-only" for="desription">View description</label>
-						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a view desription" {% if view.description %}value="{{view.description}}"{% endif %}>
+						<label class="sr-only" for="desription">Map description</label>
+						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a map desription" {% if view.description %}value="{{view.description}}"{% endif %}>
 					</div>
 					<button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
 					<button type="button" class="btn btn-link">Cancel</button>
@@ -57,13 +57,13 @@
 						<div class="list-group">
 							{% for rule in view.rules.all %}
 								<a href="{% url 'admin:rule_settings' rule.view.project.id rule.view.id rule.id %}" class="list-group-item">
-									Includes observations of type <strong>{{ rule.observation_type.name }}</strong> {% if rule.filters|length > 0 %}where {% endif %}
+									Includes contributions of type <strong>{{ rule.observation_type.name }}</strong> {% if rule.filters|length > 0 %}where {% endif %}
 									<ul>
 										{% filters rule %}
 									</ul>
 								</a>
                             {% empty %}
-                                <p class="list-group-item">Define rules according to which observations to the project are filtered for the view. Filter rules are based on observation types and values provided for the individual fields in the obervation.</p>
+                                <p class="list-group-item">Define rules according to which contributions to the project are filtered for the view. Filter rules are based on contribution types and values provided for the individual fields in the contribution.</p>
                             {% endfor %}
 						</div>
 						<div class="panel-footer">
@@ -77,20 +77,20 @@
 				<div class="col-sm-8 col-sm-offset-2">
                     <div class="panel panel-warning toggle-private {% if not view.isprivate %} hidden{% endif %}">
                         <div class="panel-heading">
-                            <h2 class="panel-title">Make this view public</h2>
+                            <h2 class="panel-title">Make this map public</h2>
                         </div>
                         <div class="panel-body">
-                            <p>A public view will be accesible by all users who have access to the project.</p>
+                            <p>A public map will be accesible by all users who have access to the project.</p>
                             <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-public-confirm">Make public</button>
                         </div>
                     </div>
 
                     <div class="panel panel-warning toggle-private {% if view.isprivate %} hidden{% endif %}">
                         <div class="panel-heading">
-                            <h2 class="panel-title">Make this view private</h2>
+                            <h2 class="panel-title">Make this map private</h2>
                         </div>
                         <div class="panel-body">
-                            <p>A private view is only accessible by project administrators and members of any user group that is assigned to the view.</p>
+                            <p>A private map is only accessible by project administrators and members of any user group that is assigned to the view.</p>
                             <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-private-confirm">Make private</button>
                         </div>
                     </div>
@@ -98,11 +98,11 @@
 				<div class="col-sm-8 col-sm-offset-2">
 					<div class="panel panel-danger">
 						<div class="panel-heading">
-							<h2 class="panel-title">Delete view</h2>
+							<h2 class="panel-title">Delete map</h2>
 						</div>
 						<div class="panel-body">
-							<p>If you delete the view there's no way back.</p>
-							<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-confirm">Delete this view</button>
+							<p>If you delete the map there's no way back.</p>
+							<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-confirm">Delete this map</button>
 						</div>
 					</div>
 				</div>
@@ -120,14 +120,13 @@
 						<h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
 					</div>
 					<div class="modal-body panel-body">
-						<p class="text-danger">You are about to delete the view <strong>{{view.name}}</strong>. This can not be undone.</p>
+						<p class="text-danger">You are about to delete the map <strong>{{view.name}}</strong>. This can not be undone.</p>
 						<ul>
-							<li>All user groups assigned to the view will be deleted.</li>
 							<li>All users who are solely assigned to one of the views user groups will not be able to access the project any longer.</li>
 						</ul>
 					</div>
 					<div class="modal-footer panel-footer">
-						<button type="button" name="confirm" class="btn btn-danger">I'm absolutely sure, delete the view!</button>
+						<button type="button" name="confirm" class="btn btn-danger">I'm absolutely sure, delete the map!</button>
 					</div>
 				</div>
 			</div>
@@ -142,11 +141,11 @@
                         <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
                     </div>
                     <div class="modal-body panel-body">
-                        <p><strong>Before you make the view public, please read through the consequences of this action.</strong></p>
-                        <p>A public view will be accesible by all users who have access to the project.</p>
+                        <p><strong>Before you make the map public, please read through the consequences of this action.</strong></p>
+                        <p>A public map will be accesible by all users who have access to the project.</p>
                     </div>
                     <div class="modal-footer panel-footer">
-                        <button type="button" name="confirm" value="false" class="btn btn-warning" data-loading-text="Loading...">Yes, make the view public.</button>
+                        <button type="button" name="confirm" value="false" class="btn btn-warning" data-loading-text="Loading...">Yes, make the map public.</button>
                     </div>
                 </div>
             </div>
@@ -160,15 +159,15 @@
                         <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
                     </div>
                     <div class="modal-body panel-body">
-                        <p><strong>Before you make the view private, please read through the consequences of this action.</strong></p>
-                        <p>A view project is only accessible by the following users:</p>
+                        <p><strong>Before you make the map private, please read through the consequences of this action.</strong></p>
+                        <p>A map is only accessible by the following users:</p>
                         <ul>
                             <li>Project administrators</li>
-                            <li>Members of any user group that is assigned to the view.</li>
+                            <li>Members of any user group that is assigned to the map.</li>
                         </ul>
                     </div>
                     <div class="modal-footer panel-footer">
-                        <button type="button" name="confirm" value="true" class="btn btn-warning" data-loading-text="Loading...">Yes, make the view private.</button>
+                        <button type="button" name="confirm" value="true" class="btn btn-warning" data-loading-text="Loading...">Yes, make the view map.</button>
                     </div>
                 </div>
             </div>
