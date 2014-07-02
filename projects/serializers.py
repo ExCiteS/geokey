@@ -16,8 +16,8 @@ class ProjectSerializer(FieldSelectorSerializer):
     can_contribute = serializers.SerializerMethodField('get_contribute')
     maps = serializers.SerializerMethodField('get_maps')
     num_maps = serializers.SerializerMethodField('get_number_maps')
-    num_observations = serializers.SerializerMethodField(
-        'get_number_observations')
+    num_contributions = serializers.SerializerMethodField(
+        'get_number_contrbutions')
     user_contributions = serializers.SerializerMethodField(
         'get_user_contributions')
     contributiontypes = serializers.SerializerMethodField('get_contributiontypes')
@@ -28,7 +28,7 @@ class ProjectSerializer(FieldSelectorSerializer):
         fields = ('id', 'name', 'description', 'isprivate', 'status',
                   'created_at', 'contributiontypes', 'is_admin',
                   'can_contribute', 'is_involved', 'maps', 'num_maps',
-                  'num_observations', 'user_contributions')
+                  'num_contributions', 'user_contributions')
         read_only_fields = ('id', 'name')
 
     def get_contributiontypes(self, project):
@@ -73,7 +73,7 @@ class ProjectSerializer(FieldSelectorSerializer):
         user = self.context.get('user')
         return View.objects.get_list(user, project.id).count()
 
-    def get_number_observations(self, project):
+    def get_number_contrbutions(self, project):
         """
         Method for SerializerMethodField `num_observations`. Returns the
         overall number of observations contributed to the project.

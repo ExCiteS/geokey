@@ -39,7 +39,7 @@ urlpatterns = patterns(
         contribution_views.MyObservations.as_view(),
         name='project_my_observations'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/maps/my-contributions/(?P<observation_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/maps/my-contributions/contributions/(?P<observation_id>[0-9]+)/$',
         contribution_views.MySingleObservation.as_view(),
         name='project_my_single_observation'),
     url(
@@ -68,11 +68,11 @@ urlpatterns = patterns(
     # COMMENTS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/comments/$',
+        r'^projects/(?P<project_id>[0-9]+)/maps/all-contributions/contributions/(?P<observation_id>[0-9]+)/comments/$',
         contribution_views.ProjectComments.as_view(),
         name='project_comments'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/maps/all-contributions/contributions/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
         contribution_views.ProjectSingleComment.as_view(),
         name='project_single_comment'),
     url(
@@ -84,11 +84,11 @@ urlpatterns = patterns(
         contribution_views.ViewSingleComment.as_view(),
         name='view_single_comment'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/maps/my-contributions/(?P<observation_id>[0-9]+)/comments/$',
+        r'^projects/(?P<project_id>[0-9]+)/maps/my-contributions/contributions/(?P<observation_id>[0-9]+)/comments/$',
         contribution_views.MyObservationComments.as_view(),
         name='myobservations_comments'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/maps/my-contributions/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/maps/my-contributions/contributions/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
         contribution_views.MyObservationSingleComment.as_view(),
         name='myobservations_single_comment'),
 
