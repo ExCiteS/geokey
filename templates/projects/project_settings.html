@@ -5,7 +5,6 @@
 
 {% block main %}
     {% csrf_token %}
-
         <div class="page-header">
             <div class="container">
                 <ol class="breadcrumb">
@@ -60,6 +59,13 @@
                     </div> <!-- /Administrators List -->
                 </div>
                 <div class="col-sm-6">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="checkbox toggle-everyone_contributes">
+                                <label><input name="everyone_contributes" type="checkbox" {% if project.everyone_contributes %}checked="true"{% endif %}> All users that have access to the project can contribute to the project.</label>
+                            </div>
+                        </div>
+                    </div>
                     <div class="panel panel-default" id="user-groups">
                         <div class="panel-heading">
                             <h2 class="panel-title">User groups</h2>

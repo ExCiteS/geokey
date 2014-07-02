@@ -135,7 +135,10 @@ class ProjectUpdate(APIView):
         project = Project.objects.as_admin(request.user, project_id)
         serializer = ProjectSerializer(
             project, data=request.DATA, partial=True,
-            fields=('id', 'name', 'description', 'status', 'isprivate')
+            fields=(
+                'id', 'name', 'description', 'status', 'isprivate',
+                'everyone_contributes'
+            )
         )
         if serializer.is_valid():
             serializer.save()

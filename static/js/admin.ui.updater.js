@@ -23,7 +23,7 @@ $(function () {
 	/*
 	The url to send the requests to update the object
 	*/
-	var url = 'projects/' + projectId;
+	var url = 'projects/65521' + projectId;
 
 	/*
 	The key to access the result object in the response
@@ -172,7 +172,7 @@ $(function () {
 		var isRequired = (event.target.value === 'true');
 
 		/**
-		 * Handles the respionse after the status of the field has been updated successfully.
+		 * Handles the response after the status of the field has been updated successfully.
 		 * @param  {Object} response JSON object of the response
 		 */
 		function handleSuccess(response) {
@@ -181,7 +181,7 @@ $(function () {
 		}
 
 		/**
-		 * Handles the respionse after the update of the field failed.
+		 * Handles the response after the update of the field failed.
 		 * @param  {Object} response JSON object of the response
 		 */
 		function handleError(response) {
@@ -192,10 +192,21 @@ $(function () {
 		Control.Ajax.put(url, handleSuccess, handleError, {'required': isRequired});
 	}
 
+	function updateEveryoneContributes(event) {
+		var checkbox = $(event.target);
+		function handleError(response) {
+			messages.showInlineError(getMessageTarget('everyone_contributes'), 'An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
+			checkbox.prop('checked', !checkbox.prop('checked'));
+		}
+		
+		Control.Ajax.put(url, null, handleError, {'everyone_contributes': checkbox.prop('checked')});
+	}
+
 	$('#delete-confirm button[name="confirm"]').click(del);
 	$('#make-inactive-confirm button[name="confirm"]').click(updateActive);
 	$('#make-active-confirm button[name="confirm"]').click(updateActive);
 	$('#make-public-confirm button[name="confirm"]').click(updatePrivate);
 	$('#make-private-confirm button[name="confirm"]').click(updatePrivate);
-	$('button[name="makePrivate"]').click(updateRequired);
+	$('button[name="toogleMandatory"]').click(updateRequired);
+	$('input[name="everyone_contributes"]').change(updateEveryoneContributes);
 });

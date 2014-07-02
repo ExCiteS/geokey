@@ -20,12 +20,14 @@ class ProjectSerializer(FieldSelectorSerializer):
         'get_number_contrbutions')
     user_contributions = serializers.SerializerMethodField(
         'get_user_contributions')
-    contributiontypes = serializers.SerializerMethodField('get_contributiontypes')
+    contributiontypes = serializers.SerializerMethodField(
+        'get_contributiontypes')
 
     class Meta:
         model = Project
         depth = 1
-        fields = ('id', 'name', 'description', 'isprivate', 'status',
+        fields = ('id', 'name', 'description', 'isprivate',
+                  'everyone_contributes', 'status',
                   'created_at', 'contributiontypes', 'is_admin',
                   'can_contribute', 'is_involved', 'maps', 'num_maps',
                   'num_contributions', 'user_contributions')
