@@ -372,7 +372,7 @@ class UserGroupViews(APIView):
 class UserGroupSingleView(APIView):
     """
     AJAX API endpoint for views assigned to the user group
-    `/ajax/project/:project_id/usergroups/:group_id/views/view_id`
+    `/ajax/project/:project_id/usergroups/:group_id/views/:view_id/`
     """
     def get_object(self, user, project_id, group_id, view_id):
         project = Project.objects.as_admin(user, project_id)
@@ -407,6 +407,39 @@ class UserGroupSingleView(APIView):
         view_group.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+class UserGroupAllContributionsView(APIView):
+    """
+    AJAX API endpoint for views assigned to the user group
+    `/ajax/project/:project_id/usergroups/:group_id/views/all-contributions`
+    """
+    def put(self, request, project_id, group_id, format=None):
+        project = Project.objects.as_admin(request.user, project_id)
+        group = project.usergroups.get(pk=group_id)
+
+        if (request.DATA.get('can_read')):
+            group.read_all_contrib = request.DATA.get('can_read')
+        if (request.DATA.get('can_view')):
+            group.view_all_contrib = request.DATA.get('can_view')
+
+        group.save()
+        response = {
+            'view': 'all-contributions',
+            'can_view': group.view_all_contrib,
+            'can_read': group.read_all_contrib
+        }
+
+        return Response(response, status=status.HTTP_200_OK)
+
+    def delete(self, request, project_id, group_id, format=None):
+        project = Project.objects.as_admin(request.user, project_id)
+        group = project.usergroups.get(pk=group_id)
+
+        group.view_all_contrib = False
+        group.read_all_contrib = False
+        group.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 # ############################################################################
 #
