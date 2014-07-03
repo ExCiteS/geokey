@@ -88,7 +88,12 @@ class Project(models.Model):
         )
 
     def can_access_all_contributions(self, user):
-        return self.is_admin(user) or not self.all_contrib_isprivate or (not user.is_anonymous() and (self.usergroups.filter(view_all_contrib=True, read_all_contrib=True, users=user).exists()))
+        return self.is_admin(user) or not self.all_contrib_isprivate or (
+            not user.is_anonymous() and (
+                self.usergroups.filter(
+                    view_all_contrib=True,
+                    read_all_contrib=True,
+                    users=user).exists()))
 
     def can_contribute(self, user):
         """

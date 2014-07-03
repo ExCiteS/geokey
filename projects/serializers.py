@@ -22,6 +22,8 @@ class ProjectSerializer(FieldSelectorSerializer):
         'get_user_contributions')
     contributiontypes = serializers.SerializerMethodField(
         'get_contributiontypes')
+    can_access_all_contributions = serializers.SerializerMethodField(
+        'get_can_access_all_map')
 
     class Meta:
         model = Project
@@ -43,6 +45,12 @@ class ProjectSerializer(FieldSelectorSerializer):
         Method for SerializerMethodField `is_admin`
         """
         return project.is_admin(self.context.get('user'))
+
+    def get_can_access_all_map(self, project):
+        """
+        Method for SerializerMethodField `can_access_all_contributions`
+        """
+        return project.can_access_all_contributions(self.context.get('user'))
 
     def get_contribute(self, project):
         """
