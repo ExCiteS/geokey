@@ -100,6 +100,19 @@ class ViewSettings(LoginRequiredMixin, TemplateView):
             request, *args, **kwargs)
 
 
+class ViewAllSettings(LoginRequiredMixin, TemplateView):
+    template_name = 'views/view_all_settings.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id):
+        """
+        Creates the request context for rendering the page
+        """
+        user = self.request.user
+        project = Project.objects.as_admin(user, project_id)
+        return {'project': project}
+
+
 class ViewObservations(LoginRequiredMixin, TemplateView):
     template_name = 'contributions/observations.html'
 

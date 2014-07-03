@@ -92,6 +92,10 @@ urlpatterns = patterns(
         dataviews.ViewSettings.as_view(),
         name='view_settings'),
     url(
+        r'^projects/(?P<project_id>[0-9]+)/views/all-contributions/$',
+        dataviews.ViewAllSettings.as_view(),
+        name='view_all_settings'),
+    url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/observations/$',
         dataviews.ViewObservations.as_view(),
         name='view_observations'),

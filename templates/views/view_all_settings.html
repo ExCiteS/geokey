@@ -3,8 +3,8 @@
 {% load filters %}
 {% load usergroups %}
 
-{% block bodydata %} data-project-id="{{view.project.id}}" data-view-id="{{view.id}}"{% endblock %}
-{% block title %} | Map: {{view.name}}{% endblock %}
+{% block bodydata %} data-project-id="{{project.id}}" data-view-id="all-contributions"{% endblock %}
+{% block title %} | Map: All contributions{% endblock %}
 
 {% block main %}
 	{% csrf_token %}
@@ -12,28 +12,14 @@
 			<div class="container">
 				<ol class="breadcrumb">
 					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
-					<li><a href="{% url 'admin:project_settings' view.project.id %}">{{ view.project.name }}</a></li>
-					<li class="active">{{view.name}}: Settings</li>
+					<li><a href="{% url 'admin:project_settings' project.id %}">{{ project.name }}</a></li>
+					<li class="active">All contributions: Settings</li>
 				</ol>
 
-				<div class="stats pull-right">
-					<a href="{% url 'admin:view_observations' view.project.id view.id %}"><span class="number">{{view.data|length}}</span> observations in this view</a>
-				</div>
-
-				<h1>{{view.name}}</h1>
+				<h1>All contributions</h1>
 				<p class="lead">
-					<span id="descriptionText">{% if view.description %} {{view.description}} {% endif %}</span>
-					<button id="edit" type="button" class="btn btn-link"><span class="glyphicon glyphicon-edit"></span> Edit</button>
+					<span id="descriptionText">This map provides access to all contributions ever contributed to the project.</span>
 				</p>
-				<form class="form-inline hidden" id="description-form" role="form">
-					{% csrf_token %}
-					<div class="form-group">
-						<label class="sr-only" for="desription">Map description</label>
-						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a map desription" {% if view.description %}value="{{view.description}}"{% endif %}>
-					</div>
-					<button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
-					<button type="button" class="btn btn-link">Cancel</button>
-				</form>
 			</div>
 		</div>
 
@@ -41,8 +27,7 @@
 			<div class="row">
 				<div class="col-sm-12">
 					<ul class="nav nav-tabs">
-						<li class="active"><a href="#rules" data-toggle="tab">Filter definitions</a></li>
-                        <li><a href="#permissions" data-toggle="tab">User permissions</a></li>
+                        <li class="active"><a href="#permissions" data-toggle="tab">User permissions</a></li>
 						<li><a href="#general-settings" data-toggle="tab">General</a></li>
 					</ul>
 				</div>
@@ -50,32 +35,7 @@
 		</div>
 
 		<div class="container tab-content">
-			<div class="row tab-pane active" id="rules">
-				<div class="col-md-12">
-					<div class="panel panel-default"> <!-- User group list -->
-						<div class="panel-heading">
-							<h2 class="panel-title">Filter definitions</h2>
-						</div>
-						<div class="list-group">
-							{% for rule in view.rules.all %}
-								<a href="{% url 'admin:rule_settings' rule.view.project.id rule.view.id rule.id %}" class="list-group-item">
-									Includes contributions of type <strong>{{ rule.observation_type.name }}</strong> {% if rule.filters|length > 0 %}where {% endif %}
-									<ul>
-										{% filters rule %}
-									</ul>
-								</a>
-                            {% empty %}
-                                <p class="list-group-item">Define rules according to which contributions to the project are filtered for the view. Filter rules are based on contribution types and values provided for the individual fields in the contribution.</p>
-                            {% endfor %}
-						</div>
-						<div class="panel-footer">
-							<a href="{% url 'admin:view_rule_create' view.project.id view.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Define new filter</a>
-						</div>
-					</div> <!-- /Filter definition List -->
-				</div>
-			</div>
-
-            <div class="row tab-pane" id="permissions">
+            <div class="row tab-pane active" id="permissions">
                 <div class="col-md-12">
                     <div class="panel panel-default"> <!-- User group list -->
                         <div class="panel-heading">
@@ -83,7 +43,15 @@
                             Select the user groups that you want to grant access access to this map.
                         </div>
                         <ul class="list-group">
-                            {% usergroups view %}
+                            {% for group in project.usergroups.all %}
+                            <li class="list-group-item">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="usergroup" value="{{ group.id }}"> {{ group.name }}
+                                    </label>
+                                </div>
+                            </li>
+                            {% endfor %}
                         </ul>
                     </div>
                 </div>
@@ -111,44 +79,11 @@
                         </div>
                     </div>
                 </div>
-				<div class="col-sm-8 col-sm-offset-2">
-					<div class="panel panel-danger">
-						<div class="panel-heading">
-							<h2 class="panel-title">Delete map</h2>
-						</div>
-						<div class="panel-body">
-							<p>If you delete the map there's no way back.</p>
-							<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-confirm">Delete this map</button>
-						</div>
-					</div>
-				</div>
 			</div>
 		</div>
 {% endblock %}
 
 {% block modals %}
-		<!-- Delete confirmation modal -->
-		<div class="modal fade" id="delete-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-			<div class="modal-dialog">
-				<div class="modal-content panel-danger">
-					<div class="modal-header panel-heading">
-						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-						<h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
-					</div>
-					<div class="modal-body panel-body">
-						<p class="text-danger">You are about to delete the map <strong>{{view.name}}</strong>. This can not be undone.</p>
-						<ul>
-							<li>All users who are solely assigned to one of the views user groups will not be able to access the project any longer.</li>
-						</ul>
-					</div>
-					<div class="modal-footer panel-footer">
-						<button type="button" name="confirm" class="btn btn-danger">I'm absolutely sure, delete the map!</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- /Delete confirmation modal -->
-
 		<div class="modal fade" id="make-public-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content panel-warning">
@@ -192,7 +127,6 @@
 
 {% block libraries %}
 			<script src="/static/js/admin.ui.messages.js"></script>
-			<script src="/static/js/admin.ui.descriptioneditor.js"></script>
 			<script src="/static/js/admin.ui.updater.js"></script>
             <script src="/static/js/admin.ui.map.permissions.js"></script>
 			<script src="/static/js/admin.control.ajax.js"></script>
