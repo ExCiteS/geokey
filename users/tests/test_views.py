@@ -592,6 +592,27 @@ class UserGroupViewsTest(TestCase):
             self.contributors.viewgroups.filter(
                 usergroup=self.contributors, view=self.view).count(), 0)
 
+    def test_add_all_contrib_view(self):
+        response = self.post(self.admin, view_id="all-contributions")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        group = Group.objects.get(pk=self.contributors.id)
+        self.assertTrue(group.read_all_contrib)
+        self.assertTrue(group.view_all_contrib)
+
+    def test_add_all_contrib_view_with_contributor(self):
+        response = self.post(self.contributor, view_id="all-contributions")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        group = Group.objects.get(pk=self.contributors.id)
+        self.assertFalse(group.read_all_contrib)
+        self.assertFalse(group.view_all_contrib)
+
+    def test_add_all_contrib_view_non_member(self):
+        response = self.post(self.non_member, view_id="all-contributions")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        group = Group.objects.get(pk=self.contributors.id)
+        self.assertFalse(group.read_all_contrib)
+        self.assertFalse(group.view_all_contrib)
+
 
 class UserGroupSingleViewTest(TestCase):
     def setUp(self):

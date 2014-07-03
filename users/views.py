@@ -332,21 +332,35 @@ class UserGroupViews(APIView):
         """
         project = Project.objects.as_admin(request.user, project_id)
         group = project.usergroups.get(pk=group_id)
-        try:
-            view = project.views.get(pk=request.DATA.get('view'))
-            view_group = ViewUserGroup.objects.create(
-                view=view,
-                usergroup=group
-            )
-            serializer = ViewGroupSerializer(
-                view_group, data=request.DATA, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(
-                    serializer.data, status=status.HTTP_201_CREATED)
 
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            if (request.DATA.get('view') == 'all-contributions'):
+                group.view_all_contrib = True
+                group.read_all_contrib = True
+                group.save()
+
+                response = {
+                    'view': 'all-contributions',
+                    'can_view': group.view_all_contrib,
+                    'can_read': group.read_all_contrib
+                }
+
+                return Response(response, status=status.HTTP_201_CREATED)
+            else:
+                view = project.views.get(pk=request.DATA.get('view'))
+                view_group = ViewUserGroup.objects.create(
+                    view=view,
+                    usergroup=group
+                )
+                serializer = ViewGroupSerializer(
+                    view_group, data=request.DATA, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(
+                        serializer.data, status=status.HTTP_201_CREATED)
+
+                return Response(
+                    serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except View.DoesNotExist:
             return Response(
                 'The view you are trying to add to the user group is not'
