@@ -21,12 +21,16 @@
             target.prop('checked', !$(event.target).prop('checked'));
         }
 
-        displayLoading();
-        
-        if (target.prop('checked')) {
-            Control.Ajax.post(url + 'views/', removeLoading, handleError, {view: target.val()});
+        if (target.val() !== 'all') {
+            displayLoading();
+
+            if (target.prop('checked')) {
+                Control.Ajax.post(url + 'views/', removeLoading, handleError, {view: target.val()});
+            } else {
+                Control.Ajax.del(url + 'views/' + target.val() +'/', removeLoading, handleError);
+            }
         } else {
-            Control.Ajax.del(url + 'views/' + target.val() +'/', removeLoading, handleError);
+            alert('Not implemented')
         }
     }
 
