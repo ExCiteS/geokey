@@ -23,7 +23,7 @@ $(function () {
 	/*
 	The url to send the requests to update the object
 	*/
-	var url = 'projects/65521' + projectId;
+	var url = 'projects/' + projectId;
 
 	/*
 	The key to access the result object in the response

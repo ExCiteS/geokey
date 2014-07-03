@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load filters %}
+{% load usergroups %}
 
 {% block bodydata %} data-project-id="{{view.project.id}}" data-view-id="{{view.id}}"{% endblock %}
 {% block title %} | View: {{view.name}}{% endblock %}
@@ -41,6 +42,7 @@
 				<div class="col-sm-12">
 					<ul class="nav nav-tabs">
 						<li class="active"><a href="#rules" data-toggle="tab">Filter definitions</a></li>
+                        <li><a href="#permissions" data-toggle="tab">User permissions</a></li>
 						<li><a href="#general-settings" data-toggle="tab">General</a></li>
 					</ul>
 				</div>
@@ -72,6 +74,20 @@
 					</div> <!-- /Filter definition List -->
 				</div>
 			</div>
+
+            <div class="row tab-pane" id="permissions">
+                <div class="col-md-12">
+                    <div class="panel panel-default"> <!-- User group list -->
+                        <div class="panel-heading">
+                            <h2 class="panel-title">User permissions</h2>
+                            Select the user groups that you want to grant access access to this map.
+                        </div>
+                        <ul class="list-group">
+                            {% usergroups view %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
 			<div class="row tab-pane" id="general-settings">
 				<div class="col-sm-8 col-sm-offset-2">

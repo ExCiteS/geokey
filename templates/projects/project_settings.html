@@ -96,6 +96,11 @@
                             <h2 class="panel-title">Maps in this project</h2>
                         </div>
                         <div class="list-group">
+                            <!-- <a class="list-group-item" href="#">
+                                <h4 class="list-group-item-heading">All contributions</h4>
+                                <p class="list-group-item-text">This map provides access to all contributions ever contributed to the project.</p>
+                            </a> -->
+
                             {% for view in project.views.all %}
                                 <a class="list-group-item" href="{% url 'admin:view_settings' project.id view.id %}">
                                     <h4 class="list-group-item-heading">{{ view.name }}</h4>
