@@ -75,9 +75,10 @@ class ProjectObservations(APIView):
         Adds a new contribution to a project
         """
         data = request.DATA
-        data['properties']['project'] = project_id
-        data['properties']['user'] = request.user.id
-        serializer = ContributionSerializer(data=data)
+        project = Project.objects.as_contributor(request.user, project_id)
+        serializer = ContributionSerializer(
+            data=data, context={'user': request.user, 'project': project}
+        )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -111,7 +112,11 @@ class MyObservations(APIView):
         if project.can_contribute(request.user):
             observations = project.observations.filter(creator=request.user)
 
-            serializer = ContributionSerializer(observations, many=True)
+            serializer = ContributionSerializer(
+                observations,
+                many=True,
+                context={'user': request.user, 'project': project}
+            )
             return Response(serializer.data)
         else:
             return Response(
@@ -134,7 +139,10 @@ class ViewObservations(APIView):
 
 class SingleObservation(APIView):
     def get_observation(self, request, observation, format=None):
-        serializer = ContributionSerializer(observation)
+        serializer = ContributionSerializer(
+            observation,
+            context={'user': request.user, 'project': observation.project}
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update_observation(self, request, observation, format=None):
@@ -142,8 +150,11 @@ class SingleObservation(APIView):
         Updates a single observation
         """
         data = request.DATA
-        data['properties']['user'] = request.user.id
-        serializer = ContributionSerializer(observation, data=data)
+        serializer = ContributionSerializer(
+            observation,
+            data=data,
+            context={'user': request.user, 'project': observation.project}
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete_observation(self, request, observation, format=None):

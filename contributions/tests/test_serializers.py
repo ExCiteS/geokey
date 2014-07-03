@@ -49,8 +49,6 @@ class RestoreLocationTest(TestCase):
                 "key_1": "value 1",
                 "key_2": 12,
                 "contributiontype": self.observationtype.id,
-                "project": self.project.id,
-                "user": self.admin.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -73,9 +71,11 @@ class RestoreLocationTest(TestCase):
                 51.52439200896907
             ]
         }
-        serializer = ContributionSerializer(data=self.data)
-        location = serializer.restore_location(
-            data, geometry, user, self.project.id)
+        serializer = ContributionSerializer(
+            data=self.data,
+            context={'user': user, 'project': self.project}
+        )
+        location = serializer.restore_location(data, geometry)
 
         self.assertEqual(location.creator, user)
         self.assertEqual(location.name, 'UCL')
@@ -85,7 +85,6 @@ class RestoreLocationTest(TestCase):
         self.assertEqual(json.loads(location.geometry.geojson), geometry)
 
     def test_restore_unspecified_location(self):
-        user = UserF.create()
         geometry = {
             "type": "Point",
             "coordinates": [
@@ -93,11 +92,13 @@ class RestoreLocationTest(TestCase):
                 51.52439200896907
             ]
         }
-        serializer = ContributionSerializer(data=self.data)
-        location = serializer.restore_location(
-            None, geometry, user, self.project.id)
+        serializer = ContributionSerializer(
+            data=self.data,
+            context={'user': self.admin, 'project': self.project}
+        )
+        location = serializer.restore_location(None, geometry)
 
-        self.assertEqual(location.creator, user)
+        self.assertEqual(location.creator, self.admin)
         self.assertEqual(location.name, None)
         self.assertEqual(location.description, None)
         self.assertFalse(location.private)
@@ -106,7 +107,10 @@ class RestoreLocationTest(TestCase):
 
     def test_restore_existing_location(self):
         location = LocationFactory()
-        serializer = ContributionSerializer(data=self.data)
+        serializer = ContributionSerializer(
+            data=self.data,
+            context={'user': self.admin, 'project': self.project}
+        )
 
         data = {
             "id": location.id,
@@ -116,8 +120,7 @@ class RestoreLocationTest(TestCase):
         }
         geometry = json.loads(location.geometry.geojson)
 
-        result = serializer.restore_location(
-            data, geometry, self.admin, self.project.id)
+        result = serializer.restore_location(data, geometry)
         self.assertEqual(location, result)
 
 
@@ -161,8 +164,6 @@ class ContributionSerializerIntegrationTests(TestCase):
                 "key_1": "value 1",
                 "key_2": 12,
                 "contributiontype": self.observationtype.id,
-                "project": self.project.id,
-                "user": self.contributor.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -171,7 +172,10 @@ class ContributionSerializerIntegrationTests(TestCase):
             }
         }
 
-        serializer = ContributionSerializer(data=data)
+        serializer = ContributionSerializer(
+            data=data,
+            context={'user': self.contributor, 'project': self.project}
+        )
         result = serializer.data
 
         self.assertEqual(result.get('type'), 'Feature')
@@ -200,13 +204,14 @@ class ContributionSerializerIntegrationTests(TestCase):
             "properties": {
                 "key_1": "value 1",
                 "key_2": 12,
-                "contributiontype": self.observationtype.id,
-                "project": self.project.id,
-                "user": self.contributor.id
+                "contributiontype": self.observationtype.id
             }
         }
 
-        serializer = ContributionSerializer(data=data)
+        serializer = ContributionSerializer(
+            data=data,
+            context={'user': self.contributor, 'project': self.project}
+        )
         result = serializer.data
 
         self.assertEqual(result.get('type'), 'Feature')
@@ -237,15 +242,15 @@ class ContributionSerializerIntegrationTests(TestCase):
             "properties": {
                 "key_1": "value 1",
                 "key_2": 12,
-                "user": self.contributor.id,
                 "contributiontype": self.observationtype.id,
-                "project": self.project.id,
                 "location": {"id": location.id}
             }
         }
 
         serializer = ContributionSerializer(
-            data=data)
+            data=data,
+            context={'user': self.contributor, 'project': self.project}
+        )
         result = serializer.data
 
         self.assertEqual(result.get('type'), 'Feature')
@@ -276,13 +281,14 @@ class ContributionSerializerIntegrationTests(TestCase):
             "properties": {
                 "location": {"id": location.id},
                 "contributiontype": self.observationtype.id,
-                "user": self.contributor.id,
-                "project": self.project.id,
                 "key_1": "value 1",
                 "key_2": 12
             }
         }
-        ContributionSerializer(data=data)
+        ContributionSerializer(
+            data=data,
+            context={'user': self.contributor, 'project': self.project}
+        )
 
     @raises(MalformedRequestData)
     def test_create_with_private_location(self):
@@ -293,13 +299,14 @@ class ContributionSerializerIntegrationTests(TestCase):
             "properties": {
                 "location": {"id": location.id},
                 "contributiontype": self.observationtype.id,
-                "project": self.project.id,
-                "user": self.contributor.id,
                 "key_1": "value 1",
                 "key_2": 12
             }
         }
-        ContributionSerializer(data=data)
+        ContributionSerializer(
+            data=data,
+            context={'user': self.contributor, 'project': self.project}
+        )
 
     @raises(ValidationError)
     def test_create_with_invalid_data(self):
@@ -316,8 +323,6 @@ class ContributionSerializerIntegrationTests(TestCase):
                 "key_1": "value 1",
                 "key_2": "blah",
                 "contributiontype": self.observationtype.id,
-                "project": self.project.id,
-                "user": self.contributor.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -325,14 +330,20 @@ class ContributionSerializerIntegrationTests(TestCase):
                 },
             }
         }
-        ContributionSerializer(data=data)
+        ContributionSerializer(
+            data=data,
+            context={'user': self.contributor, 'project': self.project}
+        )
 
     def test_serialize_instance(self):
         observation = ObservationFactory.create()
         TextFieldFactory.create(**{
             'key': 'key',
             'observationtype': observation.observationtype})
-        serializer = ContributionSerializer(observation)
+        serializer = ContributionSerializer(
+            observation,
+            context={'user': self.contributor, 'project': self.project}
+        )
         result = serializer.data
 
         self.assertEqual(result.get('type'), 'Feature')
@@ -357,7 +368,11 @@ class ContributionSerializerIntegrationTests(TestCase):
 
         observations = Observation.objects.prefetch_related(
             'location', 'observationtype', 'creator', 'updator')
-        serializer = ContributionSerializer(observations, many=True)
+        serializer = ContributionSerializer(
+            observations,
+            many=True,
+            context={'user': self.contributor, 'project': self.project}
+        )
         result = serializer.data
 
         self.assertEqual(result.get('type'), 'FeatureCollection')
@@ -373,10 +388,10 @@ class ContributionSerializerIntegrationTests(TestCase):
             observation,
             data={
                 'properties': {
-                    'number': 15,
-                    'user': observation.project.creator.id
+                    'number': 15
                 }
-            }
+            },
+            context={'user': self.contributor, 'project': self.project}
         )
         result = serializer.data
 
@@ -393,10 +408,10 @@ class ContributionSerializerIntegrationTests(TestCase):
             observation,
             data={
                 'properties': {
-                    'number': "blah",
-                    'user': observation.project.creator.id
+                    'number': "blah"
                 }
-            }
+            },
+            context={'user': self.contributor, 'project': self.project}
         )
 
         o = Observation.objects.get(pk=observation.id)

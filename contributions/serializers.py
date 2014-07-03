@@ -7,10 +7,8 @@ from rest_framework import serializers
 from rest_framework_gis import serializers as geoserializers
 
 from core.exceptions import MalformedRequestData
-from projects.models import Project
 from observationtypes.serializer import ObservationTypeSerializer
 from observationtypes.models import ObservationType
-from users.models import User
 from users.serializers import UserSerializer
 
 from .models import Location, Observation, Comment
@@ -54,8 +52,10 @@ class ContributionSerializer(object):
     Serializes and deserializes contribution object from and to its GeoJSON
     conterparts.
     """
-    def __init__(self, instance=None, data=None, many=False):
+    def __init__(self, instance=None, data=None, many=False, context=None):
         self.many = many
+        self.context = context
+
         if self.many:
             self.instance = instance
         else:
@@ -72,13 +72,13 @@ class ContributionSerializer(object):
 
         return self.to_native(self.instance)
 
-    def restore_location(self, data, geometry, user, project_id):
+    def restore_location(self, data, geometry):
         if data is not None:
             if 'id' in data:
                 try:
                     return Location.objects.get_single(
-                        user,
-                        project_id,
+                        self.context.get('user'),
+                        self.context.get('project').id,
                         data.get('id')
                     )
                 except PermissionDenied, error:
@@ -90,24 +90,23 @@ class ContributionSerializer(object):
                     geometry=GEOSGeometry(json.dumps(geometry)),
                     private=data.get('private') or False,
                     private_for_project=data.get('private_for_project'),
-                    creator=user
+                    creator=self.context.get('user')
                 )
         else:
             return Location(
                 geometry=GEOSGeometry(json.dumps(geometry)),
-                creator=user
+                creator=self.context.get('user')
             )
 
     def restore_object(self, instance=None, data=None):
         if data is not None:
             properties = data.get('properties')
-            user = User.objects.get(pk=properties.pop('user'))
+            user = self.context.get('user')
 
             if instance is not None:
                 return instance.update(attributes=properties, updator=user)
             else:
-                project_id = properties.pop('project', None)
-                project = Project.objects.as_contributor(user, project_id)
+                project = self.context.get('project')
 
                 try:
                     observationtype = project.observationtypes.get(
@@ -119,9 +118,7 @@ class ContributionSerializer(object):
 
                 location = self.restore_location(
                     data.get('properties').pop('location', None),
-                    data.get('geometry'),
-                    user,
-                    project_id
+                    data.get('geometry')
                 )
 
                 return Observation.create(
@@ -139,7 +136,8 @@ class ContributionSerializer(object):
             'id': obj.id,
             'type': 'Feature',
             'geometry': json.loads(obj.location.geometry.geojson),
-            'properties': {}
+            'properties': {},
+            'isowner': obj.creator == self.context.get('user')
         }
 
         observation_serializer = ObservationSerializer(obj)
@@ -178,14 +176,16 @@ class ContributionSerializer(object):
             'properties': {
                 'status': obj.status,
                 'creator': obj.creator.display_name,
-                'updator': obj.updator.display_name if obj.updator is not None else None,
+                'updator': (obj.updator.display_name
+                            if obj.updator is not None else None),
                 'created_at': obj.created_at,
                 'version': obj.version,
                 'location': {
                     'id': location.id,
                     'name': location.name
                 }
-            }
+            },
+            'isowner': obj.creator == self.context.get('user')
         }
 
         return json_object
