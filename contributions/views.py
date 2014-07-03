@@ -90,14 +90,12 @@ class ProjectObersvationsView(APIView):
     @handle_exceptions_for_ajax
     def get(self, request, project_id, format=None):
         project = Project.objects.get_single(request.user, project_id)
-        if project.is_admin(request.user):
+        if project.can_access_all_contributions(request.user):
             data = project.observations.all()
             serializer = ContributionSerializer(data, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            raise PermissionDenied('You are not an administrator of this '
-                                   'project. You must therefore access '
-                                   'observations through one of the views.')
+            raise PermissionDenied('You are not allowed to access this view.')
 
 
 class MyObservations(APIView):
@@ -164,12 +162,10 @@ class SingleProjectObservation(SingleObservation):
 
     def get_object(self, user, project_id, observation_id):
         project = Project.objects.get_single(user, project_id)
-        if project.is_admin(user):
+        if project.can_access_all_contributions(user):
             return project.observations.get(pk=observation_id)
         else:
-            raise PermissionDenied('You are not an administrator of this '
-                                   'project. You must therefore access '
-                                   'observations through one of the views.')
+            raise PermissionDenied('You are not allowed to access this view.')
 
     @handle_exceptions_for_ajax
     def get(self, request, project_id, observation_id, format=None):

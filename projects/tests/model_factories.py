@@ -13,7 +13,7 @@ class ProjectF(factory.django.DjangoModelFactory):
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     isprivate = True
     everyone_contributes = False
-    all_contrib_isprivate = False
+    all_contrib_isprivate = True
     created_at = datetime.date(2014, 11, 11)
     creator = factory.SubFactory(UserF)
     status = 'active'

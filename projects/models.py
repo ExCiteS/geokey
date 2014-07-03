@@ -71,16 +71,24 @@ class Project(models.Model):
         - the project is public and has at least one public view
         """
         return self.status == STATUS.active and (self.is_admin(user) or (
-            (not self.isprivate and
+            ((not self.isprivate and not self.all_contrib_isprivate) or
                 self.views.filter(isprivate=False).exists()) or (
                 not user.is_anonymous() and (
                     self.usergroups.filter(
                         can_contribute=True, users=user).exists() or
                     self.usergroups.filter(
+                        can_moderate=True, users=user).exists() or
+                    self.usergroups.filter(
+                        view_all_contrib=True, read_all_contrib=True,
+                        users=user).exists() or
+                    self.usergroups.filter(
                         users=user, viewgroups__isnull=False))
                 )
             )
         )
+
+    def can_access_all_contributions(self, user):
+        return self.is_admin(user) or not self.all_contrib_isprivate or (not user.is_anonymous() and (self.usergroups.filter(view_all_contrib=True, read_all_contrib=True, users=user).exists()))
 
     def can_contribute(self, user):
         """

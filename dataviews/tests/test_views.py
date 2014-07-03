@@ -59,7 +59,6 @@ class ViewAjaxTest(TestCase):
 
     def test_update_description_with_admin(self):
         response = self._put({'description': 'bockwurst'}, self.admin)
-        print response
         self.assertEqual(response.status_code, 200)
         self.assertEqual(View.objects.get(pk=self.view.id).description, 'bockwurst')
 
@@ -131,7 +130,8 @@ class AllContributionsAjaxTest(TestCase):
 
         self.project = ProjectF(
             add_admins=[self.admin],
-            add_contributors=[self.contributor]
+            add_contributors=[self.contributor],
+            **{'all_contrib_isprivate': False}
         )
 
     def _put(self, data, user):
