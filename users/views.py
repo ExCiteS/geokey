@@ -96,6 +96,7 @@ class Signup(CreateView):
         context = self.get_context_data(form=form, user_exists=True)
         return self.render_to_response(context)
 
+
 class UserGroupCreate(LoginRequiredMixin, CreateView):
     """
     Displays the create user group page
@@ -126,8 +127,8 @@ class UserGroupCreate(LoginRequiredMixin, CreateView):
         """
         project_id = self.kwargs['project_id']
         return reverse(
-            'admin:project_settings',
-            kwargs={'project_id': project_id}
+            'admin:usergroup_settings',
+            kwargs={'project_id': project_id, 'group_id': self.object.id}
         )
 
     def form_valid(self, form):
