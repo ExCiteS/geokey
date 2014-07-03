@@ -20,17 +20,17 @@
             messages.showInlineError($('#permissions .panel-heading'), 'An error occurred while updating map permissions. Error text was: ' + response.responseJSON.error);
             target.prop('checked', !$(event.target).prop('checked'));
         }
+        displayLoading();
+        var viewId = 'all-contributions';
 
         if (target.val() !== 'all') {
-            displayLoading();
+            viewId = target.val();
+        }
 
-            if (target.prop('checked')) {
-                Control.Ajax.post(url + 'views/', removeLoading, handleError, {view: target.val()});
-            } else {
-                Control.Ajax.del(url + 'views/' + target.val() +'/', removeLoading, handleError);
-            }
+        if (target.prop('checked')) {
+            Control.Ajax.post(url + 'views/', removeLoading, handleError, {view: viewId});
         } else {
-            alert('Not implemented')
+            Control.Ajax.del(url + 'views/' + viewId +'/', removeLoading, handleError);
         }
     }
 

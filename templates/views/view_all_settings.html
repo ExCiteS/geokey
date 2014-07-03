@@ -47,7 +47,7 @@
                             <li class="list-group-item">
                                 <div class="checkbox">
                                     <label>
-                                        <input type="checkbox" name="usergroup" value="{{ group.id }}"> {{ group.name }}
+                                        <input type="checkbox" name="usergroup" value="{{ group.id }}" {% if group.read_all_contrib %}checked{% endif %}> {{ group.name }}
                                     </label>
                                 </div>
                             </li>
