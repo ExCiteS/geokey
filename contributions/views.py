@@ -84,7 +84,7 @@ class ProjectObservations(APIView):
 class ProjectObersvationsView(APIView):
     """
     Public API endpoint to get all contributions in a project
-    /api/projects/:project_id/maps/all-contributions
+    /api/projects/:project_id/maps/all-contributions/
     """
 
     @handle_exceptions_for_ajax

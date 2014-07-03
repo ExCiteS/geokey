@@ -16,6 +16,7 @@ class Project(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     everyone_contributes = models.BooleanField(default=True)
+    all_contrib_isprivate = models.BooleanField(default=True)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,

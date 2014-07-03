@@ -75,6 +75,10 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/$',
         view_views.ViewUpdate.as_view(),
         name='view'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/views/all-contributions/$',
+        view_views.AllContributionsViewUpdate.as_view(),
+        name='all_contributions_view'),
 
     # ###########################
     # OBSERVATIONS
