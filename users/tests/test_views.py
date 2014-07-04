@@ -219,6 +219,11 @@ class QueryUsersTest(TestCase):
         self.assertEqual(len(result_set), 1)
         self.assertContains(response, 'Schmeichel')
 
+    def test_query_anonymous(self):
+        response = self._get('anon')
+        result_set = json.loads(response.content)
+        self.assertEqual(len(result_set), 0)
+
 
 class UserGroupTest(TestCase):
     def setUp(self):

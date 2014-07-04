@@ -234,7 +234,8 @@ class QueryUsers(APIView):
     """
     def get(self, request, format=None):
         q = request.GET.get('query').lower()
-        users = User.objects.filter(display_name__icontains=q)[:10]
+        users = User.objects.filter(
+            display_name__icontains=q).exclude(pk=1)[:10]
 
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
