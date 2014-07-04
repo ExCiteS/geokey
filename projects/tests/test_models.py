@@ -76,12 +76,32 @@ class PrivateProjectTest(TestCase):
         self.assertFalse(self.private_project.can_access(AnonymousUser()))
 
     def test_can_access_all_contributons(self):
-        self.assertTrue(self.private_project.can_access_all_contributions(self.admin))
-        self.assertTrue(self.private_project.can_access_all_contributions(self.creator))
-        self.assertFalse(self.private_project.can_access_all_contributions(self.contributor))
-        self.assertFalse(self.private_project.can_access_all_contributions(self.non_member))
-        self.assertFalse(self.private_project.can_access_all_contributions(self.view_member))
-        self.assertFalse(self.private_project.can_access_all_contributions(AnonymousUser()))
+        self.assertTrue(
+            self.private_project.can_access_all_contributions(self.admin))
+        self.assertTrue(
+            self.private_project.can_access_all_contributions(self.creator))
+        self.assertFalse(
+            self.private_project.can_access_all_contributions(self.contributor))
+        self.assertFalse(
+            self.private_project.can_access_all_contributions(self.non_member))
+        self.assertFalse(
+            self.private_project.can_access_all_contributions(self.view_member))
+        self.assertFalse(
+            self.private_project.can_access_all_contributions(AnonymousUser()))
+
+    def test_can_moderate(self):
+        self.assertTrue(
+            self.private_project.can_moderate(self.admin))
+        self.assertTrue(
+            self.private_project.can_moderate(self.creator))
+        self.assertFalse(
+            self.private_project.can_moderate(self.contributor))
+        self.assertFalse(
+            self.private_project.can_moderate(self.non_member))
+        self.assertFalse(
+            self.private_project.can_moderate(self.view_member))
+        self.assertFalse(
+            self.private_project.can_moderate(AnonymousUser()))
 
 
 class PublicProjectTestNoPublicView(TestCase):
@@ -124,12 +144,32 @@ class PublicProjectTestNoPublicView(TestCase):
         self.assertFalse(self.project.can_access(AnonymousUser()))
 
     def test_can_access_all_contributons(self):
-        self.assertTrue(self.project.can_access_all_contributions(self.admin))
-        self.assertTrue(self.project.can_access_all_contributions(self.creator))
-        self.assertFalse(self.project.can_access_all_contributions(self.contributor))
-        self.assertFalse(self.project.can_access_all_contributions(self.non_member))
-        self.assertFalse(self.project.can_access_all_contributions(self.view_member))
-        self.assertFalse(self.project.can_access_all_contributions(AnonymousUser()))
+        self.assertTrue(
+            self.project.can_access_all_contributions(self.admin))
+        self.assertTrue(
+            self.project.can_access_all_contributions(self.creator))
+        self.assertFalse(
+            self.project.can_access_all_contributions(self.contributor))
+        self.assertFalse(
+            self.project.can_access_all_contributions(self.non_member))
+        self.assertFalse(
+            self.project.can_access_all_contributions(self.view_member))
+        self.assertFalse(
+            self.project.can_access_all_contributions(AnonymousUser()))
+
+    def test_can_moderate(self):
+        self.assertTrue(
+            self.project.can_moderate(self.admin))
+        self.assertTrue(
+            self.project.can_moderate(self.creator))
+        self.assertFalse(
+            self.project.can_moderate(self.contributor))
+        self.assertFalse(
+            self.project.can_moderate(self.non_member))
+        self.assertFalse(
+            self.project.can_moderate(self.view_member))
+        self.assertFalse(
+            self.project.can_moderate(AnonymousUser()))
 
 
 class PublicProjectTestWithPublicView(TestCase):
@@ -153,7 +193,8 @@ class PublicProjectTestWithPublicView(TestCase):
                 'project': self.project,
                 'view_all_contrib': True,
                 'read_all_contrib': True,
-                'can_contribute': False
+                'can_contribute': False,
+                'can_moderate': True
             }
         )
 
@@ -172,7 +213,7 @@ class PublicProjectTestWithPublicView(TestCase):
         self.assertTrue(self.project.can_contribute(self.creator))
         self.assertTrue(self.project.can_contribute(self.contributor))
         self.assertFalse(self.project.can_contribute(self.non_member))
-        self.assertFalse(self.project.can_contribute(self.view_member))
+        self.assertTrue(self.project.can_contribute(self.view_member))
         self.assertFalse(self.project.can_contribute(AnonymousUser()))
 
     def test_can_access(self):
@@ -196,6 +237,20 @@ class PublicProjectTestWithPublicView(TestCase):
             self.project.can_access_all_contributions(self.view_member))
         self.assertFalse(
             self.project.can_access_all_contributions(AnonymousUser()))
+
+    def test_can_moderate(self):
+        self.assertTrue(
+            self.project.can_moderate(self.admin))
+        self.assertTrue(
+            self.project.can_moderate(self.creator))
+        self.assertFalse(
+            self.project.can_moderate(self.contributor))
+        self.assertFalse(
+            self.project.can_moderate(self.non_member))
+        self.assertTrue(
+            self.project.can_moderate(self.view_member))
+        self.assertFalse(
+            self.project.can_moderate(AnonymousUser()))
 
 
 class PublicProjectTestWithPublicAllContributions(TestCase):
@@ -240,12 +295,32 @@ class PublicProjectTestWithPublicAllContributions(TestCase):
         self.assertTrue(self.project.can_access(AnonymousUser()))
 
     def test_can_access_all_contributons(self):
-        self.assertTrue(self.project.can_access_all_contributions(self.admin))
-        self.assertTrue(self.project.can_access_all_contributions(self.creator))
-        self.assertTrue(self.project.can_access_all_contributions(self.contributor))
-        self.assertTrue(self.project.can_access_all_contributions(self.non_member))
-        self.assertTrue(self.project.can_access_all_contributions(self.view_member))
-        self.assertTrue(self.project.can_access_all_contributions(AnonymousUser()))
+        self.assertTrue(
+            self.project.can_access_all_contributions(self.admin))
+        self.assertTrue(
+            self.project.can_access_all_contributions(self.creator))
+        self.assertTrue(
+            self.project.can_access_all_contributions(self.contributor))
+        self.assertTrue(
+            self.project.can_access_all_contributions(self.non_member))
+        self.assertTrue(
+            self.project.can_access_all_contributions(self.view_member))
+        self.assertTrue(
+            self.project.can_access_all_contributions(AnonymousUser()))
+
+    def test_can_moderate(self):
+        self.assertTrue(
+            self.project.can_moderate(self.admin))
+        self.assertTrue(
+            self.project.can_moderate(self.creator))
+        self.assertFalse(
+            self.project.can_moderate(self.contributor))
+        self.assertFalse(
+            self.project.can_moderate(self.non_member))
+        self.assertFalse(
+            self.project.can_moderate(self.view_member))
+        self.assertFalse(
+            self.project.can_moderate(AnonymousUser()))
 
 
 class PublicProjectTestWithPublicViewEveryonecontributes(TestCase):

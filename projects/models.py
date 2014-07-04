@@ -108,6 +108,13 @@ class Project(models.Model):
                     self.usergroups.filter(
                         can_contribute=True, users=user).exists())))
 
+    def can_moderate(self, user):
+        return self.status == STATUS.active and (
+            self.is_admin(user) or (
+                not user.is_anonymous() and (
+                    self.usergroups.filter(
+                        can_moderate=True, users=user).exists())))
+
     def is_involved(self, user):
         """
         Returns True if:
