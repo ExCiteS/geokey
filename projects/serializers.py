@@ -11,9 +11,6 @@ class ProjectSerializer(FieldSelectorSerializer):
     """
     Serializer for projects.
     """
-    is_admin = serializers.SerializerMethodField('get_admin')
-    is_involved = serializers.SerializerMethodField('get_involved')
-    can_contribute = serializers.SerializerMethodField('get_contribute')
     maps = serializers.SerializerMethodField('get_maps')
     num_maps = serializers.SerializerMethodField('get_number_maps')
     num_contributions = serializers.SerializerMethodField(
@@ -22,17 +19,22 @@ class ProjectSerializer(FieldSelectorSerializer):
         'get_user_contributions')
     contributiontypes = serializers.SerializerMethodField(
         'get_contributiontypes')
+
     can_access_all_contributions = serializers.SerializerMethodField(
         'get_can_access_all_map')
+    can_contribute = serializers.SerializerMethodField('get_contribute')
+    can_moderate = serializers.SerializerMethodField('get_moderate')
+    is_admin = serializers.SerializerMethodField('get_admin')
+    is_involved = serializers.SerializerMethodField('get_involved')
 
     class Meta:
         model = Project
         depth = 1
         fields = ('id', 'name', 'description', 'isprivate',
                   'everyone_contributes', 'status',
-                  'created_at', 'contributiontypes', 'is_admin',
-                  'can_contribute', 'is_involved', 'maps', 'num_maps',
-                  'num_contributions', 'user_contributions')
+                  'created_at', 'contributiontypes', 'maps', 'num_maps',
+                  'num_contributions', 'user_contributions', 'is_admin',
+                  'can_contribute', 'is_involved', 'can_moderate')
         read_only_fields = ('id', 'name')
 
     def get_contributiontypes(self, project):
@@ -54,9 +56,15 @@ class ProjectSerializer(FieldSelectorSerializer):
 
     def get_contribute(self, project):
         """
-        Method for SerializerMethodField `can_admin`
+        Method for SerializerMethodField `can_contribute`
         """
         return project.can_contribute(self.context.get('user'))
+
+    def get_moderate(self, project):
+        """
+        Method for SerializerMethodField `can_moderate`
+        """
+        return project.can_moderate(self.context.get('user'))
 
     def get_involved(self, project):
         """
