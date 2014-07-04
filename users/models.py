@@ -16,7 +16,7 @@ class User(AbstractBaseUser):
     A user registered in the platform.
     """
     email = models.EmailField(unique=True)
-    display_name = models.CharField(max_length=50)
+    display_name = models.CharField(max_length=50, unique=True)
     date_joined = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
