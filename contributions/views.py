@@ -93,7 +93,11 @@ class ProjectObersvationsView(APIView):
         project = Project.objects.get_single(request.user, project_id)
         if project.can_access_all_contributions(request.user):
             data = project.observations.all()
-            serializer = ContributionSerializer(data, many=True)
+            serializer = ContributionSerializer(
+                data,
+                many=True,
+                context={'user': request.user, 'project': project}
+            )
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             raise PermissionDenied('You are not allowed to access this view.')
