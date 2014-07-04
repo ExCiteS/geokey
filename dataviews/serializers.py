@@ -26,7 +26,11 @@ class ViewSerializer(FieldSelectorSerializer):
         """
         Returns all serialized contributions accessable through the view.
         """
-        serializer = ContributionSerializer(obj.data, many=True)
+        serializer = ContributionSerializer(
+            obj.data,
+            many=True,
+            context={'project': obj.project, 'user': self.context.get('user')}
+        )
         return serializer.data
 
     def get_number_contributions(self, obj):

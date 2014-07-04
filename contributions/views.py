@@ -133,7 +133,7 @@ class ViewObservations(APIView):
         /api/projects/:project_id/views/:view_id/
         """
         view = View.objects.get_single(request.user, project_id, view_id)
-        serializer = ViewSerializer(view)
+        serializer = ViewSerializer(view, context={'user': request.user})
         return Response(serializer.data)
 
 
