@@ -28,7 +28,7 @@ urlpatterns = patterns(
         name='project_observations'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/maps/all-contributions/$',
-        contribution_views.ProjectObersvationsView.as_view(),
+        contribution_views.ProjectObservationsView.as_view(),
         name='project_all_observations'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/maps/all-contributions/contributions/(?P<observation_id>[0-9]+)/$',

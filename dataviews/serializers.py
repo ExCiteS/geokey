@@ -26,10 +26,17 @@ class ViewSerializer(FieldSelectorSerializer):
         """
         Returns all serialized contributions accessable through the view.
         """
+        user = self.context.get('user')
+
+        if (obj.project.can_moderate(user)):
+            data = obj.data.for_moderator()
+        else:
+            data = obj.data.for_viewer()
+
         serializer = ContributionSerializer(
-            obj.data,
+            data,
             many=True,
-            context={'project': obj.project, 'user': self.context.get('user')}
+            context={'project': obj.project, 'user': user}
         )
         return serializer.data
 

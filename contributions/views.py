@@ -82,7 +82,7 @@ class ProjectObservations(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class ProjectObersvationsView(APIView):
+class ProjectObservationsView(APIView):
     """
     Public API endpoint to get all contributions in a project
     /api/projects/:project_id/maps/all-contributions/
@@ -92,7 +92,10 @@ class ProjectObersvationsView(APIView):
     def get(self, request, project_id, format=None):
         project = Project.objects.get_single(request.user, project_id)
         if project.can_access_all_contributions(request.user):
-            data = project.observations.all()
+            if project.can_moderate(request.user):
+                data = project.observations.for_moderator()
+            else:
+                data = project.observations.for_viewer()
             serializer = ContributionSerializer(
                 data,
                 many=True,
@@ -134,7 +137,7 @@ class ViewObservations(APIView):
     def get(self, request, project_id, view_id, format=None):
         """
         Returns a single view and its data
-        /api/projects/:project_id/views/:view_id/
+        /api/projects/:project_id/maps/:view_id/
         """
         view = View.objects.get_single(request.user, project_id, view_id)
         serializer = ViewSerializer(view, context={'user': request.user})

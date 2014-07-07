@@ -38,9 +38,8 @@ class View(models.Model):
             for item in queries:
                 query |= item
             return self.project.observations.filter(query)
-
         else:
-            return []
+            return self.project.observations.none()
 
     def delete(self):
         """
