@@ -16,9 +16,85 @@ from .model_factories import ObservationFactory, CommentFactory
 
 from ..views import (
     MySingleObservation, SingleProjectObservation, SingleViewObservation,
-    ProjectComment, ViewComment
+    ProjectComment, ViewComment, SingleObservation
 )
 from ..models import Observation
+
+
+class SingleObservationTest(TestCase):
+    def setUp(self):
+        self.admin = UserF.create()
+        self.creator = UserF.create()
+        self.moderator = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.creator]
+        )
+        self.moderators = UserGroupF(add_users=[self.moderator], **{
+            'project': self.project,
+            'can_moderate': True
+        })
+        self.observation = ObservationFactory.create(**{
+            'project': self.project,
+            'creator': self.creator
+        })
+
+    def test_approve_pending_with_admin(self):
+        self.observation.status = 'pending'
+        self.observation.save()
+
+        view = SingleObservation()
+        data = view.update_status(
+            self.observation, {'status': "active"}, self.admin)
+        self.assertEqual(data.get('properties').get('status'), 'active')
+
+    def test_approve_pending_with_moderator(self):
+        self.observation.status = 'pending'
+        self.observation.save()
+
+        view = SingleObservation()
+        data = view.update_status(
+            self.observation, {'status': "active"}, self.moderator)
+        self.assertEqual(data.get('properties').get('status'), 'active')
+
+    @raises(PermissionDenied)
+    def test_approve_pending_with_contributor(self):
+        self.observation.status = 'pending'
+        self.observation.save()
+
+        view = SingleObservation()
+        data = view.update_status(
+            self.observation, {'status': "active"}, self.creator)
+        self.assertEqual(data.get('properties').get('status'), 'pending')
+
+    @raises(PermissionDenied)
+    def test_approve_pending_with_contributor_who_is_moderator(self):
+        self.moderators.users.add(self.creator)
+        self.observation.status = 'pending'
+        self.observation.save()
+
+        view = SingleObservation()
+        data = view.update_status(
+            self.observation, {'status': "active"}, self.creator)
+        self.assertEqual(data.get('properties').get('status'), 'pending')
+
+    def test_flag_with_admin(self):
+        view = SingleObservation()
+        data = view.update_status(
+            self.observation, {'status': 'pending'}, self.admin)
+        self.assertEqual(data.get('properties').get('status'), 'pending')
+
+    def test_flag_with_moderator(self):
+        view = SingleObservation()
+        data = view.update_status(
+            self.observation, {'status': 'pending'}, self.moderator)
+        self.assertEqual(data.get('properties').get('status'), 'pending')
+
+    def test_flag_with_contributor(self):
+        view = SingleObservation()
+        data = view.update_status(
+            self.observation, {'status': 'pending'}, self.creator)
+        self.assertEqual(data.get('properties').get('status'), 'pending')
 
 
 class SingleProjectObservationTest(TestCase):

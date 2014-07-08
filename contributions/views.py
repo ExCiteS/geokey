@@ -152,14 +152,41 @@ class SingleObservation(APIView):
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def update_status(self, observation, data, user):
+        new_status = data.get('status')
+        review_comment = data.get('review_comment')
+
+        if new_status == 'pending':
+            observation.status = new_status
+            observation.review_comment = review_comment
+        elif (new_status == 'active' and observation.creator != user and
+                observation.project.can_moderate(user)):
+            observation.status = new_status
+        else:
+            raise PermissionDenied('You are not allowed to update the status '
+                                   'of the observation to "%s"' % new_status)
+
+        observation.save()
+        serializer = ContributionSerializer(
+            observation,
+            context={'user': user, 'project': observation.project}
+        )
+        return serializer.data
+
     def update_observation(self, request, observation, format=None):
         """
         Updates a single observation
         """
-        if (observation.creator == request.user or
+        data = request.DATA
+
+        if (data.get('status') is not None and
+                data.get('status') != observation.status):
+            data = self.update_status(observation, data, request.user)
+            return Response(data, status=status.HTTP_200_OK)
+
+        elif (observation.creator == request.user or
                 observation.project.can_moderate(request.user)):
 
-            data = request.DATA
             serializer = ContributionSerializer(
                 observation,
                 data=data,
@@ -174,8 +201,13 @@ class SingleObservation(APIView):
         """
         Deletes a single observation
         """
-        observation.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if (observation.creator == request.user or
+                observation.project.can_moderate(request.user)):
+            observation.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        raise PermissionDenied('You are not allowed to delete this'
+                               'contribution')
 
 
 class SingleProjectObservation(SingleObservation):
