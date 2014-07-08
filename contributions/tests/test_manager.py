@@ -72,26 +72,24 @@ class ObservationTest(TestCase):
         ObservationFactory.create_batch(5, **{'status': 'active'})
         ObservationFactory.create_batch(5, **{'status': 'draft'})
         ObservationFactory.create_batch(5, **{'status': 'pending'})
-        ObservationFactory.create_batch(5, **{'status': 'suspended'})
-        ObservationFactory.create_batch(5, **{'status': 'flagged'})
         ObservationFactory.create_batch(5, **{'status': 'deleted'})
 
     def test_for_moderator(self):
         observations = Observation.objects.all().for_moderator()
-        self.assertEqual(len(observations), 15)
-        for observation in observations:
-            self.assertNotIn(
-                observation.status,
-                ['draft', 'suspended', 'deleted']
-            )
-
-    def test_for_viewer(self):
-        observations = Observation.objects.all().for_viewer()
         self.assertEqual(len(observations), 10)
         for observation in observations:
             self.assertNotIn(
                 observation.status,
-                ['draft', 'pending', 'suspended', 'deleted']
+                ['draft', 'deleted']
+            )
+
+    def test_for_viewer(self):
+        observations = Observation.objects.all().for_viewer()
+        self.assertEqual(len(observations), 5)
+        for observation in observations:
+            self.assertNotIn(
+                observation.status,
+                ['draft']
             )
 
 
