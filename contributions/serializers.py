@@ -103,6 +103,10 @@ class ContributionSerializer(object):
             properties = data.get('properties')
             user = self.context.get('user')
 
+            status = 'active'
+            if 'status' in properties:
+                status = properties.pop('status')
+
             if instance is not None:
                 return instance.update(attributes=properties, updator=user)
             else:
@@ -126,7 +130,8 @@ class ContributionSerializer(object):
                     creator=user,
                     location=location,
                     project=observationtype.project,
-                    observationtype=observationtype
+                    observationtype=observationtype,
+                    status=status
                 )
         else:
             return instance
@@ -156,9 +161,7 @@ class ContributionSerializer(object):
         for field in obj.observationtype.fields.all():
             value = obj.attributes.get(field.key)
             if value is not None:
-                json_object['properties'][field.key] = field.convert_from_string(
-                    value
-                )
+                json_object['properties'][field.key] = field.convert_from_string(value)
 
         return json_object
 

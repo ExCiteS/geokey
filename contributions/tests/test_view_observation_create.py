@@ -201,6 +201,56 @@ class ProjectPublicApiTest(TestCase):
         response = self._post(data, self.admin)
         self.assertEqual(response.status_code, 400)
 
+    def test_contribute_valid_draft(self):
+        self.data = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -0.13404607772827148,
+                    51.52439200896907
+                ]
+            },
+            "properties": {
+                "key_1": "value 1",
+                "key_2": 12,
+                "contributiontype": self.observationtype.id,
+                "location": {
+                    "name": "UCL",
+                    "description": "UCL's main quad",
+                    "private": True
+                },
+                "status": "draft"
+            }
+        }
+        response = self._post(self.data, self.admin)
+        self.assertEqual(response.status_code, 201)
+
+    def test_contribute_invalid_draft(self):
+        self.data = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -0.13404607772827148,
+                    51.52439200896907
+                ]
+            },
+            "properties": {
+                "key_1": "value 1",
+                "key_2": "Blah",
+                "contributiontype": self.observationtype.id,
+                "location": {
+                    "name": "UCL",
+                    "description": "UCL's main quad",
+                    "private": True
+                },
+                "status": "draft"
+            }
+        }
+        response = self._post(self.data, self.admin)
+        self.assertEqual(response.status_code, 400)
+
     def test_contribute_to_public_with_admin(self):
         self.project.isprivate = False
         self.project.save()
