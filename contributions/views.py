@@ -156,13 +156,19 @@ class SingleObservation(APIView):
         """
         Updates a single observation
         """
-        data = request.DATA
-        serializer = ContributionSerializer(
-            observation,
-            data=data,
-            context={'user': request.user, 'project': observation.project}
-        )
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if (observation.creator == request.user or
+                observation.project.can_moderate(request.user)):
+
+            data = request.DATA
+            serializer = ContributionSerializer(
+                observation,
+                data=data,
+                context={'user': request.user, 'project': observation.project}
+            )
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        raise PermissionDenied('You are not allowed to update this'
+                               'observation')
 
     def delete_observation(self, request, observation, format=None):
         """
@@ -216,15 +222,6 @@ class SingleViewObservation(SingleObservation):
             raise PermissionDenied('You are not eligable to read data from '
                                    'this view')
 
-    def get_object_for_update(self, user, project_id, view_id, observation_id):
-        view = View.objects.get_single(user, project_id, view_id)
-        observation = view.data.get(pk=observation_id)
-        if observation.creator == user or view.can_moderate(user):
-            return observation
-        else:
-            raise PermissionDenied('You are not eligable to moderate '
-                                   'this observation.')
-
     @handle_exceptions_for_ajax
     def get(self, request, project_id, view_id, observation_id, format=None):
         observation = self.get_object(
@@ -233,14 +230,14 @@ class SingleViewObservation(SingleObservation):
 
     @handle_exceptions_for_ajax
     def put(self, request, project_id, view_id, observation_id, format=None):
-        observation = self.get_object_for_update(
+        observation = self.get_object(
             request.user, project_id, view_id, observation_id)
         return self.update_observation(request, observation, format=format)
 
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, view_id, observation_id,
                format=None):
-        observation = self.get_object_for_update(
+        observation = self.get_object(
             request.user, project_id, view_id, observation_id)
         return self.delete_observation(request, observation, format=format)
 
