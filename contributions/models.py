@@ -118,7 +118,8 @@ class Observation(models.Model):
             observationtype=observationtype,
             project=project,
             attributes=attributes,
-            creator=creator
+            creator=creator,
+            status=status
         )
         return observation
 
@@ -126,15 +127,16 @@ class Observation(models.Model):
         """
         Updates data of the observation
         """
-        version = self.version + 1
-
         update = self.attributes.copy()
         update.update(attributes)
 
-        self.validate_partial(self.observationtype, update)
+        if status == 'draft':
+            self.validate_partial(self.observationtype, attributes)
+        else:
+            self.validate_full(self.observationtype, attributes)
+            self.version = self.version + 1
 
         self.attributes = update
-        self.version = version
         self.updator = updator
 
         self.review_comment = review_comment

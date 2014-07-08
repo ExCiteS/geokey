@@ -45,7 +45,7 @@ class SingleObservationTest(TestCase):
 
         view = SingleObservation()
         data = view.update_status(
-            self.observation, {'status': "active"}, self.admin)
+            self.observation, {'properties': {'status': "active"}}, self.admin)
         self.assertEqual(data.get('properties').get('status'), 'active')
 
     def test_approve_pending_with_moderator(self):
@@ -54,7 +54,7 @@ class SingleObservationTest(TestCase):
 
         view = SingleObservation()
         data = view.update_status(
-            self.observation, {'status': "active"}, self.moderator)
+            self.observation, {'properties': {'status': "active"}}, self.moderator)
         self.assertEqual(data.get('properties').get('status'), 'active')
 
     @raises(PermissionDenied)
@@ -64,7 +64,7 @@ class SingleObservationTest(TestCase):
 
         view = SingleObservation()
         data = view.update_status(
-            self.observation, {'status': "active"}, self.creator)
+            self.observation, {'properties': {'status': "active"}}, self.creator)
         self.assertEqual(data.get('properties').get('status'), 'pending')
 
     @raises(PermissionDenied)
@@ -75,26 +75,55 @@ class SingleObservationTest(TestCase):
 
         view = SingleObservation()
         data = view.update_status(
-            self.observation, {'status': "active"}, self.creator)
+            self.observation, {'properties': {'status': "active"}}, self.creator)
         self.assertEqual(data.get('properties').get('status'), 'pending')
 
     def test_flag_with_admin(self):
         view = SingleObservation()
         data = view.update_status(
-            self.observation, {'status': 'pending'}, self.admin)
+            self.observation, {'properties': {'status': 'pending'}}, self.admin)
         self.assertEqual(data.get('properties').get('status'), 'pending')
 
     def test_flag_with_moderator(self):
         view = SingleObservation()
         data = view.update_status(
-            self.observation, {'status': 'pending'}, self.moderator)
+            self.observation, {'properties': {'status': 'pending'}}, self.moderator)
         self.assertEqual(data.get('properties').get('status'), 'pending')
 
     def test_flag_with_contributor(self):
         view = SingleObservation()
         data = view.update_status(
-            self.observation, {'status': 'pending'}, self.creator)
+            self.observation, {'properties': {'status': 'pending'}}, self.creator)
         self.assertEqual(data.get('properties').get('status'), 'pending')
+
+    @raises(PermissionDenied)
+    def test_commit_from_draft_admin(self):
+        self.observation.status = 'draft'
+        self.observation.save()
+
+        view = SingleObservation()
+        data = view.update_status(
+            self.observation, {'properties': {'status': 'active'}}, self.admin)
+        self.assertEqual(data.get('properties').get('status'), 'draft')
+
+    @raises(PermissionDenied)
+    def test_commit_from_draft_with_moderator(self):
+        self.observation.status = 'draft'
+        self.observation.save()
+
+        view = SingleObservation()
+        data = view.update_status(
+            self.observation, {'properties': {'status': 'active'}}, self.moderator)
+        self.assertEqual(data.get('properties').get('status'), 'draft')
+
+    def test_commit_from_draft_with_contributor(self):
+        self.observation.status = 'draft'
+        self.observation.save()
+
+        view = SingleObservation()
+        data = view.update_status(
+            self.observation, {'properties': {'status': 'active'}}, self.creator)
+        self.assertEqual(data.get('properties').get('status'), 'active')
 
 
 class SingleProjectObservationTest(TestCase):

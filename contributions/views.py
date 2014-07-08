@@ -153,15 +153,27 @@ class SingleObservation(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update_status(self, observation, data, user):
-        new_status = data.get('status')
+        new_status = data.get('properties').get('status')
         review_comment = data.get('review_comment')
 
         if new_status == 'pending':
             observation.status = new_status
             observation.review_comment = review_comment
-        elif (new_status == 'active' and observation.creator != user and
+
+        elif (new_status == 'active' and observation.status == 'draft' and
+                observation.creator == user):
+            serializer = ContributionSerializer(
+                observation,
+                data=data,
+                context={'user': user, 'project': observation.project}
+            )
+            return serializer.data
+
+        elif (new_status == 'active' and observation.status == 'pending' and
+                observation.creator != user and
                 observation.project.can_moderate(user)):
             observation.status = new_status
+
         else:
             raise PermissionDenied('You are not allowed to update the status '
                                    'of the observation to "%s"' % new_status)
@@ -178,9 +190,9 @@ class SingleObservation(APIView):
         Updates a single observation
         """
         data = request.DATA
+        new_status = data.get('properties').get('status')
 
-        if (data.get('status') is not None and
-                data.get('status') != observation.status):
+        if (new_status is not None and new_status != observation.status):
             data = self.update_status(observation, data, request.user)
             return Response(data, status=status.HTTP_200_OK)
 

@@ -108,7 +108,8 @@ class ContributionSerializer(object):
                 status = properties.pop('status')
 
             if instance is not None:
-                return instance.update(attributes=properties, updator=user)
+                return instance.update(
+                    attributes=properties, updator=user, status=status)
             else:
                 project = self.context.get('project')
 

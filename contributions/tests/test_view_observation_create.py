@@ -225,6 +225,7 @@ class ProjectPublicApiTest(TestCase):
         }
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 201)
+        self.assertIn('"status": "draft"', response.content)
 
     def test_contribute_invalid_draft(self):
         self.data = {
