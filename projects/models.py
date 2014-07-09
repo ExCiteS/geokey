@@ -70,19 +70,24 @@ class Project(models.Model):
         - the user is member of one of the usergroups
         - the project is public and has at least one public view
         """
+
         return self.status == STATUS.active and (self.is_admin(user) or (
-            ((not self.isprivate and not self.all_contrib_isprivate) or
-                self.views.filter(isprivate=False).exists()) or (
+
+            ((not self.isprivate or (
+                not user.is_anonymous() and self.usergroups.filter(
+                    users=user).exists())) and (
+                not self.all_contrib_isprivate or
+                self.views.filter(isprivate=False).exists())) or (
+
                 not user.is_anonymous() and (
                     self.usergroups.filter(
                         can_contribute=True, users=user).exists() or
                     self.usergroups.filter(
                         can_moderate=True, users=user).exists() or
                     self.usergroups.filter(
-                        view_all_contrib=True, read_all_contrib=True,
-                        users=user).exists() or
+                        read_all_contrib=True, users=user).exists() or
                     self.usergroups.filter(
-                        users=user, viewgroups__isnull=False))
+                        users=user, viewgroups__isnull=False).exists())
                 )
             )
         )
@@ -91,7 +96,6 @@ class Project(models.Model):
         return self.is_admin(user) or not self.all_contrib_isprivate or (
             not user.is_anonymous() and (
                 self.usergroups.filter(
-                    view_all_contrib=True,
                     read_all_contrib=True,
                     users=user).exists()))
 
