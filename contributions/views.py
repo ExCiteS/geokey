@@ -1,4 +1,5 @@
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -25,7 +26,7 @@ from dataviews.serializers import ViewSerializer
 class Locations(APIView):
     """
     Public API endpoint for all locations in a project.
-    /api/projects/:project_id/locations
+    /api/projects/:project_id/locations/
     """
 
     @handle_exceptions_for_ajax
@@ -34,7 +35,12 @@ class Locations(APIView):
         Returns a list of locations that can be used for contributions to the
         given project.
         """
+        q = request.GET.get('query')
         locations = Location.objects.get_list(request.user, project_id)
+
+        if q is not None:
+            locations = locations.filter(Q(name__icontains=q.lower()) | Q(description__icontains=q.lower()))
+
         serializer = LocationSerializer(locations, many=True)
         return Response(serializer.data)
 
@@ -42,7 +48,7 @@ class Locations(APIView):
 class SingleLocation(APIView):
     """
     Public API endpoint for a single location in a project.
-    /api/projects/:project_id/locations/:location_id
+    /api/projects/:project_id/locations/:location_id/
     """
     @handle_exceptions_for_ajax
     def put(self, request, project_id, location_id, format=None):
