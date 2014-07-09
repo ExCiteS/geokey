@@ -71,9 +71,16 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="panel-heading">Views</div>
+                        <div class="panel-heading">Maps</div>
                         <div class="list-group">
-                            {% viewgroups group %}    
+                            <li class="list-group-item">
+                                <div class="checkbox">
+                                    <label>
+                                        <input class="view-permission" name="view" value="all" type="checkbox" {% if group.read_all_contrib %} checked="true" {% endif %}> All contributions
+                                    </label>
+                                </div>
+                            </li>
+                            {% viewgroups group %}
                         </div>
                     </div>
                 </div>

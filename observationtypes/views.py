@@ -1,6 +1,7 @@
 from django.views.generic import CreateView, TemplateView
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
+from django.db import IntegrityError
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -107,7 +108,7 @@ class FieldCreate(LoginRequiredMixin, CreateView):
     template_name = 'observationtypes/field_create.html'
 
     @handle_exceptions_for_admin
-    def get_context_data(self, form, **kwargs):
+    def get_context_data(self, form, data=None, key_error=False, **kwargs):
         project_id = self.kwargs['project_id']
         observationtype_id = self.kwargs['observationtype_id']
 
@@ -117,6 +118,10 @@ class FieldCreate(LoginRequiredMixin, CreateView):
             self.request.user, project_id, observationtype_id
         )
         context['fieldtypes'] = Field.get_field_types()
+        context['key_error'] = key_error
+        if key_error:
+            print key_error
+            context['data'] = data
         return context
 
     def form_valid(self, form):
@@ -126,20 +131,25 @@ class FieldCreate(LoginRequiredMixin, CreateView):
         observation_type = ObservationType.objects.as_admin(
             self.request.user, project_id, observationtype_id)
 
-        field = Field.create(
-            data.get('name'),
-            data.get('key'),
-            data.get('description'),
-            data.get('required'),
-            observation_type,
-            self.request.POST.get('type')
-        )
-        return redirect(
-            'admin:observationtype_field_settings',
-            project_id=observation_type.project.id,
-            observationtype_id=observation_type.id,
-            field_id=field.id
-        )
+        try:
+            field = Field.create(
+                data.get('name'),
+                data.get('key'),
+                data.get('description'),
+                data.get('required'),
+                observation_type,
+                self.request.POST.get('type')
+            )
+            return redirect(
+                'admin:observationtype_field_settings',
+                project_id=observation_type.project.id,
+                observationtype_id=observation_type.id,
+                field_id=field.id
+            )
+        except IntegrityError:
+            data = form.cleaned_data
+            data['type'] = self.request.POST.get('type')
+            return self.render_to_response(self.get_context_data(form, data=data, key_error=True))
 
 
 class FieldSettings(LoginRequiredMixin, TemplateView):

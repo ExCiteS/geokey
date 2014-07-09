@@ -551,7 +551,8 @@ class SingleProjectTest(TestCase):
         user = UserF.create()
 
         project = ProjectF.create(
-            add_admins=[user]
+            add_admins=[user],
+            add_viewers=[UserF.create()]
         )
 
         request = self.factory.get(
@@ -563,6 +564,7 @@ class SingleProjectTest(TestCase):
         self.assertContains(response, project.name)
         self.assertContains(response, '"can_contribute": true')
         self.assertContains(response, '"is_involved": true')
+        self.assertContains(response, '"num_contributions"')
 
     def test_get_inactive_project_with_admin(self):
         user = UserF.create()

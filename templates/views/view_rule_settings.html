@@ -17,7 +17,7 @@
                 </ol>
 
                 <h1>Filter Settings</h1>
-                <p class="lead">Filters apply to observations of type <em>{{rule.observation_type.name}}</em></p>
+                <p class="lead">Filters apply to contributions of type <em>{{rule.observation_type.name}}</em></p>
             </div>
         </div>
 
@@ -26,6 +26,7 @@
                 <form id="rule-form" role="form" class="form-horizontal col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url 'admin:rule_settings' rule.view.project.id rule.view.id rule.id %}" novalidate>
                     {% csrf_token %}
                     <input type="hidden" name="rules">
+                    <div class="alert alert-info">Please set the value for each individual field you want to filter for. If you leave a filter blank, the field will not be filtered for.</div>
                     {% for field in rule.observation_type.fields.all %}
                         <div class="field-filter" data-key="{{field.key}}" data-type="{{field.fieldtype}}">
                             <h5>{{field.name}} ({{field.key}})</h5>

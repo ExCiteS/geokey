@@ -6,15 +6,18 @@ from users import views as login_views
 from dataviews import views as dataviews
 from applications import views as app_views
 
+from django.contrib.auth.views import login, logout
+
 
 urlpatterns = patterns(
     '',
     url(r'^$', login_views.Index.as_view(), name='index'),
-    url(r'^login$', login_views.Login.as_view(), name='login'),
-    url(r'^logout$', login_views.Logout.as_view(), name='logout'),
-    url(r'^signup$', login_views.Signup.as_view(), name='signup'),
-    url(r'^dashboard$', login_views.Dashboard.as_view(), name='dashboard'),
-    url(r'^password/', include('password_reset.urls', namespace='pw')),
+    url(r'^dashboard/$', login_views.Dashboard.as_view(), name='dashboard'),
+
+    url(r'^accounts/signup/$', login_views.Signup.as_view(), name='signup'),
+    url(r'^accounts/login/$',  login),
+    url(r'^accounts/logout/$', logout),
+    url(r'^accounts/password/', include('password_reset.urls', namespace='pw')),
 
     # ###########################
     # PROJECTS
@@ -89,6 +92,10 @@ urlpatterns = patterns(
         dataviews.ViewSettings.as_view(),
         name='view_settings'),
     url(
+        r'^projects/(?P<project_id>[0-9]+)/views/all-contributions/$',
+        dataviews.ViewAllSettings.as_view(),
+        name='view_all_settings'),
+    url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/observations/$',
         dataviews.ViewObservations.as_view(),
         name='view_observations'),
@@ -124,19 +131,19 @@ urlpatterns = patterns(
     url(r'^profile/$',
         login_views.UserProfile.as_view(),
         name="userprofile"),
-    url(r'^profile/password/change/$',
+    url(r'^accounts/password/change/$',
         login_views.ChangePassword.as_view(),
         name="changepassword"),
-    url(r'^profile/password/reset/$',
+    url(r'^accounts/password/reset/$',
         'django.contrib.auth.views.password_reset',
-        {'post_reset_redirect': '/admin/profile/password/reset/done/'},
+        {'post_reset_redirect': '/admin/accounts/password/reset/done/'},
         name="password_reset"),
-    url(r'^profile/password/reset/done/$',
+    url(r'^accounts/password/reset/done/$',
         'django.contrib.auth.views.password_reset_done'),
-    url(r'^profile/password/reset/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/$',
+    url(r'^accounts/password/reset/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/$',
         'django.contrib.auth.views.password_reset_confirm',
-        {'post_reset_redirect': '/admin/profile/password/done/'},
+        {'post_reset_redirect': '/admin/accounts/password/done/'},
         name="password_reset_confirm"),
-    url(r'^profile/password/done/$',
+    url(r'^accounts/password/done/$',
         'django.contrib.auth.views.password_reset_complete'),
 )

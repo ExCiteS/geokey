@@ -2,7 +2,7 @@ from django.contrib.gis.db import models
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 
-from django_hstore import hstore
+from django_hstore import hstore, query
 
 from projects.models import Project
 
@@ -57,6 +57,14 @@ class LocationManager(models.GeoManager):
                                    'project.')
 
 
+class ObservationQuerySet(query.HStoreQuerySet):
+    def for_moderator(self):
+        return self.exclude(status='suspended').exclude(status='draft')
+
+    def for_viewer(self):
+        return self.for_moderator().exclude(status='pending')
+
+
 class ObservationManager(hstore.HStoreManager):
     """
     Manager for Observation Model
@@ -65,8 +73,15 @@ class ObservationManager(hstore.HStoreManager):
         """
         Returns all observations excluding those with status `deleted`
         """
-        return super(ObservationManager, self).get_query_set().exclude(
+        return ObservationQuerySet(self.model).prefetch_related(
+            'location', 'observationtype', 'creator', 'updator').exclude(
             status=OBSERVATION_STATUS.deleted)
+
+    def for_moderator(self):
+        return self.get_query_set().for_moderator()
+
+    def for_viewer(self):
+        return self.for_moderator().for_viewer()
 
 
 class CommentManager(models.Manager):

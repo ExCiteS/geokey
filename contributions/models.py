@@ -66,44 +66,14 @@ class Observation(models.Model):
     objects = ObservationManager()
 
     @classmethod
-    def create(cls, attributes=None, creator=None, location=None,
-               observationtype=None, project=None):
-        """
-        Creates a new observation. Validates all fields first and raises a
-        ValidationError if at least one field did not validate.
-        Creates the object if all fields are valid.
-        """
-        is_valid = True
-        error_messages = []
-
-        for field in observationtype.fields.all():
-            try:
-                field.validate_input(attributes.get(field.key))
-            except InputError, error:
-                is_valid = False
-                error_messages.append(error)
-
-        if is_valid:
-            location.save()
-            observation = cls.objects.create(
-                location=location,
-                observationtype=observationtype,
-                project=project,
-                attributes=attributes,
-                creator=creator
-            )
-            return observation
-        else:
-            raise ValidationError(error_messages)
-
-    def validate_update(self, data):
+    def validate_partial(self, observationtype, data):
         """
         Validates the update data of the observation
         """
         is_valid = True
         error_messages = []
 
-        for field in self.observationtype.fields.all().filter(status='active'):
+        for field in observationtype.fields.all().filter(status='active'):
             if field.key in data:
                 try:
                     field.validate_input(data.get(field.key))
@@ -114,25 +84,66 @@ class Observation(models.Model):
         if not is_valid:
             raise ValidationError(error_messages)
 
+    @classmethod
+    def validate_full(self, observationtype, data):
+        is_valid = True
+        error_messages = []
+
+        for field in observationtype.fields.all():
+            try:
+                field.validate_input(data.get(field.key))
+            except InputError, error:
+                is_valid = False
+                error_messages.append(error)
+
+        if not is_valid:
+            raise ValidationError(error_messages)
+
+    @classmethod
+    def create(cls, attributes=None, creator=None, location=None,
+               observationtype=None, project=None, status='active'):
+        """
+        Creates a new observation. Validates all fields first and raises a
+        ValidationError if at least one field did not validate.
+        Creates the object if all fields are valid.
+        """
+        if status == 'draft':
+            cls.validate_partial(observationtype, attributes)
+        else:
+            cls.validate_full(observationtype, attributes)
+
+        location.save()
+        observation = cls.objects.create(
+            location=location,
+            observationtype=observationtype,
+            project=project,
+            attributes=attributes,
+            creator=creator,
+            status=status
+        )
+        return observation
+
     def update(self, attributes, updator, review_comment=None, status=None):
         """
         Updates data of the observation
         """
-        version = self.version + 1
-
         update = self.attributes.copy()
         update.update(attributes)
 
-        self.validate_update(update)
+        if status == 'draft':
+            self.validate_partial(self.observationtype, attributes)
+        else:
+            self.validate_full(self.observationtype, attributes)
+            self.version = self.version + 1
 
         self.attributes = update
-        self.version = version
         self.updator = updator
 
         self.review_comment = review_comment
         self.status = status or self.status
 
         self.save()
+        return self
 
     def delete(self):
         """

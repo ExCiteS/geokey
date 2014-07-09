@@ -16,9 +16,10 @@ class User(AbstractBaseUser):
     A user registered in the platform.
     """
     email = models.EmailField(unique=True)
-    display_name = models.CharField(max_length=50)
+    display_name = models.CharField(max_length=50, unique=True)
     date_joined = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
+    is_superuser = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
 
@@ -45,6 +46,8 @@ class UserGroup(models.Model):
     project = models.ForeignKey('projects.Project', related_name='usergroups')
     can_contribute = models.BooleanField(default=True)
     can_moderate = models.BooleanField(default=False)
+    view_all_contrib = models.BooleanField(default=True)
+    read_all_contrib = models.BooleanField(default=True)
 
 
 @receiver(pre_save, sender=UserGroup)

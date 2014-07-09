@@ -5,7 +5,6 @@
 
 {% block main %}
     {% csrf_token %}
-
         <div class="page-header">
             <div class="container">
                 <ol class="breadcrumb">
@@ -39,8 +38,8 @@
                 <div class="col-sm-12">
                     <ul class="nav nav-tabs">
                         <li class="active"><a href="#users" data-toggle="tab">User permissions</a></li>
-                        <li><a href="#views" data-toggle="tab">Views</a></li>
-                        <li><a href="#observationtypes" data-toggle="tab">Oberservation types</a></li>
+                        <li><a href="#maps" data-toggle="tab">Maps</a></li>
+                        <li><a href="#contributiontypes" data-toggle="tab">Contribution types</a></li>
                         <li><a href="#general-settings" data-toggle="tab">General</a></li>
                     </ul>
                 </div>
@@ -60,6 +59,13 @@
                     </div> <!-- /Administrators List -->
                 </div>
                 <div class="col-sm-6">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="checkbox toggle-everyone_contributes">
+                                <label><input name="everyone_contributes" type="checkbox" {% if project.everyone_contributes %}checked="true"{% endif %}> All users that have access to the project can contribute to the project.</label>
+                            </div>
+                        </div>
+                    </div>
                     <div class="panel panel-default" id="user-groups">
                         <div class="panel-heading">
                             <h2 class="panel-title">User groups</h2>
@@ -72,7 +78,7 @@
                             </a>
                             {% empty %}
                             <div class="list-group-item">
-                                No user groups have been added to the project.
+                                Add user groups to grant contributing and moderation permission to users as well as access to views.
                             </div>
                             {% endfor %}
                         </div>
@@ -83,13 +89,18 @@
                 </div>
             </div>
 
-            <div class="row tab-pane" id="views">
+            <div class="row tab-pane" id="maps">
                 <div class="col-sm-8 col-sm-offset-2">
                     <div class="panel panel-default"> <!-- Observation type list List -->
                         <div class="panel-heading">
-                            <h2 class="panel-title">Views in this project</h2>
+                            <h2 class="panel-title">Maps in this project</h2>
                         </div>
                         <div class="list-group">
+                            <a class="list-group-item" href="{% url 'admin:view_all_settings' project.id %}">
+                                <h4 class="list-group-item-heading">All contributions</h4>
+                                <p class="list-group-item-text">This map provides access to all contributions ever contributed to the project.</p>
+                            </a>
+
                             {% for view in project.views.all %}
                                 <a class="list-group-item" href="{% url 'admin:view_settings' project.id view.id %}">
                                     <h4 class="list-group-item-heading">{{ view.name }}</h4>
@@ -97,18 +108,18 @@
                                 </a>
                             {% empty %}
                             <div class="list-group-item">
-                                No views have been added to the project.
+                                You can use maps to provide access to a subset of all observations contributed to this project. After creating a maps you define rules according to which the data is filtered.
                             </div>
                             {% endfor %}
                         </div>
                         <div class="panel-footer">
-                            <a href="{% url 'admin:view_create' project.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new view</a>
+                            <a href="{% url 'admin:view_create' project.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new map</a>
                         </div>
                     </div> <!-- /Observation type list List -->
                 </div>
             </div>
 
-            <div class="row tab-pane" id="observationtypes">
+            <div class="row tab-pane" id="contributiontypes">
                 <div class="col-sm-8 col-sm-offset-2">
                     <div class="panel panel-default"> <!-- Observation type list List -->
                         <div class="panel-heading">
@@ -122,12 +133,12 @@
                             </a>
                             {% empty %}
                             <div class="list-group-item">
-                                No observation types have been added to the project.
+                                Contribution types define a structure for data collection. Each contribution type has a set of fields, for which you can define the data type and accepted input.
                             </div>
                             {% endfor %}
                         </div>
                         <div class="panel-footer">
-                            <a href="{% url 'admin:observationtype_create' project.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new observation type</a>
+                            <a href="{% url 'admin:observationtype_create' project.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new contribution type</a>
                         </div>
                     </div> <!-- /Observation type list List -->
                 </div>

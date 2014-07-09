@@ -77,6 +77,54 @@ class LocationApiTest(TestCase):
         self.assertEquals(response.status_code, 403)
 
 
+class LocationQueryTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.project = ProjectF()
+        LocationFactory.create(**{'name': 'Hyde Park'})
+        LocationFactory.create(**{'description': 'hyde'})
+        LocationFactory.create(**{'name': 'hyde park'})
+        LocationFactory.create(**{'name': 'Regents Park'})
+
+        self.url = reverse(
+            'api:project_locations',
+            kwargs={
+                'project_id': self.project.id
+            }
+        )
+
+    def test_hyd(self):
+        request = self.factory.get(self.url + '?query=Hyd')
+        force_authenticate(request, user=self.project.creator)
+        view = Locations.as_view()
+        response = view(request, project_id=self.project.id).render()
+
+        response_json = json.loads(response.content)
+        self.assertEqual(len(response_json.get('features')), 3)
+        self.assertNotIn('Regents Park', response.content)
+
+    def test_park(self):
+        request = self.factory.get(self.url + '?query=park')
+        force_authenticate(request, user=self.project.creator)
+        view = Locations.as_view()
+        response = view(request, project_id=self.project.id).render()
+
+        response_json = json.loads(response.content)
+        self.assertEqual(len(response_json.get('features')), 3)
+        self.assertNotIn('"description": "hyde"', response.content)
+
+    def test_regen(self):
+        request = self.factory.get(self.url + '?query=regen')
+        force_authenticate(request, user=self.project.creator)
+        view = Locations.as_view()
+        response = view(request, project_id=self.project.id).render()
+
+        response_json = json.loads(response.content)
+        self.assertEqual(len(response_json.get('features')), 1)
+        self.assertNotIn('hyde', response.content)
+        self.assertNotIn('Hyde Park', response.content)
+
+
 class LocationUpdateApiTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()

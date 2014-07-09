@@ -15,21 +15,52 @@ class ProjectQuerySet(models.query.QuerySet):
             return self.annotate(public_views=Count(
                 'views', only=Q(views__isprivate=False))).filter(
                 Q(status=STATUS.active) &
-                Q(isprivate=False, public_views__gte=1)).distinct()
+                (Q(isprivate=False, public_views__gte=1) |
+                    Q(isprivate=False, all_contrib_isprivate=False))
+                ).distinct()
         else:
             projects = self.annotate(public_views=Count(
                 'views', only=Q(views__isprivate=False))).filter(
+
                 Q(admins=user) |
                 (
                     Q(status=STATUS.active) &
-                    (Q(isprivate=False, public_views__gte=1) |
+
+                    (((Q(isprivate=False) | Q(usergroups__users=user)) & (
+                        Q(public_views__gte=1) |
+                        Q(all_contrib_isprivate=False))) |
+
                         Q(usergroups__can_contribute=True,
+                            usergroups__users=user) |
+                        Q(usergroups__can_moderate=True,
+                            usergroups__users=user) |
+                        Q(usergroups__read_all_contrib=True,
                             usergroups__users=user) |
                         Q(usergroups__users=user,
                             usergroups__viewgroups__isnull=False))
                 )
             ).distinct()
             return projects
+
+        return self.status == STATUS.active and (self.is_admin(user) or (
+            ((not self.isprivate or (
+                not user.is_anonymous() and self.usergroups.filter(
+                    users=user).exists())) and (
+                not self.all_contrib_isprivate or
+                self.views.filter(isprivate=False).exists())) or (
+
+                not user.is_anonymous() and (
+                    self.usergroups.filter(
+                        can_contribute=True, users=user).exists() or
+                    self.usergroups.filter(
+                        can_moderate=True, users=user).exists() or
+                    self.usergroups.filter(
+                        read_all_contrib=True, users=user).exists() or
+                    self.usergroups.filter(
+                        users=user, viewgroups__isnull=False).exists())
+                )
+            )
+        )
 
 
 class ProjectManager(models.Manager):

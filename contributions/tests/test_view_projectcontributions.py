@@ -5,7 +5,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 
 from projects.tests.model_factories import UserF, ProjectF
 
-from ..views import ProjectObservations
+from ..views import ProjectObservationsView
 
 
 class TestDataViewsPublicApi(TestCase):
@@ -22,12 +22,12 @@ class TestDataViewsPublicApi(TestCase):
         )
 
     def get(self, user):
-        url = reverse('api:project_observations', kwargs={
+        url = reverse('api:project_all_observations', kwargs={
             'project_id': self.project.id
         })
         request = self.factory.get(url)
         force_authenticate(request, user=user)
-        theview = ProjectObservations.as_view()
+        theview = ProjectObservationsView.as_view()
         return theview(
             request,
             project_id=self.project.id).render()

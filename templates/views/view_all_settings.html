@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% load filters %}
+{% load usergroups %}
+
+{% block bodydata %} data-project-id="{{project.id}}" data-view-id="all-contributions"{% endblock %}
+{% block title %} | Map: All contributions{% endblock %}
+
+{% block main %}
+	{% csrf_token %}
+		<div class="page-header">
+			<div class="container">
+				<ol class="breadcrumb">
+					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
+					<li><a href="{% url 'admin:project_settings' project.id %}">{{ project.name }}</a></li>
+					<li class="active">All contributions: Settings</li>
+				</ol>
+
+				<h1>All contributions</h1>
+				<p class="lead">
+					<span id="descriptionText">This map provides access to all contributions ever contributed to the project.</span>
+				</p>
+			</div>
+		</div>
+
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-12">
+					<ul class="nav nav-tabs">
+                        <li class="active"><a href="#permissions" data-toggle="tab">User permissions</a></li>
+						<li><a href="#general-settings" data-toggle="tab">General</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="container tab-content">
+            <div class="row tab-pane active" id="permissions">
+                <div class="col-md-12">
+                    <div class="panel panel-default"> <!-- User group list -->
+                        <div class="panel-heading">
+                            <h2 class="panel-title">User permissions</h2>
+                            Select the user groups that you want to grant access access to this map.
+                        </div>
+                        <ul class="list-group">
+                            {% for group in project.usergroups.all %}
+                            <li class="list-group-item">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="usergroup" value="{{ group.id }}" {% if group.read_all_contrib %}checked{% endif %}> {{ group.name }}
+                                    </label>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+			<div class="row tab-pane" id="general-settings">
+				<div class="col-sm-8 col-sm-offset-2">
+                    <div class="panel panel-warning toggle-private {% if not project.all_contrib_isprivate %} hidden{% endif %}">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Make this map public</h2>
+                        </div>
+                        <div class="panel-body">
+                            <p>A public map will be accesible by all users who have access to the project.</p>
+                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-public-confirm">Make public</button>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-warning toggle-private {% if project.all_contrib_isprivate %} hidden{% endif %}">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Make this map private</h2>
+                        </div>
+                        <div class="panel-body">
+                            <p>A private map is only accessible by project administrators and members of any user group that is assigned to the view.</p>
+                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-private-confirm">Make private</button>
+                        </div>
+                    </div>
+                </div>
+			</div>
+		</div>
+{% endblock %}
+
+{% block modals %}
+		<div class="modal fade" id="make-public-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content panel-warning">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+                    </div>
+                    <div class="modal-body panel-body">
+                        <p><strong>Before you make the map public, please read through the consequences of this action.</strong></p>
+                        <p>A public map will be accesible by all users who have access to the project.</p>
+                    </div>
+                    <div class="modal-footer panel-footer">
+                        <button type="button" name="confirm" value="false" class="btn btn-warning" data-loading-text="Loading...">Yes, make the map public.</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="make-private-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content panel-warning">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+                    </div>
+                    <div class="modal-body panel-body">
+                        <p><strong>Before you make the map private, please read through the consequences of this action.</strong></p>
+                        <p>A map is only accessible by the following users:</p>
+                        <ul>
+                            <li>Project administrators</li>
+                            <li>Members of any user group that is assigned to the map.</li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer panel-footer">
+                        <button type="button" name="confirm" value="true" class="btn btn-warning" data-loading-text="Loading...">Yes, make the map private.</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block libraries %}
+			<script src="/static/js/admin.ui.messages.js"></script>
+			<script src="/static/js/admin.ui.updater.js"></script>
+            <script src="/static/js/admin.ui.map.permissions.js"></script>
+			<script src="/static/js/admin.control.ajax.js"></script>
+{% endblock %}

@@ -1,7 +1,7 @@
 
 {% extends "base.html" %}
 
-{% block title %} | Create new view{% endblock %}
+{% block title %} | Create new map{% endblock %}
 
 {% block main %}
 		<div class="page-header">
@@ -9,10 +9,10 @@
 				<ol class="breadcrumb">
 					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
 					<li><a href="{% url 'admin:project_settings' project.id %}">{{ project.name }}</a></li>
-					<li class="active">Create new view</li>
+					<li class="active">Create new map</li>
 				</ol>
 
-				<h1>Create new view</h1>
+				<h1>Create new map</h1>
 			</div>
 		</div>
 
@@ -26,19 +26,19 @@
 					</div>
 
 					<div class="form-group">
-						<label for="description" class="control-label">Description (required)</label>
-						<textarea class="form-control input-lg" rows="5" name="description" id="description" required></textarea>
+						<label for="description" class="control-label">Description</label>
+						<textarea class="form-control input-lg" rows="5" name="description" id="description"></textarea>
 					</div>
 
 					<div class="form-group">
 						<div class="radio">
 							<label>
-								<input type="radio" id="private" name="isprivate" value="true" checked> <strong>Private</strong> The view will be accessible by project administrators and members of any user group assigned to this view.
+								<input type="radio" id="private" name="isprivate" value="true" checked> <strong>Private</strong> The map will be accessible by project administrators and members of any user group assigned to this map.
 							</label>
 						</div>
 						<div class="radio">
 							<label>
-								<input type="radio" id="public" name="isprivate" value="false"> <strong>Public</strong> The view will be accessible by users, who have access to the project.
+								<input type="radio" id="public" name="isprivate" value="false"> <strong>Public</strong> The map will be accessible by users, who have access to the project.
 							</label>
 						</div>
 					</div>

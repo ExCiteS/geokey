@@ -6,10 +6,11 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from nose.tools import raises
 
 from projects.tests.model_factories import ProjectF, UserF
+from projects.models import Project
 from users.tests.model_factories import ViewUserGroupFactory, UserGroupF
 
 from ..models import View
-from ..views import ViewUpdate
+from ..views import ViewUpdate, AllContributionsViewUpdate
 
 from .model_factories import ViewFactory
 
@@ -31,7 +32,7 @@ class ViewAjaxTest(TestCase):
         })
 
     def _put(self, data, user):
-        url = reverse('api:single_view', kwargs={
+        url = reverse('ajax:view', kwargs={
             'project_id': self.project.id,
             'view_id': self.view.id
         })
@@ -118,3 +119,46 @@ class ViewAjaxTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
         self.assertEqual(View.objects.get(pk=self.view.id).status, 'active')
+
+
+class AllContributionsAjaxTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
+
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            **{'all_contrib_isprivate': False}
+        )
+
+    def _put(self, data, user):
+        url = reverse('ajax:all_contributions_view', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.put(url, data)
+        force_authenticate(request, user=user)
+        theview = AllContributionsViewUpdate.as_view()
+        return theview(
+            request,
+            project_id=self.project.id).render()
+
+    def test_update_description_with_admin(self):
+        response = self._put({'isprivate': True}, self.admin)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(
+            Project.objects.get(pk=self.project.id).all_contrib_isprivate)
+
+    def test_update_description_with_contributor(self):
+        response = self._put({'isprivate': True}, self.contributor)
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(
+            Project.objects.get(pk=self.project.id).all_contrib_isprivate)
+
+    def test_update_description_with_non_member(self):
+        response = self._put({'isprivate': True}, self.non_member)
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(
+            Project.objects.get(pk=self.project.id).all_contrib_isprivate)

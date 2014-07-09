@@ -29,8 +29,8 @@
                         </div>
                         {% endif %}
 
-                        <div class="panel-heading">Other projects you are involved in</div>
                         {% if involved_projects %}
+                        <div class="panel-heading">Other projects you are involved in</div>
                         <div class="list-group">
                             {% for project in involved_projects %}
                             <a href="{% url 'admin:project_settings' project.id %}" class="list-group-item">

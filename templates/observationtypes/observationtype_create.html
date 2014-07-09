@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} | Create new observation type{% endblock %}
+{% block title %} | Create new contribution type{% endblock %}
 
 {% block main %}
 		<div class="page-header">
@@ -8,9 +8,9 @@
 				<ol class="breadcrumb">
 					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
 					<li><a href="{% url 'admin:project_settings' project.id %}">{{ project.name }}</a></li>
-					<li class="active">Create new observation type</li>
+					<li class="active">Create new contribution type</li>
 				</ol>
-				<h1>Create new observation type</h1>
+				<h1>Create new contribution type</h1>
 			</div>
 		</div>
 
@@ -24,8 +24,8 @@
 					</div>
 
 					<div class="form-group">
-						<label for="description" class="control-label">Description (required)</label>
-						<textarea class="form-control input-lg" rows="5" name="description" id="description" required></textarea>
+						<label for="description" class="control-label">Description</label>
+						<textarea class="form-control input-lg" rows="5" name="description" id="description"></textarea>
 					</div>
 
 					<div class="form-group">

@@ -44,6 +44,8 @@ class UserGroupF(factory.django.DjangoModelFactory):
     project = factory.SubFactory('projects.tests.model_factories.ProjectF')
     can_contribute = True
     can_moderate = False
+    view_all_contrib = False
+    read_all_contrib = False
 
     @factory.post_generation
     def add_users(self, create, extracted, **kwargs):

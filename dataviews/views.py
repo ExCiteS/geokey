@@ -100,6 +100,19 @@ class ViewSettings(LoginRequiredMixin, TemplateView):
             request, *args, **kwargs)
 
 
+class ViewAllSettings(LoginRequiredMixin, TemplateView):
+    template_name = 'views/view_all_settings.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id):
+        """
+        Creates the request context for rendering the page
+        """
+        user = self.request.user
+        project = Project.objects.as_admin(user, project_id)
+        return {'project': project}
+
+
 class ViewObservations(LoginRequiredMixin, TemplateView):
     template_name = 'contributions/observations.html'
 
@@ -244,6 +257,29 @@ class ViewUpdate(APIView):
         view = View.objects.as_admin(request.user, project_id, view_id)
         view.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class AllContributionsViewUpdate(APIView):
+    """
+    API Endpoints for the all contributions view in the AJAX API.
+    /ajax/projects/:project_id/views/all-contributions/
+    """
+    @handle_exceptions_for_ajax
+    def put(self, request, project_id, format=None):
+        project = Project.objects.as_admin(request.user, project_id)
+        if (request.DATA.get('isprivate') is not None):
+            project.all_contrib_isprivate = request.DATA.get('isprivate')
+            project.save()
+
+        response = {
+            'id': 'all-contributions',
+            'name': 'All contributions',
+            'description': 'This map provides access to all contributions ever contributed to the project.',
+            'status': 'active',
+            'isprivate': project.all_contrib_isprivate
+        }
+
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class ViewAjaxObservations(APIView):

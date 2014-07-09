@@ -18,11 +18,11 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "-min\" class=\"col-sm-3 col-sm-offset-1 control-label\">is older than</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"YYYY-MM-DD hh:mm\" type=\"datetime\" class=\"form-control\" name=\"";
+    + "-min\" class=\"col-sm-3 col-sm-offset-1 control-label\">is after</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"YYYY-MM-DD hh:mm\" type=\"datetime\" class=\"form-control\" name=\"";
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "-min\" id=\"minval\">\n    </div>\n</div>\n<div class=\"form-group\">\n    <label for=\"younger\" class=\"col-sm-3 col-sm-offset-1 control-label\">and younger than</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"YYYY-MM-DD hh:mm\" type=\"datetime\" class=\"form-control\" name=\"";
+    + "-min\" id=\"minval\">\n    </div>\n</div>\n<div class=\"form-group\">\n    <label for=\"younger\" class=\"col-sm-3 col-sm-offset-1 control-label\">and before</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"YYYY-MM-DD hh:mm\" type=\"datetime\" class=\"form-control\" name=\"";
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
@@ -230,7 +230,7 @@ helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partial
 function program1(depth0,data) {
   
   var buffer = "", stack1, helper, options;
-  buffer += "\n    <div class=\"field-filter form-horizontal\" data-key=\"";
+  buffer += "\n    <div class=\"alert alert-info\">Please set the value for each individual field you want to filter for. If you leave a filter blank, the field will not be filtered for.</div>\n\n    <div class=\"field-filter form-horizontal\" data-key=\"";
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)

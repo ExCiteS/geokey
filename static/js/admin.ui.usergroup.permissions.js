@@ -17,16 +17,20 @@
 
         function handleError(response) {
             removeLoading();
-            messages.showInlineError($('#permissions .panel-heading'), 'An error occurred while updating view permissions. Error text was: ' + response.responseJSON.error);
+            messages.showInlineError($('#permissions .panel-heading'), 'An error occurred while updating map permissions. Error text was: ' + response.responseJSON.error);
             target.prop('checked', !$(event.target).prop('checked'));
         }
-
         displayLoading();
-        
+        var viewId = 'all-contributions';
+
+        if (target.val() !== 'all') {
+            viewId = target.val();
+        }
+
         if (target.prop('checked')) {
-            Control.Ajax.post(url + 'views/', removeLoading, handleError, {view: target.val()});
+            Control.Ajax.post(url + 'views/', removeLoading, handleError, {view: viewId});
         } else {
-            Control.Ajax.del(url + 'views/' + target.val() +'/', removeLoading, handleError);
+            Control.Ajax.del(url + 'views/' + viewId +'/', removeLoading, handleError);
         }
     }
 

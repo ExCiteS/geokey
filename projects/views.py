@@ -83,29 +83,34 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
         try:
             project = Project.objects.get(pk=project_id)
 
-            if project.is_admin(request.user):
-                return super(ProjectSettings, self).dispatch(
-                    request, *args, **kwargs)
-            elif project.can_contribute(request.user):
-                return redirect(reverse(
-                    'admin:project_my_observations', kwargs={
-                        'project_id': project_id,
-                    }
-                ))
-            else:
-                views = View.objects.get_list(request.user, project_id)
+            if not request.user.is_anonymous():
+                if project.is_admin(request.user):
+                    return super(ProjectSettings, self).dispatch(
+                        request, *args, **kwargs)
+                elif project.can_contribute(request.user):
+                    return redirect(reverse(
+                        'admin:project_my_observations', kwargs={
+                            'project_id': project_id,
+                        }
+                    ))
+                else:
+                    views = View.objects.get_list(request.user, project_id)
 
-                if len(views) > 0:
-                    return redirect(reverse('admin:view_observations', kwargs={
-                        'project_id': project_id,
-                        'view_id': views[0].id
-                    }))
-
-            return super(ProjectSettings, self).dispatch(
-                request, *args, **kwargs)
+                    if len(views) > 0:
+                        return redirect(
+                            reverse(
+                                'admin:view_observations',
+                                kwargs={
+                                    'project_id': project_id,
+                                    'view_id': views[0].id
+                                }
+                            )
+                        )
         except Project.DoesNotExist:
-            return super(ProjectSettings, self).dispatch(
-                request, *args, **kwargs)
+            pass
+
+        return super(ProjectSettings, self).dispatch(
+            request, *args, **kwargs)
 
 
 # ############################################################################
@@ -130,7 +135,10 @@ class ProjectUpdate(APIView):
         project = Project.objects.as_admin(request.user, project_id)
         serializer = ProjectSerializer(
             project, data=request.DATA, partial=True,
-            fields=('id', 'name', 'description', 'status', 'isprivate')
+            fields=(
+                'id', 'name', 'description', 'status', 'isprivate',
+                'everyone_contributes'
+            )
         )
         if serializer.is_valid():
             serializer.save()
@@ -220,7 +228,7 @@ class Projects(APIView):
             request.user).filter(status='active')
         serializer = ProjectSerializer(
             projects, many=True, context={'user': request.user},
-            fields=('id', 'name', 'description', 'is_involved')
+            fields=('id', 'name', 'description', 'is_involved', 'num_views')
         )
         return Response(serializer.data)
 
@@ -356,8 +364,8 @@ class ProjectAjaxObservations(APIView):
     @handle_exceptions_for_ajax
     def get(self, request, project_id, format=None):
         project = Project.objects.as_admin(request.user, project_id)
-        serializer = ContributionSerializer(
-            project.observations.all(), many=True)
+        observations = project.observations.all()
+        serializer = ContributionSerializer(observations, many=True)
         return Response(serializer.data)
 
 
@@ -372,6 +380,6 @@ class ProjectAjaxMyObservations(APIView):
     @handle_exceptions_for_ajax
     def get(self, request, project_id, format=None):
         project = Project.objects.as_contributor(request.user, project_id)
-        serializer = ContributionSerializer(
-            project.observations.filter(creator=request.user), many=True)
+        observations = project.observations.filter(creator=request.user)
+        serializer = ContributionSerializer(observations, many=True)
         return Response(serializer.data)

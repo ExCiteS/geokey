@@ -3,7 +3,7 @@ body {
 }
 
 body#home {
-	background: url(../img/sf.jpg) no-repeat 50% 50%;
+	background: url(../img/sf.JPG) no-repeat 50% 50%;
 }
 
 body#home div.jumbotron {
@@ -41,6 +41,11 @@ body.login {
 
 body.login div.page-header {
 	margin-top: -40px;
+}
+
+.alert ul {
+	margin-left: 0;
+	padding-left: 25px;
 }
 
 .row {

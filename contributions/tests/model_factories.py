@@ -13,7 +13,7 @@ class LocationFactory(factory.django.DjangoModelFactory):
 
     name = factory.Sequence(lambda n: 'name_%d' % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
-    geometry = 'POINT(-0.1340407133102417 51.52447878755655)'
+    geometry = 'POINT(-0.134040713310241 51.52447878755655)'
     created_at = datetime.date(2014, 11, 11)
     creator = factory.SubFactory(UserF)
     status = 'active'
