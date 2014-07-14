@@ -1,8 +1,12 @@
+from django.db.models import Q
+
 from rest_framework import serializers
+
 from core.serializers import FieldSelectorSerializer
 from dataviews.serializers import ViewSerializer
 from dataviews.models import View
 from observationtypes.serializer import ObservationTypeSerializer
+from contributions.models import Location
 
 from .models import Project
 
@@ -15,6 +19,8 @@ class ProjectSerializer(FieldSelectorSerializer):
     num_maps = serializers.SerializerMethodField('get_number_maps')
     num_contributions = serializers.SerializerMethodField(
         'get_number_contrbutions')
+    num_locations = serializers.SerializerMethodField(
+        'get_number_locations')
     user_contributions = serializers.SerializerMethodField(
         'get_user_contributions')
     contributiontypes = serializers.SerializerMethodField(
@@ -33,8 +39,8 @@ class ProjectSerializer(FieldSelectorSerializer):
         fields = ('id', 'name', 'description', 'isprivate',
                   'everyone_contributes', 'status',
                   'created_at', 'contributiontypes', 'maps', 'num_maps',
-                  'num_contributions', 'user_contributions', 'is_admin',
-                  'can_contribute', 'is_involved', 'can_moderate')
+                  'num_contributions', 'num_locations', 'user_contributions',
+                  'is_admin', 'can_contribute', 'is_involved', 'can_moderate')
         read_only_fields = ('id', 'name')
 
     def get_contributiontypes(self, project):
@@ -90,6 +96,16 @@ class ProjectSerializer(FieldSelectorSerializer):
         """
         user = self.context.get('user')
         return View.objects.get_list(user, project.id).count()
+
+    def get_number_locations(self, project):
+        """
+        Method for SerializerMethodField `num_locations`. Returns the number
+        available for the project.
+        """
+        locations = Location.objects.filter(
+            Q(private=False) |
+            Q(private_for_project=project)).count()
+
 
     def get_number_contrbutions(self, project):
         """
