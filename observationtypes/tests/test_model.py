@@ -96,6 +96,14 @@ class NumericFieldTest(TestCase):
         numericfield = NumericFieldFactory.create(**{'required': True})
         numericfield.validate_input(None)
 
+    def test_numericfield_validate_not_required_none_type(self):
+        numericfield = NumericFieldFactory.create(**{'required': False})
+        try:
+            numericfield.validate_input(None)
+        except InputError:
+            self.fail('datetimefield.validate_input() raised InputError '
+                      'unexpectedly!')
+
     def test_numericfield_validate_input_number(self):
         numeric_field = NumericFieldFactory()
         try:
@@ -256,6 +264,14 @@ class SingleLookupFieldTest(TestCase):
         lookup_field = LookupFieldFactory.create(**{'required': True})
         lookup_field.validate_input(None)
 
+    def test_lookupfield_validate_not_required_none_type(self):
+        lookup_field = LookupFieldFactory.create(**{'required': False})
+        try:
+            lookup_field.validate_input(None)
+        except InputError:
+            self.fail('lookup_field.validate_input() raised InputError '
+                      'unexpectedly!')
+
     def test_lookupfield_validate_input(self):
         lookup_field = LookupFieldFactory()
         lookup_value = LookupValueFactory(**{
@@ -307,6 +323,14 @@ class DateTimeFieldTest(TestCase):
         datetimefield = DateTimeFieldFactory.create(**{'required': True})
         try:
             datetimefield.validate_input('2014-01-01')
+        except InputError:
+            self.fail('datetimefield.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    def test_datetimefield_validate_not_required(self):
+        datetimefield = DateTimeFieldFactory.create(**{'required': False})
+        try:
+            datetimefield.validate_input(None)
         except InputError:
             self.fail('datetimefield.validate_input() raised InputError '
                       'unexpectedly!')

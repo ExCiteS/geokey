@@ -180,27 +180,29 @@ class NumericField(Field):
         """
         self.validate_required(value)
 
-        if isinstance(value, (int, long, float, complex)):
-            if self.minval and self.maxval and (
-                    not (value >= self.minval) and (value <= self.maxval)):
-                raise InputError('The value provided for field %s must be '
-                                 ' greater than %s and lower than %s.'
-                                 % (self.name, self.minval, self.maxval))
+        if value is not None:
+
+            if isinstance(value, (int, long, float, complex)):
+                if self.minval and self.maxval and (
+                        not (value >= self.minval) and (value <= self.maxval)):
+                    raise InputError('The value provided for field %s must be '
+                                     ' greater than %s and lower than %s.'
+                                     % (self.name, self.minval, self.maxval))
+
+                else:
+                    if self.minval and (not (value >= self.minval)):
+                        raise InputError('The value provided for field %s must '
+                                         'be greater than %s.'
+                                         % (self.name, self.minval))
+
+                    if self.maxval and (not (value <= self.maxval)):
+                        raise InputError('The value provided for field %s must '
+                                         'be lower than %s.'
+                                         % (self.name, self.maxval))
 
             else:
-                if self.minval and (not (value >= self.minval)):
-                    raise InputError('The value provided for field %s must '
-                                     'be greater than %s.'
-                                     % (self.name, self.minval))
-
-                if self.maxval and (not (value <= self.maxval)):
-                    raise InputError('The value provided for field %s must '
-                                     'be lower than %s.'
-                                     % (self.name, self.maxval))
-
-        else:
-            raise InputError('The value provided for field %s is not a '
-                             'number.' % self.name)
+                raise InputError('The value provided for field %s is not a '
+                                 'number.' % self.name)
 
     def convert_from_string(self, value):
         """
@@ -292,12 +294,12 @@ class DateTimeField(Field):
         string.
         """
         self.validate_required(value)
-
-        try:
-            parse_date(value)
-        except ParseError:
-            raise InputError('The value for DateTimeField %s is not a valid '
-                             'date.' % self.name)
+        if value is not None:
+            try:
+                parse_date(value)
+            except ParseError:
+                raise InputError('The value for DateTimeField %s is not a '
+                                 'valid date.' % self.name)
 
     @property
     def type_name(self):
@@ -338,14 +340,18 @@ class LookupField(Field):
         self.validate_required(value)
 
         valid = False
-        try:
-            value = int(value)
-        except ValueError:
-            pass
 
-        for lookupvalue in self.lookupvalues.all():
-            if lookupvalue.id == value:
-                valid = True
+        if value is not None:
+            try:
+                value = int(value)
+            except ValueError:
+                pass
+
+            for lookupvalue in self.lookupvalues.all():
+                if lookupvalue.id == value:
+                    valid = True
+        else:
+            valid = True
 
         if not valid:
             raise InputError('The value for lookup field %s is not an '
