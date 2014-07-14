@@ -17,7 +17,6 @@ urlpatterns = patterns(
     url(r'^accounts/signup/$', login_views.Signup.as_view(), name='signup'),
     url(r'^accounts/login/$',  login),
     url(r'^accounts/logout/$', logout),
-    url(r'^accounts/password/', include('password_reset.urls', namespace='pw')),
 
     # ###########################
     # PROJECTS
