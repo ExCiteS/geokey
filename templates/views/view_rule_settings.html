@@ -43,14 +43,14 @@
                                 <div class="form-group">
                                     <label for="{{field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is larger than</label>
                                     <div class="col-sm-7">
-                                        <input type="number" class="form-control" name="{{field.key}}-min" id="minval" {% if field.minval %}min="{{field.minval}}" placeholder="{{field.minval}}" {% endif %} {% if field.maxval %}max="{{field.maxval}}"{% endif %} {{ rule.filters|minval:field.key }}>
+                                        <input type="number" class="form-control" name="{{field.key}}-min" id="minval" {% if field.minval %}min="{{field.minval}}" placeholder="{{field.minval}}" {% endif %} {% if field.maxval %}max="{{field.maxval}}"{% endif %} value="{{ rule.filters|minval:field.key }}">
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="{{field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">is lower than</label>
                                     <div class="col-sm-7">
-                                        <input type="number" class="form-control" name="{{field.key}}-max" id="maxval" {% if field.maxval %}max="{{field.maxval}}" placeholder="{{field.maxval}}" {% endif %} {% if field.minval %}min="{{field.minval}}"{% endif %} {{ rule.filters|maxval:field.key }}>
+                                        <input type="number" class="form-control" name="{{field.key}}-max" id="maxval" {% if field.maxval %}max="{{field.maxval}}" placeholder="{{field.maxval}}" {% endif %} {% if field.minval %}min="{{field.minval}}"{% endif %} value="{{ rule.filters|maxval:field.key }}">
                                     </div>
                                 </div>
                             {% endif %}
@@ -59,13 +59,13 @@
                                 <div class="form-group">
                                     <label for="{{field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is older than</label>
                                     <div class="col-sm-7">
-                                        <input data-date-format="YYYY-MM-DD hh:mm" type="datetime" class="form-control" name="{{field.key}}-min" id="minval" {{ rule.filters|minval:field.key }}>
+                                        <input data-date-format="YYYY-MM-DD H:mm" type="datetime" class="form-control" name="{{field.key}}-min" id="minval" value="{{ rule.filters|minval:field.key }}">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="younger" class="col-sm-3 col-sm-offset-1 control-label">and younger than</label>
                                     <div class="col-sm-7">
-                                        <input data-date-format="YYYY-MM-DD hh:mm" type="datetime" class="form-control" name="{{field.key}}-max" id="maxval" {{ rule.filters|maxval:field.key }}>
+                                        <input data-date-format="YYYY-MM-DD H:mm" type="datetime" class="form-control" name="{{field.key}}-max" id="maxval" value="{{ rule.filters|maxval:field.key }}">
                                     </div>
                                 </div>
                             {% endif %}
