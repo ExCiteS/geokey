@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block bodydata %} data-project-id="{{project.id}}"{% endblock %}
+{% block title %} | Project: {{project.name}}{% endblock %}
+
+{% block main %}
+    {% csrf_token %}
+        <div class="page-header">
+            <div class="container">
+                <ol class="breadcrumb">
+                    <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
+                    <li class="active">{{ project.name }}: Overview</li>
+                </ol>
+
+                <h1>{{project.name}}</h1>
+                {% if project.description %}<p class="lead">{{project.description}}</p>{% endif %}
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <p class="lead">You are a {{role}} of this project.</p>
+                </div>
+            </div>
+            <div class="row">
+                {% if role != 'Watcher' %}
+                    <div class="col-sm-6">
+                        <span class="number">{{ contributions }}</span> contributions you have made to the project.    
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="number">{{ maps }}</span> maps you can access.    
+                    </div>
+                {% else %}
+                    <div class="col-sm-6">
+                        You can not contribute to this project, but there are
+                        <span class="number">{{ maps }}</span> maps you can access.    
+                    </div>
+                {% endif%}
+            </div>
+        </div>
+{% endblock %}
+
+{% block libraries %}
+
+{% endblock %}

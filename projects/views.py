@@ -87,30 +87,40 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
                 if project.is_admin(request.user):
                     return super(ProjectSettings, self).dispatch(
                         request, *args, **kwargs)
-                elif project.can_contribute(request.user):
+                else:
                     return redirect(reverse(
-                        'admin:project_my_observations', kwargs={
+                        'admin:project_overview', kwargs={
                             'project_id': project_id,
                         }
                     ))
-                else:
-                    views = View.objects.get_list(request.user, project_id)
-
-                    if len(views) > 0:
-                        return redirect(
-                            reverse(
-                                'admin:view_observations',
-                                kwargs={
-                                    'project_id': project_id,
-                                    'view_id': views[0].id
-                                }
-                            )
-                        )
         except Project.DoesNotExist:
-            pass
+            return super(ProjectSettings, self).dispatch(
+                request, *args, **kwargs)
 
-        return super(ProjectSettings, self).dispatch(
-            request, *args, **kwargs)
+
+class ProjectOverview(LoginRequiredMixin, TemplateView):
+    """
+    Displays the project overview page
+    `/admin/projects/:project_id`
+    """
+    model = Project
+    template_name = 'projects/project_overview.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id):
+        """
+        Creates the request context for rendering the page. If the user is not
+        an administrator of the project, `PermissionDenied` is caught and
+        handled in the `handle_exceptions_for_admin` decorator and an error
+        message is displayed.
+        """
+        project = Project.objects.get_single(self.request.user, project_id)
+        return {
+            'project': project,
+            'role': project.get_role(self.request.user),
+            'contributions': project.observations.filter(creator=self.request.user).count(),
+            'maps': View.objects.get_list(self.request.user, project.id).count()
+        }
 
 
 # ############################################################################

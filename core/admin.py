@@ -45,6 +45,10 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/mycontributions/(?P<observation_id>[0-9]+)/$',
         project_views.ProjectSingleMyObservation.as_view(),
         name='project_my_single_observation'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/stats/$',
+        project_views.ProjectOverview.as_view(),
+        name='project_overview'),
 
 
     # ###########################

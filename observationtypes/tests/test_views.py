@@ -579,7 +579,6 @@ class UpdateNumericField(TestCase):
 
     def test_update_numericfield_nill_minval(self):
         response = self._put({'minval': 0}, self.admin)
-        print 'test_minval'
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             Field.objects.get_single(

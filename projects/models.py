@@ -56,6 +56,16 @@ class Project(models.Model):
         self.status = STATUS.deleted
         self.save()
 
+    def get_role(self, user):
+        if self.is_admin(user):
+            return 'administrator'
+        elif self.can_moderate(user):
+            return 'moderator'
+        elif self.can_contribute(user):
+            return 'contributor'
+        else:
+            return 'watcher'
+
     def is_admin(self, user):
         """
         Returns True if the user is member of the administrators group, False

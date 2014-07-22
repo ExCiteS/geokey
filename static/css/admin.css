@@ -206,6 +206,13 @@ div.page-header div.stats {
 			display: block;
 		}
 
+span.number {
+	font-size: 4em;
+	font-weight: bold;
+	line-height: 1;
+	display: block;
+}
+
 div#map {
 	height: 500px;
 	transition: width 0.2s ease;
