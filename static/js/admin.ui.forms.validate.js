@@ -43,17 +43,21 @@ $(function() {
 	 * @param  {Event} event The form submission event.
 	 */
 	function validate(event) {
-		var formSumitted = event.target;
-		if (formSumitted.checkValidity()) {
+		var formSubmitted = event.target;
+		if (formSubmitted.checkValidity()) {
 			// The form is valid, submit the thing
-			if (emailsValid(formSumitted) && form.attr('method') && form.attr('action')) {
-				$(formSumitted).off('submit');
-				$(formSumitted).submit();
+			if (emailsValid(formSubmitted) && form.attr('method') && form.attr('action')) {
+				$(formSubmitted).off('submit');
+				$(formSubmitted).submit();
 			}
+
+			var errorFields = $(formSubmitted).find('.has-error');
+			errorFields.find('.help-block').remove();
+			errorFields.removeClass('has-error');
 		} else {
 			// The form is invalid
-			var validFields = $(formSumitted).find(':valid');
-			var invalidFields = $(formSumitted).find(':invalid');
+			var validFields = $(formSubmitted).find(':valid');
+			var invalidFields = $(formSubmitted).find(':invalid');
 
 			// Iterate through all invlaid fields and display an error message
 			for (var i = 0, len = invalidFields.length; i < len; i++) {
@@ -100,7 +104,6 @@ $(function() {
 	function reset() {
 		form.find('.form-group').removeClass('has-error');
 		form.find('.help-block').remove();
-		form.find(':required').after('<span class="help-block">This field is required.</span>');
 	}
 
 	form.submit(validate);
