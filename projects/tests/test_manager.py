@@ -27,6 +27,7 @@ class ProjectListTest(TestCase):
         self.private_project = ProjectF.create(
             add_admins=[self.admin],
             **{
+                'name': 'Private',
                 'isprivate': True,
                 'all_contrib_isprivate': True,
                 'everyone_contributes': False
@@ -113,6 +114,7 @@ class ProjectListTest(TestCase):
         self.private_publicview_project = ProjectF.create(
             add_admins=[self.admin],
             **{
+                'name': 'Private with public view',
                 'isprivate': True,
                 'all_contrib_isprivate': True,
                 'everyone_contributes': False
@@ -199,6 +201,7 @@ class ProjectListTest(TestCase):
         self.private_publicall_project = ProjectF.create(
             add_admins=[self.admin],
             **{
+                'name': 'Private with public all contributions',
                 'isprivate': True,
                 'all_contrib_isprivate': False,
                 'everyone_contributes': False
@@ -285,6 +288,7 @@ class ProjectListTest(TestCase):
         self.private_publicviews_project = ProjectF.create(
             add_admins=[self.admin],
             **{
+                'name': 'Private with public views',
                 'isprivate': True,
                 'all_contrib_isprivate': False,
                 'everyone_contributes': False
@@ -371,6 +375,7 @@ class ProjectListTest(TestCase):
         self.public_project = ProjectF.create(
             add_admins=[self.admin],
             **{
+                'name': 'Public',
                 'isprivate': False,
                 'all_contrib_isprivate': True,
                 'everyone_contributes': False
@@ -457,6 +462,7 @@ class ProjectListTest(TestCase):
         self.public_publicview_project = ProjectF.create(
             add_admins=[self.admin],
             **{
+                'name': 'Public with public view',
                 'isprivate': False,
                 'all_contrib_isprivate': True,
                 'everyone_contributes': False
@@ -543,6 +549,7 @@ class ProjectListTest(TestCase):
         self.public_publicall_project = ProjectF.create(
             add_admins=[self.admin],
             **{
+                'name': 'Public with public all contributions',
                 'isprivate': False,
                 'all_contrib_isprivate': False,
                 'everyone_contributes': False
@@ -629,6 +636,7 @@ class ProjectListTest(TestCase):
         self.public_publicviews_project = ProjectF.create(
             add_admins=[self.admin],
             **{
+                'name': 'public with all public views',
                 'isprivate': False,
                 'all_contrib_isprivate': False,
                 'everyone_contributes': False
