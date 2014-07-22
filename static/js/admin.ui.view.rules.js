@@ -50,6 +50,10 @@ $(function() {
 
     function handleSubmit() {
         var rules = {};
+
+        rules.min_date = $('input[name="created_at-min"]').val() || null;
+        rules.max_date = $('input[name="created_at-max"]').val() || null;
+
         var fields = $('.field-filter');
 
         for (var i = 0, len = fields.length; i < len; i++) {

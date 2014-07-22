@@ -1,5 +1,14 @@
 this["Templates"] = this["Templates"] || {};
 
+Handlebars.registerPartial("created-field", Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  
+
+
+  return "<div class=\"field-filter form-horizontal\">\n    <h5>The contribution has been created</h5>\n\n    <div class=\"form-group\">\n        <label for=\"created_at-min\" class=\"col-sm-3 col-sm-offset-1 control-label\">after</label>\n        <div class=\"col-sm-7\">\n            <input data-date-format=\"YYYY-MM-DD H:mm\" type=\"datetime\" class=\"form-control\" name=\"created_at-min\" id=\"created_at-min\">\n        </div>\n    </div>\n    <div class=\"form-group\">\n        <label for=\"created_at-max\" class=\"col-sm-3 col-sm-offset-1 control-label\">and before</label>\n        <div class=\"col-sm-7\">\n            <input data-date-format=\"YYYY-MM-DD H:mm\" type=\"datetime\" class=\"form-control\" name=\"created_at-max\" id=\"created_at-max\">\n        </div>\n    </div>\n</div>";
+  }));
+
 Handlebars.registerPartial("datefield", Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
@@ -22,7 +31,11 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "-min\" id=\"minval\">\n    </div>\n</div>\n<div class=\"form-group\">\n    <label for=\"younger\" class=\"col-sm-3 col-sm-offset-1 control-label\">and before</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"YYYY-MM-DD H:mm\" type=\"datetime\" class=\"form-control\" name=\"";
+    + "-min\" id=\"minval\">\n    </div>\n</div>\n<div class=\"form-group\">\n    <label for=\"";
+  if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "-max\" class=\"col-sm-3 col-sm-offset-1 control-label\">and before</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"YYYY-MM-DD H:mm\" type=\"datetime\" class=\"form-control\" name=\"";
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
@@ -306,7 +319,10 @@ function program10(depth0,data) {
   return buffer;
   }
 
-  buffer += "<div class=\"alert alert-info\">Please set the value for each individual field you want to filter for. If you leave a filter blank, the field will not be filtered for.</div>\n\n";
+  buffer += "<div class=\"alert alert-info\">Please set the value for each individual field you want to filter for. If you leave a filter blank, the field will not be filtered for.</div>\n";
+  stack1 = self.invokePartial(partials['created-field'], 'created-field', depth0, helpers, partials, data);
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n";
   stack1 = helpers.each.call(depth0, (depth0 && depth0.fields), {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
   return buffer;

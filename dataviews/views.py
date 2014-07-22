@@ -182,10 +182,16 @@ class RuleCreate(LoginRequiredMixin, CreateView):
         observation_type = ObservationType.objects.as_admin(
             self.request.user, project_id, request.POST.get('observationtype'))
 
+        rules = json.loads(request.POST.get('rules'))
+        min_date = rules.pop('min_date')
+        max_date = rules.pop('max_date')
+
         Rule.objects.create(
             view=view,
             observation_type=observation_type,
-            filters=json.loads(request.POST.get('rules'))
+            min_date=min_date,
+            max_date=max_date,
+            filters=rules
         )
 
         return redirect('admin:view_settings',
@@ -213,8 +219,13 @@ class RuleSettings(LoginRequiredMixin, TemplateView):
     def post(self, request, project_id, view_id, rule_id):
         view = View.objects.as_admin(self.request.user, project_id, view_id)
         rule = view.rules.get(pk=rule_id)
-        print request.POST.get('rules')
-        rule.filters = json.loads(request.POST.get('rules'))
+
+        rules = json.loads(request.POST.get('rules'))
+
+        rule.min_date = rules.pop('min_date')
+        rule.max_date = rules.pop('max_date')
+
+        rule.filters = rules
         rule.save()
 
         return redirect('admin:view_settings',

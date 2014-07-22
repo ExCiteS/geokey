@@ -27,6 +27,24 @@
                     {% csrf_token %}
                     <input type="hidden" name="rules">
                     <div class="alert alert-info">Please set the value for each individual field you want to filter for. If you leave a filter blank, the field will not be filtered for.</div>
+
+                    <div class="field-filter">
+                        <h5>The contribution has been created</h5>
+
+                        <div class="form-group">
+                            <label for="created_at-min" class="col-sm-3 col-sm-offset-1 control-label">after</label>
+                            <div class="col-sm-7">
+                                <input data-date-format="YYYY-MM-DD H:mm" type="datetime" class="form-control" name="created_at-min" id="minval" {% if rule.min_date %}value="{{ rule.min_date|date:"Y-m-d H:m" }}"{% endif %}>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="created_at-max" class="col-sm-3 col-sm-offset-1 control-label">and before</label>
+                            <div class="col-sm-7">
+                                <input data-date-format="YYYY-MM-DD H:mm" type="datetime" class="form-control" name="created_at-max" id="maxval" {% if rule.max_date %}value="{{ rule.max_date|date:"Y-m-d H:m" }}"{% endif %}>
+                            </div>
+                        </div>
+                    </div>
+
                     {% for field in rule.observation_type.fields.all %}
                         <div class="field-filter" data-key="{{field.key}}" data-type="{{field.fieldtype}}">
                             <h5>{{field.name}} ({{field.key}})</h5>
@@ -57,13 +75,13 @@
 
                             {% if field.fieldtype == 'DateTimeField' %}
                                 <div class="form-group">
-                                    <label for="{{field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is older than</label>
+                                    <label for="{{field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is before</label>
                                     <div class="col-sm-7">
                                         <input data-date-format="YYYY-MM-DD H:mm" type="datetime" class="form-control" name="{{field.key}}-min" id="minval" value="{{ rule.filters|minval:field.key }}">
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="younger" class="col-sm-3 col-sm-offset-1 control-label">and younger than</label>
+                                    <label for="{{field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">and after</label>
                                     <div class="col-sm-7">
                                         <input data-date-format="YYYY-MM-DD H:mm" type="datetime" class="form-control" name="{{field.key}}-max" id="maxval" value="{{ rule.filters|maxval:field.key }}">
                                     </div>

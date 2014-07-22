@@ -80,6 +80,8 @@ class View(models.Model):
 class Rule(models.Model):
     view = models.ForeignKey('View', related_name='rules')
     observation_type = models.ForeignKey('observationtypes.ObservationType')
+    min_date = models.DateTimeField(null=True)
+    max_date = models.DateTimeField(null=True)
     filters = hstore.DictionaryField(db_index=True, null=True, default=None)
     status = models.CharField(
         choices=STATUS,

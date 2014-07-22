@@ -1,7 +1,7 @@
 [
   {
     "model": "users.User",
-    "pk": 1,
+    "pk": 10000,
     "fields": {
       "display_name": "AnonymousUser"
     }
