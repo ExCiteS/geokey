@@ -81,22 +81,6 @@ urlpatterns = patterns(
         name='all_contributions_view'),
 
     # ###########################
-    # OBSERVATIONS
-    # ###########################
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/observations/$',
-        project_views.ProjectAjaxObservations.as_view(),
-        name='project'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/mycontributions/$',
-        project_views.ProjectAjaxMyObservations.as_view(),
-        name='project_my_contributions'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/observations/$',
-        view_views.ViewAjaxObservations.as_view(),
-        name='view_data'),
-
-    # ###########################
     # APPS
     # ###########################
     url(

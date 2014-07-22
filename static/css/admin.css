@@ -186,26 +186,6 @@ div.page-header .breadcrumb > li + li:before {
 				font-weight: bold;
 			}
 
-div.page-header div.stats {
-	margin-top: 20px;
-}
-
-	div.page-header div.stats a {
-		text-decoration: none;
-	}
-
-	div.stats {
-		display: inline-block;
-		text-align: right;
-	}
-
-		div.stats span.number {
-			font-size: 4em;
-			font-weight: bold;
-			line-height: 1;
-			display: block;
-		}
-
 span.number {
 	font-size: 4em;
 	font-weight: bold;
