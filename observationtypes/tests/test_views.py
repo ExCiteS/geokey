@@ -577,6 +577,16 @@ class UpdateNumericField(TestCase):
                 self.field.id).description, 'new description'
         )
 
+    def test_update_numericfield_nill_minval(self):
+        response = self._put({'minval': 0}, self.admin)
+        print 'test_minval'
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            Field.objects.get_single(
+                self.admin, self.project.id, self.observationtype.id,
+                self.field.id).minval, 0
+        )
+
 
 class AddLookupValueTest(TestCase):
     def setUp(self):

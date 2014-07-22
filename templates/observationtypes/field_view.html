@@ -51,14 +51,14 @@
                     <div class="form-group">
                         <label for="name" class="col-sm-3 control-label">Minimum value</label>
                         <div class="col-sm-9">
-                            <input type="number" step="0.001" class="form-control" id="minval" name="minval" placeholder="e.g.; 1.642" {% if field.numericfield.minval %} value="{{ field.numericfield.minval }}" {% endif %}>
+                            <input type="number" step="0.001" class="form-control" id="minval" name="minval" placeholder="e.g.; 1.642" {% if not field.numericfield.minval == None %} value="{{ field.numericfield.minval }}" {% endif %}>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="name" class="col-sm-3 control-label">Maximum value</label>
                         <div class="col-sm-9">
-                            <input type="number" step="0.001" class="form-control" id="maxval" name="maxval" placeholder="e.g.; 4541.6" {% if field.numericfield.maxval %} value="{{ field.numericfield.maxval }}" {% endif %}>
+                            <input type="number" step="0.001" class="form-control" id="maxval" name="maxval" placeholder="e.g.; 4541.6" {% if not field.numericfield.maxval == None %} value="{{ field.numericfield.maxval }}" {% endif %}>
                         </div>
                     </div>
 

@@ -55,7 +55,7 @@ $(function() {
 			var form = $(event.target).serializeArray();
 			var values = {};
 			for (var i = 0, len = form.length; i < len; i++) {
-				values[form[i].name] = (parseFloat(form[i].value) || null);
+				values[form[i].name] = (parseFloat(form[i].value));
 			}
 			Control.Ajax.put(url, handleNumericUpdateSuccess, handleNumericUpdateError, values);
 		}
