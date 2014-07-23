@@ -62,5 +62,16 @@ $(function() {
 		event.preventDefault();
 	}
 
+	function handleFieldEdit(event) {
+		var target = $(event.target);
+
+		if (target.attr('id') === 'minval') {
+			$('form#valuesForm input#maxval').attr('min', target.val());
+		} else if (target.attr('id') === 'maxval') {
+			$('form#valuesForm input#minval').attr('max', target.val());
+		}
+	}
+
+	$('form#valuesForm input').change(handleFieldEdit);
 	$('form#valuesForm').submit(submitForm);
 });

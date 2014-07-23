@@ -81,6 +81,8 @@ $(function() {
 						case 'number':
 							if (validity.badInput) { showHelp(field, 'Your input contains non-numeric characters. Maybe you used a comma (,) as decimal point?'); }
 							if (validity.stepMismatch) { showHelp(field, 'You entered more than three digits after the decimal point.'); }
+							if (validity.rangeOverflow) { showHelp(field, 'The entered value must be lower than ' + field.attr('max') + '.'); }
+							if (validity.rangeUnderflow) { showHelp(field, 'The entered value must be greater than ' + field.attr('min') + '.'); }
 							break;
 						case 'text':
 							if (validity.patternMismatch && field.attr('name') === 'key') {
