@@ -101,7 +101,7 @@ class Observation(models.Model):
 
     @classmethod
     def create(cls, attributes=None, creator=None, location=None,
-               observationtype=None, project=None, status='active'):
+               observationtype=None, project=None, status='pending'):
         """
         Creates a new observation. Validates all fields first and raises a
         ValidationError if at least one field did not validate.
@@ -140,6 +140,10 @@ class Observation(models.Model):
         self.updator = updator
 
         self.review_comment = review_comment
+
+        if status == 'active' and self.status == 'draft':
+            status = 'pending'
+
         self.status = status or self.status
 
         self.save()

@@ -123,7 +123,7 @@ class SingleObservationTest(TestCase):
         view = SingleObservation()
         data = view.update_status(
             self.observation, {'properties': {'status': 'active'}}, self.creator)
-        self.assertEqual(data.get('properties').get('status'), 'active')
+        self.assertEqual(data.get('properties').get('status'), 'pending')
 
 
 class SingleProjectObservationTest(TestCase):
