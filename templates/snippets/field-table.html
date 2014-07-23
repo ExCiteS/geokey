@@ -22,8 +22,8 @@
 					<td>{{field.description}}</td>
 					<td>{{field.type_name}}</td>
 					<td align="center">{% if field.required %} <span class="glyphicon glyphicon-ok"></span> {% endif %}</td>
-					<td align="right">{% if field.numericfield %} {% if field.numericfield.minval %} {{field.numericfield.minval}} {% endif %} {% else %} &mdash; {% endif %}</td>
-					<td align="right">{% if field.numericfield %} {% if field.numericfield.maxval %} {{field.numericfield.maxval}} {% endif %} {% else %} &mdash; {% endif %}</td>
+					<td align="right">{% if field.numericfield %} {% if not field.numericfield.minval == None %} {{field.numericfield.minval}} {% endif %} {% else %} &mdash; {% endif %}</td>
+					<td align="right">{% if field.numericfield %} {% if not field.numericfield.maxval == None %} {{field.numericfield.maxval}} {% endif %} {% else %} &mdash; {% endif %}</td>
 					{% if admin %}<td align="center"><a href="{% url 'admin:observationtype_field_settings' field.observationtype.project.id field.observationtype.id field.id %}" rel="tooltip" data-toggle="tooltip" data-placement="right" title="Edit field"><span class="glyphicon glyphicon-edit"></span></a></td>{% endif %}
 				</tr>
 	{% if forloop.last %}
