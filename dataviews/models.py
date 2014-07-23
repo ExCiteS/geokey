@@ -97,6 +97,12 @@ class Rule(models.Model):
         """
         queries = [Q(observationtype=self.observation_type)]
 
+        if self.min_date is not None:
+            queries.append(Q(created_at__gt=self.min_date))
+
+        if self.max_date is not None:
+            queries.append(Q(created_at__lt=self.max_date))
+
         if self.filters is not None:
             for key in self.filters:
                 try:

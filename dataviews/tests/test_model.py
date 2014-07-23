@@ -1,3 +1,6 @@
+from datetime import datetime
+import pytz
+
 from django.test import TestCase
 
 from nose.tools import raises
@@ -518,6 +521,127 @@ class ViewTest(TestCase):
             'filters': {'date': {
                 'minval': '2014-01-01', 'maxval': '2014-06-09 00:00'}
             }
+        })
+
+        self.assertEqual(len(view.data), 5)
+
+    def test_get_created_after(self):
+        project = ProjectF()
+        observation_type_1 = ObservationTypeFactory(**{'project': project})
+
+        obs = ObservationFactory.create_batch(5, **{
+            'project': project,
+            'observationtype': observation_type_1
+        })
+
+        for o in obs:
+            o.created_at = datetime(2014, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
+            o.save()
+
+        obs = ObservationFactory.create_batch(5, **{
+            'project': project,
+            'observationtype': observation_type_1
+        })
+
+        for o in obs:
+            o.created_at = datetime(2013, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
+            o.save()
+
+        obs = ObservationFactory.create_batch(5, **{
+            'project': project,
+            'observationtype': observation_type_1
+        })
+
+        for o in obs:
+            o.created_at = datetime(2012, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
+            o.save()
+
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{
+            'view': view,
+            'observation_type': observation_type_1,
+            'min_date': datetime(2013, 5, 1, 0, 0, 0, tzinfo=pytz.utc)
+        })
+
+        self.assertEqual(len(view.data), 10)
+
+    def test_get_created_before(self):
+        project = ProjectF()
+        observation_type_1 = ObservationTypeFactory(**{'project': project})
+
+        obs = ObservationFactory.create_batch(5, **{
+            'project': project,
+            'observationtype': observation_type_1
+        })
+
+        for o in obs:
+            o.created_at = datetime(2014, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
+            o.save()
+
+        obs = ObservationFactory.create_batch(5, **{
+            'project': project,
+            'observationtype': observation_type_1
+        })
+
+        for o in obs:
+            o.created_at = datetime(2013, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
+            o.save()
+
+        obs = ObservationFactory.create_batch(5, **{
+            'project': project,
+            'observationtype': observation_type_1
+        })
+
+        for o in obs:
+            o.created_at = datetime(2012, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
+            o.save()
+
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{
+            'view': view,
+            'observation_type': observation_type_1,
+            'max_date': datetime(2013, 5, 1, 0, 0, 0, tzinfo=pytz.utc)
+        })
+
+        self.assertEqual(len(view.data), 5)
+
+    def test_get_created_before_and_after(self):
+        project = ProjectF()
+        observation_type_1 = ObservationTypeFactory(**{'project': project})
+
+        obs = ObservationFactory.create_batch(5, **{
+            'project': project,
+            'observationtype': observation_type_1
+        })
+
+        for o in obs:
+            o.created_at = datetime(2014, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
+            o.save()
+
+        obs = ObservationFactory.create_batch(5, **{
+            'project': project,
+            'observationtype': observation_type_1
+        })
+
+        for o in obs:
+            o.created_at = datetime(2013, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
+            o.save()
+
+        obs = ObservationFactory.create_batch(5, **{
+            'project': project,
+            'observationtype': observation_type_1
+        })
+
+        for o in obs:
+            o.created_at = datetime(2012, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
+            o.save()
+
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{
+            'view': view,
+            'observation_type': observation_type_1,
+            'min_date': datetime(2013, 1, 1, 0, 0, 0, tzinfo=pytz.utc),
+            'max_date': datetime(2013, 10, 1, 0, 0, 0, tzinfo=pytz.utc)
         })
 
         self.assertEqual(len(view.data), 5)
