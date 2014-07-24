@@ -19,7 +19,7 @@ $(function() {
             if (!Modernizr.inputtypes.datetime) {
                 $('input[type="datetime"]').datetimepicker();
             }
-            $('input[type="number"]').change(handleNumericFieldEdit);
+            $('#field-options input[type="number"], #field-options input[type="datetime"]').change(handleRangeFieldEdit);
             $('#field-options :input').change(handleFieldChange);
         }
 
@@ -74,11 +74,10 @@ $(function() {
             }
             if (value) { rules[field.attr('data-key')] = value; }
         }
-        console.log(rules);
         $('input[name="rules"]').val(JSON.stringify(rules));
     }
 
-    function handleNumericFieldEdit(event) {
+    function handleRangeFieldEdit(event) {
         var target = $(event.target);
         
         if (target.attr('id') === target.attr('data-key') + '-min') {
@@ -87,6 +86,8 @@ $(function() {
             $('input#' + target.attr('data-key') + '-min').attr('max', target.val());
         }
     }
+
     $('#field-options :input').change(handleFieldChange);
+    $('#field-options input[type="number"], #field-options input[type="datetime"]').change(handleRangeFieldEdit);
     $('#observationtype').change(handleTypeSelection);
 });

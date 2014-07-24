@@ -21,6 +21,31 @@ $(function() {
 		field.after('<span class="help-block">' + message  + '</span>');
 	}
 
+	function dateTimeValid(form) {
+		var valid = true;
+		var dateTimeFields = $(form).find('input[type="datetime"]');
+
+		for (var i = 0, len = dateTimeFields.length; i < len; i++) {
+			var field = $(dateTimeFields[i]);
+			var min = Date.parse(field.attr('min'));
+			var max = Date.parse(field.attr('max'));
+			var val = Date.parse(field.val());
+
+			if (!(min && val ? (val > min): true)) {
+				valid = false;
+				field.parents('.form-group').addClass('has-error');
+				showHelp(field, 'The entered date must be lower than ' + field.attr('min'));
+			}
+
+			if (!(max && val ? (val < max): true)) {
+				valid = false;
+				field.parents('.form-group').addClass('has-error');
+				showHelp(field, 'The entered date must be greater than ' + field.attr('max'));
+			}
+		}
+		return valid;
+	}
+
 	function emailsValid(form) {
 		var valid = true;
 
@@ -37,6 +62,10 @@ $(function() {
 		return valid;
 	}
 
+	function allValid(form) {
+		return emailsValid(form) && dateTimeValid(form);
+	}
+
 	/**
 	 * Validates a frorm using standard form.checkValidity(). If valid, the form is submitted.
 	 * If not, invalid fields are marked and a help text is provided.
@@ -44,17 +73,17 @@ $(function() {
 	 */
 	function validate(event) {
 		var formSubmitted = event.target;
-		if (formSubmitted.checkValidity()) {
+		// remove all error messages
+		var errorFields = $(formSubmitted).find('.has-error');
+		errorFields.find('.help-block').remove();
+		errorFields.removeClass('has-error');
+
+		if (allValid(formSubmitted) && formSubmitted.checkValidity()) {
 			// The form is valid, submit the thing
-			if (emailsValid(formSubmitted) && form.attr('method') && form.attr('action')) {
+			if (form.attr('method') && form.attr('action')) {
 				$(formSubmitted).off('submit');
 				$(formSubmitted).submit();
 			}
-
-			// remove all error messages if the form is not posted
-			var errorFields = $(formSubmitted).find('.has-error');
-			errorFields.find('.help-block').remove();
-			errorFields.removeClass('has-error');
 		} else {
 			// The form is invalid
 			var validFields = $(formSubmitted).find(':valid');
@@ -95,8 +124,8 @@ $(function() {
 			}
 
 			// Remove help blocks and error state from valid fields
-			validFields.siblings('.help-block').remove();
-			validFields.parents('.form-group').removeClass('has-error');
+			// validFields.siblings('.help-block').remove();
+			// validFields.parents('.form-group').removeClass('has-error');
 		}
 
 		event.preventDefault();

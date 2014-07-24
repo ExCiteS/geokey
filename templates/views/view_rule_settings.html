@@ -34,13 +34,13 @@
                             <div class="form-group">
                                 <label for="created_at-min" class="col-sm-3 col-sm-offset-1 control-label">after</label>
                                 <div class="col-sm-7">
-                                    <input data-date-format="YYYY-MM-DD H:mm" type="datetime" class="form-control" name="created_at-min" id="minval" {% if rule.min_date %}value="{{ rule.min_date|date:"Y-m-d H:m" }}"{% endif %}>
+                                    <input data-date-format="YYYY-MM-DD H:mm" type="datetime" class="form-control" data-key="created_at" name="created_at-min" id="created_at-min" {% if rule.min_date %}value="{{ rule.min_date|date:"Y-m-d H:m" }}"{% endif %} max="{{ rule.max_date|date:"Y-m-d H:m" }}">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="created_at-max" class="col-sm-3 col-sm-offset-1 control-label">and before</label>
                                 <div class="col-sm-7">
-                                    <input data-date-format="YYYY-MM-DD H:mm" type="datetime" class="form-control" name="created_at-max" id="maxval" {% if rule.max_date %}value="{{ rule.max_date|date:"Y-m-d H:m" }}"{% endif %}>
+                                    <input data-date-format="YYYY-MM-DD H:mm" type="datetime" class="form-control" data-key="created_at" name="created_at-max" id="created_at-max" {% if rule.max_date %}value="{{ rule.max_date|date:"Y-m-d H:m" }}"{% endif %} min="{{ rule.min_date|date:"Y-m-d H:m" }}">
                                 </div>
                             </div>
                         </div>
@@ -75,15 +75,15 @@
 
                                 {% if field.fieldtype == 'DateTimeField' %}
                                     <div class="form-group">
-                                        <label for="{{field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is before</label>
+                                        <label for="{{field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is after</label>
                                         <div class="col-sm-7">
-                                            <input data-date-format="YYYY-MM-DD H:mm" type="datetime" class="form-control" data-key="{{field.key}}" name="{{field.key}}-min" id="{{field.key}}-min" value="{{ rule.filters|minval:field.key }}">
+                                            <input data-date-format="YYYY-MM-DD H:mm" type="datetime" class="form-control" data-key="{{field.key}}" name="{{field.key}}-min" id="{{field.key}}-min" value="{{ rule.filters|minval:field.key }}" max="{{ rule.filters|maxval:field.key }}">
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="{{field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">and after</label>
+                                        <label for="{{field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">and before</label>
                                         <div class="col-sm-7">
-                                            <input data-date-format="YYYY-MM-DD H:mm" type="datetime" class="form-control" data-key="{{field.key}}" name="{{field.key}}-max" id="{{field.key}}-max" value="{{ rule.filters|maxval:field.key }}">
+                                            <input data-date-format="YYYY-MM-DD H:mm" type="datetime" class="form-control" data-key="{{field.key}}" name="{{field.key}}-max" id="{{field.key}}-max" value="{{ rule.filters|maxval:field.key }}" min="{{ rule.filters|minval:field.key }}">
                                         </div>
                                     </div>
                                 {% endif %}
