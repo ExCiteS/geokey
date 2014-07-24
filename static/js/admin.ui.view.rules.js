@@ -19,6 +19,8 @@ $(function() {
             if (!Modernizr.inputtypes.datetime) {
                 $('input[type="datetime"]').datetimepicker();
             }
+            $('input[type="number"]').change(handleNumericFieldEdit);
+            $('#field-options :input').change(handleFieldChange);
         }
 
         function handleTypeError(response) {
@@ -38,9 +40,10 @@ $(function() {
     }
 
     function getRangeValue(field) {
+        var key = field.attr('data-key');
         var value = {};
-        var minval = field.find('#minval').val();
-        var maxval = field.find('#maxval').val();
+        var minval = field.find('#' + key + '-min').val();
+        var maxval = field.find('#' + key + '-max').val();
 
         if (minval) { value.minval = minval; }
         if (maxval) { value.maxval = maxval; }
@@ -48,7 +51,8 @@ $(function() {
         return (value.minval || value.maxval ? value : undefined);
     }
 
-    function handleSubmit() {
+    function handleFieldChange(event) {
+        var formSubmitted = event.target;
         var rules = {};
 
         rules.min_date = $('input[name="created_at-min"]').val() || null;
@@ -71,9 +75,17 @@ $(function() {
             if (value) { rules[field.attr('data-key')] = value; }
         }
         $('input[name="rules"]').val(JSON.stringify(rules));
-        $('form#rule-form').submit();
     }
 
+    function handleNumericFieldEdit(event) {
+        var target = $(event.target);
+        
+        if (target.attr('id') === target.attr('data-key') + '-min') {
+            $('input#' + target.attr('data-key') + '-max').attr('min', target.val());
+        } else if (target.attr('id') === target.attr('data-key') + '-max') {
+            $('input#' + target.attr('data-key') + '-min').attr('max', target.val());
+        }
+    }
+    
     $('#observationtype').change(handleTypeSelection);
-    $('button[type="button"]').click(handleSubmit);
 });

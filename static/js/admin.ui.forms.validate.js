@@ -51,6 +51,7 @@ $(function() {
 				$(formSubmitted).submit();
 			}
 
+			// remove all error messages if the form is not posted
 			var errorFields = $(formSubmitted).find('.has-error');
 			errorFields.find('.help-block').remove();
 			errorFields.removeClass('has-error');
@@ -88,6 +89,7 @@ $(function() {
 							if (validity.patternMismatch && field.attr('name') === 'key') {
 								showHelp(field, 'Your input contains special characters. A field key must only contain characters, numbers or underscores.');
 							}
+							break;
 					}
 				}
 			}

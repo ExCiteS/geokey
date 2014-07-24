@@ -62,7 +62,7 @@ $(function() {
 		event.preventDefault();
 	}
 
-	function handleFieldEdit(event) {
+	function handleNumericFieldEdit(event) {
 		var target = $(event.target);
 
 		if (target.attr('id') === 'minval') {
@@ -72,6 +72,6 @@ $(function() {
 		}
 	}
 
-	$('form#valuesForm input').change(handleFieldEdit);
+	$('form#valuesForm input[type="number"]').change(handleNumericFieldEdit);
 	$('form#valuesForm').submit(submitForm);
 });

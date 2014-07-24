@@ -16,10 +16,6 @@
 					<li class="active">{{view.name}}: Settings</li>
 				</ol>
 
-				<div class="stats pull-right">
-					<a href="{% url 'admin:view_observations' view.project.id view.id %}"><span class="number">{{view.data|length}}</span> observations in this view</a>
-				</div>
-
 				<h1>{{view.name}}</h1>
 				<p class="lead">
 					<span id="descriptionText">{% if view.description %} {{view.description}} {% endif %}</span>

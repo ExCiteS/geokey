@@ -31,29 +31,25 @@
                         </select>
                         <input type="hidden" name="rules">
                     </div>
+                    <div id="field-options"></div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <a href="{% url 'admin:view_settings' view.project.id view.id %}" class="btn btn-default" role="button">Cancel</a> 
+                    </div>
                 </form>
-            </div>
-
-            <div class="row">
-                <div id="field-options" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2"></div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2">
-                    <button type="button" class="btn btn-primary">Save</button>
-                    <a href="{% url 'admin:view_settings' view.project.id view.id %}" class="btn btn-default" role="button">Cancel</a>
-                </div>
             </div>
         </div>
 {% endblock %}
 
 {% block libraries %}
+            <link rel="stylesheet" href="/static/lib/bootstrap-datetime/css/bootstrap-datetimepicker.min.css">
+
             <script src="/static/lib/handlebars/handlebars.js"></script>
             <script src="/static/js/templates.js"></script>
             <script src="/static/lib/moment/moment.min.js"></script>
-            <link rel="stylesheet" href="/static/lib/bootstrap-datetime/css/bootstrap-datetimepicker.min.css">
             <script src="/static/lib/bootstrap-datetime/js/bootstrap-datetimepicker.min.js"></script>
             <script src="/static/js/admin.ui.view.rules.js"></script>
+            <script src="/static/js/admin.ui.forms.validate.js"></script>
             <script src="/static/js/admin.control.ajax.js"></script>
             <script src="/static/js/admin.ui.messages.js"></script>
 {% endblock %}
