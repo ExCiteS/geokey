@@ -74,6 +74,7 @@ $(function() {
             }
             if (value) { rules[field.attr('data-key')] = value; }
         }
+        console.log(rules);
         $('input[name="rules"]').val(JSON.stringify(rules));
     }
 
@@ -86,6 +87,6 @@ $(function() {
             $('input#' + target.attr('data-key') + '-min').attr('max', target.val());
         }
     }
-    
+    $('#field-options :input').change(handleFieldChange);
     $('#observationtype').change(handleTypeSelection);
 });
