@@ -261,6 +261,6 @@ class SingleProject(APIView):
                 project, context={'user': request.user}
             )
             return Response(serializer.data)
-        else:
-            raise PermissionDenied('The project is inactive and therefore '
-                                   'not accessable through the public API.')
+        
+        raise PermissionDenied('The project is inactive and therefore '
+                               'not accessable through the public API.')

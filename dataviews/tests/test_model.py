@@ -301,7 +301,7 @@ class ViewTest(TestCase):
         RuleFactory(**{
             'view': view,
             'observation_type': observation_type_1,
-            'filters': {'number': {'minval': 15}}
+            'filters': {'number': {'minval': '15'}}
         })
 
         self.assertEqual(len(view.data), 5)
@@ -351,7 +351,7 @@ class ViewTest(TestCase):
         project = ProjectF()
         observation_type_1 = ObservationTypeFactory(**{'project': project})
         NumericFieldFactory(**{
-            'key': 'number',
+            'key': 'rating',
             'observationtype': observation_type_1
         })
         observation_type_2 = ObservationTypeFactory(**{'project': project})
@@ -360,33 +360,33 @@ class ViewTest(TestCase):
             'observationtype': observation_type_2
         })
 
-        for x in range(0, 5):
+        for x in range(5, 10):
             ObservationFactory(**{
                 'project': project,
                 'observationtype': observation_type_1,
-                'attributes': {'number': x}
+                'attributes': {'rating': x}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'observationtype': observation_type_1,
-                'attributes': {'number': x}
+                'attributes': {'rating': x}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'observationtype': observation_type_2,
-                'attributes': {'number': x}
+                'attributes': {'rating': x}
             })
 
         view = ViewFactory(**{'project': project})
         RuleFactory(**{
             'view': view,
             'observation_type': observation_type_1,
-            'filters': {'number': {'minval': 1, 'maxval': 4}}
+            'filters': {'rating': {'minval': 8, 'maxval': 10}}
         })
 
-        self.assertEqual(len(view.data), 4)
+        self.assertEqual(len(view.data), 2)
 
     def test_get_data_true_false_filter(self):
         project = ProjectF()

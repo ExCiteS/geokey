@@ -181,7 +181,6 @@ class NumericField(Field):
         self.validate_required(value)
 
         if value is not None:
-
             if isinstance(value, (int, long, float, complex)):
                 if self.minval and self.maxval and (
                         not (value >= self.minval) and (value <= self.maxval)):

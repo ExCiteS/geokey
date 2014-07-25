@@ -105,6 +105,7 @@ class ProjectSerializer(FieldSelectorSerializer):
         locations = Location.objects.filter(
             Q(private=False) |
             Q(private_for_project=project)).count()
+        return locations
 
 
     def get_number_contrbutions(self, project):
@@ -112,7 +113,7 @@ class ProjectSerializer(FieldSelectorSerializer):
         Method for SerializerMethodField `num_observations`. Returns the
         overall number of observations contributed to the project.
         """
-        return project.observations.count()
+        return project.observations.exclude(status='draft').count()
 
     def get_user_contributions(self, project):
         """

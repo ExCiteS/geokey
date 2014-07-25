@@ -59,7 +59,7 @@ class LocationManager(models.GeoManager):
 
 class ObservationQuerySet(query.HStoreQuerySet):
     def for_moderator(self):
-        return self.exclude(status='suspended').exclude(status='draft')
+        return self.exclude(status='draft')
 
     def for_viewer(self):
         return self.for_moderator().exclude(status='pending')
