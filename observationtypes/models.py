@@ -160,7 +160,8 @@ class TextField(Field):
         Returns the filter object for the given field based on the rule. Used
         to filter data for a view.
         """
-        return Q(attributes__icontains=rule)
+        return '((attributes -> \'' + self.key + '\') \
+            ILIKE \'%%' + rule + '%%\')'
 
 
 class NumericField(Field):
@@ -228,14 +229,19 @@ class NumericField(Field):
         maxval = rule.get('maxval')
 
         if minval is not None and maxval is not None:
-            return (Q(attributes__gt={self.key: minval}) &
-                    Q(attributes__lt={self.key: maxval}))
+
+            return '(cast(attributes -> \'' + self.key + '\' as double \
+                precision) >= ' + str(minval) + ') AND (cast(attributes \
+                -> \'' + self.key + '\' as double precision) <= \
+                ' + str(maxval) + ')'
         else:
             if minval is not None:
-                return Q(attributes__gt={self.key: minval})
+                return '(cast(attributes -> \'' + self.key + '\' as double \
+                    precision) >= ' + str(minval) + ')'
 
             if maxval is not None:
-                return Q(attributes__lt={self.key: maxval})
+                return '(cast(attributes -> \'' + self.key + '\' as double \
+                    precision) <= ' + str(maxval) + ')'
 
 
 class TrueFalseField(Field):
@@ -275,7 +281,8 @@ class TrueFalseField(Field):
         Returns the filter object for the given field based on the rule. Used
         to filter data for a view.
         """
-        return Q(attributes__contains={self.key: json.dumps(rule)})
+        return '(attributes -> \'' + self.key + '\' \
+            = \'' + str(rule).lower() + '\')'
 
 
 class DateTimeField(Field):
@@ -316,14 +323,21 @@ class DateTimeField(Field):
         maxval = rule.get('maxval')
 
         if minval is not None and maxval is not None:
-            return (Q(attributes__gt={self.key: minval}) &
-                    Q(attributes__lt={self.key: maxval}))
+            return '(to_date(attributes -> \'' + self.key + '\', \'YYYY-MM-DD \
+                HH24:MI\') >= to_date(\'' + minval + '\', \'YYYY-MM-DD \
+                HH24:MI\')) AND (to_date(attributes -> \'' + self.key + '\', \'\
+                YYYY-MM-DD HH24:MI\') <= to_date(\'' + maxval + '\', \'\
+                YYYY-MM-DD HH24:MI\'))'
         else:
             if minval is not None:
-                return Q(attributes__gt={self.key: minval})
+                return '(to_date(attributes -> \'' + self.key + '\', \'\
+                    YYYY-MM-DD HH24:MI\') >= to_date(\'' + minval + '\', \'\
+                    YYYY-MM-DD HH24:MI\'))'
 
             if maxval is not None:
-                return Q(attributes__lt={self.key: maxval})
+                return '(to_date(attributes -> \'' + self.key + '\', \'\
+                    YYYY-MM-DD HH24:MI\') <= to_date(\'' + maxval + '\', \'\
+                    YYYY-MM-DD HH24:MI\'))'
 
 
 class LookupField(Field):
@@ -374,7 +388,8 @@ class LookupField(Field):
         Returns the filter object for the given field based on the rule. Used
         to filter data for a view.
         """
-        return Q(attributes__contains={self.key: rule})
+        return '((attributes -> \'' + self.key + '\')::int IN \
+            (' + ','.join(str(x) for x in rule) + '))'
 
 
 class LookupValue(models.Model):

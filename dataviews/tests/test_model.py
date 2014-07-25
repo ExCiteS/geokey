@@ -360,7 +360,7 @@ class ViewTest(TestCase):
             'observationtype': observation_type_2
         })
 
-        for x in range(5, 10):
+        for x in range(5, 11):
             ObservationFactory(**{
                 'project': project,
                 'observationtype': observation_type_1,
@@ -386,7 +386,7 @@ class ViewTest(TestCase):
             'filters': {'rating': {'minval': 8, 'maxval': 10}}
         })
 
-        self.assertEqual(len(view.data), 2)
+        self.assertEqual(len(view.data), 6)
 
     def test_get_data_true_false_filter(self):
         project = ProjectF()

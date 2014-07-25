@@ -34,10 +34,8 @@ class View(models.Model):
         queries = [rule.get_query() for rule in self.rules.all()]
 
         if len(queries) > 0:
-            query = queries.pop()
-            for item in queries:
-                query |= item
-            return self.project.observations.filter(query)
+            query = ' OR '.join(queries)
+            return self.project.observations.extra(where=[query])
         else:
             return self.project.observations.none()
 
@@ -95,13 +93,17 @@ class Rule(models.Model):
         """
         Returns the queryset filter for the Rule
         """
-        queries = [Q(observationtype=self.observation_type)]
+        queries = ['(observationtype_id = %s)' % self.observation_type.id]
 
         if self.min_date is not None:
-            queries.append(Q(created_at__gt=self.min_date))
+            queries.append('(created_at >= to_date(\'' +
+                self.min_date.strftime('%Y-%m-%d %H:%I') +
+                '\', \'YYYY-MM-DD HH24:MI\'))')
 
         if self.max_date is not None:
-            queries.append(Q(created_at__lt=self.max_date))
+            queries.append('(created_at <= to_date(\'' +
+                self.max_date.strftime('%Y-%m-%d %H:%I') +
+                '\', \'YYYY-MM-DD HH24:MI\'))')
 
         if self.filters is not None:
             for key in self.filters:
@@ -113,10 +115,7 @@ class Rule(models.Model):
                 field = self.observation_type.fields.get_subclass(key=key)
                 queries.append(field.get_filter(rule_filter))
 
-        query = queries.pop()
-        for item in queries:
-            query &= item
-        return query
+        return '(%s)' % ' AND '.join(queries)
 
     def delete(self):
         """
