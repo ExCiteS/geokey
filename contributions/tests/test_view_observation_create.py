@@ -2,10 +2,12 @@ import json
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import AnonymousUser
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from projects.tests.model_factories import UserF, ProjectF
+from dataviews.tests.model_factories import ViewFactory
 from observationtypes.tests.model_factories import (
     ObservationTypeFactory, TextFieldFactory, NumericFieldFactory
 )
@@ -38,7 +40,9 @@ class ProjectPublicApiTest(TestCase):
         })
         NumericFieldFactory.create(**{
             'key': 'key_2',
-            'observationtype': self.observationtype
+            'observationtype': self.observationtype,
+            'minval': 0,
+            'maxval': 1000
         })
 
         self.data = {
@@ -94,6 +98,31 @@ class ProjectPublicApiTest(TestCase):
             "properties": {
                 "key_1": 12,
                 "key_2": "jsdbdjhsb",
+                "contributiontype": self.observationtype.id,
+                "location": {
+                    "name": "UCL",
+                    "description": "UCL's main quad",
+                    "private": True
+                },
+            }
+        }
+
+        response = self._post(data, self.admin)
+        self.assertEqual(response.status_code, 400)
+
+    def test_contribute_with_invalid_number(self):
+        data = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -0.13404607772827148,
+                    51.52439200896907
+                ]
+            },
+            "properties": {
+                "key_1": 12,
+                "key_2": 2000,
                 "contributiontype": self.observationtype.id,
                 "location": {
                     "name": "UCL",
@@ -252,6 +281,16 @@ class ProjectPublicApiTest(TestCase):
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 400)
 
+    def test_contribute_to_public_everyone_with_Anonymous(self):
+        self.project.everyone_contributes = True
+        self.project.isprivate = False
+        self.project.save()
+
+        ViewFactory.create(**{'project': self.project, 'isprivate': False})
+
+        response = self._post(self.data, AnonymousUser())
+        self.assertEqual(response.status_code, 201)
+
     def test_contribute_to_public_with_admin(self):
         self.project.isprivate = False
         self.project.save()
@@ -279,6 +318,13 @@ class ProjectPublicApiTest(TestCase):
         response = self._post(self.data, self.non_member)
         self.assertEqual(response.status_code, 403)
 
+    def test_contribute_to_public_with_anonymous(self):
+        self.project.isprivate = False
+        self.project.save()
+
+        response = self._post(self.data, AnonymousUser())
+        self.assertEqual(response.status_code, 403)
+
     def test_contribute_to_private_with_admin(self):
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 201)
@@ -296,6 +342,11 @@ class ProjectPublicApiTest(TestCase):
 
     def test_contribute_to_private_with_non_member(self):
         response = self._post(self.data, self.non_member)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(len(self.project.observations.all()), 0)
+
+    def test_contribute_to_private_with_anonymous(self):
+        response = self._post(self.data, AnonymousUser())
         self.assertEqual(response.status_code, 403)
         self.assertEqual(len(self.project.observations.all()), 0)
 
@@ -331,6 +382,14 @@ class ProjectPublicApiTest(TestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(len(self.project.observations.all()), 0)
 
+    def test_contribute_to_inactive_with_Anonymous(self):
+        self.project.status = 'inactive'
+        self.project.save()
+
+        response = self._post(self.data, AnonymousUser())
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(len(self.project.observations.all()), 0)
+
     def test_contribute_to_deleted_with_admin(self):
         self.project.status = 'deleted'
         self.project.save()
@@ -357,4 +416,11 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._post(self.data, self.non_member)
+        self.assertEqual(response.status_code, 404)
+
+    def test_contribute_to_deleted_with_anonymous(self):
+        self.project.status = 'deleted'
+        self.project.save()
+
+        response = self._post(self.data, AnonymousUser())
         self.assertEqual(response.status_code, 404)

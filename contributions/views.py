@@ -15,6 +15,7 @@ from .models import Location, Comment, Observation
 from projects.models import Project
 from dataviews.models import View
 from dataviews.serializers import ViewSerializer
+from users.models import User
 
 
 # ############################################################################
@@ -80,10 +81,14 @@ class ProjectObservations(APIView):
         """
         Adds a new contribution to a project
         """
+        user = request.user
+        if user.is_anonymous():
+            user = User.objects.get(display_name='AnonymousUser')
+
         data = request.DATA
         project = Project.objects.as_contributor(request.user, project_id)
         serializer = ContributionSerializer(
-            data=data, context={'user': request.user, 'project': project}
+            data=data, context={'user': user, 'project': project}
         )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
