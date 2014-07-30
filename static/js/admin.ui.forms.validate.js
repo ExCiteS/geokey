@@ -31,19 +31,25 @@ $(function() {
 			var max = Date.parse(field.attr('max'));
 			var val = Date.parse(field.val());
 
-			if (!(min && val ? (val > min): true)) {
+			if (field.val().length && !val) {
 				valid = false;
 				field.parents('.form-group').addClass('has-error');
-				showHelp(field, 'The entered date must be lower than ' + field.attr('min'));
-			}
+				showHelp(field, 'The date entered could not be validated. Please check the entry.');
+			} else {
+				if (!(min && val ? (val > min): true)) {
+					valid = false;
+					field.parents('.form-group').addClass('has-error');
+					showHelp(field, 'The entered date must be lower than ' + field.attr('min'));
+				}
 
-			if (!(max && val ? (val < max): true)) {
-				valid = false;
-				field.parents('.form-group').addClass('has-error');
-				showHelp(field, 'The entered date must be greater than ' + field.attr('max'));
+				if (!(max && val ? (val < max): true)) {
+					valid = false;
+					field.parents('.form-group').addClass('has-error');
+					showHelp(field, 'The entered date must be greater than ' + field.attr('max'));
+				}
 			}
 		}
-		return valid;
+		return false;
 	}
 
 	function emailsValid(form) {
