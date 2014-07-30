@@ -49,7 +49,7 @@ $(function() {
 				}
 			}
 		}
-		return false;
+		return valid;
 	}
 
 	function emailsValid(form) {
