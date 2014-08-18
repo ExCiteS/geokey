@@ -171,11 +171,6 @@ class NumericField(Field):
     minval = models.FloatField(blank=True, null=True)
     maxval = models.FloatField(blank=True, null=True)
 
-    def validate_required(self, value):
-        if isinstance(value, (str, unicode)) and len(value) == 0:
-            value = None
-        super(NumericField, self).validate_required(value)
-
     def validate_input(self, value):
         """
         Validates if the given value is a valid input for the NumerField.
@@ -184,6 +179,9 @@ class NumericField(Field):
         Float value. Then checks if the value is between bounds of minval and
         maxval. Returns `True` or `False`.
         """
+        if isinstance(value, (str, unicode)) and len(value) == 0:
+            value = None
+
         self.validate_required(value)
 
         if value is not None:
