@@ -112,10 +112,13 @@ class NumericFieldTest(TestCase):
             self.fail('NumericField.validate_input() raised InputError '
                       'unexpectedly!')
 
-    @raises(InputError)
     def test_numericfield_validate_input_string_number(self):
         numeric_field = NumericFieldFactory()
-        numeric_field.validate_input('12')
+        try:
+            numeric_field.validate_input('12')
+        except InputError:
+            self.fail('NumericField.validate_input() raised InputError '
+                      'unexpectedly!')
 
     @raises(InputError)
     def test_numericfield_validate_input_string_char(self):

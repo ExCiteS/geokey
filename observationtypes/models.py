@@ -182,6 +182,13 @@ class NumericField(Field):
         self.validate_required(value)
 
         if value is not None:
+            if isinstance(value, str):
+                    try:
+                        value = float(value) if '.' in value else int(value)
+                    except ValueError:
+                        raise InputError('The value provided for field %s is not a '
+                                     'number.' % self.name)
+
             if isinstance(value, (int, long, float, complex)):
                 if self.minval and self.maxval and (
                         not (value >= self.minval) and (value <= self.maxval)):
