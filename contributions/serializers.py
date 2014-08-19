@@ -156,7 +156,8 @@ class ContributionSerializer(object):
             obj.observationtype)
         json_object['contributiontype'] = observationtype_serializer.data
 
-        comment_serializer = CommentSerializer(obj.comments.all(), many=True)
+        comment_serializer = CommentSerializer(
+            obj.comments.filter(respondsto=None), many=True)
         json_object['comments'] = comment_serializer.data
 
         for field in obj.observationtype.fields.all():
