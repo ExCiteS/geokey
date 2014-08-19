@@ -191,6 +191,10 @@ class NumericFieldTest(TestCase):
         numeric_field = NumericFieldFactory()
         self.assertEqual(100, numeric_field.convert_from_string('100'))
 
+    def test_numericfield_convert_from_empty_string(self):
+        numeric_field = NumericFieldFactory()
+        self.assertEqual(None, numeric_field.convert_from_string(''))
+
 
 class TrueFalseFieldTest(TestCase):
     def test_create_truefalsefield(self):

@@ -218,6 +218,9 @@ class NumericField(Field):
         """
         Returns the `value` of the field in `Float` format.
         """
+        if len(value) == 0:
+            return None
+
         try:
             return int(value)
         except ValueError:
