@@ -10,6 +10,7 @@ from nose.tools import raises
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from dataviews.tests.model_factories import ViewFactory
+from observationtypes.tests.model_factories import TextFieldFactory, ObservationTypeFactory
 
 from .model_factories import UserF, ProjectF
 from ..models import Project
@@ -593,6 +594,28 @@ class ProjectsTest(TestCase):
 class SingleProjectTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
+
+    def test_observationtype_serialization(self):
+        user = UserF.create()
+
+        project = ProjectF.create(
+            add_admins=[user]
+        )
+        ObservationTypeFactory.create(**{'project': project})
+        ObservationTypeFactory.create(**{'project': project, 'status': 'inactive'})
+        o1 = ObservationTypeFactory.create(**{'project': project})
+        TextFieldFactory.create(**{'observationtype': o1})
+        o2 = ObservationTypeFactory.create(**{'project': project})
+        TextFieldFactory.create(**{'observationtype': o2})
+
+        request = self.factory.get(
+            '/api/projects/%s/' % project.id)
+        force_authenticate(request, user=user)
+        view = SingleProject.as_view()
+        response = view(request, project_id=project.id).render()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(2, len(json.loads(response.content).get('contributiontypes')))
 
     def test_get_deleted_project_with_admin(self):
         user = UserF.create()

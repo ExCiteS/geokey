@@ -45,7 +45,7 @@ class ProjectSerializer(FieldSelectorSerializer):
 
     def get_contributiontypes(self, project):
         serializer = ObservationTypeSerializer(
-            project.observationtypes.all(), many=True)
+            project.observationtypes.active().exclude(fields=None), many=True)
         return serializer.data
 
     def get_admin(self, project):
