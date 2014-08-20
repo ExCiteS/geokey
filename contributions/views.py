@@ -373,12 +373,10 @@ class ProjectComment(APIView):
     def get_object(self, user, project_id, observation_id):
         project = Project.objects.get_single(user, project_id)
 
-        if project.is_admin(user):
+        if project.can_access_all_contributions(user):
             return project.observations.get(pk=observation_id)
         else:
-            raise PermissionDenied('You are not an administrator of this '
-                                   'project. You must therefore access '
-                                   'observations through one of the views')
+            raise PermissionDenied('You are not allowed to access this map.')
 
 
 class ProjectComments(CommentApiView, ProjectComment):

@@ -116,8 +116,7 @@ class AddCommentToPrivateProjectTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(
             json.loads(response.content).get('error'),
-            'You are not an administrator of this project. You must therefore'
-            ' access observations through one of the views'
+            'You are not allowed to access this map.'
         )
 
     def test_add_comment_to_observation_with_non_member(self):
@@ -137,8 +136,7 @@ class AddCommentToPrivateProjectTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(
             json.loads(response.content).get('error'),
-            'You are not an administrator of this project. You must therefore'
-            ' access observations through one of the views'
+            'You are not allowed to access this map.'
         )
 
 
@@ -283,8 +281,7 @@ class DeleteCommentTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(
             json.loads(response.content).get('error'),
-            'You are not an administrator of this project. You must therefore'
-            ' access observations through one of the views'
+            'You are not allowed to access this map.'
         )
 
         observation = Observation.objects.get(pk=self.observation.id)
