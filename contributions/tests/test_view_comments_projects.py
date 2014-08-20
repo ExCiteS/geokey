@@ -1,6 +1,8 @@
 import json
-from rest_framework.test import APITestCase
 
+from django.contrib.auth.models import AnonymousUser
+
+from rest_framework.test import APITestCase
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 
@@ -139,6 +141,58 @@ class AddCommentToPrivateProjectTest(APITestCase):
             'You are not allowed to access this map.'
         )
 
+class AddCommentToPublicProjectTest(APITestCase):
+    def setUp(self):
+        self.contributor = UserF.create()
+        self.admin = UserF.create()
+        self.non_member = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            **{'isprivate': False, 'all_contrib_isprivate': False}
+        )
+        self.observation = ObservationFactory.create(**{
+            'project': self.project
+        })
+
+    def get_response(self, user):
+        factory = APIRequestFactory()
+        request = factory.post(
+            '/api/projects/%s/maps/all-contributions/%s/comments/' %
+            (self.project.id, self.observation.id),
+            {'text': 'A comment to the observation'}
+        )
+        force_authenticate(request, user=user)
+        view = ProjectComments.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            observation_id=self.observation.id
+        ).render()
+
+    def test_add_comment_to_observation_with_admin(self):
+        response = self.get_response(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_add_comment_to_observation_with_contributor(self):
+        response = self.get_response(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_add_comment_to_observation_with_non_member(self):
+        response = self.get_response(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_add_comment_to_observation_with_view_member(self):
+        view_member = UserF.create()
+        ViewFactory(add_viewers=[view_member], **{
+            'project': self.project
+        })
+        response = self.get_response(view_member)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_add_comment_to_observation_with_anonymous(self):
+        response = self.get_response(AnonymousUser())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 class AddCommentToWrongObservation(APITestCase):
     def test(self):

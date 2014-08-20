@@ -338,6 +338,10 @@ class CommentApiView(object):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create_and_response(self, request, observation):
+        user = request.user
+        if user.is_anonymous():
+            user = User.objects.get(display_name='AnonymousUser')
+
         respondsto = None
         if request.DATA.get('respondsto') is not None:
             try:
@@ -352,7 +356,7 @@ class CommentApiView(object):
             text=request.DATA.get('text'),
             respondsto=respondsto,
             commentto=observation,
-            creator=request.user
+            creator=user
         )
 
         serializer = CommentSerializer(comment)
