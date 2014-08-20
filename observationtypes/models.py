@@ -94,7 +94,7 @@ class Field(models.Model):
         Validates input value against required status. Raises an `InputError`
         if no value has been provided.
         """
-        if self.required and (value is None):
+        if self.status == STATUS.active and self.required and (value is None):
             raise InputError('The field %s is required.' % self.name)
 
     def convert_from_string(self, value):
@@ -137,7 +137,8 @@ class TextField(Field):
         Validate teh given value agaist required status. Checks if value is
         not None and has at least one character.
         """
-        if self.required and (value is None or len(value) == 0):
+        if self.status == STATUS.active and self.required and (
+                value is None or len(value) == 0):
             raise InputError('The field %s is required.' % self.name)
 
     def validate_input(self, value):

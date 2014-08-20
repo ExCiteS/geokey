@@ -59,6 +59,17 @@ class TextFieldTest(TestCase):
         textfield = TextFieldFactory.create(**{'required': True})
         textfield.validate_input('')
 
+    def test_textfield_validate_inactive_required_empty_string(self):
+        textfield = TextFieldFactory.create(**{
+            'required': True,
+            'status': 'inactive'}
+        )
+        try:
+            textfield.validate_input('')
+        except InputError:
+            self.fail('TextField.validate_input() raised InputError '
+                      'unexpectedly!')
+
     @raises(InputError)
     def test_textfield_validate_required_none_type(self):
         textfield = TextFieldFactory.create(**{'required': True})
@@ -101,7 +112,18 @@ class NumericFieldTest(TestCase):
         try:
             numericfield.validate_input(None)
         except InputError:
-            self.fail('datetimefield.validate_input() raised InputError '
+            self.fail('numericfield.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    def test_numericfield_validate_inactive_required_empty_string(self):
+        numericfield = NumericFieldFactory.create(**{
+            'required': True,
+            'status': 'inactive'}
+        )
+        try:
+            numericfield.validate_input(None)
+        except InputError:
+            self.fail('numericfield.validate_input() raised InputError '
                       'unexpectedly!')
 
     def test_numericfield_validate_input_number(self):
@@ -219,6 +241,17 @@ class TrueFalseFieldTest(TestCase):
         true_false_field = TrueFalseFieldFactory.create(**{'required': True})
         true_false_field.validate_input(None)
 
+    def test_truefalsefield_validate_inactive_required_empty_string(self):
+        true_false_field = TrueFalseFieldFactory.create(**{
+            'required': True,
+            'status': 'inactive'}
+        )
+        try:
+            true_false_field.validate_input(None)
+        except InputError:
+            self.fail('TrueFalseField.validate_input() raised InputError '
+                      'unexpectedly!')
+
     def test_truefalsefield_validate_input(self):
         true_false_field = TrueFalseFieldFactory()
         try:
@@ -279,6 +312,17 @@ class SingleLookupFieldTest(TestCase):
             self.fail('lookup_field.validate_input() raised InputError '
                       'unexpectedly!')
 
+    def test_lookupfield_validate_inactive_required_empty_string(self):
+        lookup_field = LookupFieldFactory.create(**{
+            'required': True,
+            'status': 'inactive'}
+        )
+        try:
+            lookup_field.validate_input(None)
+        except InputError:
+            self.fail('LookupField.validate_input() raised InputError '
+                      'unexpectedly!')
+
     def test_lookupfield_validate_input(self):
         lookup_field = LookupFieldFactory()
         lookup_value = LookupValueFactory(**{
@@ -332,6 +376,17 @@ class DateTimeFieldTest(TestCase):
             datetimefield.validate_input('2014-01-01')
         except InputError:
             self.fail('datetimefield.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    def test_lookupfield_validate_inactive_required_empty_string(self):
+        lookup_field = LookupFieldFactory.create(**{
+            'required': True,
+            'status': 'inactive'}
+        )
+        try:
+            lookup_field.validate_input(None)
+        except InputError:
+            self.fail('LookupField.validate_input() raised InputError '
                       'unexpectedly!')
 
     def test_datetimefield_validate_not_required(self):

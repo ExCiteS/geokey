@@ -41,6 +41,31 @@ class ObservationTest(TestCase):
         )
         self.assertEqual(observation.attributes, data)
 
+    def test_create_observation_with_inactive_field(self):
+        creator = UserF()
+        location = LocationFactory()
+        observationtype = ObservationTypeFactory()
+        TextFieldFactory(**{
+            'key': 'text',
+            'observationtype': observationtype
+        })
+        TextFieldFactory(**{
+            'key': 'inactive_text',
+            'observationtype': observationtype,
+            'status': 'inactive',
+            'required': True
+        })
+        NumericFieldFactory(**{
+            'key': 'number',
+            'observationtype': observationtype
+        })
+        data = {'text': 'Text', 'number': 12}
+        observation = Observation.create(
+            attributes=data, creator=creator, location=location,
+            observationtype=observationtype, project=observationtype.project
+        )
+        self.assertEqual(observation.attributes, data)
+
     def test_update_observation(self):
         observationtype = ObservationTypeFactory()
         TextFieldFactory(**{
@@ -63,6 +88,39 @@ class ObservationTest(TestCase):
         observation.update(attributes=update, updator=updater)
 
         # ref_observation = Observation.objects.get(pk=observation.id)
+        self.assertEqual(
+            observation.attributes,
+            {'text': 'Udpated Text', 'number': '13'}
+        )
+        self.assertEqual(observation.version, 2)
+
+    def test_update_observation_with_inactive_field(self):
+        observationtype = ObservationTypeFactory()
+        TextFieldFactory(**{
+            'key': 'text',
+            'observationtype': observationtype
+        })
+        TextFieldFactory(**{
+            'key': 'inactive_text',
+            'observationtype': observationtype,
+            'status': 'inactive',
+            'required': True
+        })
+        NumericFieldFactory(**{
+            'key': 'number',
+            'observationtype': observationtype
+        })
+
+        observation = ObservationFactory.create(**{
+            'attributes': {'text': 'Text', 'number': 12},
+            'observationtype': observationtype,
+            'project': observationtype.project
+        })
+
+        updater = UserF()
+        update = {'text': 'Udpated Text', 'number': 13}
+        observation.update(attributes=update, updator=updater)
+
         self.assertEqual(
             observation.attributes,
             {'text': 'Udpated Text', 'number': '13'}

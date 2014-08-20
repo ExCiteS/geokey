@@ -89,7 +89,7 @@ class Observation(models.Model):
         is_valid = True
         error_messages = []
 
-        for field in observationtype.fields.all():
+        for field in observationtype.fields.all().filter(status='active'):
             try:
                 field.validate_input(data.get(field.key))
             except InputError, error:
