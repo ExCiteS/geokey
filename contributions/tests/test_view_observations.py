@@ -528,7 +528,8 @@ class UpdateMyObservation(TestCase):
 
         TextFieldFactory.create(**{
             'key': 'key_1',
-            'observationtype': self.observationtype
+            'observationtype': self.observationtype,
+            'required': True
         })
         NumericFieldFactory.create(**{
             'key': 'key_2',

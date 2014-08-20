@@ -131,9 +131,9 @@ class Observation(models.Model):
         update.update(attributes)
 
         if status == 'draft':
-            self.validate_partial(self.observationtype, attributes)
+            self.validate_partial(self.observationtype, update)
         else:
-            self.validate_full(self.observationtype, attributes)
+            self.validate_full(self.observationtype, update)
             self.version = self.version + 1
 
         self.attributes = update
@@ -141,8 +141,8 @@ class Observation(models.Model):
 
         self.review_comment = review_comment
 
-        if status == 'active' and self.status == 'draft':
-            status = 'pending'
+        # if status == 'active' and self.status == 'draft':
+        #     status = 'pending'
 
         self.status = status or self.status
 

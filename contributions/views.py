@@ -173,6 +173,7 @@ class SingleObservation(APIView):
 
         elif (new_status == 'active' and observation.status == 'draft' and
                 observation.creator == user):
+            data['properties']['status'] = 'pending'
             serializer = ContributionSerializer(
                 observation,
                 data=data,
