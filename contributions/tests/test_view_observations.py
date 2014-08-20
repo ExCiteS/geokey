@@ -116,7 +116,7 @@ class UpdateObservationInProject(TestCase):
             }
         }
 
-    def _put(self, data, user):
+    def _patch(self, data, user):
         url = reverse(
             'api:project_single_observation',
             kwargs={
@@ -124,7 +124,7 @@ class UpdateObservationInProject(TestCase):
                 'observation_id': self.observation.id
             }
         )
-        request = self.factory.put(
+        request = self.factory.patch(
             url, json.dumps(data), content_type='application/json')
         force_authenticate(request, user=user)
         view = SingleProjectObservation.as_view()
@@ -148,21 +148,21 @@ class UpdateObservationInProject(TestCase):
             observation_id=self.observation.id).render()
 
     def test_update_conflict(self):
-        response = self._put(
+        response = self._patch(
             self.update_data,
             self.admin
         )
         self.assertEqual(response.status_code, 200)
 
         data = {"properties": {"version": 1, "key_2": 2}}
-        response = self._put(
+        response = self._patch(
             data,
             self.admin
         )
         self.assertEqual(response.status_code, 200)
 
     def test_update_with_admin(self):
-        response = self._put(
+        response = self._patch(
             self.update_data,
             self.admin
         )
@@ -181,7 +181,7 @@ class UpdateObservationInProject(TestCase):
         Observation.objects.get(pk=self.observation.id)
 
     def test_update_with_contributor(self):
-        response = self._put(
+        response = self._patch(
             self.update_data,
             self.contributor
         )
@@ -194,7 +194,7 @@ class UpdateObservationInProject(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_update_with_view_member(self):
-        response = self._put(
+        response = self._patch(
             self.update_data,
             self.view_member
         )
@@ -214,7 +214,7 @@ class UpdateObservationInProject(TestCase):
         )
 
     def test_update_with_non_member(self):
-        response = self._put(
+        response = self._patch(
             self.update_data,
             self.non_member
         )
@@ -355,7 +355,7 @@ class UpdateObservationInView(TestCase):
             }
         }
 
-    def _put(self, data, user):
+    def _patch(self, data, user):
         url = reverse(
             'api:view_single_observation',
             kwargs={
@@ -364,7 +364,7 @@ class UpdateObservationInView(TestCase):
                 'observation_id': self.observation.id
             }
         )
-        request = self.factory.put(
+        request = self.factory.patch(
             url, json.dumps(data), content_type='application/json')
         force_authenticate(request, user=user)
         view = SingleViewObservation.as_view()
@@ -389,18 +389,18 @@ class UpdateObservationInView(TestCase):
             observation_id=self.observation.id).render()
 
     def test_update_conflict(self):
-        response = self._put(
+        response = self._patch(
             self.update_data,
             self.admin
         )
         self.assertEqual(response.status_code, 200)
 
         data = {"properties": {"version": 1, "key_2": 2}}
-        response = self._put(data, self.admin)
+        response = self._patch(data, self.admin)
         self.assertEqual(response.status_code, 200)
 
     def test_update_with_admin(self):
-        response = self._put(self.update_data, self.admin)
+        response = self._patch(self.update_data, self.admin)
         self.assertEqual(response.status_code, 200)
 
         observation = Observation.objects.get(pk=self.observation.id)
@@ -416,7 +416,7 @@ class UpdateObservationInView(TestCase):
         Observation.objects.get(pk=self.observation.id)
 
     def test_update_with_contributor(self):
-        response = self._put(
+        response = self._patch(
             self.update_data,
             self.contributor
         )
@@ -429,7 +429,7 @@ class UpdateObservationInView(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_update_with_view_member(self):
-        response = self._put(
+        response = self._patch(
             self.update_data,
             self.view_member
         )
@@ -442,7 +442,7 @@ class UpdateObservationInView(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_update_with_non_member(self):
-        response = self._put(
+        response = self._patch(
             self.update_data,
             self.non_member
         )
@@ -555,7 +555,7 @@ class UpdateMyObservation(TestCase):
             }
         }
 
-    def _put(self, data, user):
+    def _patch(self, data, user):
         url = reverse(
             'api:project_my_single_observation',
             kwargs={
@@ -563,7 +563,7 @@ class UpdateMyObservation(TestCase):
                 'observation_id': self.observation.id
             }
         )
-        request = self.factory.put(
+        request = self.factory.patch(
             url, json.dumps(data), content_type='application/json')
         force_authenticate(request, user=user)
         view = MySingleObservation.as_view()
@@ -587,7 +587,7 @@ class UpdateMyObservation(TestCase):
             observation_id=self.observation.id).render()
 
     def test_update_with_contributor(self):
-        response = self._put(self.update_data, self.contributor)
+        response = self._patch(self.update_data, self.contributor)
         self.assertEqual(response.status_code, 200)
 
         observation = Observation.objects.get(pk=self.observation.id)
@@ -600,7 +600,7 @@ class UpdateMyObservation(TestCase):
         Observation.objects.get(pk=self.observation.id)
 
     def test_update_with_admin(self):
-        response = self._put(self.update_data, self.admin)
+        response = self._patch(self.update_data, self.admin)
         self.assertEqual(response.status_code, 404)
 
         observation = Observation.objects.get(pk=self.observation.id)
@@ -614,7 +614,7 @@ class UpdateMyObservation(TestCase):
         Observation.objects.get(pk=self.observation.id)
 
     def test_update_with_non_member(self):
-        response = self._put(self.update_data, self.non_member)
+        response = self._patch(self.update_data, self.non_member)
         self.assertEqual(response.status_code, 403)
 
     def test_delete_with_non_member(self):

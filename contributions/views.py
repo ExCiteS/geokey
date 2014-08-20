@@ -52,7 +52,7 @@ class SingleLocation(APIView):
     /api/projects/:project_id/locations/:location_id/
     """
     @handle_exceptions_for_ajax
-    def put(self, request, project_id, location_id, format=None):
+    def patch(self, request, project_id, location_id, format=None):
         location = Location.objects.get_single(
             request.user, project_id, location_id)
         serializer = LocationSerializer(
@@ -252,7 +252,7 @@ class SingleProjectObservation(SingleObservation):
         return self.get_observation(request, observation, format=format)
 
     @handle_exceptions_for_ajax
-    def put(self, request, project_id, observation_id, format=None):
+    def patch(self, request, project_id, observation_id, format=None):
         observation = self.get_object(request.user, project_id, observation_id)
         return self.update_observation(request, observation, format=format)
 
@@ -284,7 +284,7 @@ class SingleViewObservation(SingleObservation):
         return self.get_observation(request, observation, format=format)
 
     @handle_exceptions_for_ajax
-    def put(self, request, project_id, view_id, observation_id, format=None):
+    def patch(self, request, project_id, view_id, observation_id, format=None):
         observation = self.get_object(
             request.user, project_id, view_id, observation_id)
         return self.update_observation(request, observation, format=format)
@@ -315,7 +315,7 @@ class MySingleObservation(SingleObservation):
         return self.get_observation(request, observation, format=format)
 
     @handle_exceptions_for_ajax
-    def put(self, request, project_id, observation_id, format=None):
+    def patch(self, request, project_id, observation_id, format=None):
         observation = self.get_object(request.user, project_id, observation_id)
         return self.update_observation(request, observation, format=format)
 
