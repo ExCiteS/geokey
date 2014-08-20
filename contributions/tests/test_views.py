@@ -23,6 +23,7 @@ from ..models import Observation
 
 class SingleObservationTest(TestCase):
     def setUp(self):
+        self.factory = APIRequestFactory()
         self.admin = UserF.create()
         self.creator = UserF.create()
         self.moderator = UserF.create()
@@ -43,29 +44,47 @@ class SingleObservationTest(TestCase):
         self.observation.status = 'pending'
         self.observation.save()
 
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.patch(url)
+        request.DATA = {'properties': {'status': "active"}}
+        request.user = self.admin
+
         view = SingleObservation()
-        data = view.update_status(
-            self.observation, {'properties': {'status': "active"}}, self.admin)
-        self.assertEqual(data.get('properties').get('status'), 'active')
+        data = view.update_observation(request, self.observation)
+        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'active')
 
     def test_approve_pending_with_moderator(self):
         self.observation.status = 'pending'
         self.observation.save()
 
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.patch(url)
+        request.DATA = {'properties': {'status': "active"}}
+        request.user = self.moderator
+
         view = SingleObservation()
-        data = view.update_status(
-            self.observation, {'properties': {'status': "active"}}, self.moderator)
-        self.assertEqual(data.get('properties').get('status'), 'active')
+        data = view.update_observation(request, self.observation)
+        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'active')
 
     @raises(PermissionDenied)
     def test_approve_pending_with_contributor(self):
         self.observation.status = 'pending'
         self.observation.save()
 
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.patch(url)
+        request.DATA = {'properties': {'status': "active"}}
+        request.user = self.creator
+
         view = SingleObservation()
-        data = view.update_status(
-            self.observation, {'properties': {'status': "active"}}, self.creator)
-        self.assertEqual(data.get('properties').get('status'), 'pending')
+        data = view.update_observation(request, self.observation)
+        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
 
     @raises(PermissionDenied)
     def test_approve_pending_with_contributor_who_is_moderator(self):
@@ -73,58 +92,116 @@ class SingleObservationTest(TestCase):
         self.observation.status = 'pending'
         self.observation.save()
 
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.patch(url)
+        request.DATA = {'properties': {'status': "active"}}
+        request.user = self.creator
+
         view = SingleObservation()
-        data = view.update_status(
-            self.observation, {'properties': {'status': "active"}}, self.creator)
-        self.assertEqual(data.get('properties').get('status'), 'pending')
+        data = view.update_observation(request, self.observation)
+        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
 
     def test_flag_with_admin(self):
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.patch(url)
+        request.DATA = {'properties': {'status': "pending"}}
+        request.user = self.admin
+
         view = SingleObservation()
-        data = view.update_status(
-            self.observation, {'properties': {'status': 'pending'}}, self.admin)
-        self.assertEqual(data.get('properties').get('status'), 'pending')
+        data = view.update_observation(request, self.observation)
+        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
 
     def test_flag_with_moderator(self):
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.patch(url)
+        request.DATA = {'properties': {'status': "pending"}}
+        request.user = self.moderator
+
         view = SingleObservation()
-        data = view.update_status(
-            self.observation, {'properties': {'status': 'pending'}}, self.moderator)
-        self.assertEqual(data.get('properties').get('status'), 'pending')
+        data = view.update_observation(request, self.observation)
+        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
 
     def test_flag_with_contributor(self):
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.patch(url)
+        request.DATA = {'properties': {'status': "pending"}}
+        request.user = self.creator
+
         view = SingleObservation()
-        data = view.update_status(
-            self.observation, {'properties': {'status': 'pending'}}, self.creator)
-        self.assertEqual(data.get('properties').get('status'), 'pending')
+        data = view.update_observation(request, self.observation)
+        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
 
     @raises(PermissionDenied)
     def test_commit_from_draft_admin(self):
         self.observation.status = 'draft'
         self.observation.save()
 
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.patch(url)
+        request.DATA = {'properties': {'status': "active"}}
+        request.user = self.admin
+
         view = SingleObservation()
-        data = view.update_status(
-            self.observation, {'properties': {'status': 'active'}}, self.admin)
-        self.assertEqual(data.get('properties').get('status'), 'draft')
+        data = view.update_observation(request, self.observation)
+        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'draft')
 
     @raises(PermissionDenied)
     def test_commit_from_draft_with_moderator(self):
         self.observation.status = 'draft'
         self.observation.save()
 
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.patch(url)
+        request.DATA = {'properties': {'status': "active"}}
+        request.user = self.moderator
+
         view = SingleObservation()
-        data = view.update_status(
-            self.observation, {'properties': {'status': 'active'}}, self.moderator)
-        self.assertEqual(data.get('properties').get('status'), 'draft')
+        data = view.update_observation(request, self.observation)
+        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'draft')
 
     def test_commit_from_draft_with_contributor(self):
         self.observation.status = 'draft'
         self.observation.save()
 
-        view = SingleObservation()
-        data = view.update_status(
-            self.observation, {'properties': {'status': 'active'}}, self.creator)
-        self.assertEqual(data.get('properties').get('status'), 'pending')
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.patch(url)
+        request.DATA = {'properties': {'status': "active"}}
+        request.user = self.creator
 
+        view = SingleObservation()
+        data = view.update_observation(request, self.observation)
+        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
+
+    def test_commit_from_draft_with_contributor_with_data(self):
+        self.observation.status = 'draft'
+        self.observation.save()
+
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.patch(url)
+        request.DATA = {'properties': {'status': "active", 'key': 'updated'}}
+        request.user = self.creator
+
+        view = SingleObservation()
+        data = view.update_observation(request, self.observation)
+        ref = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(ref.status, 'pending')
+        self.assertEqual(ref.attributes.get('key'), 'updated')
 
 class SingleProjectObservationTest(TestCase):
     def setUp(self):

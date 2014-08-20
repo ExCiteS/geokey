@@ -101,12 +101,15 @@ class Observation(models.Model):
 
     @classmethod
     def create(cls, attributes=None, creator=None, location=None,
-               observationtype=None, project=None, status='pending'):
+               observationtype=None, project=None, status=None):
         """
         Creates a new observation. Validates all fields first and raises a
         ValidationError if at least one field did not validate.
         Creates the object if all fields are valid.
         """
+        if status == None:
+            status = 'pending'
+
         if status == 'draft':
             cls.validate_partial(observationtype, attributes)
         else:
@@ -138,11 +141,7 @@ class Observation(models.Model):
 
         self.attributes = update
         self.updator = updator
-
         self.review_comment = review_comment
-
-        # if status == 'active' and self.status == 'draft':
-        #     status = 'pending'
 
         self.status = status or self.status
 
