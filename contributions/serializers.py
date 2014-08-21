@@ -104,11 +104,15 @@ class ContributionSerializer(object):
             user = self.context.get('user')
 
             status = properties.pop('status', None)
-            review_comment = data.pop('status', None)
+            review_comment = properties.pop('review_comment', None)
 
             if instance is not None:
                 return instance.update(
-                    attributes=properties, updator=user, status=status, review_comment=review_comment)
+                    attributes=properties,
+                    updator=user,
+                    status=status,
+                    review_comment=review_comment
+                )
             else:
                 project = self.context.get('project')
 

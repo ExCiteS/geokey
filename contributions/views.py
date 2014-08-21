@@ -176,7 +176,7 @@ class SingleObservation(APIView):
                 data = {
                     'properties': {
                         'status': new_status,
-                        'review_comment': data.get('review_comment')
+                        'review_comment': data.get('properties').get('review_comment')
                     }
                 }
             elif not ((new_status == 'active' and observation.status == 'draft' and observation.creator == user) or (new_status == 'active' and observation.status == 'pending' and observation.creator != user and observation.project.can_moderate(user))):

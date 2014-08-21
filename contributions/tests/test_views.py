@@ -125,7 +125,23 @@ class SingleObservationTest(TestCase):
 
         view = SingleObservation()
         data = view.update_observation(request, self.observation)
-        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
+        ref = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(ref.status, 'pending')
+
+    def test_flag_with_moderator_and_edit(self):
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.patch(url)
+        request.DATA = {'properties': {'status': 'pending', 'key': 'updated', 'review_comment': 'check das'}}
+        request.user = self.moderator
+
+        view = SingleObservation()
+        data = view.update_observation(request, self.observation)
+        ref = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(ref.status, 'pending')
+        self.assertEqual(ref.review_comment, 'check das')
+        self.assertNotEqual(ref.attributes.get('key'), 'updated')
 
     def test_flag_with_contributor(self):
         url = reverse('api:project_all_observations', kwargs={
