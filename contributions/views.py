@@ -87,6 +87,11 @@ class ProjectObservations(APIView):
 
         data = request.DATA
         project = Project.objects.as_contributor(request.user, project_id)
+
+        if (not data.get('properties').get('status') == 'draft' and
+                project.can_moderate(user)):
+            data['properties']['status'] = 'active'
+
         serializer = ContributionSerializer(
             data=data, context={'user': user, 'project': project}
         )

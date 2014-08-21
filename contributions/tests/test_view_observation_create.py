@@ -296,6 +296,7 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 201)
+        self.assertIn('"status": "active"', response.content)
 
     def test_contribute_to_public_with_contributor(self):
         self.project.isprivate = False
@@ -303,6 +304,7 @@ class ProjectPublicApiTest(TestCase):
 
         response = self._post(self.data, self.contributor)
         self.assertEqual(response.status_code, 201)
+        self.assertIn('"status": "pending"', response.content)
 
     def test_contribute_to_public_with_view_member(self):
         self.project.isprivate = False
