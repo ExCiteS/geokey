@@ -144,10 +144,16 @@ class RuleCreate(LoginRequiredMixin, CreateView):
         view = View.objects.as_admin(self.request.user, project_id, view_id)
         observation_type = ObservationType.objects.as_admin(
             self.request.user, project_id, request.POST.get('observationtype'))
-        print request.POST
-        rules = json.loads(request.POST.get('rules'))
-        min_date = rules.pop('min_date')
-        max_date = rules.pop('max_date')
+
+        rules = None
+        min_date = None
+        max_date = None
+        try:
+            rules = json.loads(request.POST.get('rules', None))
+            min_date = rules.pop('min_date')
+            max_date = rules.pop('max_date')
+        except ValueError:
+            pass
 
         Rule.objects.create(
             view=view,
