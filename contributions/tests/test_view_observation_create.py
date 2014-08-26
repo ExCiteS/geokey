@@ -36,7 +36,8 @@ class ProjectPublicApiTest(TestCase):
 
         TextFieldFactory.create(**{
             'key': 'key_1',
-            'observationtype': self.observationtype
+            'observationtype': self.observationtype,
+            'required': True
         })
         NumericFieldFactory.create(**{
             'key': 'key_2',
@@ -242,6 +243,32 @@ class ProjectPublicApiTest(TestCase):
             },
             "properties": {
                 "key_1": "value 1",
+                "key_2": 12,
+                "contributiontype": self.observationtype.id,
+                "location": {
+                    "name": "UCL",
+                    "description": "UCL's main quad",
+                    "private": True
+                },
+                "status": "draft"
+            }
+        }
+        response = self._post(self.data, self.admin)
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('"status": "draft"', response.content)
+
+    def test_contribute_valid_draft_with_empty_required(self):
+        self.data = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -0.13404607772827148,
+                    51.52439200896907
+                ]
+            },
+            "properties": {
+                "key_1": None,
                 "key_2": 12,
                 "contributiontype": self.observationtype.id,
                 "location": {

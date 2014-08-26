@@ -138,7 +138,7 @@ class TextField(Field):
         not None and has at least one character.
         """
         if self.status == STATUS.active and self.required and (
-                value is None or len(value) == 0):
+                value is None or len(str(value)) == 0):
             raise InputError('The field %s is required.' % self.name)
 
     def validate_input(self, value):

@@ -74,7 +74,7 @@ class Observation(models.Model):
         error_messages = []
 
         for field in observationtype.fields.all().filter(status='active'):
-            if field.key in data:
+            if field.key in data and data.get(field.key) is not None:
                 try:
                     field.validate_input(data.get(field.key))
                 except InputError, error:
