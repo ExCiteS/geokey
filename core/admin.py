@@ -83,14 +83,6 @@ urlpatterns = patterns(
         dataviews.ViewAllSettings.as_view(),
         name='view_all_settings'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/observations/$',
-        dataviews.ViewObservations.as_view(),
-        name='view_observations'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/observations/(?P<observation_id>[0-9]+)$',
-        dataviews.ViewSingleObservation.as_view(),
-        name='view_single_observation'),
-    url(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/rules/new/$',
         dataviews.RuleCreate.as_view(),
         name='view_rule_create'),

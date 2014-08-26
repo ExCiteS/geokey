@@ -113,43 +113,6 @@ class ViewAllSettings(LoginRequiredMixin, TemplateView):
         return {'project': project}
 
 
-class ViewObservations(LoginRequiredMixin, TemplateView):
-    template_name = 'contributions/observations.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id, view_id):
-        """
-        Creates the request context for rendering the page
-        """
-        user = self.request.user
-        view = View.objects.get_single(user, project_id, view_id)
-        project_views = View.objects.get_list(user, project_id)
-        return {
-            'view': view,
-            'admin': view.project.is_admin(user),
-            'contributor': view.project.can_contribute(user),
-            'views': project_views
-        }
-
-
-class ViewSingleObservation(LoginRequiredMixin, TemplateView):
-    template_name = 'contributions/observation.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id, view_id, observation_id):
-        """
-        Creates the request context for rendering the page
-        """
-        user = self.request.user
-        view = View.objects.get_single(user, project_id, view_id)
-        observation = view.data.get(pk=observation_id)
-
-        return {
-            'view': view,
-            'observation': observation
-        }
-
-
 class RuleCreate(LoginRequiredMixin, CreateView):
     """
     Displays the rule create page
@@ -181,7 +144,7 @@ class RuleCreate(LoginRequiredMixin, CreateView):
         view = View.objects.as_admin(self.request.user, project_id, view_id)
         observation_type = ObservationType.objects.as_admin(
             self.request.user, project_id, request.POST.get('observationtype'))
-
+        print request.POST
         rules = json.loads(request.POST.get('rules'))
         min_date = rules.pop('min_date')
         max_date = rules.pop('max_date')
