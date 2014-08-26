@@ -163,10 +163,13 @@ class ContributionSerializer(object):
             obj.comments.filter(respondsto=None), many=True)
         json_object['comments'] = comment_serializer.data
 
+        attributes = {}
         for field in obj.observationtype.fields.all():
             value = obj.attributes.get(field.key)
             if value is not None:
-                json_object['properties'][field.key] = field.convert_from_string(value)
+                attributes[field.key] = field.convert_from_string(value)
+
+        json_object['properties']['attributes'] = attributes
 
         return json_object
 

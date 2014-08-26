@@ -180,8 +180,8 @@ class ContributionSerializerIntegrationTests(TestCase):
 
         self.assertEqual(result.get('type'), 'Feature')
         self.assertEqual(result.get('geometry'), data.get('geometry'))
-        self.assertEqual(result.get('properties').get('key_1'), 'value 1')
-        self.assertEqual(result.get('properties').get('key_2'), 12)
+        self.assertEqual(result.get('properties').get('attributes').get('key_1'), 'value 1')
+        self.assertEqual(result.get('properties').get('attributes').get('key_2'), 12)
         self.assertEqual(
             result.get('properties').get('contributiontype'),
             self.observationtype.id)
@@ -216,8 +216,8 @@ class ContributionSerializerIntegrationTests(TestCase):
 
         self.assertEqual(result.get('type'), 'Feature')
         self.assertEqual(result.get('geometry'), data.get('geometry'))
-        self.assertEqual(result.get('properties').get('key_1'), 'value 1')
-        self.assertEqual(result.get('properties').get('key_2'), 12)
+        self.assertEqual(result.get('properties').get('attributes').get('key_1'), 'value 1')
+        self.assertEqual(result.get('properties').get('attributes').get('key_2'), 12)
         self.assertEqual(
             result.get('properties').get('contributiontype'),
             self.observationtype.id)
@@ -255,8 +255,8 @@ class ContributionSerializerIntegrationTests(TestCase):
 
         self.assertEqual(result.get('type'), 'Feature')
         self.assertEqual(result.get('geometry'), data.get('geometry'))
-        self.assertEqual(result.get('properties').get('key_1'), 'value 1')
-        self.assertEqual(result.get('properties').get('key_2'), 12)
+        self.assertEqual(result.get('properties').get('attributes').get('key_1'), 'value 1')
+        self.assertEqual(result.get('properties').get('attributes').get('key_2'), 12)
         self.assertEqual(
             result.get('properties').get('contributiontype'),
             self.observationtype.id)
@@ -350,7 +350,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         self.assertEqual(
             result.get('geometry'),
             json.loads(observation.location.geometry.geojson))
-        self.assertEqual(result.get('properties').get('key'), 'value')
+        self.assertEqual(result.get('properties').get('attributes').get('key'), 'value')
         self.assertEqual(
             result.get('properties').get('contributiontype'),
             observation.observationtype.id)
@@ -395,7 +395,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         )
         result = serializer.data
 
-        self.assertEqual(result.get('properties').get('number'), 15)
+        self.assertEqual(result.get('properties').get('attributes').get('number'), 15)
 
     @raises(ValidationError)
     def test_serialize_invalid_update(self):
