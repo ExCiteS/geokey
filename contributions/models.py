@@ -100,6 +100,15 @@ class Observation(models.Model):
             raise ValidationError(error_messages)
 
     @classmethod
+    def replace_null(self, attributes):
+        for key, value in attributes.iteritems():
+            if isinstance(value, (str, unicode)) and len(value) == 0:
+                attributes[key] = None
+
+        return attributes
+
+
+    @classmethod
     def create(cls, attributes=None, creator=None, location=None,
                observationtype=None, project=None, status=None):
         """
@@ -107,6 +116,8 @@ class Observation(models.Model):
         ValidationError if at least one field did not validate.
         Creates the object if all fields are valid.
         """
+        attributes = cls.replace_null(attributes)
+
         if status == None:
             status = 'pending'
 
@@ -130,6 +141,8 @@ class Observation(models.Model):
         """
         Updates data of the observation
         """
+        attributes = self.replace_null(attributes)
+
         update = self.attributes.copy()
         update.update(attributes)
 
