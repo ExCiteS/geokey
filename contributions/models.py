@@ -147,7 +147,7 @@ class Observation(models.Model):
             attributes = self.replace_null(attributes)
             update.update(attributes)
 
-        if status == 'draft':
+        if status == 'draft' or (status is None and self.status == 'draft'):
             self.validate_partial(self.observationtype, update)
         else:
             self.validate_full(self.observationtype, update)

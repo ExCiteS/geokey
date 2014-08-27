@@ -212,6 +212,33 @@ class ObservationTest(TestCase):
             observationtype=observationtype, project=observationtype.project
         )
 
+    def test_update_draft_observation(self):
+        creator = UserF()
+        location = LocationFactory()
+        observationtype = ObservationTypeFactory()
+        TextFieldFactory.create(**{
+            'key': 'text',
+            'observationtype': observationtype,
+            'required': True
+        })
+        NumericFieldFactory.create(**{
+            'key': 'number',
+            'observationtype': observationtype
+        })
+        data = {'number': 12}
+        observation = Observation.create(
+            attributes=data, creator=creator, location=location,
+            observationtype=observationtype, project=observationtype.project,
+            status='draft'
+        )
+
+        updater = UserF()
+        update = {'number': 13}
+        observation.update(attributes=update, updator=updater)
+
+        self.assertEqual(observation.attributes.get('number'), '13')
+        self.assertEqual(observation.version, 1)
+
     @raises(ValidationError)
     def test_create_invalid_observation_with_empty_number(self):
         creator = UserF()
