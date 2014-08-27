@@ -112,7 +112,11 @@ class ProjectSerializer(FieldSelectorSerializer):
         Method for SerializerMethodField `num_observations`. Returns the
         overall number of observations contributed to the project.
         """
-        return project.observations.exclude(status='draft').count()
+        if project.can_moderate(self.context.get('user')):
+            return project.observations.exclude(status='draft').count()
+
+        return project.observations.exclude(
+            status='draft').exclude(status='pending').count()
 
     def get_user_contributions(self, project):
         """
