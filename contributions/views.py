@@ -174,6 +174,9 @@ class SingleObservation(APIView):
         """
         data = request.DATA
         user = request.user
+        if user.is_anonymous():
+            user = User.objects.get(display_name='AnonymousUser')
+
         new_status = data.get('properties').get('status')
 
         if (new_status is not None and new_status != observation.status):
@@ -199,7 +202,7 @@ class SingleObservation(APIView):
         serializer = ContributionSerializer(
             observation,
             data=data,
-            context={'user': request.user, 'project': observation.project}
+            context={'user': user, 'project': observation.project}
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -225,7 +228,15 @@ class SingleProjectObservation(SingleObservation):
     def get_object(self, user, project_id, observation_id):
         project = Project.objects.get_single(user, project_id)
         if project.can_access_all_contributions(user):
-            return project.observations.get(pk=observation_id)
+            observation = project.observations.get(pk=observation_id)
+
+            if observation.status == 'draft' or (
+                    observation.status == 'pending' and
+                    not project.can_moderate(user)):
+                raise PermissionDenied('You are not allowed to access this '
+                                       'observation')
+
+            return observation
         else:
             raise PermissionDenied('You are not allowed to access this view.')
 

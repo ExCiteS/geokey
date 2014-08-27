@@ -107,7 +107,6 @@ class ProjectSerializer(FieldSelectorSerializer):
             Q(private_for_project=project)).count()
         return locations
 
-
     def get_number_contrbutions(self, project):
         """
         Method for SerializerMethodField `num_observations`. Returns the

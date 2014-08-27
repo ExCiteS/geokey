@@ -98,16 +98,17 @@ class UpdateObservationInProject(TestCase):
 
         location = LocationFactory()
 
-        self.observation = Observation.create(
-            attributes={
+        self.observation = ObservationFactory.create(**{
+            'attributes': {
                 "key_1": "value 1",
                 "key_2": 12,
             },
-            observationtype=self.observationtype,
-            project=self.project,
-            location=location,
-            creator=self.admin
-        )
+            'observationtype': self.observationtype,
+            'project': self.project,
+            'location': location,
+            'creator': self.admin,
+            'status': 'active'
+        })
 
         self.update_data = {
             "properties": {
@@ -179,6 +180,7 @@ class UpdateObservationInProject(TestCase):
         response = self._delete(
             self.admin
         )
+
         self.assertEqual(response.status_code, 204)
         Observation.objects.get(pk=self.observation.id)
 

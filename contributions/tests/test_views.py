@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import AnonymousUser
 
 from nose.tools import raises
 from rest_framework.test import APIRequestFactory, force_authenticate
@@ -37,7 +38,8 @@ class SingleObservationTest(TestCase):
         })
         self.observation = ObservationFactory.create(**{
             'project': self.project,
-            'creator': self.creator
+            'creator': self.creator,
+            'status': 'active'
         })
 
     def test_approve_pending_with_admin(self):
@@ -155,6 +157,18 @@ class SingleObservationTest(TestCase):
         data = view.update_observation(request, self.observation)
         self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
 
+    def test_flag_with_anonymous(self):
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.patch(url)
+        request.DATA = {'properties': {'status': "pending"}}
+        request.user = AnonymousUser()
+
+        view = SingleObservation()
+        data = view.update_observation(request, self.observation)
+        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
+
     @raises(PermissionDenied)
     def test_commit_from_draft_admin(self):
         self.observation.status = 'draft'
@@ -253,7 +267,8 @@ class SingleProjectObservationTest(TestCase):
         )
         self.observation = ObservationFactory.create(**{
             'project': self.project,
-            'creator': self.creator
+            'creator': self.creator,
+            'status': 'active'
         })
 
     @raises(PermissionDenied)
@@ -274,6 +289,15 @@ class SingleProjectObservationTest(TestCase):
         view = SingleProjectObservation()
         view.get_object(
             some_dude, self.observation.project.id, self.observation.id)
+
+    @raises(PermissionDenied)
+    def test_get_draft_object_with_admin(self):
+        self.observation.status = 'draft'
+        self.observation.save()
+
+        view = SingleProjectObservation()
+        view.get_object(
+            self.admin, self.observation.project.id, self.observation.id)
 
     def test_api_with_admin(self):
         CommentFactory.create_batch(5, **{'commentto': self.observation})

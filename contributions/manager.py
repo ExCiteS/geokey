@@ -53,7 +53,7 @@ class LocationManager(models.GeoManager):
         if not location.private or location.private_for_project == project:
             return location
         else:
-            raise PermissionDenied('The location can not be used with this'
+            raise PermissionDenied('The location can not be used with this '
                                    'project.')
 
 
