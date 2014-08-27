@@ -54,7 +54,6 @@ class GetSingleObservationInProject(TestCase):
     def test_get_with_admin(self):
         response = self._get(self.admin)
         self.assertEqual(response.status_code, 200)
-        print response
 
     def test_get_with_contributor(self):
         response = self._get(self.contributor)

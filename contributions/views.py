@@ -184,11 +184,16 @@ class SingleObservation(APIView):
                         'review_comment': data.get('properties').get('review_comment')
                     }
                 }
-            elif not ((new_status == 'active' and observation.status == 'draft' and observation.creator == user) or (new_status == 'active' and observation.status == 'pending' and observation.creator != user and observation.project.can_moderate(user))):
+            elif not ((new_status == 'active' and observation.status == 'draft' and
+                observation.creator == user) or (new_status == 'active' and
+                    observation.status == 'pending' and
+                    observation.creator != user and
+                    observation.project.can_moderate(user))):
                 raise PermissionDenied('You are not allowed to update the status '
                                        'of the observation to "%s"' % new_status)
 
-        if (new_status == 'active' and observation.status == 'draft'):
+        if ((new_status == 'active' and observation.status == 'draft') and
+                not observation.project.can_moderate(user)):
             data['properties']['status'] = 'pending'
 
         serializer = ContributionSerializer(

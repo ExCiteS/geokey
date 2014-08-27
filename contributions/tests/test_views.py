@@ -169,7 +169,7 @@ class SingleObservationTest(TestCase):
 
         view = SingleObservation()
         data = view.update_observation(request, self.observation)
-        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'draft')
+        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
 
     @raises(PermissionDenied)
     def test_commit_from_draft_with_moderator(self):
@@ -185,9 +185,26 @@ class SingleObservationTest(TestCase):
 
         view = SingleObservation()
         data = view.update_observation(request, self.observation)
-        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'draft')
+        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
 
     def test_commit_from_draft_with_contributor(self):
+        self.moderators.users.add(self.creator)
+
+        self.observation.status = 'draft'
+        self.observation.save()
+
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.patch(url)
+        request.DATA = {'properties': {'status': "active"}}
+        request.user = self.creator
+
+        view = SingleObservation()
+        data = view.update_observation(request, self.observation)
+        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'active')
+
+    def test_commit_from_draft_with_contributor_who_is_moderator(self):
         self.observation.status = 'draft'
         self.observation.save()
 
