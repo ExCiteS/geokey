@@ -141,10 +141,11 @@ class Observation(models.Model):
         """
         Updates data of the observation
         """
-        attributes = self.replace_null(attributes)
-
         update = self.attributes.copy()
-        update.update(attributes)
+
+        if attributes is not None:
+            attributes = self.replace_null(attributes)
+            update.update(attributes)
 
         if status == 'draft':
             self.validate_partial(self.observationtype, update)

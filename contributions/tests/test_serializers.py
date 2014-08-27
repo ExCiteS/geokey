@@ -46,8 +46,10 @@ class RestoreLocationTest(TestCase):
                 ]
             },
             "properties": {
-                "key_1": "value 1",
-                "key_2": 12,
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                },
                 "contributiontype": self.observationtype.id,
                 "location": {
                     "name": "UCL",
@@ -161,8 +163,10 @@ class ContributionSerializerIntegrationTests(TestCase):
                 ]
             },
             "properties": {
-                "key_1": "value 1",
-                "key_2": 12,
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                },
                 "contributiontype": self.observationtype.id,
                 "location": {
                     "name": "UCL",
@@ -202,8 +206,10 @@ class ContributionSerializerIntegrationTests(TestCase):
                 ]
             },
             "properties": {
-                "key_1": "value 1",
-                "key_2": 12,
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                },
                 "contributiontype": self.observationtype.id
             }
         }
@@ -240,8 +246,10 @@ class ContributionSerializerIntegrationTests(TestCase):
                 ]
             },
             "properties": {
-                "key_1": "value 1",
-                "key_2": 12,
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                },
                 "contributiontype": self.observationtype.id,
                 "location": {"id": location.id}
             }
@@ -281,8 +289,10 @@ class ContributionSerializerIntegrationTests(TestCase):
             "properties": {
                 "location": {"id": location.id},
                 "contributiontype": self.observationtype.id,
-                "key_1": "value 1",
-                "key_2": 12
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                }
             }
         }
         ContributionSerializer(
@@ -299,8 +309,10 @@ class ContributionSerializerIntegrationTests(TestCase):
             "properties": {
                 "location": {"id": location.id},
                 "contributiontype": self.observationtype.id,
-                "key_1": "value 1",
-                "key_2": 12
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                }
             }
         }
         ContributionSerializer(
@@ -319,9 +331,11 @@ class ContributionSerializerIntegrationTests(TestCase):
                     51.52439200896907
                 ]
             },
-            "properties": {
-                "key_1": "value 1",
-                "key_2": "blah",
+            "properties": {                
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": "blah"
+                },
                 "contributiontype": self.observationtype.id,
                 "location": {
                     "name": "UCL",
@@ -388,7 +402,9 @@ class ContributionSerializerIntegrationTests(TestCase):
             observation,
             data={
                 'properties': {
-                    'number': 15
+                    'attributes' : {
+                        'number': 15
+                    }
                 }
             },
             context={'user': self.contributor, 'project': self.project}
@@ -408,7 +424,10 @@ class ContributionSerializerIntegrationTests(TestCase):
             observation,
             data={
                 'properties': {
-                    'number': "blah"
+                    'attributes' : {
+                        'number': "blah"
+                    }   
+                    
                 }
             },
             context={'user': self.contributor, 'project': self.project}

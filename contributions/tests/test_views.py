@@ -210,7 +210,14 @@ class SingleObservationTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "active", 'key': 'updated'}}
+        request.DATA = {
+            'properties': {
+                'status': "active",
+                'attributes': {
+                    'key': 'updated'
+                }
+            }
+        }
         request.user = self.creator
 
         view = SingleObservation()

@@ -54,6 +54,7 @@ class GetSingleObservationInProject(TestCase):
     def test_get_with_admin(self):
         response = self._get(self.admin)
         self.assertEqual(response.status_code, 200)
+        print response
 
     def test_get_with_contributor(self):
         response = self._get(self.contributor)
@@ -111,8 +112,10 @@ class UpdateObservationInProject(TestCase):
 
         self.update_data = {
             "properties": {
-                "version": 1,
-                "key_2": 15,
+                "attributes": {
+                    "version": 1,
+                    "key_2": 15
+                }
             }
         }
 
@@ -154,7 +157,7 @@ class UpdateObservationInProject(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-        data = {"properties": {"version": 1, "key_2": 2}}
+        data = {"properties": {"attributes": {"version": 1, "key_2": 2}}}
         response = self._patch(
             data,
             self.admin
@@ -350,8 +353,10 @@ class UpdateObservationInView(TestCase):
 
         self.update_data = {
             "properties": {
-                "version": 1,
-                "key_2": 15,
+                "attributes": {
+                    "version": 1,
+                    "key_2": 15
+                }
             }
         }
 
@@ -395,7 +400,7 @@ class UpdateObservationInView(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-        data = {"properties": {"version": 1, "key_2": 2}}
+        data = {"properties": {"attributes": {"version": 1, "key_2": 2}}}
         response = self._patch(data, self.admin)
         self.assertEqual(response.status_code, 200)
 
@@ -551,8 +556,10 @@ class UpdateMyObservation(TestCase):
 
         self.update_data = {
             "properties": {
-                "version": 1,
-                "key_2": 15,
+                "attributes": {
+                    "version": 1,
+                    "key_2": 15
+                }
             }
         }
 

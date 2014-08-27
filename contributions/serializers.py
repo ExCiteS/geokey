@@ -101,6 +101,7 @@ class ContributionSerializer(object):
     def restore_object(self, instance=None, data=None):
         if data is not None:
             properties = data.get('properties')
+            attributes = properties.get('attributes')
             user = self.context.get('user')
 
             status = properties.pop('status', None)
@@ -108,7 +109,7 @@ class ContributionSerializer(object):
 
             if instance is not None:
                 return instance.update(
-                    attributes=properties,
+                    attributes=attributes,
                     updator=user,
                     status=status,
                     review_comment=review_comment
@@ -130,7 +131,7 @@ class ContributionSerializer(object):
                 )
 
                 return Observation.create(
-                    attributes=properties,
+                    attributes=attributes,
                     creator=user,
                     location=location,
                     project=observationtype.project,

@@ -56,8 +56,10 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "key_1": "value 1",
-                "key_2": 12,
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                },
                 "contributiontype": self.observationtype.id,
                 "location": {
                     "name": "UCL",
@@ -97,8 +99,10 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "key_1": 12,
-                "key_2": "jsdbdjhsb",
+                "attributes": {
+                    "key_1": 12,
+                    "key_2": "jsdbdjhsb"
+                },
                 "contributiontype": self.observationtype.id,
                 "location": {
                     "name": "UCL",
@@ -122,8 +126,10 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "key_1": 12,
-                "key_2": 2000,
+                "attributes": {
+                    "key_1": 12,
+                    "key_2": 2000
+                },
                 "contributiontype": self.observationtype.id,
                 "location": {
                     "name": "UCL",
@@ -149,8 +155,10 @@ class ProjectPublicApiTest(TestCase):
                     "private": location.private
                 },
                 "contributiontype": self.observationtype.id,
-                "key_1": "value 1",
-                "key_2": 12
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                }
             }
         }
 
@@ -174,8 +182,10 @@ class ProjectPublicApiTest(TestCase):
                     "private": location.private
                 },
                 "contributiontype": self.observationtype.id,
-                "key_1": "value 1",
-                "key_2": 12
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                }
             }
         }
         response = self._post(data, self.admin)
@@ -199,8 +209,10 @@ class ProjectPublicApiTest(TestCase):
                     "private": location.private
                 },
                 "contributiontype": self.observationtype.id,
-                "key_1": "value 1",
-                "key_2": 12
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                }
             }
         }
 
@@ -223,8 +235,10 @@ class ProjectPublicApiTest(TestCase):
                     "private": location.private
                 },
                 "contributiontype": self.observationtype.id,
-                "key_1": "value 1",
-                "key_2": 12
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                }
             }
         }
 
@@ -242,8 +256,10 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "key_1": "value 1",
-                "key_2": 12,
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                },
                 "contributiontype": self.observationtype.id,
                 "location": {
                     "name": "UCL",
@@ -268,8 +284,10 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "key_1": None,
-                "key_2": 12,
+                "attributes": {
+                    "key_1": None,
+                    "key_2": 12
+                },
                 "contributiontype": self.observationtype.id,
                 "location": {
                     "name": "UCL",
@@ -294,8 +312,10 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "key_1": "value 1",
-                "key_2": "Blah",
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 'Blah'
+                },
                 "contributiontype": self.observationtype.id,
                 "location": {
                     "name": "UCL",
