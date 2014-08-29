@@ -153,10 +153,14 @@ class Observation(models.Model):
             self.validate_full(self.observationtype, update)
             self.version = self.version + 1
 
+        if status == 'pending':
+            self.review_comment = review_comment
+
+        if status == 'active':
+            self.review_comment = None            
+
         self.attributes = update
         self.updator = updator
-        self.review_comment = review_comment
-
         self.status = status or self.status
 
         self.save()
