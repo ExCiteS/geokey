@@ -189,10 +189,16 @@ class RuleSettings(LoginRequiredMixin, TemplateView):
         view = View.objects.as_admin(self.request.user, project_id, view_id)
         rule = view.rules.get(pk=rule_id)
 
-        rules = json.loads(request.POST.get('rules'))
+        rules = None
+        min_date = None
+        max_date = None
 
-        rule.min_date = rules.pop('min_date')
-        rule.max_date = rules.pop('max_date')
+        try:
+            rules = json.loads(request.POST.get('rules'))
+            rule.min_date = rules.pop('min_date')
+            rule.max_date = rules.pop('max_date')
+        except ValueError:
+            pass
 
         rule.filters = rules
         rule.save()

@@ -34,8 +34,8 @@
                 <div class="col-sm-12">
                     <ul class="nav nav-tabs">
                         <li class="active"><a href="#users" data-toggle="tab">User permissions</a></li>
-                        <li><a href="#maps" data-toggle="tab">Maps</a></li>
                         <li><a href="#contributiontypes" data-toggle="tab">Contribution types</a></li>
+                        <li><a href="#maps" data-toggle="tab">Maps</a></li>
                         <li><a href="#general-settings" data-toggle="tab">General</a></li>
                     </ul>
                 </div>
@@ -48,7 +48,7 @@
                     <div class="panel panel-default" id="usergroup-users"> <!-- Administrators list -->
                         <div class="panel-heading">
                             <h2 class="panel-title">Administrators</h2>
-                            <p>Members of this group can edit and delete the project, create and alter views as well as access, edit and remove all data contributed to the project.<p>
+                            <p>Members of this group can edit and delete the project, create and alter maps as well as access, edit and remove all data contributed to the project.<p>
                         </div>
 
                         {% include 'snippets/usergroup-editor.html' with users=project.admins.all %}
@@ -119,7 +119,7 @@
                 <div class="col-sm-8 col-sm-offset-2">
                     <div class="panel panel-default"> <!-- Observation type list List -->
                         <div class="panel-heading">
-                            <h2 class="panel-title">Observation types in this project</h2>
+                            <h2 class="panel-title">Contribution types in this project</h2>
                         </div>
                         <div class="list-group">
                             {% for observationtype in project.observationtypes.all %}
@@ -147,7 +147,7 @@
                             <h2 class="panel-title">Make this project public</h2>
                         </div>
                         <div class="panel-body">
-                            <p>A public project is accessible to every registered user of the platform. However, access to data contributed to the project may still be restricted by settings of individual views.</p>
+                            <p>A public project is accessible to every registered user of the platform. However, access to data contributed to the project may still be restricted by settings of individual maps.</p>
                             <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#make-public-confirm">Make public</button>
                         </div>
                     </div>

@@ -21,7 +21,7 @@
 				<form class="form-inline hidden" id="description-form" role="form">
 					{% csrf_token %}
 					<div class="form-group">
-						<label class="sr-only" for="desription">Observation type description</label>
+						<label class="sr-only" for="desription">Contribution type description</label>
 						<input type="text" class="form-control" id="description" name="description" placeholder="Enter a contribution type desription" {% if observationtype.description %}value="{{observationtype.description}}"{% endif %}>
 					</div>
 					<button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>

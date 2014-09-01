@@ -5,7 +5,7 @@
 {% block main %}
         <div class="page-header">
             <div class="container">
-                <h1>Welcome back, {{user.display_name}}.</h1>
+                <h1>Welcome, {{user.display_name}}.</h1>
             </div>
         </div>
         <div class="container">
@@ -50,7 +50,7 @@
                 <div class="col-sm-6">
                     <h3>Applications <a href="{% url 'admin:app_register' %}" class="pull-right btn btn-sm btn-success"><span class="glyphicon glyphicon-plus"></span> Register an application</a></h3>
                     <div class="panel panel-default">
-                        <div class="panel-heading">Manage your apps</div>
+                        <div class="panel-heading"><strong>Manage your applications</strong></div>
                         <div class="list-group">
                         {% for app in apps %}
                             <a href="{% url 'admin:app_settings' app.id %}" class="list-group-item">
