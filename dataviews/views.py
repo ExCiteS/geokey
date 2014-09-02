@@ -148,6 +148,7 @@ class RuleCreate(LoginRequiredMixin, CreateView):
         rules = None
         min_date = None
         max_date = None
+
         try:
             rules = json.loads(request.POST.get('rules', None))
             min_date = rules.pop('min_date')

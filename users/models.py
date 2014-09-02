@@ -65,7 +65,7 @@ class ViewUserGroup(models.Model):
     """
     usergroup = models.ForeignKey('UserGroup', related_name="viewgroups")
     view = models.ForeignKey('dataviews.View', related_name="usergroups")
-    can_read = models.BooleanField(default=False)
+    can_read = models.BooleanField(default=True)
     can_view = models.BooleanField(default=True)
 
     unique_together = ('usergroup', 'view')
