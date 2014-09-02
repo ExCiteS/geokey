@@ -86,7 +86,8 @@ class ProjectSerializer(FieldSelectorSerializer):
         maps = View.objects.get_list(user, project.id)
         view_serializer = ViewSerializer(
             maps, many=True,
-            fields=('id', 'name', 'description', 'num_contributions'))
+            fields=('id', 'name', 'description', 'num_contributions'),
+            context={'user': user})
         return view_serializer.data
 
     def get_number_maps(self, project):

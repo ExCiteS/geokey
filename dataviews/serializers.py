@@ -44,4 +44,8 @@ class ViewSerializer(FieldSelectorSerializer):
         """
         Returns the number of contributions accessable through the view.
         """
-        return len(obj.data)
+        user = self.context.get('user')
+        if (obj.project.can_moderate(user)):
+            return len(obj.data.for_moderator())
+        else:
+            return len(obj.data.for_viewer())

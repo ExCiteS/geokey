@@ -50,12 +50,12 @@ class Dashboard(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard.html'
 
     def get_context_data(self):
+        projects = Project.objects.get_list(self.request.user)
+
         return {
             'stats': self.request.user.get_stats(),
-            'admin_projects': Project.objects.get_list(
-                self.request.user).filter(admins=self.request.user),
-            'involved_projects': Project.objects.get_list(
-                self.request.user).exclude(admins=self.request.user),
+            'admin_projects': projects.filter(admins=self.request.user),
+            'involved_projects': projects.exclude(admins=self.request.user),
             'apps': Application.objects.get_list(self.request.user),
             'status_types': STATUS
         }
