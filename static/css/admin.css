@@ -193,23 +193,6 @@ span.number {
 	display: block;
 }
 
-div#map {
-	height: 500px;
-	transition: width 0.2s ease;
-	-moz-transition: width 0.2s ease; /* Firefox 4 */
-	-webkit-transition: width 0.2s ease; /* Safari and Chrome */
-	-o-transition: width 0.2s ease;
-}
-
-#observation-map {
-	height: 200px;
-	margin-bottom: 1em;
-}
-
-.leaflet-container a.btn {
-	color: #fff;
-}
-
 .panel-title + p {
 	margin-top: 0.5em;
 }
@@ -234,28 +217,6 @@ ul.type-away {
 	border-bottom-left-radius: 3px;
 	border-bottom-right-radius: 3px;
 }
-
-ol.comments > li {
-	margin-bottom: 2em;
-	padding-left: 19px;
-}
-
-	ol.comments > li > header {
-		margin-left: -19px;
-		color: #999;
-	}
-
-		ol.comments > li > header > span {
-			margin-right: 5px;
-		}
-
-	ol.comments > li > footer {
-		margin-bottom: 1em;
-	}
-
-	ol.comments > li > ol.comments {
-		margin-left: 30px;
-	}
 
 .field-filter {
 	padding: 15px 5px;
@@ -284,3 +245,23 @@ footer {
 footer p {
 	margin: 0;
 }
+
+
+div.project {
+	display: block;
+	border-top: 1px solid #ddd;
+	padding: 1.5em 0;
+}
+
+	div.project h3 a {
+		text-decoration: none;
+	}
+
+	div.project h3 span.label {
+		font-size: 0.5em;
+	}
+
+	div.project p.meta {
+		color: #999;
+		margin-bottom: 0;
+	}	
