@@ -40,7 +40,8 @@ class ProjectSerializer(FieldSelectorSerializer):
                   'everyone_contributes', 'status',
                   'created_at', 'contributiontypes', 'maps', 'num_maps',
                   'num_contributions', 'num_locations', 'user_contributions',
-                  'is_admin', 'can_contribute', 'is_involved', 'can_moderate')
+                  'is_admin', 'can_contribute', 'is_involved', 'can_moderate',
+                  'can_access_all_contributions')
         read_only_fields = ('id', 'name')
 
     def get_contributiontypes(self, project):

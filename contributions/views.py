@@ -119,7 +119,7 @@ class ProjectObservationsView(APIView):
             )
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            raise PermissionDenied('You are not allowed to access this view.')
+            raise PermissionDenied('You are not allowed to access this map.')
 
 
 class MyObservations(APIView):
