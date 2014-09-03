@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block bodydata %} data-app-id="{{app.id}}"{% endblock %}
-{% block title %} | Applcation: {{app.name}}{% endblock %}
+{% block bodydata %} data-app-id="{{application.id}}"{% endblock %}
+{% block title %} | Application: {{application.name}}{% endblock %}
 
 {% block main %}
     {% csrf_token %}
@@ -11,63 +11,50 @@
                 <ol class="breadcrumb">
                     <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
                     <li><a href="{% url 'admin:app_overview' %}">Your applications</a></li>
-                    <li class="active">{{ app.name }}: Settings</li>
+                    <li class="active">{{ application.name }}: Settings</li>
                 </ol>
 
-                <h1>{{app.name}}</h1>
-                <p class="lead">
-                    <span id="descriptionText">{% if app.description %} {{app.description}} {% endif %}</span>
-                    <button id="edit" type="button" class="btn btn-link"><span class="glyphicon glyphicon-edit"></span> Edit</button>
-                </p>
-                <form class="form-inline hidden" id="description-form" role="form">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label class="sr-only" for="desription">app description</label>
-                        <input type="text" class="form-control" id="description" name="description" placeholder="Enter a application desription" {% if app.description %}value="{{app.description}}"{% endif %}>
-                    </div>
-                    <button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
-                    <button type="button" class="btn btn-link">Cancel</button>
-                </form>
+                <h1>{{application.name}}</h1>
+                {% if application.description %}
+                    <p class="lead">{{application.description}}</p>
+                {% endif %}
             </div>
         </div>
 
         <div class="container">
             <div class="row">
-                <form role="form" id="appForm" class="form-horizontal col-md-8 col-md-offset-2" novalidate>
+                <form role="form" id="appForm" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url 'admin:app_settings' application.id %}" novalidate>
+                    {% for message in messages %}
+                    <div class="alert alert-success alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        {{message}}
+                    </div>
+                    {% endfor %}
                     {% csrf_token %}
+
                     <div class="form-group">
-                        <label for="name" class="col-sm-4 control-label">Client ID</label>
-                        <div class="col-sm-8">
-                            <p class="form-control-static">{{ app.client.client_id }}</p>
-                        </div>
+                        <label for="name" class="control-label">Name (required)</label>
+                        <input type="text" class="form-control input-lg" id="name" name="name" value="{{ application.name }}" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="description" class="col-sm-4 control-label">Client Secret</label>
-                        <div class="col-sm-8">
-                            <p class="form-control-static">{{ app.client.client_secret }}</p>
-                        </div>
+                        <label for="description" class="control-label">Description</label>
+                        <textarea class="form-control input-lg" id="description" name="description" rows="5" placeholder="Add a description">{{ application.description }}</textarea>
                     </div>
 
                     <div class="form-group">
-                        <label for="download_url" class="col-sm-4 control-label">Download / welcome page url</label>
-                        <div class="col-sm-8">
-                            <input type="url" class="form-control" id="download_url" name="download_url" value="{{ app.download_url }}" required>
-                        </div>
+                        <label for="download_url" class="control-label">Download / welcome page url (required)</label>
+                        <input type="url" class="form-control input-lg" id="download_url" name="download_url" value="{{ application.download_url }}" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="description" class="col-sm-4 control-label">Redirect URL</label>
-                        <div class="col-sm-8">
-                            <input type="url" class="form-control" id="redirect_url" value="{{ app.redirect_url }}" name="redirect_url" required>
-                        </div>
+                        <label for="description" class="control-label">Redirect URL (required)</label>
+                        <input type="url" class="form-control input-lg" id="redirect_url" value="{{ application.redirect_url }}" name="redirect_url" required>
                     </div>
 
                     <div class="form-group">
-                        <div class="col-sm-offset-4 col-sm-8">
-                            <button type="submit" class="btn btn-primary">Save</button>
-                            <button type="reset" class="btn btn-default">Reset</button>
-                        </div>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="reset" class="btn btn-default">Reset</button>
                     </div>
                 </form>
             </div>
@@ -113,9 +100,8 @@
 
 {% block libraries %}
             <script src="/static/js/admin.ui.forms.validate.js"></script>
-            <script src="/static/js/admin.ui.messages.js"></script>
-            <script src="/static/js/admin.ui.descriptioneditor.js"></script>
-            <script src="/static/js/admin.ui.updater.js"></script>
-            <script src="/static/js/admin.ui.apps.js"></script>
-            <script src="/static/js/admin.control.ajax.js"></script>
+            <!-- <script src="/static/js/admin.ui.messages.js"></script> -->
+            <!-- <script src="/static/js/admin.ui.updater.js"></script> -->
+            <!-- <script src="/static/js/admin.ui.apps.js"></script> -->
+            <!-- <script src="/static/js/admin.control.ajax.js"></script> -->
 {% endblock %}

@@ -120,7 +120,6 @@ class FieldCreate(LoginRequiredMixin, CreateView):
         context['fieldtypes'] = Field.get_field_types()
         context['key_error'] = key_error
         if key_error:
-            print key_error
             context['data'] = data
         return context
 

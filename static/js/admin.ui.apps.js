@@ -43,6 +43,7 @@ $(function() {
             for (var i = 0, len = form.length; i < len; i++) {
                 values[form[i].name] = form[i].value;
             }
+
             Control.Ajax.put(url, handleAppUpdateSuccess, handleAppUpdateError, values);
         }
         event.preventDefault();

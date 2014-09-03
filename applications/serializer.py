@@ -13,4 +13,4 @@ class AppSerializer(serializers.ModelSerializer):
         depth = 1
         fields = ('id', 'name', 'description', 'status', 'download_url',
                   'redirect_url')
-        read_only_fields = ('id', 'name')
+        read_only_fields = ('id',)

@@ -1,5 +1,6 @@
-from django.views.generic import CreateView, TemplateView
+from django.views.generic import CreateView, TemplateView, UpdateView
 from django.core.urlresolvers import reverse
+from django.contrib import messages
 
 from braces.views import LoginRequiredMixin
 from rest_framework import status
@@ -73,15 +74,32 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         return super(ApplicationCreate, self).form_valid(form)
 
 
-class ApplicationSettings(LoginRequiredMixin, TemplateView):
+class ApplicationSettings(LoginRequiredMixin, UpdateView):
     """
     Displays the Application Settings page.
     `/admin/apps/settings`
     """
+    form_class = AppCreateForm
+    model = Application
+    fields = ['name', 'description', 'download_url', 'redirect_url']
     template_name = 'applications/application_settings.html'
 
+    def get_success_url(self):
+        """
+        Returns the redirect url to be called after successful app updating
+        """
+        return reverse(
+            'admin:app_settings',
+            kwargs={'pk': self.object.id}
+        )
+
+    def form_valid(self, form):
+        messages.success(
+            self.request, "The application has been updated successfully")
+        return super(ApplicationSettings, self).form_valid(form)  
+
     @handle_exceptions_for_admin
-    def get_context_data(self, app_id, **kwargs):
+    def get_context_data(self, **kwargs):
         """
         Returns the context data for the page. If the user is not owner of the
         requested application, `PermissionDenied` is caught and handled in the
@@ -89,11 +107,9 @@ class ApplicationSettings(LoginRequiredMixin, TemplateView):
         displayed.
         """
         context = super(ApplicationSettings, self).get_context_data(**kwargs)
-
-        app = Application.objects.as_owner(self.request.user, app_id)
-        context['app'] = app
-
+        print context.get('form')
         return context
+
 
 
 # ############################################################################
