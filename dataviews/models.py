@@ -50,7 +50,10 @@ class View(models.Model):
         """
         Returns if the user can view data of the view.
         """
-        return ((user.is_anonymous() and not self.isprivate) or
+        if user.is_anonymous():
+            return not self.isprivate
+
+        return (not self.isprivate or
                 self.project.is_admin(user) or
                 self.usergroups.filter(
                     usergroup__users=user, can_view=True).exists())
@@ -59,7 +62,10 @@ class View(models.Model):
         """
         Returns if the user can read data of the view.
         """
-        return ((user.is_anonymous() and not self.isprivate) or
+        if user.is_anonymous():
+            return not self.isprivate
+
+        return (not self.isprivate or
                 self.project.is_admin(user) or
                 self.usergroups.filter(
                     usergroup__users=user, can_read=True).exists())
