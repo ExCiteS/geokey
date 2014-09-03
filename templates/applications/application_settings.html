@@ -91,7 +91,7 @@
                         </ul>
                     </div>
                     <div class="modal-footer panel-footer">
-                        <button type="button" name="confirm" value="{{status_types.active}}" class="btn btn-danger" data-dismiss="modal">Yes, delete the application.</button>
+                        <a href="{% url 'admin:app_delete' application.id %}" class="btn btn-danger">Yes, delete the application.</a>
                     </div>
                 </div>
             </div>
@@ -100,8 +100,4 @@
 
 {% block libraries %}
             <script src="/static/js/admin.ui.forms.validate.js"></script>
-            <!-- <script src="/static/js/admin.ui.messages.js"></script> -->
-            <!-- <script src="/static/js/admin.ui.updater.js"></script> -->
-            <!-- <script src="/static/js/admin.ui.apps.js"></script> -->
-            <!-- <script src="/static/js/admin.control.ajax.js"></script> -->
 {% endblock %}

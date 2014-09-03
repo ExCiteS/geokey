@@ -81,14 +81,6 @@ urlpatterns = patterns(
         name='all_contributions_view'),
 
     # ###########################
-    # APPS
-    # ###########################
-    url(
-        r'^apps/(?P<app_id>[0-9]+)/$',
-        app_views.ApplicationUpdate.as_view(),
-        name='app_update'),
-
-    # ###########################
     # USER
     # ###########################
     url(r'^users/$', user_views.QueryUsers.as_view(), name='users_users'),

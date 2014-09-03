@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block bodydata %} data-app-id="{{application.id}}"{% endblock %}
+{% block title %} | Application: {{application.name}}{% endblock %}
+
+{% block main %}
+    {% csrf_token %}
+
+    <div class="page-header">
+            <div class="container">
+                <ol class="breadcrumb">
+                    <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
+                    <li><a href="{% url 'admin:app_overview' %}">Your applications</a></li>
+                    <li class="active">{{ application.name }}: Settings</li>
+                </ol>
+
+                <h1>{{application.name}}</h1>
+                {% if application.description %}
+                    <p class="lead">{{application.description}}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2">
+                    <div class="alert alert-success alert-dismissible" role="alert">
+                        The application has been deleted. Return to <a href="{% url 'admin:app_overview' %}">Your applications</a>.
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}

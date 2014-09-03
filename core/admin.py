@@ -107,6 +107,10 @@ urlpatterns = patterns(
         r'^apps/(?P<pk>[0-9]+)/$',
         app_views.ApplicationSettings.as_view(),
         name='app_settings'),
+    url(
+        r'^apps/(?P<app_id>[0-9]+)/delete/$',
+        app_views.ApplicationDelete.as_view(),
+        name='app_delete'),
 
     # ###########################
     # USERS
