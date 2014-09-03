@@ -23,6 +23,23 @@ from .serializer import AppSerializer
 #
 # ############################################################################
 
+
+class ApplicationOverview(LoginRequiredMixin, TemplateView):
+    """
+    Displays an overview of all apps a developer has registered
+    `/admin/apps/`
+    """
+    template_name = 'applications/application_overview.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationOverview, self).get_context_data(**kwargs)
+
+        context['apps'] = Application.objects.get_list(self.request.user)
+
+        return context
+
+
 class ApplicationCreate(LoginRequiredMixin, CreateView):
     """
     Displays the Create Application page.

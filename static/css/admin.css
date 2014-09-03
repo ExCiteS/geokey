@@ -246,22 +246,30 @@ footer p {
 	margin: 0;
 }
 
+div.well.empty-list {
+	text-align: center;
+	margin-top: 2em;
+}
 
-div.project {
+div.overview-list-item {
 	display: block;
 	border-top: 1px solid #ddd;
 	padding: 1.5em 0;
 }
+	
+	div.overview-list-item h3:last-child {
+		margin-bottom: 0;
+	}
 
-	div.project h3 a {
+	div.overview-list-item h3 a {
 		text-decoration: none;
 	}
 
-	div.project h3 span.label {
+	div.overview-list-item h3 span.label {
 		font-size: 0.5em;
 	}
 
-	div.project p.meta {
+	div.overview-list-item p.meta {
 		color: #999;
 		margin-bottom: 0;
 	}	

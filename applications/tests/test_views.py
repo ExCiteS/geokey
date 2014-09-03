@@ -10,9 +10,30 @@ from nose.tools import raises
 from projects.tests.model_factories import UserF
 
 from ..models import Application
-from ..views import ApplicationCreate, ApplicationSettings, ApplicationUpdate
+from ..views import (
+    ApplicationOverview, ApplicationCreate, ApplicationSettings,
+    ApplicationUpdate
+)
 
 from .model_factories import ApplicationFactory
+
+
+class ApplicationOverviewTest(TestCase):
+    def test_get_with_user(self):
+        view = ApplicationOverview.as_view()
+        url = reverse('admin:app_overview')
+        request = APIRequestFactory().get(url)
+        request.user = UserF.create()
+        response = view(request).render()
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_anonymous(self):
+        view = ApplicationOverview.as_view()
+        url = reverse('admin:app_overview')
+        request = APIRequestFactory().get(url)
+        request.user = AnonymousUser()
+        response = view(request)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
 
 
 class ApplicationCreateTest(TestCase):

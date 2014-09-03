@@ -96,6 +96,10 @@ urlpatterns = patterns(
     # ###########################
 
     url(
+        r'^apps/$',
+        app_views.ApplicationOverview.as_view(),
+        name='app_overview'),
+    url(
         r'^apps/register/$',
         app_views.ApplicationCreate.as_view(),
         name='app_register'),

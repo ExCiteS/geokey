@@ -10,19 +10,27 @@
         </div>
         <div class="container">
             <div class="row">
-                <div class="col-sm-8">
-                    <h2>Mangage your projects <a href="{% url 'admin:project_create' %}" class="pull-right btn btn-sm btn-success"><span class="glyphicon glyphicon-plus"></span> Create new Project</a></h2>
+                <div class="col-md-8">
+                    <h2>
+                        Mangage your projects
+                        {% if admin_projects %} <a href="{% url 'admin:project_create' %}" class="pull-right btn btn-sm btn-success"><span class="glyphicon glyphicon-plus"></span> Create new Project</a>{% endif %}
+                    </h2>
                     {% for project in admin_projects %}
-                    <div class="project">
+                    <div class="overview-list-item">
                         <h3><a href="{% url 'admin:project_settings' project.id %}">{{project.name}}</a> {% if project.status == status_types.inactive %}<span class="label label-default">INACTIVE</span>{% endif %}</h3>
                         {% if project.description %}<p>{{project.description}}</p>{% endif %}
                         <p class="meta">Created by {{ project.creator.display_name }}</p>
                     </div>
                     {% empty %}
-                        <p>You are not eligible to manage a project. <a href="{% url 'admin:project_create' %}">How about creating your own project?</a></p>
+                        <div class="well empty-list">
+                            <p class="lead">We couldn't find any projects, your are eligable in manange.</p>
+                            <p>You can create a new project, if you want to start your own community map.</p>
+                            <a href="{% url 'admin:project_create' %}" class="btn btn-success btn-lg">Create a new project</a>
+                        </div>
                     {% endfor %}
                 </div>
-                <div class="col-sm-4">
+                <div class="col-md-4">
+                    {% if involved_projects %}
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             Here other projects, you are not an adminsitrator of. In order to view, contribute or moderate data please use your client application of choice.
@@ -36,9 +44,10 @@
                             {% endfor %}
                         </div>
                     </div>
+                    {% endif %}
                     <div class="alert alert-info">
                         <h5><strong>Are you an application devloper?</strong></h5>
-                        <p>Plese go the the <a href="">developer section</a> to register and manage your application.</p>
+                        <p>Plese go the the <a href="{% url 'admin:app_overview' %}">developer section</a> to register and manage your application.</p>
                     </div>
                 </div>
             </div>
