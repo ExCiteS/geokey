@@ -19,20 +19,30 @@
 
         <div class="container">
             <div class="row">
-                <div class="col-sm-12">
-                    <p class="lead">You are a {{role}} of this project.</p>
+                <div class="col-sm-3">
+                    {% if role == 'administrator' %}
+                    <div class="list-group">
+                        <a href="#" class="list-group-item"><span class="badge">{{ project.observationtypes.count }}</span>Categories</a>
+                        <a href="#" class="list-group-item"><span class="badge">{{ project.views.count }}</span>Data groupings</a>
+                        <a href="#" class="list-group-item"><span class="badge">{{ project.usergroups.count }}</span>User groups</a>
+                        <a href="{% url 'admin:project_settings' project.id %}" class="list-group-item">Settings</a>
+                    </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            You are a {{role}} of this project.
+                        </div>
+                    {% endif %}
+                    
                 </div>
-            </div>
-            <div class="row">
                 {% if role != 'Watcher' %}
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
                         <span class="number">{{ contributions }}</span> contributions you have made to the project.    
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
                         <span class="number">{{ maps }}</span> maps you can access.    
                     </div>
                 {% else %}
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
                         You can not contribute to this project, but there are
                         <span class="number">{{ maps }}</span> maps you can access.    
                     </div>

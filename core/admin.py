@@ -27,12 +27,12 @@ urlpatterns = patterns(
         name='project_create'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/$',
-        project_views.ProjectSettings.as_view(),
-        name='project_settings'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/stats/$',
         project_views.ProjectOverview.as_view(),
         name='project_overview'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/settings/$',
+        project_views.ProjectSettings.as_view(),
+        name='project_settings'),
 
 
     # ###########################

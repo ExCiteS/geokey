@@ -287,6 +287,5 @@ span.number {
 }
 
 .app-meta p.users span.number {
-	display: inline;
 	color: #333;
 }
