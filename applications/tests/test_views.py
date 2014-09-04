@@ -12,13 +12,14 @@ from projects.tests.model_factories import UserF
 from ..models import Application
 from ..views import (
     ApplicationOverview, ApplicationCreate, ApplicationSettings,
-    ApplicationUpdate
+    ApplicationDelete
 )
 
 from .model_factories import ApplicationFactory
 
 
 class ApplicationOverviewTest(TestCase):
+
     def test_get_with_user(self):
         view = ApplicationOverview.as_view()
         url = reverse('admin:app_overview')
@@ -34,9 +35,6 @@ class ApplicationOverviewTest(TestCase):
         request.user = AnonymousUser()
         response = view(request)
         self.assertTrue(isinstance(response, HttpResponseRedirect))
-
-
-# class ApplicationDeleteTest(TestCase)
 
 
 class ApplicationCreateTest(TestCase):
@@ -91,6 +89,48 @@ class ApplicationSettingsTest(TestCase):
     def test_get_with_anonymous(self):
         view = ApplicationSettings.as_view()
         url = reverse('admin:app_settings', kwargs={'app_id': self.app.id})
+        request = APIRequestFactory().get(url)
+        request.user = AnonymousUser()
+        response = view(request, app_id=self.app.id)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+
+class ApplicationDeleteTest(TestCase):
+    def setUp(self):
+        self.creator = UserF.create()
+        self.app = ApplicationFactory.create(**{'creator': self.creator})
+
+    def test_get_with_creator(self):
+        view = ApplicationDelete.as_view()
+        url = reverse('admin:app_delete', kwargs={'app_id': self.app.id})
+        request = APIRequestFactory().get(url)
+
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        request.user = self.creator
+        response = view(request, app_id=self.app.id)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+    def test_get_with_user(self):
+        view = ApplicationDelete.as_view()
+        url = reverse('admin:app_delete', kwargs={'app_id': self.app.id})
+        request = APIRequestFactory().get(url)
+        request.user = UserF.create()
+        response = view(request, app_id=self.app.id).render()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'You are not the owner of this application and therefore not '
+            'allowed to access this app.'
+        )
+
+    def test_get_with_anonymous(self):
+        view = ApplicationDelete.as_view()
+        url = reverse('admin:app_delete', kwargs={'app_id': self.app.id})
         request = APIRequestFactory().get(url)
         request.user = AnonymousUser()
         response = view(request, app_id=self.app.id)

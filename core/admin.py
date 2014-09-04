@@ -104,7 +104,7 @@ urlpatterns = patterns(
         app_views.ApplicationCreate.as_view(),
         name='app_register'),
     url(
-        r'^apps/(?P<pk>[0-9]+)/$',
+        r'^apps/(?P<app_id>[0-9]+)/$',
         app_views.ApplicationSettings.as_view(),
         name='app_settings'),
     url(

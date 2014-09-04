@@ -1,13 +1,15 @@
-from django.views.generic import CreateView, TemplateView, UpdateView, DeleteView
+from django.views.generic import CreateView, TemplateView, UpdateView, RedirectView
 from django.core.urlresolvers import reverse
 from django.contrib import messages
+from django.db.models import Count
+from django.http import HttpResponseRedirect
 
 from braces.views import LoginRequiredMixin
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from provider.oauth2.models import Client
+from provider.oauth2.models import Client, AccessToken
 
 from core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
@@ -53,7 +55,7 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         """
         return reverse(
             'admin:app_settings',
-            kwargs={'pk': self.object.id}
+            kwargs={'app_id': self.object.id}
         )
 
     def form_valid(self, form):
@@ -69,52 +71,59 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         )
         form.instance.client = client
         form.instance.creator = self.request.user
+        messages.success(self.request, "The application has been created.")
         return super(ApplicationCreate, self).form_valid(form)
 
 
-class ApplicationSettings(LoginRequiredMixin, UpdateView):
+class ApplicationSettings(LoginRequiredMixin, TemplateView):
     """
     Displays the Application Settings page.
     `/admin/apps/settings`
     """
-    form_class = AppCreateForm
-    model = Application
-    fields = ['name', 'description', 'download_url', 'redirect_url']
     template_name = 'applications/application_settings.html'
-
-    def get_success_url(self):
-        """
-        Returns the redirect url to be called after successful app updating
-        """
-        return reverse(
-            'admin:app_settings',
-            kwargs={'pk': self.object.id}
-        )
-
-    def form_valid(self, form):
-        messages.success(
-            self.request, "The application has been updated successfully")
-        return super(ApplicationSettings, self).form_valid(form)  
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, **kwargs):
-        """
-        Returns the context data for the page. If the user is not owner of the
-        requested application, `PermissionDenied` is caught and handled in the
-        `handle_exceptions_for_admin` decorator and an error message is
-        displayed.
-        """
-        return super(ApplicationSettings, self).get_context_data(**kwargs)
-
-
-class ApplicationDelete(LoginRequiredMixin, TemplateView):
-    template_name = 'applications/application_delete.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, app_id, **kwargs):
         app = Application.objects.as_owner(self.request.user, app_id)
-        app.delete()
+        users = AccessToken.objects.values('user').filter(
+            client=app.client).distinct().count()
+        return super(ApplicationSettings, self).get_context_data(
+            application=app, users=users, **kwargs)
 
-        context = super(ApplicationDelete, self).get_context_data(**kwargs)
+    def post(self, request, app_id):
+        context = self.get_context_data(app_id)
+        app = context.pop('application')
+        data = request.POST
+
+        app.name = data.get('name')
+        app.description = data.get('description')
+        app.download_url = data.get('download_url')
+        app.redirect_url = data.get('redirect_url')
+        app.save()
+
+        messages.success(self.request, "The application has been updated.")
         context['application'] = app
-        return context
+        return self.render_to_response(context)
+
+
+class ApplicationDelete(LoginRequiredMixin, TemplateView):
+    template_name = 'base.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, app_id, **kwargs):
+        app = Application.objects.as_owner(self.request.user, app_id)
+        return super(ApplicationDelete, self).get_context_data(
+            application=app, **kwargs)
+    
+    def get(self, request, app_id):
+        context = self.get_context_data(app_id)
+        app = context.pop('application', None)
+
+        if app is not None:
+            app.delete()
+
+            messages.success(self.request, "The application has been deleted.")
+            url = reverse('admin:app_overview')
+            return HttpResponseRedirect(url)
+
+        return self.render_to_response(context)        

@@ -186,13 +186,6 @@ div.page-header .breadcrumb > li + li:before {
 				font-weight: bold;
 			}
 
-span.number {
-	font-size: 4em;
-	font-weight: bold;
-	line-height: 1;
-	display: block;
-}
-
 .panel-title + p {
 	margin-top: 0.5em;
 }
@@ -272,4 +265,28 @@ div.overview-list-item {
 	div.overview-list-item p.meta {
 		color: #999;
 		margin-bottom: 0;
-	}	
+	}
+
+span.number {
+	font-size: 4em;
+	font-weight: bold;
+	line-height: 1;
+	display: block;
+}
+
+.app-meta code {
+	display: block;
+}
+
+.app-meta p.users {
+	color: #999;
+	font-size: 1.3em;
+	border-bottom: 1px solid #ddd;
+	padding-bottom: 1.5em;
+	margin-bottom: 2em;
+}
+
+.app-meta p.users span.number {
+	display: inline;
+	color: #333;
+}
