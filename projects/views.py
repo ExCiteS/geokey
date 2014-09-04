@@ -93,6 +93,9 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
                             'project_id': project_id,
                         }
                     ))
+
+            return super(ProjectSettings, self).dispatch(
+                request, *args, **kwargs)
         except Project.DoesNotExist:
             return super(ProjectSettings, self).dispatch(
                 request, *args, **kwargs)
