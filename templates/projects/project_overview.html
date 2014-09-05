@@ -7,22 +7,19 @@
     {% csrf_token %}
         <div class="page-header">
             <div class="container">
-                <ol class="breadcrumb">
-                    <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
-                    <li class="active">{{ project.name }}: Overview</li>
-                </ol>
-
                 <h1>{{project.name}}</h1>
                 {% if project.description %}<p class="lead">{{project.description}}</p>{% endif %}
             </div>
         </div>
 
         <div class="container">
+            {% include 'snippets/messages.html' %}
+
             <div class="row">
                 <div class="col-sm-3">
                     {% if role == 'administrator' %}
                     <div class="list-group">
-                        <a href="#" class="list-group-item"><span class="badge">{{ project.observationtypes.count }}</span>Categories</a>
+                        <a href="{% url 'admin:category_list' project.id %}" class="list-group-item"><span class="badge">{{ project.observationtypes.count }}</span>Categories</a>
                         <a href="#" class="list-group-item"><span class="badge">{{ project.views.count }}</span>Data groupings</a>
                         <a href="#" class="list-group-item"><span class="badge">{{ project.usergroups.count }}</span>User groups</a>
                         <a href="{% url 'admin:project_settings' project.id %}" class="list-group-item">Settings</a>

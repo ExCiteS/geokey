@@ -7,43 +7,18 @@
     {% csrf_token %}
         <div class="page-header">
             <div class="container">
-                <ol class="breadcrumb">
-                    <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
-                    <li><a href="{% url 'admin:project_settings' field.observationtype.project.id %}">{{ field.observationtype.project.name }}: Settings</a></li>
-                    <li><a href="{% url 'admin:observationtype_settings' field.observationtype.project.id field.observationtype.id %}">{{ field.observationtype.name }}</a></li>
-                    <li class="active">{{ field.name }}</li>
-                </ol>
-
-                <h1>
-                    {{ field.name }}
-                    <div class="field-info">
-                        <div>
-                            <span class="info-label">Type</span>
-                            <span class="info-value">{{ field.type_name }}</span>
-                        </div>
-                        <div>
-                            <span class="info-label">Key</span>
-                            <span class="info-value">{{ field.key }}</span>
-                        </div>
-                    </div>
-                </h1>
-                <p class="lead">
-                    <span id="descriptionText">{% if field.description %} {{ field.description }} {% endif %}</span>
-                    <button id="edit" type="button" class="btn btn-link"><span class="glyphicon glyphicon-edit"></span> Edit</button>
-                </p>
-                <form class="form-inline hidden" id="description-form" role="form">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label class="sr-only" for="desription">Field description</label>
-                        <input type="text" class="form-control" id="description" name="description" placeholder="Enter a field desription" {% if field.description %}value="{{field.description}}"{% endif %}>
-                    </div>
-                    <button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
-                    <button type="button" class="btn btn-link">Cancel</button>
-                </form>
+                <h1>{{field.observationtype.project.name}}</h1>
+                <ul class="header-nav">
+                    <li class="active"><a href="{% url 'admin:category_list' field.observationtype.project.id %}">Categories <span class="badge">{{ field.observationtype.project.observationtypes.count }}</span></a></li>
+                    <li><a href="#">Data groupings <span class="badge">{{ field.observationtype.project.views.count }}</span></a></li>
+                    <li><a href="#">User groups <span class="badge">{{ field.observationtype.project.usergroups.count }}</span></a></li>
+                </ul>
             </div>
         </div>
 
         <div class="container">
+            {% include 'snippets/messages.html' %}
+
             {% if field.numericfield or field.lookupfield %}
             <div class="row" id="constraints">
                 {% if field.numericfield %}

@@ -22,19 +22,7 @@
         </div>
 
         <div class="container">
-        {% if messages %}
-            <div class="row">
-                <div class="col-md-12">
-                    {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
-                        <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                        {{ message }}
-                    </div>
-                        
-                    {% endfor %}
-                </div>
-            </div>
-        {% endif %}
+            {% include 'snippets/messages.html' %}
 
             <div class="row">
                 <form role="form" id="appForm" class="col-md-7" method="POST" action="{% url 'admin:app_settings' application.id %}" novalidate>

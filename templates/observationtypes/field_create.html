@@ -4,20 +4,20 @@
 
 {% block main %}
 		<div class="page-header">
-			<div class="container">
-				<ol class="breadcrumb">
-					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
-					<li><a href="{% url 'admin:project_settings' observationtype.project.id %}">{{ observationtype.project.name }}</a></li>
-					<li><a href="{% url 'admin:observationtype_settings' observationtype.project.id observationtype.id %}">{{ observationtype.name }}</a></li>
-					<li class="active">Create new field</li>
-				</ol>
-				<h1>Create new field</h1>
-			</div>
-		</div>
+            <div class="container">
+                <h1>{{category.project.name}}</h1>
+                <ul class="header-nav">
+                    <li class="active"><a href="{% url 'admin:category_list' category.project.id %}">Categories <span class="badge">{{ category.project.observationtypes.count }}</span></a></li>
+                    <li><a href="#">Data groupings <span class="badge">{{ category.project.views.count }}</span></a></li>
+                    <li><a href="#">User groups <span class="badge">{{ category.project.usergroups.count }}</span></a></li>
+                </ul>
+            </div>
+        </div>
 
 		<div class="container">
 			<div class="row">
 				<form  role="form" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="#" novalidate>
+					<h3 class="header">Create new field for category {{ category.name }}</h3>
 					{% csrf_token %}
 					<div class="form-group">
 						<label for="name" class="control-label">Name (required)</label>
@@ -52,7 +52,7 @@
 
 					<div class="form-group">
 						<button type="submit" class="btn btn-primary">Save</button>
-						<a href="{% url 'admin:observationtype_settings' observationtype.project.id observationtype.id %}" class="btn btn-default" role="button">Cancel</a>
+						<button type="reset" class="btn btn-primary btn-link">Reset</button>
 					</div>
 				</form>
 			</div>

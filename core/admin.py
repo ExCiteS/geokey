@@ -33,6 +33,10 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/settings/$',
         project_views.ProjectSettings.as_view(),
         name='project_settings'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/delete/$',
+        project_views.ProjectDelete.as_view(),
+        name='project_delete'),
 
 
     # ###########################
@@ -51,19 +55,31 @@ urlpatterns = patterns(
     # OBSERVATION TYPES & FIELDS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/new/$',
+        r'^projects/(?P<project_id>[0-9]+)/categories/$',
+        observationtype_views.CategoryList.as_view(),
+        name='category_list'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/categories/new/$',
         observationtype_views.ObservationTypeCreate.as_view(),
         name='observationtype_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/$',
+        observationtype_views.CategoryOverview.as_view(),
+        name='category_overview'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<observationtype_id>[0-9]+)/settings/$',
         observationtype_views.ObservationTypeSettings.as_view(),
         name='observationtype_settings'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/new/$',
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/delete/$',
+        observationtype_views.CategoryDelete.as_view(),
+        name='category_delete'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<observationtype_id>[0-9]+)/fields/new/$',
         observationtype_views.FieldCreate.as_view(),
         name='observationtype_field_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/$',
         observationtype_views.FieldSettings.as_view(),
         name='observationtype_field_settings'),
 

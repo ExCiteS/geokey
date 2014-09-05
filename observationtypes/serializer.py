@@ -108,4 +108,3 @@ class ObservationTypeSerializer(FieldSelectorSerializer):
         depth = 1
         fields = ('id', 'name', 'description', 'status', 'fields')
         read_only_fields = ('id', 'name')
-        write_only_fields = ('status',)

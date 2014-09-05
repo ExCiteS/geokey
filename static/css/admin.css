@@ -239,8 +239,11 @@ footer p {
 	margin: 0;
 }
 
+.settings-link {
+	padding-top: 25px;
+}
+
 div.well.empty-list {
-	text-align: center;
 	margin-top: 2em;
 }
 
@@ -288,4 +291,44 @@ span.number {
 
 .app-meta p.users span.number {
 	color: #333;
+}
+
+.becareful {
+	padding: 0;
+}
+
+.becareful > div {
+	border-bottom: 1px solid #ddd;
+	padding: 15px;
+}
+
+.becareful > div:last-child {
+	border-bottom: 0;
+}
+
+.page-header .container {
+	position: relative;
+}
+
+.page-header .container .header-nav {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+}
+
+.page-header .container .header-nav li {
+	list-style: none;
+	display: inline-block;
+	padding: 12px;
+	margin-bottom: -12px;
+}
+
+.page-header .container .header-nav li.active {
+	border-bottom: 2px solid #5bc0de;
+}
+
+.header {
+	border-bottom: 1px solid #ddd;
+	padding-bottom: 12px;
+	margin-bottom: 24px;
 }

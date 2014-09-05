@@ -5,10 +5,6 @@
 {% block main %}
 		<div class="page-header">
 			<div class="container">
-				<ol class="breadcrumb">
-					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
-					<li class="active">Create new project</li>
-				</ol>
 				<h1>Create new project</h1>
 			</div>
 		</div>
@@ -28,14 +24,15 @@
 					</div>
 
 					<div class="form-group">
+						<label for="isprivate" class="control-label">Project visibilty</label>
 						<div class="radio">
 							<label>
-								<input type="radio" id="private" name="isprivate" value="true" checked> <strong>Private</strong> The project will only be accessible by project administrators and members of any user group assigned to this project.
+								<input type="radio" id="private" name="isprivate" value="true" checked> <strong>Private</strong> The project will only be visible to project administrators and members of any user group assigned to this project.
 							</label>
 						</div>
 						<div class="radio">
 							<label>
-								<input type="radio" id="public" name="isprivate" value="false"> <strong>Public</strong> The project will be accessible by all registered users.
+								<input type="radio" id="public" name="isprivate" value="false"> <strong>Public</strong> The project will be to the general public.
 							</label>
 						</div>
 					</div>
