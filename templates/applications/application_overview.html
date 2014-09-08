@@ -18,10 +18,10 @@
 
             <div class="row">
                 <div class="col-md-8">
-                    <h2>
+                    <h3>
                         Your registered applications 
                         {% if apps %}<a href="{% url 'admin:app_register' %}" class="pull-right btn btn-sm btn-success"><span class="glyphicon glyphicon-plus"></span> Create new application</a>{% endif %}
-                    </h2>
+                    </h3>
                     {% for app in apps %}
                     <div class="overview-list-item">
                         <h3><a href="{% url 'admin:app_settings' app.id %}">{{app.name}}</a></h3>

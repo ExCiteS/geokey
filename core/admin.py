@@ -82,6 +82,10 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/$',
         observationtype_views.FieldSettings.as_view(),
         name='observationtype_field_settings'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/delete/$',
+        observationtype_views.FieldDelete.as_view(),
+        name='category_field_delete'),
 
     # ###########################
     # VIEWS

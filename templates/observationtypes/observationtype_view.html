@@ -32,7 +32,7 @@
                     </div>
                 </div>
                 <div class="col-sm-8">
-                    <h3 class="header">Settings for category {{ observationtype.name }}</h3>
+                    <h3 class="header">Settings</h3>
                         <form role="form" method="POST" action="{% url 'admin:observationtype_settings' observationtype.project.id observationtype.id %}" novalidate> 
                             {% csrf_token %}
                             <div class="form-group">

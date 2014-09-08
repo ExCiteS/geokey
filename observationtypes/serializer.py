@@ -19,28 +19,9 @@ class FieldSerializer(serializers.ModelSerializer):
         depth = 1
         fields = (
             'id', 'name', 'key', 'fieldtype', 'description', 'status',
-            'required'
+            'required', 'status'
         )
         read_only_fields = ('id', 'name', 'key')
-        write_only_fields = ('status',)
-
-
-class NumericFieldSerializer(serializers.ModelSerializer):
-    """
-    Serializer for numeric fields.
-    Used in .views.FieldApiDetail
-    """
-    fieldtype = serializers.Field()
-
-    class Meta:
-        model = NumericField
-        depth = 1
-        fields = (
-            'id', 'name', 'key', 'fieldtype', 'description', 'status',
-            'required', 'minval', 'maxval'
-        )
-        read_only_fields = ('id', 'name', 'key')
-        write_only_fields = ('status',)
 
 
 class LookupValueSerializer(serializers.ModelSerializer):

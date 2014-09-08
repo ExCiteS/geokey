@@ -21,8 +21,7 @@ from .models import (
 )
 from .forms import ObservationTypeCreateForm, FieldCreateForm
 from .serializer import (
-    ObservationTypeSerializer, FieldSerializer,
-    NumericFieldSerializer, LookupFieldSerializer
+    ObservationTypeSerializer, FieldSerializer, LookupFieldSerializer
 )
 
 
@@ -138,7 +137,6 @@ class ObservationTypeSettings(LoginRequiredMixin, TemplateView):
         context = self.get_context_data(project_id, observationtype_id)
         category = context.pop('observationtype')
         data = request.POST
-        print data
 
         category.name = data.get('name')
         category.description = data.get('description')
@@ -170,7 +168,7 @@ class CategoryDelete(LoginRequiredMixin, TemplateView):
             messages.success(self.request, "The category has been deleted.")
             return redirect('admin:category_list', project_id=project_id)
 
-        return self.render_to_response(context)     
+        return self.render_to_response(context)
         
 
 
@@ -213,6 +211,13 @@ class FieldCreate(LoginRequiredMixin, CreateView):
                 observation_type,
                 self.request.POST.get('type')
             )
+
+            if isinstance(field, NumericField):
+                field.minval = self.request.POST.get('minval') or None
+                field.maxval = self.request.POST.get('maxval') or None
+            print data
+            field.save()
+
             messages.success(self.request, "The field has been created.")
             return redirect(
                 'admin:observationtype_field_settings',
@@ -241,8 +246,53 @@ class FieldSettings(LoginRequiredMixin, TemplateView):
         context = super(FieldSettings, self).get_context_data(**kwargs)
         context['field'] = field
         context['status_types'] = STATUS
+        context['fieldtypes'] = Field.get_field_types()
 
         return context
+
+    def post(self, request, project_id, observationtype_id, field_id):
+        context = self.get_context_data(project_id, observationtype_id, field_id)
+        field = context.pop('field')
+        data = request.POST
+
+        field.name = data.get('name')
+        print data.get('description')
+        field.description = data.get('description')
+        field.key = data.get('key')
+        field.required = data.get('required') or False
+
+        if isinstance(field, NumericField):
+            field.minval = data.get('minval') or None
+            field.maxval = data.get('maxval') or None
+        field.save()
+
+        messages.success(self.request, "The field has been updated.")
+        context['field'] = field
+        return self.render_to_response(context)
+
+
+class FieldDelete(LoginRequiredMixin, TemplateView):
+    template_name = 'base.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, category_id, field_id, **kwargs):
+        user = self.request.user
+        field = Field.objects.as_admin(
+            user, project_id, category_id, field_id)
+        return super(FieldDelete, self).get_context_data(
+            field=field, **kwargs)
+
+    def get(self, request, project_id, category_id, field_id):
+        context = self.get_context_data(project_id, category_id, field_id)
+        field = context.pop('field', None)
+
+        if field is not None:
+            field.delete()
+
+            messages.success(self.request, "The field has been deleted.")
+            return redirect('admin:category_overview', project_id=project_id, category_id=category_id)
+
+        return self.render_to_response(context)
 
 
 # ############################################################################
@@ -299,14 +349,9 @@ class FieldUpdate(APIView):
         field = Field.objects.as_admin(
             request.user, project_id, observationtype_id, field_id)
 
-        if isinstance(field, NumericField):
-            serializer = NumericFieldSerializer(
-                field, data=request.DATA, partial=True
-            )
-        else:
-            serializer = FieldSerializer(
-                field, data=request.DATA, partial=True
-            )
+        serializer = FieldSerializer(
+            field, data=request.DATA, partial=True
+        )
 
         if serializer.is_valid():
             serializer.save()

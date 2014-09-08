@@ -34,15 +34,28 @@
 						<label for="description" class="control-label">Description</label>
 						<textarea class="form-control input-lg" rows="5" name="description" id="description" {%if data %}value="{{data.description}}"{% endif %}></textarea>
 					</div>
+
 					<div class="form-group">
 						<label for="status" class="control-label">Type</label>
-							<select name="type" id="type" class="form-control" required>
+						<select name="type" id="type" class="form-control" required>
 							<option value="">Please select the data type of the field.</option>
 							{% for field in fieldtypes %}
 								<option value="{{ field.fieldtype }}" {% if data.type == field.fieldtype %}selected{% endif %}>{{ field.type_name }}</option>
 							{% endfor %}
 						</select>
 					</div>
+
+					<div class="row hidden" id="minmax">
+                        <div class="form-group col-sm-6">
+                            <label for="minval" class="control-label">Minimum value</label>
+                            <input type="number" step="0.01" class="form-control" id="minval" name="minval" placeholder="e.g.; 1.642">
+                        </div>
+
+                        <div class="form-group col-sm-6">
+                            <label for="maxval" class="control-label">Maximum value</label>
+                            <input type="number" step="0.01" class="form-control" id="maxval" name="maxval" placeholder="e.g.; 4541.6">
+                        </div>
+                    </div>
 
 					<div class="form-group">
 						<div class="checkbox">

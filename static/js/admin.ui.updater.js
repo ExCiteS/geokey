@@ -140,34 +140,6 @@ $(function () {
 		Control.Ajax.put(url, handleSuccess, handleError, {'isprivate': isPrivate});
 	}
 
-	/**
-	 * Handles the click on the confirm button and updates the field status to either mandatory or optional.
-	 * @param  {Event} event The click event fired by the button.
-	 */
-	function updateRequired(event) {
-		var isRequired = (event.target.value === 'true');
-
-		/**
-		 * Handles the response after the status of the field has been updated successfully.
-		 * @param  {Object} response JSON object of the response
-		 */
-		function handleSuccess(response) {
-			updateUi('mandatory');
-			messages.showPanelSuccess(getMessageTarget('mandatory'), 'The ' + name + ' is now ' + (response.required ? 'mandatory' : 'optional') + '.');
-		}
-
-		/**
-		 * Handles the response after the update of the field failed.
-		 * @param  {Object} response JSON object of the response
-		 */
-		function handleError(response) {
-			updateUi();
-			messages.showPanelError(getMessageTarget('mandatory'), 'An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
-		}
-
-		Control.Ajax.put(url, handleSuccess, handleError, {'required': isRequired});
-	}
-
 	function updateEveryoneContributes(event) {
 		var checkbox = $(event.target);
 		function handleError(response) {
@@ -182,6 +154,5 @@ $(function () {
 	$('#make-active-confirm button[name="confirm"]').click(updateActive);
 	$('#make-public-confirm button[name="confirm"]').click(updatePrivate);
 	$('#make-private-confirm button[name="confirm"]').click(updatePrivate);
-	$('button[name="toogleMandatory"]').click(updateRequired);
 	$('input[name="everyone_contributes"]').change(updateEveryoneContributes);
 });
