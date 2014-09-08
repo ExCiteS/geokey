@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load filters %}
+{% block title %} | Grouping overview{% endblock %}
+
+{% block main %}
+        <div class="page-header">
+            <div class="container">
+                <h1>{{grouping.project.name}}</h1>
+                <ul class="header-nav">
+                    <li><a href="{% url 'admin:category_list' grouping.project.id %}">Categories <span class="badge">{{ grouping.project.observationtypes.count }}</span></a></li>
+                    <li class="active"><a href="{% url 'admin:grouping_list' grouping.project.id %}">Data groupings <span class="badge">{{ grouping.project.views.count }}</span></a></li>
+                    <li><a href="#">User groups <span class="badge">{{ grouping.project.usergroups.count }}</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="container">
+            {% include 'snippets/messages.html' %}
+            
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3>{{ grouping.name }}</h3>
+                            {% if grouping.description %}<p>{{ grouping.description }}</p>{% endif %}
+                        </div>
+                        <div class="list-group">
+                            <a href="{% url 'admin:grouping_overview' grouping.project.id grouping.id %}" class="list-group-item active">Filters</a>
+                            <a href="{% url 'admin:grouping_permissions' grouping.project.id grouping.id %}" class="list-group-item">Permissions</a>
+                            <a href="{% url 'admin:view_settings' grouping.project.id grouping.id %}" class="list-group-item">Settings</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-8">
+                    <h3>
+                        Filters
+                        {% if grouping.rules.all %}
+                            <a href="{% url 'admin:view_rule_create' grouping.project.id grouping.id %}" class="btn btn-success btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create new filter</a>
+                        {% endif %}
+                    </h3>
+                    {% for filter in grouping.rules.all %}
+                    <div class="overview-list-item">
+
+                        <h4><a href="{% url 'admin:rule_settings' grouping.project.id grouping.id filter.id %}">Contributions of type <strong>{{ filter.observation_type.name }}</strong></a>{% if filter.filters %} where {% endif %}</h4>
+                        <ul>
+                            {% filters filter %}
+                        </ul>
+                    </div>
+                    {% empty %}
+                        <div class="well empty-list">
+                            <p class="lead">We couldn't find any filters for this data grouping.</p>
+                            <p>You need to create at least one filter to define the subset of contributions in this project that will be available in this grouping.</p>
+                            <p>You can define an arbitrary number of filters; a contribution must match at least one of the filters to be available in this grouping.</p>
+                            <a href="{% url 'admin:view_rule_create' grouping.project.id grouping.id %}" class="btn btn-success btn-lg">Create new filter</a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block libraries %} 
+            
+{% endblock %}

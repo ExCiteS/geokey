@@ -8,7 +8,11 @@
         <div class="page-header">
             <div class="container">
                 <h1>{{project.name}}</h1>
-                {% if project.description %}<p class="lead">{{project.description}}</p>{% endif %}
+                <ul class="header-nav">
+                    <li><a href="{% url 'admin:category_list' project.id %}">Categories <span class="badge">{{ project.observationtypes.count }}</span></a></li>
+                    <li><a href="{% url 'admin:grouping_list' project.id %}">Data groupings <span class="badge">{{ project.views.count }}</span></a></li>
+                    <li><a href="#">User groups <span class="badge">{{ project.usergroups.count }}</span></a></li>
+                </ul>
             </div>
         </div>
 
@@ -16,7 +20,7 @@
             {% include 'snippets/messages.html' %}
 
             <div class="row">
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                     <div class="list-group">
                         <a href="{% url 'admin:category_list' project.id %}" class="list-group-item"><span class="badge">{{ project.observationtypes.count }}</span>Categories</a>
                         <a href="#" class="list-group-item"><span class="badge">{{ project.views.count }}</span>Data groupings</a>
@@ -25,7 +29,7 @@
                     </div>
                 </div>
 
-                <div class="col-sm-9">
+                <div class="col-sm-8">
                     <h3 class="header">Project Settings</h3>
                     <form method="POST" action="{% url 'admin:project_settings' project.id %}" novalidate>
                         {% csrf_token %}
@@ -48,7 +52,7 @@
             </div>
 
             <div class="row">
-                <div class="col-sm-9 col-sm-offset-3">
+                <div class="col-sm-8 col-sm-offset-4">
                     <div class="panel panel-danger">
                         <div class="panel-heading">
                             <h2 class="panel-title">Be careful!</h2>

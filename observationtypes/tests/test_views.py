@@ -15,7 +15,7 @@ from ..models import ObservationType, Field
 from ..views import (
     ObservationTypeUpdate, FieldUpdate, FieldLookupsUpdate, FieldLookups,
     SingleObservationType, ObservationTypeCreate, ObservationTypeSettings,
-    FieldCreate, CategoryOverview
+    FieldCreate, CategoryList
 )
 
 # ############################################################################
@@ -38,8 +38,8 @@ class CategoryOverviewTest(TestCase):
         )
 
     def get(self, user):
-        view = CategoryOverview.as_view()
-        url = reverse('admin:category_overview', kwargs={
+        view = CategoryList.as_view()
+        url = reverse('admin:category_list', kwargs={
             'project_id': self.project.id
         })
         request = self.factory.get(url)
@@ -585,37 +585,6 @@ class UpdateNumericField(TestCase):
             field_id=self.field.id
         ).render()
 
-    def test_update_numericfield_minval_with_admin(self):
-        response = self._put({'minval': 12}, self.admin)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            Field.objects.get_single(
-                self.admin, self.project.id, self.observationtype.id,
-                self.field.id).minval, 12
-        )
-
-    def test_update_numericfield_maxval_with_admin(self):
-        response = self._put({'maxval': 12}, self.admin)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            Field.objects.get_single(
-                self.admin, self.project.id, self.observationtype.id,
-                self.field.id).maxval, 12
-        )
-
-    def test_update_numericfield_minval_maxval_with_admin(self):
-        response = self._put({'maxval': 12, 'minval': 3}, self.admin)
-
-        self.assertEqual(response.status_code, 200)
-        field = Field.objects.get_single(
-            self.admin, self.project.id, self.observationtype.id,
-            self.field.id
-        )
-        self.assertEqual(field.minval, 3)
-        self.assertEqual(field.maxval, 12)
-
     def test_update_numericfield_description_with_admin(self):
         response = self._put({'description': 'new description'}, self.admin)
 
@@ -624,15 +593,6 @@ class UpdateNumericField(TestCase):
             Field.objects.get_single(
                 self.admin, self.project.id, self.observationtype.id,
                 self.field.id).description, 'new description'
-        )
-
-    def test_update_numericfield_nill_minval(self):
-        response = self._put({'minval': 0}, self.admin)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            Field.objects.get_single(
-                self.admin, self.project.id, self.observationtype.id,
-                self.field.id).minval, 0
         )
 
 

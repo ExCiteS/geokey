@@ -91,23 +91,35 @@ urlpatterns = patterns(
     # VIEWS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/new/$',
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/$',
+        dataviews.GroupingList.as_view(),
+        name='grouping_list'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/new/$',
         dataviews.ViewCreate.as_view(),
         name='view_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/$',
+        dataviews.GroupingOverview.as_view(),
+        name='grouping_overview'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/permissions/$',
+        dataviews.GroupingPermissions.as_view(),
+        name='grouping_permissions'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<view_id>[0-9]+)/settings/$',
         dataviews.ViewSettings.as_view(),
         name='view_settings'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/all-contributions/$',
-        dataviews.ViewAllSettings.as_view(),
-        name='view_all_settings'),
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/delete/$',
+        dataviews.GroupingDelete.as_view(),
+        name='grouping_delete'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/rules/new/$',
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<view_id>[0-9]+)/filter/new/$',
         dataviews.RuleCreate.as_view(),
         name='view_rule_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/rules/(?P<rule_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<view_id>[0-9]+)/filter/(?P<rule_id>[0-9]+)/$',
         dataviews.RuleSettings.as_view(),
         name='rule_settings'),
 

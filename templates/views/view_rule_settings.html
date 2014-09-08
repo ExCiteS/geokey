@@ -9,21 +9,32 @@
 {% block main %}
         <div class="page-header">
             <div class="container">
-                <ol class="breadcrumb">
-                    <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
-                    <li><a href="{% url 'admin:project_settings' rule.view.project.id %}">{{ rule.view.project.name }}</a></li>
-                    <li><a href="{% url 'admin:view_settings' rule.view.project.id rule.view.id %}">{{rule.view.name}}</a></li>
-                    <li class="active">Filter Settings</li>
-                </ol>
-
-                <h1>Filter Settings</h1>
-                <p class="lead">Filters apply to contributions of type <em>{{rule.observation_type.name}}</em></p>
+                <h1>{{ rule.view.project.name }}</h1>
+                <ul class="header-nav">
+                    <li><a href="{% url 'admin:category_list' rule.view.project.id %}">Categories <span class="badge">{{ rule.view.project.observationtypes.count }}</span></a></li>
+                    <li class="active"><a href="{% url 'admin:grouping_list' rule.view.project.id %}">Data groupings <span class="badge">{{ rule.view.project.views.count }}</span></a></li>
+                    <li><a href="#">User groups <span class="badge">{{ rule.view.project.usergroups.count }}</span></a></li>
+                </ul>
             </div>
         </div>
 
         <div class="container">
             <div class="row">
-                <form id="rule-form" role="form" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url 'admin:rule_settings' rule.view.project.id rule.view.id rule.id %}" novalidate>
+                <div class="col-sm-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3>{{ rule.view.name }}</h3>
+                            {% if rule.view.description %}<p>{{ rule.view.description }}</p>{% endif %}
+                        </div>
+                        <div class="list-group">
+                            <a href="{% url 'admin:grouping_overview' rule.view.project.id rule.view.id %}" class="list-group-item active">Filters</a>
+                            <a href="{% url 'admin:grouping_permissions' rule.view.project.id rule.view.id %}" class="list-group-item">Permissions</a>
+                            <a href="{% url 'admin:view_settings' rule.view.project.id rule.view.id %}" class="list-group-item">Settings</a>
+                        </div>
+                    </div>
+                </div>
+                <form id="rule-form" role="form" class="col-sm-8" method="POST" action="{% url 'admin:rule_settings' rule.view.project.id rule.view.id rule.id %}" novalidate>
+                    <h3 class="header">Filter settings</h3>
                     {% csrf_token %}
                     <input type="hidden" name="rules">
                     <div class="alert alert-info">Please set the value for each individual field you want to filter for. If you leave a filter blank, the field will not be filtered for.</div>
@@ -119,7 +130,7 @@
                         
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">Save</button>
-                        <a href="{% url 'admin:view_settings' rule.view.project.id rule.view.id %}" class="btn btn-default" role="button">Cancel</a>
+                        <button type="reset" class="btn btn-link">Reset</button>
                     </div>
                 </form>
             </div>

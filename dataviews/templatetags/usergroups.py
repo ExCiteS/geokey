@@ -4,17 +4,22 @@ register = template.Library()
 
 
 def get_user_group(group, view):
-    html = '<li class="list-group-item">\
-                <div class="checkbox">\
-                    <label>\
-                        <input type="checkbox" name="usergroup" value="%s" %s> %s\
-                    </label>\
-                </div>\
-            </li>' % (
-        group.id,
-        'checked' if view.usergroups.filter(usergroup=group).exists() else '',
-        group.name
-    )
+    if view.usergroups.filter(usergroup=group).exists():
+        html = '<div class="overview-list-item">\
+                    <button type="button" name="%s" class="btn btn-default pull-right active grant-single" data-toggle="button"><span class="text-danger">Revoke access</span></button><strong>%s</strong><p>%s</p>\
+                </div>' % (
+            group.id,
+            group.name,
+            group.description
+        )
+    else:
+        html = '<div class="overview-list-item">\
+                    <button type="button" name="%s" class="btn btn-default pull-right grant-single" data-toggle="button"><span class="text-success">Grant access</span></button><strong>%s</strong><p>%s</p>\
+                </div>' % (
+            group.id,
+            group.name,
+            group.description
+        )
 
     return html
 

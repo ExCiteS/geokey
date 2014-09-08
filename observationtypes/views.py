@@ -218,7 +218,7 @@ class FieldCreate(LoginRequiredMixin, CreateView):
             print data
             field.save()
 
-            messages.success(self.request, "The field has been created.")
+            messages.success(self.request, 'The field has been created.')
             return redirect(
                 'admin:observationtype_field_settings',
                 project_id=observation_type.project.id,

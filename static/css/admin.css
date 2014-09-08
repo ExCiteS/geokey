@@ -270,6 +270,12 @@ div.overview-list-item {
 		margin-bottom: 0;
 	}
 
+	div.overview-list-item .message {
+		margin-top: -15px;
+		margin-bottom: 15px;
+		padding: 15px;
+	}
+
 span.number {
 	font-size: 4em;
 	font-weight: bold;

@@ -6,19 +6,19 @@
 {% block main %}
 		<div class="page-header">
 			<div class="container">
-				<ol class="breadcrumb">
-					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
-					<li><a href="{% url 'admin:project_settings' project.id %}">{{ project.name }}</a></li>
-					<li class="active">Create new map</li>
-				</ol>
-
-				<h1>Create new map</h1>
+				<h1>{{ project.name }}</h1>
+				<ul class="header-nav">
+                    <li><a href="{% url 'admin:category_list' project.id %}">Categories <span class="badge">{{ project.observationtypes.count }}</span></a></li>
+                    <li class="active"><a href="{% url 'admin:grouping_list' project.id %}">Data groupings <span class="badge">{{ project.views.count }}</span></a></li>
+                    <li><a href="#">User groups <span class="badge">{{ project.usergroups.count }}</span></a></li>
+                </ul>
 			</div>
 		</div>
 
 		<div class="container">
 			<div class="row">
 				<form  role="form" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url 'admin:view_create' project.id %}" novalidate>
+					<h3 class="header">Create a new data grouping</h3>
 					{% csrf_token %}
 					<div class="form-group">
 						<label for="name" class="control-label">Name (required)</label>
@@ -28,19 +28,6 @@
 					<div class="form-group">
 						<label for="description" class="control-label">Description</label>
 						<textarea class="form-control input-lg" rows="5" name="description" id="description"></textarea>
-					</div>
-
-					<div class="form-group">
-						<div class="radio">
-							<label>
-								<input type="radio" id="private" name="isprivate" value="true" checked> <strong>Private</strong> The map will be accessible by project administrators and members of any user group assigned to this map.
-							</label>
-						</div>
-						<div class="radio">
-							<label>
-								<input type="radio" id="public" name="isprivate" value="false"> <strong>Public</strong> The map will be accessible by users, who have access to the project.
-							</label>
-						</div>
 					</div>
 
 					<div class="form-group">
