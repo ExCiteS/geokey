@@ -44,7 +44,39 @@
         $('button.grant-single.active').click();
     }
 
+    function changePrivate(event) {
+        var url = 'projects/' + projectId + '/views/' + viewId +'/';
+
+        function handleSuccess(response) {
+            var msg = '';
+            if (response.isprivate) {
+                msg = 'The data grouping is now hidden from the public.';
+                $('button.grant-single').removeAttr('disabled');
+            } else {
+                msg = 'The data grouping is now accessible to the public.';
+                $('button.grant-single').attr('disabled', 'disabled');
+            }
+
+            $('#grouping-visibilty > div').toggleClass('hidden');
+
+            var html = $('<div class="message bg-success text-success"><span class="glyphicon glyphicon-ok"></span> ' + msg + '</div>');
+            $('#grouping-visibilty').prepend(html);
+            setTimeout(function () { html.remove(); }, 5000);
+        }
+
+        function handleError(response){
+            var msg = 'An error occurred while updating the data grouping. Error text was: ' + response.responseJSON.error;
+            var html = $('<div class="message bg-danger text-danger"><span class="glyphicon glyphicon-remove"></span> ' + msg + '</div>');
+            $('#grouping-visibilty').prepend(html);
+            setTimeout(function () { html.remove(); }, 5000);
+        }
+
+        Control.Ajax.put(url, handleSuccess, handleError, {'isprivate': $(event.currentTarget).val()});
+    }
+
     $('button.grant-single').click(handleViewActivateChange);
     $('button#grant-all').click(grantAll);
     $('button#revoke-all').click(revokeAll);
+    $('#make-public-confirm button[name="confirm"]').click(changePrivate);
+    $('#make-private-confirm button[name="confirm"]').click(changePrivate);
 }());
