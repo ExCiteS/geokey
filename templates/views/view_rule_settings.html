@@ -134,7 +134,46 @@
                     </div>
                 </form>
             </div>
+
+            <div class="row">
+                <div class="col-sm-8 col-sm-offset-4">
+                    <div class="panel panel-danger">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Be careful!</h2>
+                        </div>
+                        <div class="panel-body becareful">
+                            <div>
+                                <strong>Delete filter</strong>
+                                <p>Deleting the filter grouping can not be undone.</p>
+                                <a href="#" class="text-danger" data-toggle="modal" data-target="#delete-confirm">Delete this filter</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+{% endblock %}
+
+{% block modals %}
+        <!-- Delete confirmation modal -->
+        <div class="modal fade" id="delete-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content panel-danger">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+                    </div>
+                    <div class="modal-body panel-body">
+                        <p>You are about to delete the filter. This can not be undone.</p>
+                    </div>
+                    <div class="modal-footer panel-footer">
+                        <a href="{% url 'admin:filter_delete' rule.view.project.id rule.view.id rule.id %}" class="btn btn-danger">I'm absolutely sure, delete the filter!</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Delete confirmation modal -->
+
 {% endblock %}
 
 {% block libraries %}

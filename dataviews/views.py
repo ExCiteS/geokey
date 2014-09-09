@@ -261,6 +261,34 @@ class RuleSettings(LoginRequiredMixin, TemplateView):
                         project_id=project_id, grouping_id=view_id)
 
 
+class FilterDelete(LoginRequiredMixin, TemplateView):
+    template_name = 'base.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, grouping_id, filter_id, **kwargs):
+        """
+        Creates the request context for rendering the page
+        """
+        grouping = View.objects.as_admin(
+            self.request.user, project_id, grouping_id)
+        context = super(FilterDelete, self).get_context_data(**kwargs)
+
+        context['filter'] = grouping.rules.get(pk=filter_id)
+        return context
+
+    def get(self, request, project_id, grouping_id, filter_id):
+        context = self.get_context_data(project_id, grouping_id, filter_id)
+        data_filter = context.pop('filter', None)
+
+        if data_filter is not None:
+            data_filter.delete()
+
+        messages.success(self.request, 'The filter has been deleted')
+
+        return redirect('admin:grouping_overview',
+                        project_id=project_id, grouping_id=grouping_id)
+
+
 # ############################################################################
 #
 # AJAX API views

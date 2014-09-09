@@ -122,6 +122,10 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<view_id>[0-9]+)/filter/(?P<rule_id>[0-9]+)/$',
         dataviews.RuleSettings.as_view(),
         name='rule_settings'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/filter/(?P<filter_id>[0-9]+)/delete/$',
+        dataviews.FilterDelete.as_view(),
+        name='filter_delete'),
 
     # ###########################
     # APPS
