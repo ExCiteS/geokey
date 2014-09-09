@@ -193,7 +193,6 @@ div.page-header .breadcrumb > li + li:before {
 ul.type-away {
 	width: 280px;
 	margin-left: 20px;
-	margin-top: -10px;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 	border-top: 0;
@@ -339,7 +338,35 @@ span.number {
 	margin-bottom: 24px;
 }
 
+.header .row {
+	margin-bottom: 0;
+}
+
 #grouping-visibilty .message {
 	margin: 0 -15px 15px -15px;
 	padding: 15px;
+}
+
+.user-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.user-list li {
+	margin: 0;
+	padding: 15px 0;
+	border-bottom: 1px solid #ddd;
+}
+
+.user-list li.message {
+	padding: 15px;
+}
+
+.user-list li:first-child {
+	margin-top: -12px;
+}
+
+.user-list li:last-child {
+	border-bottom: none;
 }

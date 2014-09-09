@@ -24,7 +24,7 @@
                     <div class="list-group">
                         <a href="{% url 'admin:category_list' project.id %}" class="list-group-item"><span class="badge">{{ project.observationtypes.count }}</span>Categories</a>
                         <a href="{% url 'admin:grouping_list' project.id %}" class="list-group-item"><span class="badge">{{ project.views.count }}</span>Data groupings</a>
-                        <a href="#" class="list-group-item"><span class="badge">{{ project.usergroups.count }}</span>User groups</a>
+                        <a href="{% url 'admin:usergroup_list' project.id %}" class="list-group-item"><span class="badge">{{ project.usergroups.count }}</span>User groups</a>
                         <a href="{% url 'admin:project_settings' project.id %}" class="list-group-item">Settings</a>
                     </div>
                     {% else %}

@@ -10,8 +10,8 @@
                 <h1>{{field.observationtype.project.name}}</h1>
                 <ul class="header-nav">
                     <li class="active"><a href="{% url 'admin:category_list' field.observationtype.project.id %}">Categories <span class="badge">{{ field.observationtype.project.observationtypes.count }}</span></a></li>
-                    <li><a href="#">Data groupings <span class="badge">{{ field.observationtype.project.views.count }}</span></a></li>
-                    <li><a href="#">User groups <span class="badge">{{ field.observationtype.project.usergroups.count }}</span></a></li>
+                    <li><a href="{% url 'admin:grouping_list' project.id %}">Data groupings <span class="badge">{{ field.observationtype.project.views.count }}</span></a></li>
+                    <li><a href="{% url 'admin:grouping_list' project.id %}">User groups <span class="badge">{{ field.observationtype.project.usergroups.count }}</span></a></li>
                 </ul>
             </div>
         </div>

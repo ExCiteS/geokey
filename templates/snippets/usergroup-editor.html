@@ -1,23 +1,19 @@
-{% comment %}
-{% if contributors %}
-	<div class="panel-body">
-		<div class="checkbox">
-			<label><input type="checkbox" {% if project.everyonecontributes %} checked="true" {% endif %}> Everyone can contribute</label>
+<div class="header">
+	<div class="row">
+		<div class="col-sm-6"><h3>Members</h3></div>
+		<div class="col-sm-6 dropdown">
+			<input type="text" id="find-users" class="pull-right form-control" placeholder="Search for users to add to the group">
+			<ul class="dropdown-menu type-away">
+				<li role="presentation" class="dropdown-header">Click on item to add user</li>
+			</ul>
 		</div>
 	</div>
-{% endif %}
-{% endcomment %}
+</div>
 
-	<ul class="list-group user-list">
+<ul class="user-list">
 	{% for user in users %}
-		<li class="list-group-item">{{user.display_name}} <a class="text-danger remove" data-user-id="{{ user.id }}" href="#"><small>remove</small></a></li>
+		<li>{{user.display_name}} <a class="text-danger remove pull-right" data-user-id="{{ user.id }}" href="#"><small>remove</small></a></li>
 	{% empty %}
-		<li class="list-group-item">No users have been assigned to this group.</li>
+		<li>No users have been assigned to this group.</li>
 	{% endfor %}
-	</ul>
-	<div class="panel-footer dropdown">
-		<input type="text" class="form-control" placeholder="Type to find users to this group" autocomplete="off" data-provide="typeahead">
-		<ul class="dropdown-menu type-away">
-			<li role="presentation" class="dropdown-header">Click on item to add user</li>
-		</ul>
-	</div>
+</ul>

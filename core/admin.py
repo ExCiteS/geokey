@@ -43,11 +43,19 @@ urlpatterns = patterns(
     # USER GROUPS
     # ###########################
     url(
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/$',
+        login_views.UserGroupList.as_view(),
+        name='usergroup_list'),
+    url(
         r'^projects/(?P<project_id>[0-9]+)/usergroups/new/$',
         login_views.UserGroupCreate.as_view(),
         name='usergroup_create'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/$',
+        login_views.UserGroupOverview.as_view(),
+        name='usergroup_overview'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/settings/$',
         login_views.UserGroupSettings.as_view(),
         name='usergroup_settings'),
 
