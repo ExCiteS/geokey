@@ -9,7 +9,7 @@
                 <ul class="header-nav">
                     <li><a href="{% url 'admin:category_list' project.id %}">Categories <span class="badge">{{ project.observationtypes.count }}</span></a></li>
                     <li><a href="{% url 'admin:grouping_list' project.id %}">Data groupings <span class="badge">{{ project.views.count }}</span></a></li>
-                    <li class="active"><a href="{% url 'admin:grouping_list' project.id %}">User groups <span class="badge">{{ project.usergroups.count }}</span></a></li>
+                    <li class="active"><a href="{% url 'admin:usergroup_list' project.id %}">User groups <span class="badge">{{ project.usergroups.count }}</span></a></li>
                 </ul>
             </div>
         </div>
@@ -18,7 +18,14 @@
             {% include 'snippets/messages.html' %}
             
             <div class="row">
-                <div class="col-sm-12"><h3>User groups</h3></div>
+                <div class="col-sm-12">
+                    <h3 class="header">
+                        User groups
+                        {% if project.usergroups.all %}
+                            <a href="{% url 'admin:usergroup_create' project.id %}" class="btn btn-success btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create new user group</a>
+                        {% endif %}
+                    </h3>
+                </div>
 
                 <div class="col-sm-9">
                     <div class="overview-list-item">
@@ -40,9 +47,7 @@
                 </div>
 
                 <div class="col-sm-3">
-                    {% if project.usergroups.all %}
-                        <a href="{% url 'admin:usergroup_create' project.id %}" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create new user group</a>
-                    {% endif %}
+                    
                 </div>
             </div>
         </div>

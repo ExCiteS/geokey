@@ -217,6 +217,22 @@ class UserGroupSettings(LoginRequiredMixin, TemplateView):
         return self.render_to_response(context)
 
 
+class UserGroupPermissions(LoginRequiredMixin, TemplateView):
+    """
+    Displays the user group settings page
+    `/admin/projects/:project_id/usergroups/:group_id/settings/`
+    """
+    template_name = 'users/usergroup_permissions.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, group_id):
+        """
+        Creates the request context for rendering the page
+        """
+        project = Project.objects.as_admin(self.request.user, project_id)
+        group = project.usergroups.get(pk=group_id)
+        return super(UserGroupPermissions, self).get_context_data(group=group)
+
 
 class UserGroupDelete(LoginRequiredMixin, TemplateView):
     template_name = 'base.html'

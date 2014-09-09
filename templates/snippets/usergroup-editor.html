@@ -10,6 +10,7 @@
 	</div>
 </div>
 
+{% if users.count %}
 <ul class="user-list">
 	{% for user in users %}
 		<li>{{user.display_name}} <a class="text-danger remove" data-user-id="{{ user.id }}" href="#"><small>remove</small></a></li>
@@ -17,3 +18,10 @@
 		<li>No users have been assigned to this group.</li>
 	{% endfor %}
 </ul>
+{% else %}
+<div class="well empty-list">
+    <p class="lead">We couldn't find any users assigned to this group.</p>
+    <p>Adding users to a group is easy: Type a name in the input field to the top right to find the user you want to add and then simply click on the name in the result list to add the user to this group.</p>
+</div>
+{% endif %}
+

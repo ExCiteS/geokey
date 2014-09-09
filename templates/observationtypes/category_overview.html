@@ -8,8 +8,8 @@
                 <h1>{{category.project.name}}</h1>
                 <ul class="header-nav">
                     <li class="active"><a href="{% url 'admin:category_list' category.project.id %}">Categories <span class="badge">{{ category.project.observationtypes.count }}</span></a></li>
-                    <li><a href="{% url 'admin:grouping_list' project.id %}">Data groupings <span class="badge">{{ category.project.views.count }}</span></a></li>
-                    <li><a href="{% url 'admin:grouping_list' project.id %}">User groups <span class="badge">{{ category.project.usergroups.count }}</span></a></li>
+                    <li><a href="{% url 'admin:grouping_list' category.project.id %}">Data groupings <span class="badge">{{ category.project.views.count }}</span></a></li>
+                    <li><a href="{% url 'admin:grouping_list' category.project.id %}">User groups <span class="badge">{{ category.project.usergroups.count }}</span></a></li>
                 </ul>
             </div>
         </div>
@@ -31,7 +31,7 @@
                     </div>
                 </div>
                 <div class="col-sm-8">
-                    <h3>
+                    <h3 class="header">
                         Fields
                         {% if category.fields.all %}
                             <a href="{% url 'admin:observationtype_field_create' category.project.id category.id %}" class="btn btn-success btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create new field</a>

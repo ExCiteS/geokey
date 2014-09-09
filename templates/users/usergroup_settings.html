@@ -1,7 +1,5 @@
 {% extends "base.html" %}
 
-{% load viewgroups %}
-
 {% block bodydata %} data-project-id="{{group.project.id}}" data-group-id="{{group.id}}"{% endblock %}
 {% block title %} | User group: {{group.name}}{% endblock %}
 
@@ -28,14 +26,15 @@
                             {% if group.description %}<p>{{ group.description }}</p>{% endif %}
                         </div>
                         <div class="list-group">
-                            <a href="{% url 'admin:usergroup_overview' group.project.id group.id %}" class="list-group-item active">Members</a>
-                            <a href="" class="list-group-item">Permissions</a>
-                            <a href="{% url 'admin:usergroup_settings' group.project.id group.id %}" class="list-group-item">Settings</a>
+                            <a href="{% url 'admin:usergroup_overview' group.project.id group.id %}" class="list-group-item">Members</a>
+                            <a href="{% url 'admin:usergroup_permissions' group.project.id group.id %}" class="list-group-item">Permissions</a>
+                            <a href="{% url 'admin:usergroup_settings' group.project.id group.id %}" class="list-group-item active">Settings</a>
                         </div>
                     </div>
                 </div>
                 <div class="col-sm-8">
                     <form  role="form" method="POST" action="{% url 'admin:usergroup_settings' group.project.id group.id %}" novalidate>
+                        <h3 class="header">Settings</h3>
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="name" class="control-label">Name (required)</label>
@@ -72,41 +71,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- <div class="container">
-            <div class="row" id="users">
-                <div class="col-md-6" id="permissions">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h2 class="panel-title">Permissions</h2>
-                        </div>
-                        <div class="list-group">
-                            <div class="list-group-item">
-                                <div class="checkbox">
-                                    <label><input class="group-permission" name="can_contribute" type="checkbox" {% if group.can_contribute %} checked="true" {% endif %}> Members of this user group can contribute to the project.</label>
-                                </div>
-                            </div>
-                            <div class="list-group-item">
-                                <div class="checkbox">
-                                    <label><input class="group-permission" name="can_moderate" type="checkbox" {% if group.can_moderate %} checked="true" {% endif %}> Members of this user group can moderate data in the project.</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="panel-heading">Maps</div>
-                        <div class="list-group">
-                            <li class="list-group-item">
-                                <div class="checkbox">
-                                    <label>
-                                        <input class="view-permission" name="view" value="all" type="checkbox" {% if group.read_all_contrib %} checked="true" {% endif %}> All contributions
-                                    </label>
-                                </div>
-                            </li>
-                            {% viewgroups group %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> -->
 {% endblock %}
 
 {% block modals %}

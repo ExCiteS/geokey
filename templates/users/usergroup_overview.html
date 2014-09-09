@@ -27,7 +27,7 @@
                         </div>
                         <div class="list-group">
                             <a href="{% url 'admin:usergroup_overview' group.project.id group.id %}" class="list-group-item active">Members</a>
-                            <a href="" class="list-group-item">Permissions</a>
+                            <a href="{% url 'admin:usergroup_permissions' group.project.id group.id %}" class="list-group-item">Permissions</a>
                             <a href="{% url 'admin:usergroup_settings' group.project.id group.id %}" class="list-group-item">Settings</a>
                         </div>
                     </div>
