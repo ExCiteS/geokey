@@ -169,6 +169,22 @@ class UserGroupOverview(LoginRequiredMixin, TemplateView):
         return {'group': group, 'status_types': STATUS}
 
 
+class AdministratorsOverview(LoginRequiredMixin, TemplateView):
+    """
+    Displays the user group settings page
+    `/admin/projects/:project_id/usergroups/:group_id/`
+    """
+    template_name = 'users/usergroup_admins.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id):
+        """
+        Creates the request context for rendering the page
+        """
+        project = Project.objects.as_admin(self.request.user, project_id)
+        return {'project': project}
+
+
 class UserGroupSettings(LoginRequiredMixin, TemplateView):
     """
     Displays the user group settings page
@@ -185,6 +201,44 @@ class UserGroupSettings(LoginRequiredMixin, TemplateView):
         group = project.usergroups.get(pk=group_id)
 
         return {'group': group, 'status_types': STATUS}
+
+    def post(self, request, project_id, group_id):
+        context = self.get_context_data(project_id, group_id)
+        group = context.pop('group', None)
+
+        data = request.POST
+
+        group.name = data.get('name')
+        group.description = data.get('description')
+        group.save()
+
+        messages.success(self.request, "The user group has been updated.")
+        context['group'] = group
+        return self.render_to_response(context)
+
+
+
+class UserGroupDelete(LoginRequiredMixin, TemplateView):
+    template_name = 'base.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, group_id):
+        """
+        Creates the request context for rendering the page
+        """
+        project = Project.objects.as_admin(self.request.user, project_id)
+        group = project.usergroups.get(pk=group_id)
+        return super(UserGroupDelete, self).get_context_data(group=group)
+
+    def get(self, request, project_id, group_id):
+        context = self.get_context_data(project_id, group_id)
+        group = context.pop('group', None)
+
+        if group is not None:
+            group.delete()
+
+        messages.success(self.request, 'The user group has been deleted.')
+        return redirect('admin:usergroup_list', project_id=project_id)
 
 
 class UserProfile(LoginRequiredMixin, TemplateView):

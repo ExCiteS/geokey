@@ -12,7 +12,7 @@
 
 <ul class="user-list">
 	{% for user in users %}
-		<li>{{user.display_name}} <a class="text-danger remove pull-right" data-user-id="{{ user.id }}" href="#"><small>remove</small></a></li>
+		<li>{{user.display_name}} <a class="text-danger remove" data-user-id="{{ user.id }}" href="#"><small>remove</small></a></li>
 	{% empty %}
 		<li>No users have been assigned to this group.</li>
 	{% endfor %}

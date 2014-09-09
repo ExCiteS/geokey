@@ -55,9 +55,17 @@ urlpatterns = patterns(
         login_views.UserGroupOverview.as_view(),
         name='usergroup_overview'),
     url(
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/administrators/$',
+        login_views.AdministratorsOverview.as_view(),
+        name='admins_overview'),
+    url(
         r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/settings/$',
         login_views.UserGroupSettings.as_view(),
         name='usergroup_settings'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/delete/$',
+        login_views.UserGroupDelete.as_view(),
+        name='usergroup_delete'),
 
     # ###########################
     # OBSERVATION TYPES & FIELDS

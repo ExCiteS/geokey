@@ -8,52 +8,73 @@
 {% block main %}
         <div class="page-header">
             <div class="container">
-
-                <ol class="breadcrumb">
-                    <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
-                    <li><a href="{% url 'admin:project_settings' group.project.id %}">{{ group.project.name }}</a></li>
-                    <li class="active">{{group.name}}</li>
-                </ol>
-
-                <h1>{{group.name}}</h1>
-                <p class="lead">
-                    <span id="descriptionText">{% if group.description %} {{group.description}} {% endif %}</span>
-                    <button id="edit" type="button" class="btn btn-link"><span class="glyphicon glyphicon-edit"></span> Edit</button>
-                </p>
-                <form class="form-inline hidden" id="description-form" role="form">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label class="sr-only" for="desription">User group description</label>
-                        <input type="text" class="form-control" id="description" name="description" placeholder="Enter a view desription" {% if group.description %}value="{{group.description}}"{% endif %}>
-                    </div>
-                    <button type="submit" class="btn btn-primary" data-loading-text="Updating...">Save</button>
-                    <button type="button" class="btn btn-link">Cancel</button>
-                </form>
+                <h1>{{group.project.name}}</h1>
+                <ul class="header-nav">
+                    <li><a href="{% url 'admin:category_list' group.project.id %}">Categories <span class="badge">{{ group.project.observationtypes.count }}</span></a></li>
+                    <li><a href="{% url 'admin:grouping_list' group.project.id %}">Data groupings <span class="badge">{{ group.project.views.count }}</span></a></li>
+                    <li class="active"><a href="{% url 'admin:usergroup_list' group.project.id %}">User groups <span class="badge">{{ group.project.usergroups.count }}</span></a></li>
+                </ul>
             </div>
         </div>
 
         <div class="container">
-            <div class="row" id="users">
-                <div class="col-md-6">
-                    <div class="panel panel-default" id="usergroup-users">
+            {% include 'snippets/messages.html' %}
+            
+            <div class="row">
+                <div class="col-sm-4">
+                <div class="panel panel-default">
                         <div class="panel-heading">
-                            <h2 class="panel-title">Members</h2>
+                            <h3>{{ group.name }}</h3>
+                            {% if group.description %}<p>{{ group.description }}</p>{% endif %}
                         </div>
-
-                        {% include 'snippets/usergroup-editor.html' with users=group.users.all %}
-                    </div> <!-- /Administrators List -->
-
-                    <div class="panel panel-danger">
-                        <div class="panel-heading">
-                            <h2 class="panel-title">Delete user group</h2>
-                        </div>
-                        <div class="panel-body">
-                            <p>If you delete the user group there's no way back.</p>
-                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-confirm">Delete this user group</button>
+                        <div class="list-group">
+                            <a href="{% url 'admin:usergroup_overview' group.project.id group.id %}" class="list-group-item active">Members</a>
+                            <a href="" class="list-group-item">Permissions</a>
+                            <a href="{% url 'admin:usergroup_settings' group.project.id group.id %}" class="list-group-item">Settings</a>
                         </div>
                     </div>
                 </div>
-                
+                <div class="col-sm-8">
+                    <form  role="form" method="POST" action="{% url 'admin:usergroup_settings' group.project.id group.id %}" novalidate>
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="name" class="control-label">Name (required)</label>
+                            <input type="text" class="form-control input-lg" id="name" name="name" value="{{ group.name }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description" class="control-label">Description (required)</label>
+                            <textarea class="form-control input-lg" rows="5" name="description" id="description">{{ group.description }}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                            <button type="reset" class="btn btn-link">Reset</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-8 col-sm-offset-4">
+                    <div class="panel panel-danger">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Be careful!</h2>
+                        </div>
+                        <div class="panel-body becareful">
+                            <div>
+                                <strong>Delete user group</strong>
+                                <p>Deleting a user group can not be undone.</p>
+                                <a href="#" class="text-danger" data-toggle="modal" data-target="#delete-confirm">Delete this user group</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- <div class="container">
+            <div class="row" id="users">
                 <div class="col-md-6" id="permissions">
                     <div class="panel panel-default">
                         <div class="panel-heading">
@@ -85,7 +106,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 {% endblock %}
 
 {% block modals %}
@@ -98,13 +119,10 @@
                         <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
                     </div>
                     <div class="modal-body panel-body">
-                        <p class="text-danger">You are about to delete the user group <strong>{{goup.name}}</strong>. This can not be undone.</p>
-                        <ul>
-                            <li>All users who are assigned to this user group only will not be able to access the project any longer.</li>
-                        </ul>
+                        <p>You are about to delete the user group <strong>{{goup.name}}</strong>. This can not be undone.</p>
                     </div>
                     <div class="modal-footer panel-footer">
-                        <button type="button" name="confirm" class="btn btn-danger">I'm absolutely sure, delete the user group!</button>
+                        <a href="{% url 'admin:usergroup_delete' group.project.id group.id %}" class="btn btn-danger">I'm absolutely sure, delete the user group!</a>
                     </div>
                 </div>
             </div>
@@ -113,13 +131,5 @@
 {% endblock %}
 
 {% block libraries %}
-            <script src="/static/lib/handlebars/handlebars.js"></script>
-            <script src="/static/js/templates.js"></script>
-
-            <script src="/static/js/admin.ui.messages.js"></script>
-            <script src="/static/js/admin.ui.descriptioneditor.js"></script>
-            <script src="/static/js/admin.ui.updater.js"></script>
-            <script src="/static/js/admin.control.ajax.js"></script>
-            <script src="/static/js/admin.ui.usergroup.users.js"></script>
-            <script src="/static/js/admin.ui.usergroup.permissions.js"></script>
+            <script src="/static/js/admin.ui.forms.validate.js"></script>
 {% endblock %}

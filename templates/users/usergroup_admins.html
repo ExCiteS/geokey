@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %} | Administrators{% endblock %}
+{% block bodydata %} data-project-id="{{project.id}}""{% endblock %}
+
+{% block main %}
+        <div class="page-header">
+            <div class="container">
+                <h1>{{project.name}}</h1>
+                <ul class="header-nav">
+                    <li><a href="{% url 'admin:category_list' project.id %}">Categories <span class="badge">{{ project.observationtypes.count }}</span></a></li>
+                    <li><a href="{% url 'admin:grouping_list' project.id %}">Data groupings <span class="badge">{{ project.views.count }}</span></a></li>
+                    <li class="active"><a href="{% url 'admin:usergroup_list' project.id %}">User groups <span class="badge">{{ project.usergroups.count }}</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="container">
+            {% include 'snippets/messages.html' %}
+            
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3>Administrators</h3>
+                            <p>Administrators for the project {{ project.name }}</p>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h5>Special settings for administrators</h5>
+                        <p>Project administrators can access all data groupings as well as contribute and moderate all data.</p>
+                        <p>They further can change the settings of this project. </p>
+                    </div>
+                </div>
+                <div class="col-sm-8">
+                    {% include 'snippets/usergroup-editor.html' with users=project.admins.all %}
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block libraries %}
+            <script src="/static/lib/handlebars/handlebars.js"></script>
+            <script src="/static/js/templates.js"></script>
+
+            <script src="/static/js/admin.control.ajax.js"></script>
+            <script src="/static/js/admin.ui.usergroup.users.js"></script>
+{% endblock %}
