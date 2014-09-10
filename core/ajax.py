@@ -56,6 +56,10 @@ urlpatterns = patterns(
         observationtypes_views.ObservationTypeUpdate.as_view(),
         name='observationtype'),
     url(
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/check-key/$',
+        observationtypes_views.FieldKeyCheck.as_view(),
+        name='key_check'),
+    url(
         r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/$',
         observationtypes_views.FieldUpdate.as_view(),
         name='observationtype_field'),

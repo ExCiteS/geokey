@@ -432,3 +432,11 @@ h6.item-info {
 h6.item-info + h3 {
 	margin-top: 0;
 }
+
+.field-info td:first-child {
+	padding-left: 15px;
+};
+
+.field-info td:last-child {
+	padding-right: 15px;
+};

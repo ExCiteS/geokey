@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+{% block bodydata %} data-project-id="{{category.project.id}}" data-category-id="{{category.id}}"{% endblock %}
 {% block title %} | Create new field{% endblock %}
 
 {% block main %}
@@ -101,4 +102,5 @@
 {% block libraries %} 
 			<script src="/static/js/admin.ui.forms.validate.js"></script>
 			<script src="/static/js/admin.ui.field.create.js"></script>
+            <script src="/static/js/admin.control.ajax.js"></script>
 {% endblock %}

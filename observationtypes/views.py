@@ -256,9 +256,7 @@ class FieldSettings(LoginRequiredMixin, TemplateView):
         data = request.POST
 
         field.name = data.get('name')
-        print data.get('description')
         field.description = data.get('description')
-        field.key = data.get('key')
         field.required = data.get('required') or False
 
         if isinstance(field, NumericField):
@@ -358,6 +356,35 @@ class FieldUpdate(APIView):
             return Response(serializer.data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FieldKeyCheck(APIView):
+    """
+    API endpoint that can be used to check the validity of a key of a field
+    /ajax/projects/:project_id/category/:category_id/check-key/?key=key
+    """
+
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, category_id, format=None):
+        category = ObservationType.objects.as_admin(
+            request.user, project_id, category_id)
+
+        proposed_key = request.GET.get('key')
+        count = 1
+
+        if category.fields.filter(key=proposed_key).exists():
+            while True:
+                suggested_key = proposed_key + '_' + str(count)
+                if not category.fields.filter(key=suggested_key):
+                    return Response({
+                        'accepted': False,
+                        'suggested_key': suggested_key
+                    })
+
+                count = count + 1
+        else:
+            return Response({'accepted': True})
+
 
 
 class FieldLookups(APIView):
