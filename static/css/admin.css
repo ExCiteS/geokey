@@ -3,13 +3,23 @@ body {
 }
 
 body#home {
-	background: url(../img/sf.JPG) no-repeat 50% 50%;
+	background: url(../img/people.jpg) no-repeat 50% 50%;
 }
 
 body#home div.jumbotron {
 	background-color: transparent;
-	padding: 100px 0;
+	padding: 10px 0;
 }
+
+	body#home div.jumbotron div.credit {
+		margin-bottom: 90px;
+		font-size: 12px;
+	}
+
+	body#home div.jumbotron div.credit a {
+		color: #333;
+		text-decoration: underline;
+	}
 
 	body#home div.jumbotron .super-heading {
 		text-shadow: 0 0 10px #555;
