@@ -7,7 +7,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-sm-6">
-                        <h1 class="smaller">{{ project.name }}</h1>        
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' project.id %}">{{project.name}}</a></h1>
                     </div>
                     <ul class="header-nav">
                         <li><a href="{% url 'admin:category_list' project.id %}">Categories <span class="badge">{{ project.observationtypes.count }}</span></a></li>
@@ -22,14 +22,11 @@
             {% include 'snippets/messages.html' %}
             
             <div class="row">
-                <div class="col-sm-12">
+                <div class="col-sm-8">
                     <h3 class="header">
                         User groups
                         <a href="{% url 'admin:usergroup_create' project.id %}" class="btn btn-success btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create new user group</a>
                     </h3>
-                </div>
-
-                <div class="col-sm-9">
                     <div class="overview-list-item">
                         <h4><a href="{% url 'admin:admins_overview' project.id %}">Administrators</a></h4>
                         <p>Administrators for the project {{ project.name }}</p>
@@ -42,12 +39,10 @@
                     {% endfor %}
                 </div>
 
-                <div class="col-sm-3">
-                    {% if not project.usergroups.all %}
-                        <div class="alert alert-info">
-                            Add more user groups to grant contribute and moderate permissions to a set of users and to grant access to data groupings.
-                        </div>
-                    {% endif %}
+                <div class="col-sm-4">
+                    <div class="alert alert-info">
+                        Add user groups to grant contribute and moderate permissions to a set of users and to grant access to data groupings.
+                    </div>
                 </div>
             </div>
         </div>

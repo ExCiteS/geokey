@@ -7,7 +7,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-sm-6">
-                        <h1 class="smaller">{{project.name}}</h1>        
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' project.id %}">{{project.name}}</a></h1>
                     </div>
                     <ul class="header-nav">
                         <li><a href="{% url 'admin:category_list' project.id %}">Categories <span class="badge">{{ project.observationtypes.count }}</span></a></li>
@@ -22,14 +22,12 @@
             {% include 'snippets/messages.html' %}
             
             <div class="row">
-                <div class="col-sm-12">
+                <div class="col-sm-8">
                     <h3 class="header">Data groupings
-                    {% if project.views.all %}
-                        <a href="{% url 'admin:view_create' project.id %}" class="btn btn-sm btn-success pull-right"><span class="glyphicon glyphicon-plus"></span> Create new data grouping</a>
-                    {% endif %}
+                        {% if project.views.all %}
+                            <a href="{% url 'admin:view_create' project.id %}" class="btn btn-sm btn-success pull-right"><span class="glyphicon glyphicon-plus"></span> Create new data grouping</a>
+                        {% endif %}
                     </h3>
-                </div>
-                <div class="col-sm-9">
                     {% for grouping in project.views.all %}
                     <div class="overview-list-item">
                         <h4><a href="{% url 'admin:grouping_overview' grouping.project.id grouping.id %}">{{grouping.name}}</a></h4>
@@ -51,8 +49,10 @@
                     {% endfor %}
                 </div>
 
-                <div class="col-sm-3">
-                    
+                <div class="col-sm-4">
+                    <div class="alert alert-info">
+                        You can use data groupings to provide users access to a subset of all data contributed to the project. For instance, you can create a data grouping that includes all tube stations that were added during the last seven days.
+                    </div>
                 </div>
             </div>
         </div>

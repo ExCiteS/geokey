@@ -11,12 +11,12 @@
             <div class="container">
                 <div class="row">
                     <div class="col-sm-6">
-                        <h1 class="smaller">{{ rule.view.project.name }}</h1>        
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' rule.view.project.id %}">{{rule.view.project.name}}</a></h1>
                     </div>
                     <ul class="header-nav">
                         <li><a href="{% url 'admin:category_list' rule.view.project.id %}">Categories <span class="badge">{{ rule.view.project.observationtypes.count }}</span></a></li>
                         <li class="active"><a href="{% url 'admin:grouping_list' rule.view.project.id %}">Data groupings <span class="badge">{{ rule.view.project.views.count }}</span></a></li>
-                        <li><a href="#">User groups <span class="badge">{{ rule.view.project.usergroups.count }}</span></a></li>
+                        <li><a href="{% url 'admin:usergroup_list' rule.view.project.id %}">User groups <span class="badge">{{ rule.view.project.usergroups.count }}</span></a></li>
                     </ul>
                 </div>
             </div>

@@ -12,7 +12,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-sm-6">
-                        <h1 class="smaller">{{view.project.name}}</h1>        
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' view.project.id %}">{{view.project.name}}</a></h1>
                     </div>
                     <ul class="header-nav">
                         <li><a href="{% url 'admin:category_list' view.project.id %}">Categories <span class="badge">{{ view.project.observationtypes.count }}</span></a></li>
@@ -30,6 +30,7 @@
                 <div class="col-sm-4">
                     <div class="panel panel-default">
                         <div class="panel-heading">
+                            <h6 class="item-info">Data grouping</h6>
                             <h3>{{ view.name }}</h3>
                             {% if view.description %}<p>{{ view.description }}</p>{% endif %}
                         </div>

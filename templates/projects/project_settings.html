@@ -9,7 +9,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-sm-6">
-                        <h1 class="smaller">{{project.name}}</h1>        
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' project.id %}">{{project.name}}</a></h1>
                     </div>
                     <ul class="header-nav">
                     <li><a href="{% url 'admin:category_list' project.id %}">Categories <span class="badge">{{ project.observationtypes.count }}</span></a></li>
@@ -208,11 +208,6 @@
 
 {% block libraries %}
             <script src="/static/js/admin.ui.forms.validate.js"></script>
-            <script src="/static/lib/handlebars/handlebars.js"></script>
-            <script src="/static/js/templates.js"></script>
-
-            <script src="/static/js/admin.ui.messages.js"></script>
             <script src="/static/js/admin.ui.updater.js"></script>
             <script src="/static/js/admin.control.ajax.js"></script>
-            <script src="/static/js/admin.ui.usergroup.users.js"></script>
 {% endblock %}
