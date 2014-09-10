@@ -4,16 +4,26 @@
 
 {% block main %}
 		<div class="page-header">
-			<div class="container">
-				<h1>{{ project.name }}</h1>
-			</div>
-		</div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller">{{project.name}}</h1>        
+                    </div>
+                    <ul class="header-nav">
+                        <li class="active"><a href="{% url 'admin:category_list' project.id %}">Categories <span class="badge">{{ project.observationtypes.count }}</span></a></li>
+                        <li><a href="{% url 'admin:grouping_list' project.id %}">Data groupings <span class="badge">{{ project.views.count }}</span></a></li>
+                        <li><a href="{% url 'admin:usergroup_list' project.id %}">User groups <span class="badge">{{ project.usergroups.count }}</span></a></li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
 
 		<div class="container">
 			<div class="row">
 				<form  role="form" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url 'admin:observationtype_create' project.id %}" novalidate> 
-					{% csrf_token %}
 					<h3 class="header">Create a new category</h3>
+					{% csrf_token %}
 					<div class="form-group">
 						<label for="name" class="control-label">Name (required)</label>
 						<input type="text" class="form-control input-lg" id="name" name="name" required>

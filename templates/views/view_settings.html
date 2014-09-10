@@ -7,16 +7,21 @@
 
 {% block main %}
 	{% csrf_token %}
-		<div class="page-header">
-			<div class="container">
-				<h1>{{view.project.name}}</h1>
-                <ul class="header-nav">
-                    <li><a href="{% url 'admin:category_list' view.project.id %}">Categories <span class="badge">{{ view.project.observationtypes.count }}</span></a></li>
-                    <li class="active"><a href="{% url 'admin:grouping_list' view.project.id %}">Data groupings <span class="badge">{{ view.project.views.count }}</span></a></li>
-                    <li><a href="#">User groups <span class="badge">{{ view.project.usergroups.count }}</span></a></li>
-                </ul>
-			</div>
-		</div>
+
+        <div class="page-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller">{{view.project.name}}</h1>        
+                    </div>
+                    <ul class="header-nav">
+                        <li><a href="{% url 'admin:category_list' view.project.id %}">Categories <span class="badge">{{ view.project.observationtypes.count }}</span></a></li>
+                        <li class="active"><a href="{% url 'admin:grouping_list' view.project.id %}">Data groupings <span class="badge">{{ view.project.views.count }}</span></a></li>
+                        <li><a href="{% url 'admin:usergroup_list' view.project.id %}">User groups <span class="badge">{{ view.project.usergroups.count }}</span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
 		<div class="container">
             {% include 'snippets/messages.html' %}

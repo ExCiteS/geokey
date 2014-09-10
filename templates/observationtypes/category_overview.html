@@ -5,12 +5,17 @@
 {% block main %}
         <div class="page-header">
             <div class="container">
-                <h1>{{category.project.name}}</h1>
-                <ul class="header-nav">
-                    <li class="active"><a href="{% url 'admin:category_list' category.project.id %}">Categories <span class="badge">{{ category.project.observationtypes.count }}</span></a></li>
-                    <li><a href="{% url 'admin:grouping_list' category.project.id %}">Data groupings <span class="badge">{{ category.project.views.count }}</span></a></li>
-                    <li><a href="{% url 'admin:grouping_list' category.project.id %}">User groups <span class="badge">{{ category.project.usergroups.count }}</span></a></li>
-                </ul>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller">{{category.project.name}}</h1>        
+                    </div>
+                    <ul class="header-nav">
+                        <li class="active"><a href="{% url 'admin:category_list' category.project.id %}">Categories <span class="badge">{{ category.project.observationtypes.count }}</span></a></li>
+                        <li><a href="{% url 'admin:grouping_list' category.project.id %}">Data groupings <span class="badge">{{ category.project.views.count }}</span></a></li>
+                        <li><a href="{% url 'admin:grouping_list' category.project.id %}">User groups <span class="badge">{{ category.project.usergroups.count }}</span></a></li>
+                    </ul>
+                </div>
+
             </div>
         </div>
 
@@ -45,7 +50,7 @@
                     {% empty %}
                         <div class="well empty-list">
                             <p class="lead">We couldn't find any fields for this category.</p>
-                            <p>Explain what a field is</p>
+                            <p>You can use fields to define what data should be collected for the category. For instance, if your category is Tube Stations, you could have a text field for its name, a text field for its address and a number field for the number of passengers leaving from this station.</p>
                             <a href="{% url 'admin:observationtype_field_create' category.project.id category.id %}" class="btn btn-success btn-lg">Create new field</a>
                         </div>
                     {% endfor %}

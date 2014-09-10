@@ -6,12 +6,16 @@
 {% block main %}
         <div class="page-header">
             <div class="container">
-                <h1>{{ grouping.project.name }}</h1>
-                <ul class="header-nav">
-                    <li><a href="{% url 'admin:category_list' grouping.project.id %}">Categories <span class="badge">{{ grouping.project.observationtypes.count }}</span></a></li>
-                    <li class="active"><a href="{% url 'admin:grouping_list' grouping.project.id %}">Data groupings <span class="badge">{{ grouping.project.views.count }}</span></a></li>
-                    <li><a href="#">User groups <span class="badge">{{ grouping.project.usergroups.count }}</span></a></li>
-                </ul>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller">{{ grouping.project.name }}</h1>        
+                    </div>
+                    <ul class="header-nav">
+                        <li><a href="{% url 'admin:category_list' grouping.project.id %}">Categories <span class="badge">{{ grouping.project.observationtypes.count }}</span></a></li>
+                        <li class="active"><a href="{% url 'admin:grouping_list' grouping.project.id %}">Data groupings <span class="badge">{{ grouping.project.views.count }}</span></a></li>
+                        <li><a href="#">User groups <span class="badge">{{ grouping.project.usergroups.count }}</span></a></li>
+                    </ul>
+                </div>
             </div>
         </div>
 

@@ -12,7 +12,7 @@
             {% include 'snippets/messages.html' %}
             <div class="row">
                 <div class="col-md-8">
-                    <h3>
+                    <h3 class="header">
                         Mangage your projects
                         {% if admin_projects %} <a href="{% url 'admin:project_create' %}" class="pull-right btn btn-sm btn-success"><span class="glyphicon glyphicon-plus"></span> Create new Project</a>{% endif %}
                     </h3>

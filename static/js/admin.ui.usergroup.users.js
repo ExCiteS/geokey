@@ -50,8 +50,8 @@
             setTimeout(function() {html.remove(); }, 5000);
 
             itemToRemove.remove();
-            if (userList.children().length === 0) {
-                userList.append('<li>No users have been assigned to this group.</li>');
+            if (userList.children(':not(.message)').length === 0) {
+                userList.append('<li class="empty">No users have been assigned to this group.</li>');
             }
             displaySuccess();
         }
@@ -79,6 +79,11 @@
      */
     function handleAddUserSucess(response) {
         userList.empty();
+
+        if (!userList.length) {
+            userList = $('<ul class="user-list"></ul>').appendTo('#members');
+            $('#members .empty-list').hide();
+        }
 
         var html = $('<li class="bg-success message"><span class="text-success"><span class="glyphicon glyphicon-ok"></span> The user has been added to the user group.</span></li>');
         userList.append(html);

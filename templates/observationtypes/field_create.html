@@ -3,21 +3,38 @@
 {% block title %} | Create new field{% endblock %}
 
 {% block main %}
-		<div class="page-header">
+        <div class="page-header">
             <div class="container">
-                <h1>{{category.project.name}}</h1>
-                <ul class="header-nav">
-                    <li class="active"><a href="{% url 'admin:category_list' category.project.id %}">Categories <span class="badge">{{ category.project.observationtypes.count }}</span></a></li>
-                    <li><a href="{% url 'admin:grouping_list' project.id %}">Data groupings <span class="badge">{{ category.project.views.count }}</span></a></li>
-                    <li><a href="{% url 'admin:grouping_list' project.id %}">User groups <span class="badge">{{ category.project.usergroups.count }}</span></a></li>
-                </ul>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller">{{category.project.name}}</h1>        
+                    </div>
+                    <ul class="header-nav">
+                        <li class="active"><a href="{% url 'admin:category_list' category.project.id %}">Categories <span class="badge">{{ category.project.observationtypes.count }}</span></a></li>
+                        <li><a href="{% url 'admin:grouping_list' category.project.id %}">Data groupings <span class="badge">{{ category.project.views.count }}</span></a></li>
+                        <li><a href="{% url 'admin:grouping_list' category.project.id %}">User groups <span class="badge">{{ category.project.usergroups.count }}</span></a></li>
+                    </ul>
+                </div>
+
             </div>
         </div>
 
 		<div class="container">
 			<div class="row">
-				<form  role="form" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="#" novalidate>
-					<h3 class="header">Create new field for category {{ category.name }}</h3>
+                <div class="col-sm-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3>{{ category.name }}</h3>
+                            {% if category.description %}<p>{{ category.description }}</p>{% endif %}
+                        </div>
+                        <div class="list-group">
+                            <a href="{% url 'admin:category_overview' category.project.id category.id %}" class="list-group-item active">Fields</a>
+                            <a href="{% url 'admin:observationtype_settings' category.project.id category.id %}" class="list-group-item">Settings</a>
+                        </div>
+                    </div>
+                </div>
+				<form  role="form" class="col-md-8" method="POST" action="#" novalidate>
+					<h3 class="header">Create new field</h3>
 					{% csrf_token %}
 					<div class="form-group">
 						<label for="name" class="control-label">Name (required)</label>
@@ -35,6 +52,12 @@
 						<textarea class="form-control input-lg" rows="5" name="description" id="description" {%if data %}value="{{data.description}}"{% endif %}></textarea>
 					</div>
 
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label><input type="checkbox" name="required" {% if data.required %}checked{% endif %}> <strong>A value for this field is mandatory</strong><br>Tick this box, if want you want to ensure contributors provide a value for this field.</label>
+                        </div>
+                    </div>
+
 					<div class="form-group">
 						<label for="status" class="control-label">Type</label>
 						<select name="type" id="type" class="form-control" required>
@@ -45,7 +68,7 @@
 						</select>
 					</div>
 
-					<div class="row hidden" id="minmax">
+					<div class="row hidden field-special" id="minmax">
                         <div class="form-group col-sm-6">
                             <label for="minval" class="control-label">Minimum value</label>
                             <input type="number" step="0.01" class="form-control" id="minval" name="minval" placeholder="e.g.; 1.642">
@@ -57,11 +80,13 @@
                         </div>
                     </div>
 
-					<div class="form-group">
-						<div class="checkbox">
-							<label><input type="checkbox" name="required" {% if data.required %}checked{% endif %}> A value for this field is mandatory.</label>
-						</div>
-					</div>
+                    <div class="row hidden field-special" id="lookup">
+                        <div class="col-sm-12">
+                            <div class="alert alert-info">
+                                You can add accepted values after you save the new field.
+                            </div>
+                        </div>
+                    </div>
 
 					<div class="form-group">
 						<button type="submit" class="btn btn-primary">Save</button>

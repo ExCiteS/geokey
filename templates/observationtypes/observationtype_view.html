@@ -4,14 +4,19 @@
 {% block title %} | Observation type: {{ observationtype.name }}{% endblock %}
 
 {% block main %}
-		<div class="page-header">
+        <div class="page-header">
             <div class="container">
-                <h1>{{observationtype.project.name}}</h1>
-                <ul class="header-nav">
-                    <li class="active"><a href="{% url 'admin:category_list' observationtype.project.id %}">Categories <span class="badge">{{ observationtype.project.observationtypes.count }}</span></a></li>
-                    <li><a href="{% url 'admin:grouping_list' observationtype.project.id %}">Data groupings <span class="badge">{{ observationtype.project.views.count }}</span></a></li>
-                    <li><a href="{% url 'admin:grouping_list' observationtype.project.id %}">User groups <span class="badge">{{ observationtype.project.usergroups.count }}</span></a></li>
-                </ul>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller">{{observationtype.project.name}}</h1>        
+                    </div>
+                    <ul class="header-nav">
+                        <li class="active"><a href="{% url 'admin:category_list' observationtype.project.id %}">Categories <span class="badge">{{ observationtype.project.observationtypes.count }}</span></a></li>
+                        <li><a href="{% url 'admin:grouping_list' observationtype.project.id %}">Data groupings <span class="badge">{{ observationtype.project.views.count }}</span></a></li>
+                        <li><a href="{% url 'admin:grouping_list' observationtype.project.id %}">User groups <span class="badge">{{ observationtype.project.usergroups.count }}</span></a></li>
+                    </ul>
+                </div>
+
             </div>
         </div>
 

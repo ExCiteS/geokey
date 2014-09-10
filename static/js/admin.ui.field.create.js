@@ -11,9 +11,14 @@
     }
 
     function handleTypeSelect(event) {
-        $('#minmax').addClass('hidden');
-        if (event.target.value === 'NumericField') {
-            $('#minmax').removeClass('hidden');
+        $('.field-special').addClass('hidden');
+        switch (event.target.value) {
+            case 'NumericField':
+                $('#minmax').removeClass('hidden');
+                break;
+            case 'LookupField':
+                $('#lookup').removeClass('hidden');
+                break;    
         }
     }
 

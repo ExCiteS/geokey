@@ -91,6 +91,11 @@ h6:first-child {
 	margin-top: 0;
 }
 
+h1.smaller {
+	font-size: 24px;
+	font-weight: normal;
+}
+
 .navbar-default {
 	background-color: #f5f5f5;
 }
@@ -316,25 +321,26 @@ span.number {
 	border-bottom: 0;
 }
 
-.page-header .container {
+.page-header .row {
 	position: relative;
 }
 
-.page-header .container .header-nav {
+.page-header .header-nav {
 	position: absolute;
-	bottom: 0;
+	bottom: -33px;
 	right: 0;
 }
 
-.page-header .container .header-nav li {
+.page-header .header-nav li {
 	list-style: none;
 	display: inline-block;
-	padding: 12px;
-	margin-bottom: -12px;
+	padding: 10px;
+	margin-left: 15px;
+	border-bottom: 3px solid transparent;
 }
 
-.page-header .container .header-nav li.active {
-	border-bottom: 2px solid #5bc0de;
+.page-header .header-nav li.active {
+	border-bottom-color: #5bc0de;
 }
 
 .header {
@@ -382,4 +388,30 @@ form#permissions {
 
 form#permissions .message {
 	padding: 15px;
+}
+
+#project-stats {
+	color: #428bca;
+	text-transform: uppercase;
+	font-weight: bold;
+}
+
+	#project-stats > div {
+		text-align: center;
+	}
+
+		#project-stats > div > .number {
+			display: inline-block;
+			min-width: 86px;
+			color: #fff;
+			background-color: #428bca;
+			padding: 15px;
+			border-radius: 43px;
+			margin-bottom: 15px;
+		}
+
+.panel-heading h3:last-child,
+.panel-heading p,
+.panel-body p:last-child {
+	margin-bottom: 0;
 }

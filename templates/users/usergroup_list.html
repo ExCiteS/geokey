@@ -5,12 +5,16 @@
 {% block main %}
         <div class="page-header">
             <div class="container">
-                <h1>{{project.name}}</h1>
-                <ul class="header-nav">
-                    <li><a href="{% url 'admin:category_list' project.id %}">Categories <span class="badge">{{ project.observationtypes.count }}</span></a></li>
-                    <li><a href="{% url 'admin:grouping_list' project.id %}">Data groupings <span class="badge">{{ project.views.count }}</span></a></li>
-                    <li class="active"><a href="{% url 'admin:usergroup_list' project.id %}">User groups <span class="badge">{{ project.usergroups.count }}</span></a></li>
-                </ul>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller">{{ project.name }}</h1>        
+                    </div>
+                    <ul class="header-nav">
+                        <li><a href="{% url 'admin:category_list' project.id %}">Categories <span class="badge">{{ project.observationtypes.count }}</span></a></li>
+                        <li><a href="{% url 'admin:grouping_list' project.id %}">Data groupings <span class="badge">{{ project.views.count }}</span></a></li>
+                        <li class="active"><a href="{% url 'admin:usergroup_list' project.id %}">User groups <span class="badge">{{ project.usergroups.count }}</span></a></li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -21,9 +25,7 @@
                 <div class="col-sm-12">
                     <h3 class="header">
                         User groups
-                        {% if project.usergroups.all %}
-                            <a href="{% url 'admin:usergroup_create' project.id %}" class="btn btn-success btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create new user group</a>
-                        {% endif %}
+                        <a href="{% url 'admin:usergroup_create' project.id %}" class="btn btn-success btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create new user group</a>
                     </h3>
                 </div>
 
@@ -37,17 +39,15 @@
                         <h4><a href="{% url 'admin:usergroup_overview' group.project.id group.id %}">{{group.name}}</a></h4>
                         {% if group.description %}<p>{{group.description}}</p>{% endif %}
                     </div>
-                    {% empty %}
-                        <div class="well empty-list">
-                            <p class="lead">We couldn't find any user groups for this project.</p>
-                            <p>You can use user groups to grant contribute and moderate permissions to a set of users and to grant access to data groupings</p>
-                            <a href="{% url 'admin:usergroup_create' project.id %}" class="btn btn-success btn-lg">Create new user group</a>
-                        </div>
                     {% endfor %}
                 </div>
 
                 <div class="col-sm-3">
-                    
+                    {% if not project.usergroups.all %}
+                        <div class="alert alert-info">
+                            Add more user groups to grant contribute and moderate permissions to a set of users and to grant access to data groupings.
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

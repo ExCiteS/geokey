@@ -5,12 +5,16 @@
 {% block main %}
         <div class="page-header">
             <div class="container">
-                <h1>{{grouping.project.name}}</h1>
-                <ul class="header-nav">
-                    <li><a href="{% url 'admin:category_list' grouping.project.id %}">Categories <span class="badge">{{ grouping.project.observationtypes.count }}</span></a></li>
-                    <li class="active"><a href="{% url 'admin:grouping_list' grouping.project.id %}">Data groupings <span class="badge">{{ grouping.project.views.count }}</span></a></li>
-                    <li><a href="#">User groups <span class="badge">{{ grouping.project.usergroups.count }}</span></a></li>
-                </ul>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller">{{grouping.project.name}}</h1>        
+                    </div>
+                    <ul class="header-nav">
+                        <li><a href="{% url 'admin:category_list' grouping.project.id %}">Categories <span class="badge">{{ grouping.project.observationtypes.count }}</span></a></li>
+                        <li class="active"><a href="{% url 'admin:grouping_list' grouping.project.id %}">Data groupings <span class="badge">{{ grouping.project.views.count }}</span></a></li>
+                        <li><a href="{% url 'admin:usergroup_list' grouping.project.id %}">User groups <span class="badge">{{ grouping.project.usergroups.count }}</span></a></li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -41,7 +45,7 @@
                     {% for filter in grouping.rules.all %}
                     <div class="overview-list-item">
 
-                        <h4><a href="{% url 'admin:rule_settings' grouping.project.id grouping.id filter.id %}">Contributions of type <strong>{{ filter.observation_type.name }}</strong></a>{% if filter.filters %} where {% endif %}</h4>
+                        <h4><a href="{% url 'admin:rule_settings' grouping.project.id grouping.id filter.id %}">Contributions of type <strong>{{ filter.observation_type.name }}</strong></a>{% if filter.filters or filter.min_date or filter.max_date %} where {% endif %}</h4>
                         <ul>
                             {% filters filter %}
                         </ul>
@@ -49,7 +53,7 @@
                     {% empty %}
                         <div class="well empty-list">
                             <p class="lead">We couldn't find any filters for this data grouping.</p>
-                            <p>You need to create at least one filter to define the subset of contributions in this project that will be available in this grouping.</p>
+                            <p>You need to create at least one filter to define the subset of contributions of this project that will be available in this grouping.</p>
                             <p>You can define an arbitrary number of filters; a contribution must match at least one of the filters to be available in this grouping.</p>
                             <a href="{% url 'admin:view_rule_create' grouping.project.id grouping.id %}" class="btn btn-success btn-lg">Create new filter</a>
                         </div>

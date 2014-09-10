@@ -7,12 +7,17 @@
     {% csrf_token %}
         <div class="page-header">
             <div class="container">
-                <h1>{{field.observationtype.project.name}}</h1>
-                <ul class="header-nav">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller">{{field.observationtype.project.name}}</h1>        
+                    </div>
+                    <ul class="header-nav">
                     <li class="active"><a href="{% url 'admin:category_list' field.observationtype.project.id %}">Categories <span class="badge">{{ field.observationtype.project.observationtypes.count }}</span></a></li>
-                    <li><a href="{% url 'admin:grouping_list' project.id %}">Data groupings <span class="badge">{{ field.observationtype.project.views.count }}</span></a></li>
-                    <li><a href="{% url 'admin:grouping_list' project.id %}">User groups <span class="badge">{{ field.observationtype.project.usergroups.count }}</span></a></li>
+                    <li><a href="{% url 'admin:grouping_list' field.observationtype.project.id %}">Data groupings <span class="badge">{{ field.observationtype.project.views.count }}</span></a></li>
+                    <li><a href="{% url 'admin:grouping_list' field.observationtype.project.id %}">User groups <span class="badge">{{ field.observationtype.project.usergroups.count }}</span></a></li>
                 </ul>
+                </div>
+
             </div>
         </div>
 
@@ -24,7 +29,10 @@
                         <div class="panel-heading">
                             <h3>{{ field.name }}</h3>
                             {% if field.description %}<p>{{ field.description }}</p>{% endif %}
-                            <p>Type: {{field.type_name}}</p>
+                        </div>
+                        <div class="panel-body">
+                            <p><strong>Type:</strong> {{field.type_name}}<br>
+                            <strong>Category:</strong> <a href="{% url 'admin:category_overview' field.observationtype.project.id field.observationtype.id %}">{{field.observationtype.name}}</a></p>
                         </div>
                     </div>
                 </div>
@@ -51,7 +59,7 @@
 
                         <div class="form-group">
                             <div class="checkbox">
-                                <label><input type="checkbox" name="required" {% if field.required %}checked{% endif %}> A value for this field is mandatory.</label>
+                                <label><input type="checkbox" name="required" {% if field.required %}checked{% endif %}> <strong>A value for this field is mandatory</strong><br>Tick this box, if want you want to ensure contributors provide a value for this field.</label>
                             </div>
                         </div>
 

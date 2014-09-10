@@ -3,11 +3,9 @@ $(function() {
     var projectId = $('body').attr('data-project-id'),
         viewId = $('body').attr('data-view-id');
 
-    var messages = new Ui.MessageDisplay();
-
     function handleTypeSelection(event) {
         var target = $(event.currentTarget).parents('form');
-        messages.showPanelLoading(target, 'Loading field information for this contribution type...');
+        // messages.showPanelLoading(target, 'Loading field information for this contribution type...');
 
         function handleTypeSuccess(response) {
             target.children('.info-loading').hide('slow', function() {
@@ -24,7 +22,7 @@ $(function() {
         }
 
         function handleTypeError(response) {
-            messages.showPanelError(target, response.responseJSON.error);
+            // messages.showPanelError(target, response.responseJSON.error);
         }
 
         Control.Ajax.get(

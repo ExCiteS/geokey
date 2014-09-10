@@ -95,9 +95,9 @@ class ObservationTypeCreate(LoginRequiredMixin, CreateView):
         """
         project_id = self.kwargs['project_id']
         return reverse(
-            'admin:observationtype_settings',
+            'admin:category_overview',
             kwargs={
-                'project_id': project_id, 'observationtype_id': self.object.id
+                'project_id': project_id, 'category_id': self.object.id
             }
         )
 
