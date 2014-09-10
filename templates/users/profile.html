@@ -5,50 +5,31 @@
 {% block main %}
         <div class="page-header">
             <div class="container">
-                <ol class="breadcrumb">
-                    <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
-                    <li class="active">Your profile</li>
-                </ol>
-
                 <h1>Your profile</h1>
             </div>
         </div>
 
         <div class="container">
-            {% if password_reset %}
-            <div class="row">
-                <div class="col-sm-10 col-sm-offset-1">
-                    <div class="alert alert-success alert-dismissable">
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                        The password has been changed.
-                    </div>
-                </div>
-            </div>
-            {% endif %}
+            {% include 'snippets/messages.html' %}
+
             <div class="row">
                 <div class="col-sm-8 col-sm-offset-2">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h2 class="panel-title">Edit profile</h2>
+                    <h3 class="header">Edit profile</h3>
+                    <form role="form" action="{% url 'admin:userprofile' %}" method="POST" novalidate>
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control input-lg" id="email" name="email" placeholder="Your email address" value="{{user.email}}" required>
                         </div>
-                        <div class="panel-body">
-                            <form role="form" action="{% url 'admin:userprofile' %}" method="POST" novalidate>
-                                {% csrf_token %}
-                                <div class="form-group">
-                                    <label for="email">Email</label>
-                                    <input type="email" class="form-control input-lg" id="email" name="email" placeholder="Your email address" value="{{user.email}}" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="display_name">Display name</label>
-                                    <input type="text" class="form-control input-lg" id="display_name" name="display_name" placeholder="Choose a user name" value="{{user.display_name}}" required>
-                                </div>
-                                <div class="form-group">
-                                    <button type="submit" class="btn btn-primary">Update profile</button>
-                                    <a href="{% url 'admin:changepassword' %}" class="btn btn-link">Change password</button>
-                                </div>
-                            </form>
+                        <div class="form-group">
+                            <label for="display_name">Display name</label>
+                            <input type="text" class="form-control input-lg" id="display_name" name="display_name" placeholder="Choose a user name" value="{{user.display_name}}" required>
                         </div>
-                    </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Update profile</button>
+                            <a href="{% url 'admin:changepassword' %}" class="btn btn-link">Change password</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

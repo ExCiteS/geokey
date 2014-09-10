@@ -5,11 +5,7 @@
 {% block main %}
         <div class="page-header">
             <div class="container">
-                <ol class="breadcrumb">
-                    <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
-                    <li class="active">Your applications</li>
-                </ol>
-                <h1>Your applications</h1>
+                <h1>Applications</h1>
             </div>
         </div>
 
@@ -18,7 +14,7 @@
 
             <div class="row">
                 <div class="col-md-8">
-                    <h3>
+                    <h3 class="header">
                         Your registered applications 
                         {% if apps %}<a href="{% url 'admin:app_register' %}" class="pull-right btn btn-sm btn-success"><span class="glyphicon glyphicon-plus"></span> Create new application</a>{% endif %}
                     </h3>

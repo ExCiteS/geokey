@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 from os.path import abspath, dirname, join, normpath
+from django.contrib import messages
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -62,6 +63,14 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.OAuth2Authentication',
     )
+}
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'debug',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'danger'
 }
 
 APPEND_SLASH = True

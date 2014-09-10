@@ -7,25 +7,36 @@
     {% csrf_token %}
 
     <div class="page-header">
-            <div class="container">
-                <ol class="breadcrumb">
-                    <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
-                    <li><a href="{% url 'admin:app_overview' %}">Your applications</a></li>
-                    <li class="active">{{ application.name }}: Settings</li>
-                </ol>
-
-                <h1>{{application.name}}</h1>
-                {% if application.description %}
-                    <p class="lead">{{application.description}}</p>
-                {% endif %}
-            </div>
+        <div class="container">
+            <h1 class="smaller"><a href="{% url 'admin:app_overview' %}">Applications</a></h1>
         </div>
+    </div>
 
         <div class="container">
             {% include 'snippets/messages.html' %}
 
             <div class="row">
+                <div class="col-md-5 app-meta">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h6 class="item-info">Application</h6>
+                            <h3>{{ application.name }}</h3>
+                            {% if application.description %}<p>{{ application.description }}</p>{% endif %}
+                        </div>
+                        <div class="list-group">
+                            <div class="list-group-item" id="stats">
+                                <span class="number">{{ users }}</span><br> users currently use this app
+                            </div>
+                            <div class="list-group-item">
+                                <p>Client ID: <code>{{ application.client.client_id }}</code></p>
+                                <p>Client secret: <code>{{ application.client.client_secret }}</code></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <form role="form" id="appForm" class="col-md-7" method="POST" action="{% url 'admin:app_settings' application.id %}" novalidate>
+                    <h3 class="header">Settings</h3>
                     {% csrf_token %}
 
                     <div class="form-group">
@@ -53,23 +64,22 @@
                         <button type="reset" class="btn btn-default">Reset</button>
                     </div>
                 </form>
-
-                <div class="col-md-5 app-meta">
-                    <p class="users"><span class="number">{{ users }}</span> users currently use this app</p>
-                    <p>Client ID: <code>{{ application.client.client_id }}</code></p>
-                    <p>Client secret: <code>{{ application.client.client_secret }}</code></p>
-                </div>
             </div>
 
-            <div class="row" id="general-settings">
-                <div class="col-md-7">
+            <div class="row">
+                <div class="col-sm-7 col-sm-offset-5">
                     <div class="panel panel-danger">
                         <div class="panel-heading">
-                            <h2 class="panel-title">Delete application</h2>
+                            <h2 class="panel-title">Be careful!</h2>
                         </div>
-                        <div class="panel-body">
-                            <p>If you delete the application there's no way back.</p>
-                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-confirm">Delete this application</button>
+                        <div class="panel-body becareful">
+                            
+
+                            <div>
+                                <strong>Delete application</strong>
+                                <p>If you delete the application there's no way back.</p>
+                                <a href="#" class="text-danger" data-toggle="modal" data-target="#delete-confirm">Delete this applcation</a>
+                            </div>
                         </div>
                     </div>
                 </div>

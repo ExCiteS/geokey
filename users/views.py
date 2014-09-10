@@ -289,6 +289,7 @@ class UserProfile(LoginRequiredMixin, TemplateView):
         user.save()
 
         context = self.get_context_data()
+        messages.success(request, 'The user information has been updated.')
         return self.render_to_response(context)
 
 
@@ -312,10 +313,11 @@ class ChangePassword(LoginRequiredMixin, TemplateView):
         if user is not None:
             user.set_password(request.POST.get('new_password1'))
             user.save()
+            messages.success(request, 'The password has been changed.')
             return redirect('admin:userprofile')
         else:
-            context = self.get_context_data(wrong_password=True)
-            return self.render_to_response(context)
+            messages.error(request, 'We were not able to athorise you with your old password. The password has not been changed.')
+            return self.render_to_response(self.get_context_data())
 
 
 # ############################################################################

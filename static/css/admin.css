@@ -307,18 +307,6 @@ span.number {
 	display: block;
 }
 
-.app-meta p.users {
-	color: #999;
-	font-size: 1.3em;
-	border-bottom: 1px solid #ddd;
-	padding-bottom: 1.5em;
-	margin-bottom: 2em;
-}
-
-.app-meta p.users span.number {
-	color: #333;
-}
-
 .becareful {
 	padding: 0;
 }
@@ -401,17 +389,14 @@ form#permissions .message {
 	padding: 15px;
 }
 
-#project-stats {
+#stats {
 	color: #428bca;
 	text-transform: uppercase;
 	font-weight: bold;
+	text-align: center;
 }
 
-	#project-stats > div {
-		text-align: center;
-	}
-
-		#project-stats > div > .number {
+		#stats .number {
 			display: inline-block;
 			min-width: 86px;
 			color: #fff;
