@@ -288,7 +288,7 @@ class SingleLookupFieldTest(TestCase):
 
     def test_get_name(self):
         field = LookupFieldFactory()
-        self.assertEqual(field.type_name, 'Single lookup')
+        self.assertEqual(field.type_name, 'Select box')
         self.assertEqual(field.fieldtype, 'LookupField')
 
     def test_lookupfield_validate_required(self):
