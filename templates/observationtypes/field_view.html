@@ -31,10 +31,11 @@
                             <h3>{{ field.name }}</h3>
                             {% if field.description %}<p>{{ field.description }}</p>{% endif %}
                         </div>
-                        <div class="panel-body">
-                            <p><strong>Type:</strong> {{field.type_name}}<br>
-                            <strong>Category:</strong> <a href="{% url 'admin:category_overview' field.observationtype.project.id field.observationtype.id %}">{{field.observationtype.name}}</a></p>
-                        </div>
+                        <table class="table table-striped field-info">
+                            <tr><td><strong>Key</strong></td><td><code>{{field.key}}</code></td></tr>
+                            <tr><td><strong>Type</strong></td><td>{{field.type_name}}</td></tr>
+                            <tr><td><strong>Category</strong></td><td><a href="{% url 'admin:category_overview' field.observationtype.project.id field.observationtype.id %}">{{field.observationtype.name}}</a></td></tr>
+                        </table>
                     </div>
                 </div>
 
@@ -45,12 +46,6 @@
                         <div class="form-group">
                             <label for="name" class="control-label">Name (required)</label>
                             <input type="text" class="form-control input-lg" id="name" name="name" required value="{{field.name}}">
-                        </div>
-
-                        <div class="form-group {% if key_error %}has-error{% endif%}">
-                            <label for="key" class="control-label">Key (required)</label>
-                            <input type="text" class="form-control input-lg" id="key" name="key" maxlength="30" required pattern="^\w+$" value="{{field.key}}">
-                            {% if key_error %}<span class="help-block">A field with that key already exists.</span>{% endif %}
                         </div>
 
                         <div class="form-group">
