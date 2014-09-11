@@ -3,6 +3,7 @@ from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.contrib import messages
+from django.utils.safestring import mark_safe
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -218,7 +219,19 @@ class FieldCreate(LoginRequiredMixin, CreateView):
             print data
             field.save()
 
-            messages.success(self.request, 'The field has been created.')
+            field_create_url = reverse(
+                'admin:observationtype_field_create',
+                kwargs={
+                    'project_id': project_id, 'observationtype_id': observationtype_id
+                }
+            )
+
+            messages.success(
+                self.request,
+                mark_safe('The field has been created. <a href="%s">Add another '
+                 'field.</a>' % field_create_url)
+            )
+
             return redirect(
                 'admin:observationtype_field_settings',
                 project_id=observation_type.project.id,
