@@ -27,15 +27,29 @@
 						<label for="isprivate" class="control-label">Project visibilty</label>
 						<div class="radio">
 							<label>
-								<input type="radio" id="private" name="isprivate" value="true" checked> <strong>Private</strong> The project will only be visible to project administrators and members of any user group assigned to this project.
+								<input type="radio" id="private" name="isprivate" value="true" checked> <strong>Private</strong><br>The project will only be visible to project administrators and members of any user group assigned to this project.
 							</label>
 						</div>
 						<div class="radio">
 							<label>
-								<input type="radio" id="public" name="isprivate" value="false"> <strong>Public</strong> The project will be to the general public.
+								<input type="radio" id="public" name="isprivate" value="false"> <strong>Public</strong><br>The project will be visible to the general public.
 							</label>
 						</div>
 					</div>
+
+					<div class="form-group">
+						<label for="everyone_contributes" class="control-label">Project permissions</label>
+						<div class="radio">
+							<label>
+								<input type="radio" name="everyone_contributes" value="true" checked> <strong>Every user can contribute</strong><br>All users, who have access to the project, can contribute.
+							</label>
+						</div>
+						<div class="radio">
+							<label>
+								<input type="radio" name="everyone_contributes" value="false"> <strong>Only members of contributor groups can cantribute</strong><br>Only users, who are member of a user groups that has been granted contribute permissions, can contribute.
+							</label>
+						</div>
+                    </div>
 
 					<div class="form-group">
 						<button type="submit" class="btn btn-primary">Save</button>

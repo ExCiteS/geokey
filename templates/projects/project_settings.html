@@ -49,6 +49,20 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="everyone_contributes" class="control-label">Project permissions</label>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="everyone_contributes" value="true" {% if project.everyone_contributes %}checked{% endif %}> <strong>Every user can contribute</strong><br>All users, who have access to the project, can contribute.
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="everyone_contributes" value="false" {% if not project.everyone_contributes %}checked{% endif %}> <strong>Only members of contributor groups can cantribute</strong><br>Only users, who are member of a user groups that has been granted contribute permissions, can contribute.
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <button type="submit" class="btn btn-primary">Save</button>
                             <button type="reset" class="btn btn-link">Reset</button>
                         </div>
@@ -131,7 +145,7 @@
                     </div>
                     <div class="modal-body panel-body">
                         <p><strong>Before you make the project public, please read through the consequences of this action.</strong></p>
-                        <p>A public project is accessible to every registered user of the platform. However, access to data contributed to the project may still be restricted by settings of individual views.</p>
+                        <p>A public project is accessible to any user. However, access to contributed data may still be restricted by settings of individual data groupings.</p>
                     </div>
                     <div class="modal-footer panel-footer">
                         <button type="button" name="confirm" value="false" class="btn btn-warning" data-loading-text="Loading...">Yes, make the project public.</button>

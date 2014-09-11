@@ -44,10 +44,12 @@ class ProjectCreate(LoginRequiredMixin, CreateView):
         Creates the project and redirects to the project overview page
         """
         data = form.cleaned_data
+        print data.get('everyone_contributes')
         project = Project.create(
             data.get('name'),
             data.get('description'),
             data.get('isprivate'),
+            data.get('everyone_contributes'),
             self.request.user
         )
         messages.success(self.request, "The project has been created.")
@@ -115,6 +117,7 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
 
         project.name = data.get('name')
         project.description = data.get('description')
+        project.everyone_contributes = data.get('everyone_contributes') == 'true'
         project.save()
 
         messages.success(self.request, "The project has been updated.")

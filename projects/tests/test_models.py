@@ -15,7 +15,7 @@ class CreateProjectTest(TestCase):
         creator = UserF.create()
 
         project = Project.create(
-            'Test', 'Test desc', True, creator
+            'Test', 'Test desc', True, True, creator
         )
         self.assertIn(creator, project.admins.all())
 

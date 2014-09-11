@@ -1,6 +1,7 @@
 (function () {
     var projectId = $('body').attr('data-project-id');
     var groupId = $('body').attr('data-group-id');
+    var everyoneContributes = $('body').attr('data-everyone-contributes');
     var url = 'projects/' + projectId + '/usergroups/' + groupId + '/';
 
     function handleViewActivateChange(event) {
@@ -75,11 +76,6 @@
             $('input[name=permission]').removeAttr('checked');
             $('input#' + value).prop('checked', true);
             $('input#' + value).prop('defaultChecked', true);
-            // $('input[name=permission]').filter('[value=' + value + ']').prop('checked', true);
-
-            // target.find('input[name="permission"]').removeAttr('checked');
-            // target.find('input#' + value).prop('checked', true);
-            // $('input[name=permission]').val([value]);
         }
 
         function handleError(response) {
@@ -93,5 +89,14 @@
         Control.Ajax.put(url, handleSuccess, handleError, data);
     }
 
+    function handlePermissionChange(event) {
+        if ($(this).val() === 'read_only' && everyoneContributes === 'True') {
+            $('form#permissions').before('<div class="alert alert-warning hint"><strong>Note:</strong> Currently, all users, who have access to this project, can contribute to it. This setting overwrites permissions of individual user groups. If you plan to restrict contributing permissions to certain user groups, head to <a href="/admin/projects/' + projectId + '/settings/" class="alert-link">Project Settings</a> first and change the project permissions. </div>')
+        } else {
+            $('.hint').remove();
+        }
+    }
+
     $('form#permissions').submit(updatePermissions);
+    $('form#permissions input[name="permission"]').change(handlePermissionChange);
 }());

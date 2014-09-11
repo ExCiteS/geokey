@@ -140,19 +140,8 @@ $(function () {
 		Control.Ajax.put(url, handleSuccess, handleError, {'isprivate': isPrivate});
 	}
 
-	function updateEveryoneContributes(event) {
-		var checkbox = $(event.target);
-		function handleError(response) {
-			messages.showInlineError(getMessageTarget('everyone_contributes'), 'An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
-			checkbox.prop('checked', !checkbox.prop('checked'));
-		}
-		
-		Control.Ajax.put(url, null, handleError, {'everyone_contributes': checkbox.prop('checked')});
-	}
-
 	$('#make-inactive-confirm button[name="confirm"]').click(updateActive);
 	$('#make-active-confirm button[name="confirm"]').click(updateActive);
 	$('#make-public-confirm button[name="confirm"]').click(updatePrivate);
 	$('#make-private-confirm button[name="confirm"]').click(updatePrivate);
-	$('input[name="everyone_contributes"]').change(updateEveryoneContributes);
 });
