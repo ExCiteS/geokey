@@ -26,6 +26,17 @@ FIXTURE_DIRS = (normpath(join(BASE_DIR, 'tests')),)
 
 SOUTH_TESTS_MIGRATE = False
 
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.6/howto/static-files/
+
+STATIC_URL = '/static/'
+
+LOGIN_URL = '/admin/accounts/login/'
+
+LOGOUT_URL = '/admin/accounts/logout/'
+
+LOGIN_REDIRECT_URL = '/admin/dashboard/'
+
 # set up django-devserver if installed
 try:
     import devserver
