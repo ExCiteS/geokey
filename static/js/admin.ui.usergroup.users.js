@@ -25,14 +25,6 @@
 
     var numberOfRequests = 0;
 
-    function displaySuccess() {
-        // header.removeClass('loading');
-    }
-
-    function displayError(msg) {
-        // header.removeClass('loading');
-    }
-
     /**
      * Handles the click event when the user clicks on the remove link in the user list.
      * @param  {Event} event The click event fired by the link.
@@ -50,10 +42,16 @@
             setTimeout(function() {html.remove(); }, 5000);
 
             itemToRemove.remove();
-            if (userList.children(':not(.message)').length === 0) {
+
+            var numOfUsers = userList.children(':not(.message)').length
+
+            if (!groupId &&  numOfUsers === 1) {
+                userList.find('li a.remove').remove();
+            }
+
+            if (numOfUsers === 0) {
                 userList.append('<li class="empty">No users have been assigned to this group.</li>');
             }
-            displaySuccess();
         }
 
         /**
@@ -64,8 +62,6 @@
             var html = $('<li class="bg-danger message"><span class="text-danger"><span class="glyphicon glyphicon-remove"></span> An error occured while removing the user. Error text was: ' + response.responseJSON.error + '</span></li>');
             itemToRemove.before(html);
             setTimeout(function() {html.remove(); }, 5000);
-
-            displayError('An error occured while removing the user. Error text was: ' + response.responseJSON.error);
         }
 
         Control.Ajax.del(url + userId+ '/', handleRemoveUserSuccess, handleRemoveUserError, {'userId': userId});
@@ -88,12 +84,11 @@
         var html = $('<li class="bg-success message"><span class="text-success"><span class="glyphicon glyphicon-ok"></span> The user has been added to the user group.</span></li>');
         userList.append(html);
         setTimeout(function() {html.remove(); }, 5000);
-        
+
         userList.append(Templates.usergroupusers(response));
         userList.find('li a.remove').click(handleRemoveUser);
 
         formField.val('');
-        displaySuccess();
     }
 
     /**

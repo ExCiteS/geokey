@@ -13,7 +13,10 @@
 {% if users.count %}
 <ul class="user-list">
 	{% for user in users %}
-		<li>{{user.display_name}} <a class="text-danger remove" data-user-id="{{ user.id }}" href="#"><small>remove</small></a></li>
+		<li>
+			{{user.display_name}} 
+			{% if users|length > 1 or not admins %}<a class="text-danger remove" data-user-id="{{ user.id }}" href="#"><small>remove</small></a>{% endif %}
+		</li>
 	{% empty %}
 		<li>No users have been assigned to this group.</li>
 	{% endfor %}

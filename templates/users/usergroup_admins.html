@@ -38,7 +38,7 @@
                     </div>
                 </div>
                 <div class="col-sm-8">
-                    {% include 'snippets/usergroup-editor.html' with users=project.admins.all %}
+                    {% include 'snippets/usergroup-editor.html' with users=project.admins.all admins=True %}
                 </div>
             </div>
         </div>
