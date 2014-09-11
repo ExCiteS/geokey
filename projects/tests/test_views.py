@@ -615,7 +615,7 @@ class SingleProjectTest(TestCase):
         response = view(request, project_id=project.id).render()
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(2, len(json.loads(response.content).get('contributiontypes')))
+        self.assertEqual(2, len(json.loads(response.content).get('categories')))
 
     def test_get_deleted_project_with_admin(self):
         user = UserF.create()

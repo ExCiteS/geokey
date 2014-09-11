@@ -15,19 +15,17 @@ class ProjectSerializer(FieldSelectorSerializer):
     """
     Serializer for projects.
     """
-    maps = serializers.SerializerMethodField('get_maps')
-    num_maps = serializers.SerializerMethodField('get_number_maps')
+    data_groupings = serializers.SerializerMethodField('get_data_groupings')
+    num_data_groupings = serializers.SerializerMethodField('get_number_data_groupings')
     num_contributions = serializers.SerializerMethodField(
         'get_number_contrbutions')
     num_locations = serializers.SerializerMethodField(
         'get_number_locations')
     user_contributions = serializers.SerializerMethodField(
         'get_user_contributions')
-    contributiontypes = serializers.SerializerMethodField(
-        'get_contributiontypes')
+    categories = serializers.SerializerMethodField(
+        'get_categories')
 
-    can_access_all_contributions = serializers.SerializerMethodField(
-        'get_can_access_all_map')
     can_contribute = serializers.SerializerMethodField('get_contribute')
     can_moderate = serializers.SerializerMethodField('get_moderate')
     is_admin = serializers.SerializerMethodField('get_admin')
@@ -37,14 +35,13 @@ class ProjectSerializer(FieldSelectorSerializer):
         model = Project
         depth = 1
         fields = ('id', 'name', 'description', 'isprivate',
-                  'everyone_contributes', 'status',
-                  'created_at', 'contributiontypes', 'maps', 'num_maps',
-                  'num_contributions', 'num_locations', 'user_contributions',
-                  'is_admin', 'can_contribute', 'is_involved', 'can_moderate',
-                  'can_access_all_contributions')
+                  'everyone_contributes', 'status', 'created_at', 'categories',
+                  'data_groupings', 'num_data_groupings', 'num_contributions',
+                  'num_locations', 'user_contributions', 'is_admin',
+                  'can_contribute', 'is_involved', 'can_moderate')
         read_only_fields = ('id', 'name')
 
-    def get_contributiontypes(self, project):
+    def get_categories(self, project):
         serializer = ObservationTypeSerializer(
             project.observationtypes.active().exclude(fields=None), many=True)
         return serializer.data
@@ -54,12 +51,6 @@ class ProjectSerializer(FieldSelectorSerializer):
         Method for SerializerMethodField `is_admin`
         """
         return project.is_admin(self.context.get('user'))
-
-    def get_can_access_all_map(self, project):
-        """
-        Method for SerializerMethodField `can_access_all_contributions`
-        """
-        return project.can_access_all_contributions(self.context.get('user'))
 
     def get_contribute(self, project):
         """
@@ -79,7 +70,7 @@ class ProjectSerializer(FieldSelectorSerializer):
         """
         return project.is_involved(self.context.get('user'))
 
-    def get_maps(self, project):
+    def get_data_groupings(self, project):
         """
         Method for SerializerMethodField `maps`
         """
@@ -91,7 +82,7 @@ class ProjectSerializer(FieldSelectorSerializer):
             context={'user': user})
         return view_serializer.data
 
-    def get_number_maps(self, project):
+    def get_number_data_groupings(self, project):
         """
         Method for SerializerMethodField `num_maps`. Returns the number of
         maps the user is allowed to access.

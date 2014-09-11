@@ -33,17 +33,17 @@ class LocationContributionSerializer(serializers.ModelSerializer):
 class ObservationSerializer(serializers.ModelSerializer):
     creator = UserSerializer()
     updator = UserSerializer()
-    contributiontype = serializers.SerializerMethodField('get_type')
+    category = serializers.SerializerMethodField('get_category')
 
     class Meta:
         model = Observation
         depth = 0
         fields = (
-            'status', 'contributiontype', 'review_comment',
+            'status', 'category', 'review_comment',
             'creator', 'updator', 'created_at', 'version'
         )
 
-    def get_type(self, observation):
+    def get_category(self, observation):
         return observation.observationtype.id
 
 
@@ -118,10 +118,10 @@ class ContributionSerializer(object):
                 project = self.context.get('project')
 
                 try:
-                    observationtype = project.observationtypes.get(
-                        pk=properties.pop('contributiontype'))
+                    category = project.observationtypes.get(
+                        pk=properties.pop('category'))
                 except ObservationType.DoesNotExist:
-                    raise MalformedRequestData('The contributiontype can not'
+                    raise MalformedRequestData('The category can not'
                                                'be used with the project or '
                                                'does not exist.')
 
@@ -134,8 +134,8 @@ class ContributionSerializer(object):
                     attributes=attributes,
                     creator=user,
                     location=location,
-                    project=observationtype.project,
-                    observationtype=observationtype,
+                    project=category.project,
+                    observationtype=category,
                     status=status
                 )
         else:
@@ -158,7 +158,7 @@ class ContributionSerializer(object):
 
         observationtype_serializer = ObservationTypeSerializer(
             obj.observationtype)
-        json_object['contributiontype'] = observationtype_serializer.data
+        json_object['category'] = observationtype_serializer.data
 
         comment_serializer = CommentSerializer(
             obj.comments.filter(respondsto=None), many=True)
@@ -181,7 +181,7 @@ class ContributionSerializer(object):
             'id': obj.id,
             'type': 'Feature',
             'geometry': json.loads(obj.location.geometry.geojson),
-            'contributiontype': {
+            'category': {
                 'id': obj.observationtype.id,
                 'name': obj.observationtype.name
             },

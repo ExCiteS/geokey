@@ -50,7 +50,7 @@ class RestoreLocationTest(TestCase):
                     "key_1": "value 1",
                     "key_2": 12
                 },
-                "contributiontype": self.observationtype.id,
+                "category": self.observationtype.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -167,7 +167,7 @@ class ContributionSerializerIntegrationTests(TestCase):
                     "key_1": "value 1",
                     "key_2": 12
                 },
-                "contributiontype": self.observationtype.id,
+                "category": self.observationtype.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -187,7 +187,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         self.assertEqual(result.get('properties').get('attributes').get('key_1'), 'value 1')
         self.assertEqual(result.get('properties').get('attributes').get('key_2'), 12)
         self.assertEqual(
-            result.get('properties').get('contributiontype'),
+            result.get('properties').get('category'),
             self.observationtype.id)
         self.assertEqual(
             result.get('properties').get('location').get('name'), 'UCL')
@@ -210,7 +210,7 @@ class ContributionSerializerIntegrationTests(TestCase):
                     "key_1": "value 1",
                     "key_2": 12
                 },
-                "contributiontype": self.observationtype.id
+                "category": self.observationtype.id
             }
         }
 
@@ -225,7 +225,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         self.assertEqual(result.get('properties').get('attributes').get('key_1'), 'value 1')
         self.assertEqual(result.get('properties').get('attributes').get('key_2'), 12)
         self.assertEqual(
-            result.get('properties').get('contributiontype'),
+            result.get('properties').get('category'),
             self.observationtype.id)
         self.assertEqual(
             result.get('properties').get('location').get('name'), None)
@@ -250,7 +250,7 @@ class ContributionSerializerIntegrationTests(TestCase):
                     "key_1": "value 1",
                     "key_2": 12
                 },
-                "contributiontype": self.observationtype.id,
+                "category": self.observationtype.id,
                 "location": {"id": location.id}
             }
         }
@@ -266,7 +266,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         self.assertEqual(result.get('properties').get('attributes').get('key_1'), 'value 1')
         self.assertEqual(result.get('properties').get('attributes').get('key_2'), 12)
         self.assertEqual(
-            result.get('properties').get('contributiontype'),
+            result.get('properties').get('category'),
             self.observationtype.id)
         self.assertEqual(
             result.get('properties').get('location').get('name'),
@@ -288,7 +288,7 @@ class ContributionSerializerIntegrationTests(TestCase):
             "geometry": location.geometry.geojson,
             "properties": {
                 "location": {"id": location.id},
-                "contributiontype": self.observationtype.id,
+                "category": self.observationtype.id,
                 "attributes": {
                     "key_1": "value 1",
                     "key_2": 12
@@ -308,7 +308,7 @@ class ContributionSerializerIntegrationTests(TestCase):
             "geometry": location.geometry.geojson,
             "properties": {
                 "location": {"id": location.id},
-                "contributiontype": self.observationtype.id,
+                "category": self.observationtype.id,
                 "attributes": {
                     "key_1": "value 1",
                     "key_2": 12
@@ -336,7 +336,7 @@ class ContributionSerializerIntegrationTests(TestCase):
                     "key_1": "value 1",
                     "key_2": "blah"
                 },
-                "contributiontype": self.observationtype.id,
+                "category": self.observationtype.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -366,7 +366,7 @@ class ContributionSerializerIntegrationTests(TestCase):
             json.loads(observation.location.geometry.geojson))
         self.assertEqual(result.get('properties').get('attributes').get('key'), 'value')
         self.assertEqual(
-            result.get('properties').get('contributiontype'),
+            result.get('properties').get('category'),
             observation.observationtype.id)
         self.assertEqual(
             result.get('properties').get('location').get('name'),

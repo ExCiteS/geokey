@@ -60,7 +60,7 @@ class ProjectPublicApiTest(TestCase):
                     "key_1": "value 1",
                     "key_2": 12
                 },
-                "contributiontype": self.observationtype.id,
+                "category": self.observationtype.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -83,7 +83,7 @@ class ProjectPublicApiTest(TestCase):
         return view(request, project_id=self.project.id).render()
 
     def test_contribute_with_wrong_observation_type(self):
-        self.data['properties']['contributiontype'] = 3864
+        self.data['properties']['category'] = 3864
 
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 400)
@@ -103,7 +103,7 @@ class ProjectPublicApiTest(TestCase):
                     "key_1": 12,
                     "key_2": "jsdbdjhsb"
                 },
-                "contributiontype": self.observationtype.id,
+                "category": self.observationtype.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -130,7 +130,7 @@ class ProjectPublicApiTest(TestCase):
                     "key_1": 12,
                     "key_2": 2000
                 },
-                "contributiontype": self.observationtype.id,
+                "category": self.observationtype.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -154,7 +154,7 @@ class ProjectPublicApiTest(TestCase):
                     "description": location.description,
                     "private": location.private
                 },
-                "contributiontype": self.observationtype.id,
+                "category": self.observationtype.id,
                 "attributes": {
                     "key_1": "value 1",
                     "key_2": 12
@@ -181,7 +181,7 @@ class ProjectPublicApiTest(TestCase):
                     "description": location.description,
                     "private": location.private
                 },
-                "contributiontype": self.observationtype.id,
+                "category": self.observationtype.id,
                 "attributes": {
                     "key_1": "value 1",
                     "key_2": 12
@@ -208,7 +208,7 @@ class ProjectPublicApiTest(TestCase):
                     "description": location.description,
                     "private": location.private
                 },
-                "contributiontype": self.observationtype.id,
+                "category": self.observationtype.id,
                 "attributes": {
                     "key_1": "value 1",
                     "key_2": 12
@@ -234,7 +234,7 @@ class ProjectPublicApiTest(TestCase):
                     "description": location.description,
                     "private": location.private
                 },
-                "contributiontype": self.observationtype.id,
+                "category": self.observationtype.id,
                 "attributes": {
                     "key_1": "value 1",
                     "key_2": 12
@@ -260,7 +260,7 @@ class ProjectPublicApiTest(TestCase):
                     "key_1": "value 1",
                     "key_2": 12
                 },
-                "contributiontype": self.observationtype.id,
+                "category": self.observationtype.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -288,7 +288,7 @@ class ProjectPublicApiTest(TestCase):
                     "key_1": None,
                     "key_2": 12
                 },
-                "contributiontype": self.observationtype.id,
+                "category": self.observationtype.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -316,7 +316,7 @@ class ProjectPublicApiTest(TestCase):
                     "key_1": "value 1",
                     "key_2": 'Blah'
                 },
-                "contributiontype": self.observationtype.id,
+                "category": self.observationtype.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
