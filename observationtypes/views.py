@@ -254,7 +254,7 @@ class FieldSettings(LoginRequiredMixin, TemplateView):
     def get_context_data(self, project_id, observationtype_id, field_id,
                          **kwargs):
         user = self.request.user
-        field = Field.objects.get_single(
+        field = Field.objects.as_admin(
             user, project_id, observationtype_id, field_id)
         context = super(FieldSettings, self).get_context_data(**kwargs)
         context['field'] = field
