@@ -84,7 +84,7 @@ class ProjectSettingsTest(TestCase):
         request = APIRequestFactory().get(url)
         request.user = self.contributor
         response = view(request, project_id=self.project.id)
-        self.assertTrue(isinstance(response, HttpResponseRedirect))
+        self.assertEqual(response.status_code, 200)
 
     def test_get_with_view_member(self):
         view = ProjectSettings.as_view()
@@ -93,7 +93,7 @@ class ProjectSettingsTest(TestCase):
         request = APIRequestFactory().get(url)
         request.user = self.view_member
         response = view(request, project_id=self.project.id)
-        self.assertTrue(isinstance(response, HttpResponseRedirect))
+        self.assertEqual(response.status_code, 200)
 
     def test_get_with_anonymous(self):
         view = ProjectSettings.as_view()

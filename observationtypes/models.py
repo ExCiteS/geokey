@@ -395,7 +395,7 @@ class LookupField(Field):
         """
         Returns a human readable name of the field.
         """
-        return 'Single lookup'
+        return 'Select box'
 
     def get_filter(self, rule):
         """

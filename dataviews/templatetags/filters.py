@@ -8,6 +8,8 @@ register = template.Library()
 def filters(rule):
     s = ''
 
+    print rule
+
     if rule.min_date is not None or rule.max_date is not None:
         s = s + '<li>the contribution has been created '
         if rule.min_date is not None:

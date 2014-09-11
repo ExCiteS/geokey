@@ -27,74 +27,134 @@ urlpatterns = patterns(
         name='project_create'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/$',
+        project_views.ProjectOverview.as_view(),
+        name='project_overview'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/settings/$',
         project_views.ProjectSettings.as_view(),
         name='project_settings'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/stats/$',
-        project_views.ProjectOverview.as_view(),
-        name='project_overview'),
+        r'^projects/(?P<project_id>[0-9]+)/delete/$',
+        project_views.ProjectDelete.as_view(),
+        name='project_delete'),
 
 
     # ###########################
     # USER GROUPS
     # ###########################
     url(
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/$',
+        login_views.UserGroupList.as_view(),
+        name='usergroup_list'),
+    url(
         r'^projects/(?P<project_id>[0-9]+)/usergroups/new/$',
         login_views.UserGroupCreate.as_view(),
         name='usergroup_create'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/$',
+        login_views.UserGroupOverview.as_view(),
+        name='usergroup_overview'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/administrators/$',
+        login_views.AdministratorsOverview.as_view(),
+        name='admins_overview'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/permissions/$',
+        login_views.UserGroupPermissions.as_view(),
+        name='usergroup_permissions'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/settings/$',
         login_views.UserGroupSettings.as_view(),
         name='usergroup_settings'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/delete/$',
+        login_views.UserGroupDelete.as_view(),
+        name='usergroup_delete'),
 
     # ###########################
     # OBSERVATION TYPES & FIELDS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/new/$',
+        r'^projects/(?P<project_id>[0-9]+)/categories/$',
+        observationtype_views.CategoryList.as_view(),
+        name='category_list'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/categories/new/$',
         observationtype_views.ObservationTypeCreate.as_view(),
         name='observationtype_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/$',
+        observationtype_views.CategoryOverview.as_view(),
+        name='category_overview'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<observationtype_id>[0-9]+)/settings/$',
         observationtype_views.ObservationTypeSettings.as_view(),
         name='observationtype_settings'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/new/$',
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/delete/$',
+        observationtype_views.CategoryDelete.as_view(),
+        name='category_delete'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<observationtype_id>[0-9]+)/fields/new/$',
         observationtype_views.FieldCreate.as_view(),
         name='observationtype_field_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/$',
         observationtype_views.FieldSettings.as_view(),
         name='observationtype_field_settings'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/delete/$',
+        observationtype_views.FieldDelete.as_view(),
+        name='category_field_delete'),
 
     # ###########################
     # VIEWS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/new/$',
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/$',
+        dataviews.GroupingList.as_view(),
+        name='grouping_list'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/new/$',
         dataviews.ViewCreate.as_view(),
         name='view_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/$',
+        dataviews.GroupingOverview.as_view(),
+        name='grouping_overview'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/permissions/$',
+        dataviews.GroupingPermissions.as_view(),
+        name='grouping_permissions'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<view_id>[0-9]+)/settings/$',
         dataviews.ViewSettings.as_view(),
         name='view_settings'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/all-contributions/$',
-        dataviews.ViewAllSettings.as_view(),
-        name='view_all_settings'),
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/delete/$',
+        dataviews.GroupingDelete.as_view(),
+        name='grouping_delete'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/rules/new/$',
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<view_id>[0-9]+)/filter/new/$',
         dataviews.RuleCreate.as_view(),
         name='view_rule_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/rules/(?P<rule_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<view_id>[0-9]+)/filter/(?P<rule_id>[0-9]+)/$',
         dataviews.RuleSettings.as_view(),
         name='rule_settings'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/filter/(?P<filter_id>[0-9]+)/delete/$',
+        dataviews.FilterDelete.as_view(),
+        name='filter_delete'),
 
     # ###########################
     # APPS
     # ###########################
 
+    url(
+        r'^apps/$',
+        app_views.ApplicationOverview.as_view(),
+        name='app_overview'),
     url(
         r'^apps/register/$',
         app_views.ApplicationCreate.as_view(),
@@ -103,6 +163,10 @@ urlpatterns = patterns(
         r'^apps/(?P<app_id>[0-9]+)/$',
         app_views.ApplicationSettings.as_view(),
         name='app_settings'),
+    url(
+        r'^apps/(?P<app_id>[0-9]+)/delete/$',
+        app_views.ApplicationDelete.as_view(),
+        name='app_delete'),
 
     # ###########################
     # USERS

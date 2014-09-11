@@ -4,19 +4,26 @@
 
 {% block main %}
 		<div class="page-header">
-			<div class="container">
-				<ol class="breadcrumb">
-					<li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
-					<li><a href="{% url 'admin:project_settings' project.id %}">{{ project.name }}</a></li>
-					<li class="active">Create new contribution type</li>
-				</ol>
-				<h1>Create new contribution type</h1>
-			</div>
-		</div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' project.id %}">{{project.name}}</a></h1>
+                        <a href="{% url 'admin:project_overview' project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
+                    </div>
+                    <ul class="header-nav">
+                        <li class="active"><a href="{% url 'admin:category_list' project.id %}">Categories <span class="badge">{{ project.observationtypes.count }}</span></a></li>
+                        <li><a href="{% url 'admin:grouping_list' project.id %}">Data groupings <span class="badge">{{ project.views.count }}</span></a></li>
+                        <li><a href="{% url 'admin:usergroup_list' project.id %}">User groups <span class="badge">{{ project.usergroups.count }}</span></a></li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
 
 		<div class="container">
 			<div class="row">
 				<form  role="form" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url 'admin:observationtype_create' project.id %}" novalidate> 
+					<h3 class="header">Create a new category</h3>
 					{% csrf_token %}
 					<div class="form-group">
 						<label for="name" class="control-label">Name (required)</label>

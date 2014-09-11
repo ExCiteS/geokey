@@ -9,21 +9,34 @@
 {% block main %}
         <div class="page-header">
             <div class="container">
-                <ol class="breadcrumb">
-                    <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
-                    <li><a href="{% url 'admin:project_settings' rule.view.project.id %}">{{ rule.view.project.name }}</a></li>
-                    <li><a href="{% url 'admin:view_settings' rule.view.project.id rule.view.id %}">{{rule.view.name}}</a></li>
-                    <li class="active">Filter Settings</li>
-                </ol>
-
-                <h1>Filter Settings</h1>
-                <p class="lead">Filters apply to contributions of type <em>{{rule.observation_type.name}}</em></p>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' rule.view.project.id %}">{{rule.view.project.name}}</a></h1>
+                        <a href="{% url 'admin:project_overview' rule.view.project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
+                    </div>
+                    <ul class="header-nav">
+                        <li><a href="{% url 'admin:category_list' rule.view.project.id %}">Categories <span class="badge">{{ rule.view.project.observationtypes.count }}</span></a></li>
+                        <li class="active"><a href="{% url 'admin:grouping_list' rule.view.project.id %}">Data groupings <span class="badge">{{ rule.view.project.views.count }}</span></a></li>
+                        <li><a href="{% url 'admin:usergroup_list' rule.view.project.id %}">User groups <span class="badge">{{ rule.view.project.usergroups.count }}</span></a></li>
+                    </ul>
+                </div>
             </div>
         </div>
 
         <div class="container">
             <div class="row">
-                <form id="rule-form" role="form" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url 'admin:rule_settings' rule.view.project.id rule.view.id rule.id %}" novalidate>
+                <div class="col-sm-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3>Filter</h3>
+                        </div>
+                        <div class="panel-body">
+                            <p><strong>Data grouping:</strong> <a href="{% url 'admin:grouping_overview' rule.view.project.id rule.view.id %}">{{ rule.view.name }}</a></p>
+                        </div>
+                    </div>
+                </div>
+                <form id="rule-form" role="form" class="col-sm-8" method="POST" action="{% url 'admin:rule_settings' rule.view.project.id rule.view.id rule.id %}" novalidate>
+                    <h3 class="header">Filter settings</h3>
                     {% csrf_token %}
                     <input type="hidden" name="rules">
                     <div class="alert alert-info">Please set the value for each individual field you want to filter for. If you leave a filter blank, the field will not be filtered for.</div>
@@ -119,11 +132,50 @@
                         
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">Save</button>
-                        <a href="{% url 'admin:view_settings' rule.view.project.id rule.view.id %}" class="btn btn-default" role="button">Cancel</a>
+                        <button type="reset" class="btn btn-link">Reset</button>
                     </div>
                 </form>
             </div>
+
+            <div class="row">
+                <div class="col-sm-8 col-sm-offset-4">
+                    <div class="panel panel-danger">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Be careful!</h2>
+                        </div>
+                        <div class="panel-body becareful">
+                            <div>
+                                <strong>Delete filter</strong>
+                                <p>Deleting the filter grouping can not be undone.</p>
+                                <a href="#" class="text-danger" data-toggle="modal" data-target="#delete-confirm">Delete this filter</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+{% endblock %}
+
+{% block modals %}
+        <!-- Delete confirmation modal -->
+        <div class="modal fade" id="delete-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content panel-danger">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+                    </div>
+                    <div class="modal-body panel-body">
+                        <p>You are about to delete the filter. This can not be undone.</p>
+                    </div>
+                    <div class="modal-footer panel-footer">
+                        <a href="{% url 'admin:filter_delete' rule.view.project.id rule.view.id rule.id %}" class="btn btn-danger">I'm absolutely sure, delete the filter!</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Delete confirmation modal -->
+
 {% endblock %}
 
 {% block libraries %}
@@ -133,7 +185,6 @@
             <script src="/static/js/admin.ui.forms.validate.js"></script>
             <script src="/static/js/admin.ui.view.rules.js"></script>
             <script src="/static/js/admin.control.ajax.js"></script>
-            <script src="/static/js/admin.ui.messages.js"></script>
             <script type="text/javascript">
                 $(function() {
                     if (!Modernizr.inputtypes.datetime) {

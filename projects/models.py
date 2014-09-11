@@ -31,7 +31,7 @@ class Project(models.Model):
         return self.name + ' status: ' + self.status + ' private: ' + str(self.isprivate)
 
     @classmethod
-    def create(cls, name, description, isprivate, creator):
+    def create(cls, name, description, isprivate, everyone_contributes, creator):
         """
         Creates a new project. Creates two usergroups and adds the creator to
         the administrators user group.
@@ -40,7 +40,8 @@ class Project(models.Model):
             name=name,
             description=description,
             isprivate=isprivate,
-            creator=creator
+            creator=creator,
+            everyone_contributes=everyone_contributes
         )
 
         project.save()

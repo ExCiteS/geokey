@@ -10,9 +10,31 @@ from nose.tools import raises
 from projects.tests.model_factories import UserF
 
 from ..models import Application
-from ..views import ApplicationCreate, ApplicationSettings, ApplicationUpdate
+from ..views import (
+    ApplicationOverview, ApplicationCreate, ApplicationSettings,
+    ApplicationDelete
+)
 
 from .model_factories import ApplicationFactory
+
+
+class ApplicationOverviewTest(TestCase):
+
+    def test_get_with_user(self):
+        view = ApplicationOverview.as_view()
+        url = reverse('admin:app_overview')
+        request = APIRequestFactory().get(url)
+        request.user = UserF.create()
+        response = view(request).render()
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_anonymous(self):
+        view = ApplicationOverview.as_view()
+        url = reverse('admin:app_overview')
+        request = APIRequestFactory().get(url)
+        request.user = AnonymousUser()
+        response = view(request)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
 
 
 class ApplicationCreateTest(TestCase):
@@ -73,57 +95,43 @@ class ApplicationSettingsTest(TestCase):
         self.assertTrue(isinstance(response, HttpResponseRedirect))
 
 
-class ApplicationAjaxTest(TestCase):
+class ApplicationDeleteTest(TestCase):
     def setUp(self):
-        self.factory = APIRequestFactory()
         self.creator = UserF.create()
-        self.user = UserF.create()
+        self.app = ApplicationFactory.create(**{'creator': self.creator})
 
-        self.application = ApplicationFactory(**{
-            'creator': self.creator
-        })
+    def test_get_with_creator(self):
+        view = ApplicationDelete.as_view()
+        url = reverse('admin:app_delete', kwargs={'app_id': self.app.id})
+        request = APIRequestFactory().get(url)
 
-    def _put(self, user):
-        request = self.factory.put(
-            '/ajax/apps/%s/' % self.application.id,
-            {'description': 'bockwurst'}
-        )
-        force_authenticate(request, user=user)
-        view = ApplicationUpdate.as_view()
-        return view(request, app_id=self.application.id).render()
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
 
-    def _delete(self, user):
-        request = self.factory.delete('/ajax/apps/%s/' % self.application.id)
-        force_authenticate(request, user=user)
-        view = ApplicationUpdate.as_view()
-        return view(request, app_id=self.application.id).render()
+        request.user = self.creator
+        response = view(request, app_id=self.app.id)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
 
-    def test_update_descrtiption_with_creator(self):
-        response = self._put(self.creator)
+    def test_get_with_user(self):
+        view = ApplicationDelete.as_view()
+        url = reverse('admin:app_delete', kwargs={'app_id': self.app.id})
+        request = APIRequestFactory().get(url)
+        request.user = UserF.create()
+        response = view(request, app_id=self.app.id).render()
+
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            Application.objects.get(pk=self.application.id).description,
-            'bockwurst'
+        self.assertContains(
+            response,
+            'You are not the owner of this application and therefore not '
+            'allowed to access this app.'
         )
 
-    def test_update_descrtiption_with_user(self):
-        response = self._put(self.user)
-        self.assertEqual(response.status_code, 403)
-        self.assertNotEqual(
-            Application.objects.get(pk=self.application.id).description,
-            'bockwurst'
-        )
-
-    @raises(Application.DoesNotExist)
-    def test_delete_with_creator(self):
-        response = self._delete(self.creator)
-        self.assertEqual(response.status_code, 204)
-        Application.objects.get(pk=self.application.id)
-
-    def test_delete_with_user(self):
-        response = self._delete(self.user)
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual(
-            Application.objects.get(pk=self.application.id),
-            self.application
-        )
+    def test_get_with_anonymous(self):
+        view = ApplicationDelete.as_view()
+        url = reverse('admin:app_delete', kwargs={'app_id': self.app.id})
+        request = APIRequestFactory().get(url)
+        request.user = AnonymousUser()
+        response = view(request, app_id=self.app.id)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))

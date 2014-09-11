@@ -2,6 +2,8 @@ from django.views.generic import CreateView, TemplateView
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
+from django.contrib import messages
+from django.utils.safestring import mark_safe
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -20,8 +22,7 @@ from .models import (
 )
 from .forms import ObservationTypeCreateForm, FieldCreateForm
 from .serializer import (
-    ObservationTypeSerializer, FieldSerializer,
-    NumericFieldSerializer, LookupFieldSerializer
+    ObservationTypeSerializer, FieldSerializer, LookupFieldSerializer
 )
 
 
@@ -30,6 +31,40 @@ from .serializer import (
 # Administration views
 #
 # ############################################################################
+
+class CategoryList(LoginRequiredMixin, TemplateView):
+    template_name = 'observationtypes/category_list.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id):
+        """
+        Creates the request context for rendering the page
+        """
+        user = self.request.user
+
+        context = super(CategoryList, self).get_context_data()
+        context['project'] = Project.objects.as_admin(user, project_id)
+
+        return context
+
+
+class CategoryOverview(LoginRequiredMixin, TemplateView):
+    template_name = 'observationtypes/category_overview.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, category_id):
+        """
+        Creates the request context for rendering the page
+        """
+        user = self.request.user
+        category = ObservationType.objects.as_admin(
+            user, project_id, category_id)
+
+        context = super(CategoryOverview, self).get_context_data()
+        context['category'] = category
+
+        return context
+
 
 class ObservationTypeCreate(LoginRequiredMixin, CreateView):
     """
@@ -61,9 +96,9 @@ class ObservationTypeCreate(LoginRequiredMixin, CreateView):
         """
         project_id = self.kwargs['project_id']
         return reverse(
-            'admin:observationtype_settings',
+            'admin:category_overview',
             kwargs={
-                'project_id': project_id, 'observationtype_id': self.object.id
+                'project_id': project_id, 'category_id': self.object.id
             }
         )
 
@@ -75,7 +110,7 @@ class ObservationTypeCreate(LoginRequiredMixin, CreateView):
         project_id = self.kwargs['project_id']
         project = Project.objects.as_admin(self.request.user, project_id)
         form.instance.project = project
-
+        messages.success(self.request, "The category has been created.")
         return super(ObservationTypeCreate, self).form_valid(form)
 
 
@@ -99,6 +134,44 @@ class ObservationTypeSettings(LoginRequiredMixin, TemplateView):
             'status_types': STATUS
         }
 
+    def post(self, request, project_id, observationtype_id):
+        context = self.get_context_data(project_id, observationtype_id)
+        category = context.pop('observationtype')
+        data = request.POST
+
+        category.name = data.get('name')
+        category.description = data.get('description')
+        category.save()
+
+        messages.success(self.request, "The category has been updated.")
+        context['observationtype'] = category
+        return self.render_to_response(context)
+
+
+class CategoryDelete(LoginRequiredMixin, TemplateView):
+    template_name = 'base.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, category_id, **kwargs):
+        user = self.request.user
+        category = ObservationType.objects.as_admin(
+            user, project_id, category_id)
+        return super(CategoryDelete, self).get_context_data(
+            category=category, **kwargs)
+
+    def get(self, request, project_id, category_id):
+        context = self.get_context_data(project_id, category_id)
+        category = context.pop('category', None)
+
+        if category is not None:
+            category.delete()
+
+            messages.success(self.request, "The category has been deleted.")
+            return redirect('admin:category_list', project_id=project_id)
+
+        return self.render_to_response(context)
+        
+
 
 class FieldCreate(LoginRequiredMixin, CreateView):
     """
@@ -114,13 +187,12 @@ class FieldCreate(LoginRequiredMixin, CreateView):
 
         context = super(FieldCreate, self).get_context_data(**kwargs)
 
-        context['observationtype'] = ObservationType.objects.as_admin(
+        context['category'] = ObservationType.objects.as_admin(
             self.request.user, project_id, observationtype_id
         )
         context['fieldtypes'] = Field.get_field_types()
         context['key_error'] = key_error
         if key_error:
-            print key_error
             context['data'] = data
         return context
 
@@ -140,6 +212,26 @@ class FieldCreate(LoginRequiredMixin, CreateView):
                 observation_type,
                 self.request.POST.get('type')
             )
+
+            if isinstance(field, NumericField):
+                field.minval = self.request.POST.get('minval') or None
+                field.maxval = self.request.POST.get('maxval') or None
+            print data
+            field.save()
+
+            field_create_url = reverse(
+                'admin:observationtype_field_create',
+                kwargs={
+                    'project_id': project_id, 'observationtype_id': observationtype_id
+                }
+            )
+
+            messages.success(
+                self.request,
+                mark_safe('The field has been created. <a href="%s">Add another '
+                 'field.</a>' % field_create_url)
+            )
+
             return redirect(
                 'admin:observationtype_field_settings',
                 project_id=observation_type.project.id,
@@ -162,13 +254,56 @@ class FieldSettings(LoginRequiredMixin, TemplateView):
     def get_context_data(self, project_id, observationtype_id, field_id,
                          **kwargs):
         user = self.request.user
-        field = Field.objects.get_single(
+        field = Field.objects.as_admin(
             user, project_id, observationtype_id, field_id)
         context = super(FieldSettings, self).get_context_data(**kwargs)
         context['field'] = field
         context['status_types'] = STATUS
+        context['fieldtypes'] = Field.get_field_types()
 
         return context
+
+    def post(self, request, project_id, observationtype_id, field_id):
+        context = self.get_context_data(project_id, observationtype_id, field_id)
+        field = context.pop('field')
+        data = request.POST
+
+        field.name = data.get('name')
+        field.description = data.get('description')
+        field.required = data.get('required') or False
+
+        if isinstance(field, NumericField):
+            field.minval = data.get('minval') or None
+            field.maxval = data.get('maxval') or None
+        field.save()
+
+        messages.success(self.request, "The field has been updated.")
+        context['field'] = field
+        return self.render_to_response(context)
+
+
+class FieldDelete(LoginRequiredMixin, TemplateView):
+    template_name = 'base.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, category_id, field_id, **kwargs):
+        user = self.request.user
+        field = Field.objects.as_admin(
+            user, project_id, category_id, field_id)
+        return super(FieldDelete, self).get_context_data(
+            field=field, **kwargs)
+
+    def get(self, request, project_id, category_id, field_id):
+        context = self.get_context_data(project_id, category_id, field_id)
+        field = context.pop('field', None)
+
+        if field is not None:
+            field.delete()
+
+            messages.success(self.request, "The field has been deleted.")
+            return redirect('admin:category_overview', project_id=project_id, category_id=category_id)
+
+        return self.render_to_response(context)
 
 
 # ############################################################################
@@ -225,20 +360,44 @@ class FieldUpdate(APIView):
         field = Field.objects.as_admin(
             request.user, project_id, observationtype_id, field_id)
 
-        if isinstance(field, NumericField):
-            serializer = NumericFieldSerializer(
-                field, data=request.DATA, partial=True
-            )
-        else:
-            serializer = FieldSerializer(
-                field, data=request.DATA, partial=True
-            )
+        serializer = FieldSerializer(
+            field, data=request.DATA, partial=True
+        )
 
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FieldKeyCheck(APIView):
+    """
+    API endpoint that can be used to check the validity of a key of a field
+    /ajax/projects/:project_id/category/:category_id/check-key/?key=key
+    """
+
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, category_id, format=None):
+        category = ObservationType.objects.as_admin(
+            request.user, project_id, category_id)
+
+        proposed_key = request.GET.get('key')
+        count = 1
+
+        if category.fields.filter(key=proposed_key).exists():
+            while True:
+                suggested_key = proposed_key + '_' + str(count)
+                if not category.fields.filter(key=suggested_key):
+                    return Response({
+                        'accepted': False,
+                        'suggested_key': suggested_key
+                    })
+
+                count = count + 1
+        else:
+            return Response({'accepted': True})
+
 
 
 class FieldLookups(APIView):

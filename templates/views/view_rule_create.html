@@ -1,31 +1,49 @@
 {% extends "base.html" %}
 
-{% block bodydata %} data-project-id="{{view.project.id}}" data-view-id="{{view.id}}"{% endblock %}
+{% block bodydata %} data-project-id="{{grouping.project.id}}" data-view-id="{{grouping.id}}"{% endblock %}
 {% block title %} | Create new filter rule{% endblock %}
 
 {% block main %}
         <div class="page-header">
             <div class="container">
-                <ol class="breadcrumb">
-                    <li><a href="{% url 'admin:dashboard' %}">Dashboard</a></li>
-                    <li><a href="{% url 'admin:project_settings' view.project.id %}">{{ view.project.name }}</a></li>
-                    <li><a href="{% url 'admin:view_settings' view.project.id view.id %}">{{view.name}}</a></li>
-                    <li class="active">Create new filter rule</li>
-                </ol>
-
-                <h1>Create new filter rule</h1>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' grouping.project.id %}">{{grouping.project.name}}</a></h1>
+                        <a href="{% url 'admin:project_overview' grouping.project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
+                    </div>
+                    <ul class="header-nav">
+                        <li><a href="{% url 'admin:category_list' grouping.project.id %}">Categories <span class="badge">{{ grouping.project.observationtypes.count }}</span></a></li>
+                        <li class="active"><a href="{% url 'admin:grouping_list' grouping.project.id %}">Data groupings <span class="badge">{{ grouping.project.views.count }}</span></a></li>
+                        <li><a href="#">User groups <span class="badge">{{ grouping.project.usergroups.count }}</span></a></li>
+                    </ul>
+                </div>
             </div>
         </div>
 
         <div class="container">
             <div class="row">
-                <form id="rule-form" role="form" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url 'admin:view_rule_create' view.project.id view.id %}" novalidate>
+                <div class="col-sm-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h6 class="item-info">Data grouping</h6>
+                            <h3>{{ grouping.name }}</h3>
+                            {% if grouping.description %}<p>{{ grouping.description }}</p>{% endif %}
+                        </div>
+                        <div class="list-group">
+                            <a href="{% url 'admin:grouping_overview' grouping.project.id grouping.id %}" class="list-group-item active">Filters</a>
+                            <a href="{% url 'admin:grouping_permissions' grouping.project.id grouping.id %}" class="list-group-item">Permissions</a>
+                            <a href="{% url 'admin:view_settings' grouping.project.id grouping.id %}" class="list-group-item">Settings</a>
+                        </div>
+                    </div>
+                </div>
+                <form id="rule-form" role="form" class="col-sm-8" method="POST" action="{% url 'admin:view_rule_create' grouping.project.id grouping.id %}" novalidate>
+                    <h3 class="header">Create new filter</h3>
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="observationtype" class="control-label">Select contribution type</label>
                         <select name="observationtype" id="observationtype" class="form-control">
                             <option value="-1"></option>
-                            {% for type in view.project.observationtypes.all %}
+                            {% for type in grouping.project.observationtypes.all %}
                                 <option value="{{type.id}}">{{type.name}}</option>
                             {% endfor %}
                         </select>
@@ -34,7 +52,7 @@
                     <div id="field-options"></div>
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">Save</button>
-                        <a href="{% url 'admin:view_settings' view.project.id view.id %}" class="btn btn-default" role="button">Cancel</a> 
+                        <a href="{% url 'admin:grouping_overview' grouping.project.id grouping.id %}" class="btn btn-link" role="button">Cancel</a> 
                     </div>
                 </form>
             </div>

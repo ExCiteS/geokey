@@ -15,7 +15,7 @@ from ..models import ObservationType, Field
 from ..views import (
     ObservationTypeUpdate, FieldUpdate, FieldLookupsUpdate, FieldLookups,
     SingleObservationType, ObservationTypeCreate, ObservationTypeSettings,
-    FieldCreate
+    FieldCreate, CategoryList
 )
 
 # ############################################################################
@@ -23,6 +23,55 @@ from ..views import (
 # ADMIN PAGES
 #
 # ############################################################################
+
+
+class CategoryOverviewTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
+
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+
+    def get(self, user):
+        view = CategoryList.as_view()
+        url = reverse('admin:category_list', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.get(url)
+        request.user = user
+        return view(request, project_id=self.project.id).render()
+
+    def test_get_with_admin(self):
+        response = self.get(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+    def test_get_with_contributor(self):
+        response = self.get(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+    def test_get_with_non_member(self):
+        response = self.get(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
 
 
 class ObservationTypeCreateTest(TestCase):
@@ -536,37 +585,6 @@ class UpdateNumericField(TestCase):
             field_id=self.field.id
         ).render()
 
-    def test_update_numericfield_minval_with_admin(self):
-        response = self._put({'minval': 12}, self.admin)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            Field.objects.get_single(
-                self.admin, self.project.id, self.observationtype.id,
-                self.field.id).minval, 12
-        )
-
-    def test_update_numericfield_maxval_with_admin(self):
-        response = self._put({'maxval': 12}, self.admin)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            Field.objects.get_single(
-                self.admin, self.project.id, self.observationtype.id,
-                self.field.id).maxval, 12
-        )
-
-    def test_update_numericfield_minval_maxval_with_admin(self):
-        response = self._put({'maxval': 12, 'minval': 3}, self.admin)
-
-        self.assertEqual(response.status_code, 200)
-        field = Field.objects.get_single(
-            self.admin, self.project.id, self.observationtype.id,
-            self.field.id
-        )
-        self.assertEqual(field.minval, 3)
-        self.assertEqual(field.maxval, 12)
-
     def test_update_numericfield_description_with_admin(self):
         response = self._put({'description': 'new description'}, self.admin)
 
@@ -575,15 +593,6 @@ class UpdateNumericField(TestCase):
             Field.objects.get_single(
                 self.admin, self.project.id, self.observationtype.id,
                 self.field.id).description, 'new description'
-        )
-
-    def test_update_numericfield_nill_minval(self):
-        response = self._put({'minval': 0}, self.admin)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            Field.objects.get_single(
-                self.admin, self.project.id, self.observationtype.id,
-                self.field.id).minval, 0
         )
 
 

@@ -2,6 +2,7 @@ from django.views.generic import TemplateView, CreateView
 from django.contrib import auth
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
+from django.contrib import messages
 
 from braces.views import LoginRequiredMixin
 
@@ -56,7 +57,6 @@ class Dashboard(LoginRequiredMixin, TemplateView):
             'stats': self.request.user.get_stats(),
             'admin_projects': projects.filter(admins=self.request.user),
             'involved_projects': projects.exclude(admins=self.request.user),
-            'apps': Application.objects.get_list(self.request.user),
             'status_types': STATUS
         }
 
@@ -97,6 +97,14 @@ class Signup(CreateView):
         return self.render_to_response(context)
 
 
+class UserGroupList(LoginRequiredMixin, TemplateView):
+    template_name = 'users/usergroup_list.html'
+
+    def get_context_data(self, project_id):
+        project = Project.objects.as_admin(self.request.user, project_id)
+        return super(UserGroupList, self).get_context_data(project=project)
+
+
 class UserGroupCreate(LoginRequiredMixin, CreateView):
     """
     Displays the create user group page
@@ -127,7 +135,7 @@ class UserGroupCreate(LoginRequiredMixin, CreateView):
         """
         project_id = self.kwargs['project_id']
         return reverse(
-            'admin:usergroup_settings',
+            'admin:usergroup_overview',
             kwargs={'project_id': project_id, 'group_id': self.object.id}
         )
 
@@ -139,13 +147,48 @@ class UserGroupCreate(LoginRequiredMixin, CreateView):
         project = Project.objects.as_admin(self.request.user, project_id)
 
         form.instance.project = project
+        messages.success(self.request, "The user group has been created.")
         return super(UserGroupCreate, self).form_valid(form)
+
+
+class UserGroupOverview(LoginRequiredMixin, TemplateView):
+    """
+    Displays the user group settings page
+    `/admin/projects/:project_id/usergroups/:group_id/`
+    """
+    template_name = 'users/usergroup_overview.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, group_id):
+        """
+        Creates the request context for rendering the page
+        """
+        project = Project.objects.as_admin(self.request.user, project_id)
+        group = project.usergroups.get(pk=group_id)
+
+        return {'group': group, 'status_types': STATUS}
+
+
+class AdministratorsOverview(LoginRequiredMixin, TemplateView):
+    """
+    Displays the user group settings page
+    `/admin/projects/:project_id/usergroups/:group_id/`
+    """
+    template_name = 'users/usergroup_admins.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id):
+        """
+        Creates the request context for rendering the page
+        """
+        project = Project.objects.as_admin(self.request.user, project_id)
+        return {'project': project}
 
 
 class UserGroupSettings(LoginRequiredMixin, TemplateView):
     """
     Displays the user group settings page
-    `/admin/projects/:project_id/usergroups/:group_id/`
+    `/admin/projects/:project_id/usergroups/:group_id/settings/`
     """
     template_name = 'users/usergroup_settings.html'
 
@@ -158,6 +201,60 @@ class UserGroupSettings(LoginRequiredMixin, TemplateView):
         group = project.usergroups.get(pk=group_id)
 
         return {'group': group, 'status_types': STATUS}
+
+    def post(self, request, project_id, group_id):
+        context = self.get_context_data(project_id, group_id)
+        group = context.pop('group', None)
+
+        data = request.POST
+
+        group.name = data.get('name')
+        group.description = data.get('description')
+        group.save()
+
+        messages.success(self.request, "The user group has been updated.")
+        context['group'] = group
+        return self.render_to_response(context)
+
+
+class UserGroupPermissions(LoginRequiredMixin, TemplateView):
+    """
+    Displays the user group settings page
+    `/admin/projects/:project_id/usergroups/:group_id/settings/`
+    """
+    template_name = 'users/usergroup_permissions.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, group_id):
+        """
+        Creates the request context for rendering the page
+        """
+        project = Project.objects.as_admin(self.request.user, project_id)
+        group = project.usergroups.get(pk=group_id)
+        return super(UserGroupPermissions, self).get_context_data(group=group)
+
+
+class UserGroupDelete(LoginRequiredMixin, TemplateView):
+    template_name = 'base.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, group_id):
+        """
+        Creates the request context for rendering the page
+        """
+        project = Project.objects.as_admin(self.request.user, project_id)
+        group = project.usergroups.get(pk=group_id)
+        return super(UserGroupDelete, self).get_context_data(group=group)
+
+    def get(self, request, project_id, group_id):
+        context = self.get_context_data(project_id, group_id)
+        group = context.pop('group', None)
+
+        if group is not None:
+            group.delete()
+
+        messages.success(self.request, 'The user group has been deleted.')
+        return redirect('admin:usergroup_list', project_id=project_id)
 
 
 class UserProfile(LoginRequiredMixin, TemplateView):
@@ -192,6 +289,7 @@ class UserProfile(LoginRequiredMixin, TemplateView):
         user.save()
 
         context = self.get_context_data()
+        messages.success(request, 'The user information has been updated.')
         return self.render_to_response(context)
 
 
@@ -215,10 +313,11 @@ class ChangePassword(LoginRequiredMixin, TemplateView):
         if user is not None:
             user.set_password(request.POST.get('new_password1'))
             user.save()
+            messages.success(request, 'The password has been changed.')
             return redirect('admin:userprofile')
         else:
-            context = self.get_context_data(wrong_password=True)
-            return self.render_to_response(context)
+            messages.error(request, 'We were not able to athorise you with your old password. The password has not been changed.')
+            return self.render_to_response(self.get_context_data())
 
 
 # ############################################################################
