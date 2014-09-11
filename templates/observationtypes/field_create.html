@@ -8,7 +8,8 @@
             <div class="container">
                 <div class="row">
                     <div class="col-sm-6">
-                        <h1 class="smaller"><a href="{% url 'admin:project_overview' category.project.id %}">{{category.project.name}}</a></h1>       
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' category.project.id %}">{{category.project.name}}</a></h1>
+                        <a href="{% url 'admin:project_overview' category.project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
                     </div>
                     <ul class="header-nav">
                         <li class="active"><a href="{% url 'admin:category_list' category.project.id %}">Categories <span class="badge">{{ category.project.observationtypes.count }}</span></a></li>

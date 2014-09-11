@@ -13,6 +13,7 @@
                 <div class="row">
                     <div class="col-sm-6">
                         <h1 class="smaller"><a href="{% url 'admin:project_overview' view.project.id %}">{{view.project.name}}</a></h1>
+                        <a href="{% url 'admin:project_overview' view.project.id  %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
                     </div>
                     <ul class="header-nav">
                         <li><a href="{% url 'admin:category_list' view.project.id %}">Categories <span class="badge">{{ view.project.observationtypes.count }}</span></a></li>
