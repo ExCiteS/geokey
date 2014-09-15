@@ -61,7 +61,7 @@ class GetSingleObservationInProject(TestCase):
 
     def test_get_with_view_member(self):
         response = self._get(self.view_member)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 404)
 
     def test_get_with_non_member(self):
         user = UserF.create()
@@ -189,34 +189,34 @@ class UpdateObservationInProject(TestCase):
             self.update_data,
             self.contributor
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 404)
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.attributes.get('key_2'), '15')
+            observation.attributes.get('key_2'), '12')
 
     def test_delete_with_contributor(self):
         response = self._delete(
             self.contributor
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_update_with_view_member(self):
         response = self._patch(
             self.update_data,
             self.view_member
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 404)
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.attributes.get('key_2'), '15')
+            observation.attributes.get('key_2'), '12')
 
     def test_delete_with_view_member(self):
         response = self._delete(
             self.view_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertNotEqual(
             Observation.objects.get(pk=self.observation.id).status,
             'deleted'

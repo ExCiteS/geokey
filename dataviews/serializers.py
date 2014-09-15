@@ -29,9 +29,9 @@ class ViewSerializer(FieldSelectorSerializer):
         user = self.context.get('user')
 
         if (obj.project.can_moderate(user)):
-            data = obj.data.for_moderator()
+            data = obj.data.for_moderator(user)
         else:
-            data = obj.data.for_viewer()
+            data = obj.data.for_viewer(user)
 
         serializer = ContributionSerializer(
             data,
@@ -46,6 +46,6 @@ class ViewSerializer(FieldSelectorSerializer):
         """
         user = self.context.get('user')
         if (obj.project.can_moderate(user)):
-            return len(obj.data.for_moderator())
+            return len(obj.data.for_moderator(user))
         else:
-            return len(obj.data.for_viewer())
+            return len(obj.data.for_viewer(user))

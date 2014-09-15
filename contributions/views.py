@@ -101,16 +101,18 @@ class ProjectObservations(APIView):
 class ProjectObservationsView(APIView):
     """
     Public API endpoint to get all contributions in a project
-    /api/projects/:project_id/maps/all-contributions/
+    /api/projects/:project_id/data-groupings/all-contributions/
     """
 
     @handle_exceptions_for_ajax
     def get(self, request, project_id, format=None):
         project = Project.objects.get_single(request.user, project_id)
+        contributions = project.get_all_contributions(request.user)
+
         if project.can_moderate(request.user):
-            data = project.observations.for_moderator()
+            data = contributions.for_moderator(request.user)
         else:
-            data = project.observations.for_viewer()
+            data = contributions.for_viewer(request.user)
         serializer = ContributionSerializer(
             data,
             many=True,
@@ -123,7 +125,7 @@ class MyObservations(APIView):
     """
     Public API endpoint for all observations in a project. Used to add new
     contributions to a project
-    /api/projects/:project_id/maps/my-contributions/
+    /api/projects/:project_id/data-groupings/my-contributions/
     """
 
     @handle_exceptions_for_ajax
@@ -150,7 +152,7 @@ class ViewObservations(APIView):
     def get(self, request, project_id, view_id, format=None):
         """
         Returns a single view and its data
-        /api/projects/:project_id/maps/:view_id/
+        /api/projects/:project_id/data-groupings/:view_id/
         """
         view = View.objects.get_single(request.user, project_id, view_id)
         serializer = ViewSerializer(view, context={'user': request.user})
@@ -224,13 +226,8 @@ class SingleProjectObservation(SingleObservation):
 
     def get_object(self, user, project_id, observation_id):
         project = Project.objects.get_single(user, project_id)
-        observation = project.observations.get(pk=observation_id)
-
-        if observation.status == 'draft' or (
-                observation.status == 'pending' and
-                not project.can_moderate(user)):
-            raise PermissionDenied('You are not allowed to access this '
-                                   'observation')
+        observation = project.get_all_contributions(user).get(
+            pk=observation_id)
 
         return observation
 
@@ -242,12 +239,22 @@ class SingleProjectObservation(SingleObservation):
     @handle_exceptions_for_ajax
     def patch(self, request, project_id, observation_id, format=None):
         observation = self.get_object(request.user, project_id, observation_id)
-        return self.update_observation(request, observation, format=format)
+        if (observation.creator == request.user or 
+                observation.project.can_moderate(user)):
+            return self.update_observation(request, observation, format=format)
+
+        raise PermissionDenied('You are not eligable to update this '
+                               'contribution')
 
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, observation_id, format=None):
         observation = self.get_object(request.user, project_id, observation_id)
-        return self.delete_observation(request, observation, format=format)
+        if (observation.creator == request.user or 
+                observation.project.can_moderate(user)):
+            return self.delete_observation(request, observation, format=format)
+
+        raise PermissionDenied('You are not eligable to delete this '
+                               'contribution')
 
 
 class SingleViewObservation(SingleObservation):

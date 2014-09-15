@@ -289,7 +289,7 @@ class SingleProjectObservationTest(TestCase):
         view.get_object(
             some_dude, self.observation.project.id, self.observation.id)
 
-    @raises(PermissionDenied)
+    @raises(Observation.DoesNotExist)
     def test_get_draft_object_with_admin(self):
         self.observation.status = 'draft'
         self.observation.save()

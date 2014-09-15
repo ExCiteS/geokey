@@ -126,3 +126,24 @@ class Project(models.Model):
         return self.is_admin(user) or (
             not user.is_anonymous() and (
                 self.usergroups.filter(users=user).exists()))
+
+    def get_all_contributions(self, user):
+        """
+        Returns all contributions a user can access in a project
+        """
+        if self.is_admin(user):
+            return self.observations.for_moderator(user)
+
+        grouping_queries = [
+            grouping.get_where_clause()
+            for grouping in self.views.get_list(user, self.id)
+        ]
+        grouping_queries = [x for x in grouping_queries if x is not None]
+
+        if len(grouping_queries) > 0:
+            query = '(' + ') OR ('.join(grouping_queries) + ')'
+
+            return self.observations.extra(
+                where=[query + ' OR (creator_id = ' + str(user.id) + ')'])
+        else:
+            return self.observations.filter(creator=user)

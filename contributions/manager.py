@@ -58,11 +58,15 @@ class LocationManager(models.GeoManager):
 
 
 class ObservationQuerySet(query.HStoreQuerySet):
-    def for_moderator(self):
-        return self.exclude(status='draft')
+    def for_moderator(self, user):
+        return self.exclude(~Q(creator=user), status='draft')
 
-    def for_viewer(self):
-        return self.for_moderator().exclude(status='pending')
+    def for_viewer(self, user):
+        if user.is_anonymous():
+            return self.exclude(status='draft').exclude(status='pending')
+
+        return self.for_moderator(user).exclude(
+            ~Q(creator=user), status='pending')
 
 
 class ObservationManager(hstore.HStoreManager):
@@ -77,11 +81,11 @@ class ObservationManager(hstore.HStoreManager):
             'location', 'observationtype', 'creator', 'updator').exclude(
             status=OBSERVATION_STATUS.deleted)
 
-    def for_moderator(self):
-        return self.get_query_set().for_moderator()
+    def for_moderator(self, user):
+        return self.get_query_set().for_moderator(user)
 
-    def for_viewer(self):
-        return self.for_moderator().for_viewer()
+    def for_viewer(self, user):
+        return self.for_moderator().for_viewer(user)
 
 
 class CommentManager(models.Manager):

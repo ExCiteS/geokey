@@ -25,17 +25,25 @@ class View(models.Model):
 
     objects = ViewManager()
 
+    def get_where_clause(self):
+        queries = [rule.get_query() for rule in self.rules.all()]
+
+        if len(queries) > 0:
+            query = ' OR '.join(queries)
+            return query
+        else:
+            return None
+
     @property
     def data(self):
         """
         Provides access to all data accessable through the view. Uses the
         rules of the view to filter the data.
         """
-        queries = [rule.get_query() for rule in self.rules.all()]
+        where_clause = self.get_where_clause()
 
-        if len(queries) > 0:
-            query = ' OR '.join(queries)
-            return self.project.observations.extra(where=[query])
+        if where_clause is not None:
+            return self.project.observations.extra(where=[where_clause])
         else:
             return self.project.observations.none()
 
