@@ -46,8 +46,6 @@ class UserGroup(models.Model):
     project = models.ForeignKey('projects.Project', related_name='usergroups')
     can_contribute = models.BooleanField(default=True)
     can_moderate = models.BooleanField(default=False)
-    view_all_contrib = models.BooleanField(default=True)
-    read_all_contrib = models.BooleanField(default=True)
 
 
 @receiver(pre_save, sender=UserGroup)

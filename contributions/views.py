@@ -107,19 +107,16 @@ class ProjectObservationsView(APIView):
     @handle_exceptions_for_ajax
     def get(self, request, project_id, format=None):
         project = Project.objects.get_single(request.user, project_id)
-        if project.can_access_all_contributions(request.user):
-            if project.can_moderate(request.user):
-                data = project.observations.for_moderator()
-            else:
-                data = project.observations.for_viewer()
-            serializer = ContributionSerializer(
-                data,
-                many=True,
-                context={'user': request.user, 'project': project}
-            )
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        if project.can_moderate(request.user):
+            data = project.observations.for_moderator()
         else:
-            raise PermissionDenied('You are not allowed to access this map.')
+            data = project.observations.for_viewer()
+        serializer = ContributionSerializer(
+            data,
+            many=True,
+            context={'user': request.user, 'project': project}
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class MyObservations(APIView):
@@ -227,18 +224,15 @@ class SingleProjectObservation(SingleObservation):
 
     def get_object(self, user, project_id, observation_id):
         project = Project.objects.get_single(user, project_id)
-        if project.can_access_all_contributions(user):
-            observation = project.observations.get(pk=observation_id)
+        observation = project.observations.get(pk=observation_id)
 
-            if observation.status == 'draft' or (
-                    observation.status == 'pending' and
-                    not project.can_moderate(user)):
-                raise PermissionDenied('You are not allowed to access this '
-                                       'observation')
+        if observation.status == 'draft' or (
+                observation.status == 'pending' and
+                not project.can_moderate(user)):
+            raise PermissionDenied('You are not allowed to access this '
+                                   'observation')
 
-            return observation
-        else:
-            raise PermissionDenied('You are not allowed to access this view.')
+        return observation
 
     @handle_exceptions_for_ajax
     def get(self, request, project_id, observation_id, format=None):
@@ -370,11 +364,7 @@ class CommentApiView(object):
 class ProjectComment(APIView):
     def get_object(self, user, project_id, observation_id):
         project = Project.objects.get_single(user, project_id)
-
-        if project.can_access_all_contributions(user):
-            return project.observations.get(pk=observation_id)
-        else:
-            raise PermissionDenied('You are not allowed to access this map.')
+        return project.observations.get(pk=observation_id)
 
 
 class ProjectComments(CommentApiView, ProjectComment):

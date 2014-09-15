@@ -38,11 +38,11 @@ class TestDataViewsPublicApi(TestCase):
 
     def test_get_with_contributor(self):
         response = self.get(self.contributor)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
 
     def test_get_with_view_member(self):
         response = self.get(self.view_member)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
 
     def test_get_with_some_dude(self):
         some_dude = UserF.create()

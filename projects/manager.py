@@ -15,8 +15,7 @@ class ProjectQuerySet(models.query.QuerySet):
             return self.annotate(public_views=Count(
                 'views', only=Q(views__isprivate=False))).filter(
                 Q(status=STATUS.active) &
-                (Q(isprivate=False, public_views__gte=1) |
-                    Q(isprivate=False, all_contrib_isprivate=False))
+                Q(isprivate=False, public_views__gte=1)
                 ).distinct()
         else:
             projects = self.annotate(public_views=Count(
@@ -27,14 +26,11 @@ class ProjectQuerySet(models.query.QuerySet):
                     Q(status=STATUS.active) &
 
                     (((Q(isprivate=False) | Q(usergroups__users=user)) & (
-                        Q(public_views__gte=1) |
-                        Q(all_contrib_isprivate=False))) |
+                        Q(public_views__gte=1))) |
 
                         Q(usergroups__can_contribute=True,
                             usergroups__users=user) |
                         Q(usergroups__can_moderate=True,
-                            usergroups__users=user) |
-                        Q(usergroups__read_all_contrib=True,
                             usergroups__users=user) |
                         Q(usergroups__users=user,
                             usergroups__viewgroups__isnull=False))

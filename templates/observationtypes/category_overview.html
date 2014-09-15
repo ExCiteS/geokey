@@ -52,7 +52,7 @@
                     {% empty %}
                         <div class="well empty-list">
                             <p class="lead">We couldn't find any fields for this category.</p>
-                            <p>You can use fields to define what data should be collected for the category. For instance, if your category is Tube Stations, you could have a text field for its name, a text field for its address and a number field for the number of passengers leaving from this station.</p>
+                            <p>You can use fields to define what data should be collected for the category. For example, if your category is Restaurants, you might want to store a name, an address, the number of seats and which couisine they serve. </p>
                             <a href="{% url 'admin:observationtype_field_create' category.project.id category.id %}" class="btn btn-success btn-lg">Create new field</a>
                         </div>
                     {% endfor %}

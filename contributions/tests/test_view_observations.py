@@ -57,11 +57,11 @@ class GetSingleObservationInProject(TestCase):
 
     def test_get_with_contributor(self):
         response = self._get(self.contributor)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
 
     def test_get_with_view_member(self):
         response = self._get(self.view_member)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
 
     def test_get_with_non_member(self):
         user = UserF.create()
@@ -189,7 +189,11 @@ class UpdateObservationInProject(TestCase):
             self.update_data,
             self.contributor
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(
+            observation.attributes.get('key_2'), '15')
 
     def test_delete_with_contributor(self):
         response = self._delete(
@@ -202,10 +206,11 @@ class UpdateObservationInProject(TestCase):
             self.update_data,
             self.view_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
 
+        observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            self.observation.attributes.get('key_2'), '12')
+            observation.attributes.get('key_2'), '15')
 
     def test_delete_with_view_member(self):
         response = self._delete(

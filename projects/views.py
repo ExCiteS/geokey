@@ -44,7 +44,6 @@ class ProjectCreate(LoginRequiredMixin, CreateView):
         Creates the project and redirects to the project overview page
         """
         data = form.cleaned_data
-        print data.get('everyone_contributes')
         project = Project.create(
             data.get('name'),
             data.get('description'),

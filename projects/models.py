@@ -16,7 +16,6 @@ class Project(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     everyone_contributes = models.BooleanField(default=True)
-    all_contrib_isprivate = models.BooleanField(default=True)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
@@ -82,33 +81,21 @@ class Project(models.Model):
         - the project is public and has at least one public view
         """
 
-        return self.status == STATUS.active and (self.is_admin(user) or (
-
-            ((not self.isprivate or (
+        return self.status == STATUS.active and (self.is_admin(user) or 
+                not self.isprivate or (((
                 not user.is_anonymous() and self.usergroups.filter(
-                    users=user).exists())) and (
-                not self.all_contrib_isprivate or
+                    users=user).exists()) and (
                 self.views.filter(isprivate=False).exists())) or (
-
                 not user.is_anonymous() and (
                     self.usergroups.filter(
                         can_contribute=True, users=user).exists() or
                     self.usergroups.filter(
                         can_moderate=True, users=user).exists() or
                     self.usergroups.filter(
-                        read_all_contrib=True, users=user).exists() or
-                    self.usergroups.filter(
                         users=user, viewgroups__isnull=False).exists())
                 )
             )
         )
-
-    def can_access_all_contributions(self, user):
-        return self.is_admin(user) or not self.all_contrib_isprivate or (
-            not user.is_anonymous() and (
-                self.usergroups.filter(
-                    read_all_contrib=True,
-                    users=user).exists()))
 
     def can_contribute(self, user):
         """

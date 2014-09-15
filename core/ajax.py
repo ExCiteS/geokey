@@ -43,10 +43,6 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/views/(?P<view_id>[0-9]+)/$',
         user_views.UserGroupSingleView.as_view(),
         name='usergroup_single_view'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/views/all-contributions/$',
-        user_views.UserGroupAllContributionsView.as_view(),
-        name='usergroup_allcontributions_view'),
 
     # ###########################
     # OBSERVATION TYPES & FIELDS
@@ -79,10 +75,6 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/$',
         view_views.ViewUpdate.as_view(),
         name='view'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/views/all-contributions/$',
-        view_views.AllContributionsViewUpdate.as_view(),
-        name='all_contributions_view'),
 
     # ###########################
     # USER

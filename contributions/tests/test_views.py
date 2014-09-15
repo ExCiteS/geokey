@@ -271,7 +271,6 @@ class SingleProjectObservationTest(TestCase):
             'status': 'active'
         })
 
-    @raises(PermissionDenied)
     def test_get_object_with_creator(self):
         view = SingleProjectObservation()
         view.get_object(
@@ -424,7 +423,6 @@ class ProjectCommentTest(TestCase):
             self.admin, self.project.id, self.observation.id)
         self.assertEqual(observation, self.observation)
 
-    @raises(PermissionDenied)
     def test_get_object_with_creator(self):
         view = ProjectComment()
         view.get_object(self.creator, self.project.id, self.observation.id)

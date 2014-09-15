@@ -18,7 +18,7 @@ from .model_factories import UserF, UserGroupF, ViewUserGroupFactory
 from ..views import (
     UserGroup, UserGroupUsers, UserGroupSingleUser, UserGroupViews,
     UserGroupSingleView, UserGroupCreate, UserGroupSettings, UserProfile,
-    ChangePassword, UserGroupAllContributionsView
+    ChangePassword
 )
 from ..models import UserGroup as Group
 
@@ -597,27 +597,6 @@ class UserGroupViewsTest(TestCase):
             self.contributors.viewgroups.filter(
                 usergroup=self.contributors, view=self.view).count(), 0)
 
-    def test_add_all_contrib_view(self):
-        response = self.post(self.admin, view_id="all-contributions")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertTrue(group.read_all_contrib)
-        self.assertTrue(group.view_all_contrib)
-
-    def test_add_all_contrib_view_with_contributor(self):
-        response = self.post(self.contributor, view_id="all-contributions")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertFalse(group.read_all_contrib)
-        self.assertFalse(group.view_all_contrib)
-
-    def test_add_all_contrib_view_non_member(self):
-        response = self.post(self.non_member, view_id="all-contributions")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertFalse(group.read_all_contrib)
-        self.assertFalse(group.view_all_contrib)
-
 
 class UserGroupSingleViewTest(TestCase):
     def setUp(self):
@@ -741,129 +720,3 @@ class UserGroupSingleViewTest(TestCase):
             usergroup=self.contributors, view=self.view)
         self.assertTrue(view_group.can_read)
         self.assertTrue(view_group.can_view)
-
-
-class UserGroupAllContributionsViewTest(TestCase):
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
-
-        self.project = ProjectF.create(
-            add_admins=[self.admin]
-        )
-
-        self.contributors = UserGroupF(
-            add_users=[self.contributor],
-            **{'project': self.project}
-        )
-
-    def put(self, user, data):
-        url = reverse('ajax:usergroup_allcontributions_view', kwargs={
-            'project_id': self.project.id,
-            'group_id': self.contributors.id
-        })
-        request = self.factory.put(
-            url, json.dumps(data), content_type='application/json')
-        force_authenticate(request, user=user)
-        view = UserGroupAllContributionsView.as_view()
-
-        return view(
-            request,
-            project_id=self.project.id,
-            group_id=self.contributors.id).render()
-
-    def test_update_partial_with_admin(self):
-        response = self.put(self.admin, {'can_read': True})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertFalse(group.view_all_contrib)
-        self.assertTrue(group.read_all_contrib)
-
-    def test_update_conplete_with_admin(self):
-        response = self.put(
-            self.admin,
-            {'can_read': True, 'can_view': True}
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertTrue(group.view_all_contrib)
-        self.assertTrue(group.read_all_contrib)
-
-    def test_update_with_contributor(self):
-        response = self.put(self.contributor, {'can_read': True})
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertFalse(group.view_all_contrib)
-        self.assertFalse(group.read_all_contrib)
-
-    def test_update_with_non_member(self):
-        response = self.put(self.non_member, {'can_read': True})
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertFalse(group.view_all_contrib)
-        self.assertFalse(group.read_all_contrib)
-
-
-class DeleteUserGroupAllContributionsViewTest(TestCase):
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
-
-        self.project = ProjectF.create(
-            add_admins=[self.admin]
-        )
-
-        self.contributors = UserGroupF(
-            add_users=[self.contributor],
-            **{
-                'project': self.project,
-                'read_all_contrib': True,
-                'view_all_contrib': True
-            }
-        )
-
-    def delete(self, user):
-        url = reverse('ajax:usergroup_allcontributions_view', kwargs={
-            'project_id': self.project.id,
-            'group_id': self.contributors.id
-        })
-        request = self.factory.delete(url)
-        force_authenticate(request, user=user)
-        view = UserGroupAllContributionsView.as_view()
-
-        return view(
-            request,
-            project_id=self.project.id,
-            group_id=self.contributors.id).render()
-
-    def test_delete_with_admin(self):
-        response = self.delete(self.admin)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertFalse(group.view_all_contrib)
-        self.assertFalse(group.read_all_contrib)
-
-    def test_delete_with_contributor(self):
-        response = self.delete(self.contributor)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertTrue(group.view_all_contrib)
-        self.assertTrue(group.read_all_contrib)
-
-    def test_delete_with_non_member(self):
-        response = self.delete(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertTrue(group.view_all_contrib)
-        self.assertTrue(group.read_all_contrib)

@@ -70,11 +70,11 @@ class GetComments(APITestCase):
             'project': self.project
         })
         response = self.get_response(view_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_comments_with_contributor(self):
         response = self.get_response(self.contributor)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_comments_with_non_member(self):
         response = self.get_response(self.non_member)
@@ -115,11 +115,7 @@ class AddCommentToPrivateProjectTest(APITestCase):
 
     def test_add_comment_to_observation_with_contributor(self):
         response = self.get_response(self.contributor)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(
-            json.loads(response.content).get('error'),
-            'You are not allowed to access this map.'
-        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_add_comment_to_observation_with_non_member(self):
         response = self.get_response(self.non_member)
@@ -135,11 +131,7 @@ class AddCommentToPrivateProjectTest(APITestCase):
             'project': self.project
         })
         response = self.get_response(view_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(
-            json.loads(response.content).get('error'),
-            'You are not allowed to access this map.'
-        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 class AddCommentToPublicProjectTest(APITestCase):
     def setUp(self):
@@ -149,7 +141,7 @@ class AddCommentToPublicProjectTest(APITestCase):
         self.project = ProjectF(
             add_admins=[self.admin],
             add_contributors=[self.contributor],
-            **{'isprivate': False, 'all_contrib_isprivate': False}
+            **{'isprivate': False}
         )
         self.observation = ObservationFactory.create(**{
             'project': self.project
@@ -332,15 +324,11 @@ class DeleteCommentTest(APITestCase):
 
     def test_delete_comment_with_comment_creator(self):
         response = self.get_response(self.contributor)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(
-            json.loads(response.content).get('error'),
-            'You are not allowed to access this map.'
-        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertIn(self.comment, observation.comments.all())
-        self.assertIn(self.comment_to_remove, observation.comments.all())
+        self.assertNotIn(self.comment_to_remove, observation.comments.all())
 
 
 class DeleteWrongComment(APITestCase):
