@@ -48,7 +48,10 @@
                         <input type="hidden" name="clear-symbol" id="clear-symbol" value="false">
                         <div class="form-group">
                             <label for="colour" class="control-label">Colour</label>
-                            <input type="hidden" class="form-control input-lg" id="colour" name="colour" value="{{ category.colour|slice:"1:" }}" required>
+                            <div class="input-group" id="colour">
+                                <input type="text" name="colour" value="{{ category.colour }}" class="form-control">
+                                <span class="input-group-addon"><i></i></span>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="symbol" class="control-label">Symbol</label>
@@ -68,9 +71,9 @@
             <script src="/static/js/admin.ui.forms.validate.js"></script>
 
             <!-- Colour picker -->
-            <link rel="stylesheet" href="/static/lib/colorpicker/pick-a-color-1.2.3.min.css">
             <script src="/static/lib/colorpicker/tinycolor-0.9.15.min.js"></script>
-            <script src="/static/lib/colorpicker/pick-a-color-1.2.3.min.js"></script>
+            <link rel="stylesheet" href="/static/lib/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css">
+            <script src="/static/lib/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
             <script src="/static/js/admin.ui.category.display.js"></script>
 
             <link rel="stylesheet" href="/static/lib/file-upload/css/fileinput.min.css">
