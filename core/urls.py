@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.views.generic.base import RedirectView
 
@@ -8,4 +9,9 @@ urlpatterns = patterns(
     url(r'^api/', include('core.api', namespace="api")),
     url(r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),
     url(r'^$', RedirectView.as_view(url='/admin/', permanent=True)),
+)
+
+urlpatterns += patterns('',
+    (r'^assets/(?P<path>.*)$', 'django.views.static.serve', 
+        {'document_root': settings.MEDIA_ROOT}),
 )

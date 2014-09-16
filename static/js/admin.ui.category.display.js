@@ -1,4 +1,6 @@
 $(function () {
+    var symbolPath = $('body').attr('data-symbol')
+
     $("input#colour").pickAColor({
         showSpectrum            : true,
         showSavedColors         : false,
@@ -8,5 +10,20 @@ $(function () {
         showBasicColors         : false,
         allowBlank              : false,
         inlineDropdown          : false     
+    });
+
+    var fileinputConfig = {
+        'showUpload': false
+    }
+
+    if (symbolPath) {
+        fileinputConfig.initialPreview = [
+            '<img src="' + symbolPath + '" class="file-preview-image">'
+        ]
+    }
+
+    $('input#symbol').fileinput(fileinputConfig);
+    $('input#symbol').on('fileclear', function(event) {
+        $('input#clear-symbol').val('true')
     });
 });

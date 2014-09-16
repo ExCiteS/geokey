@@ -163,9 +163,16 @@ class CategoryDisplay(LoginRequiredMixin, TemplateView):
         context = self.get_context_data(project_id, category_id)
         category = context.pop('category', None)
         data = request.POST
+        symbol = request.FILES.get('symbol')
 
         if category is not None:
             category.colour = '#' + data.get('colour')
+
+            if symbol is not None:
+                category.symbol = symbol
+            elif data.get('clear-symbol') == 'true':
+                category.symbol = None
+
             category.save()
 
         messages.success(

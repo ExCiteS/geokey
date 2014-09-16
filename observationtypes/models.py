@@ -28,6 +28,7 @@ class ObservationType(models.Model):
         max_length=20
     )
     colour = models.TextField(default='#0033ff')
+    symbol = models.ImageField(upload_to='symbols', null=True)
 
     objects = ObservationTypeManager()
 

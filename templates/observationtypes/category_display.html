@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block title %} | Category: {{ category.name }}{% endblock %}
+{% block bodydata %} {% if category.symbol %}data-symbol="{{ category.symbol.url }}"{% endif %}{% endblock %}
+
+
 
 {% block main %}
         <div class="page-header">
@@ -40,11 +43,16 @@
                 </div>
                 <div class="col-sm-8">
                     <h3 class="header">Display</h3>
-                    <form role="form" method="POST" action="{% url 'admin:category_display' category.project.id category.id %}" novalidate>
+                    <form role="form" method="POST" action="{% url 'admin:category_display' category.project.id category.id %}" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
+                        <input type="hidden" name="clear-symbol" id="clear-symbol" value="false">
                         <div class="form-group">
                             <label for="colour" class="control-label">Colour</label>
-                            <input type="hidden" class="form-control input-lg" id="colour" name="colour" value="{{ category.colour }}" required>
+                            <input type="hidden" class="form-control input-lg" id="colour" name="colour" value="{{ category.colour|slice:"1:" }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="symbol" class="control-label">Symbol</label>
+                            <input type="file" name="symbol" id="symbol">
                         </div>
                         <div class="form-group">
                             <button type="submit" class="btn btn-primary">Save</button>
@@ -59,8 +67,12 @@
 {% block libraries %} 
             <script src="/static/js/admin.ui.forms.validate.js"></script>
 
+            <!-- Colour picker -->
             <link rel="stylesheet" href="/static/lib/colorpicker/pick-a-color-1.2.3.min.css">
             <script src="/static/lib/colorpicker/tinycolor-0.9.15.min.js"></script>
             <script src="/static/lib/colorpicker/pick-a-color-1.2.3.min.js"></script>
             <script src="/static/js/admin.ui.category.display.js"></script>
+
+            <link rel="stylesheet" href="/static/lib/file-upload/css/fileinput.min.css">
+            <script src="/static/lib/file-upload/js/fileinput.min.js"></script>
 {% endblock %}

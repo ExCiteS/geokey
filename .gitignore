@@ -58,3 +58,4 @@ core/settings/project.py
 # Grunt #
 ##########
 node_modules
+assets
