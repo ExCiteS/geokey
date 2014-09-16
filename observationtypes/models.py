@@ -27,6 +27,7 @@ class ObservationType(models.Model):
         default=STATUS.active,
         max_length=20
     )
+    colour = models.TextField(default='#0033ff')
 
     objects = ObservationTypeManager()
 

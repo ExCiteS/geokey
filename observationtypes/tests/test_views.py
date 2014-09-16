@@ -15,7 +15,7 @@ from ..models import ObservationType, Field
 from ..views import (
     ObservationTypeUpdate, FieldUpdate, FieldLookupsUpdate, FieldLookups,
     SingleObservationType, ObservationTypeCreate, ObservationTypeSettings,
-    FieldCreate, CategoryList
+    FieldCreate, CategoryList, CategoryDisplay
 )
 
 # ############################################################################
@@ -114,6 +114,62 @@ class ObservationTypeCreateTest(TestCase):
         )
 
     def test_get_create_with_non_member(self):
+        response = self.get(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+
+class CategoryDisplayTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
+
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+        self.category = ObservationTypeFactory.create(
+            **{'project': self.project}
+        )
+
+    def get(self, user):
+        view = CategoryDisplay.as_view()
+        url = reverse('admin:category_display', kwargs={
+            'project_id': self.project.id,
+            'category_id': self.category.id
+        })
+        request = self.factory.get(url)
+        request.user = user
+        return view(
+            request,
+            project_id=self.project.id,
+            category_id=self.category.id).render()
+
+    def test_get_with_admin(self):
+        response = self.get(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+    def test_get_with_contributor(self):
+        response = self.get(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+    def test_get_with_non_member(self):
         response = self.get(self.non_member)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(

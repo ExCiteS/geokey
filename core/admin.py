@@ -87,6 +87,10 @@ urlpatterns = patterns(
         observationtype_views.CategoryOverview.as_view(),
         name='category_overview'),
     url(
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/display/$',
+        observationtype_views.CategoryDisplay.as_view(),
+        name='category_display'),
+    url(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<observationtype_id>[0-9]+)/settings/$',
         observationtype_views.ObservationTypeSettings.as_view(),
         name='observationtype_settings'),

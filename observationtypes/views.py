@@ -148,6 +148,32 @@ class ObservationTypeSettings(LoginRequiredMixin, TemplateView):
         return self.render_to_response(context)
 
 
+class CategoryDisplay(LoginRequiredMixin, TemplateView):
+    template_name = 'observationtypes/category_display.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, category_id, **kwargs):
+        user = self.request.user
+        category = ObservationType.objects.as_admin(
+            user, project_id, category_id)
+        return super(CategoryDisplay, self).get_context_data(
+            category=category, **kwargs)
+
+    def post(self, request, project_id, category_id):
+        context = self.get_context_data(project_id, category_id)
+        category = context.pop('category', None)
+        data = request.POST
+
+        if category is not None:
+            category.colour = '#' + data.get('colour')
+            category.save()
+
+        messages.success(
+            self.request, 'This display settings have been updated')
+        context['category'] = category
+        return self.render_to_response(context)
+
+
 class CategoryDelete(LoginRequiredMixin, TemplateView):
     template_name = 'base.html'
 

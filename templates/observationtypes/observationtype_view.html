@@ -34,6 +34,7 @@
                         </div>
                         <div class="list-group">
                             <a href="{% url 'admin:category_overview' observationtype.project.id observationtype.id %}" class="list-group-item">Fields</a>
+                            <a href="{% url 'admin:category_display' observationtype.project.id observationtype.id %}" class="list-group-item">Display</a>
                             <a href="{% url 'admin:observationtype_settings' observationtype.project.id observationtype.id %}" class="list-group-item active">Settings</a>
                         </div>
                     </div>
