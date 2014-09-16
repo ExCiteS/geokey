@@ -104,5 +104,6 @@ class ObservationTypeSerializer(FieldSelectorSerializer):
     class Meta:
         model = ObservationType
         depth = 1
-        fields = ('id', 'name', 'description', 'status', 'fields', 'colour')
-        read_only_fields = ('id', 'name')
+        fields = ('id', 'name', 'description', 'status', 'fields', 'colour',
+            'created_at')
+        read_only_fields = ('id', 'name', 'created_at')

@@ -327,9 +327,10 @@ class MySingleObservation(SingleObservation):
 # ############################################################################
 
 class CommentApiView(object):
-    def get_list_response(self, observation):
+    def get_list_response(self, user, observation):
         comments = observation.comments.filter(respondsto=None)
-        serializer = CommentSerializer(comments, many=True)
+        serializer = CommentSerializer(
+            comments, many=True, context={'user': user})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create_and_response(self, request, observation):
@@ -354,7 +355,7 @@ class CommentApiView(object):
             creator=user
         )
 
-        serializer = CommentSerializer(comment)
+        serializer = CommentSerializer(comment, context={'user': user})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete_and_respond(self, request, comment):
@@ -381,7 +382,7 @@ class ProjectComments(CommentApiView, ProjectComment):
         Returns a list of all comments of the observation
         """
         observation = self.get_object(request.user, project_id, observation_id)
-        return self.get_list_response(observation)
+        return self.get_list_response(request.user, observation)
 
     @handle_exceptions_for_ajax
     def post(self, request, project_id, observation_id, format=None):
@@ -415,7 +416,7 @@ class ViewComments(CommentApiView, ViewComment):
         """
         observation = self.get_object(
             request.user, project_id, view_id, observation_id)
-        return self.get_list_response(observation)
+        return self.get_list_response(request.user, observation)
 
     @handle_exceptions_for_ajax
     def post(self, request, project_id, view_id, observation_id, format=None):
@@ -447,7 +448,7 @@ class MyObservationComments(CommentApiView, MyObservationComment):
     @handle_exceptions_for_ajax
     def get(self, request, project_id, observation_id, format=None):
         observation = self.get_object(request.user, project_id, observation_id)
-        return self.get_list_response(observation)
+        return self.get_list_response(request.user, observation)
 
     @handle_exceptions_for_ajax
     def post(self, request, project_id, observation_id, format=None):

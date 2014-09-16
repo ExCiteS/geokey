@@ -15,60 +15,32 @@ class ProjectSerializer(FieldSelectorSerializer):
     """
     Serializer for projects.
     """
-    data_groupings = serializers.SerializerMethodField('get_data_groupings')
-    num_data_groupings = serializers.SerializerMethodField('get_number_data_groupings')
+    data_groupings = serializers.SerializerMethodField(
+        'get_data_groupings')
     num_contributions = serializers.SerializerMethodField(
         'get_number_contrbutions')
     num_locations = serializers.SerializerMethodField(
         'get_number_locations')
-    user_contributions = serializers.SerializerMethodField(
-        'get_user_contributions')
+    
     categories = serializers.SerializerMethodField(
         'get_categories')
-
-    can_contribute = serializers.SerializerMethodField('get_contribute')
-    can_moderate = serializers.SerializerMethodField('get_moderate')
-    is_admin = serializers.SerializerMethodField('get_admin')
-    is_involved = serializers.SerializerMethodField('get_involved')
+    contribution_info = serializers.SerializerMethodField(
+        'get_contribution_info')
+    user_info = serializers.SerializerMethodField(
+        'get_user_info')
 
     class Meta:
         model = Project
         depth = 1
-        fields = ('id', 'name', 'description', 'isprivate',
-                  'everyone_contributes', 'status', 'created_at', 'categories',
-                  'data_groupings', 'num_data_groupings', 'num_contributions',
-                  'num_locations', 'user_contributions', 'is_admin',
-                  'can_contribute', 'is_involved', 'can_moderate')
+        fields = ('id', 'name', 'description', 'isprivate', 'status',
+                  'created_at', 'categories', 'data_groupings',
+                  'contribution_info', 'user_info', 'num_locations')
         read_only_fields = ('id', 'name')
 
     def get_categories(self, project):
         serializer = ObservationTypeSerializer(
             project.observationtypes.active().exclude(fields=None), many=True)
         return serializer.data
-
-    def get_admin(self, project):
-        """
-        Method for SerializerMethodField `is_admin`
-        """
-        return project.is_admin(self.context.get('user'))
-
-    def get_contribute(self, project):
-        """
-        Method for SerializerMethodField `can_contribute`
-        """
-        return project.can_contribute(self.context.get('user'))
-
-    def get_moderate(self, project):
-        """
-        Method for SerializerMethodField `can_moderate`
-        """
-        return project.can_moderate(self.context.get('user'))
-
-    def get_involved(self, project):
-        """
-        Method for SerializerMethodField `is_involved`
-        """
-        return project.is_involved(self.context.get('user'))
 
     def get_data_groupings(self, project):
         """
@@ -78,17 +50,10 @@ class ProjectSerializer(FieldSelectorSerializer):
         maps = View.objects.get_list(user, project.id)
         view_serializer = ViewSerializer(
             maps, many=True,
-            fields=('id', 'name', 'description', 'num_contributions'),
+            fields=('id', 'name', 'description', 'num_contributions',
+                'created_at'),
             context={'user': user})
         return view_serializer.data
-
-    def get_number_data_groupings(self, project):
-        """
-        Method for SerializerMethodField `num_maps`. Returns the number of
-        maps the user is allowed to access.
-        """
-        user = self.context.get('user')
-        return View.objects.get_list(user, project.id).count()
 
     def get_number_locations(self, project):
         """
@@ -105,9 +70,6 @@ class ProjectSerializer(FieldSelectorSerializer):
         Method for SerializerMethodField `num_observations`. Returns the
         overall number of observations contributed to the project.
         """
-        if project.can_moderate(self.context.get('user')):
-            return project.observations.exclude(status='draft').count()
-
         return project.observations.exclude(
             status='draft').exclude(status='pending').count()
 
@@ -122,3 +84,39 @@ class ProjectSerializer(FieldSelectorSerializer):
             return project.observations.filter(creator=user).count()
         else:
             return 0
+
+    def get_contribution_info(self, project):
+        """
+        Method for SerializerMethodField `contribution_info`
+        """
+        drafts = 0
+        pending_personal = 0
+        personal = 0
+        pending_all = None
+
+        user = self.context.get('user')
+        if not user.is_anonymous():
+            personal = project.observations.filter(creator=user).count()
+            pending_personal = project.observations.filter(
+                creator=user, status='pending').count()
+            drafts = project.observations.filter(
+                creator=user, status='draft').count()
+
+            if project.can_moderate(user):
+                pending_all = project.observations.filter(status='pending')
+
+        return {
+            'total': self.get_number_contrbutions(project),
+            'personal': personal,
+            'pending_all': pending_all,
+            'pending_personal': pending_personal,
+            'drafts': drafts
+        }
+
+    def get_user_info(self, project):
+        return {
+            'is_admin': project.is_admin(self.context.get('user')),
+            'can_contribute': project.can_contribute(self.context.get('user')),
+            'is_involved': project.is_involved(self.context.get('user')),
+            'can_moderate': project.can_moderate(self.context.get('user'))
+        }

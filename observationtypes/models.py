@@ -22,6 +22,7 @@ class ObservationType(models.Model):
     project = models.ForeignKey(
         'projects.Project', related_name='observationtypes'
     )
+    created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,

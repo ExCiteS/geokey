@@ -325,38 +325,3 @@ class ViewUpdate(APIView):
         view = View.objects.as_admin(request.user, project_id, view_id)
         view.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class AllContributionsViewUpdate(APIView):
-    """
-    API Endpoints for the all contributions view in the AJAX API.
-    /ajax/projects/:project_id/views/all-contributions/
-    """
-    @handle_exceptions_for_ajax
-    def put(self, request, project_id, format=None):
-        project = Project.objects.as_admin(request.user, project_id)
-        if (request.DATA.get('isprivate') is not None):
-            project.all_contrib_isprivate = request.DATA.get('isprivate')
-            project.save()
-
-        response = {
-            'id': 'all-contributions',
-            'name': 'All contributions',
-            'description': 'This map provides access to all contributions ever contributed to the project.',
-            'status': 'active',
-            'isprivate': project.all_contrib_isprivate
-        }
-
-        return Response(response, status=status.HTTP_200_OK)
-
-
-class ViewAjaxObservations(APIView):
-    @handle_exceptions_for_ajax
-    def get(self, request, project_id, view_id, format=None):
-        """
-        Returns all data in a view
-        /ajax/projects/:project_id/views/:view_id/observations/
-        """
-        view = View.objects.get_single(request.user, project_id, view_id)
-        serializer = ContributionSerializer(view.data, many=True)
-        return Response(serializer.data)

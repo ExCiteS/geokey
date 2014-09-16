@@ -206,13 +206,22 @@ class ContributionSerializer(object):
 class CommentSerializer(serializers.ModelSerializer):
     creator = UserSerializer()
 
+    isowner = serializers.SerializerMethodField('get_is_owner')
+
     def to_native(self, obj):
         native = super(CommentSerializer, self).to_native(obj)
         native['responses'] = CommentSerializer(
-            obj.responses.all(), many=True).data
+            obj.responses.all(),
+            many=True,
+            context={'user': self.context.get('user')}
+        ).data
 
         return native
 
     class Meta:
         model = Comment
-        fields = ('id', 'text', 'creator', 'respondsto', 'created_at')
+        fields = ('id', 'text', 'creator', 'respondsto', 'created_at',
+            'isowner')
+
+    def get_is_owner(self, comment):
+        return comment.creator == self.context.get('user')

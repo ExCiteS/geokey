@@ -10,7 +10,7 @@ from projects.models import Project
 from users.tests.model_factories import ViewUserGroupFactory, UserGroupF
 
 from ..models import View
-from ..views import ViewUpdate, AllContributionsViewUpdate
+from ..views import ViewUpdate
 
 from .model_factories import ViewFactory
 
