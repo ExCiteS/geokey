@@ -38,7 +38,7 @@
                     </div>
                 </div>
                 <div class="col-sm-8">
-                    <h3 class="header">
+                    <h3>
                         Filters
                         {% if grouping.rules.all %}
                             <a href="{% url 'admin:view_rule_create' grouping.project.id grouping.id %}" class="btn btn-success btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create new filter</a>
@@ -56,7 +56,7 @@
                         <div class="well empty-list">
                             <p class="lead">We couldn't find any filters for this data grouping.</p>
                             <p>You need to create at least one filter to define the subset of contributions of this project that will be available in this grouping.</p>
-                            <p>You can define an arbitrary number of filters; a contribution must match at least one of the filters to be available in this grouping.</p>
+                            <p>You can define an arbitrary number of filters; in that case a contribution must match at least one of the filters to be available in this grouping.</p>
                             {% if grouping.project.observationtypes.all %}
                                 <a href="{% url 'admin:view_rule_create' grouping.project.id grouping.id %}" class="btn btn-success btn-lg">Create new filter</a>
                             {% endif %}
