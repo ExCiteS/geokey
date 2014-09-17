@@ -18,6 +18,10 @@
             <div class="row">
                 <div class="col-sm-4">
                     {% if role == 'administrator' %}
+                    <div class="alert alert-info">
+                        <h4>Do you need help?</h4>
+                        <p><a href="#" id="help-link">Click here to get started.</a></p>
+                    </div>
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h4 class="panel-title">Manage the project</h4>
@@ -29,15 +33,10 @@
                             <a href="{% url 'admin:project_settings' project.id %}" class="list-group-item">Settings</a>
                         </div>    
                     </div>
-                    
-                    
-                    
-                    {% else %}
-                        
                     {% endif %}
                     
                 </div>
-                <div class="col-sm-8">
+                <div class="col-sm-8" id="stats-bock">
                     <h3 class="header">You are {{role}} of this project</h3>
                     <div class="row" id="stats">
                         {% if role != 'Watcher' %}
@@ -55,10 +54,18 @@
                         {% endif%}        
                     </div>
                 </div>
+                {% include 'snippets/project-help.html' %}
             </div>
         </div>
 {% endblock %}
 
 {% block libraries %}
+    <script type="text/javascript">
+        $('#help-link').click(function (event) {
+            $('#help-block').removeClass('hidden');
+            $('#stats-bock').addClass('hidden');
+            event.preventDefault();
+        });
+    </script>
 
 {% endblock %}

@@ -436,8 +436,32 @@ h6.item-info + h3 {
 
 .field-info td:first-child {
 	padding-left: 15px;
-};
+}
 
 .field-info td:last-child {
 	padding-right: 15px;
-};
+}
+
+#help-block h4 {
+	padding-left: 40px;
+	text-indent: -40px;
+}
+
+#help-block h4 span.step {
+	color: #fff;
+	background-color: #428bca;
+	display: inline-block;
+	width: 34px;
+	line-height: 34px;
+	border-radius: 17px;
+	text-align: center;
+	text-indent: 0;
+}
+
+#help-block p + h4 {
+	margin-top: 40px;
+}
+
+#help-block p {
+	padding-left: 40px;
+}
