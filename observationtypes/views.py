@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.contrib import messages
 from django.utils.safestring import mark_safe
+from django.template.defaultfilters import slugify
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -236,45 +237,49 @@ class FieldCreate(LoginRequiredMixin, CreateView):
         observation_type = ObservationType.objects.as_admin(
             self.request.user, project_id, observationtype_id)
 
-        try:
-            field = Field.create(
-                data.get('name'),
-                data.get('key'),
-                data.get('description'),
-                data.get('required'),
-                observation_type,
-                self.request.POST.get('type')
-            )
 
-            if isinstance(field, NumericField):
-                field.minval = self.request.POST.get('minval') or None
-                field.maxval = self.request.POST.get('maxval') or None
-            print data
-            field.save()
+        proposed_key = slugify(data.get('name'))
+        suggested_key = proposed_key
+        
+        count = 1
+        while observation_type.fields.filter(key=suggested_key).exists():
+            suggested_key = '%s-%s' % (proposed_key, count)
+            count = count + 1
 
-            field_create_url = reverse(
-                'admin:observationtype_field_create',
-                kwargs={
-                    'project_id': project_id, 'observationtype_id': observationtype_id
-                }
-            )
+        field = Field.create(
+            data.get('name'),
+            suggested_key,
+            data.get('description'),
+            data.get('required'),
+            observation_type,
+            self.request.POST.get('type')
+        )
 
-            messages.success(
-                self.request,
-                mark_safe('The field has been created. <a href="%s">Add another '
-                 'field.</a>' % field_create_url)
-            )
+        if isinstance(field, NumericField):
+            field.minval = self.request.POST.get('minval') or None
+            field.maxval = self.request.POST.get('maxval') or None
+        field.save()
 
-            return redirect(
-                'admin:observationtype_field_settings',
-                project_id=observation_type.project.id,
-                observationtype_id=observation_type.id,
-                field_id=field.id
-            )
-        except IntegrityError:
-            data = form.cleaned_data
-            data['type'] = self.request.POST.get('type')
-            return self.render_to_response(self.get_context_data(form, data=data, key_error=True))
+        field_create_url = reverse(
+            'admin:observationtype_field_create',
+            kwargs={
+                'project_id': project_id,
+                'observationtype_id': observationtype_id
+            }
+        )
+
+        messages.success(
+            self.request,
+            mark_safe('The field has been created. <a href="%s">Add another '
+             'field.</a>' % field_create_url)
+        )
+
+        return redirect(
+            'admin:observationtype_field_settings',
+            project_id=observation_type.project.id,
+            observationtype_id=observation_type.id,
+            field_id=field.id
+        )
 
 
 class FieldSettings(LoginRequiredMixin, TemplateView):
@@ -402,35 +407,6 @@ class FieldUpdate(APIView):
             return Response(serializer.data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class FieldKeyCheck(APIView):
-    """
-    API endpoint that can be used to check the validity of a key of a field
-    /ajax/projects/:project_id/category/:category_id/check-key/?key=key
-    """
-
-    @handle_exceptions_for_ajax
-    def get(self, request, project_id, category_id, format=None):
-        category = ObservationType.objects.as_admin(
-            request.user, project_id, category_id)
-
-        proposed_key = request.GET.get('key')
-        count = 1
-
-        if category.fields.filter(key=proposed_key).exists():
-            while True:
-                suggested_key = proposed_key + '_' + str(count)
-                if not category.fields.filter(key=suggested_key):
-                    return Response({
-                        'accepted': False,
-                        'suggested_key': suggested_key
-                    })
-
-                count = count + 1
-        else:
-            return Response({'accepted': True})
-
 
 
 class FieldLookups(APIView):

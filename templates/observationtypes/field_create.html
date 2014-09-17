@@ -45,12 +45,6 @@
 						<input type="text" class="form-control input-lg" id="name" name="name" required {%if data %}value="{{data.name}}"{% endif %}>
 					</div>
 
-					<div class="form-group {% if key_error %}has-error{% endif%}">
-						<label for="key" class="control-label">Key (required)</label>
-						<input type="text" class="form-control input-lg" id="key" name="key" maxlength="30" required pattern="^\w+$" {%if data %}value="{{data.key}}"{% endif %}>
-						{% if key_error %}<span class="help-block">A field with that key already exists.</span>{% endif %}
-					</div>
-
 					<div class="form-group">
 						<label for="description" class="control-label">Description</label>
 						<textarea class="form-control input-lg" rows="5" name="description" id="description" {%if data %}value="{{data.description}}"{% endif %}></textarea>

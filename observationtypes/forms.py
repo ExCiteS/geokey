@@ -20,4 +20,4 @@ class FieldCreateForm(forms.ModelForm):
     """
     class Meta:
         model = Field
-        fields = ('name', 'key', 'description', 'required')
+        fields = ('name', 'description', 'required')
