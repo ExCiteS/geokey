@@ -12,6 +12,14 @@ def key(d, key_name):
     return ''
 
 
+@register.filter(name='value')
+def value(d, key_name):
+    if key_name in d:
+        return d[key_name]
+
+    return ''
+
+
 @register.filter(name='minval')
 def minval(d, key_name):
     if d.get(key_name) is not None:

@@ -107,8 +107,8 @@
                                         <div class="col-sm-7">
                                             <select name="{{field.key}}-ref" id="reference-value" class="form-control">
                                                 <option></option>
-                                                <option value="true" {% if rule.filters|key:field.key == 'true' %}selected{% endif %}>True</option>
-                                                <option value="false" {% if rule.filters|key:field.key == 'false' %}selected{% endif %}>False</option>
+                                                <option value="true" {% if rule.filters|value:field.key == 'true' %}selected{% endif %}>True</option>
+                                                <option value="false" {% if rule.filters|value:field.key == 'false' %}selected{% endif %}>False</option>
                                             </select>
                                         </div>
                                     </div>

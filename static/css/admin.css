@@ -278,7 +278,8 @@ div.overview-list-item {
 	padding: 1.5em 0;
 }
 
-div.overview-list-item:first-of-type {
+div.overview-list-item:first-of-type,
+div ~ div.overview-list-item {
 	border-top: none;
 	padding-top: 0;
 }
