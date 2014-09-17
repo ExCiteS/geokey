@@ -40,6 +40,29 @@ class ObservationTest(TestCase):
             observationtype=observationtype, project=observationtype.project
         )
         self.assertEqual(observation.attributes, data)
+        self.assertEqual(observation.status, 'pending')
+
+    def test_create_observation_active_default(self):
+        creator = UserF()
+        location = LocationFactory()
+        observationtype = ObservationTypeFactory(**{
+            'default_status': 'active'
+        })
+        TextFieldFactory(**{
+            'key': 'text',
+            'observationtype': observationtype
+        })
+        NumericFieldFactory(**{
+            'key': 'number',
+            'observationtype': observationtype
+        })
+        data = {'text': 'Text', 'number': 12}
+        observation = Observation.create(
+            attributes=data, creator=creator, location=location,
+            observationtype=observationtype, project=observationtype.project
+        )
+        self.assertEqual(observation.attributes, data)
+        self.assertEqual(observation.status, 'active')
 
     def test_create_observation_with_inactive_field(self):
         creator = UserF()

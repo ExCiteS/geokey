@@ -54,6 +54,20 @@
                             </div>
 
                             <div class="form-group">
+                                <label for="description" class="control-label">Default status for new contributions</label>
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="default_status" value="pending" {% if observationtype.default_status == 'pending' %}checked{% endif %}> <strong>Pending</strong><br>A new contribution of this category will not appear on the map immediately. A moderate has to approve new contributions first.
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" name="default_status" value="active" {% if observationtype.default_status == 'active' %}checked{% endif %}> <strong>Active</strong><br>A new contribution will appear on the map immediately. 
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
                                 <button type="submit" class="btn btn-primary">Save</button>
                                 <button type="reset" class="btn btn-primary btn-link">Reset</button>
                             </div>

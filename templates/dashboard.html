@@ -12,7 +12,7 @@
             {% include 'snippets/messages.html' %}
             <div class="row">
                 <div class="col-md-8">
-                    <h3 class="header">
+                    <h3>
                         Mangage your projects
                         {% if admin_projects %} <a href="{% url 'admin:project_create' %}" class="pull-right btn btn-sm btn-success"><span class="glyphicon glyphicon-plus"></span> Create new Project</a>{% endif %}
                     </h3>
@@ -31,6 +31,10 @@
                     {% endfor %}
                 </div>
                 <div class="col-md-4">
+                    <div class="alert alert-info">
+                        <h5><strong>Are you an application developer?</strong></h5>
+                        <p>Plese go the the <a href="{% url 'admin:app_overview' %}">developer section</a> to register and manage your application.</p>
+                    </div>
                     {% if involved_projects %}
                     <div class="panel panel-default">
                         <div class="panel-heading">
@@ -46,10 +50,6 @@
                         </div>
                     </div>
                     {% endif %}
-                    <div class="alert alert-info">
-                        <h5><strong>Are you an application developer?</strong></h5>
-                        <p>Plese go the the <a href="{% url 'admin:app_overview' %}">developer section</a> to register and manage your application.</p>
-                    </div>
                 </div>
             </div>
         </div>

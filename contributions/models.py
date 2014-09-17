@@ -119,7 +119,7 @@ class Observation(models.Model):
         attributes = cls.replace_null(attributes)
 
         if status == None:
-            status = 'pending'
+            status = observationtype.default_status
 
         if status == 'draft':
             cls.validate_partial(observationtype, attributes)

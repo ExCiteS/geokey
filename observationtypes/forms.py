@@ -10,7 +10,7 @@ class ObservationTypeCreateForm(forms.ModelForm):
     """
     class Meta:
         model = ObservationType
-        fields = ('name', 'description')
+        fields = ('name', 'description', 'default_status')
 
 
 class FieldCreateForm(forms.ModelForm):

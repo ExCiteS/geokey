@@ -142,6 +142,7 @@ class ObservationTypeSettings(LoginRequiredMixin, TemplateView):
 
         category.name = data.get('name')
         category.description = data.get('description')
+        category.default_status = data.get('default_status')
         category.save()
 
         messages.success(self.request, "The category has been updated.")

@@ -10,7 +10,7 @@ from django.db.models import Q
 from core.exceptions import InputError
 
 from .manager import ObservationTypeManager, FieldManager, LookupValueManager
-from .base import STATUS
+from .base import STATUS, DEFAULT_STATUS
 
 
 class ObservationType(models.Model):
@@ -26,6 +26,11 @@ class ObservationType(models.Model):
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
+        max_length=20
+    )
+    default_status = models.CharField(
+        choices=DEFAULT_STATUS,
+        default=DEFAULT_STATUS.pending,
         max_length=20
     )
     colour = models.TextField(default='#0033ff')
