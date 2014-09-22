@@ -20,20 +20,19 @@ class ProjectQuerySet(models.query.QuerySet):
         else:
             projects = self.annotate(public_views=Count(
                 'views', only=Q(views__isprivate=False))).filter(
-
                 Q(admins=user) |
                 (
                     Q(status=STATUS.active) &
 
-                    (((Q(isprivate=False) | Q(usergroups__users=user)) & (
-                        Q(public_views__gte=1))) |
-
+                    (((Q(isprivate=False) | Q(usergroups__users=user)) & 
+                        Q(public_views__gte=1)) |
                         Q(usergroups__can_contribute=True,
                             usergroups__users=user) |
                         Q(usergroups__can_moderate=True,
                             usergroups__users=user) |
                         Q(usergroups__users=user,
-                            usergroups__viewgroups__isnull=False))
+                            usergroups__viewgroups__isnull=False)
+                    )
                 )
             ).distinct()
             return projects

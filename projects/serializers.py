@@ -103,7 +103,8 @@ class ProjectSerializer(FieldSelectorSerializer):
                 creator=user, status='draft').count()
 
             if project.can_moderate(user):
-                pending_all = project.observations.filter(status='pending')
+                pending_all = project.observations.filter(
+                    status='pending').count()
 
         return {
             'total': self.get_number_contrbutions(project),

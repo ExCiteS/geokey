@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
-
+from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase
+
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from projects.tests.model_factories import UserF, ProjectF
@@ -48,3 +49,12 @@ class TestDataViewsPublicApi(TestCase):
         some_dude = UserF.create()
         response = self.get(some_dude)
         self.assertEqual(response.status_code, 403)
+
+    def test_get_with_anonymous(self):
+        self.project.isprivate = False
+        self.project.save()
+
+        response = self.get(AnonymousUser())
+        self.assertEqual(response.status_code, 200)    
+
+

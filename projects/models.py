@@ -131,6 +131,7 @@ class Project(models.Model):
         """
         Returns all contributions a user can access in a project
         """
+        # Return everything for admins
         if self.is_admin(user):
             return self.observations.for_moderator(user)
 
@@ -140,10 +141,19 @@ class Project(models.Model):
         ]
         grouping_queries = [x for x in grouping_queries if x is not None]
 
+        # Return everything found in data groupings plus the user's data
         if len(grouping_queries) > 0:
             query = '(' + ') OR ('.join(grouping_queries) + ')'
 
+            if (not user.is_anonymous()):
+                query = query + ' OR (creator_id = ' + str(user.id) + ')'
+
             return self.observations.extra(
-                where=[query + ' OR (creator_id = ' + str(user.id) + ')'])
-        else:
+                where=[query])
+        
+        # If there are no data groupings for the user, return just the user's
+        # data
+        if (not user.is_anonymous()):
             return self.observations.filter(creator=user)
+        else:
+            return self.observations.none()

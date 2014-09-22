@@ -293,6 +293,8 @@ div.overview-list-item {
 	div.overview-list-item p.meta {
 		color: #999;
 		margin-bottom: 0;
+		text-transform: uppercase;
+		font-size: 12px;
 	}
 
 	div.overview-list-item .message {
