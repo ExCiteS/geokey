@@ -260,7 +260,7 @@ class Projects(APIView):
             request.user).filter(status='active')
         serializer = ProjectSerializer(
             projects, many=True, context={'user': request.user},
-            fields=('id', 'name', 'description', 'is_involved', 'num_views')
+            fields=('id', 'name', 'description', 'user_info')
         )
         return Response(serializer.data)
 
