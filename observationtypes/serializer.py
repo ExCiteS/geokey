@@ -113,4 +113,7 @@ class ObservationTypeSerializer(FieldSelectorSerializer):
         """
         Returns the symbol URL. None if no image has been uploaded
         """
-        return category.symbol.url
+        if category.symbol:
+            return category.symbol.url
+
+        return None
