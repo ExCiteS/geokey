@@ -51,7 +51,7 @@ class ProjectSerializer(FieldSelectorSerializer):
         view_serializer = ViewSerializer(
             maps, many=True,
             fields=('id', 'name', 'description', 'num_contributions',
-                'created_at'),
+                'created_at', 'symbol', 'colour'),
             context={'user': user})
         return view_serializer.data
 
