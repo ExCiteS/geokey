@@ -183,7 +183,10 @@ class ContributionSerializer(object):
             'geometry': json.loads(obj.location.geometry.geojson),
             'category': {
                 'id': obj.observationtype.id,
-                'name': obj.observationtype.name
+                'name': obj.observationtype.name,
+                'symbol': (obj.observationtype.symbol.url 
+                           if obj.observationtype.symbol else None),
+                'colour': obj.observationtype.colour
             },
             'properties': {
                 'status': obj.status,
