@@ -395,7 +395,7 @@ class ProjectListTest(TestCase):
 
     def test_get_list_with_viewer(self):
         projects = Project.objects.get_list(self.viewer)
-        self.assertEquals(len(projects), 4)
+        self.assertEquals(len(projects), 2)
 
     def test_get_list_with_some_dude(self):
         projects = Project.objects.get_list(self.some_dude)

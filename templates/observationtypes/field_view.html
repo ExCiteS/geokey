@@ -87,13 +87,13 @@
                 <div class="col-sm-8 col-sm-offset-4">
                     <div id="lookupValuesPanel" class="panel panel-default" id="lookupValuesPanel">
                         <div class="panel-heading">
-                            <h2 class="panel-title">Add and remove accepted value for the select field</h2>
+                            <h2 class="panel-title">Add and remove accepted values for the select field</h2>
                         </div>
                         <ul class="list-group">
                         {% for lookupvalue in field.lookupfield.lookupvalues.active %}
                             <li class="list-group-item">{{ lookupvalue.name }} (<a class="text-danger" data-lookup-id="{{ lookupvalue.id }}" href="#">remove</a>)</li>
                         {% empty %}
-                            <li class="list-group-item">No lookup values have been added yet.</li>
+                            <li class="list-group-item">No values have been added yet.</li>
                         {% endfor %}
                         </ul>
                         <div class="panel-footer">

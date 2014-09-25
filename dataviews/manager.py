@@ -18,7 +18,8 @@ class ViewQuerySet(models.query.QuerySet):
         if user.is_anonymous():
             return self.filter(isprivate=False)
         else:
-            return self.filter(Q(isprivate=False) | Q(project__admins=user) |
+            return self.filter(Q(isprivate=False, project__isprivate=False) | 
+                               Q(project__admins=user) |
                                Q(usergroups__usergroup__users=user)).distinct()
 
 
@@ -50,7 +51,7 @@ class ViewManager(models.Manager):
         project = Project.objects.get_single(user, project_id)
         view = project.views.get(pk=view_id)
         if view.status == STATUS.active and (
-            project.is_admin(user) or not view.isprivate or (
+            project.is_admin(user) or (not view.isprivate and not project.isprivate) or (
                 not user.is_anonymous() and
                 view.usergroups.filter(usergroup__users=user).exists())):
             return view

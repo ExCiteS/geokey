@@ -55,6 +55,6 @@ class TestDataViewsPublicApi(TestCase):
         self.project.save()
 
         response = self.get(AnonymousUser())
-        self.assertEqual(response.status_code, 200)    
+        self.assertEqual(response.status_code, 403)    
 
 

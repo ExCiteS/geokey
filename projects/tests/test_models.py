@@ -271,7 +271,7 @@ class PrivateProjectTest_PublicView(TestCase):
         self.assertTrue(self.project.can_access(self.contributor))
 
         self.assertTrue(self.project.can_access(self.viewer_view))
-        self.assertTrue(self.project.can_access(self.viewer))
+        self.assertFalse(self.project.can_access(self.viewer))
 
         self.assertFalse(self.project.can_access(self.some_dude))
         self.assertFalse(self.project.can_access(AnonymousUser()))
@@ -412,10 +412,10 @@ class PublicProjectTest(TestCase):
         self.assertTrue(self.project.can_access(self.contributor))
 
         self.assertTrue(self.project.can_access(self.viewer_view))
-        self.assertTrue(self.project.can_access(self.viewer))
+        self.assertFalse(self.project.can_access(self.viewer))
 
-        self.assertTrue(self.project.can_access(self.some_dude))
-        self.assertTrue(self.project.can_access(AnonymousUser()))
+        self.assertFalse(self.project.can_access(self.some_dude))
+        self.assertFalse(self.project.can_access(AnonymousUser()))
 
     def can_contribute(self):
         self.assertTrue(self.project.can_contribute(self.project.creator))

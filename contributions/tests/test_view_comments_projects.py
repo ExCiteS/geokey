@@ -172,7 +172,7 @@ class AddCommentToPublicProjectTest(APITestCase):
 
     def test_add_comment_to_observation_with_non_member(self):
         response = self.get_response(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_add_comment_to_observation_with_view_member(self):
         view_member = UserF.create()
@@ -184,7 +184,7 @@ class AddCommentToPublicProjectTest(APITestCase):
 
     def test_add_comment_to_observation_with_anonymous(self):
         response = self.get_response(AnonymousUser())
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 class AddCommentToWrongObservation(APITestCase):
     def test(self):

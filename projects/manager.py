@@ -23,9 +23,7 @@ class ProjectQuerySet(models.query.QuerySet):
                 Q(admins=user) |
                 (
                     Q(status=STATUS.active) &
-
-                    (((Q(isprivate=False) | Q(usergroups__users=user)) & 
-                        Q(public_views__gte=1)) |
+                    (Q(isprivate=False, public_views__gte=1) |
                         Q(usergroups__can_contribute=True,
                             usergroups__users=user) |
                         Q(usergroups__can_moderate=True,
@@ -36,6 +34,33 @@ class ProjectQuerySet(models.query.QuerySet):
                 )
             ).distinct()
             return projects
+
+    # def for_user(self, user):
+    #     if user.is_anonymous():
+    #         return self.annotate(public_views=Count(
+    #             'views', only=Q(views__isprivate=False))).filter(
+    #             Q(status=STATUS.active) &
+    #             Q(isprivate=False, public_views__gte=1)
+    #             ).distinct()
+    #     else:
+    #         projects = self.annotate(public_views=Count(
+    #             'views', only=Q(views__isprivate=False))).filter(
+    #             Q(admins=user) |
+    #             (
+    #                 Q(status=STATUS.active) &
+
+    #                 (((Q(isprivate=False) | Q(usergroups__users=user)) & 
+    #                     Q(public_views__gte=1)) |
+    #                     Q(usergroups__can_contribute=True,
+    #                         usergroups__users=user) |
+    #                     Q(usergroups__can_moderate=True,
+    #                         usergroups__users=user) |
+    #                     Q(usergroups__users=user,
+    #                         usergroups__viewgroups__isnull=False)
+    #                 )
+    #             )
+    #         ).distinct()
+    #         return projects
 
 
 class ProjectManager(models.Manager):

@@ -5,7 +5,7 @@ register = template.Library()
 
 def get_user_group(group, view):
     disabled = ''
-    if not view.isprivate:
+    if not view.project.isprivate and not view.isprivate:
         disabled = 'disabled="disabled"'
 
     if view.usergroups.filter(usergroup=group).exists():
