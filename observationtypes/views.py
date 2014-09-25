@@ -168,7 +168,7 @@ class CategoryDisplay(LoginRequiredMixin, TemplateView):
         symbol = request.FILES.get('symbol')
 
         if category is not None:
-            category.colour = '#' + data.get('colour')
+            category.colour = data.get('colour')
 
             if symbol is not None:
                 category.symbol = symbol
