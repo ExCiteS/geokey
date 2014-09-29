@@ -74,7 +74,7 @@ class LocationApiTest(TestCase):
 
     def test_get_locations_with_non_member(self):
         response = self._get(self.non_member)
-        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.status_code, 404)
 
 
 class LocationQueryTest(TestCase):
@@ -220,7 +220,7 @@ class LocationUpdateApiTest(TestCase):
 
     def test_update_location_with_non_member(self):
         response = self.patch({'description': 'UCL'}, self.non_member)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
         location = Location.objects.get(pk=self.location.id)
         self.assertEqual(location.description, self.location.description)

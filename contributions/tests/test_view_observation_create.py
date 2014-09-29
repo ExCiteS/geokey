@@ -365,14 +365,14 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._post(self.data, self.non_member)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_contribute_to_public_with_anonymous(self):
         self.project.isprivate = False
         self.project.save()
 
         response = self._post(self.data, AnonymousUser())
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_contribute_to_private_with_admin(self):
         response = self._post(self.data, self.admin)
@@ -391,12 +391,12 @@ class ProjectPublicApiTest(TestCase):
 
     def test_contribute_to_private_with_non_member(self):
         response = self._post(self.data, self.non_member)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(len(self.project.observations.all()), 0)
 
     def test_contribute_to_private_with_anonymous(self):
         response = self._post(self.data, AnonymousUser())
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(len(self.project.observations.all()), 0)
 
     def test_contribute_to_inactive_with_admin(self):
@@ -412,7 +412,7 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._post(self.data, self.contributor)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(len(self.project.observations.all()), 0)
 
     def test_contribute_to_inactive_with_view_member(self):
@@ -420,7 +420,7 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._post(self.data, self.view_member)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(len(self.project.observations.all()), 0)
 
     def test_contribute_to_inactive_with_non_member(self):
@@ -428,7 +428,7 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._post(self.data, self.non_member)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(len(self.project.observations.all()), 0)
 
     def test_contribute_to_inactive_with_Anonymous(self):
@@ -436,7 +436,7 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._post(self.data, AnonymousUser())
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(len(self.project.observations.all()), 0)
 
     def test_contribute_to_deleted_with_admin(self):

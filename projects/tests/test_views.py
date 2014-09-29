@@ -204,7 +204,7 @@ class ProjectUpdateTest(TestCase):
         view = ProjectUpdate.as_view()
         response = view(request, project_id=self.project.id).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_update_with_wrong_status(self):
         request = self.factory.put(
@@ -271,7 +271,7 @@ class ProjectUpdateTest(TestCase):
         view = ProjectUpdate.as_view()
         response = view(request, project_id=self.project.id).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(
             Project.objects.get(pk=self.project.id).description,
             self.project.description
@@ -305,7 +305,7 @@ class ProjectUpdateTest(TestCase):
         view = ProjectUpdate.as_view()
         response = view(request, project_id=self.project.id).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(
             Project.objects.get(pk=self.project.id).status,
             'active'
@@ -387,7 +387,7 @@ class ProjectAdminsTest(TestCase):
             project_id=self.project.id
         ).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertNotIn(
             self.user_to_add,
             Project.objects.get(pk=self.project.id).admins.all()
@@ -473,7 +473,7 @@ class ProjectAdminsUserTest(TestCase):
             user_id=self.admin_to_remove.id
         ).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertIn(
             self.admin_to_remove,
             Project.objects.get(pk=self.project.id).admins.all()
@@ -733,7 +733,7 @@ class SingleProjectTest(TestCase):
         view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_get_public_project_with_contributor(self):
         user = UserF.create()
@@ -800,7 +800,7 @@ class SingleProjectTest(TestCase):
         view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_get_public_project_with_view_member(self):
         user = UserF.create()
@@ -845,7 +845,7 @@ class SingleProjectTest(TestCase):
         view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_get_inactive_project_with_non_member(self):
         user = UserF.create()
@@ -860,7 +860,7 @@ class SingleProjectTest(TestCase):
         view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_get_public_project_with_non_member(self):
         user = UserF.create()

@@ -48,13 +48,13 @@ class TestDataViewsPublicApi(TestCase):
     def test_get_with_some_dude(self):
         some_dude = UserF.create()
         response = self.get(some_dude)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_get_with_anonymous(self):
         self.project.isprivate = False
         self.project.save()
 
         response = self.get(AnonymousUser())
-        self.assertEqual(response.status_code, 403)    
+        self.assertEqual(response.status_code, 404)    
 
 

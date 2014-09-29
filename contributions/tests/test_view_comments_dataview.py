@@ -97,7 +97,7 @@ class GetCommentsView(APITestCase):
 
     def test_get_comments_with_view_non_member(self):
         response = self.get_response(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class AddCommentToViewTest(APITestCase):
@@ -148,11 +148,7 @@ class AddCommentToViewTest(APITestCase):
 
     def test_add_comment_to_observation_with_non_member(self):
         response = self.get_response(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(
-            json.loads(response.content).get('error'),
-            'You are not allowed to access this project.'
-        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_add_comment_to_observation_with_view_member(self):
         view_member = UserF.create()
@@ -388,11 +384,7 @@ class DeleteCommentTest(APITestCase):
     def test_delete_comment_with_non_member(self):
         response = self.get_response(self.non_member)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(
-            json.loads(response.content).get('error'),
-            'You are not allowed to access this project.'
-        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertIn(self.comment, observation.comments.all())

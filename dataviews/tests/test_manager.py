@@ -5,6 +5,7 @@ from django.contrib.auth.models import AnonymousUser
 from nose.tools import raises
 
 from projects.tests.model_factories import UserF, ProjectF
+from projects.models import Project
 from .model_factories import ViewFactory
 
 from ..models import View
@@ -167,7 +168,7 @@ class TestManager(TestCase):
         views = View.objects.get_list(self.contributor, self.project.id)
         self.assertEqual(len(views), 0)
 
-    @raises(PermissionDenied)
+    @raises(Project.DoesNotExist)
     def test_get_views_with_non_member(self):
         View.objects.get_list(self.non_member, self.project.id)
 
@@ -191,7 +192,7 @@ class TestManager(TestCase):
         View.objects.get_single(
             self.view2_user, self.project.id, self.view1.id)
 
-    @raises(PermissionDenied)
+    @raises(Project.DoesNotExist)
     def test_get_single_view_with_non_member(self):
         View.objects.get_single(
             self.non_member, self.project.id, self.view1.id)
@@ -211,7 +212,7 @@ class TestManager(TestCase):
         View.objects.as_admin(
             self.view1_user, self.project.id, self.view1.id)
 
-    @raises(PermissionDenied)
+    @raises(Project.DoesNotExist)
     def test_get_single_view_as_admin_with_non_member(self):
         View.objects.as_admin(
             self.non_member, self.project.id, self.view1.id)

@@ -35,33 +35,6 @@ class ProjectQuerySet(models.query.QuerySet):
             ).distinct()
             return projects
 
-    # def for_user(self, user):
-    #     if user.is_anonymous():
-    #         return self.annotate(public_views=Count(
-    #             'views', only=Q(views__isprivate=False))).filter(
-    #             Q(status=STATUS.active) &
-    #             Q(isprivate=False, public_views__gte=1)
-    #             ).distinct()
-    #     else:
-    #         projects = self.annotate(public_views=Count(
-    #             'views', only=Q(views__isprivate=False))).filter(
-    #             Q(admins=user) |
-    #             (
-    #                 Q(status=STATUS.active) &
-
-    #                 (((Q(isprivate=False) | Q(usergroups__users=user)) & 
-    #                     Q(public_views__gte=1)) |
-    #                     Q(usergroups__can_contribute=True,
-    #                         usergroups__users=user) |
-    #                     Q(usergroups__can_moderate=True,
-    #                         usergroups__users=user) |
-    #                     Q(usergroups__users=user,
-    #                         usergroups__viewgroups__isnull=False)
-    #                 )
-    #             )
-    #         ).distinct()
-    #         return projects
-
 
 class ProjectManager(models.Manager):
     use_for_related_fields = True
@@ -83,19 +56,14 @@ class ProjectManager(models.Manager):
         Returns a single project or raises PermissionDenied if the user is not
         allowed to access the project.
         """
-        project = self.get(pk=project_id)
-        if project.can_access(user):
-            return project
-        else:
-            raise PermissionDenied('You are not allowed to access this '
-                                   'project.')
+        return self.get_list(user).get(pk=project_id)
 
     def as_admin(self, user, project_id):
         """
         Returns the project if the user is member of the administrators group
         of raises PermissionDenied if not.
         """
-        project = self.get(pk=project_id)
+        project = self.get_single(user, project_id)
         if project.is_admin(user):
             return project
         else:

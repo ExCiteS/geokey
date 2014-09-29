@@ -316,12 +316,3 @@ class ViewUpdate(APIView):
             return Response(serializer.data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @handle_exceptions_for_ajax
-    def delete(self, request, project_id, view_id, format=None):
-        """
-        Deletes a view
-        """
-        view = View.objects.as_admin(request.user, project_id, view_id)
-        view.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)

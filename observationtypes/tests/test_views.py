@@ -69,8 +69,7 @@ class CategoryOverviewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(
             response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
+            'Project matching query does not exist.'
         )
 
 
@@ -118,8 +117,7 @@ class ObservationTypeCreateTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(
             response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
+            'Project matching query does not exist.'
         )
 
 
@@ -174,8 +172,7 @@ class CategoryDisplayTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(
             response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
+            'Project matching query does not exist.'
         )
 
 
@@ -229,8 +226,7 @@ class ObservationTypeSettingsTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(
             response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
+            'Project matching query does not exist.'
         )
 
 
@@ -284,8 +280,7 @@ class FieldCreateTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(
             response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
+            'Project matching query does not exist.'
         )
 
 
@@ -343,8 +338,7 @@ class FieldSettingsTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(
             response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
+            'Project matching query does not exist.'
         )
 
 # ############################################################################
@@ -461,7 +455,7 @@ class ObservationtypeAjaxTest(TestCase):
             {'description': 'new description'},
             self.non_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(
             ObservationType.objects.get_single(
                 self.admin, self.project.id, self.active_type.id).description,
@@ -473,7 +467,7 @@ class ObservationtypeAjaxTest(TestCase):
             {'status': 'inactive'},
             self.non_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(
             ObservationType.objects.get_single(
                 self.admin, self.project.id, self.active_type.id).status,
@@ -582,7 +576,7 @@ class UpdateFieldTest(TestCase):
 
     def test_update_status_with_non_member(self):
         response = self._put({'status': 'inactive'}, self.non_member)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(
             Field.objects.get_single(
                 self.admin, self.project.id, self.observationtype.id,
@@ -957,4 +951,4 @@ class ObservationTypePublicApiTest(TestCase):
 
     def test_get_observationType_with_non_member(self):
         response = self._get(self.non_member)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)

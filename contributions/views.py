@@ -309,7 +309,9 @@ class SingleGroupingContributionAPIView(
         return self.delete_and_respond(request, observation, format=format)
 
 
-class SingleMyContributionAPIView(SingleMyContribution, SingleContributionAPIView, ):
+class SingleMyContributionAPIView(
+    SingleMyContribution, SingleContributionAPIView):
+
     @handle_exceptions_for_ajax
     def get(self, request, project_id, observation_id, format=None):
         observation = self.get_object(request.user, project_id, observation_id)

@@ -73,8 +73,7 @@ class UserGroupCreateTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(
             response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
+            'Project matching query does not exist'
         )
 
 
@@ -127,8 +126,7 @@ class UserGroupSettingTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(
             response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
+            'Project matching query does not exist'
         )
 
 
@@ -289,7 +287,7 @@ class UserGroupTest(TestCase):
     def test_update_description_with_non_member(self):
         response = self.put(
             self.non_member, {'description': 'new description'})
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertNotEqual(
             Group.objects.get(pk=self.contributors.id).description,
             'new description')
@@ -307,7 +305,7 @@ class UserGroupTest(TestCase):
 
     def test_delete_description_with_non_member(self):
         response = self.delete(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         Group.objects.get(pk=self.contributors.id)
 
 
@@ -414,7 +412,7 @@ class UserGroupUsersTest(TestCase):
             group_id=self.contributors.id
         ).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertNotIn(
             self.user_to_add,
             self.contributors.users.all()
@@ -526,7 +524,7 @@ class UserGroupSingleUserTest(TestCase):
             group_id=self.contributors.id,
             user_id=self.contrib_to_remove.id
         ).render()
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertIn(
             self.contrib_to_remove,
             self.contributors.users.all()
@@ -592,7 +590,7 @@ class UserGroupViewsTest(TestCase):
 
     def test_add_view_with_non_member(self):
         response = self.post(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(
             self.contributors.viewgroups.filter(
                 usergroup=self.contributors, view=self.view).count(), 0)
@@ -677,7 +675,7 @@ class UserGroupSingleViewTest(TestCase):
 
     def test_delete_with_non_member(self):
         response = self.delete(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(
             self.contributors.viewgroups.filter(
                 usergroup=self.contributors, view=self.view).count(), 1)
@@ -714,7 +712,7 @@ class UserGroupSingleViewTest(TestCase):
 
     def test_update_with_non_member(self):
         response = self.put(self.non_member, {'can_moderate': True})
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         view_group = self.contributors.viewgroups.get(
             usergroup=self.contributors, view=self.view)

@@ -84,7 +84,7 @@ class TestDataViewsPublicApi(TestCase):
         view = ViewFactory(**{'project': self.project})
         response = self.get(view, self.some_dude)
 
-        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.status_code, 404)
 
     def test_get_inactive_view_with_non_member(self):
         view = ViewFactory(**{
@@ -93,4 +93,4 @@ class TestDataViewsPublicApi(TestCase):
         })
 
         response = self.get(view, self.some_dude)
-        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.status_code, 404)

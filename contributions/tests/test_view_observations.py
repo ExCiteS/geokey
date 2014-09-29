@@ -67,7 +67,7 @@ class GetSingleObservationInProject(TestCase):
     def test_get_with_non_member(self):
         user = UserF.create()
         response = self._get(user)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
 
 class UpdateObservationInProject(TestCase):
@@ -228,7 +228,7 @@ class UpdateObservationInProject(TestCase):
             self.update_data,
             self.non_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
         self.assertEqual(
             self.observation.attributes.get('key_2'), '12')
@@ -237,7 +237,7 @@ class UpdateObservationInProject(TestCase):
         response = self._delete(
             self.non_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertNotEqual(
             Observation.objects.get(pk=self.observation.id).status,
             'deleted'
@@ -306,7 +306,7 @@ class GetObservationInView(TestCase):
     def test_get_with_non_member(self):
         some_dude = UserF.create()
         response = self._get(some_dude)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
 
 class UpdateObservationInView(TestCase):
@@ -458,7 +458,7 @@ class UpdateObservationInView(TestCase):
             self.update_data,
             self.non_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
         self.assertEqual(
             self.observation.attributes.get('key_2'), '12')
@@ -467,7 +467,7 @@ class UpdateObservationInView(TestCase):
         response = self._delete(
             self.non_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertNotEqual(
             Observation.objects.get(pk=self.observation.id).status,
             'deleted'
@@ -519,7 +519,7 @@ class GetMySingleObervation(TestCase):
     def test_with_some_dude(self):
         user = UserF.create()
         response = self._get(user)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
 
 class UpdateMyObservation(TestCase):
@@ -630,8 +630,8 @@ class UpdateMyObservation(TestCase):
 
     def test_update_with_non_member(self):
         response = self._patch(self.update_data, self.non_member)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_delete_with_non_member(self):
         response = self._delete(self.non_member)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)

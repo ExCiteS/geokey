@@ -7,6 +7,7 @@ from nose.tools import raises
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from projects.tests.model_factories import UserF, ProjectF
+from projects.models import Project
 from observationtypes.tests.model_factories import ObservationTypeFactory
 from dataviews.tests.model_factories import (
     ViewFactory, RuleFactory
@@ -282,7 +283,7 @@ class SingleAllContributionAPIViewTest(TestCase):
             self.admin, self.observation.project.id, self.observation.id)
         self.assertEqual(observation, self.observation)
 
-    @raises(PermissionDenied)
+    @raises(Project.DoesNotExist)
     def test_get_object_with_some_dude(self):
         some_dude = UserF.create()
         view = SingleAllContributionAPIView()
@@ -396,7 +397,7 @@ class SingleMyContributionAPIViewTest(TestCase):
         view.get_object(
             self.admin, self.observation.project.id, self.observation.id)
 
-    @raises(PermissionDenied)
+    @raises(Project.DoesNotExist)
     def test_get_object_with_some_dude(self):
         some_dude = UserF.create()
         view = SingleMyContributionAPIView()
@@ -427,7 +428,7 @@ class AllContributionsSingleCommentAPIViewTest(TestCase):
         view = AllContributionsSingleCommentAPIView()
         view.get_object(self.creator, self.project.id, self.observation.id)
 
-    @raises(PermissionDenied)
+    @raises(Project.DoesNotExist)
     def test_get_object_with_some_dude(self):
         some_dude = UserF.create()
         view = AllContributionsSingleCommentAPIView()
