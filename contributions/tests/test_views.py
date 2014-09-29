@@ -16,13 +16,14 @@ from users.tests.model_factories import UserGroupF, ViewUserGroupFactory
 from .model_factories import ObservationFactory, CommentFactory
 
 from ..views import (
-    MySingleObservation, SingleProjectObservation, SingleViewObservation,
-    ProjectComment, ViewComment, SingleObservation
+    SingleMyContributionAPIView, SingleAllContributionAPIView,
+    SingleGroupingContributionAPIView, AllContributionsSingleCommentAPIView,
+    GroupingContributionsSingleCommentAPIView, SingleContributionAPIView
 )
 from ..models import Observation
 
 
-class SingleObservationTest(TestCase):
+class SingleContributionAPIViewTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserF.create()
@@ -53,8 +54,8 @@ class SingleObservationTest(TestCase):
         request.DATA = {'properties': {'status': "active"}}
         request.user = self.admin
 
-        view = SingleObservation()
-        data = view.update_observation(request, self.observation)
+        view = SingleContributionAPIView()
+        data = view.update_and_respond(request, self.observation)
         self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'active')
 
     def test_approve_pending_with_moderator(self):
@@ -68,8 +69,8 @@ class SingleObservationTest(TestCase):
         request.DATA = {'properties': {'status': "active"}}
         request.user = self.moderator
 
-        view = SingleObservation()
-        data = view.update_observation(request, self.observation)
+        view = SingleContributionAPIView()
+        data = view.update_and_respond(request, self.observation)
         self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'active')
 
     @raises(PermissionDenied)
@@ -84,11 +85,10 @@ class SingleObservationTest(TestCase):
         request.DATA = {'properties': {'status': "active"}}
         request.user = self.creator
 
-        view = SingleObservation()
-        data = view.update_observation(request, self.observation)
+        view = SingleContributionAPIView()
+        data = view.update_and_respond(request, self.observation)
         self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
 
-    @raises(PermissionDenied)
     def test_approve_pending_with_contributor_who_is_moderator(self):
         self.moderators.users.add(self.creator)
         self.observation.status = 'pending'
@@ -101,9 +101,9 @@ class SingleObservationTest(TestCase):
         request.DATA = {'properties': {'status': "active"}}
         request.user = self.creator
 
-        view = SingleObservation()
-        data = view.update_observation(request, self.observation)
-        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
+        view = SingleContributionAPIView()
+        data = view.update_and_respond(request, self.observation)
+        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'active')
 
     def test_flag_with_admin(self):
         url = reverse('api:project_all_observations', kwargs={
@@ -113,8 +113,8 @@ class SingleObservationTest(TestCase):
         request.DATA = {'properties': {'status': "pending"}}
         request.user = self.admin
 
-        view = SingleObservation()
-        data = view.update_observation(request, self.observation)
+        view = SingleContributionAPIView()
+        data = view.update_and_respond(request, self.observation)
         self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
 
     def test_flag_with_moderator(self):
@@ -125,8 +125,8 @@ class SingleObservationTest(TestCase):
         request.DATA = {'properties': {'status': "pending"}}
         request.user = self.moderator
 
-        view = SingleObservation()
-        data = view.update_observation(request, self.observation)
+        view = SingleContributionAPIView()
+        data = view.update_and_respond(request, self.observation)
         ref = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(ref.status, 'pending')
 
@@ -138,8 +138,8 @@ class SingleObservationTest(TestCase):
         request.DATA = {'properties': {'status': 'pending', 'key': 'updated', 'review_comment': 'check das'}}
         request.user = self.moderator
 
-        view = SingleObservation()
-        data = view.update_observation(request, self.observation)
+        view = SingleContributionAPIView()
+        data = view.update_and_respond(request, self.observation)
         ref = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(ref.status, 'pending')
         self.assertEqual(ref.review_comment, 'check das')
@@ -153,8 +153,8 @@ class SingleObservationTest(TestCase):
         request.DATA = {'properties': {'status': "pending"}}
         request.user = self.creator
 
-        view = SingleObservation()
-        data = view.update_observation(request, self.observation)
+        view = SingleContributionAPIView()
+        data = view.update_and_respond(request, self.observation)
         self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
 
     def test_flag_with_anonymous(self):
@@ -165,8 +165,8 @@ class SingleObservationTest(TestCase):
         request.DATA = {'properties': {'status': "pending"}}
         request.user = AnonymousUser()
 
-        view = SingleObservation()
-        data = view.update_observation(request, self.observation)
+        view = SingleContributionAPIView()
+        data = view.update_and_respond(request, self.observation)
         self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
 
     @raises(PermissionDenied)
@@ -181,8 +181,8 @@ class SingleObservationTest(TestCase):
         request.DATA = {'properties': {'status': "active"}}
         request.user = self.admin
 
-        view = SingleObservation()
-        data = view.update_observation(request, self.observation)
+        view = SingleContributionAPIView()
+        data = view.update_and_respond(request, self.observation)
         self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
 
     @raises(PermissionDenied)
@@ -197,8 +197,8 @@ class SingleObservationTest(TestCase):
         request.DATA = {'properties': {'status': "active"}}
         request.user = self.moderator
 
-        view = SingleObservation()
-        data = view.update_observation(request, self.observation)
+        view = SingleContributionAPIView()
+        data = view.update_and_respond(request, self.observation)
         self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
 
     def test_commit_from_draft_with_contributor(self):
@@ -214,8 +214,8 @@ class SingleObservationTest(TestCase):
         request.DATA = {'properties': {'status': "active"}}
         request.user = self.creator
 
-        view = SingleObservation()
-        data = view.update_observation(request, self.observation)
+        view = SingleContributionAPIView()
+        data = view.update_and_respond(request, self.observation)
         self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'active')
 
     def test_commit_from_draft_with_contributor_who_is_moderator(self):
@@ -229,8 +229,8 @@ class SingleObservationTest(TestCase):
         request.DATA = {'properties': {'status': "active"}}
         request.user = self.creator
 
-        view = SingleObservation()
-        data = view.update_observation(request, self.observation)
+        view = SingleContributionAPIView()
+        data = view.update_and_respond(request, self.observation)
         self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
 
     def test_commit_from_draft_with_contributor_with_data(self):
@@ -251,13 +251,13 @@ class SingleObservationTest(TestCase):
         }
         request.user = self.creator
 
-        view = SingleObservation()
-        data = view.update_observation(request, self.observation)
+        view = SingleContributionAPIView()
+        data = view.update_and_respond(request, self.observation)
         ref = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(ref.status, 'pending')
         self.assertEqual(ref.attributes.get('key'), 'updated')
 
-class SingleProjectObservationTest(TestCase):
+class SingleAllContributionAPIViewTest(TestCase):
     def setUp(self):
         self.admin = UserF.create()
         self.creator = UserF.create()
@@ -272,12 +272,12 @@ class SingleProjectObservationTest(TestCase):
         })
 
     def test_get_object_with_creator(self):
-        view = SingleProjectObservation()
+        view = SingleAllContributionAPIView()
         view.get_object(
             self.creator, self.observation.project.id, self.observation.id)
 
     def test_get_object_with_admin(self):
-        view = SingleProjectObservation()
+        view = SingleAllContributionAPIView()
         observation = view.get_object(
             self.admin, self.observation.project.id, self.observation.id)
         self.assertEqual(observation, self.observation)
@@ -285,7 +285,7 @@ class SingleProjectObservationTest(TestCase):
     @raises(PermissionDenied)
     def test_get_object_with_some_dude(self):
         some_dude = UserF.create()
-        view = SingleProjectObservation()
+        view = SingleAllContributionAPIView()
         view.get_object(
             some_dude, self.observation.project.id, self.observation.id)
 
@@ -294,7 +294,7 @@ class SingleProjectObservationTest(TestCase):
         self.observation.status = 'draft'
         self.observation.save()
 
-        view = SingleProjectObservation()
+        view = SingleAllContributionAPIView()
         view.get_object(
             self.admin, self.observation.project.id, self.observation.id)
 
@@ -307,7 +307,7 @@ class SingleProjectObservationTest(TestCase):
         })
         request = factory.get(url)
         force_authenticate(request, user=self.admin)
-        theview = SingleProjectObservation.as_view()
+        theview = SingleAllContributionAPIView.as_view()
         response = theview(
             request,
             project_id=self.project.id,
@@ -315,7 +315,7 @@ class SingleProjectObservationTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class SingleViewObservationTest(TestCase):
+class SingleGroupingContributionAPIViewTest(TestCase):
     def setUp(self):
         self.admin = UserF.create()
         self.creator = UserF.create()
@@ -340,7 +340,7 @@ class SingleViewObservationTest(TestCase):
 
     @raises(PermissionDenied)
     def test_get_object_with_creator_not_viewmember(self):
-        view = SingleViewObservation()
+        view = SingleGroupingContributionAPIView()
         view.get_object(
             self.creator, self.observation.project.id,
             self.view.id, self.observation.id
@@ -355,7 +355,7 @@ class SingleViewObservationTest(TestCase):
             **{'view': self.view, 'usergroup': group, 'can_read': True}
         )
 
-        view = SingleViewObservation()
+        view = SingleGroupingContributionAPIView()
         observation = view.get_object(
             self.creator, self.observation.project.id,
             self.view.id, self.observation.id
@@ -363,7 +363,7 @@ class SingleViewObservationTest(TestCase):
         self.assertEqual(observation, self.observation)
 
     def test_get_object_with_admin(self):
-        view = SingleViewObservation()
+        view = SingleGroupingContributionAPIView()
         observation = view.get_object(
             self.admin, self.observation.project.id,
             self.view.id, self.observation.id
@@ -371,7 +371,7 @@ class SingleViewObservationTest(TestCase):
         self.assertEqual(observation, self.observation)
 
 
-class MySingleObservationTest(TestCase):
+class SingleMyContributionAPIViewTest(TestCase):
     def setUp(self):
         self.admin = UserF.create()
         self.creator = UserF.create()
@@ -385,26 +385,26 @@ class MySingleObservationTest(TestCase):
         })
 
     def test_get_object_with_creator(self):
-        view = MySingleObservation()
+        view = SingleMyContributionAPIView()
         observation = view.get_object(
             self.creator, self.observation.project.id, self.observation.id)
         self.assertEqual(observation, self.observation)
 
     @raises(Observation.DoesNotExist)
     def test_get_object_with_admin(self):
-        view = MySingleObservation()
+        view = SingleMyContributionAPIView()
         view.get_object(
             self.admin, self.observation.project.id, self.observation.id)
 
     @raises(PermissionDenied)
     def test_get_object_with_some_dude(self):
         some_dude = UserF.create()
-        view = MySingleObservation()
+        view = SingleMyContributionAPIView()
         view.get_object(
             some_dude, self.observation.project.id, self.observation.id)
 
 
-class ProjectCommentTest(TestCase):
+class AllContributionsSingleCommentAPIViewTest(TestCase):
     def setUp(self):
         self.admin = UserF.create()
         self.creator = UserF.create()
@@ -418,23 +418,23 @@ class ProjectCommentTest(TestCase):
         })
 
     def test_get_object_with_admin(self):
-        view = ProjectComment()
+        view = AllContributionsSingleCommentAPIView()
         observation = view.get_object(
             self.admin, self.project.id, self.observation.id)
         self.assertEqual(observation, self.observation)
 
     def test_get_object_with_creator(self):
-        view = ProjectComment()
+        view = AllContributionsSingleCommentAPIView()
         view.get_object(self.creator, self.project.id, self.observation.id)
 
     @raises(PermissionDenied)
     def test_get_object_with_some_dude(self):
         some_dude = UserF.create()
-        view = ProjectComment()
+        view = AllContributionsSingleCommentAPIView()
         view.get_object(some_dude, self.project.id, self.observation.id)
 
 
-class ViewCommentTest(TestCase):
+class GroupingContributionsSingleCommentAPIViewTest(TestCase):
     def setUp(self):
         self.admin = UserF.create()
         self.creator = UserF.create()
@@ -458,14 +458,14 @@ class ViewCommentTest(TestCase):
         )
 
     def test_get_object_with_admin(self):
-        view = ViewComment()
+        view = GroupingContributionsSingleCommentAPIView()
         observation = view.get_object(
             self.admin, self.project.id, self.view.id, self.observation.id)
         self.assertEqual(observation, self.observation)
 
     @raises(PermissionDenied)
     def test_get_object_with_creator_not_viewmember(self):
-        view = ViewComment()
+        view = GroupingContributionsSingleCommentAPIView()
         view.get_object(
             self.creator, self.project.id, self.view.id, self.observation.id
         )
@@ -478,7 +478,7 @@ class ViewCommentTest(TestCase):
         ViewUserGroupFactory.create(
             **{'view': self.view, 'usergroup': group}
         )
-        view = ViewComment()
+        view = GroupingContributionsSingleCommentAPIView()
         observation = view.get_object(
             self.creator, self.observation.project.id,
             self.view.id, self.observation.id
@@ -494,7 +494,7 @@ class ViewCommentTest(TestCase):
         ViewUserGroupFactory.create(
             **{'view': self.view, 'usergroup': group}
         )
-        view = ViewComment()
+        view = GroupingContributionsSingleCommentAPIView()
         view.get_object(
             view_member, self.observation.project.id,
             self.view.id, self.observation.id

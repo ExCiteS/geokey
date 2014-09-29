@@ -10,7 +10,7 @@ from projects.tests.model_factories import UserF, ProjectF
 from dataviews.tests.model_factories import ViewFactory
 
 from .model_factories import ObservationFactory, CommentFactory
-from ..views import ProjectComments, ProjectSingleComment
+from ..views import AllContributionsCommentsAPIView, AllContributionsSingleCommentAPIView
 from ..models import Observation
 
 
@@ -24,7 +24,8 @@ class GetComments(APITestCase):
             add_contributors=[self.contributor]
         )
         self.observation = ObservationFactory.create(**{
-            'project': self.project
+            'project': self.project,
+            'creator': self.contributor
         })
         comment = CommentFactory.create(**{
             'commentto': self.observation
@@ -52,7 +53,7 @@ class GetComments(APITestCase):
             (self.project.id, self.observation.id)
         )
         force_authenticate(request, user=user)
-        view = ProjectComments.as_view()
+        view = AllContributionsCommentsAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -70,7 +71,7 @@ class GetComments(APITestCase):
             'project': self.project
         })
         response = self.get_response(view_member)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_comments_with_contributor(self):
         response = self.get_response(self.contributor)
@@ -91,7 +92,8 @@ class AddCommentToPrivateProjectTest(APITestCase):
             add_contributors=[self.contributor]
         )
         self.observation = ObservationFactory.create(**{
-            'project': self.project
+            'project': self.project,
+            'creator': self.contributor
         })
 
     def get_response(self, user):
@@ -102,7 +104,7 @@ class AddCommentToPrivateProjectTest(APITestCase):
             {'text': 'A comment to the observation'}
         )
         force_authenticate(request, user=user)
-        view = ProjectComments.as_view()
+        view = AllContributionsCommentsAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -131,7 +133,7 @@ class AddCommentToPrivateProjectTest(APITestCase):
             'project': self.project
         })
         response = self.get_response(view_member)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 class AddCommentToPublicProjectTest(APITestCase):
     def setUp(self):
@@ -144,7 +146,8 @@ class AddCommentToPublicProjectTest(APITestCase):
             **{'isprivate': False}
         )
         self.observation = ObservationFactory.create(**{
-            'project': self.project
+            'project': self.project,
+            'creator': self.contributor
         })
 
     def get_response(self, user):
@@ -155,7 +158,7 @@ class AddCommentToPublicProjectTest(APITestCase):
             {'text': 'A comment to the observation'}
         )
         force_authenticate(request, user=user)
-        view = ProjectComments.as_view()
+        view = AllContributionsCommentsAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -180,7 +183,7 @@ class AddCommentToPublicProjectTest(APITestCase):
             'project': self.project
         })
         response = self.get_response(view_member)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_add_comment_to_observation_with_anonymous(self):
         response = self.get_response(AnonymousUser())
@@ -199,7 +202,7 @@ class AddCommentToWrongObservation(APITestCase):
             {'text': 'A comment to the observation'}
         )
         force_authenticate(request, user=admin)
-        view = ProjectComments.as_view()
+        view = AllContributionsCommentsAPIView.as_view()
         response = view(
             request,
             project_id=project.id,
@@ -229,7 +232,7 @@ class AddResponseToCommentTest(APITestCase):
             }
         )
         force_authenticate(request, user=admin)
-        view = ProjectComments.as_view()
+        view = AllContributionsCommentsAPIView.as_view()
         response = view(
             request,
             project_id=project.id,
@@ -262,7 +265,7 @@ class AddResponseToWrongCommentTest(APITestCase):
             }
         )
         force_authenticate(request, user=admin)
-        view = ProjectComments.as_view()
+        view = AllContributionsCommentsAPIView.as_view()
         response = view(
             request,
             project_id=project.id,
@@ -288,7 +291,8 @@ class DeleteCommentTest(APITestCase):
             **{'isprivate': False}
         )
         self.observation = ObservationFactory.create(**{
-            'project': self.project
+            'project': self.project,
+            'creator': self.contributor
         })
         self.comment = CommentFactory.create(**{
             'commentto': self.observation
@@ -306,7 +310,7 @@ class DeleteCommentTest(APITestCase):
             {'text': 'A comment to the observation'}
         )
         force_authenticate(request, user=user)
-        view = ProjectSingleComment.as_view()
+        view = AllContributionsSingleCommentAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -347,7 +351,7 @@ class DeleteWrongComment(APITestCase):
             {'text': 'A comment to the observation'}
         )
         force_authenticate(request, user=admin)
-        view = ProjectSingleComment.as_view()
+        view = AllContributionsSingleCommentAPIView.as_view()
         response = view(
             request,
             project_id=project.id,

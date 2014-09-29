@@ -17,7 +17,8 @@ from contributions.tests.model_factories import ObservationFactory
 
 from .model_factories import LocationFactory
 from ..views import (
-    SingleProjectObservation, SingleViewObservation, MySingleObservation
+    SingleAllContributionAPIView, SingleGroupingContributionAPIView,
+    SingleMyContributionAPIView
 )
 
 
@@ -46,7 +47,7 @@ class GetSingleObservationInProject(TestCase):
         )
         request = self.factory.get(url)
         force_authenticate(request, user=user)
-        view = SingleProjectObservation.as_view()
+        view = SingleAllContributionAPIView.as_view()
         return view(
             request, project_id=self.project.id,
             observation_id=self.observation.id).render()
@@ -130,7 +131,7 @@ class UpdateObservationInProject(TestCase):
         request = self.factory.patch(
             url, json.dumps(data), content_type='application/json')
         force_authenticate(request, user=user)
-        view = SingleProjectObservation.as_view()
+        view = SingleAllContributionAPIView.as_view()
         return view(
             request, project_id=self.project.id,
             observation_id=self.observation.id).render()
@@ -145,7 +146,7 @@ class UpdateObservationInProject(TestCase):
         )
         request = self.factory.delete(url, content_type='application/json')
         force_authenticate(request, user=user)
-        view = SingleProjectObservation.as_view()
+        view = SingleAllContributionAPIView.as_view()
         return view(
             request, project_id=self.project.id,
             observation_id=self.observation.id).render()
@@ -285,7 +286,7 @@ class GetObservationInView(TestCase):
         )
         request = self.factory.get(url)
         force_authenticate(request, user=user)
-        view = SingleViewObservation.as_view()
+        view = SingleGroupingContributionAPIView.as_view()
         return view(
             request, project_id=self.project.id, view_id=self.view.id,
             observation_id=self.observation.id).render()
@@ -378,7 +379,7 @@ class UpdateObservationInView(TestCase):
         request = self.factory.patch(
             url, json.dumps(data), content_type='application/json')
         force_authenticate(request, user=user)
-        view = SingleViewObservation.as_view()
+        view = SingleGroupingContributionAPIView.as_view()
         return view(
             request, project_id=self.project.id, view_id=self.view.id,
             observation_id=self.observation.id).render()
@@ -394,7 +395,7 @@ class UpdateObservationInView(TestCase):
         )
         request = self.factory.delete(url, content_type='application/json')
         force_authenticate(request, user=user)
-        view = SingleViewObservation.as_view()
+        view = SingleGroupingContributionAPIView.as_view()
         return view(
             request, project_id=self.project.id, view_id=self.view.id,
             observation_id=self.observation.id).render()
@@ -498,7 +499,7 @@ class GetMySingleObervation(TestCase):
         )
         request = self.factory.get(url)
         force_authenticate(request, user=user)
-        view = MySingleObservation.as_view()
+        view = SingleMyContributionAPIView.as_view()
         return view(
             request, project_id=self.project.id,
             observation_id=self.observation.id).render()
@@ -580,7 +581,7 @@ class UpdateMyObservation(TestCase):
         request = self.factory.patch(
             url, json.dumps(data), content_type='application/json')
         force_authenticate(request, user=user)
-        view = MySingleObservation.as_view()
+        view = SingleMyContributionAPIView.as_view()
         return view(
             request, project_id=self.project.id,
             observation_id=self.observation.id).render()
@@ -595,7 +596,7 @@ class UpdateMyObservation(TestCase):
         )
         request = self.factory.delete(url, content_type='application/json')
         force_authenticate(request, user=user)
-        view = MySingleObservation.as_view()
+        view = SingleMyContributionAPIView.as_view()
         return view(
             request, project_id=self.project.id,
             observation_id=self.observation.id).render()

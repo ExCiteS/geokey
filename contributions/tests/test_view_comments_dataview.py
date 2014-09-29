@@ -14,7 +14,10 @@ from dataviews.tests.model_factories import (
 from users.tests.model_factories import UserGroupF, ViewUserGroupFactory
 
 from .model_factories import ObservationFactory, CommentFactory
-from ..views import ViewComments, ViewSingleComment
+from ..views import (
+    GroupingContributionsCommentsAPIView,
+    GroupingContributionsSingleCommentAPIView
+)
 from ..models import Observation
 
 
@@ -66,7 +69,7 @@ class GetCommentsView(APITestCase):
         )
         request = factory.get(url)
         force_authenticate(request, user=user)
-        view = ViewComments.as_view()
+        view = GroupingContributionsCommentsAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -127,7 +130,7 @@ class AddCommentToViewTest(APITestCase):
         )
         request = factory.post(url, {'text': 'A comment to the observation'})
         force_authenticate(request, user=user)
-        view = ViewComments.as_view()
+        view = GroupingContributionsCommentsAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -186,7 +189,7 @@ class AddCommentToWrongObservation(APITestCase):
         factory = APIRequestFactory()
         request = factory.post(url, {'text': 'A comment to the observation'})
         force_authenticate(request, user=admin)
-        dataview = ViewComments.as_view()
+        dataview = GroupingContributionsCommentsAPIView.as_view()
         response = dataview(
             request,
             project_id=project.id,
@@ -232,7 +235,7 @@ class AddResponseToCommentTest(APITestCase):
             }
         )
         force_authenticate(request, user=admin)
-        dataview = ViewComments.as_view()
+        dataview = GroupingContributionsCommentsAPIView.as_view()
         response = dataview(
             request,
             project_id=project.id,
@@ -280,7 +283,7 @@ class AddResponseToWrongCommentTest(APITestCase):
             }
         )
         force_authenticate(request, user=admin)
-        dataview = ViewComments.as_view()
+        dataview = GroupingContributionsCommentsAPIView.as_view()
         response = dataview(
             request,
             project_id=project.id,
@@ -344,7 +347,7 @@ class DeleteCommentTest(APITestCase):
         )
         request = factory.delete(url)
         force_authenticate(request, user=user)
-        view = ViewSingleComment.as_view()
+        view = GroupingContributionsSingleCommentAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -423,7 +426,7 @@ class DeleteWrongComment(APITestCase):
         )
         request = factory.delete(url)
         force_authenticate(request, user=admin)
-        dataview = ViewSingleComment.as_view()
+        dataview = GroupingContributionsSingleCommentAPIView.as_view()
         response = dataview(
             request,
             project_id=project.id,
