@@ -40,7 +40,7 @@
                     <h3 class="header">Create new filter</h3>
                     {% csrf_token %}
                     <div class="form-group">
-                        <label for="observationtype" class="control-label">Select contribution type</label>
+                        <label for="observationtype" class="control-label">Select category</label>
                         <select name="observationtype" id="observationtype" class="form-control">
                             <option value="-1"></option>
                             {% for type in grouping.project.observationtypes.all %}

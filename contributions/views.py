@@ -196,7 +196,7 @@ class SingleObservation(APIView):
 
         if ((new_status == 'active' and observation.status == 'draft') and
                 not observation.project.can_moderate(user)):
-            data['properties']['status'] = 'pending'
+            data['properties']['status'] = observation.observationtype.default_status
 
         serializer = ContributionSerializer(
             observation,
