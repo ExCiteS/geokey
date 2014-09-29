@@ -53,7 +53,7 @@ class TestDataViewsPublicApi(TestCase):
         view = ViewFactory(**{'project': self.project})
         response = self.get(view, self.contributor)
 
-        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.status_code, 404)
 
     def test_get_inactive_view_with_contributor(self):
         view = ViewFactory(**{
@@ -78,7 +78,7 @@ class TestDataViewsPublicApi(TestCase):
             **{'project': self.project, 'status': 'inactive'}
         )
         response = self.get(view, self.view_member)
-        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.status_code, 404)
 
     def test_get_active_view_with_non_member(self):
         view = ViewFactory(**{'project': self.project})

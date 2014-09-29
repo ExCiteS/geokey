@@ -114,7 +114,7 @@ class TestSinglePublicView(TestCase):
             AnonymousUser(), self.project.id, self.public_view.id)
         self.assertEqual(view, self.public_view)
 
-    @raises(PermissionDenied)
+    @raises(View.DoesNotExist)
     def test_get_private_view_with_anonymous(self):
         View.objects.get_single(
             AnonymousUser(), self.project.id, self.private_view.id)
@@ -124,7 +124,7 @@ class TestSinglePublicView(TestCase):
             UserF.create(), self.project.id, self.public_view.id)
         self.assertEqual(view, self.public_view)
 
-    @raises(PermissionDenied)
+    @raises(View.DoesNotExist)
     def test_get_private_view_with_some_dude(self):
         View.objects.get_single(
             UserF.create(), self.project.id, self.private_view.id)
@@ -177,7 +177,7 @@ class TestManager(TestCase):
             self.admin, self.project.id, self.view1.id)
         self.assertEqual(view, self.view1)
 
-    @raises(PermissionDenied)
+    @raises(View.DoesNotExist)
     def test_get_single_view_with_contributor(self):
         View.objects.get_single(
             self.contributor, self.project.id, self.view1.id)
@@ -187,7 +187,7 @@ class TestManager(TestCase):
             self.view1_user, self.project.id, self.view1.id)
         self.assertEqual(view, self.view1)
 
-    @raises(PermissionDenied)
+    @raises(View.DoesNotExist)
     def test_get_single_view_with_wrong_view_user(self):
         View.objects.get_single(
             self.view2_user, self.project.id, self.view1.id)

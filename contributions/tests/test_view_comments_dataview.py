@@ -89,11 +89,11 @@ class GetCommentsView(APITestCase):
         )
 
         response = self.get_response(view_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_comments_with_view_contributor(self):
         response = self.get_response(self.contributor)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_comments_with_view_non_member(self):
         response = self.get_response(self.non_member)
@@ -144,7 +144,7 @@ class AddCommentToViewTest(APITestCase):
 
     def test_add_comment_to_observation_with_contributor(self):
         response = self.get_response(self.contributor)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_add_comment_to_observation_with_non_member(self):
         response = self.get_response(self.non_member)

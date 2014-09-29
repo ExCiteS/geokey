@@ -297,7 +297,7 @@ class GetObservationInView(TestCase):
 
     def test_get_with_contributor(self):
         response = self._get(self.contributor)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_get_with_view_member(self):
         response = self._get(self.view_member)
@@ -432,26 +432,26 @@ class UpdateObservationInView(TestCase):
             self.update_data,
             self.contributor
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_delete_with_contributor(self):
         response = self._delete(
             self.contributor
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_update_with_view_member(self):
         response = self._patch(
             self.update_data,
             self.view_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_delete_with_view_member(self):
         response = self._delete(
             self.view_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_update_with_non_member(self):
         response = self._patch(

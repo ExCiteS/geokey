@@ -12,6 +12,7 @@ from observationtypes.tests.model_factories import ObservationTypeFactory
 from dataviews.tests.model_factories import (
     ViewFactory, RuleFactory
 )
+from dataviews.models import View
 from users.tests.model_factories import UserGroupF, ViewUserGroupFactory
 
 from .model_factories import ObservationFactory, CommentFactory
@@ -339,7 +340,7 @@ class SingleGroupingContributionAPIViewTest(TestCase):
             'observation_type': observation_type}
         )
 
-    @raises(PermissionDenied)
+    @raises(View.DoesNotExist)
     def test_get_object_with_creator_not_viewmember(self):
         view = SingleGroupingContributionAPIView()
         view.get_object(
@@ -464,7 +465,7 @@ class GroupingContributionsSingleCommentAPIViewTest(TestCase):
             self.admin, self.project.id, self.view.id, self.observation.id)
         self.assertEqual(observation, self.observation)
 
-    @raises(PermissionDenied)
+    @raises(View.DoesNotExist)
     def test_get_object_with_creator_not_viewmember(self):
         view = GroupingContributionsSingleCommentAPIView()
         view.get_object(
