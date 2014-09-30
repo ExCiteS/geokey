@@ -1,3 +1,5 @@
+import json
+
 from django.test import TestCase, RequestFactory
 from django.core.urlresolvers import reverse
 
@@ -15,7 +17,7 @@ from ..models import ObservationType, Field
 from ..views import (
     ObservationTypeUpdate, FieldUpdate, FieldLookupsUpdate, FieldLookups,
     SingleObservationType, ObservationTypeCreate, ObservationTypeSettings,
-    FieldCreate, CategoryList, CategoryDisplay
+    FieldCreate, CategoryList, CategoryDisplay, FieldsReorderView
 )
 
 # ############################################################################
@@ -473,6 +475,93 @@ class ObservationtypeAjaxTest(TestCase):
                 self.admin, self.project.id, self.active_type.id).status,
             self.active_type.status
         )
+
+
+class ReorderFieldsTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.category = ObservationTypeFactory.create()
+
+        self.field_0 = TextFieldFactory.create(
+            **{'observationtype': self.category})
+        self.field_1 = TextFieldFactory.create(
+            **{'observationtype': self.category})
+        self.field_2 = TextFieldFactory.create(
+            **{'observationtype': self.category})
+        self.field_3 = TextFieldFactory.create(
+            **{'observationtype': self.category})
+        self.field_4 = TextFieldFactory.create(
+            **{'observationtype': self.category})
+
+    def test_reorder(self):
+        url = reverse(
+            'ajax:category_fields_reorder',
+            kwargs={
+                'project_id': self.category.project.id,
+                'category_id': self.category.id
+            }
+        )
+
+        data = [
+            self.field_4.id, self.field_0.id, self.field_2.id, self.field_1.id,
+            self.field_3.id
+        ]
+
+        request = self.factory.post(
+            url, json.dumps({'order': data}), content_type='application/json')
+        force_authenticate(request, user=self.category.project.creator)
+        view = FieldsReorderView.as_view()
+        response = view(
+            request,
+            project_id=self.category.project.id,
+            category_id=self.category.id
+        ).render()
+
+        self.assertEqual(response.status_code, 200)
+
+        fields = self.category.fields.all()
+
+        self.assertTrue(fields.ordered)
+        self.assertEqual(fields[0], self.field_4)
+        self.assertEqual(fields[1], self.field_0)
+        self.assertEqual(fields[2], self.field_2)
+        self.assertEqual(fields[3], self.field_1)
+        self.assertEqual(fields[4], self.field_3)
+
+    def test_reorder_with_false_field(self):
+        url = reverse(
+            'ajax:category_fields_reorder',
+            kwargs={
+                'project_id': self.category.project.id,
+                'category_id': self.category.id
+            }
+        )
+
+        data = [
+            self.field_4.id, self.field_0.id, self.field_2.id, self.field_1.id,
+            655123135135
+        ]
+
+        request = self.factory.post(
+            url, json.dumps({'order': data}), content_type='application/json')
+        force_authenticate(request, user=self.category.project.creator)
+        view = FieldsReorderView.as_view()
+        response = view(
+            request,
+            project_id=self.category.project.id,
+            category_id=self.category.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
+
+        fields = self.category.fields.all()
+
+        self.assertTrue(fields.ordered)
+        self.assertEqual(fields[0].order, 0)
+        self.assertEqual(fields[1].order, 0)
+        self.assertEqual(fields[2].order, 0)
+        self.assertEqual(fields[3].order, 0)
+        self.assertEqual(fields[4].order, 0)
 
 
 class UpdateFieldTest(TestCase):

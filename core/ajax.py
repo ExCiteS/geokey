@@ -63,6 +63,10 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/lookupvalues/(?P<value_id>[0-9]+)/$',
         observationtypes_views.FieldLookupsUpdate.as_view(),
         name='observationtype_lookupvalues_detail'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/re-order/$',
+        observationtypes_views.FieldsReorderView.as_view(),
+        name='category_fields_reorder'),
 
     # ###########################
     # VIEWS

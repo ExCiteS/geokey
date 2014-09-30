@@ -463,6 +463,23 @@ class FieldLookupsUpdate(APIView):
             )
 
 
+class FieldsReorderView(APIView):
+    @handle_exceptions_for_ajax
+    def post(self, request, project_id, category_id, format=None):
+        category = ObservationType.objects.as_admin(
+            request.user, project_id, category_id)
+        try:
+            category.re_order_fields(request.DATA.get('order'))
+
+            serializer = ObservationTypeSerializer(category)
+            return Response(serializer.data)
+        except Field.DoesNotExist:
+            return Response(
+                {'error': 'One or more field ids where not found.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
 # ############################################################################
 #
 # Public API views

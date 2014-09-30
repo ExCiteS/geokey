@@ -24,17 +24,40 @@ class CategoryTest(TestCase):
         field_4 = TextFieldFactory.create(**{'observationtype': category})
         
         category.re_order_fields(
-            [field_0.id, field_1.id, field_2.id, field_3.id, field_4.id]
+            [field_4.id, field_0.id, field_2.id, field_1.id,  field_3.id]
         )
 
         fields = category.fields.all()
 
         self.assertTrue(fields.ordered)
-        self.assertEqual(fields[0], field_0)
-        self.assertEqual(fields[1], field_1)
+        self.assertEqual(fields[0], field_4)
+        self.assertEqual(fields[1], field_0)
         self.assertEqual(fields[2], field_2)
-        self.assertEqual(fields[3], field_3)
-        self.assertEqual(fields[4], field_4)
+        self.assertEqual(fields[3], field_1)
+        self.assertEqual(fields[4], field_3)
+
+    def test_re_order_fields_with_false_field(self):
+        category = ObservationTypeFactory.create()
+
+        field_0 = TextFieldFactory.create(**{'observationtype': category})
+        field_1 = TextFieldFactory.create(**{'observationtype': category})
+        field_2 = TextFieldFactory.create(**{'observationtype': category})
+        field_3 = TextFieldFactory.create(**{'observationtype': category})
+        field_4 = TextFieldFactory.create(**{'observationtype': category})
+
+        try:
+            category.re_order_fields(
+                [field_4.id, field_0.id, field_2.id, field_1.id,  5854]
+            )
+        except Field.DoesNotExist:
+            fields = category.fields.all()
+
+            self.assertTrue(fields.ordered)
+            self.assertEqual(fields[0].order, 0)
+            self.assertEqual(fields[1].order, 0)
+            self.assertEqual(fields[2].order, 0)
+            self.assertEqual(fields[3].order, 0)
+            self.assertEqual(fields[4].order, 0)
 
 
 class FieldTest(TestCase):

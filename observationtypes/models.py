@@ -39,9 +39,16 @@ class ObservationType(models.Model):
     objects = ObservationTypeManager()
 
     def re_order_fields(self, order):
+        """
+        Reorders the category fields according to the order given in `order`
+        """
+        fields_to_save = []
         for idx, field_id in enumerate(order):
             field = self.fields.get(pk=field_id)
             field.order = idx
+            fields_to_save.append(field)
+
+        for field in fields_to_save:
             field.save()
 
 
