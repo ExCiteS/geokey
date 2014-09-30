@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+{% block bodydata %} data-project-id="{{category.project.id}}" data-category-id="{{category.id}}"{% endblock %}
 {% block title %} | Category: {{ category.name }}{% endblock %}
 
 {% block main %}
@@ -45,25 +46,30 @@
                             <a href="{% url 'admin:observationtype_field_create' category.project.id category.id %}" class="btn btn-success btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create new field</a>
                         {% endif %}
                     </h3>
-                    {% for field in category.fields.all %}
-                    <div class="overview-list-item">
-                        <h4><a href="{% url 'admin:observationtype_field_settings' category.project.id category.id field.id %}">{{field.name}}</a></h4>
-                        {% if field.description %}<p>{{field.description}}</p>{% endif %}
-                        <p class="meta"><strong>Key:</strong> {{ field.key }} &mdash; <strong>Type:</strong> {{ field.type_name }}</p>
-                        <p class="meta"></p>
-                    </div>
-                    {% empty %}
+                    {% if category.fields.all %}
+                        <div id="sortable">
+                        {% for field in category.fields.all %}
+                            <div class="overview-list-item field-item" data-field-id="{{ field.id }}">
+                                <h4><small><span class="glyphicon glyphicon-sort"></span></small> <a href="{% url 'admin:observationtype_field_settings' category.project.id category.id field.id %}">{{field.name}}</a></h4>
+                                {% if field.description %}<p>{{field.description}}</p>{% endif %}
+                                <p class="meta"><strong>Key:</strong> {{ field.key }} &mdash; <strong>Type:</strong> {{ field.type_name }}</p>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    {% else %}
                         <div class="well empty-list">
                             <p class="lead">We couldn't find any fields for this category.</p>
                             <p>You can use fields to define what data should be collected for the category. For example, if your category is Restaurants, you might want to store a name, an address, the number of seats and which couisine they serve. </p>
                             <a href="{% url 'admin:observationtype_field_create' category.project.id category.id %}" class="btn btn-success btn-lg">Create new field</a>
                         </div>
-                    {% endfor %}
+                    {% endif %}
                 </div>
             </div>
         </div>
 {% endblock %}
 
 {% block libraries %} 
-            <script src="/static/js/admin.ui.forms.validate.js"></script>
+            <script src="/static/lib/jquery/jquery-ui.min.js"></script>
+            <script src="/static/js/admin.control.ajax.js"></script>
+            <script src="/static/js/admin.ui.category.sort.js"></script>
 {% endblock %}

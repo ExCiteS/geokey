@@ -303,6 +303,25 @@ div.overview-list-item {
 		padding: 15px;
 	}
 
+div.overview-list-item.ui-sortable-helper {
+	border-bottom: 1px solid #ddd;
+}
+
+div.ui-state-highlight {
+	background-color: #fcf8e3;
+	border: 1px dashed #ddd;
+	height: 50px;
+	margin: 15px 0;
+}
+
+div.overview-list-item.field-item span.glyphicon:hover {
+	cursor: move;
+}
+
+div.overview-list-item.field-item p {
+	padding-left: 22px;
+}
+
 span.number {
 	font-size: 4em;
 	font-weight: bold;
@@ -460,4 +479,8 @@ h6.item-info + h3 {
 
 #help-block p {
 	padding-left: 40px;
+}
+
+.message {
+	padding: 15px;
 }
