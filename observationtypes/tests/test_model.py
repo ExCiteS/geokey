@@ -13,6 +13,30 @@ from .model_factories import (
 )
 
 
+class CategoryTest(TestCase):
+    def test_re_order_fields(self):
+        category = ObservationTypeFactory.create()
+
+        field_0 = TextFieldFactory.create(**{'observationtype': category})
+        field_1 = TextFieldFactory.create(**{'observationtype': category})
+        field_2 = TextFieldFactory.create(**{'observationtype': category})
+        field_3 = TextFieldFactory.create(**{'observationtype': category})
+        field_4 = TextFieldFactory.create(**{'observationtype': category})
+        
+        category.re_order_fields(
+            [field_0.id, field_1.id, field_2.id, field_3.id, field_4.id]
+        )
+
+        fields = category.fields.all()
+
+        self.assertTrue(fields.ordered)
+        self.assertEqual(fields[0], field_0)
+        self.assertEqual(fields[1], field_1)
+        self.assertEqual(fields[2], field_2)
+        self.assertEqual(fields[3], field_3)
+        self.assertEqual(fields[4], field_4)
+
+
 class FieldTest(TestCase):
     @raises(NotImplementedError)
     def test_field_validate_input(self):

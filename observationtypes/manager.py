@@ -63,7 +63,7 @@ class FieldManager(ActiveMixin, InheritanceManager):
         Overrides the standard all method in order to return the subclasses
         of each field.
         """
-        return self.get_query_set().select_subclasses()
+        return self.get_query_set().order_by('order').select_subclasses()
 
     def get_list(self, user, project_id, observationtype_id):
         """

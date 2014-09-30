@@ -38,6 +38,12 @@ class ObservationType(models.Model):
 
     objects = ObservationTypeManager()
 
+    def re_order_fields(self, order):
+        for idx, field_id in enumerate(order):
+            field = self.fields.get(pk=field_id)
+            field.order = idx
+            field.save()
+
 
 class Field(models.Model):
     """
@@ -51,6 +57,7 @@ class Field(models.Model):
     observationtype = models.ForeignKey(
         'ObservationType', related_name='fields'
     )
+    order = models.IntegerField(default=0)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
