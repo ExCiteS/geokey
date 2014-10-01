@@ -50,7 +50,7 @@
                         <div id="sortable">
                         {% for field in category.fields.all %}
                             <div class="overview-list-item field-item" data-field-id="{{ field.id }}">
-                                <h4><small><span class="glyphicon glyphicon-sort"></span></small> <a href="{% url 'admin:observationtype_field_settings' category.project.id category.id field.id %}">{{field.name}}</a></h4>
+                                <h4><small><span class="glyphicon glyphicon-sort"></span></small> <a href="{% url 'admin:observationtype_field_settings' category.project.id category.id field.id %}">{{field.name}}</a> {% if field.status == 'inactive' %}<small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
                                 {% if field.description %}<p>{{field.description}}</p>{% endif %}
                                 <p class="meta"><strong>Key:</strong> {{ field.key }} &mdash; <strong>Type:</strong> {{ field.type_name }}</p>
                             </div>
