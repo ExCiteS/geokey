@@ -90,7 +90,7 @@ class FieldObjectRelatedField(serializers.RelatedField):
     def field_to_native(self, obj, field_name):
         return [
             self.to_native(item)
-            for item in obj.fields.active().select_subclasses()
+            for item in obj.fields.filter(status='active')
         ]
 
 

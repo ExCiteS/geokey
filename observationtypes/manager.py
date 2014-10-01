@@ -58,12 +58,9 @@ class ObservationTypeManager(ActiveMixin, models.Manager):
 class FieldManager(ActiveMixin, InheritanceManager):
     use_for_related_fields = True
 
-    def all(self):
-        """
-        Overrides the standard all method in order to return the subclasses
-        of each field.
-        """
-        return self.get_query_set().order_by('order').select_subclasses()
+    def get_query_set(self):
+        return super(FieldManager, self).get_query_set().order_by(
+            'order').select_subclasses()
 
     def get_list(self, user, project_id, observationtype_id):
         """
