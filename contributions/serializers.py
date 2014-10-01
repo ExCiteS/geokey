@@ -161,7 +161,10 @@ class ContributionSerializer(object):
         json_object['category'] = observationtype_serializer.data
 
         comment_serializer = CommentSerializer(
-            obj.comments.filter(respondsto=None), many=True)
+            obj.comments.filter(respondsto=None),
+            many=True,
+            context=self.context
+        )
         json_object['comments'] = comment_serializer.data
 
         attributes = {}
@@ -216,7 +219,7 @@ class CommentSerializer(serializers.ModelSerializer):
         native['responses'] = CommentSerializer(
             obj.responses.all(),
             many=True,
-            context={'user': self.context.get('user')}
+            context=self.context
         ).data
 
         return native
