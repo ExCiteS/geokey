@@ -3,6 +3,7 @@ from django.core.exceptions import PermissionDenied
 
 from model_utils.managers import InheritanceManager
 
+from dataviews.models import View, Rule
 from projects.models import Project
 
 from .base import STATUS
@@ -53,6 +54,23 @@ class ObservationTypeManager(ActiveMixin, models.Manager):
         return Project.objects.as_admin(
             user, project_id
             ).observationtypes.get(pk=observationtype_id)
+
+    def create(self, *args, **kwargs):
+        category = super(ObservationTypeManager, self).create(*args, **kwargs)
+
+        view = View.objects.create(
+            name=category.name,
+            description=category.description,
+            project=category.project,
+            creator=category.creator
+        )
+
+        Rule.objects.create(
+            view=view,
+            observation_type=category
+        )
+
+        return category
 
 
 class FieldManager(ActiveMixin, InheritanceManager):

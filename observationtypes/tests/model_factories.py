@@ -1,6 +1,7 @@
 import factory
 
 from projects.tests.model_factories import ProjectF
+from users.tests.model_factories import UserF
 
 from ..models import (
     ObservationType, TextField, NumericField, TrueFalseField, DateTimeField,
@@ -11,6 +12,7 @@ from ..models import (
 class ObservationTypeFactory(factory.django.DjangoModelFactory):
     FACTORY_FOR = ObservationType
 
+    creator = factory.SubFactory(UserF)
     name = factory.Sequence(lambda n: "observationtype %s" % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     project = factory.SubFactory(ProjectF)

@@ -92,6 +92,35 @@ class TestViewPermissions(TestCase):
         self.assertFalse(view.can_moderate(user))
 
 
+class RuleTest(TestCase):
+    @raises(Rule.DoesNotExist)
+    def test_delete_rules(self):
+        rule = RuleFactory()
+        rule.delete()
+        self.assertEqual(rule.status, 'deleted')
+        Rule.objects.get(pk=rule.id)
+
+    def test_get_rules(self):
+        view = ViewFactory.create()
+        RuleFactory(**{
+            'view': view,
+            'status': 'active'
+        })
+        RuleFactory(**{
+            'view': view,
+            'status': 'active'
+        })
+        inactive = RuleFactory(**{
+            'view': view,
+            'status': 'deleted'
+        })
+
+        rules = view.rules.all()
+
+        self.assertEqual(len(rules), 2)
+        self.assertNotIn(inactive, rules)
+
+
 class ViewTest(TestCase):
     def setUp(self):
         self.admin = UserF.create()
@@ -114,28 +143,6 @@ class ViewTest(TestCase):
     def test_delete(self):
         self.view1.delete()
         View.objects.get(pk=self.view1.id)
-
-    @raises(Rule.DoesNotExist)
-    def test_delete_rules(self):
-        rule = RuleFactory()
-        rule.delete()
-        self.assertEqual(rule.status, 'deleted')
-        Rule.objects.get(pk=rule.id)
-
-    def test_get_rules(self):
-        RuleFactory(**{
-            'status': 'active'
-        })
-        RuleFactory(**{
-            'status': 'active'
-        })
-        inactive = RuleFactory(**{
-            'status': 'deleted'
-        })
-        rules = Rule.objects.all()
-
-        self.assertEqual(len(rules), 2)
-        self.assertNotIn(inactive, rules)
 
     def test_get_data(self):
         project = ProjectF()

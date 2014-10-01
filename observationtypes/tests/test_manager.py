@@ -14,6 +14,18 @@ from .model_factories import (
 
 
 class ObservationTypeManagerTest(TestCase):
+    def test_create(self):
+        project = ProjectF.create()
+        category = ObservationType.objects.create(
+            name='Test',
+            project=project,
+            creator=project.creator,
+        )
+
+        views = project.views.all()
+        self.assertEqual(len(views), 1)
+        self.assertEqual(views[0].name, category.name)
+
     def test_access_with_projct_admin(self):
         admin = UserF.create()
 

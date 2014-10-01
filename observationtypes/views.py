@@ -108,11 +108,25 @@ class ObservationTypeCreate(LoginRequiredMixin, CreateView):
         Is called when the POSTed data is valid and creates the observation
         type.
         """
+        data = form.cleaned_data
+
         project_id = self.kwargs['project_id']
         project = Project.objects.as_admin(self.request.user, project_id)
-        form.instance.project = project
+
+        category = ObservationType.objects.create(
+            project=project,
+            creator=self.request.user,
+            name=data.get('name'),
+            description=data.get('description'),
+            default_status=data.get('default_status')
+        )
+
         messages.success(self.request, "The category has been created.")
-        return super(ObservationTypeCreate, self).form_valid(form)
+        return redirect(
+            'admin:category_overview',
+            project_id=project.id,
+            category_id=category.id
+        )
 
 
 class ObservationTypeSettings(LoginRequiredMixin, TemplateView):

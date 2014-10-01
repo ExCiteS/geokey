@@ -365,14 +365,14 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._post(self.data, self.non_member)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 403)
 
     def test_contribute_to_public_with_anonymous(self):
         self.project.isprivate = False
         self.project.save()
 
         response = self._post(self.data, AnonymousUser())
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 403)
 
     def test_contribute_to_private_with_admin(self):
         response = self._post(self.data, self.admin)

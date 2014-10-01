@@ -3,9 +3,12 @@ import json
 from iso8601 import parse_date
 from iso8601.iso8601 import ParseError
 
+from django.conf import settings
 from django.db import models
 from django.db.models.loading import get_model
 from django.db.models import Q
+from django.db.models.signals import post_init
+from django.dispatch import receiver
 
 from core.exceptions import InputError
 
@@ -23,6 +26,7 @@ class ObservationType(models.Model):
         'projects.Project', related_name='observationtypes'
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
