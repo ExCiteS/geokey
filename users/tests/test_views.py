@@ -14,6 +14,7 @@ from rest_framework import status
 
 from projects.tests.model_factories import ProjectF
 from dataviews.tests.model_factories import ViewFactory
+from applications.tests.model_factories import ClientFactory
 
 from .model_factories import UserF, UserGroupF, ViewUserGroupFactory
 from ..views import (
@@ -61,14 +62,18 @@ class SignupAPIViewTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.url = reverse('admin:sign_up_api')
-        self.data = {
+        self.client = ClientFactory.create()
+        self.user_data = {
             'display_name': 'user-1',
             'email': 'user-1@example.com',
             'password': '123'
         }
+        self.data = self.user_data.copy()
+        self.data['client_id'] = self.client.client_id
 
     def test_sign_up(self):
-        request = self.factory.post(self.url, self.data)
+        request = self.factory.post(
+            self.url, json.dumps(self.data), content_type='application/json')
         view = SignupAPIView.as_view()
         response = view(request).render()
 
@@ -81,15 +86,17 @@ class SignupAPIViewTest(TestCase):
         )
 
     def test_sign_with_existing_email(self):
-        UserF.create(**self.data)
+        UserF.create(**self.user_data)
 
         data = {
+            'client_id': self.client.client_id,
             'display_name': 'user-3',
             'email': 'user-1@example.com',
             'password': '123'
         }
 
-        request = self.factory.post(self.url, data)
+        request = self.factory.post(
+            self.url, json.dumps(data), content_type='application/json')
         view = SignupAPIView.as_view()
         response = view(request).render()
 
@@ -98,15 +105,27 @@ class SignupAPIViewTest(TestCase):
         self.assertEqual(len(errors.get('errors')), 1)
 
     def test_sign_with_existing_email_and_name(self):
-        UserF.create(**self.data)
+        UserF.create(**self.user_data)
 
-        request = self.factory.post(self.url, self.data)
+        request = self.factory.post(
+            self.url, json.dumps(self.data), content_type='application/json')
         view = SignupAPIView.as_view()
         response = view(request).render()
 
         self.assertEqual(response.status_code, 400)
         errors = json.loads(response.content)
         self.assertEqual(len(errors.get('errors')), 2)
+
+    def test_without_client_id(self):
+        request = self.factory.post(
+            self.url,
+            json.dumps(self.user_data),
+            content_type='application/json'
+        )
+        view = SignupAPIView.as_view()
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 400)
 
 
 class UserGroupCreateTest(TestCase):
