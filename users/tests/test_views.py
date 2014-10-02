@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpResponseRedirect
+from django.db import IntegrityError
 
 from nose.tools import raises
 
@@ -18,9 +19,9 @@ from .model_factories import UserF, UserGroupF, ViewUserGroupFactory
 from ..views import (
     UserGroup, UserGroupUsers, UserGroupSingleUser, UserGroupViews,
     UserGroupSingleView, UserGroupCreate, UserGroupSettings, UserProfile,
-    ChangePassword
+    ChangePassword, CreateUserMixin, SignupAPIView
 )
-from ..models import UserGroup as Group
+from ..models import User, UserGroup as Group
 
 
 # ############################################################################
@@ -28,6 +29,85 @@ from ..models import UserGroup as Group
 # ADMIN VIEWS
 #
 # ############################################################################
+
+class CreateUserMixinTest(TestCase):
+    def setUp(self):
+        self.data = {
+            'display_name': 'user-1',
+            'email': 'user-1@example.com',
+            'password': '123'
+        }
+
+    def test_create_user(self):
+        create_mixin = CreateUserMixin()
+        user = create_mixin.create_user(self.data)
+
+        self.assertTrue(isinstance(user, User))
+        self.assertEqual(user.display_name, self.data.get('display_name'))
+        self.assertEqual(user.email, self.data.get('email'))
+
+    @raises(IntegrityError)
+    def test_create_user_with_taken_email(self):
+        create_mixin = CreateUserMixin()
+        create_mixin.create_user(self.data)
+
+        user = create_mixin.create_user(self.data)
+        self.assertTrue(isinstance(user, User))
+        self.assertEqual(user.display_name, self.data.get('display_name'))
+        self.assertEqual(user.email, self.data.get('email'))
+
+
+class SignupAPIViewTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.url = reverse('admin:sign_up_api')
+        self.data = {
+            'display_name': 'user-1',
+            'email': 'user-1@example.com',
+            'password': '123'
+        }
+
+    def test_sign_up(self):
+        request = self.factory.post(self.url, self.data)
+        view = SignupAPIView.as_view()
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 201)
+
+        user_json = json.loads(response.content)
+        self.assertEqual(
+            user_json.get('display_name'),
+            self.data.get('display_name')
+        )
+
+    def test_sign_with_existing_email(self):
+        UserF.create(**self.data)
+
+        data = {
+            'display_name': 'user-3',
+            'email': 'user-1@example.com',
+            'password': '123'
+        }
+
+        request = self.factory.post(self.url, data)
+        view = SignupAPIView.as_view()
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 400)
+        errors = json.loads(response.content)
+        self.assertEqual(len(errors.get('errors')), 1)
+
+    def test_sign_with_existing_email_and_name(self):
+        UserF.create(**self.data)
+
+        request = self.factory.post(self.url, self.data)
+        view = SignupAPIView.as_view()
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 400)
+        errors = json.loads(response.content)
+        self.assertEqual(len(errors.get('errors')), 2)
+
 
 class UserGroupCreateTest(TestCase):
     def setUp(self):

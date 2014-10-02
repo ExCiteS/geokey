@@ -3,6 +3,7 @@ from django.contrib import auth
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
+from django.db import IntegrityError
 
 from braces.views import LoginRequiredMixin
 
@@ -61,7 +62,18 @@ class Dashboard(LoginRequiredMixin, TemplateView):
         }
 
 
-class Signup(CreateView):
+class CreateUserMixin(object):
+    def create_user(self, data):
+        user = User.objects.create_user(
+            data.get('email'),
+            data.get('display_name'),
+            password=data.get('password')
+        )
+        user.save()
+        return user
+
+
+class SignupAdminView(CreateUserMixin, CreateView):
     """
     Displays the sign-up page
     """
@@ -71,14 +83,10 @@ class Signup(CreateView):
     def form_valid(self, form):
         """
         Registers the user if the form is valid and no other has been
-        regstered woth the username.
+        regstered with the username.
         """
         data = form.cleaned_data
-        User.objects.create_user(
-            data.get('email'),
-            data.get('display_name'),
-            password=data.get('password')
-        ).save()
+        self.create_user(data)
 
         user = auth.authenticate(
             username=data.get('email'),
@@ -90,11 +98,27 @@ class Signup(CreateView):
 
     def form_invalid(self, form):
         """
-        The form is invalid or another user has already been registerd woth
+        The form is invalid or another user has already been registerd worth
         that username. Displays the error message.
         """
         context = self.get_context_data(form=form, user_exists=True)
         return self.render_to_response(context)
+
+
+class SignupAPIView(CreateUserMixin, APIView):
+    def post(self, request):
+        data = request.DATA
+        form = UserRegistrationForm(request.DATA)
+
+        if form.is_valid():
+            user = self.create_user(data)
+            serializer = UserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(
+                {'errors': form.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class UserGroupList(LoginRequiredMixin, TemplateView):
@@ -316,7 +340,9 @@ class ChangePassword(LoginRequiredMixin, TemplateView):
             messages.success(request, 'The password has been changed.')
             return redirect('admin:userprofile')
         else:
-            messages.error(request, 'We were not able to athorise you with your old password. The password has not been changed.')
+            messages.error(request, 'We were not able to athorise you with '
+                                    'your old password. The password has not '
+                                    'been changed.')
             return self.render_to_response(self.get_context_data())
 
 

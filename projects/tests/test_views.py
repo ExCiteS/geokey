@@ -10,7 +10,9 @@ from nose.tools import raises
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from dataviews.tests.model_factories import ViewFactory
-from observationtypes.tests.model_factories import TextFieldFactory, ObservationTypeFactory
+from observationtypes.tests.model_factories import (
+    TextFieldFactory, ObservationTypeFactory
+)
 
 from .model_factories import UserF, ProjectF
 from ..models import Project
