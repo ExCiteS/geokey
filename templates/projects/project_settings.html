@@ -78,15 +78,15 @@
                         </div>
                         <div class="panel-body becareful">
                             <div class="toggle-active {% if project.status == status_types.inactive %} hidden{% endif %}">
-                                <strong>Make the project inactive</strong>
+                                <strong>Archive the project.</strong>
                                 <p>The project will be no longer accessible.</p>
-                                <a href="#" class="text-danger" data-toggle="modal" data-target="#make-inactive-confirm">Make inactive</a>
+                                <a href="#" class="text-danger" data-toggle="modal" data-target="#make-inactive-confirm">Archive</a>
                             </div>
 
                             <div class="toggle-active {% if project.status == status_types.active %} hidden{% endif %}">
-                                <strong>Make the project active</strong>
+                                <strong>Activate the project</strong>
                                 <p>The project will accessible again.</p>
-                                <a href="#" class="text-danger" data-toggle="modal" data-target="#make-active-confirm">Make active</a>
+                                <a href="#" class="text-danger" data-toggle="modal" data-target="#make-active-confirm">Activate</a>
                             </div>
 
                             <div class="toggle-private {% if not project.isprivate %} hidden{% endif %}">
@@ -185,7 +185,7 @@
                         <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
                     </div>
                     <div class="modal-body panel-body">
-                        <p>Before you make the project inactive, please read through the consequences of this action:</p>
+                        <p>Before you archive the project, please read through the consequences of this action:</p>
                         <ul>
                             <li>The project will be accessible to project administrators only.</li>
                             <li>All data, user groups and views will be kept in the data base.</li>
@@ -193,7 +193,7 @@
                         </ul>
                     </div>
                     <div class="modal-footer panel-footer">
-                        <button type="button" name="confirm" value="{{status_types.inactive}}" class="btn btn-warning" data-loading-text="Loading...">Yes, make the project inactive.</button>
+                        <button type="button" name="confirm" value="{{status_types.inactive}}" class="btn btn-warning" data-loading-text="Loading...">Yes, archive the project.</button>
                     </div>
                 </div>
             </div>
@@ -207,14 +207,14 @@
                         <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
                     </div>
                     <div class="modal-body panel-body">
-                        <p>Before you make the project active, please read through the consequences of this action:</p>
+                        <p>Before you activate the project, please read through the consequences of this action:</p>
                         <ul>
                             <li>The project will be accessible to either all registered users or Administrators, Viewers and Contributors.</li>
                             <li>Contributors and Administrators can contribute new data.</li>
                         </ul>
                     </div>
                     <div class="modal-footer panel-footer">
-                        <button type="button" name="confirm" value="{{status_types.active}}" class="btn btn-warning" data-dismiss="modal">Yes, make the project active.</button>
+                        <button type="button" name="confirm" value="{{status_types.active}}" class="btn btn-warning" data-dismiss="modal">Yes, activate the project.</button>
                     </div>
                 </div>
             </div>
