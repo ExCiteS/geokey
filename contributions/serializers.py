@@ -141,24 +141,50 @@ class ContributionSerializer(object):
         else:
             return instance
 
-    def to_native(self, obj):
+    def to_native_min(self, obj):
+        location = obj.location
+
+        updator = None
+        if obj.updator is not None: 
+            updator = {
+                'id': obj.updator.id,
+                'display_name': obj.updator.display_name
+            }
+
         json_object = {
             'id': obj.id,
             'type': 'Feature',
             'geometry': json.loads(obj.location.geometry.geojson),
-            'properties': {},
+            'category': {
+                'id': obj.observationtype.id,
+                'name': obj.observationtype.name,
+                'description': obj.observationtype.description,
+                'symbol': (obj.observationtype.symbol.url 
+                           if obj.observationtype.symbol else None),
+                'colour': obj.observationtype.colour
+            },
+            'properties': {
+                'status': obj.status,
+                'creator': {
+                    'id': obj.creator.id,
+                    'display_name': obj.creator.display_name
+                },
+                'updator': updator,
+                'created_at': obj.created_at,
+                'version': obj.version,
+                'location': {
+                    'id': location.id,
+                    'name': location.name,
+                    'description': location.description
+                }
+            },
             'isowner': obj.creator == self.context.get('user')
         }
 
-        observation_serializer = ObservationSerializer(obj)
-        json_object['properties'] = observation_serializer.data
+        return json_object
 
-        location_serializer = LocationContributionSerializer(obj.location)
-        json_object['properties']['location'] = location_serializer.data
-
-        observationtype_serializer = ObservationTypeSerializer(
-            obj.observationtype)
-        json_object['category'] = observationtype_serializer.data
+    def to_native(self, obj):
+        json_object = self.to_native_min(obj)
 
         comment_serializer = CommentSerializer(
             obj.comments.filter(respondsto=None),
@@ -174,37 +200,6 @@ class ContributionSerializer(object):
                 attributes[field.key] = field.convert_from_string(value)
 
         json_object['properties']['attributes'] = attributes
-
-        return json_object
-
-    def to_native_min(self, obj):
-        location = obj.location
-
-        json_object = {
-            'id': obj.id,
-            'type': 'Feature',
-            'geometry': json.loads(obj.location.geometry.geojson),
-            'category': {
-                'id': obj.observationtype.id,
-                'name': obj.observationtype.name,
-                'symbol': (obj.observationtype.symbol.url 
-                           if obj.observationtype.symbol else None),
-                'colour': obj.observationtype.colour
-            },
-            'properties': {
-                'status': obj.status,
-                'creator': obj.creator.display_name,
-                'updator': (obj.updator.display_name
-                            if obj.updator is not None else None),
-                'created_at': obj.created_at,
-                'version': obj.version,
-                'location': {
-                    'id': location.id,
-                    'name': location.name
-                }
-            },
-            'isowner': obj.creator == self.context.get('user')
-        }
 
         return json_object
 

@@ -187,7 +187,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         self.assertEqual(result.get('properties').get('attributes').get('key_1'), 'value 1')
         self.assertEqual(result.get('properties').get('attributes').get('key_2'), 12)
         self.assertEqual(
-            result.get('properties').get('category'),
+            result.get('category').get('id'),
             self.observationtype.id)
         self.assertEqual(
             result.get('properties').get('location').get('name'), 'UCL')
@@ -225,7 +225,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         self.assertEqual(result.get('properties').get('attributes').get('key_1'), 'value 1')
         self.assertEqual(result.get('properties').get('attributes').get('key_2'), 12)
         self.assertEqual(
-            result.get('properties').get('category'),
+            result.get('category').get('id'),
             self.observationtype.id)
         self.assertEqual(
             result.get('properties').get('location').get('name'), None)
@@ -266,7 +266,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         self.assertEqual(result.get('properties').get('attributes').get('key_1'), 'value 1')
         self.assertEqual(result.get('properties').get('attributes').get('key_2'), 12)
         self.assertEqual(
-            result.get('properties').get('category'),
+            result.get('category').get('id'),
             self.observationtype.id)
         self.assertEqual(
             result.get('properties').get('location').get('name'),
@@ -366,7 +366,7 @@ class ContributionSerializerIntegrationTests(TestCase):
             json.loads(observation.location.geometry.geojson))
         self.assertEqual(result.get('properties').get('attributes').get('key'), 'value')
         self.assertEqual(
-            result.get('properties').get('category'),
+            result.get('category').get('id'),
             observation.observationtype.id)
         self.assertEqual(
             result.get('properties').get('location').get('name'),
