@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %} | User groups{% endblock %}
+
+{% block main %}
+        <div class="page-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' project.id %}">{{project.name}}</a></h1>
+                        <a href="{% url 'admin:project_overview' project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
+                    </div>
+                    <ul class="header-nav">
+                        <li><a href="{% url 'admin:category_list' project.id %}">Categories <span class="badge">{{ project.observationtypes.count }}</span></a></li>
+                        <li><a href="{% url 'admin:grouping_list' project.id %}">Data groupings <span class="badge">{{ project.views.count }}</span></a></li>
+                        <li class="active"><a href="{% url 'admin:usergroup_list' project.id %}">User groups <span class="badge">{{ project.usergroups.count }}</span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            {% include 'snippets/messages.html' %}
+            
+            <div class="row">
+                <div class="col-sm-8">
+                    <h3>
+                        User groups
+                        <a href="{% url 'admin:usergroup_create' project.id %}" class="btn btn-success btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create new user group</a>
+                    </h3>
+                    <div class="overview-list-item">
+                        <h4><a href="{% url 'admin:admins_overview' project.id %}">Administrators</a></h4>
+                        <p>Administrators for the project {{ project.name }}</p>
+                    </div>
+                    {% for group in project.usergroups.all %}
+                    <div class="overview-list-item">
+                        <h4><a href="{% url 'admin:usergroup_overview' group.project.id group.id %}">{{group.name}}</a></h4>
+                        {% if group.description %}<p>{{group.description}}</p>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-sm-4">
+                    <div class="alert alert-info">
+                        Add user groups to grant contribute and moderate permissions to a set of users and to grant access to data groupings.
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}

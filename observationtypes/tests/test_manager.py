@@ -4,6 +4,7 @@ from django.core.exceptions import PermissionDenied
 from nose.tools import raises
 
 from projects.tests.model_factories import UserF, ProjectF
+from projects.models import Project
 
 from ..models import Field, ObservationType
 
@@ -13,6 +14,18 @@ from .model_factories import (
 
 
 class ObservationTypeManagerTest(TestCase):
+    def test_create(self):
+        project = ProjectF.create()
+        category = ObservationType.objects.create(
+            name='Test',
+            project=project,
+            creator=project.creator,
+        )
+
+        views = project.views.all()
+        self.assertEqual(len(views), 1)
+        self.assertEqual(views[0].name, category.name)
+
     def test_access_with_projct_admin(self):
         admin = UserF.create()
 
@@ -55,7 +68,7 @@ class ObservationTypeManagerTest(TestCase):
         self.assertEqual(len(types), 1)
         self.assertIn(active, types)
 
-    @raises(PermissionDenied)
+    @raises(Project.DoesNotExist)
     def test_access_with_projct_non_member(self):
         contributor = UserF.create()
 
@@ -131,7 +144,7 @@ class ObservationTypeManagerTest(TestCase):
         ObservationType.objects.get_single(
             contributor, project.id, inactive_type.id)
 
-    @raises(PermissionDenied)
+    @raises(Project.DoesNotExist)
     def test_access_active_with_non_member(self):
         contributor = UserF.create()
 
@@ -147,7 +160,7 @@ class ObservationTypeManagerTest(TestCase):
         self.assertEqual(active_type, ObservationType.objects.get_single(
             contributor, project.id, active_type.id))
 
-    @raises(PermissionDenied)
+    @raises(Project.DoesNotExist)
     def test_access_inactive_with_non_member(self):
         contributor = UserF.create()
 
@@ -191,7 +204,7 @@ class ObservationTypeManagerTest(TestCase):
 
         ObservationType.objects.as_admin(user, project.id, active_type.id)
 
-    @raises(PermissionDenied)
+    @raises(Project.DoesNotExist)
     def test_admin_access_with_non_member(self):
         user = UserF.create()
 
@@ -361,7 +374,7 @@ class FieldManagerTest(TestCase):
         Field.objects.as_admin(
             user, project.id, observation_type.id, field.id)
 
-    @raises(PermissionDenied)
+    @raises(Project.DoesNotExist)
     def test_access_fields_with_non_member(self):
         user = UserF.create()
         project = ProjectF.create(**{'isprivate': True})
@@ -379,7 +392,7 @@ class FieldManagerTest(TestCase):
         })
         Field.objects.get_list(user, project.id, observation_type.id)
 
-    @raises(PermissionDenied)
+    @raises(Project.DoesNotExist)
     def test_access_active_field_with_non_member(self):
         user = UserF.create()
         project = ProjectF.create(**{'isprivate': True})
@@ -394,7 +407,7 @@ class FieldManagerTest(TestCase):
         Field.objects.get_single(
             user, project.id, observation_type.id, field.id)
 
-    @raises(PermissionDenied)
+    @raises(Project.DoesNotExist)
     def test_access_inactive_field_with_non_member(self):
         user = UserF.create()
         project = ProjectF.create(**{'isprivate': True})
@@ -409,7 +422,7 @@ class FieldManagerTest(TestCase):
         Field.objects.get_single(
             user, project.id, observation_type.id, field.id)
 
-    @raises(PermissionDenied)
+    @raises(Project.DoesNotExist)
     def test_admin_access_active_field_with_non_member(self):
         user = UserF.create()
         project = ProjectF.create(**{'isprivate': True})

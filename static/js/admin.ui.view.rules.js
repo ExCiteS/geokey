@@ -3,11 +3,9 @@ $(function() {
     var projectId = $('body').attr('data-project-id'),
         viewId = $('body').attr('data-view-id');
 
-    var messages = new Ui.MessageDisplay();
-
     function handleTypeSelection(event) {
         var target = $(event.currentTarget).parents('form');
-        messages.showPanelLoading(target, 'Loading field information for this contribution type...');
+        // messages.showPanelLoading(target, 'Loading field information for this contribution type...');
 
         function handleTypeSuccess(response) {
             target.children('.info-loading').hide('slow', function() {
@@ -19,10 +17,12 @@ $(function() {
             if (!Modernizr.inputtypes.datetime) {
                 $('input[type="datetime"]').datetimepicker();
             }
+            $('#field-options input[type="number"], #field-options input[type="datetime"]').change(handleRangeFieldEdit);
+            $('#field-options :input').change(handleFieldChange);
         }
 
         function handleTypeError(response) {
-            messages.showPanelError(target, response.responseJSON.error);
+            // messages.showPanelError(target, response.responseJSON.error);
         }
 
         Control.Ajax.get(
@@ -38,9 +38,10 @@ $(function() {
     }
 
     function getRangeValue(field) {
+        var key = field.attr('data-key');
         var value = {};
-        var minval = field.find('#minval').val();
-        var maxval = field.find('#maxval').val();
+        var minval = field.find('#' + key + '-min').val();
+        var maxval = field.find('#' + key + '-max').val();
 
         if (minval) { value.minval = minval; }
         if (maxval) { value.maxval = maxval; }
@@ -48,8 +49,13 @@ $(function() {
         return (value.minval || value.maxval ? value : undefined);
     }
 
-    function handleSubmit() {
+    function handleFieldChange(event) {
+        var formSubmitted = event.target;
         var rules = {};
+
+        rules.min_date = $('input[name="created_at-min"]').val() || null;
+        rules.max_date = $('input[name="created_at-max"]').val() || null;
+
         var fields = $('.field-filter');
 
         for (var i = 0, len = fields.length; i < len; i++) {
@@ -67,9 +73,19 @@ $(function() {
             if (value) { rules[field.attr('data-key')] = value; }
         }
         $('input[name="rules"]').val(JSON.stringify(rules));
-        $('form#rule-form').submit();
     }
 
+    function handleRangeFieldEdit(event) {
+        var target = $(event.target);
+        
+        if (target.attr('id') === target.attr('data-key') + '-min') {
+            $('input#' + target.attr('data-key') + '-max').attr('min', target.val());
+        } else if (target.attr('id') === target.attr('data-key') + '-max') {
+            $('input#' + target.attr('data-key') + '-min').attr('max', target.val());
+        }
+    }
+
+    $('#field-options :input').change(handleFieldChange);
+    $('#field-options input[type="number"], #field-options input[type="datetime"]').change(handleRangeFieldEdit);
     $('#observationtype').change(handleTypeSelection);
-    $('button[type="button"]').click(handleSubmit);
 });

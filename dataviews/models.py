@@ -25,19 +25,25 @@ class View(models.Model):
 
     objects = ViewManager()
 
+    def get_where_clause(self):
+        queries = [rule.get_query() for rule in self.rules.all()]
+
+        if len(queries) > 0:
+            query = ' OR '.join(queries)
+            return query
+        else:
+            return None
+
     @property
     def data(self):
         """
         Provides access to all data accessable through the view. Uses the
         rules of the view to filter the data.
         """
-        queries = [rule.get_query() for rule in self.rules.all()]
+        where_clause = self.get_where_clause()
 
-        if len(queries) > 0:
-            query = queries.pop()
-            for item in queries:
-                query |= item
-            return self.project.observations.filter(query)
+        if where_clause is not None:
+            return self.project.observations.extra(where=[where_clause])
         else:
             return self.project.observations.none()
 
@@ -52,7 +58,10 @@ class View(models.Model):
         """
         Returns if the user can view data of the view.
         """
-        return ((user.is_anonymous() and not self.isprivate) or
+        if user.is_anonymous():
+            return not self.isprivate
+
+        return (not self.isprivate or
                 self.project.is_admin(user) or
                 self.usergroups.filter(
                     usergroup__users=user, can_view=True).exists())
@@ -61,7 +70,10 @@ class View(models.Model):
         """
         Returns if the user can read data of the view.
         """
-        return ((user.is_anonymous() and not self.isprivate) or
+        if user.is_anonymous():
+            return not self.isprivate
+
+        return (not self.isprivate or
                 self.project.is_admin(user) or
                 self.usergroups.filter(
                     usergroup__users=user, can_read=True).exists())
@@ -80,6 +92,8 @@ class View(models.Model):
 class Rule(models.Model):
     view = models.ForeignKey('View', related_name='rules')
     observation_type = models.ForeignKey('observationtypes.ObservationType')
+    min_date = models.DateTimeField(null=True)
+    max_date = models.DateTimeField(null=True)
     filters = hstore.DictionaryField(db_index=True, null=True, default=None)
     status = models.CharField(
         choices=STATUS,
@@ -93,7 +107,17 @@ class Rule(models.Model):
         """
         Returns the queryset filter for the Rule
         """
-        queries = [Q(observationtype=self.observation_type)]
+        queries = ['(observationtype_id = %s)' % self.observation_type.id]
+
+        if self.min_date is not None:
+            queries.append('(created_at >= to_date(\'' +
+                self.min_date.strftime('%Y-%m-%d %H:%I') +
+                '\', \'YYYY-MM-DD HH24:MI\'))')
+
+        if self.max_date is not None:
+            queries.append('(created_at <= to_date(\'' +
+                self.max_date.strftime('%Y-%m-%d %H:%I') +
+                '\', \'YYYY-MM-DD HH24:MI\'))')
 
         if self.filters is not None:
             for key in self.filters:
@@ -105,10 +129,7 @@ class Rule(models.Model):
                 field = self.observation_type.fields.get_subclass(key=key)
                 queries.append(field.get_filter(rule_filter))
 
-        query = queries.pop()
-        for item in queries:
-            query &= item
-        return query
+        return '(%s)' % ' AND '.join(queries)
 
     def delete(self):
         """

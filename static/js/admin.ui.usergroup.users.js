@@ -8,18 +8,13 @@
 (function () {
     'use strict';
 
-    var panel = $('#usergroup-users');
     var projectId = $('body').attr('data-project-id');
     var groupId = $('body').attr('data-group-id');
 
-    // Initializes the message display
-    var messages = new Ui.MessageDisplay();
-
     // Get the elements
-    var header = panel.find('.panel-heading');
-    var typeAwayResults = panel.find('.panel-footer .type-away');
-    var formField = panel.find('.panel-footer input[type="text"]');
-    var userList = panel.find('.user-list');
+    var typeAwayResults = $('.type-away');
+    var formField = $('#find-users');
+    var userList = $('.user-list');
 
     var url;
     if (groupId) {
@@ -30,32 +25,33 @@
 
     var numberOfRequests = 0;
 
-    function displaySuccess() {
-        header.removeClass('loading');
-    }
-
-    function displayError(msg) {
-        header.removeClass('loading');
-        messages.showInlineError(header, msg);
-    }
-
     /**
      * Handles the click event when the user clicks on the remove link in the user list.
      * @param  {Event} event The click event fired by the link.
      */
     function handleRemoveUser(event) {
         var userId = $(event.target).parent('a').attr('data-user-id');
-        var itemToRemove = $(event.target).parents('.list-group-item');
+        var itemToRemove = $(event.target).parents('li');
 
         /**
          * Handles the response after the removal of the user from the group was successful.
          */
         function handleRemoveUserSuccess() {
+            var html = $('<li class="bg-success message"><span class="text-success"><span class="glyphicon glyphicon-ok"></span> The user has been removed from the user group.</span></li>');
+            itemToRemove.before(html);
+            setTimeout(function() {html.remove(); }, 5000);
+
             itemToRemove.remove();
-            if (userList.children().length === 0) {
-                userList.append('<li class="list-group-item">No users have been assigned to this group.</li>');
+
+            var numOfUsers = userList.children(':not(.message)').length
+
+            if (!groupId &&  numOfUsers === 1) {
+                userList.find('li a.remove').remove();
             }
-            displaySuccess();
+
+            if (numOfUsers === 0) {
+                userList.append('<li class="empty">No users have been assigned to this group.</li>');
+            }
         }
 
         /**
@@ -63,7 +59,9 @@
          * @param  {Object} response JSON object of the response
          */
         function handleRemoveUserError(response) {
-            displayError('An error occured while removing the user. Error text was: ' + response.responseJSON.error);
+            var html = $('<li class="bg-danger message"><span class="text-danger"><span class="glyphicon glyphicon-remove"></span> An error occured while removing the user. Error text was: ' + response.responseJSON.error + '</span></li>');
+            itemToRemove.before(html);
+            setTimeout(function() {html.remove(); }, 5000);
         }
 
         Control.Ajax.del(url + userId+ '/', handleRemoveUserSuccess, handleRemoveUserError, {'userId': userId});
@@ -77,11 +75,20 @@
      */
     function handleAddUserSucess(response) {
         userList.empty();
+
+        if (!userList.length) {
+            userList = $('<ul class="user-list"></ul>').appendTo('#members');
+            $('#members .empty-list').hide();
+        }
+
+        var html = $('<li class="bg-success message"><span class="text-success"><span class="glyphicon glyphicon-ok"></span> The user has been added to the user group.</span></li>');
+        userList.append(html);
+        setTimeout(function() {html.remove(); }, 5000);
+
         userList.append(Templates.usergroupusers(response));
         userList.find('li a.remove').click(handleRemoveUser);
 
         formField.val('');
-        displaySuccess();
     }
 
     /**
@@ -89,7 +96,7 @@
      * @param  {Object} response JSON object of the response
      */
     function handleAddUserError(response) {
-        displayError('An error occured while adding the user. Error text was: ' + response.responseJSON.error);
+        // displayError('An error occured while adding the user. Error text was: ' + response.responseJSON.error);
     }
 
     /**
@@ -99,7 +106,6 @@
     function handleAddUser(event) {
         var userId = $(event.target).attr('data-user-id');
 
-        header.addClass('loading');
         typeAwayResults.hide();
         Control.Ajax.post(url, handleAddUserSucess, handleAddUserError, {'userId': userId});
         event.preventDefault();

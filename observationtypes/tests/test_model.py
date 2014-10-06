@@ -13,6 +13,53 @@ from .model_factories import (
 )
 
 
+class CategoryTest(TestCase):
+    def test_re_order_fields(self):
+        category = ObservationTypeFactory.create()
+
+        field_0 = TextFieldFactory.create(**{'observationtype': category})
+        field_1 = TextFieldFactory.create(**{'observationtype': category})
+        field_2 = TextFieldFactory.create(**{'observationtype': category})
+        field_3 = TextFieldFactory.create(**{'observationtype': category})
+        field_4 = TextFieldFactory.create(**{'observationtype': category})
+        
+        category.re_order_fields(
+            [field_4.id, field_0.id, field_2.id, field_1.id,  field_3.id]
+        )
+
+        fields = category.fields.all()
+
+        self.assertTrue(fields.ordered)
+        self.assertEqual(fields[0], field_4)
+        self.assertEqual(fields[1], field_0)
+        self.assertEqual(fields[2], field_2)
+        self.assertEqual(fields[3], field_1)
+        self.assertEqual(fields[4], field_3)
+
+    def test_re_order_fields_with_false_field(self):
+        category = ObservationTypeFactory.create()
+
+        field_0 = TextFieldFactory.create(**{'observationtype': category})
+        field_1 = TextFieldFactory.create(**{'observationtype': category})
+        field_2 = TextFieldFactory.create(**{'observationtype': category})
+        field_3 = TextFieldFactory.create(**{'observationtype': category})
+        field_4 = TextFieldFactory.create(**{'observationtype': category})
+
+        try:
+            category.re_order_fields(
+                [field_4.id, field_0.id, field_2.id, field_1.id,  5854]
+            )
+        except Field.DoesNotExist:
+            fields = category.fields.all()
+
+            self.assertTrue(fields.ordered)
+            self.assertEqual(fields[0].order, 0)
+            self.assertEqual(fields[1].order, 0)
+            self.assertEqual(fields[2].order, 0)
+            self.assertEqual(fields[3].order, 0)
+            self.assertEqual(fields[4].order, 0)
+
+
 class FieldTest(TestCase):
     @raises(NotImplementedError)
     def test_field_validate_input(self):
@@ -59,6 +106,17 @@ class TextFieldTest(TestCase):
         textfield = TextFieldFactory.create(**{'required': True})
         textfield.validate_input('')
 
+    def test_textfield_validate_inactive_required_empty_string(self):
+        textfield = TextFieldFactory.create(**{
+            'required': True,
+            'status': 'inactive'}
+        )
+        try:
+            textfield.validate_input('')
+        except InputError:
+            self.fail('TextField.validate_input() raised InputError '
+                      'unexpectedly!')
+
     @raises(InputError)
     def test_textfield_validate_required_none_type(self):
         textfield = TextFieldFactory.create(**{'required': True})
@@ -96,6 +154,25 @@ class NumericFieldTest(TestCase):
         numericfield = NumericFieldFactory.create(**{'required': True})
         numericfield.validate_input(None)
 
+    def test_numericfield_validate_not_required_none_type(self):
+        numericfield = NumericFieldFactory.create(**{'required': False})
+        try:
+            numericfield.validate_input(None)
+        except InputError:
+            self.fail('numericfield.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    def test_numericfield_validate_inactive_required_empty_string(self):
+        numericfield = NumericFieldFactory.create(**{
+            'required': True,
+            'status': 'inactive'}
+        )
+        try:
+            numericfield.validate_input(None)
+        except InputError:
+            self.fail('numericfield.validate_input() raised InputError '
+                      'unexpectedly!')
+
     def test_numericfield_validate_input_number(self):
         numeric_field = NumericFieldFactory()
         try:
@@ -104,10 +181,13 @@ class NumericFieldTest(TestCase):
             self.fail('NumericField.validate_input() raised InputError '
                       'unexpectedly!')
 
-    @raises(InputError)
     def test_numericfield_validate_input_string_number(self):
         numeric_field = NumericFieldFactory()
-        numeric_field.validate_input('12')
+        try:
+            numeric_field.validate_input('12')
+        except InputError:
+            self.fail('NumericField.validate_input() raised InputError '
+                      'unexpectedly!')
 
     @raises(InputError)
     def test_numericfield_validate_input_string_char(self):
@@ -180,6 +260,10 @@ class NumericFieldTest(TestCase):
         numeric_field = NumericFieldFactory()
         self.assertEqual(100, numeric_field.convert_from_string('100'))
 
+    def test_numericfield_convert_from_empty_string(self):
+        numeric_field = NumericFieldFactory()
+        self.assertEqual(None, numeric_field.convert_from_string(''))
+
 
 class TrueFalseFieldTest(TestCase):
     def test_create_truefalsefield(self):
@@ -203,6 +287,17 @@ class TrueFalseFieldTest(TestCase):
     def test_truefalsefield_validate_required_none_type(self):
         true_false_field = TrueFalseFieldFactory.create(**{'required': True})
         true_false_field.validate_input(None)
+
+    def test_truefalsefield_validate_inactive_required_empty_string(self):
+        true_false_field = TrueFalseFieldFactory.create(**{
+            'required': True,
+            'status': 'inactive'}
+        )
+        try:
+            true_false_field.validate_input(None)
+        except InputError:
+            self.fail('TrueFalseField.validate_input() raised InputError '
+                      'unexpectedly!')
 
     def test_truefalsefield_validate_input(self):
         true_false_field = TrueFalseFieldFactory()
@@ -240,7 +335,7 @@ class SingleLookupFieldTest(TestCase):
 
     def test_get_name(self):
         field = LookupFieldFactory()
-        self.assertEqual(field.type_name, 'Single lookup')
+        self.assertEqual(field.type_name, 'Select box')
         self.assertEqual(field.fieldtype, 'LookupField')
 
     def test_lookupfield_validate_required(self):
@@ -255,6 +350,25 @@ class SingleLookupFieldTest(TestCase):
     def test_lookupfield_validate_required_none_type(self):
         lookup_field = LookupFieldFactory.create(**{'required': True})
         lookup_field.validate_input(None)
+
+    def test_lookupfield_validate_not_required_none_type(self):
+        lookup_field = LookupFieldFactory.create(**{'required': False})
+        try:
+            lookup_field.validate_input(None)
+        except InputError:
+            self.fail('lookup_field.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    def test_lookupfield_validate_inactive_required_empty_string(self):
+        lookup_field = LookupFieldFactory.create(**{
+            'required': True,
+            'status': 'inactive'}
+        )
+        try:
+            lookup_field.validate_input(None)
+        except InputError:
+            self.fail('LookupField.validate_input() raised InputError '
+                      'unexpectedly!')
 
     def test_lookupfield_validate_input(self):
         lookup_field = LookupFieldFactory()
@@ -307,6 +421,25 @@ class DateTimeFieldTest(TestCase):
         datetimefield = DateTimeFieldFactory.create(**{'required': True})
         try:
             datetimefield.validate_input('2014-01-01')
+        except InputError:
+            self.fail('datetimefield.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    def test_lookupfield_validate_inactive_required_empty_string(self):
+        lookup_field = LookupFieldFactory.create(**{
+            'required': True,
+            'status': 'inactive'}
+        )
+        try:
+            lookup_field.validate_input(None)
+        except InputError:
+            self.fail('LookupField.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    def test_datetimefield_validate_not_required(self):
+        datetimefield = DateTimeFieldFactory.create(**{'required': False})
+        try:
+            datetimefield.validate_input(None)
         except InputError:
             self.fail('datetimefield.validate_input() raised InputError '
                       'unexpectedly!')

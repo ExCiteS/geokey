@@ -10,8 +10,6 @@
 $(function () {
 	'use strict';
 
-	var messages = new Ui.MessageDisplay();
-
 	// Read the IDs from the body's attributes
 	var projectId = $('body').attr('data-project-id');
 	var observationtypeId = $('body').attr('data-observationtype-id');
@@ -38,7 +36,7 @@ $(function () {
 	// Setting parameters
 	if (projectId && observationtypeId) {
 		url += '/observationtypes/' + observationtypeId;
-		name = 'contribution type';
+		name = 'category';
 	}
 	if (projectId && observationtypeId && fieldId) {
 		url += '/fields/' + fieldId;
@@ -72,43 +70,20 @@ $(function () {
 		}
 	}
 
-	/**
-	 * Returns the parent element of the panel for message display.
-	 * @param  {String} id HTML element id or class name
-	 */
-	function getMessageTarget(id) {
-		return $('.toggle-' + id).parent();
+	function displayMessage(elementClass, msg, type, glyphicon) {
+		var target = $('.toggle-' + elementClass).first()
+		var html = $('<div class="message bg-' + type + ' text-' + type + '"><span class="glyphicon glyphicon-' + glyphicon + '"></span> ' + msg + '</div>');
+		target.siblings('.message').remove();
+		target.before(html);
+		setTimeout(function () { html.remove(); }, 5000);
 	}
 
-	/**
-	 * Deletes the project.
-	 */
-	function del() {
+	function displaySuccess(elementClass, msg) {
+		displayMessage(elementClass, msg, 'success', 'ok');
+	}
 
-		/**
-		 * Handles the response after the item has been deleted successfully.
-		 */
-		function handleSuccess() {
-			var link = '<a href="/admin/dashboard" class="alert-link">Return to dashboard</a>';
-			if (projectId && viewId) { link = '<a href="/admin/projects/' + projectId + '" class="alert-link">Return to project</a>'; }
-			if (projectId && groupId) { link = '<a href="/admin/projects/' + projectId + '/" class="alert-link">Return to project</a>'; }
-
-			updateUi();
-			$('.row').remove();
-			$('hr').remove();
-			$('.page-header').after('<div class="container"><div class="col-md-12"><div class="alert alert-success">The ' + name + ' has now been deleted. ' + link + '.</div></div></div>');
-		}
-
-		/**
-		 * Handles the response after the deletion of the item failed.
-		 * @param  {Object} response JSON object of the response
-		 */
-		function handleError(response) {
-			updateUi();
-			messages.showPanelError(getMessageTarget(event), 'An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
-		}
-
-		Control.Ajax.del(url, handleSuccess, handleError);
+	function displayError(elementClass, msg) {
+		displayMessage(elementClass, msg, 'danger', 'remove');
 	}
 
 	/**
@@ -122,7 +97,7 @@ $(function () {
 		 */
 		function handleSuccess(response) {
 			updateUi('active');
-			messages.showPanelSuccess(getMessageTarget('active'), 'The ' + name + ' is now ' + response.status + '.');
+			displaySuccess('active', 'The ' + name + ' is now ' + response.status + '.');
 		}
 
 		/**
@@ -131,7 +106,8 @@ $(function () {
 		 */
 		function handleError(response) {
 			updateUi();
-			messages.showPanelError(getMessageTarget('active'), 'An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
+			displayError('active', 'An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
+			// messages.showPanelError(getMessageTarget('active'), 'An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
 		}
 		Control.Ajax.put(url, handleSuccess, handleError, {'status': event.target.value});
 	}
@@ -149,7 +125,7 @@ $(function () {
 		 */
 		function handleSuccess(response) {
 			updateUi('private');
-			messages.showPanelSuccess(getMessageTarget('private'), 'The ' + name + ' is now ' + (response.isprivate ? 'private' : 'public') + '.');
+			displaySuccess('private', 'The ' + name + ' is now ' + (response.isprivate ? 'private' : 'public') + '.');
 		}
 
 		/**
@@ -158,55 +134,14 @@ $(function () {
 		 */
 		function handleError(response) {
 			updateUi();
-			messages.showPanelError(getMessageTarget('private'), 'An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
+			displayError('private', 'An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
 		}
 
 		Control.Ajax.put(url, handleSuccess, handleError, {'isprivate': isPrivate});
 	}
 
-	/**
-	 * Handles the click on the confirm button and updates the field status to either mandatory or optional.
-	 * @param  {Event} event The click event fired by the button.
-	 */
-	function updateRequired(event) {
-		var isRequired = (event.target.value === 'true');
-
-		/**
-		 * Handles the response after the status of the field has been updated successfully.
-		 * @param  {Object} response JSON object of the response
-		 */
-		function handleSuccess(response) {
-			updateUi('mandatory');
-			messages.showPanelSuccess(getMessageTarget('mandatory'), 'The ' + name + ' is now ' + (response.required ? 'mandatory' : 'optional') + '.');
-		}
-
-		/**
-		 * Handles the response after the update of the field failed.
-		 * @param  {Object} response JSON object of the response
-		 */
-		function handleError(response) {
-			updateUi();
-			messages.showPanelError(getMessageTarget('mandatory'), 'An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
-		}
-
-		Control.Ajax.put(url, handleSuccess, handleError, {'required': isRequired});
-	}
-
-	function updateEveryoneContributes(event) {
-		var checkbox = $(event.target);
-		function handleError(response) {
-			messages.showInlineError(getMessageTarget('everyone_contributes'), 'An error occurred while updating the ' + name + '. ' + response.responseJSON.error);
-			checkbox.prop('checked', !checkbox.prop('checked'));
-		}
-		
-		Control.Ajax.put(url, null, handleError, {'everyone_contributes': checkbox.prop('checked')});
-	}
-
-	$('#delete-confirm button[name="confirm"]').click(del);
 	$('#make-inactive-confirm button[name="confirm"]').click(updateActive);
 	$('#make-active-confirm button[name="confirm"]').click(updateActive);
 	$('#make-public-confirm button[name="confirm"]').click(updatePrivate);
 	$('#make-private-confirm button[name="confirm"]').click(updatePrivate);
-	$('button[name="toogleMandatory"]').click(updateRequired);
-	$('input[name="everyone_contributes"]').change(updateEveryoneContributes);
 });

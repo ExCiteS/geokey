@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %} | Categories{% endblock %}
+
+{% block main %}
+        <div class="page-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' project.id %}">{{project.name}}</a></h1>
+                        <a href="{% url 'admin:project_overview' project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
+                    </div>
+                    <ul class="header-nav">
+                        <li class="active"><a href="{% url 'admin:category_list' project.id %}">Categories <span class="badge">{{ project.observationtypes.count }}</span></a></li>
+                        <li><a href="{% url 'admin:grouping_list' project.id %}">Data groupings <span class="badge">{{ project.views.count }}</span></a></li>
+                        <li><a href="{% url 'admin:usergroup_list' project.id %}">User groups <span class="badge">{{ project.usergroups.count }}</span></a></li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="container">
+            {% include 'snippets/messages.html' %}
+            
+            <div class="row">
+                <div class="col-sm-8">
+                    <h3>
+                        Categories
+                        {% if project.observationtypes.all %}
+                            <a href="{% url 'admin:observationtype_create' project.id %}" class="btn btn-success btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create new category</a>
+                        {% endif %}
+                    </h3>
+                    {% for category in project.observationtypes.all %}
+                    <div class="overview-list-item">
+                        <h4><a href="{% url 'admin:category_overview' project.id category.id %}">{{category.name}}</a> {% if category.status == 'inactive' %}<small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
+                        {% if category.description %}<p>{{category.description}}</p>{% endif %}
+                    </div>
+                    {% empty %}
+                        <div class="well empty-list">
+                            <p class="lead">We couldn't find any categories for this project.</p>
+                            <p>You can use categories to define which data you want to collect for your project. For instance, if you want to create a map for public transport, you can create a category for each bus stops and train stations.</p>
+                            <a href="{% url 'admin:observationtype_create' project.id %}" class="btn btn-success btn-lg">Create new category</a>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-sm-4">
+                    {% if project.observationtypes.all %}
+                    <div class="alert alert-info">
+                        You can use categories to define which data you want to collect for your project. For instance, if you want to create a map for public transport, you can create a category for each bus stops and train stations.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+{% endblock %}

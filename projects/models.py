@@ -16,7 +16,6 @@ class Project(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     everyone_contributes = models.BooleanField(default=True)
-    all_contrib_isprivate = models.BooleanField(default=True)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
@@ -31,7 +30,7 @@ class Project(models.Model):
         return self.name + ' status: ' + self.status + ' private: ' + str(self.isprivate)
 
     @classmethod
-    def create(cls, name, description, isprivate, creator):
+    def create(cls, name, description, isprivate, everyone_contributes, creator):
         """
         Creates a new project. Creates two usergroups and adds the creator to
         the administrators user group.
@@ -40,7 +39,8 @@ class Project(models.Model):
             name=name,
             description=description,
             isprivate=isprivate,
-            creator=creator
+            creator=creator,
+            everyone_contributes=everyone_contributes
         )
 
         project.save()
@@ -55,6 +55,16 @@ class Project(models.Model):
         """
         self.status = STATUS.deleted
         self.save()
+
+    def get_role(self, user):
+        if self.is_admin(user):
+            return 'administrator'
+        elif self.can_moderate(user):
+            return 'moderator'
+        elif self.can_contribute(user):
+            return 'contributor'
+        else:
+            return 'watcher'
 
     def is_admin(self, user):
         """
@@ -71,33 +81,35 @@ class Project(models.Model):
         - the project is public and has at least one public view
         """
 
+        # return self.status == STATUS.active and (self.is_admin(user) or 
+        #         not self.isprivate or (((
+        #         not user.is_anonymous() and self.usergroups.filter(
+        #             users=user).exists()) and (
+        #         self.views.filter(isprivate=False).exists())) or (
+        #         not user.is_anonymous() and (
+        #             self.usergroups.filter(
+        #                 can_contribute=True, users=user).exists() or
+        #             self.usergroups.filter(
+        #                 can_moderate=True, users=user).exists() or
+        #             self.usergroups.filter(
+        #                 users=user, viewgroups__isnull=False).exists())
+        #         )
+        #     )
+        # )
+
         return self.status == STATUS.active and (self.is_admin(user) or (
-
-            ((not self.isprivate or (
-                not user.is_anonymous() and self.usergroups.filter(
-                    users=user).exists())) and (
-                not self.all_contrib_isprivate or
-                self.views.filter(isprivate=False).exists())) or (
-
+                not self.isprivate and 
+                    self.views.filter(isprivate=False).exists()
+                ) or (
                 not user.is_anonymous() and (
                     self.usergroups.filter(
                         can_contribute=True, users=user).exists() or
                     self.usergroups.filter(
                         can_moderate=True, users=user).exists() or
                     self.usergroups.filter(
-                        read_all_contrib=True, users=user).exists() or
-                    self.usergroups.filter(
                         users=user, viewgroups__isnull=False).exists())
                 )
             )
-        )
-
-    def can_access_all_contributions(self, user):
-        return self.is_admin(user) or not self.all_contrib_isprivate or (
-            not user.is_anonymous() and (
-                self.usergroups.filter(
-                    read_all_contrib=True,
-                    users=user).exists()))
 
     def can_contribute(self, user):
         """
@@ -128,3 +140,34 @@ class Project(models.Model):
         return self.is_admin(user) or (
             not user.is_anonymous() and (
                 self.usergroups.filter(users=user).exists()))
+
+    def get_all_contributions(self, user):
+        """
+        Returns all contributions a user can access in a project
+        """
+        # Return everything for admins
+        if self.is_admin(user):
+            return self.observations.for_moderator(user)
+
+        grouping_queries = [
+            grouping.get_where_clause()
+            for grouping in self.views.get_list(user, self.id)
+        ]
+        grouping_queries = [x for x in grouping_queries if x is not None]
+
+        # Return everything found in data groupings plus the user's data
+        if len(grouping_queries) > 0:
+            query = '(' + ') OR ('.join(grouping_queries) + ')'
+
+            if (not user.is_anonymous()):
+                query = query + ' OR (creator_id = ' + str(user.id) + ')'
+
+            return self.observations.extra(
+                where=[query])
+        
+        # If there are no data groupings for the user, return just the user's
+        # data
+        if (not user.is_anonymous()):
+            return self.observations.filter(creator=user)
+        else:
+            return self.observations.none()

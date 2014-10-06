@@ -24,8 +24,6 @@
 		this.addButton.click(this.handleAddValue.bind(this));
 		this.lookuplist.find('li a').click(this.handleRemoveValue.bind(this));
 		this.formField.keyup(this.handleFormType.bind(this));
-
-		this.messages = new Ui.MessageDisplay();
 	}
 
 	LookupPanel.prototype.handleFormType = function handleFormType(event) {
@@ -34,19 +32,21 @@
         }
 	};
 
-	/**
-	 * Displays the success tick in the panel heading.
-	 */
-	LookupPanel.prototype.displaySuccess = function displaySuccess() {
-		this.messages.showInlineSuccess(this.panel.find('.panel-heading'));
-	};
+	LookupPanel.prototype.displayMessage = function displayMessage(msg, type, glyphicon) {
+		var target = this.panel.find('.panel-heading');
+		var html = $('<div class="panel-body message bg-' + type + ' text-' + type + '"><span class="glyphicon glyphicon-' + glyphicon + '"></span> ' + msg + '</div>');
+		target.siblings('.message').remove();
+		target.after(html);
+		setTimeout(function () { html.remove(); }, 5000);
+	}
 
-	/**
-	 * Shows the error message in the panel heading.
-	 */
-	LookupPanel.prototype.displayError = function displayError(message) {
-		this.messages.showInlineError(this.panel.find('.panel-heading'), message);
-	};
+	LookupPanel.prototype.displaySuccess = function displaySuccess(msg) {
+		this.displayMessage(msg, 'success', 'ok');
+	}
+
+	LookupPanel.prototype.displayError = function displayError(msg) {
+		this.displayMessage(msg, 'danger', 'remove');
+	}
 
 	/**
 	 * Handles the removal of a lookup value from the lookup field. Is called
@@ -63,7 +63,7 @@
 		 */
 		function handleRemoveValueSucces() {
 			itemToRemove.remove();
-			this.displaySuccess();
+			this.displaySuccess('The value has been deleted.');
 		} 
 
 		/**
@@ -99,7 +99,7 @@
 
 			this.lookuplist.find('li a').click(this.handleRemoveValue.bind(this));
 			this.addButton.button('reset');
-			this.displaySuccess();
+			this.displaySuccess('The value has been added.');
 		}
 
 		/**

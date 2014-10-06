@@ -1,3 +1,6 @@
+from datetime import datetime
+import pytz
+
 from django.test import TestCase
 
 from nose.tools import raises
@@ -89,6 +92,35 @@ class TestViewPermissions(TestCase):
         self.assertFalse(view.can_moderate(user))
 
 
+class RuleTest(TestCase):
+    @raises(Rule.DoesNotExist)
+    def test_delete_rules(self):
+        rule = RuleFactory()
+        rule.delete()
+        self.assertEqual(rule.status, 'deleted')
+        Rule.objects.get(pk=rule.id)
+
+    def test_get_rules(self):
+        view = ViewFactory.create()
+        RuleFactory(**{
+            'view': view,
+            'status': 'active'
+        })
+        RuleFactory(**{
+            'view': view,
+            'status': 'active'
+        })
+        inactive = RuleFactory(**{
+            'view': view,
+            'status': 'deleted'
+        })
+
+        rules = view.rules.all()
+
+        self.assertEqual(len(rules), 2)
+        self.assertNotIn(inactive, rules)
+
+
 class ViewTest(TestCase):
     def setUp(self):
         self.admin = UserF.create()
@@ -111,28 +143,6 @@ class ViewTest(TestCase):
     def test_delete(self):
         self.view1.delete()
         View.objects.get(pk=self.view1.id)
-
-    @raises(Rule.DoesNotExist)
-    def test_delete_rules(self):
-        rule = RuleFactory()
-        rule.delete()
-        self.assertEqual(rule.status, 'deleted')
-        Rule.objects.get(pk=rule.id)
-
-    def test_get_rules(self):
-        RuleFactory(**{
-            'status': 'active'
-        })
-        RuleFactory(**{
-            'status': 'active'
-        })
-        inactive = RuleFactory(**{
-            'status': 'deleted'
-        })
-        rules = Rule.objects.all()
-
-        self.assertEqual(len(rules), 2)
-        self.assertNotIn(inactive, rules)
 
     def test_get_data(self):
         project = ProjectF()
@@ -298,7 +308,7 @@ class ViewTest(TestCase):
         RuleFactory(**{
             'view': view,
             'observation_type': observation_type_1,
-            'filters': {'number': {'minval': 15}}
+            'filters': {'number': {'minval': '15'}}
         })
 
         self.assertEqual(len(view.data), 5)
@@ -348,7 +358,7 @@ class ViewTest(TestCase):
         project = ProjectF()
         observation_type_1 = ObservationTypeFactory(**{'project': project})
         NumericFieldFactory(**{
-            'key': 'number',
+            'key': 'rating',
             'observationtype': observation_type_1
         })
         observation_type_2 = ObservationTypeFactory(**{'project': project})
@@ -357,33 +367,33 @@ class ViewTest(TestCase):
             'observationtype': observation_type_2
         })
 
-        for x in range(0, 5):
+        for x in range(5, 11):
             ObservationFactory(**{
                 'project': project,
                 'observationtype': observation_type_1,
-                'attributes': {'number': x}
+                'attributes': {'rating': x}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'observationtype': observation_type_1,
-                'attributes': {'number': x}
+                'attributes': {'rating': x}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'observationtype': observation_type_2,
-                'attributes': {'number': x}
+                'attributes': {'rating': x}
             })
 
         view = ViewFactory(**{'project': project})
         RuleFactory(**{
             'view': view,
             'observation_type': observation_type_1,
-            'filters': {'number': {'minval': 1, 'maxval': 4}}
+            'filters': {'rating': {'minval': 8, 'maxval': 10}}
         })
 
-        self.assertEqual(len(view.data), 4)
+        self.assertEqual(len(view.data), 6)
 
     def test_get_data_true_false_filter(self):
         project = ProjectF()
@@ -518,6 +528,127 @@ class ViewTest(TestCase):
             'filters': {'date': {
                 'minval': '2014-01-01', 'maxval': '2014-06-09 00:00'}
             }
+        })
+
+        self.assertEqual(len(view.data), 5)
+
+    def test_get_created_after(self):
+        project = ProjectF()
+        observation_type_1 = ObservationTypeFactory(**{'project': project})
+
+        obs = ObservationFactory.create_batch(5, **{
+            'project': project,
+            'observationtype': observation_type_1
+        })
+
+        for o in obs:
+            o.created_at = datetime(2014, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
+            o.save()
+
+        obs = ObservationFactory.create_batch(5, **{
+            'project': project,
+            'observationtype': observation_type_1
+        })
+
+        for o in obs:
+            o.created_at = datetime(2013, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
+            o.save()
+
+        obs = ObservationFactory.create_batch(5, **{
+            'project': project,
+            'observationtype': observation_type_1
+        })
+
+        for o in obs:
+            o.created_at = datetime(2012, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
+            o.save()
+
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{
+            'view': view,
+            'observation_type': observation_type_1,
+            'min_date': datetime(2013, 5, 1, 0, 0, 0, tzinfo=pytz.utc)
+        })
+
+        self.assertEqual(len(view.data), 10)
+
+    def test_get_created_before(self):
+        project = ProjectF()
+        observation_type_1 = ObservationTypeFactory(**{'project': project})
+
+        obs = ObservationFactory.create_batch(5, **{
+            'project': project,
+            'observationtype': observation_type_1
+        })
+
+        for o in obs:
+            o.created_at = datetime(2014, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
+            o.save()
+
+        obs = ObservationFactory.create_batch(5, **{
+            'project': project,
+            'observationtype': observation_type_1
+        })
+
+        for o in obs:
+            o.created_at = datetime(2013, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
+            o.save()
+
+        obs = ObservationFactory.create_batch(5, **{
+            'project': project,
+            'observationtype': observation_type_1
+        })
+
+        for o in obs:
+            o.created_at = datetime(2012, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
+            o.save()
+
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{
+            'view': view,
+            'observation_type': observation_type_1,
+            'max_date': datetime(2013, 5, 1, 0, 0, 0, tzinfo=pytz.utc)
+        })
+
+        self.assertEqual(len(view.data), 5)
+
+    def test_get_created_before_and_after(self):
+        project = ProjectF()
+        observation_type_1 = ObservationTypeFactory(**{'project': project})
+
+        obs = ObservationFactory.create_batch(5, **{
+            'project': project,
+            'observationtype': observation_type_1
+        })
+
+        for o in obs:
+            o.created_at = datetime(2014, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
+            o.save()
+
+        obs = ObservationFactory.create_batch(5, **{
+            'project': project,
+            'observationtype': observation_type_1
+        })
+
+        for o in obs:
+            o.created_at = datetime(2013, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
+            o.save()
+
+        obs = ObservationFactory.create_batch(5, **{
+            'project': project,
+            'observationtype': observation_type_1
+        })
+
+        for o in obs:
+            o.created_at = datetime(2012, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
+            o.save()
+
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{
+            'view': view,
+            'observation_type': observation_type_1,
+            'min_date': datetime(2013, 1, 1, 0, 0, 0, tzinfo=pytz.utc),
+            'max_date': datetime(2013, 10, 1, 0, 0, 0, tzinfo=pytz.utc)
         })
 
         self.assertEqual(len(view.data), 5)

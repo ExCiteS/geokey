@@ -74,7 +74,7 @@ class Observation(models.Model):
         error_messages = []
 
         for field in observationtype.fields.all().filter(status='active'):
-            if field.key in data:
+            if field.key in data and data.get(field.key) is not None:
                 try:
                     field.validate_input(data.get(field.key))
                 except InputError, error:
@@ -89,7 +89,7 @@ class Observation(models.Model):
         is_valid = True
         error_messages = []
 
-        for field in observationtype.fields.all():
+        for field in observationtype.fields.all().filter(status='active'):
             try:
                 field.validate_input(data.get(field.key))
             except InputError, error:
@@ -100,13 +100,27 @@ class Observation(models.Model):
             raise ValidationError(error_messages)
 
     @classmethod
+    def replace_null(self, attributes):
+        for key, value in attributes.iteritems():
+            if isinstance(value, (str, unicode)) and len(value) == 0:
+                attributes[key] = None
+
+        return attributes
+
+
+    @classmethod
     def create(cls, attributes=None, creator=None, location=None,
-               observationtype=None, project=None, status='active'):
+               observationtype=None, project=None, status=None):
         """
         Creates a new observation. Validates all fields first and raises a
         ValidationError if at least one field did not validate.
         Creates the object if all fields are valid.
         """
+        attributes = cls.replace_null(attributes)
+
+        if status == None:
+            status = observationtype.default_status
+
         if status == 'draft':
             cls.validate_partial(observationtype, attributes)
         else:
@@ -128,18 +142,25 @@ class Observation(models.Model):
         Updates data of the observation
         """
         update = self.attributes.copy()
-        update.update(attributes)
 
-        if status == 'draft':
-            self.validate_partial(self.observationtype, attributes)
+        if attributes is not None:
+            attributes = self.replace_null(attributes)
+            update.update(attributes)
+
+        if status == 'draft' or (status is None and self.status == 'draft'):
+            self.validate_partial(self.observationtype, update)
         else:
-            self.validate_full(self.observationtype, attributes)
+            self.validate_full(self.observationtype, update)
             self.version = self.version + 1
+
+        if status == 'pending':
+            self.review_comment = review_comment
+
+        if status == 'active':
+            self.review_comment = None            
 
         self.attributes = update
         self.updator = updator
-
-        self.review_comment = review_comment
         self.status = status or self.status
 
         self.save()

@@ -17,7 +17,8 @@ from contributions.tests.model_factories import ObservationFactory
 
 from .model_factories import LocationFactory
 from ..views import (
-    SingleProjectObservation, SingleViewObservation, MySingleObservation
+    SingleAllContributionAPIView, SingleGroupingContributionAPIView,
+    SingleMyContributionAPIView
 )
 
 
@@ -46,7 +47,7 @@ class GetSingleObservationInProject(TestCase):
         )
         request = self.factory.get(url)
         force_authenticate(request, user=user)
-        view = SingleProjectObservation.as_view()
+        view = SingleAllContributionAPIView.as_view()
         return view(
             request, project_id=self.project.id,
             observation_id=self.observation.id).render()
@@ -57,16 +58,16 @@ class GetSingleObservationInProject(TestCase):
 
     def test_get_with_contributor(self):
         response = self._get(self.contributor)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
 
     def test_get_with_view_member(self):
         response = self._get(self.view_member)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_get_with_non_member(self):
         user = UserF.create()
         response = self._get(user)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
 
 class UpdateObservationInProject(TestCase):
@@ -98,25 +99,28 @@ class UpdateObservationInProject(TestCase):
 
         location = LocationFactory()
 
-        self.observation = Observation.create(
-            attributes={
+        self.observation = ObservationFactory.create(**{
+            'attributes': {
                 "key_1": "value 1",
                 "key_2": 12,
             },
-            observationtype=self.observationtype,
-            project=self.project,
-            location=location,
-            creator=self.admin
-        )
+            'observationtype': self.observationtype,
+            'project': self.project,
+            'location': location,
+            'creator': self.admin,
+            'status': 'active'
+        })
 
         self.update_data = {
             "properties": {
-                "version": 1,
-                "key_2": 15,
+                "attributes": {
+                    "version": 1,
+                    "key_2": 15
+                }
             }
         }
 
-    def _put(self, data, user):
+    def _patch(self, data, user):
         url = reverse(
             'api:project_single_observation',
             kwargs={
@@ -124,10 +128,10 @@ class UpdateObservationInProject(TestCase):
                 'observation_id': self.observation.id
             }
         )
-        request = self.factory.put(
+        request = self.factory.patch(
             url, json.dumps(data), content_type='application/json')
         force_authenticate(request, user=user)
-        view = SingleProjectObservation.as_view()
+        view = SingleAllContributionAPIView.as_view()
         return view(
             request, project_id=self.project.id,
             observation_id=self.observation.id).render()
@@ -142,27 +146,27 @@ class UpdateObservationInProject(TestCase):
         )
         request = self.factory.delete(url, content_type='application/json')
         force_authenticate(request, user=user)
-        view = SingleProjectObservation.as_view()
+        view = SingleAllContributionAPIView.as_view()
         return view(
             request, project_id=self.project.id,
             observation_id=self.observation.id).render()
 
     def test_update_conflict(self):
-        response = self._put(
+        response = self._patch(
             self.update_data,
             self.admin
         )
         self.assertEqual(response.status_code, 200)
 
-        data = {"properties": {"version": 1, "key_2": 2}}
-        response = self._put(
+        data = {"properties": {"attributes": {"version": 1, "key_2": 2}}}
+        response = self._patch(
             data,
             self.admin
         )
         self.assertEqual(response.status_code, 200)
 
     def test_update_with_admin(self):
-        response = self._put(
+        response = self._patch(
             self.update_data,
             self.admin
         )
@@ -177,48 +181,54 @@ class UpdateObservationInProject(TestCase):
         response = self._delete(
             self.admin
         )
+
         self.assertEqual(response.status_code, 204)
         Observation.objects.get(pk=self.observation.id)
 
     def test_update_with_contributor(self):
-        response = self._put(
+        response = self._patch(
             self.update_data,
             self.contributor
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(
+            observation.attributes.get('key_2'), '12')
 
     def test_delete_with_contributor(self):
         response = self._delete(
             self.contributor
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_update_with_view_member(self):
-        response = self._put(
+        response = self._patch(
             self.update_data,
             self.view_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
+        observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            self.observation.attributes.get('key_2'), '12')
+            observation.attributes.get('key_2'), '12')
 
     def test_delete_with_view_member(self):
         response = self._delete(
             self.view_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertNotEqual(
             Observation.objects.get(pk=self.observation.id).status,
             'deleted'
         )
 
     def test_update_with_non_member(self):
-        response = self._put(
+        response = self._patch(
             self.update_data,
             self.non_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
         self.assertEqual(
             self.observation.attributes.get('key_2'), '12')
@@ -227,7 +237,7 @@ class UpdateObservationInProject(TestCase):
         response = self._delete(
             self.non_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertNotEqual(
             Observation.objects.get(pk=self.observation.id).status,
             'deleted'
@@ -276,7 +286,7 @@ class GetObservationInView(TestCase):
         )
         request = self.factory.get(url)
         force_authenticate(request, user=user)
-        view = SingleViewObservation.as_view()
+        view = SingleGroupingContributionAPIView.as_view()
         return view(
             request, project_id=self.project.id, view_id=self.view.id,
             observation_id=self.observation.id).render()
@@ -287,7 +297,7 @@ class GetObservationInView(TestCase):
 
     def test_get_with_contributor(self):
         response = self._get(self.contributor)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_get_with_view_member(self):
         response = self._get(self.view_member)
@@ -296,7 +306,7 @@ class GetObservationInView(TestCase):
     def test_get_with_non_member(self):
         some_dude = UserF.create()
         response = self._get(some_dude)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
 
 class UpdateObservationInView(TestCase):
@@ -350,12 +360,14 @@ class UpdateObservationInView(TestCase):
 
         self.update_data = {
             "properties": {
-                "version": 1,
-                "key_2": 15,
+                "attributes": {
+                    "version": 1,
+                    "key_2": 15
+                }
             }
         }
 
-    def _put(self, data, user):
+    def _patch(self, data, user):
         url = reverse(
             'api:view_single_observation',
             kwargs={
@@ -364,10 +376,10 @@ class UpdateObservationInView(TestCase):
                 'observation_id': self.observation.id
             }
         )
-        request = self.factory.put(
+        request = self.factory.patch(
             url, json.dumps(data), content_type='application/json')
         force_authenticate(request, user=user)
-        view = SingleViewObservation.as_view()
+        view = SingleGroupingContributionAPIView.as_view()
         return view(
             request, project_id=self.project.id, view_id=self.view.id,
             observation_id=self.observation.id).render()
@@ -383,24 +395,24 @@ class UpdateObservationInView(TestCase):
         )
         request = self.factory.delete(url, content_type='application/json')
         force_authenticate(request, user=user)
-        view = SingleViewObservation.as_view()
+        view = SingleGroupingContributionAPIView.as_view()
         return view(
             request, project_id=self.project.id, view_id=self.view.id,
             observation_id=self.observation.id).render()
 
     def test_update_conflict(self):
-        response = self._put(
+        response = self._patch(
             self.update_data,
             self.admin
         )
         self.assertEqual(response.status_code, 200)
 
-        data = {"properties": {"version": 1, "key_2": 2}}
-        response = self._put(data, self.admin)
+        data = {"properties": {"attributes": {"version": 1, "key_2": 2}}}
+        response = self._patch(data, self.admin)
         self.assertEqual(response.status_code, 200)
 
     def test_update_with_admin(self):
-        response = self._put(self.update_data, self.admin)
+        response = self._patch(self.update_data, self.admin)
         self.assertEqual(response.status_code, 200)
 
         observation = Observation.objects.get(pk=self.observation.id)
@@ -416,37 +428,37 @@ class UpdateObservationInView(TestCase):
         Observation.objects.get(pk=self.observation.id)
 
     def test_update_with_contributor(self):
-        response = self._put(
+        response = self._patch(
             self.update_data,
             self.contributor
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_delete_with_contributor(self):
         response = self._delete(
             self.contributor
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_update_with_view_member(self):
-        response = self._put(
+        response = self._patch(
             self.update_data,
             self.view_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_delete_with_view_member(self):
         response = self._delete(
             self.view_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_update_with_non_member(self):
-        response = self._put(
+        response = self._patch(
             self.update_data,
             self.non_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
         self.assertEqual(
             self.observation.attributes.get('key_2'), '12')
@@ -455,7 +467,7 @@ class UpdateObservationInView(TestCase):
         response = self._delete(
             self.non_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertNotEqual(
             Observation.objects.get(pk=self.observation.id).status,
             'deleted'
@@ -487,7 +499,7 @@ class GetMySingleObervation(TestCase):
         )
         request = self.factory.get(url)
         force_authenticate(request, user=user)
-        view = MySingleObservation.as_view()
+        view = SingleMyContributionAPIView.as_view()
         return view(
             request, project_id=self.project.id,
             observation_id=self.observation.id).render()
@@ -507,7 +519,7 @@ class GetMySingleObervation(TestCase):
     def test_with_some_dude(self):
         user = UserF.create()
         response = self._get(user)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
 
 class UpdateMyObservation(TestCase):
@@ -528,7 +540,8 @@ class UpdateMyObservation(TestCase):
 
         TextFieldFactory.create(**{
             'key': 'key_1',
-            'observationtype': self.observationtype
+            'observationtype': self.observationtype,
+            'required': True
         })
         NumericFieldFactory.create(**{
             'key': 'key_2',
@@ -550,12 +563,14 @@ class UpdateMyObservation(TestCase):
 
         self.update_data = {
             "properties": {
-                "version": 1,
-                "key_2": 15,
+                "attributes": {
+                    "version": 1,
+                    "key_2": 15
+                }
             }
         }
 
-    def _put(self, data, user):
+    def _patch(self, data, user):
         url = reverse(
             'api:project_my_single_observation',
             kwargs={
@@ -563,10 +578,10 @@ class UpdateMyObservation(TestCase):
                 'observation_id': self.observation.id
             }
         )
-        request = self.factory.put(
+        request = self.factory.patch(
             url, json.dumps(data), content_type='application/json')
         force_authenticate(request, user=user)
-        view = MySingleObservation.as_view()
+        view = SingleMyContributionAPIView.as_view()
         return view(
             request, project_id=self.project.id,
             observation_id=self.observation.id).render()
@@ -581,13 +596,13 @@ class UpdateMyObservation(TestCase):
         )
         request = self.factory.delete(url, content_type='application/json')
         force_authenticate(request, user=user)
-        view = MySingleObservation.as_view()
+        view = SingleMyContributionAPIView.as_view()
         return view(
             request, project_id=self.project.id,
             observation_id=self.observation.id).render()
 
     def test_update_with_contributor(self):
-        response = self._put(self.update_data, self.contributor)
+        response = self._patch(self.update_data, self.contributor)
         self.assertEqual(response.status_code, 200)
 
         observation = Observation.objects.get(pk=self.observation.id)
@@ -600,7 +615,7 @@ class UpdateMyObservation(TestCase):
         Observation.objects.get(pk=self.observation.id)
 
     def test_update_with_admin(self):
-        response = self._put(self.update_data, self.admin)
+        response = self._patch(self.update_data, self.admin)
         self.assertEqual(response.status_code, 404)
 
         observation = Observation.objects.get(pk=self.observation.id)
@@ -614,9 +629,9 @@ class UpdateMyObservation(TestCase):
         Observation.objects.get(pk=self.observation.id)
 
     def test_update_with_non_member(self):
-        response = self._put(self.update_data, self.non_member)
-        self.assertEqual(response.status_code, 403)
+        response = self._patch(self.update_data, self.non_member)
+        self.assertEqual(response.status_code, 404)
 
     def test_delete_with_non_member(self):
         response = self._delete(self.non_member)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)

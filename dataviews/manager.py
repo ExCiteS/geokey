@@ -16,10 +16,13 @@ class ViewQuerySet(models.query.QuerySet):
         Returns all views accessable by the user.
         """
         if user.is_anonymous():
-            return self.filter(isprivate=False)
+            return self.filter(
+                status='active', isprivate=False, project__isprivate=False)
         else:
-            return self.filter(Q(isprivate=False) | Q(project__admins=user) |
-                               Q(usergroups__usergroup__users=user)).distinct()
+            return self.filter(Q(status='active') & (
+                               Q(isprivate=False, project__isprivate=False) | 
+                               Q(project__admins=user) |
+                               Q(usergroups__usergroup__users=user))).distinct()
 
 
 class ViewManager(models.Manager):
@@ -47,15 +50,7 @@ class ViewManager(models.Manager):
         Returns a single views from the given project, if accessable by the
         user.
         """
-        project = Project.objects.get_single(user, project_id)
-        view = project.views.get(pk=view_id)
-        if view.status == STATUS.active and (
-            project.is_admin(user) or not view.isprivate or (
-                not user.is_anonymous() and
-                view.usergroups.filter(usergroup__users=user).exists())):
-            return view
-        else:
-            raise PermissionDenied('You are not allowed to access this view.')
+        return self.get_list(user, project_id).get(pk=view_id)
 
     def as_admin(self, user, project_id, view_id):
         """

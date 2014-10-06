@@ -2,12 +2,16 @@ from django.views.generic import TemplateView, CreateView
 from django.contrib import auth
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
+from django.contrib import messages
+from django.db import IntegrityError
 
 from braces.views import LoginRequiredMixin
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+
+from provider.oauth2.models import Client
 
 from core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
@@ -50,18 +54,28 @@ class Dashboard(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard.html'
 
     def get_context_data(self):
+        projects = Project.objects.get_list(self.request.user)
+
         return {
             'stats': self.request.user.get_stats(),
-            'admin_projects': Project.objects.get_list(
-                self.request.user).filter(admins=self.request.user),
-            'involved_projects': Project.objects.get_list(
-                self.request.user).exclude(admins=self.request.user),
-            'apps': Application.objects.get_list(self.request.user),
+            'admin_projects': projects.filter(admins=self.request.user),
+            'involved_projects': projects.exclude(admins=self.request.user),
             'status_types': STATUS
         }
 
 
-class Signup(CreateView):
+class CreateUserMixin(object):
+    def create_user(self, data):
+        user = User.objects.create_user(
+            data.get('email'),
+            data.get('display_name'),
+            password=data.get('password')
+        )
+        user.save()
+        return user
+
+
+class SignupAdminView(CreateUserMixin, CreateView):
     """
     Displays the sign-up page
     """
@@ -71,14 +85,10 @@ class Signup(CreateView):
     def form_valid(self, form):
         """
         Registers the user if the form is valid and no other has been
-        regstered woth the username.
+        regstered with the username.
         """
         data = form.cleaned_data
-        User.objects.create_user(
-            data.get('email'),
-            data.get('display_name'),
-            password=data.get('password')
-        ).save()
+        self.create_user(data)
 
         user = auth.authenticate(
             username=data.get('email'),
@@ -90,11 +100,46 @@ class Signup(CreateView):
 
     def form_invalid(self, form):
         """
-        The form is invalid or another user has already been registerd woth
+        The form is invalid or another user has already been registerd worth
         that username. Displays the error message.
         """
         context = self.get_context_data(form=form, user_exists=True)
         return self.render_to_response(context)
+
+
+class SignupAPIView(CreateUserMixin, APIView):
+    def post(self, request):
+        data = request.DATA
+        form = UserRegistrationForm(data)
+        client_id = data.pop('client_id', None)
+
+        try:
+            Client.objects.get(client_id=client_id)
+            if form.is_valid():
+                user = self.create_user(data)
+                serializer = UserSerializer(user)
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_201_CREATED
+                )
+            else:
+                return Response(
+                    {'errors': form.errors},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        except Client.DoesNotExist:
+            return Response(
+                {'errors': {'client': 'Client ID not provided or incorrect.'}},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class UserGroupList(LoginRequiredMixin, TemplateView):
+    template_name = 'users/usergroup_list.html'
+
+    def get_context_data(self, project_id):
+        project = Project.objects.as_admin(self.request.user, project_id)
+        return super(UserGroupList, self).get_context_data(project=project)
 
 
 class UserGroupCreate(LoginRequiredMixin, CreateView):
@@ -127,7 +172,7 @@ class UserGroupCreate(LoginRequiredMixin, CreateView):
         """
         project_id = self.kwargs['project_id']
         return reverse(
-            'admin:usergroup_settings',
+            'admin:usergroup_overview',
             kwargs={'project_id': project_id, 'group_id': self.object.id}
         )
 
@@ -139,13 +184,48 @@ class UserGroupCreate(LoginRequiredMixin, CreateView):
         project = Project.objects.as_admin(self.request.user, project_id)
 
         form.instance.project = project
+        messages.success(self.request, "The user group has been created.")
         return super(UserGroupCreate, self).form_valid(form)
+
+
+class UserGroupOverview(LoginRequiredMixin, TemplateView):
+    """
+    Displays the user group settings page
+    `/admin/projects/:project_id/usergroups/:group_id/`
+    """
+    template_name = 'users/usergroup_overview.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, group_id):
+        """
+        Creates the request context for rendering the page
+        """
+        project = Project.objects.as_admin(self.request.user, project_id)
+        group = project.usergroups.get(pk=group_id)
+
+        return {'group': group, 'status_types': STATUS}
+
+
+class AdministratorsOverview(LoginRequiredMixin, TemplateView):
+    """
+    Displays the user group settings page
+    `/admin/projects/:project_id/usergroups/:group_id/`
+    """
+    template_name = 'users/usergroup_admins.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id):
+        """
+        Creates the request context for rendering the page
+        """
+        project = Project.objects.as_admin(self.request.user, project_id)
+        return {'project': project}
 
 
 class UserGroupSettings(LoginRequiredMixin, TemplateView):
     """
     Displays the user group settings page
-    `/admin/projects/:project_id/usergroups/:group_id/`
+    `/admin/projects/:project_id/usergroups/:group_id/settings/`
     """
     template_name = 'users/usergroup_settings.html'
 
@@ -158,6 +238,60 @@ class UserGroupSettings(LoginRequiredMixin, TemplateView):
         group = project.usergroups.get(pk=group_id)
 
         return {'group': group, 'status_types': STATUS}
+
+    def post(self, request, project_id, group_id):
+        context = self.get_context_data(project_id, group_id)
+        group = context.pop('group', None)
+
+        data = request.POST
+
+        group.name = data.get('name')
+        group.description = data.get('description')
+        group.save()
+
+        messages.success(self.request, "The user group has been updated.")
+        context['group'] = group
+        return self.render_to_response(context)
+
+
+class UserGroupPermissions(LoginRequiredMixin, TemplateView):
+    """
+    Displays the user group settings page
+    `/admin/projects/:project_id/usergroups/:group_id/settings/`
+    """
+    template_name = 'users/usergroup_permissions.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, group_id):
+        """
+        Creates the request context for rendering the page
+        """
+        project = Project.objects.as_admin(self.request.user, project_id)
+        group = project.usergroups.get(pk=group_id)
+        return super(UserGroupPermissions, self).get_context_data(group=group)
+
+
+class UserGroupDelete(LoginRequiredMixin, TemplateView):
+    template_name = 'base.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, group_id):
+        """
+        Creates the request context for rendering the page
+        """
+        project = Project.objects.as_admin(self.request.user, project_id)
+        group = project.usergroups.get(pk=group_id)
+        return super(UserGroupDelete, self).get_context_data(group=group)
+
+    def get(self, request, project_id, group_id):
+        context = self.get_context_data(project_id, group_id)
+        group = context.pop('group', None)
+
+        if group is not None:
+            group.delete()
+
+        messages.success(self.request, 'The user group has been deleted.')
+        return redirect('admin:usergroup_list', project_id=project_id)
 
 
 class UserProfile(LoginRequiredMixin, TemplateView):
@@ -192,6 +326,7 @@ class UserProfile(LoginRequiredMixin, TemplateView):
         user.save()
 
         context = self.get_context_data()
+        messages.success(request, 'The user information has been updated.')
         return self.render_to_response(context)
 
 
@@ -215,10 +350,13 @@ class ChangePassword(LoginRequiredMixin, TemplateView):
         if user is not None:
             user.set_password(request.POST.get('new_password1'))
             user.save()
+            messages.success(request, 'The password has been changed.')
             return redirect('admin:userprofile')
         else:
-            context = self.get_context_data(wrong_password=True)
-            return self.render_to_response(context)
+            messages.error(request, 'We were not able to athorise you with '
+                                    'your old password. The password has not '
+                                    'been changed.')
+            return self.render_to_response(self.get_context_data())
 
 
 # ############################################################################
@@ -406,40 +544,6 @@ class UserGroupSingleView(APIView):
         view_group = self.get_object(
             request.user, project_id, group_id, view_id)
         view_group.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class UserGroupAllContributionsView(APIView):
-    """
-    AJAX API endpoint for views assigned to the user group
-    `/ajax/project/:project_id/usergroups/:group_id/views/all-contributions`
-    """
-    def put(self, request, project_id, group_id, format=None):
-        project = Project.objects.as_admin(request.user, project_id)
-        group = project.usergroups.get(pk=group_id)
-
-        if (request.DATA.get('can_read')):
-            group.read_all_contrib = request.DATA.get('can_read')
-        if (request.DATA.get('can_view')):
-            group.view_all_contrib = request.DATA.get('can_view')
-
-        group.save()
-        response = {
-            'view': 'all-contributions',
-            'can_view': group.view_all_contrib,
-            'can_read': group.read_all_contrib
-        }
-
-        return Response(response, status=status.HTTP_200_OK)
-
-    def delete(self, request, project_id, group_id, format=None):
-        project = Project.objects.as_admin(request.user, project_id)
-        group = project.usergroups.get(pk=group_id)
-
-        group.view_all_contrib = False
-        group.read_all_contrib = False
-        group.save()
-
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 # ############################################################################

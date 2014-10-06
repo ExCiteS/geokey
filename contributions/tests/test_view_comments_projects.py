@@ -1,6 +1,8 @@
 import json
-from rest_framework.test import APITestCase
 
+from django.contrib.auth.models import AnonymousUser
+
+from rest_framework.test import APITestCase
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 
@@ -8,7 +10,7 @@ from projects.tests.model_factories import UserF, ProjectF
 from dataviews.tests.model_factories import ViewFactory
 
 from .model_factories import ObservationFactory, CommentFactory
-from ..views import ProjectComments, ProjectSingleComment
+from ..views import AllContributionsCommentsAPIView, AllContributionsSingleCommentAPIView
 from ..models import Observation
 
 
@@ -22,7 +24,8 @@ class GetComments(APITestCase):
             add_contributors=[self.contributor]
         )
         self.observation = ObservationFactory.create(**{
-            'project': self.project
+            'project': self.project,
+            'creator': self.contributor
         })
         comment = CommentFactory.create(**{
             'commentto': self.observation
@@ -50,7 +53,7 @@ class GetComments(APITestCase):
             (self.project.id, self.observation.id)
         )
         force_authenticate(request, user=user)
-        view = ProjectComments.as_view()
+        view = AllContributionsCommentsAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -68,15 +71,15 @@ class GetComments(APITestCase):
             'project': self.project
         })
         response = self.get_response(view_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_comments_with_contributor(self):
         response = self.get_response(self.contributor)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_comments_with_non_member(self):
         response = self.get_response(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class AddCommentToPrivateProjectTest(APITestCase):
@@ -89,7 +92,8 @@ class AddCommentToPrivateProjectTest(APITestCase):
             add_contributors=[self.contributor]
         )
         self.observation = ObservationFactory.create(**{
-            'project': self.project
+            'project': self.project,
+            'creator': self.contributor
         })
 
     def get_response(self, user):
@@ -100,7 +104,7 @@ class AddCommentToPrivateProjectTest(APITestCase):
             {'text': 'A comment to the observation'}
         )
         force_authenticate(request, user=user)
-        view = ProjectComments.as_view()
+        view = AllContributionsCommentsAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -113,20 +117,11 @@ class AddCommentToPrivateProjectTest(APITestCase):
 
     def test_add_comment_to_observation_with_contributor(self):
         response = self.get_response(self.contributor)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(
-            json.loads(response.content).get('error'),
-            'You are not an administrator of this project. You must therefore'
-            ' access observations through one of the views'
-        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_add_comment_to_observation_with_non_member(self):
         response = self.get_response(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(
-            json.loads(response.content).get('error'),
-            'You are not allowed to access this project.'
-        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_add_comment_to_observation_with_view_member(self):
         view_member = UserF.create()
@@ -134,13 +129,61 @@ class AddCommentToPrivateProjectTest(APITestCase):
             'project': self.project
         })
         response = self.get_response(view_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(
-            json.loads(response.content).get('error'),
-            'You are not an administrator of this project. You must therefore'
-            ' access observations through one of the views'
-        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+class AddCommentToPublicProjectTest(APITestCase):
+    def setUp(self):
+        self.contributor = UserF.create()
+        self.admin = UserF.create()
+        self.non_member = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            **{'isprivate': False}
+        )
+        self.observation = ObservationFactory.create(**{
+            'project': self.project,
+            'creator': self.contributor
+        })
+
+    def get_response(self, user):
+        factory = APIRequestFactory()
+        request = factory.post(
+            '/api/projects/%s/maps/all-contributions/%s/comments/' %
+            (self.project.id, self.observation.id),
+            {'text': 'A comment to the observation'}
+        )
+        force_authenticate(request, user=user)
+        view = AllContributionsCommentsAPIView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            observation_id=self.observation.id
+        ).render()
+
+    def test_add_comment_to_observation_with_admin(self):
+        response = self.get_response(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_add_comment_to_observation_with_contributor(self):
+        response = self.get_response(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_add_comment_to_observation_with_non_member(self):
+        response = self.get_response(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_add_comment_to_observation_with_view_member(self):
+        view_member = UserF.create()
+        ViewFactory(add_viewers=[view_member], **{
+            'project': self.project
+        })
+        response = self.get_response(view_member)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_add_comment_to_observation_with_anonymous(self):
+        response = self.get_response(AnonymousUser())
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 class AddCommentToWrongObservation(APITestCase):
     def test(self):
@@ -155,7 +198,7 @@ class AddCommentToWrongObservation(APITestCase):
             {'text': 'A comment to the observation'}
         )
         force_authenticate(request, user=admin)
-        view = ProjectComments.as_view()
+        view = AllContributionsCommentsAPIView.as_view()
         response = view(
             request,
             project_id=project.id,
@@ -185,7 +228,7 @@ class AddResponseToCommentTest(APITestCase):
             }
         )
         force_authenticate(request, user=admin)
-        view = ProjectComments.as_view()
+        view = AllContributionsCommentsAPIView.as_view()
         response = view(
             request,
             project_id=project.id,
@@ -218,7 +261,7 @@ class AddResponseToWrongCommentTest(APITestCase):
             }
         )
         force_authenticate(request, user=admin)
-        view = ProjectComments.as_view()
+        view = AllContributionsCommentsAPIView.as_view()
         response = view(
             request,
             project_id=project.id,
@@ -244,7 +287,8 @@ class DeleteCommentTest(APITestCase):
             **{'isprivate': False}
         )
         self.observation = ObservationFactory.create(**{
-            'project': self.project
+            'project': self.project,
+            'creator': self.contributor
         })
         self.comment = CommentFactory.create(**{
             'commentto': self.observation
@@ -262,7 +306,7 @@ class DeleteCommentTest(APITestCase):
             {'text': 'A comment to the observation'}
         )
         force_authenticate(request, user=user)
-        view = ProjectSingleComment.as_view()
+        view = AllContributionsSingleCommentAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -280,16 +324,11 @@ class DeleteCommentTest(APITestCase):
 
     def test_delete_comment_with_comment_creator(self):
         response = self.get_response(self.contributor)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(
-            json.loads(response.content).get('error'),
-            'You are not an administrator of this project. You must therefore'
-            ' access observations through one of the views'
-        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertIn(self.comment, observation.comments.all())
-        self.assertIn(self.comment_to_remove, observation.comments.all())
+        self.assertNotIn(self.comment_to_remove, observation.comments.all())
 
 
 class DeleteWrongComment(APITestCase):
@@ -308,7 +347,7 @@ class DeleteWrongComment(APITestCase):
             {'text': 'A comment to the observation'}
         )
         force_authenticate(request, user=admin)
-        view = ProjectSingleComment.as_view()
+        view = AllContributionsSingleCommentAPIView.as_view()
         response = view(
             request,
             project_id=project.id,

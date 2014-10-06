@@ -54,11 +54,7 @@ class MyContributionsTest(TestCase):
         user = UserF.create()
 
         response = self.get(user)
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual(
-            'You are not allowed to access this project.',
-            json.loads(response.content).get('error')
-        )
+        self.assertEqual(response.status_code, 404)
 
     def test_my_contributions_with_non_contributor(self):
         view_user = UserF.create()

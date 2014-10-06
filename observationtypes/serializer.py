@@ -19,10 +19,9 @@ class FieldSerializer(serializers.ModelSerializer):
         depth = 1
         fields = (
             'id', 'name', 'key', 'fieldtype', 'description', 'status',
-            'required'
+            'required', 'status'
         )
         read_only_fields = ('id', 'name', 'key')
-        write_only_fields = ('status',)
 
 
 class NumericFieldSerializer(serializers.ModelSerializer):
@@ -40,7 +39,6 @@ class NumericFieldSerializer(serializers.ModelSerializer):
             'required', 'minval', 'maxval'
         )
         read_only_fields = ('id', 'name', 'key')
-        write_only_fields = ('status',)
 
 
 class LookupValueSerializer(serializers.ModelSerializer):
@@ -92,7 +90,7 @@ class FieldObjectRelatedField(serializers.RelatedField):
     def field_to_native(self, obj, field_name):
         return [
             self.to_native(item)
-            for item in obj.fields.active().select_subclasses()
+            for item in obj.fields.filter(status='active')
         ]
 
 
@@ -102,10 +100,20 @@ class ObservationTypeSerializer(FieldSelectorSerializer):
     Used in .views.ObservationTypeAdminDetailView
     """
     fields = FieldObjectRelatedField(many=True, read_only=False)
+    symbol = serializers.SerializerMethodField('get_symbol_url')
 
     class Meta:
         model = ObservationType
         depth = 1
-        fields = ('id', 'name', 'description', 'status', 'fields')
-        read_only_fields = ('id', 'name')
-        write_only_fields = ('status',)
+        fields = ('id', 'name', 'description', 'status', 'fields', 'colour',
+            'created_at', 'symbol')
+        read_only_fields = ('id', 'name', 'created_at')
+
+    def get_symbol_url(self, category):
+        """
+        Returns the symbol URL. None if no image has been uploaded
+        """
+        if category.symbol:
+            return category.symbol.url
+
+        return None

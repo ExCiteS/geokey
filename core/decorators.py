@@ -17,7 +17,7 @@ def handle_exceptions_for_admin(func):
         try:
             return func(*args, **kwargs)
         except PermissionDenied, error:
-            return {"error": str(error), "head": "Permission denied."}
+            return {"error_description": str(error), "error": "Permission denied."}
         except (
             Project.DoesNotExist,
             ObservationType.DoesNotExist,
@@ -26,7 +26,7 @@ def handle_exceptions_for_admin(func):
             Rule.DoesNotExist,
             Application.DoesNotExist
         ) as error:
-            return {"error": str(error), "head": "Not found."}
+            return {"error_description": str(error), "error": "Not found."}
 
     return wrapped
 

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block bodydata %} data-project-id="{{project.id}}"{% endblock %}
+{% block title %} | Project: {{project.name}}{% endblock %}
+
+{% block main %}
+    {% csrf_token %}
+        <div class="page-header">
+            <div class="container">
+                <h1>{{project.name}}</h1>
+                {% if project.description %}<p class="lead">{{project.description}}</p>{% endif %}
+            </div>
+        </div>
+
+        <div class="container">
+            {% include 'snippets/messages.html' %}
+
+            <div class="row">
+                <div class="col-sm-4">
+                    {% if role == 'administrator' %}
+                    <div class="alert alert-info">
+                        <h4>Do you need help?</h4>
+                        <p><a href="#" id="help-link">Click here to get started.</a></p>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">Manage the project</h4>
+                        </div>
+                        <div class="list-group">
+                            <a href="{% url 'admin:category_list' project.id %}" class="list-group-item"><span class="badge">{{ project.observationtypes.count }}</span>Categories</a>
+                            <a href="{% url 'admin:grouping_list' project.id %}" class="list-group-item"><span class="badge">{{ project.views.count }}</span>Data groupings</a>
+                            <a href="{% url 'admin:usergroup_list' project.id %}" class="list-group-item"><span class="badge">{{ project.usergroups.count }}</span>User groups</a>
+                            <a href="{% url 'admin:project_settings' project.id %}" class="list-group-item">Settings</a>
+                        </div>    
+                    </div>
+                    {% endif %}
+                    
+                </div>
+                <div class="col-sm-8" id="stats-bock">
+                    <h3 class="header">You are {{role}} of this project</h3>
+                    <div class="row" id="stats">
+                        {% if role != 'Watcher' %}
+                            <div class="col-sm-6">
+                                <span class="number">{{ contributions }}</span><br>contributions you have made
+                            </div>
+                            <div class="col-sm-6">
+                                <span class="number">{{maps}}</span><br>data groupings you can access
+                            </div>
+                        {% else %}
+                            <div class="col-sm-6">
+                                You can not contribute to this project, but there are
+                                <span class="number">{{ maps }}</span><br>data groupings you can access  
+                            </div>
+                        {% endif%}        
+                    </div>
+                </div>
+                {% include 'snippets/project-help.html' %}
+            </div>
+        </div>
+{% endblock %}
+
+{% block libraries %}
+    <script type="text/javascript">
+        $('#help-link').click(function (event) {
+            $('#help-block').removeClass('hidden');
+            $('#stats-bock').addClass('hidden');
+            event.preventDefault();
+        });
+    </script>
+
+{% endblock %}

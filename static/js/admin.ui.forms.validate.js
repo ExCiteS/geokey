@@ -21,6 +21,37 @@ $(function() {
 		field.after('<span class="help-block">' + message  + '</span>');
 	}
 
+	function dateTimeValid(form) {
+		var valid = true;
+		var dateTimeFields = $(form).find('input[type="datetime"]');
+
+		for (var i = 0, len = dateTimeFields.length; i < len; i++) {
+			var field = $(dateTimeFields[i]);
+			var min = Date.parse(field.attr('min'));
+			var max = Date.parse(field.attr('max'));
+			var val = Date.parse(field.val());
+
+			if (field.val().length && !val) {
+				valid = false;
+				field.parents('.form-group').addClass('has-error');
+				showHelp(field, 'The date entered could not be validated. Please check the entry.');
+			} else {
+				if (!(min && val ? (val > min): true)) {
+					valid = false;
+					field.parents('.form-group').addClass('has-error');
+					showHelp(field, 'The entered date must be lower than ' + field.attr('min'));
+				}
+
+				if (!(max && val ? (val < max): true)) {
+					valid = false;
+					field.parents('.form-group').addClass('has-error');
+					showHelp(field, 'The entered date must be greater than ' + field.attr('max'));
+				}
+			}
+		}
+		return valid;
+	}
+
 	function emailsValid(form) {
 		var valid = true;
 
@@ -37,23 +68,50 @@ $(function() {
 		return valid;
 	}
 
+	function urlsValid(form) {
+        var valid = true;
+        var urlFields = $(form).find('input[type="url"]');
+
+        for (var i = 0, len = urlFields.length; i < len; i++) {
+            var url = urlFields[i].value.replace(/\s+/g, '');
+            urlFields[i].value = url;
+            var host = url.replace('http://','').replace('https://','').split(/[/?#]/)[0];
+            if (host.indexOf('.') === -1 && host.indexOf('localhost') === -1) {
+                valid = false;
+                $(urlFields[i]).parents('.form-group').addClass('has-error');
+                $(urlFields[i]).siblings('.help-block').remove();
+                $(urlFields[i]).after('<span class="help-block">The URL you entered is not valid. Did you mean http://localhost/ ?</span>');
+            }
+        }
+        return valid;
+    }
+
+	function allValid(form) {
+		return emailsValid(form) && dateTimeValid(form) && urlsValid(form);
+	}
+
 	/**
 	 * Validates a frorm using standard form.checkValidity(). If valid, the form is submitted.
 	 * If not, invalid fields are marked and a help text is provided.
 	 * @param  {Event} event The form submission event.
 	 */
 	function validate(event) {
-		var formSumitted = event.target;
-		if (formSumitted.checkValidity()) {
+		var formSubmitted = event.target;
+		// remove all error messages
+		var errorFields = $(formSubmitted).find('.has-error');
+		errorFields.find('.help-block').remove();
+		errorFields.removeClass('has-error');
+
+		if (allValid(formSubmitted) && formSubmitted.checkValidity()) {
 			// The form is valid, submit the thing
-			if (emailsValid(formSumitted) && form.attr('method') && form.attr('action')) {
-				$(formSumitted).off('submit');
-				$(formSumitted).submit();
+			if (form.attr('method') && form.attr('action')) {
+				$(formSubmitted).off('submit');
+				$(formSubmitted).submit();
 			}
 		} else {
 			// The form is invalid
-			var validFields = $(formSumitted).find(':valid');
-			var invalidFields = $(formSumitted).find(':invalid');
+			var validFields = $(formSubmitted).find(':valid');
+			var invalidFields = $(formSubmitted).find(':invalid');
 
 			// Iterate through all invlaid fields and display an error message
 			for (var i = 0, len = invalidFields.length; i < len; i++) {
@@ -77,18 +135,17 @@ $(function() {
 						case 'number':
 							if (validity.badInput) { showHelp(field, 'Your input contains non-numeric characters. Maybe you used a comma (,) as decimal point?'); }
 							if (validity.stepMismatch) { showHelp(field, 'You entered more than three digits after the decimal point.'); }
+							if (validity.rangeOverflow) { showHelp(field, 'The entered value must be lower than ' + field.attr('max') + '.'); }
+							if (validity.rangeUnderflow) { showHelp(field, 'The entered value must be greater than ' + field.attr('min') + '.'); }
 							break;
 						case 'text':
 							if (validity.patternMismatch && field.attr('name') === 'key') {
 								showHelp(field, 'Your input contains special characters. A field key must only contain characters, numbers or underscores.');
 							}
+							break;
 					}
 				}
 			}
-
-			// Remove help blocks and error state from valid fields
-			validFields.siblings('.help-block').remove();
-			validFields.parents('.form-group').removeClass('has-error');
 		}
 
 		event.preventDefault();
@@ -100,7 +157,6 @@ $(function() {
 	function reset() {
 		form.find('.form-group').removeClass('has-error');
 		form.find('.help-block').remove();
-		form.find(':required').after('<span class="help-block">This field is required.</span>');
 	}
 
 	form.submit(validate);

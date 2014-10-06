@@ -1,12 +1,15 @@
-from django.views.generic import CreateView, TemplateView
+from django.views.generic import CreateView, TemplateView, UpdateView, RedirectView
 from django.core.urlresolvers import reverse
+from django.contrib import messages
+from django.db.models import Count
+from django.http import HttpResponseRedirect
 
 from braces.views import LoginRequiredMixin
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from provider.oauth2.models import Client
+from provider.oauth2.models import Client, AccessToken
 
 from core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
@@ -22,6 +25,21 @@ from .serializer import AppSerializer
 # Admin views
 #
 # ############################################################################
+
+
+class ApplicationOverview(LoginRequiredMixin, TemplateView):
+    """
+    Displays an overview of all apps a developer has registered
+    `/admin/apps/`
+    """
+    template_name = 'applications/application_overview.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationOverview, self).get_context_data(**kwargs)
+        context['apps'] = Application.objects.get_list(self.request.user)
+        return context
+
 
 class ApplicationCreate(LoginRequiredMixin, CreateView):
     """
@@ -53,6 +71,7 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         )
         form.instance.client = client
         form.instance.creator = self.request.user
+        messages.success(self.request, "The application has been created.")
         return super(ApplicationCreate, self).form_valid(form)
 
 
@@ -65,56 +84,46 @@ class ApplicationSettings(LoginRequiredMixin, TemplateView):
 
     @handle_exceptions_for_admin
     def get_context_data(self, app_id, **kwargs):
-        """
-        Returns the context data for the page. If the user is not owner of the
-        requested application, `PermissionDenied` is caught and handled in the
-        `handle_exceptions_for_admin` decorator and an error message is
-        displayed.
-        """
-        context = super(ApplicationSettings, self).get_context_data(**kwargs)
-
         app = Application.objects.as_owner(self.request.user, app_id)
-        context['app'] = app
+        users = AccessToken.objects.values('user').filter(
+            client=app.client).distinct().count()
+        return super(ApplicationSettings, self).get_context_data(
+            application=app, users=users, **kwargs)
 
-        return context
+    def post(self, request, app_id):
+        context = self.get_context_data(app_id)
+        app = context.pop('application')
+        data = request.POST
+
+        app.name = data.get('name')
+        app.description = data.get('description')
+        app.download_url = data.get('download_url')
+        app.redirect_url = data.get('redirect_url')
+        app.save()
+
+        messages.success(self.request, "The application has been updated.")
+        context['application'] = app
+        return self.render_to_response(context)
 
 
-# ############################################################################
-#
-# AJAX API views
-#
-# ############################################################################
+class ApplicationDelete(LoginRequiredMixin, TemplateView):
+    template_name = 'base.html'
 
-
-class ApplicationUpdate(APIView):
-    """
-    AJAX API endpoint for updating and deleting applications.
-    `/ajax/apps/:app_id`
-    """
-    @handle_exceptions_for_ajax
-    def put(self, request, app_id, format=None):
-        """
-        Updates an application. If the user is not owner of the
-        requested application, `PermissionDenied` is caught and handled in the
-        `handle_exceptions_for_ajax` decorator and an error 403 returned.
-        """
+    @handle_exceptions_for_admin
+    def get_context_data(self, app_id, **kwargs):
         app = Application.objects.as_owner(self.request.user, app_id)
+        return super(ApplicationDelete, self).get_context_data(
+            application=app, **kwargs)
+    
+    def get(self, request, app_id):
+        context = self.get_context_data(app_id)
+        app = context.pop('application', None)
 
-        serializer = AppSerializer(app, data=request.DATA, partial=True)
+        if app is not None:
+            app.delete()
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+            messages.success(self.request, "The application has been deleted.")
+            url = reverse('admin:app_overview')
+            return HttpResponseRedirect(url)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @handle_exceptions_for_ajax
-    def delete(self, request, app_id, format=None):
-        """
-        Updates an application. If the user is not owner of the
-        requested application, `PermissionDenied` is caught and handled in the
-        `handle_exceptions_for_ajax` decorator and an error 403 returned.
-        """
-        app = Application.objects.as_owner(self.request.user, app_id)
-        app.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return self.render_to_response(context)        

@@ -1,3 +1,5 @@
+import json
+
 from django.test import TestCase, RequestFactory
 from django.core.urlresolvers import reverse
 
@@ -15,7 +17,7 @@ from ..models import ObservationType, Field
 from ..views import (
     ObservationTypeUpdate, FieldUpdate, FieldLookupsUpdate, FieldLookups,
     SingleObservationType, ObservationTypeCreate, ObservationTypeSettings,
-    FieldCreate
+    FieldCreate, CategoryList, CategoryDisplay, FieldsReorderView
 )
 
 # ############################################################################
@@ -23,6 +25,54 @@ from ..views import (
 # ADMIN PAGES
 #
 # ############################################################################
+
+
+class CategoryOverviewTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
+
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+
+    def get(self, user):
+        view = CategoryList.as_view()
+        url = reverse('admin:category_list', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.get(url)
+        request.user = user
+        return view(request, project_id=self.project.id).render()
+
+    def test_get_with_admin(self):
+        response = self.get(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+    def test_get_with_contributor(self):
+        response = self.get(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+    def test_get_with_non_member(self):
+        response = self.get(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'Project matching query does not exist.'
+        )
 
 
 class ObservationTypeCreateTest(TestCase):
@@ -69,8 +119,62 @@ class ObservationTypeCreateTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(
             response,
+            'Project matching query does not exist.'
+        )
+
+
+class CategoryDisplayTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
+
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+        self.category = ObservationTypeFactory.create(
+            **{'project': self.project}
+        )
+
+    def get(self, user):
+        view = CategoryDisplay.as_view()
+        url = reverse('admin:category_display', kwargs={
+            'project_id': self.project.id,
+            'category_id': self.category.id
+        })
+        request = self.factory.get(url)
+        request.user = user
+        return view(
+            request,
+            project_id=self.project.id,
+            category_id=self.category.id).render()
+
+    def test_get_with_admin(self):
+        response = self.get(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(
+            response,
             'You are not member of the administrators group of this project '
             'and therefore not allowed to alter the settings of the project'
+        )
+
+    def test_get_with_contributor(self):
+        response = self.get(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+    def test_get_with_non_member(self):
+        response = self.get(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'Project matching query does not exist.'
         )
 
 
@@ -124,8 +228,7 @@ class ObservationTypeSettingsTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(
             response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
+            'Project matching query does not exist.'
         )
 
 
@@ -179,8 +282,7 @@ class FieldCreateTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(
             response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
+            'Project matching query does not exist.'
         )
 
 
@@ -238,8 +340,7 @@ class FieldSettingsTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(
             response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
+            'Project matching query does not exist.'
         )
 
 # ############################################################################
@@ -356,7 +457,7 @@ class ObservationtypeAjaxTest(TestCase):
             {'description': 'new description'},
             self.non_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(
             ObservationType.objects.get_single(
                 self.admin, self.project.id, self.active_type.id).description,
@@ -368,12 +469,99 @@ class ObservationtypeAjaxTest(TestCase):
             {'status': 'inactive'},
             self.non_member
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(
             ObservationType.objects.get_single(
                 self.admin, self.project.id, self.active_type.id).status,
             self.active_type.status
         )
+
+
+class ReorderFieldsTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.category = ObservationTypeFactory.create()
+
+        self.field_0 = TextFieldFactory.create(
+            **{'observationtype': self.category})
+        self.field_1 = TextFieldFactory.create(
+            **{'observationtype': self.category})
+        self.field_2 = TextFieldFactory.create(
+            **{'observationtype': self.category})
+        self.field_3 = TextFieldFactory.create(
+            **{'observationtype': self.category})
+        self.field_4 = TextFieldFactory.create(
+            **{'observationtype': self.category})
+
+    def test_reorder(self):
+        url = reverse(
+            'ajax:category_fields_reorder',
+            kwargs={
+                'project_id': self.category.project.id,
+                'category_id': self.category.id
+            }
+        )
+
+        data = [
+            self.field_4.id, self.field_0.id, self.field_2.id, self.field_1.id,
+            self.field_3.id
+        ]
+
+        request = self.factory.post(
+            url, json.dumps({'order': data}), content_type='application/json')
+        force_authenticate(request, user=self.category.project.creator)
+        view = FieldsReorderView.as_view()
+        response = view(
+            request,
+            project_id=self.category.project.id,
+            category_id=self.category.id
+        ).render()
+
+        self.assertEqual(response.status_code, 200)
+
+        fields = self.category.fields.all()
+
+        self.assertTrue(fields.ordered)
+        self.assertEqual(fields[0], self.field_4)
+        self.assertEqual(fields[1], self.field_0)
+        self.assertEqual(fields[2], self.field_2)
+        self.assertEqual(fields[3], self.field_1)
+        self.assertEqual(fields[4], self.field_3)
+
+    def test_reorder_with_false_field(self):
+        url = reverse(
+            'ajax:category_fields_reorder',
+            kwargs={
+                'project_id': self.category.project.id,
+                'category_id': self.category.id
+            }
+        )
+
+        data = [
+            self.field_4.id, self.field_0.id, self.field_2.id, self.field_1.id,
+            655123135135
+        ]
+
+        request = self.factory.post(
+            url, json.dumps({'order': data}), content_type='application/json')
+        force_authenticate(request, user=self.category.project.creator)
+        view = FieldsReorderView.as_view()
+        response = view(
+            request,
+            project_id=self.category.project.id,
+            category_id=self.category.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
+
+        fields = self.category.fields.all()
+
+        self.assertTrue(fields.ordered)
+        self.assertEqual(fields[0].order, 0)
+        self.assertEqual(fields[1].order, 0)
+        self.assertEqual(fields[2].order, 0)
+        self.assertEqual(fields[3].order, 0)
+        self.assertEqual(fields[4].order, 0)
 
 
 class UpdateFieldTest(TestCase):
@@ -477,7 +665,7 @@ class UpdateFieldTest(TestCase):
 
     def test_update_status_with_non_member(self):
         response = self._put({'status': 'inactive'}, self.non_member)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(
             Field.objects.get_single(
                 self.admin, self.project.id, self.observationtype.id,
@@ -535,37 +723,6 @@ class UpdateNumericField(TestCase):
             observationtype_id=self.observationtype.id,
             field_id=self.field.id
         ).render()
-
-    def test_update_numericfield_minval_with_admin(self):
-        response = self._put({'minval': 12}, self.admin)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            Field.objects.get_single(
-                self.admin, self.project.id, self.observationtype.id,
-                self.field.id).minval, 12
-        )
-
-    def test_update_numericfield_maxval_with_admin(self):
-        response = self._put({'maxval': 12}, self.admin)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            Field.objects.get_single(
-                self.admin, self.project.id, self.observationtype.id,
-                self.field.id).maxval, 12
-        )
-
-    def test_update_numericfield_minval_maxval_with_admin(self):
-        response = self._put({'maxval': 12, 'minval': 3}, self.admin)
-
-        self.assertEqual(response.status_code, 200)
-        field = Field.objects.get_single(
-            self.admin, self.project.id, self.observationtype.id,
-            self.field.id
-        )
-        self.assertEqual(field.minval, 3)
-        self.assertEqual(field.maxval, 12)
 
     def test_update_numericfield_description_with_admin(self):
         response = self._put({'description': 'new description'}, self.admin)
@@ -883,4 +1040,4 @@ class ObservationTypePublicApiTest(TestCase):
 
     def test_get_observationType_with_non_member(self):
         response = self._get(self.non_member)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% load scope %}
+{% load url from future %}
+
+{% block title %} | Authorise application{% endblock %}
+
+{% block main %}
+        <div class="page-header">
+            <div class="container">
+                <h1 class="smaller"><a href="{% url 'admin:app_overview' %}">Applications</a></h1>
+                <a href="{% url 'admin:app_overview' %}"><span class="glyphicon glyphicon-arrow-left"></span> Applications home page</a>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <form role="form" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url "oauth2:authorize" %}" novalidate>
+                    <h3 class="header">Authorize application {{ client.name }}</h3>
+                    {% csrf_token %}
+                    <p>{{ client.name }} would like to access your data with the following permissions:</p>
+                    <ul>
+                        {% for permission in oauth_data.scope|scopes %}
+                            <li>
+                                {% if permission == "read" %}
+                                Read your data
+                                {% else %}
+                                Write your data
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <div class="form-group hidden">
+                        <select type="select" name="scope" multiple="multiple">
+                        {% for scope in oauth_data.scope|scopes %}
+                            <option value="{{ scope }}" selected="selected">{{ scope }}</option>
+                        {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" name="authorize" value="Authorize" class="btn btn-primary">Authorize</button>
+                        <button type="submit" class="btn btn-link" value="Cancel">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %} | Register a new application{% endblock %}
+
+{% block main %}
+        <div class="page-header">
+            <div class="container">
+                <h1>Applications</h1>
+            </div>
+        </div>
+
+        <div class="container">
+            {% include 'snippets/messages.html' %}
+
+            <div class="row">
+                <div class="col-md-8">
+                    <h3>
+                        Your registered applications 
+                        {% if apps %}<a href="{% url 'admin:app_register' %}" class="pull-right btn btn-sm btn-success"><span class="glyphicon glyphicon-plus"></span> Create new application</a>{% endif %}
+                    </h3>
+                    {% for app in apps %}
+                    <div class="overview-list-item">
+                        <h3><a href="{% url 'admin:app_settings' app.id %}">{{app.name}}</a></h3>
+                        {% if app.description %}<p>{{app.description}}</p>{% endif %}
+                        <p class="meta">Client ID: {{ app.client.client_id }}</p>
+                        <p class="meta">Client secret: {{ app.client.client_secret }}</p>
+                    </div>
+                    {% empty %}
+                        <div class="well empty-list">
+                            <p class="lead">You haven't registered an application yet.</p>
+                            <p>If you plan to develop an application using our API, developers need to register their application to obtain OAuth security tokens for the applications.</p>
+                            <a href="{% url 'admin:app_register' %}" class="btn btn-success btn-lg">Register a new application</a>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="col-md-4">
+                    <div class="alert alert-info">
+
+                        <h5><strong>Learn more about:</strong></h5>
+                        <ul>
+                            <li><a href="https://github.com/ExCiteS/opencommunitymaps/wiki/OAuth2-Authentication">How to use OAuth to authenticate users with your application.</a></li>
+                            <li><a href="https://github.com/ExCiteS/opencommunitymaps/wiki#public-api">The Community Maps API.</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block libraries %}
+            <script src="/static/js/admin.ui.forms.validate.js"></script>
+{% endblock %}

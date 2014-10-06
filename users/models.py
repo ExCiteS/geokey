@@ -46,8 +46,6 @@ class UserGroup(models.Model):
     project = models.ForeignKey('projects.Project', related_name='usergroups')
     can_contribute = models.BooleanField(default=True)
     can_moderate = models.BooleanField(default=False)
-    view_all_contrib = models.BooleanField(default=True)
-    read_all_contrib = models.BooleanField(default=True)
 
 
 @receiver(pre_save, sender=UserGroup)
@@ -65,7 +63,7 @@ class ViewUserGroup(models.Model):
     """
     usergroup = models.ForeignKey('UserGroup', related_name="viewgroups")
     view = models.ForeignKey('dataviews.View', related_name="usergroups")
-    can_read = models.BooleanField(default=False)
+    can_read = models.BooleanField(default=True)
     can_view = models.BooleanField(default=True)
 
     unique_together = ('usergroup', 'view')

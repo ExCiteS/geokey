@@ -33,17 +33,17 @@ class LocationContributionSerializer(serializers.ModelSerializer):
 class ObservationSerializer(serializers.ModelSerializer):
     creator = UserSerializer()
     updator = UserSerializer()
-    contributiontype = serializers.SerializerMethodField('get_type')
+    category = serializers.SerializerMethodField('get_category')
 
     class Meta:
         model = Observation
         depth = 0
         fields = (
-            'status', 'contributiontype', 'review_comment',
+            'status', 'category', 'review_comment',
             'creator', 'updator', 'created_at', 'version'
         )
 
-    def get_type(self, observation):
+    def get_category(self, observation):
         return observation.observationtype.id
 
 
@@ -101,23 +101,27 @@ class ContributionSerializer(object):
     def restore_object(self, instance=None, data=None):
         if data is not None:
             properties = data.get('properties')
+            attributes = properties.get('attributes')
             user = self.context.get('user')
 
-            status = 'active'
-            if 'status' in properties:
-                status = properties.pop('status')
+            status = properties.pop('status', None)
+            review_comment = properties.pop('review_comment', None)
 
             if instance is not None:
                 return instance.update(
-                    attributes=properties, updator=user, status=status)
+                    attributes=attributes,
+                    updator=user,
+                    status=status,
+                    review_comment=review_comment
+                )
             else:
                 project = self.context.get('project')
 
                 try:
-                    observationtype = project.observationtypes.get(
-                        pk=properties.pop('contributiontype'))
+                    category = project.observationtypes.get(
+                        pk=properties.pop('category'))
                 except ObservationType.DoesNotExist:
-                    raise MalformedRequestData('The contributiontype can not'
+                    raise MalformedRequestData('The category can not'
                                                'be used with the project or '
                                                'does not exist.')
 
@@ -127,66 +131,51 @@ class ContributionSerializer(object):
                 )
 
                 return Observation.create(
-                    attributes=properties,
+                    attributes=attributes,
                     creator=user,
                     location=location,
-                    project=observationtype.project,
-                    observationtype=observationtype,
+                    project=category.project,
+                    observationtype=category,
                     status=status
                 )
         else:
             return instance
 
-    def to_native(self, obj):
-        json_object = {
-            'id': obj.id,
-            'type': 'Feature',
-            'geometry': json.loads(obj.location.geometry.geojson),
-            'properties': {},
-            'isowner': obj.creator == self.context.get('user')
-        }
-
-        observation_serializer = ObservationSerializer(obj)
-        json_object['properties'] = observation_serializer.data
-
-        location_serializer = LocationContributionSerializer(obj.location)
-        json_object['properties']['location'] = location_serializer.data
-
-        observationtype_serializer = ObservationTypeSerializer(
-            obj.observationtype)
-        json_object['contributiontype'] = observationtype_serializer.data
-
-        comment_serializer = CommentSerializer(obj.comments.all(), many=True)
-        json_object['comments'] = comment_serializer.data
-
-        for field in obj.observationtype.fields.all():
-            value = obj.attributes.get(field.key)
-            if value is not None:
-                json_object['properties'][field.key] = field.convert_from_string(value)
-
-        return json_object
-
     def to_native_min(self, obj):
         location = obj.location
 
+        updator = None
+        if obj.updator is not None: 
+            updator = {
+                'id': obj.updator.id,
+                'display_name': obj.updator.display_name
+            }
+
         json_object = {
             'id': obj.id,
             'type': 'Feature',
             'geometry': json.loads(obj.location.geometry.geojson),
-            'contributiontype': {
+            'category': {
                 'id': obj.observationtype.id,
-                'name': obj.observationtype.name
+                'name': obj.observationtype.name,
+                'description': obj.observationtype.description,
+                'symbol': (obj.observationtype.symbol.url 
+                           if obj.observationtype.symbol else None),
+                'colour': obj.observationtype.colour
             },
             'properties': {
                 'status': obj.status,
-                'creator': obj.creator.display_name,
-                'updator': (obj.updator.display_name
-                            if obj.updator is not None else None),
+                'creator': {
+                    'id': obj.creator.id,
+                    'display_name': obj.creator.display_name
+                },
+                'updator': updator,
                 'created_at': obj.created_at,
                 'version': obj.version,
                 'location': {
                     'id': location.id,
-                    'name': location.name
+                    'name': location.name,
+                    'description': location.description
                 }
             },
             'isowner': obj.creator == self.context.get('user')
@@ -194,17 +183,46 @@ class ContributionSerializer(object):
 
         return json_object
 
+    def to_native(self, obj):
+        json_object = self.to_native_min(obj)
+
+        comment_serializer = CommentSerializer(
+            obj.comments.filter(respondsto=None),
+            many=True,
+            context=self.context
+        )
+        json_object['comments'] = comment_serializer.data
+
+        attributes = {}
+        for field in obj.observationtype.fields.all():
+            value = obj.attributes.get(field.key)
+            if value is not None:
+                attributes[field.key] = field.convert_from_string(value)
+
+        json_object['properties']['attributes'] = attributes
+
+        return json_object
+
 
 class CommentSerializer(serializers.ModelSerializer):
     creator = UserSerializer()
 
+    isowner = serializers.SerializerMethodField('get_is_owner')
+
     def to_native(self, obj):
         native = super(CommentSerializer, self).to_native(obj)
         native['responses'] = CommentSerializer(
-            obj.responses.all(), many=True).data
+            obj.responses.all(),
+            many=True,
+            context=self.context
+        ).data
 
         return native
 
     class Meta:
         model = Comment
-        fields = ('id', 'text', 'creator', 'respondsto', 'created_at')
+        fields = ('id', 'text', 'creator', 'respondsto', 'created_at',
+            'isowner')
+
+    def get_is_owner(self, comment):
+        return comment.creator == self.context.get('user')

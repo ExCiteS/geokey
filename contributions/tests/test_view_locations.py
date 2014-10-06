@@ -74,7 +74,7 @@ class LocationApiTest(TestCase):
 
     def test_get_locations_with_non_member(self):
         response = self._get(self.non_member)
-        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.status_code, 404)
 
 
 class LocationQueryTest(TestCase):
@@ -144,7 +144,7 @@ class LocationUpdateApiTest(TestCase):
             'private_for_project': self.project
         })
 
-    def _put(self, data, user, location_id=None):
+    def patch(self, data, user, location_id=None):
         l_id = location_id or self.location.id
         url = reverse(
             'api:project_single_location',
@@ -153,27 +153,22 @@ class LocationUpdateApiTest(TestCase):
                 'location_id': l_id
             }
         )
-        request = self.factory.put(
+        request = self.factory.patch(
             url, json.dumps(data), content_type='application/json')
         force_authenticate(request, user=user)
         view = SingleLocation.as_view()
         return view(
             request, project_id=self.project.id, location_id=l_id).render()
-        return self.client.put(
-            url,
-            json.dumps(data),
-            content_type='application/json'
-        )
 
     def test_update_location_with_wrong_status(self):
-        response = self._put({'status': 'Bla'}, self.admin)
+        response = self.patch({'status': 'Bla'}, self.admin)
         self.assertEqual(response.status_code, 400)
 
         location = Location.objects.get(pk=self.location.id)
         self.assertEqual(location.status, self.location.status)
 
     def test_update_not_existing_location(self):
-        response = self._put(
+        response = self.patch(
             {'properties': {'name': 'UCL'}},
             self.admin,
             location_id=10000000000000000000000
@@ -184,7 +179,7 @@ class LocationUpdateApiTest(TestCase):
         private = LocationFactory(**{
             'private': True
         })
-        response = self._put(
+        response = self.patch(
             {'name': 'UCL'}, self.admin, location_id=private.id)
         self.assertEqual(response.status_code, 403)
 
@@ -192,7 +187,7 @@ class LocationUpdateApiTest(TestCase):
         self.assertEqual(location.name, private.name)
 
     def test_update_location_with_admin(self):
-        response = self._put(
+        response = self.patch(
             {
                 'geometry': {
                     'type': 'Point',
@@ -210,22 +205,22 @@ class LocationUpdateApiTest(TestCase):
         self.assertEqual(location.name, 'UCL')
 
     def test_update_location_with_contributor(self):
-        response = self._put({'description': 'main quad'}, self.contributor)
+        response = self.patch({'description': 'main quad'}, self.contributor)
         self.assertEqual(response.status_code, 200)
 
         location = Location.objects.get(pk=self.location.id)
         self.assertEqual(location.description, 'main quad')
 
     def test_update_location_with_view_member(self):
-        response = self._put({'description': 'UCL'}, self.view_member)
+        response = self.patch({'description': 'UCL'}, self.view_member)
         self.assertEqual(response.status_code, 403)
 
         location = Location.objects.get(pk=self.location.id)
         self.assertEqual(location.description, self.location.description)
 
     def test_update_location_with_non_member(self):
-        response = self._put({'description': 'UCL'}, self.non_member)
-        self.assertEqual(response.status_code, 403)
+        response = self.patch({'description': 'UCL'}, self.non_member)
+        self.assertEqual(response.status_code, 404)
 
         location = Location.objects.get(pk=self.location.id)
         self.assertEqual(location.description, self.location.description)

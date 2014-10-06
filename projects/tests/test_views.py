@@ -10,12 +10,15 @@ from nose.tools import raises
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from dataviews.tests.model_factories import ViewFactory
+from observationtypes.tests.model_factories import (
+    TextFieldFactory, ObservationTypeFactory
+)
 
 from .model_factories import UserF, ProjectF
 from ..models import Project
 from ..views import (
     ProjectCreate, ProjectSettings, ProjectUpdate, ProjectAdmins,
-    ProjectAdminsUser, Projects, SingleProject
+    ProjectAdminsUser, Projects, SingleProject, ProjectOverview
 )
 
 # ############################################################################
@@ -83,7 +86,7 @@ class ProjectSettingsTest(TestCase):
         request = APIRequestFactory().get(url)
         request.user = self.contributor
         response = view(request, project_id=self.project.id)
-        self.assertTrue(isinstance(response, HttpResponseRedirect))
+        self.assertEqual(response.status_code, 200)
 
     def test_get_with_view_member(self):
         view = ProjectSettings.as_view()
@@ -92,10 +95,10 @@ class ProjectSettingsTest(TestCase):
         request = APIRequestFactory().get(url)
         request.user = self.view_member
         response = view(request, project_id=self.project.id)
-        self.assertTrue(isinstance(response, HttpResponseRedirect))
+        self.assertEqual(response.status_code, 200)
 
     def test_get_with_anonymous(self):
-        view = ProjectCreate.as_view()
+        view = ProjectSettings.as_view()
         url = reverse('admin:project_create')
         request = APIRequestFactory().get(url)
         request.user = AnonymousUser()
@@ -106,6 +109,69 @@ class ProjectSettingsTest(TestCase):
         self.project.delete()
         view = ProjectSettings.as_view()
         url = reverse('admin:project_settings',
+                      kwargs={'project_id': self.project.id})
+        request = APIRequestFactory().get(url)
+        request.user = self.admin
+        response = view(request, project_id=self.project.id).render()
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Project matching query does not exist.')
+
+
+class ProjectOverviewTest(TestCase):
+    def setUp(self):
+        self.creator = UserF.create()
+        self.admin = UserF.create()
+        self.view_member = UserF.create()
+        self.contributor = UserF.create()
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member],
+            **{
+                'creator': self.creator
+            }
+        )
+
+    def test_get_with_admin(self):
+        view = ProjectOverview.as_view()
+        url = reverse('admin:project_overview',
+                      kwargs={'project_id': self.project.id})
+        request = APIRequestFactory().get(url)
+        request.user = self.admin
+        response = view(request, project_id=self.project.id).render()
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_contributor(self):
+        view = ProjectOverview.as_view()
+        url = reverse('admin:project_overview',
+                      kwargs={'project_id': self.project.id})
+        request = APIRequestFactory().get(url)
+        request.user = self.contributor
+        response = view(request, project_id=self.project.id)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_view_member(self):
+        view = ProjectOverview.as_view()
+        url = reverse('admin:project_overview',
+                      kwargs={'project_id': self.project.id})
+        request = APIRequestFactory().get(url)
+        request.user = self.view_member
+        response = view(request, project_id=self.project.id)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_anonymous(self):
+        view = ProjectOverview.as_view()
+        url = reverse('admin:project_overview',
+                      kwargs={'project_id': self.project.id})
+        request = APIRequestFactory().get(url)
+        request.user = AnonymousUser()
+        response = view(request)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+    def test_get_deleted_project(self):
+        self.project.delete()
+        view = ProjectOverview.as_view()
+        url = reverse('admin:project_overview',
                       kwargs={'project_id': self.project.id})
         request = APIRequestFactory().get(url)
         request.user = self.admin
@@ -140,7 +206,7 @@ class ProjectUpdateTest(TestCase):
         view = ProjectUpdate.as_view()
         response = view(request, project_id=self.project.id).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_update_with_wrong_status(self):
         request = self.factory.put(
@@ -207,7 +273,7 @@ class ProjectUpdateTest(TestCase):
         view = ProjectUpdate.as_view()
         response = view(request, project_id=self.project.id).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(
             Project.objects.get(pk=self.project.id).description,
             self.project.description
@@ -241,7 +307,7 @@ class ProjectUpdateTest(TestCase):
         view = ProjectUpdate.as_view()
         response = view(request, project_id=self.project.id).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(
             Project.objects.get(pk=self.project.id).status,
             'active'
@@ -323,7 +389,7 @@ class ProjectAdminsTest(TestCase):
             project_id=self.project.id
         ).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertNotIn(
             self.user_to_add,
             Project.objects.get(pk=self.project.id).admins.all()
@@ -409,7 +475,7 @@ class ProjectAdminsUserTest(TestCase):
             user_id=self.admin_to_remove.id
         ).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertIn(
             self.admin_to_remove,
             Project.objects.get(pk=self.project.id).admins.all()
@@ -531,6 +597,28 @@ class SingleProjectTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
 
+    def test_observationtype_serialization(self):
+        user = UserF.create()
+
+        project = ProjectF.create(
+            add_admins=[user]
+        )
+        ObservationTypeFactory.create(**{'project': project})
+        ObservationTypeFactory.create(**{'project': project, 'status': 'inactive'})
+        o1 = ObservationTypeFactory.create(**{'project': project})
+        TextFieldFactory.create(**{'observationtype': o1})
+        o2 = ObservationTypeFactory.create(**{'project': project})
+        TextFieldFactory.create(**{'observationtype': o2})
+
+        request = self.factory.get(
+            '/api/projects/%s/' % project.id)
+        force_authenticate(request, user=user)
+        view = SingleProject.as_view()
+        response = view(request, project_id=project.id).render()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(2, len(json.loads(response.content).get('categories')))
+
     def test_get_deleted_project_with_admin(self):
         user = UserF.create()
 
@@ -647,7 +735,7 @@ class SingleProjectTest(TestCase):
         view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_get_public_project_with_contributor(self):
         user = UserF.create()
@@ -714,7 +802,7 @@ class SingleProjectTest(TestCase):
         view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_get_public_project_with_view_member(self):
         user = UserF.create()
@@ -759,7 +847,7 @@ class SingleProjectTest(TestCase):
         view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_get_inactive_project_with_non_member(self):
         user = UserF.create()
@@ -774,7 +862,7 @@ class SingleProjectTest(TestCase):
         view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_get_public_project_with_non_member(self):
         user = UserF.create()

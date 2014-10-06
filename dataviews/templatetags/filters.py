@@ -8,6 +8,16 @@ register = template.Library()
 def filters(rule):
     s = ''
 
+    if rule.min_date is not None or rule.max_date is not None:
+        s = s + '<li>the contribution has been created '
+        if rule.min_date is not None:
+            s = s + 'after %s' % rule.min_date.strftime("%b %d %Y %H:%M")
+        if rule.min_date is not None and rule.max_date is not None:
+            s = s + ' and '
+        if rule.max_date is not None:
+            s = s + 'before %s' % rule.max_date.strftime("%b %d %Y %H:%M")
+        s = s + '</li>'
+
     for field in rule.observation_type.fields.all():
         rule_filter = rule.filters.get(field.key)
         if rule_filter is not None:

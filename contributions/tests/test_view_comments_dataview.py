@@ -14,7 +14,10 @@ from dataviews.tests.model_factories import (
 from users.tests.model_factories import UserGroupF, ViewUserGroupFactory
 
 from .model_factories import ObservationFactory, CommentFactory
-from ..views import ViewComments, ViewSingleComment
+from ..views import (
+    GroupingContributionsCommentsAPIView,
+    GroupingContributionsSingleCommentAPIView
+)
 from ..models import Observation
 
 
@@ -66,7 +69,7 @@ class GetCommentsView(APITestCase):
         )
         request = factory.get(url)
         force_authenticate(request, user=user)
-        view = ViewComments.as_view()
+        view = GroupingContributionsCommentsAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -86,15 +89,15 @@ class GetCommentsView(APITestCase):
         )
 
         response = self.get_response(view_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_comments_with_view_contributor(self):
         response = self.get_response(self.contributor)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_comments_with_view_non_member(self):
         response = self.get_response(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class AddCommentToViewTest(APITestCase):
@@ -127,7 +130,7 @@ class AddCommentToViewTest(APITestCase):
         )
         request = factory.post(url, {'text': 'A comment to the observation'})
         force_authenticate(request, user=user)
-        view = ViewComments.as_view()
+        view = GroupingContributionsCommentsAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -141,15 +144,11 @@ class AddCommentToViewTest(APITestCase):
 
     def test_add_comment_to_observation_with_contributor(self):
         response = self.get_response(self.contributor)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_add_comment_to_observation_with_non_member(self):
         response = self.get_response(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(
-            json.loads(response.content).get('error'),
-            'You are not allowed to access this project.'
-        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_add_comment_to_observation_with_view_member(self):
         view_member = UserF.create()
@@ -186,7 +185,7 @@ class AddCommentToWrongObservation(APITestCase):
         factory = APIRequestFactory()
         request = factory.post(url, {'text': 'A comment to the observation'})
         force_authenticate(request, user=admin)
-        dataview = ViewComments.as_view()
+        dataview = GroupingContributionsCommentsAPIView.as_view()
         response = dataview(
             request,
             project_id=project.id,
@@ -232,7 +231,7 @@ class AddResponseToCommentTest(APITestCase):
             }
         )
         force_authenticate(request, user=admin)
-        dataview = ViewComments.as_view()
+        dataview = GroupingContributionsCommentsAPIView.as_view()
         response = dataview(
             request,
             project_id=project.id,
@@ -280,7 +279,7 @@ class AddResponseToWrongCommentTest(APITestCase):
             }
         )
         force_authenticate(request, user=admin)
-        dataview = ViewComments.as_view()
+        dataview = GroupingContributionsCommentsAPIView.as_view()
         response = dataview(
             request,
             project_id=project.id,
@@ -344,7 +343,7 @@ class DeleteCommentTest(APITestCase):
         )
         request = factory.delete(url)
         force_authenticate(request, user=user)
-        view = ViewSingleComment.as_view()
+        view = GroupingContributionsSingleCommentAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -385,11 +384,7 @@ class DeleteCommentTest(APITestCase):
     def test_delete_comment_with_non_member(self):
         response = self.get_response(self.non_member)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(
-            json.loads(response.content).get('error'),
-            'You are not allowed to access this project.'
-        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertIn(self.comment, observation.comments.all())
@@ -423,7 +418,7 @@ class DeleteWrongComment(APITestCase):
         )
         request = factory.delete(url)
         force_authenticate(request, user=admin)
-        dataview = ViewSingleComment.as_view()
+        dataview = GroupingContributionsSingleCommentAPIView.as_view()
         response = dataview(
             request,
             project_id=project.id,

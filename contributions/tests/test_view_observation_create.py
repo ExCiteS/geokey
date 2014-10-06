@@ -2,10 +2,12 @@ import json
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import AnonymousUser
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from projects.tests.model_factories import UserF, ProjectF
+from dataviews.tests.model_factories import ViewFactory
 from observationtypes.tests.model_factories import (
     ObservationTypeFactory, TextFieldFactory, NumericFieldFactory
 )
@@ -34,11 +36,14 @@ class ProjectPublicApiTest(TestCase):
 
         TextFieldFactory.create(**{
             'key': 'key_1',
-            'observationtype': self.observationtype
+            'observationtype': self.observationtype,
+            'required': True
         })
         NumericFieldFactory.create(**{
             'key': 'key_2',
-            'observationtype': self.observationtype
+            'observationtype': self.observationtype,
+            'minval': 0,
+            'maxval': 1000
         })
 
         self.data = {
@@ -51,9 +56,11 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "key_1": "value 1",
-                "key_2": 12,
-                "contributiontype": self.observationtype.id,
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                },
+                "category": self.observationtype.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -76,7 +83,7 @@ class ProjectPublicApiTest(TestCase):
         return view(request, project_id=self.project.id).render()
 
     def test_contribute_with_wrong_observation_type(self):
-        self.data['properties']['contributiontype'] = 3864
+        self.data['properties']['category'] = 3864
 
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 400)
@@ -92,9 +99,38 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "key_1": 12,
-                "key_2": "jsdbdjhsb",
-                "contributiontype": self.observationtype.id,
+                "attributes": {
+                    "key_1": 12,
+                    "key_2": "jsdbdjhsb"
+                },
+                "category": self.observationtype.id,
+                "location": {
+                    "name": "UCL",
+                    "description": "UCL's main quad",
+                    "private": True
+                },
+            }
+        }
+
+        response = self._post(data, self.admin)
+        self.assertEqual(response.status_code, 400)
+
+    def test_contribute_with_invalid_number(self):
+        data = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -0.13404607772827148,
+                    51.52439200896907
+                ]
+            },
+            "properties": {
+                "attributes": {
+                    "key_1": 12,
+                    "key_2": 2000
+                },
+                "category": self.observationtype.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -118,9 +154,11 @@ class ProjectPublicApiTest(TestCase):
                     "description": location.description,
                     "private": location.private
                 },
-                "contributiontype": self.observationtype.id,
-                "key_1": "value 1",
-                "key_2": 12
+                "category": self.observationtype.id,
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                }
             }
         }
 
@@ -143,9 +181,11 @@ class ProjectPublicApiTest(TestCase):
                     "description": location.description,
                     "private": location.private
                 },
-                "contributiontype": self.observationtype.id,
-                "key_1": "value 1",
-                "key_2": 12
+                "category": self.observationtype.id,
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                }
             }
         }
         response = self._post(data, self.admin)
@@ -168,9 +208,11 @@ class ProjectPublicApiTest(TestCase):
                     "description": location.description,
                     "private": location.private
                 },
-                "contributiontype": self.observationtype.id,
-                "key_1": "value 1",
-                "key_2": 12
+                "category": self.observationtype.id,
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                }
             }
         }
 
@@ -192,9 +234,11 @@ class ProjectPublicApiTest(TestCase):
                     "description": location.description,
                     "private": location.private
                 },
-                "contributiontype": self.observationtype.id,
-                "key_1": "value 1",
-                "key_2": 12
+                "category": self.observationtype.id,
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                }
             }
         }
 
@@ -212,9 +256,39 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "key_1": "value 1",
-                "key_2": 12,
-                "contributiontype": self.observationtype.id,
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                },
+                "category": self.observationtype.id,
+                "location": {
+                    "name": "UCL",
+                    "description": "UCL's main quad",
+                    "private": True
+                },
+                "status": "draft"
+            }
+        }
+        response = self._post(self.data, self.admin)
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('"status": "draft"', response.content)
+
+    def test_contribute_valid_draft_with_empty_required(self):
+        self.data = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -0.13404607772827148,
+                    51.52439200896907
+                ]
+            },
+            "properties": {
+                "attributes": {
+                    "key_1": None,
+                    "key_2": 12
+                },
+                "category": self.observationtype.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -238,9 +312,11 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "key_1": "value 1",
-                "key_2": "Blah",
-                "contributiontype": self.observationtype.id,
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 'Blah'
+                },
+                "category": self.observationtype.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -252,11 +328,22 @@ class ProjectPublicApiTest(TestCase):
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 400)
 
+    def test_contribute_to_public_everyone_with_Anonymous(self):
+        self.project.everyone_contributes = True
+        self.project.isprivate = False
+        self.project.save()
+
+        ViewFactory.create(**{'project': self.project, 'isprivate': False})
+
+        response = self._post(self.data, AnonymousUser())
+        self.assertEqual(response.status_code, 201)
+
     def test_contribute_to_public_with_admin(self):
         self.project.isprivate = False
         self.project.save()
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 201)
+        self.assertIn('"status": "active"', response.content)
 
     def test_contribute_to_public_with_contributor(self):
         self.project.isprivate = False
@@ -264,6 +351,7 @@ class ProjectPublicApiTest(TestCase):
 
         response = self._post(self.data, self.contributor)
         self.assertEqual(response.status_code, 201)
+        self.assertIn('"status": "pending"', response.content)
 
     def test_contribute_to_public_with_view_member(self):
         self.project.isprivate = False
@@ -277,6 +365,13 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._post(self.data, self.non_member)
+        self.assertEqual(response.status_code, 403)
+
+    def test_contribute_to_public_with_anonymous(self):
+        self.project.isprivate = False
+        self.project.save()
+
+        response = self._post(self.data, AnonymousUser())
         self.assertEqual(response.status_code, 403)
 
     def test_contribute_to_private_with_admin(self):
@@ -296,7 +391,12 @@ class ProjectPublicApiTest(TestCase):
 
     def test_contribute_to_private_with_non_member(self):
         response = self._post(self.data, self.non_member)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(len(self.project.observations.all()), 0)
+
+    def test_contribute_to_private_with_anonymous(self):
+        response = self._post(self.data, AnonymousUser())
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(len(self.project.observations.all()), 0)
 
     def test_contribute_to_inactive_with_admin(self):
@@ -312,7 +412,7 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._post(self.data, self.contributor)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(len(self.project.observations.all()), 0)
 
     def test_contribute_to_inactive_with_view_member(self):
@@ -320,7 +420,7 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._post(self.data, self.view_member)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(len(self.project.observations.all()), 0)
 
     def test_contribute_to_inactive_with_non_member(self):
@@ -328,7 +428,15 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._post(self.data, self.non_member)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(len(self.project.observations.all()), 0)
+
+    def test_contribute_to_inactive_with_Anonymous(self):
+        self.project.status = 'inactive'
+        self.project.save()
+
+        response = self._post(self.data, AnonymousUser())
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(len(self.project.observations.all()), 0)
 
     def test_contribute_to_deleted_with_admin(self):
@@ -357,4 +465,11 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
 
         response = self._post(self.data, self.non_member)
+        self.assertEqual(response.status_code, 404)
+
+    def test_contribute_to_deleted_with_anonymous(self):
+        self.project.status = 'deleted'
+        self.project.save()
+
+        response = self._post(self.data, AnonymousUser())
         self.assertEqual(response.status_code, 404)

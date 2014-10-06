@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpResponseRedirect
+from django.db import IntegrityError
 
 from nose.tools import raises
 
@@ -13,14 +14,15 @@ from rest_framework import status
 
 from projects.tests.model_factories import ProjectF
 from dataviews.tests.model_factories import ViewFactory
+from applications.tests.model_factories import ClientFactory
 
 from .model_factories import UserF, UserGroupF, ViewUserGroupFactory
 from ..views import (
     UserGroup, UserGroupUsers, UserGroupSingleUser, UserGroupViews,
     UserGroupSingleView, UserGroupCreate, UserGroupSettings, UserProfile,
-    ChangePassword, UserGroupAllContributionsView
+    ChangePassword, CreateUserMixin, SignupAPIView
 )
-from ..models import UserGroup as Group
+from ..models import User, UserGroup as Group
 
 
 # ############################################################################
@@ -28,6 +30,103 @@ from ..models import UserGroup as Group
 # ADMIN VIEWS
 #
 # ############################################################################
+
+class CreateUserMixinTest(TestCase):
+    def setUp(self):
+        self.data = {
+            'display_name': 'user-1',
+            'email': 'user-1@example.com',
+            'password': '123'
+        }
+
+    def test_create_user(self):
+        create_mixin = CreateUserMixin()
+        user = create_mixin.create_user(self.data)
+
+        self.assertTrue(isinstance(user, User))
+        self.assertEqual(user.display_name, self.data.get('display_name'))
+        self.assertEqual(user.email, self.data.get('email'))
+
+    @raises(IntegrityError)
+    def test_create_user_with_taken_email(self):
+        create_mixin = CreateUserMixin()
+        create_mixin.create_user(self.data)
+
+        user = create_mixin.create_user(self.data)
+        self.assertTrue(isinstance(user, User))
+        self.assertEqual(user.display_name, self.data.get('display_name'))
+        self.assertEqual(user.email, self.data.get('email'))
+
+
+class SignupAPIViewTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.url = reverse('admin:sign_up_api')
+        self.client = ClientFactory.create()
+        self.user_data = {
+            'display_name': 'user-1',
+            'email': 'user-1@example.com',
+            'password': '123'
+        }
+        self.data = self.user_data.copy()
+        self.data['client_id'] = self.client.client_id
+
+    def test_sign_up(self):
+        request = self.factory.post(
+            self.url, json.dumps(self.data), content_type='application/json')
+        view = SignupAPIView.as_view()
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 201)
+
+        user_json = json.loads(response.content)
+        self.assertEqual(
+            user_json.get('display_name'),
+            self.data.get('display_name')
+        )
+
+    def test_sign_with_existing_email(self):
+        UserF.create(**self.user_data)
+
+        data = {
+            'client_id': self.client.client_id,
+            'display_name': 'user-3',
+            'email': 'user-1@example.com',
+            'password': '123'
+        }
+
+        request = self.factory.post(
+            self.url, json.dumps(data), content_type='application/json')
+        view = SignupAPIView.as_view()
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 400)
+        errors = json.loads(response.content)
+        self.assertEqual(len(errors.get('errors')), 1)
+
+    def test_sign_with_existing_email_and_name(self):
+        UserF.create(**self.user_data)
+
+        request = self.factory.post(
+            self.url, json.dumps(self.data), content_type='application/json')
+        view = SignupAPIView.as_view()
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 400)
+        errors = json.loads(response.content)
+        self.assertEqual(len(errors.get('errors')), 2)
+
+    def test_without_client_id(self):
+        request = self.factory.post(
+            self.url,
+            json.dumps(self.user_data),
+            content_type='application/json'
+        )
+        view = SignupAPIView.as_view()
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 400)
+
 
 class UserGroupCreateTest(TestCase):
     def setUp(self):
@@ -73,8 +172,7 @@ class UserGroupCreateTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(
             response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
+            'Project matching query does not exist'
         )
 
 
@@ -127,8 +225,7 @@ class UserGroupSettingTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(
             response,
-            'You are not member of the administrators group of this project '
-            'and therefore not allowed to alter the settings of the project'
+            'Project matching query does not exist'
         )
 
 
@@ -289,7 +386,7 @@ class UserGroupTest(TestCase):
     def test_update_description_with_non_member(self):
         response = self.put(
             self.non_member, {'description': 'new description'})
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertNotEqual(
             Group.objects.get(pk=self.contributors.id).description,
             'new description')
@@ -307,7 +404,7 @@ class UserGroupTest(TestCase):
 
     def test_delete_description_with_non_member(self):
         response = self.delete(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         Group.objects.get(pk=self.contributors.id)
 
 
@@ -414,7 +511,7 @@ class UserGroupUsersTest(TestCase):
             group_id=self.contributors.id
         ).render()
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertNotIn(
             self.user_to_add,
             self.contributors.users.all()
@@ -526,7 +623,7 @@ class UserGroupSingleUserTest(TestCase):
             group_id=self.contributors.id,
             user_id=self.contrib_to_remove.id
         ).render()
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertIn(
             self.contrib_to_remove,
             self.contributors.users.all()
@@ -592,31 +689,10 @@ class UserGroupViewsTest(TestCase):
 
     def test_add_view_with_non_member(self):
         response = self.post(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(
             self.contributors.viewgroups.filter(
                 usergroup=self.contributors, view=self.view).count(), 0)
-
-    def test_add_all_contrib_view(self):
-        response = self.post(self.admin, view_id="all-contributions")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertTrue(group.read_all_contrib)
-        self.assertTrue(group.view_all_contrib)
-
-    def test_add_all_contrib_view_with_contributor(self):
-        response = self.post(self.contributor, view_id="all-contributions")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertFalse(group.read_all_contrib)
-        self.assertFalse(group.view_all_contrib)
-
-    def test_add_all_contrib_view_non_member(self):
-        response = self.post(self.non_member, view_id="all-contributions")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertFalse(group.read_all_contrib)
-        self.assertFalse(group.view_all_contrib)
 
 
 class UserGroupSingleViewTest(TestCase):
@@ -698,7 +774,7 @@ class UserGroupSingleViewTest(TestCase):
 
     def test_delete_with_non_member(self):
         response = self.delete(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(
             self.contributors.viewgroups.filter(
                 usergroup=self.contributors, view=self.view).count(), 1)
@@ -735,135 +811,9 @@ class UserGroupSingleViewTest(TestCase):
 
     def test_update_with_non_member(self):
         response = self.put(self.non_member, {'can_moderate': True})
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         view_group = self.contributors.viewgroups.get(
             usergroup=self.contributors, view=self.view)
         self.assertTrue(view_group.can_read)
         self.assertTrue(view_group.can_view)
-
-
-class UserGroupAllContributionsViewTest(TestCase):
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
-
-        self.project = ProjectF.create(
-            add_admins=[self.admin]
-        )
-
-        self.contributors = UserGroupF(
-            add_users=[self.contributor],
-            **{'project': self.project}
-        )
-
-    def put(self, user, data):
-        url = reverse('ajax:usergroup_allcontributions_view', kwargs={
-            'project_id': self.project.id,
-            'group_id': self.contributors.id
-        })
-        request = self.factory.put(
-            url, json.dumps(data), content_type='application/json')
-        force_authenticate(request, user=user)
-        view = UserGroupAllContributionsView.as_view()
-
-        return view(
-            request,
-            project_id=self.project.id,
-            group_id=self.contributors.id).render()
-
-    def test_update_partial_with_admin(self):
-        response = self.put(self.admin, {'can_read': True})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertFalse(group.view_all_contrib)
-        self.assertTrue(group.read_all_contrib)
-
-    def test_update_conplete_with_admin(self):
-        response = self.put(
-            self.admin,
-            {'can_read': True, 'can_view': True}
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertTrue(group.view_all_contrib)
-        self.assertTrue(group.read_all_contrib)
-
-    def test_update_with_contributor(self):
-        response = self.put(self.contributor, {'can_read': True})
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertFalse(group.view_all_contrib)
-        self.assertFalse(group.read_all_contrib)
-
-    def test_update_with_non_member(self):
-        response = self.put(self.non_member, {'can_read': True})
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertFalse(group.view_all_contrib)
-        self.assertFalse(group.read_all_contrib)
-
-
-class DeleteUserGroupAllContributionsViewTest(TestCase):
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
-
-        self.project = ProjectF.create(
-            add_admins=[self.admin]
-        )
-
-        self.contributors = UserGroupF(
-            add_users=[self.contributor],
-            **{
-                'project': self.project,
-                'read_all_contrib': True,
-                'view_all_contrib': True
-            }
-        )
-
-    def delete(self, user):
-        url = reverse('ajax:usergroup_allcontributions_view', kwargs={
-            'project_id': self.project.id,
-            'group_id': self.contributors.id
-        })
-        request = self.factory.delete(url)
-        force_authenticate(request, user=user)
-        view = UserGroupAllContributionsView.as_view()
-
-        return view(
-            request,
-            project_id=self.project.id,
-            group_id=self.contributors.id).render()
-
-    def test_delete_with_admin(self):
-        response = self.delete(self.admin)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertFalse(group.view_all_contrib)
-        self.assertFalse(group.read_all_contrib)
-
-    def test_delete_with_contributor(self):
-        response = self.delete(self.contributor)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertTrue(group.view_all_contrib)
-        self.assertTrue(group.read_all_contrib)
-
-    def test_delete_with_non_member(self):
-        response = self.delete(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        group = Group.objects.get(pk=self.contributors.id)
-        self.assertTrue(group.view_all_contrib)
-        self.assertTrue(group.read_all_contrib)

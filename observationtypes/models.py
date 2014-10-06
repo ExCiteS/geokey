@@ -3,14 +3,17 @@ import json
 from iso8601 import parse_date
 from iso8601.iso8601 import ParseError
 
+from django.conf import settings
 from django.db import models
 from django.db.models.loading import get_model
 from django.db.models import Q
+from django.db.models.signals import post_init
+from django.dispatch import receiver
 
 from core.exceptions import InputError
 
 from .manager import ObservationTypeManager, FieldManager, LookupValueManager
-from .base import STATUS
+from .base import STATUS, DEFAULT_STATUS
 
 
 class ObservationType(models.Model):
@@ -22,13 +25,35 @@ class ObservationType(models.Model):
     project = models.ForeignKey(
         'projects.Project', related_name='observationtypes'
     )
+    created_at = models.DateTimeField(auto_now_add=True)
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
         max_length=20
     )
+    default_status = models.CharField(
+        choices=DEFAULT_STATUS,
+        default=DEFAULT_STATUS.pending,
+        max_length=20
+    )
+    colour = models.TextField(default='#0033ff')
+    symbol = models.ImageField(upload_to='symbols', null=True)
 
     objects = ObservationTypeManager()
+
+    def re_order_fields(self, order):
+        """
+        Reorders the category fields according to the order given in `order`
+        """
+        fields_to_save = []
+        for idx, field_id in enumerate(order):
+            field = self.fields.get(pk=field_id)
+            field.order = idx
+            fields_to_save.append(field)
+
+        for field in fields_to_save:
+            field.save()
 
 
 class Field(models.Model):
@@ -43,6 +68,7 @@ class Field(models.Model):
     observationtype = models.ForeignKey(
         'ObservationType', related_name='fields'
     )
+    order = models.IntegerField(default=0)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
@@ -94,7 +120,7 @@ class Field(models.Model):
         Validates input value against required status. Raises an `InputError`
         if no value has been provided.
         """
-        if self.required and (value is None):
+        if self.status == STATUS.active and self.required and (value is None):
             raise InputError('The field %s is required.' % self.name)
 
     def convert_from_string(self, value):
@@ -137,7 +163,8 @@ class TextField(Field):
         Validate teh given value agaist required status. Checks if value is
         not None and has at least one character.
         """
-        if self.required and (value is None or len(value) == 0):
+        if self.status == STATUS.active and self.required and (
+                value is None or len(str(value)) == 0):
             raise InputError('The field %s is required.' % self.name)
 
     def validate_input(self, value):
@@ -160,7 +187,8 @@ class TextField(Field):
         Returns the filter object for the given field based on the rule. Used
         to filter data for a view.
         """
-        return Q(attributes__icontains=rule)
+        return '((attributes -> \'' + self.key + '\') \
+            ILIKE \'%%' + rule + '%%\')'
 
 
 class NumericField(Field):
@@ -178,34 +206,48 @@ class NumericField(Field):
         Float value. Then checks if the value is between bounds of minval and
         maxval. Returns `True` or `False`.
         """
+        if isinstance(value, (str, unicode)) and len(value) == 0:
+            value = None
+
         self.validate_required(value)
 
-        if isinstance(value, (int, long, float, complex)):
-            if self.minval and self.maxval and (
-                    not (value >= self.minval) and (value <= self.maxval)):
-                raise InputError('The value provided for field %s must be '
-                                 ' greater than %s and lower than %s.'
-                                 % (self.name, self.minval, self.maxval))
+        if value is not None:
+            if isinstance(value, (str, unicode)):
+                try:
+                    value = float(value) if '.' in value else int(value)
+                except ValueError:
+                    raise InputError('The value provided for field %s is not a '
+                                 'number.' % self.name)
+
+            if isinstance(value, (int, long, float, complex)):
+                if self.minval and self.maxval and (
+                        not (value >= self.minval) and (value <= self.maxval)):
+                    raise InputError('The value provided for field %s must be '
+                                     ' greater than %s and lower than %s.'
+                                     % (self.name, self.minval, self.maxval))
+
+                else:
+                    if self.minval and (not (value >= self.minval)):
+                        raise InputError('The value provided for field %s must '
+                                         'be greater than %s.'
+                                         % (self.name, self.minval))
+
+                    if self.maxval and (not (value <= self.maxval)):
+                        raise InputError('The value provided for field %s must '
+                                         'be lower than %s.'
+                                         % (self.name, self.maxval))
 
             else:
-                if self.minval and (not (value >= self.minval)):
-                    raise InputError('The value provided for field %s must '
-                                     'be greater than %s.'
-                                     % (self.name, self.minval))
-
-                if self.maxval and (not (value <= self.maxval)):
-                    raise InputError('The value provided for field %s must '
-                                     'be lower than %s.'
-                                     % (self.name, self.maxval))
-
-        else:
-            raise InputError('The value provided for field %s is not a '
-                             'number.' % self.name)
+                raise InputError('The value provided for field %s is not a '
+                                 'number.' % self.name)
 
     def convert_from_string(self, value):
         """
         Returns the `value` of the field in `Float` format.
         """
+        if len(value) == 0:
+            return None
+
         try:
             return int(value)
         except ValueError:
@@ -227,14 +269,19 @@ class NumericField(Field):
         maxval = rule.get('maxval')
 
         if minval is not None and maxval is not None:
-            return (Q(attributes__gt={self.key: minval}) &
-                    Q(attributes__lt={self.key: maxval}))
+
+            return '(cast(attributes -> \'' + self.key + '\' as double \
+                precision) >= ' + str(minval) + ') AND (cast(attributes \
+                -> \'' + self.key + '\' as double precision) <= \
+                ' + str(maxval) + ')'
         else:
             if minval is not None:
-                return Q(attributes__gt={self.key: minval})
+                return '(cast(attributes -> \'' + self.key + '\' as double \
+                    precision) >= ' + str(minval) + ')'
 
             if maxval is not None:
-                return Q(attributes__lt={self.key: maxval})
+                return '(cast(attributes -> \'' + self.key + '\' as double \
+                    precision) <= ' + str(maxval) + ')'
 
 
 class TrueFalseField(Field):
@@ -274,7 +321,8 @@ class TrueFalseField(Field):
         Returns the filter object for the given field based on the rule. Used
         to filter data for a view.
         """
-        return Q(attributes__contains={self.key: json.dumps(rule)})
+        return '(attributes -> \'' + self.key + '\' \
+            = \'' + str(rule).lower() + '\')'
 
 
 class DateTimeField(Field):
@@ -292,12 +340,12 @@ class DateTimeField(Field):
         string.
         """
         self.validate_required(value)
-
-        try:
-            parse_date(value)
-        except ParseError:
-            raise InputError('The value for DateTimeField %s is not a valid '
-                             'date.' % self.name)
+        if value is not None:
+            try:
+                parse_date(value)
+            except ParseError:
+                raise InputError('The value for DateTimeField %s is not a '
+                                 'valid date.' % self.name)
 
     @property
     def type_name(self):
@@ -315,14 +363,21 @@ class DateTimeField(Field):
         maxval = rule.get('maxval')
 
         if minval is not None and maxval is not None:
-            return (Q(attributes__gt={self.key: minval}) &
-                    Q(attributes__lt={self.key: maxval}))
+            return '(to_date(attributes -> \'' + self.key + '\', \'YYYY-MM-DD \
+                HH24:MI\') >= to_date(\'' + minval + '\', \'YYYY-MM-DD \
+                HH24:MI\')) AND (to_date(attributes -> \'' + self.key + '\', \'\
+                YYYY-MM-DD HH24:MI\') <= to_date(\'' + maxval + '\', \'\
+                YYYY-MM-DD HH24:MI\'))'
         else:
             if minval is not None:
-                return Q(attributes__gt={self.key: minval})
+                return '(to_date(attributes -> \'' + self.key + '\', \'\
+                    YYYY-MM-DD HH24:MI\') >= to_date(\'' + minval + '\', \'\
+                    YYYY-MM-DD HH24:MI\'))'
 
             if maxval is not None:
-                return Q(attributes__lt={self.key: maxval})
+                return '(to_date(attributes -> \'' + self.key + '\', \'\
+                    YYYY-MM-DD HH24:MI\') <= to_date(\'' + maxval + '\', \'\
+                    YYYY-MM-DD HH24:MI\'))'
 
 
 class LookupField(Field):
@@ -338,14 +393,18 @@ class LookupField(Field):
         self.validate_required(value)
 
         valid = False
-        try:
-            value = int(value)
-        except ValueError:
-            pass
 
-        for lookupvalue in self.lookupvalues.all():
-            if lookupvalue.id == value:
-                valid = True
+        if value is not None:
+            try:
+                value = int(value)
+            except ValueError:
+                pass
+
+            for lookupvalue in self.lookupvalues.all():
+                if lookupvalue.id == value:
+                    valid = True
+        else:
+            valid = True
 
         if not valid:
             raise InputError('The value for lookup field %s is not an '
@@ -362,14 +421,15 @@ class LookupField(Field):
         """
         Returns a human readable name of the field.
         """
-        return 'Single lookup'
+        return 'Select box'
 
     def get_filter(self, rule):
         """
         Returns the filter object for the given field based on the rule. Used
         to filter data for a view.
         """
-        return Q(attributes__contains={self.key: rule})
+        return '((attributes -> \'' + self.key + '\')::int IN \
+            (' + ','.join(str(x) for x in rule) + '))'
 
 
 class LookupValue(models.Model):

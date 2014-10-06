@@ -2,6 +2,8 @@ from django.views.generic import CreateView, TemplateView
 from django.shortcuts import redirect
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
+from django.contrib import messages
+from django.http import HttpResponseRedirect
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -46,9 +48,42 @@ class ProjectCreate(LoginRequiredMixin, CreateView):
             data.get('name'),
             data.get('description'),
             data.get('isprivate'),
+            data.get('everyone_contributes'),
             self.request.user
         )
-        return redirect('admin:project_settings', project_id=project.id)
+        messages.success(self.request, "The project has been created.")
+        return redirect('admin:project_overview', project_id=project.id)
+
+
+class ProjectOverview(LoginRequiredMixin, TemplateView):
+    """
+    Displays the project overview page
+    `/admin/projects/:project_id`
+    """
+    model = Project
+    template_name = 'projects/project_overview.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id):
+        """
+        Creates the request context for rendering the page. If the user is not
+        an administrator of the project, `PermissionDenied` is caught and
+        handled in the `handle_exceptions_for_admin` decorator and an error
+        message is displayed.
+        """
+        user = self.request.user
+        project = Project.objects.get(pk=project_id)
+        if (not project.isprivate or project.is_admin(user) or
+                project.usergroups.filter(users=user).exists()):
+            return {
+                'project': project,
+                'role': project.get_role(self.request.user),
+                'contributions': project.observations.filter(
+                    creator=self.request.user).count(),
+                'maps': project.views.filter(status='active').count()
+            }
+        else:
+            raise PermissionDenied('You are not allowed to access this project')
 
 
 class ProjectSettings(LoginRequiredMixin, TemplateView):
@@ -73,44 +108,41 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
             'status_types': STATUS
         }
 
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Redirects page to one of the observation pages. Subject to change when
-        Observation pages are removed from the system.
-        """
-        project_id = kwargs.get('project_id')
+    def post(self, request, project_id):
+        context = self.get_context_data(project_id)
+        project = context.pop('project')
+        data = request.POST
 
-        try:
-            project = Project.objects.get(pk=project_id)
+        project.name = data.get('name')
+        project.description = data.get('description')
+        project.everyone_contributes = data.get('everyone_contributes') == 'true'
+        project.save()
 
-            if not request.user.is_anonymous():
-                if project.is_admin(request.user):
-                    return super(ProjectSettings, self).dispatch(
-                        request, *args, **kwargs)
-                elif project.can_contribute(request.user):
-                    return redirect(reverse(
-                        'admin:project_my_observations', kwargs={
-                            'project_id': project_id,
-                        }
-                    ))
-                else:
-                    views = View.objects.get_list(request.user, project_id)
+        messages.success(self.request, "The project has been updated.")
+        context['project'] = project
+        return self.render_to_response(context)
 
-                    if len(views) > 0:
-                        return redirect(
-                            reverse(
-                                'admin:view_observations',
-                                kwargs={
-                                    'project_id': project_id,
-                                    'view_id': views[0].id
-                                }
-                            )
-                        )
-        except Project.DoesNotExist:
-            pass
 
-        return super(ProjectSettings, self).dispatch(
-            request, *args, **kwargs)
+class ProjectDelete(LoginRequiredMixin, TemplateView):
+    template_name = 'base.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, **kwargs):
+        project = Project.objects.as_admin(self.request.user, project_id)
+        return super(ProjectDelete, self).get_context_data(
+            project=project, **kwargs)
+
+    def get(self, request, project_id):
+        context = self.get_context_data(project_id)
+        project = context.pop('project', None)
+
+        if project is not None:
+            project.delete()
+
+            messages.success(self.request, "The project has been deleted.")
+            return redirect('admin:dashboard')
+
+        return self.render_to_response(context)     
 
 
 # ############################################################################
@@ -228,7 +260,7 @@ class Projects(APIView):
             request.user).filter(status='active')
         serializer = ProjectSerializer(
             projects, many=True, context={'user': request.user},
-            fields=('id', 'name', 'description', 'is_involved', 'num_views')
+            fields=('id', 'name', 'description', 'user_info')
         )
         return Response(serializer.data)
 
@@ -251,135 +283,6 @@ class SingleProject(APIView):
                 project, context={'user': request.user}
             )
             return Response(serializer.data)
-        else:
-            raise PermissionDenied('The project is inactive and therefore '
-                                   'not accessable through the public API.')
-
-
-# ############################################################################
-#
-# To be removed
-#
-# ############################################################################
-
-class ProjectObservations(LoginRequiredMixin, TemplateView):
-    """
-    WILL BE REMOVED IN THE FINAL VERSION
-    """
-    model = Project
-    template_name = 'contributions/observations.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id):
-        """
-        Creates the request context for rendering the page.
-        """
-        user = self.request.user
-        project = Project.objects.get_single(user, project_id)
-        views = View.objects.get_list(user, project_id)
-        return {
-            'project': project,
-            'views': views,
-            'admin': project.is_admin(user),
-            'contributor': project.can_contribute(user),
-        }
-
-
-class ProjectMyObservations(LoginRequiredMixin, TemplateView):
-    """
-    WILL BE REMOVED IN THE FINAL VERSION
-    """
-    model = Project
-    template_name = 'contributions/observations.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id):
-        """
-        Creates the request context for rendering the page
-        """
-        user = self.request.user
-        project = Project.objects.get_single(user, project_id)
-        views = View.objects.get_list(user, project_id)
-        return {
-            'project': project,
-            'views': views,
-            'admin': project.is_admin(user),
-            'contributor': project.can_contribute(user),
-            'my_contributions': True
-        }
-
-
-class ProjectSingleObservation(LoginRequiredMixin, TemplateView):
-    """
-    WILL BE REMOVED IN THE FINAL VERSION
-    """
-    template_name = 'contributions/observation.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id, observation_id):
-        """
-        Creates the request context for rendering the page
-        """
-        user = self.request.user
-        project = Project.objects.as_admin(user, project_id)
-        observation = project.observations.get(
-            pk=observation_id)
-
-        return {
-            'project': project,
-            'observation': observation
-        }
-
-
-class ProjectSingleMyObservation(LoginRequiredMixin, TemplateView):
-    """
-    WILL BE REMOVED IN THE FINAL VERSION
-    """
-    template_name = 'contributions/observation.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id, observation_id):
-        """
-        Creates the request context for rendering the page
-        """
-        user = self.request.user
-        project = Project.objects.as_contributor(user, project_id)
-        observation = project.observations.filter(creator=user).get(
-            pk=observation_id)
-
-        return {
-            'project': project,
-            'observation': observation
-        }
-
-
-class ProjectAjaxObservations(APIView):
-    """
-    WILL BE REMOVED IN THE FINAL VERSION
-    """
-    """
-    API Endpoint for a project in the AJAX API.
-    /ajax/projects/:project_id/observations/
-    """
-    @handle_exceptions_for_ajax
-    def get(self, request, project_id, format=None):
-        project = Project.objects.as_admin(request.user, project_id)
-        observations = project.observations.all()
-        serializer = ContributionSerializer(observations, many=True)
-        return Response(serializer.data)
-
-
-class ProjectAjaxMyObservations(APIView):
-    """
-    WILL BE REMOVED IN THE FINAL VERSION
-    """
-    """
-    API Endpoint for a project in the AJAX API.
-    /ajax/projects/:project_id/mycontributions/
-    """
-    @handle_exceptions_for_ajax
-    def get(self, request, project_id, format=None):
-        project = Project.objects.as_contributor(request.user, project_id)
-        observations = project.observations.filter(creator=request.user)
-        serializer = ContributionSerializer(observations, many=True)
-        return Response(serializer.data)
+        
+        raise PermissionDenied('The project is inactive and therefore '
+                               'not accessable through the public API.')

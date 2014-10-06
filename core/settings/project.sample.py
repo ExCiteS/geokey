@@ -26,3 +26,18 @@ INSTALLED_APPS += (
     'users',
     'applications'
 )
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.6/howto/static-files/
+
+STATIC_URL = '/static/'
+
+LOGIN_URL = '/admin/accounts/login/'
+LOGOUT_URL = '/admin/accounts/logout/'
+LOGIN_REDIRECT_URL = '/admin/dashboard/'
+
+DEFAULT_FROM_EMAIL = ''
+
+MEDIA_ROOT = '/var/www/opencommuntymaps/media/'
+MEDIA_URL = '/media/'

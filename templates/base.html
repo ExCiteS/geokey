@@ -27,11 +27,13 @@
 						<span class="icon-bar"></span>
 					</button>
 					{% endif %}
-					<a class="navbar-brand" href="/admin">Open Community Maps</a>
+					<a class="navbar-brand" href="/admin/">Open Community Maps</a>
 				</div>
 				{% if not user.is_anonymous %}
 				<div class="navbar-collapse collapse">
 					<ul class="nav navbar-nav navbar-right">
+						<li><a href="/admin/"><span class="glyphicon glyphicon-th"></span> Dashboard</a></li>
+						<li><a href="{% url 'admin:app_overview' %}"><span class="glyphicon glyphicon-cog"></span> Your applications</a></li>
 						<li><a href="{% url 'admin:userprofile'%}"><span class="glyphicon glyphicon-user"></span> {{ user.display_name }}</a></li>
 						<li><a href="/admin/accounts/logout/"><span class="glyphicon glyphicon-off"></span> Sign out</a></li>
 					</ul>
@@ -49,7 +51,7 @@
 
 		<footer>
 			<div class="container">
-				<p>Created by the <a href="http://www.ucl.ac.uk/excites">Excites Research Group</a> &bull; <a href="https://groups.google.com/d/forum/opencommunitymaps">Join our mailing list</a> &bull; <a href="https://github.com/ExCiteS/opencommunitymaps">Contribute on Github</a></p>
+				<p>Created by the <a href="http://www.ucl.ac.uk/excites">ExCiteS Research Group</a> &bull; <a href="https://groups.google.com/d/forum/opencommunitymaps">Join our mailing list</a> &bull; <a href="https://github.com/ExCiteS/opencommunitymaps">Contribute on Github</a></p>
 			</div>
 		</footer>
 

@@ -43,10 +43,6 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/views/(?P<view_id>[0-9]+)/$',
         user_views.UserGroupSingleView.as_view(),
         name='usergroup_single_view'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/views/all-contributions/$',
-        user_views.UserGroupAllContributionsView.as_view(),
-        name='usergroup_allcontributions_view'),
 
     # ###########################
     # OBSERVATION TYPES & FIELDS
@@ -67,6 +63,10 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/lookupvalues/(?P<value_id>[0-9]+)/$',
         observationtypes_views.FieldLookupsUpdate.as_view(),
         name='observationtype_lookupvalues_detail'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/re-order/$',
+        observationtypes_views.FieldsReorderView.as_view(),
+        name='category_fields_reorder'),
 
     # ###########################
     # VIEWS
@@ -75,34 +75,6 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/$',
         view_views.ViewUpdate.as_view(),
         name='view'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/views/all-contributions/$',
-        view_views.AllContributionsViewUpdate.as_view(),
-        name='all_contributions_view'),
-
-    # ###########################
-    # OBSERVATIONS
-    # ###########################
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/observations/$',
-        project_views.ProjectAjaxObservations.as_view(),
-        name='project'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/mycontributions/$',
-        project_views.ProjectAjaxMyObservations.as_view(),
-        name='project_my_contributions'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/observations/$',
-        view_views.ViewAjaxObservations.as_view(),
-        name='view_data'),
-
-    # ###########################
-    # APPS
-    # ###########################
-    url(
-        r'^apps/(?P<app_id>[0-9]+)/$',
-        app_views.ApplicationUpdate.as_view(),
-        name='app_update'),
 
     # ###########################
     # USER

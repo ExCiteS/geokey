@@ -3,6 +3,7 @@ from django.core.exceptions import PermissionDenied
 
 from model_utils.managers import InheritanceManager
 
+from dataviews.models import View, Rule
 from projects.models import Project
 
 from .base import STATUS
@@ -54,16 +55,30 @@ class ObservationTypeManager(ActiveMixin, models.Manager):
             user, project_id
             ).observationtypes.get(pk=observationtype_id)
 
+    def create(self, *args, **kwargs):
+        category = super(ObservationTypeManager, self).create(*args, **kwargs)
+
+        view = View.objects.create(
+            name=category.name,
+            description=category.description,
+            project=category.project,
+            creator=category.creator
+        )
+
+        Rule.objects.create(
+            view=view,
+            observation_type=category
+        )
+
+        return category
+
 
 class FieldManager(ActiveMixin, InheritanceManager):
     use_for_related_fields = True
 
-    def all(self):
-        """
-        Overrides the standard all method in order to return the subclasses
-        of each field.
-        """
-        return self.get_query_set().select_subclasses()
+    def get_query_set(self):
+        return super(FieldManager, self).get_query_set().order_by(
+            'order').select_subclasses()
 
     def get_list(self, user, project_id, observationtype_id):
         """

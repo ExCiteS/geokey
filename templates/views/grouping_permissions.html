@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% load filters %}
+{% load usergroups %}
+
+{% block bodydata %} data-project-id="{{grouping.project.id}}" data-view-id="{{grouping.id}}"{% endblock %}
+{% block title %} | Data grouping: {{grouping.name}}{% endblock %}
+
+{% block main %}
+    {% csrf_token %}
+        <div class="page-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' grouping.project.id %}">{{grouping.project.name}}</a></h1>
+                        <a href="{% url 'admin:project_overview' grouping.project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
+                    </div>
+                    <ul class="header-nav">
+                        <li><a href="{% url 'admin:category_list' grouping.project.id %}">Categories <span class="badge">{{ grouping.project.observationtypes.count }}</span></a></li>
+                        <li class="active"><a href="{% url 'admin:grouping_list' grouping.project.id %}">Data groupings <span class="badge">{{ grouping.project.views.count }}</span></a></li>
+                        <li><a href="{% url 'admin:usergroup_list' grouping.project.id %}">User groups <span class="badge">{{ grouping.project.usergroups.count }}</span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            {% include 'snippets/messages.html' %}
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h6 class="item-info">Data grouping</h6>
+                            <h3>{{ grouping.name }}</h3>
+                            {% if grouping.description %}<p>{{ grouping.description }}</p>{% endif %}
+                        </div>
+                        <div class="list-group">
+                            <a href="{% url 'admin:grouping_overview' grouping.project.id grouping.id %}" class="list-group-item">Filters</a>
+                            <a href="{% url 'admin:grouping_permissions' grouping.project.id grouping.id %}" class="list-group-item active">Permissions</a>
+                            <a href="{% url 'admin:view_settings' grouping.project.id grouping.id %}" class="list-group-item">Settings</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-8">
+                    <h3 class="header">
+                        Permissions
+                        <div class="btn-group pull-right">
+                            <button type="button" id="grant-all" class="btn btn-default btn-sm"><span class="text-success">Grant to all groups</span></button>
+                            <button type="button" id="revoke-all" class="btn btn-default btn-sm"><span class="text-danger">Revoke from all groups</span></button>
+                        </div>
+                    </h3>
+                    {% if not grouping.project.isprivate %}
+                    <div class="alert alert-info" id="grouping-visibilty">
+                        <div {% if not grouping.isprivate %}class="hidden"{% endif %}>
+                            <p>The project <strong>{{ grouping.project.name }}</strong> is public, but this data grouping is only accessible by members of user groups you have granted access to.</p>
+                            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#make-public-confirm">Grant access to the public</a>    
+                        </div>
+                        <div {% if grouping.isprivate %}class="hidden"{% endif %}>
+                            <p>The project <strong>{{ grouping.project.name }}</strong> is public and this data grouping is accessible to the public.</p>
+                            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#make-private-confirm">Revoke access from the public</a>    
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if grouping.project.usergroups.all %}
+                        {% usergroups grouping %}
+                    {% else %}
+                        <div class="well empty-list">
+                            <p class="lead">We couldn't find any user groups for this field.</p>
+                            <p>Create a new user group to grant its members access to this data grouping. Otherwise it will only be visible to project administrators.</p>
+                            <a href="{% url 'admin:usergroup_create' grouping.project.id %}" class="btn btn-success btn-lg">Create new user group</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+{% endblock %}
+
+{% block modals %}
+        <div class="modal fade" id="make-public-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content panel-warning">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+                    </div>
+                    <div class="modal-body panel-body">
+                        <p><strong>Before you make the data grouping public, please read through the consequences of this action.</strong></p>
+                        <ul>
+                            <li>Access to the data grouping will not be restricted in any way. The data grouping will accessible to the general public.</li>
+                            <li>This setting will overwrite settings for individual user groups. Although you may have not granted access to some user groups, their members will have access to this data grouping.</li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer panel-footer">
+                        <button type="button" name="confirm" value="false" class="btn btn-warning" data-dismiss="modal" data-loading-text="Loading...">Yes, grant access to the public.</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="make-private-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content panel-warning">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+                    </div>
+                    <div class="modal-body panel-body">
+                        <p><strong>Before you revoke access permissions from the public, please read through the consequences of this action.</strong></p>
+                        <ul>
+                            <li>Only members of user groups you have granted access to this data grouping will have access to it.</li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer panel-footer">
+                        <button type="button" name="confirm" value="true" class="btn btn-warning" data-dismiss="modal" data-loading-text="Loading...">Yes, revoke access from the public.</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+{% endblock %}
+
+{% block libraries %}
+            <script src="/static/js/admin.ui.map.permissions.js"></script>
+            <script src="/static/js/admin.control.ajax.js"></script>
+{% endblock %}
