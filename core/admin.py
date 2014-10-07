@@ -15,7 +15,6 @@ urlpatterns = patterns(
     url(r'^dashboard/$', login_views.Dashboard.as_view(), name='dashboard'),
 
     url(r'^accounts/signup/$', login_views.SignupAdminView.as_view(), name='signup'),
-    url(r'^oauth2/signup/$', login_views.SignupAdminView.as_view(), name='sign_up_api'),
     url(r'^accounts/login/$',  login),
     url(r'^accounts/logout/$', logout),
 

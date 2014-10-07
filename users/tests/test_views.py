@@ -61,7 +61,7 @@ class CreateUserMixinTest(TestCase):
 class SignupAPIViewTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.url = reverse('admin:sign_up_api')
+        self.url = reverse('sign_up_api')
         self.client = ClientFactory.create()
         self.user_data = {
             'display_name': 'user-1',
