@@ -141,7 +141,7 @@ class ContributionSerializer(object):
         else:
             return instance
 
-    def to_native_min(self, obj):
+    def to_native_base(self, obj):
         location = obj.location
 
         updator = None
@@ -155,14 +155,6 @@ class ContributionSerializer(object):
             'id': obj.id,
             'type': 'Feature',
             'geometry': json.loads(obj.location.geometry.geojson),
-            'category': {
-                'id': obj.observationtype.id,
-                'name': obj.observationtype.name,
-                'description': obj.observationtype.description,
-                'symbol': (obj.observationtype.symbol.url 
-                           if obj.observationtype.symbol else None),
-                'colour': obj.observationtype.colour
-            },
             'properties': {
                 'status': obj.status,
                 'creator': {
@@ -184,8 +176,25 @@ class ContributionSerializer(object):
 
         return json_object
 
+    def to_native_min(self, obj):
+        json_object = self.to_native_base(obj)
+        json_object['category'] = {
+            'id': obj.observationtype.id,
+            'name': obj.observationtype.name,
+            'description': obj.observationtype.description,
+            'symbol': (obj.observationtype.symbol.url 
+                       if obj.observationtype.symbol else None),
+            'colour': obj.observationtype.colour
+        }
+
+        return json_object
+
     def to_native(self, obj):
-        json_object = self.to_native_min(obj)
+        json_object = self.to_native_base(obj)
+
+        category_serializer = ObservationTypeSerializer(
+            obj.observationtype, context=self.context)
+        json_object['category'] = category_serializer.data
 
         comment_serializer = CommentSerializer(
             obj.comments.filter(respondsto=None),
