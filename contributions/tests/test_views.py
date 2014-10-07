@@ -321,12 +321,14 @@ class SingleGroupingContributionAPIViewTest(TestCase):
     def setUp(self):
         self.admin = UserF.create()
         self.creator = UserF.create()
-        self.project = ProjectF(
+        self.non_moderator = UserF.create()
+        self.project = ProjectF.create(
             add_admins=[self.admin],
             add_contributors=[self.creator]
         )
 
-        observation_type = ObservationTypeFactory(**{'project': self.project})
+        observation_type = ObservationTypeFactory.create(**{
+            'project': self.project})
 
         self.observation = ObservationFactory.create(**{
             'project': self.project,
@@ -334,7 +336,10 @@ class SingleGroupingContributionAPIViewTest(TestCase):
             'observationtype': observation_type
         })
 
-        self.view = ViewFactory(**{'project': self.project})
+        self.view = ViewFactory.create(
+            add_viewers=[self.non_moderator],
+            **{'project': self.project}
+        )
         RuleFactory(**{
             'view': self.view,
             'observation_type': observation_type}
@@ -371,6 +376,17 @@ class SingleGroupingContributionAPIViewTest(TestCase):
             self.view.id, self.observation.id
         )
         self.assertEqual(observation, self.observation)
+
+    @raises(Observation.DoesNotExist)
+    def test_get_pending_observation_with_non_moderator(self):
+        self.observation.status = 'pending'
+        self.observation.save()
+
+        view = SingleGroupingContributionAPIView()
+        observation = view.get_object(
+            self.non_moderator, self.observation.project.id,
+            self.view.id, self.observation.id
+        )
 
 
 class SingleMyContributionAPIViewTest(TestCase):

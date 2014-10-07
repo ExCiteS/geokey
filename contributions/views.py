@@ -229,20 +229,22 @@ class SingleContributionAPIView(APIView):
 class SingleAllContribution(object):
     def get_object(self, user, project_id, observation_id):
         project = Project.objects.get_single(user, project_id)
-        observation = project.get_all_contributions(user).get(
-            pk=observation_id)
 
-        return observation
+        if project.can_moderate(user):
+            return project.get_all_contributions(
+                user).for_moderator(user).get(pk=observation_id)
+        else:
+            return project.get_all_contributions(
+                user).for_viewer(user).get(pk=observation_id)
 
 class SingleGroupingContribution(object):
     def get_object(self, user, project_id, view_id, observation_id):
         view = View.objects.get_single(user, project_id, view_id)
 
-        if view.can_read(user):
-            return view.data.get(pk=observation_id)
+        if view.project.can_moderate(user):
+            return view.data.for_moderator(user).get(pk=observation_id)
         else:
-            raise PermissionDenied('You are not eligable to read data from '
-                                   'this data grouping.')
+            return view.data.for_viewer(user).get(pk=observation_id)
 
 class SingleMyContribution(object):
     def get_object(self, user, project_id, observation_id):
