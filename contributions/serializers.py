@@ -172,6 +172,7 @@ class ContributionSerializer(object):
                 'updator': updator,
                 'created_at': obj.created_at,
                 'version': obj.version,
+                'review_comment': obj.review_comment,
                 'location': {
                     'id': location.id,
                     'name': location.name,
