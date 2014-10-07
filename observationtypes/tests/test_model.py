@@ -9,7 +9,8 @@ from ..models import Field
 from .model_factories import (
     TextFieldFactory, NumericFieldFactory, DateTimeFieldFactory,
     TrueFalseFieldFactory, LookupFieldFactory, LookupValueFactory,
-    FieldFactory, ObservationTypeFactory
+    FieldFactory, ObservationTypeFactory, MultipleLookupFieldFactory,
+    MultipleLookupValueFactory
 )
 
 
@@ -68,7 +69,7 @@ class FieldTest(TestCase):
 
     def test_get_field_types(self):
         field_types = Field.get_field_types()
-        self.assertEqual(len(field_types), 5)
+        self.assertEqual(len(field_types), 6)
 
 
 class TextFieldTest(TestCase):
@@ -461,3 +462,118 @@ class DateTimeFieldTest(TestCase):
     def test_datetimefield_validate_false_input(self):
         date_time_field = DateTimeFieldFactory()
         date_time_field.validate_input('2014-15-01')
+
+
+class MultipleLookupTest(TestCase):
+    def test_create(self):
+        observation_type = ObservationTypeFactory()
+        field = Field.create(
+            'name', 'key', 'description', False, observation_type,
+            'MultipleLookupField'
+        )
+        self.assertEqual(field.__class__.__name__, 'MultipleLookupField')
+
+    def test_get_name(self):
+        field = MultipleLookupFieldFactory.create()
+        self.assertEqual(field.type_name, 'Multiple select')
+        self.assertEqual(field.fieldtype, 'MultipleLookupField')
+
+    def test_convert_from_string(self):
+        field = MultipleLookupFieldFactory.create()
+        
+        self.assertEqual(None, field.convert_from_string(''))
+        self.assertEqual([1, 2, 3], field.convert_from_string('[1, 2, 3]'))
+
+    def test_validate_required(self):
+        field = MultipleLookupFieldFactory.create(**{'required': True})
+        lookup_value_1 = MultipleLookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': field
+        })
+        lookup_value_2 = MultipleLookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': field
+        })
+        try:
+            field.validate_input([lookup_value_1.id, lookup_value_2.id])
+        except InputError:
+            self.fail('multiplelookupfield.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    @raises(InputError)
+    def test_validate_required_none_type(self):
+        field = MultipleLookupFieldFactory.create(**{'required': True})
+        lookup_value_1 = MultipleLookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': field
+        })
+        lookup_value_2 = MultipleLookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': field
+        })
+        field.validate_input(None)
+
+    def test_lookupfield_validate_not_required_none_type(self):
+        field = MultipleLookupFieldFactory.create(**{'required': False})
+        lookup_value_1 = MultipleLookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': field
+        })
+        lookup_value_2 = MultipleLookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': field
+        })
+        try:
+            field.validate_input(None)
+        except InputError:
+            self.fail('multiplelookupfield.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    def test_lookupfield_validate_required_inactive(self):
+        field = MultipleLookupFieldFactory.create(
+            **{'required': True, 'status': 'inactive'})
+        lookup_value_1 = MultipleLookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': field
+        })
+        lookup_value_2 = MultipleLookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': field
+        })
+        try:
+            field.validate_input(None)
+        except InputError:
+            self.fail('multiplelookupfield.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    def test_validate_input(self):
+        field = MultipleLookupFieldFactory.create(
+            **{'required': True, 'status': 'inactive'})
+        lookup_value_1 = MultipleLookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': field
+        })
+        lookup_value_2 = MultipleLookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': field
+        })
+        try:
+            field.validate_input([lookup_value_1.id, lookup_value_2.id])
+            field.validate_input([lookup_value_1.id])
+        except InputError:
+            self.fail('multiplelookupfield.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    @raises(InputError)
+    def test_validate_wrong_input(self):
+        field = MultipleLookupFieldFactory.create(
+            **{'required': True, 'status': 'inactive'})
+        lookup_value_1 = MultipleLookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': field
+        })
+        lookup_value_2 = MultipleLookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': field
+        })
+        field.validate_input([lookup_value_1.id, 8986552121])

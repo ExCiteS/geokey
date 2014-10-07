@@ -304,10 +304,7 @@ class TrueFalseField(Field):
         """
         Returns the `value` of the field in `Bool` format.
         """
-        if value == 'True':
-            return True
-        else:
-            return False
+        return value == 'True'
 
     @property
     def type_name(self):
@@ -438,6 +435,64 @@ class LookupValue(models.Model):
     """
     name = models.CharField(max_length=100)
     field = models.ForeignKey(LookupField, related_name='lookupvalues')
+    status = models.CharField(
+        choices=STATUS,
+        default=STATUS.active,
+        max_length=20
+    )
+
+    objects = LookupValueManager()
+
+    def delete(self):
+        """
+        Deletes the value by settings its status to `deleted`
+        """
+        self.status = STATUS.inactive
+        self.save()
+
+
+class MultipleLookupField(Field):
+    def validate_input(self, provided_vals):
+        self.validate_required(provided_vals)
+
+        valid = True
+
+        if provided_vals is not None:
+            accepted_values = [value.id for value in self.lookupvalues.all()]
+            intersection = [val for val in provided_vals if val in accepted_values]
+
+            valid = len(intersection) == len(provided_vals)
+
+        if not valid:
+            raise InputError('One or more values for the multiple select '
+                             'field %s is not an accepted value for the '
+                             'field.' % self.name)
+
+    def convert_from_string(self, value):
+        if len(value) == 0:
+            return None
+
+        return json.loads(value)
+
+    @property
+    def type_name(self):
+        """
+        Returns a human readable name of the field.
+        """
+        return 'Multiple select'
+
+    def get_filter(self, rule):
+        return '(regexp_split_to_array(btrim(attributes -> \' ' + self.key + '\
+            \', \'[]\'), \',\') && ' + json.dumps(rule) +')'
+
+
+
+class MultipleLookupValue(models.Model):
+    """
+    Stores a single lookup value.
+    """
+    name = models.CharField(max_length=100)
+    field = models.ForeignKey(MultipleLookupField, related_name='lookupvalues')
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
