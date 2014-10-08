@@ -14,9 +14,7 @@ before_script:
   - psql -d communitymaps -U postgres -c "create extension postgis;"
   - psql -d communitymaps -U postgres -c "create extension hstore;"
   - cp core/settings/project.sample.py core/settings/project.py
-  - python manage.py syncdb --all
-  - python manage.py migrate --fake
-  - no
+  - python manage.py syncdb --migrate --noinput
 
 install:
   - pip install -r requirements.txt
