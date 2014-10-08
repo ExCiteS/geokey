@@ -12,7 +12,7 @@ addons:
 before_script:
   - psql template1 postgres -c 'create extension hstore;'
   - psql template1 postgres -c 'create extension postgis;'
-  - psql -c 'create database communitymaps;' -U postgres"
+  - psql -c 'create database communitymaps;' -U postgres
   - cp core/settings/project.sample.py core/settings/project.py
   - python manage.py syncdb --all --noinput
   - python manage.py migrate --fake
