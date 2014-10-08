@@ -11,8 +11,8 @@ addons:
 
 before_script:
   - psql -c 'create database communitymaps;' -U postgres
-  - psql -U postgres -c "create extension postgis"
-  - psql -U postgres -c "create extension hstore"
+  - psql -d communitymaps -U postgres -c "create extension postgis;"
+  - psql -d communitymaps -U postgres -c "create extension hstore;"
   - cp core/settings/project.sample.py core/settings/project.py
   - python manage.py syncdb --all
   - python manage.py migrate --fake
