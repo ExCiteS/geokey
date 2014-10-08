@@ -4,6 +4,7 @@ from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.db import IntegrityError
+from django.utils.html import strip_tags
 
 from braces.views import LoginRequiredMixin
 
@@ -245,8 +246,8 @@ class UserGroupSettings(LoginRequiredMixin, TemplateView):
 
         data = request.POST
 
-        group.name = data.get('name')
-        group.description = data.get('description')
+        group.name = strip_tags(data.get('name'))
+        group.description = strip_tags(data.get('description'))
         group.save()
 
         messages.success(self.request, "The user group has been updated.")

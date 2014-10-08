@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.db.models import Count
 from django.http import HttpResponseRedirect
+from django.utils.html import strip_tags
 
 from braces.views import LoginRequiredMixin
 from rest_framework import status
@@ -95,8 +96,8 @@ class ApplicationSettings(LoginRequiredMixin, TemplateView):
         app = context.pop('application')
         data = request.POST
 
-        app.name = data.get('name')
-        app.description = data.get('description')
+        app.name = strip_tags(data.get('name'))
+        app.description = strip_tags(data.get('description'))
         app.download_url = data.get('download_url')
         app.redirect_url = data.get('redirect_url')
         app.save()

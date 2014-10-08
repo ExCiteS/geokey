@@ -2,6 +2,7 @@ import json
 
 from django.contrib.gis.geos import GEOSGeometry
 from django.core.exceptions import PermissionDenied
+from django.utils.html import strip_tags
 
 from rest_framework import serializers
 from rest_framework_gis import serializers as geoserializers
@@ -85,8 +86,8 @@ class ContributionSerializer(object):
                     raise MalformedRequestData(error)
             else:
                 return Location(
-                    name=data.get('name'),
-                    description=data.get('description'),
+                    name=strip_tags(data.get('name')),
+                    description=strip_tags(data.get('description')),
                     geometry=GEOSGeometry(json.dumps(geometry)),
                     private=data.get('private') or False,
                     private_for_project=data.get('private_for_project'),

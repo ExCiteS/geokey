@@ -4,6 +4,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponseRedirect
+from django.utils.html import strip_tags
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -45,8 +46,8 @@ class ProjectCreate(LoginRequiredMixin, CreateView):
         """
         data = form.cleaned_data
         project = Project.create(
-            data.get('name'),
-            data.get('description'),
+            strip_tags(data.get('name')),
+            strip_tags(data.get('description')),
             data.get('isprivate'),
             data.get('everyone_contributes'),
             self.request.user
@@ -113,8 +114,8 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
         project = context.pop('project')
         data = request.POST
 
-        project.name = data.get('name')
-        project.description = data.get('description')
+        project.name = strip_tags(data.get('name'))
+        project.description = strip_tags(data.get('description'))
         project.everyone_contributes = data.get('everyone_contributes') == 'true'
         project.save()
 

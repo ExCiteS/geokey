@@ -5,6 +5,7 @@ from django.db import IntegrityError
 from django.contrib import messages
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import slugify
+from django.utils.html import strip_tags
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -117,8 +118,8 @@ class ObservationTypeCreate(LoginRequiredMixin, CreateView):
         category = ObservationType.objects.create(
             project=project,
             creator=self.request.user,
-            name=data.get('name'),
-            description=data.get('description'),
+            name=strip_tags(data.get('name')),
+            description=strip_tags(data.get('description')),
             default_status=data.get('default_status')
         )
 
@@ -155,8 +156,8 @@ class ObservationTypeSettings(LoginRequiredMixin, TemplateView):
         category = context.pop('observationtype')
         data = request.POST
 
-        category.name = data.get('name')
-        category.description = data.get('description')
+        category.name = strip_tags(data.get('name'))
+        category.description = strip_tags(data.get('description'))
         category.default_status = data.get('default_status')
         category.save()
 
@@ -254,7 +255,7 @@ class FieldCreate(LoginRequiredMixin, CreateView):
             self.request.user, project_id, observationtype_id)
 
 
-        proposed_key = slugify(data.get('name'))
+        proposed_key = slugify(strip_tags(data.get('name')))
         suggested_key = proposed_key
         
         count = 1
@@ -263,9 +264,9 @@ class FieldCreate(LoginRequiredMixin, CreateView):
             count = count + 1
 
         field = Field.create(
-            data.get('name'),
+            strip_tags(data.get('name')),
             suggested_key,
-            data.get('description'),
+            strip_tags(data.get('description')),
             data.get('required'),
             observation_type,
             self.request.POST.get('type')
@@ -322,8 +323,8 @@ class FieldSettings(LoginRequiredMixin, TemplateView):
         field = context.pop('field')
         data = request.POST
 
-        field.name = data.get('name')
-        field.description = data.get('description')
+        field.name = strip_tags(data.get('name'))
+        field.description = strip_tags(data.get('description'))
         field.required = data.get('required') or False
 
         if isinstance(field, NumericField):
@@ -439,17 +440,16 @@ class FieldLookups(APIView):
         """
         field = Field.objects.as_admin(
             request.user, project_id, observationtype_id, field_id)
+        name = strip_tags(request.DATA.get('name'))
 
         if isinstance(field, LookupField):
-            LookupValue.objects.create(
-                name=request.DATA.get('name'), field=field)
+            LookupValue.objects.create(name=name, field=field)
 
             serializer = LookupFieldSerializer(field)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         elif isinstance(field, MultipleLookupField):
-            MultipleLookupValue.objects.create(
-                name=request.DATA.get('name'), field=field)
+            MultipleLookupValue.objects.create(name=name, field=field)
 
             serializer = LookupFieldSerializer(field)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
