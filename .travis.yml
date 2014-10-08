@@ -2,8 +2,24 @@ language: python
 
 python:
   - "2.7"
+
+services:
+  – postgresql
+  
+addons:
+  - postgresql: "9.3"
+  
+before_script:
+  - psql -c 'create database communitymaps;' -U postgres
+  - psql -U postgres -c "create extension postgis"
+  - psql -U postgres -c "create extension hstore"
+  – cp core/settings/project.sample.py core/settings/project.py
+  – sed -i -e 's/[YOUR DB USERNAME]/"postgres"/g' core/settings/project.py
+  – sed -i -e 's/[YOUR DB PASSWORD]/""/g' core/settings/project.py
+  – python manage.py syncdb –-all
+  - python manage.py migrate --fake
   
 install:
   - pip install -r requirements.txt
   
-script: manage.py test
+script: python manage.py test
