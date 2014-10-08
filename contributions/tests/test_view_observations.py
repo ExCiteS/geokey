@@ -165,6 +165,30 @@ class UpdateObservationInProject(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+    def test_update_location_with_admin(self):
+        self.update_data['geometry'] = {
+            'type': 'Point',
+            'coordinates': [
+                -0.1444154977798462,
+                51.54671869005856
+            ]
+        }
+        self.update_data['properties']['location'] = {
+            'name': 'New name'
+        }
+        response = self._patch(
+            self.update_data,
+            self.admin
+        )
+        self.assertEqual(response.status_code, 200)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(
+            observation.attributes.get('key_2'), '15')
+        
+        self.assertContains(response, 'New name')
+        self.assertContains(response, '-0.144415')
+
     def test_update_with_admin(self):
         response = self._patch(
             self.update_data,

@@ -73,9 +73,24 @@ class ContributionSerializer(object):
 
         return self.to_native(self.instance)
 
-    def restore_location(self, data, geometry):
-        if data is not None:
-            if 'id' in data:
+    def restore_location(self, instance=None, data=None, geometry=None):
+        if instance is not None:
+            if data is not None:
+                instance.name = data.get('name') or instance.name
+                instance.description = data.get('description') or instance.description
+                private=data.get('private') or instance.private
+                private_for_project=data.get('private_for_project') or instance.private_for_project
+
+            if geometry is not None:
+                if type(geometry) is not unicode:
+                    geometry = json.dumps(geometry)
+                
+                instance.geometry=GEOSGeometry(geometry)
+
+            instance.save()
+            return instance
+        else:
+            if (data is not None) and ('id' in data):
                 try:
                     return Location.objects.get_single(
                         self.context.get('user'),
@@ -85,23 +100,30 @@ class ContributionSerializer(object):
                 except PermissionDenied, error:
                     raise MalformedRequestData(error)
             else:
+                name = None
+                description = None
+                private_for_project = None
+                private = False
+
+                if data is not None:
+                    name = strip_tags(data.get('name'))
+                    description = strip_tags(data.get('description'))
+                    private = data.get('private')
+                    private_for_project = data.get('private_for_project')
+
                 return Location(
-                    name=strip_tags(data.get('name')),
-                    description=strip_tags(data.get('description')),
+                    name=name,
+                    description=description,
                     geometry=GEOSGeometry(json.dumps(geometry)),
-                    private=data.get('private') or False,
-                    private_for_project=data.get('private_for_project'),
+                    private=private,
+                    private_for_project=private_for_project,
                     creator=self.context.get('user')
                 )
-        else:
-            return Location(
-                geometry=GEOSGeometry(json.dumps(geometry)),
-                creator=self.context.get('user')
-            )
 
     def restore_object(self, instance=None, data=None):
         if data is not None:
             properties = data.get('properties')
+            location = properties.get('location')
             attributes = properties.get('attributes')
             user = self.context.get('user')
 
@@ -109,6 +131,12 @@ class ContributionSerializer(object):
             review_comment = properties.pop('review_comment', None)
 
             if instance is not None:
+                self.restore_location(
+                    instance.location,
+                    data=data.get('properties').pop('location', None),
+                    geometry=data.pop('geometry', None)
+                )
+
                 return instance.update(
                     attributes=attributes,
                     updator=user,
@@ -127,8 +155,8 @@ class ContributionSerializer(object):
                                                'does not exist.')
 
                 location = self.restore_location(
-                    data.get('properties').pop('location', None),
-                    data.get('geometry')
+                    data=data.get('properties').pop('location', None),
+                    geometry=data.get('geometry')
                 )
 
                 return Observation.create(

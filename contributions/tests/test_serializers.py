@@ -77,7 +77,7 @@ class RestoreLocationTest(TestCase):
             data=self.data,
             context={'user': user, 'project': self.project}
         )
-        location = serializer.restore_location(data, geometry)
+        location = serializer.restore_location(data=data, geometry=geometry)
 
         self.assertEqual(location.creator, user)
         self.assertEqual(location.name, 'UCL')
@@ -98,7 +98,7 @@ class RestoreLocationTest(TestCase):
             data=self.data,
             context={'user': self.admin, 'project': self.project}
         )
-        location = serializer.restore_location(None, geometry)
+        location = serializer.restore_location(geometry=geometry)
 
         self.assertEqual(location.creator, self.admin)
         self.assertEqual(location.name, None)
@@ -122,7 +122,7 @@ class RestoreLocationTest(TestCase):
         }
         geometry = json.loads(location.geometry.geojson)
 
-        result = serializer.restore_location(data, geometry)
+        result = serializer.restore_location(data=data, geometry=geometry)
         self.assertEqual(location, result)
 
 
