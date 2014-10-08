@@ -11,8 +11,8 @@ addons:
 
 before_script:
   - psql -c 'create database communitymaps;' -U postgres
-  - psql -U postgres -c "create extension postgis"
-  - psql -U postgres -c "create extension hstore"
+  - psql -U postgres -c 'create extension postgis;'
+  - psql -U postgres -c 'create extension hstore;'
   - cp core/settings/project.sample.py core/settings/project.py
   - sed -i -e 's/[YOUR DB USERNAME]/"postgres"/g' core/settings/project.py
   - sed '/[YOUR DB PASSWORD]/d' core/settings/project.py
