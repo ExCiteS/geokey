@@ -482,8 +482,9 @@ class MultipleLookupField(Field):
         return 'Multiple select'
 
     def get_filter(self, rule):
-        return '(regexp_split_to_array(btrim(attributes -> \' ' + self.key + '\
-            \', \'[]\'), \',\') && ' + json.dumps(rule) +')'
+        return '(regexp_split_to_array(\
+            btrim(attributes -> \'' + self.key + '\', \'[]\'), \',\')::int[]\
+            && ARRAY' + json.dumps(rule) +')'
 
 
 
