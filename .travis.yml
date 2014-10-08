@@ -16,6 +16,7 @@ before_script:
   - cp core/settings/project.sample.py core/settings/project.py
   - python manage.py syncdb --all
   - python manage.py migrate --fake
+  - no
 
 install:
   - pip install -r requirements.txt
