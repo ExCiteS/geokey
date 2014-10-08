@@ -119,7 +119,20 @@
                                         <label for="{{field.key}}-ref" class="col-sm-3 col-sm-offset-1 control-label">is one of</label>
                                         <div class="col-sm-7">
                                             <select name="{{field.key}}-ref" id="reference-value" multiple size="3" class="form-control">
-                                                {% for value in field.lookupvalues.all %}
+                                                {% for value in field.lookupvalues.active %}
+                                                    <option value="{{value.id}}" {% is_in value.id field.key rule.filters %}>{{value.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                {% if field.fieldtype == 'MultipleLookupField' %}
+                                    <div class="form-group">
+                                        <label for="{{field.key}}-ref" class="col-sm-3 col-sm-offset-1 control-label">matches at least one of</label>
+                                        <div class="col-sm-7">
+                                            <select name="{{field.key}}-ref" id="reference-value" multiple size="3" class="form-control">
+                                                {% for value in field.lookupvalues.active %}
                                                     <option value="{{value.id}}" {% is_in value.id field.key rule.filters %}>{{value.name}}</option>
                                                 {% endfor %}
                                             </select>

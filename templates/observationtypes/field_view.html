@@ -83,31 +83,12 @@
             </div>
 
             {% if field.lookupfield %}
-            <div class="row">
-                <div class="col-sm-8 col-sm-offset-4">
-                    <div id="lookupValuesPanel" class="panel panel-default" id="lookupValuesPanel">
-                        <div class="panel-heading">
-                            <h2 class="panel-title">Add and remove accepted values for the select field</h2>
-                        </div>
-                        <ul class="list-group">
-                        {% for lookupvalue in field.lookupfield.lookupvalues.active %}
-                            <li class="list-group-item">{{ lookupvalue.name }} (<a class="text-danger" data-lookup-id="{{ lookupvalue.id }}" href="#">remove</a>)</li>
-                        {% empty %}
-                            <li class="list-group-item">No values have been added yet.</li>
-                        {% endfor %}
-                        </ul>
-                        <div class="panel-footer">
-                            <div class="input-group">
-                                <input type="text" name="new-value" class="form-control">
-                                <span class="input-group-btn">
-                                    <button class="btn btn-success" type="button"  data-loading-text="Adding...">Add</button>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-                        {% endif %}
+                {% include 'snippets/lookup-values.html' with field=field.lookupfield %}
+            {% endif %}
+
+            {% if field.multiplelookupfield %}
+                {% include 'snippets/lookup-values.html' with values=field.multiplelookupfield %}
+            {% endif %}
 
             <div class="row">
                 <div class="col-sm-8 col-sm-offset-4">

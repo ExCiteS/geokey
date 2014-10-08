@@ -5,7 +5,6 @@ $(function() {
 
     function handleTypeSelection(event) {
         var target = $(event.currentTarget).parents('form');
-        // messages.showPanelLoading(target, 'Loading field information for this contribution type...');
 
         function handleTypeSuccess(response) {
             target.children('.info-loading').hide('slow', function() {
@@ -72,6 +71,7 @@ $(function() {
             }
             if (value) { rules[field.attr('data-key')] = value; }
         }
+        console.log(JSON.stringify(rules))
         $('input[name="rules"]').val(JSON.stringify(rules));
     }
 

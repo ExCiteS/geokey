@@ -19,7 +19,8 @@ from core.decorators import (
 
 from .base import STATUS
 from .models import (
-    ObservationType, Field, NumericField, LookupField, LookupValue
+    ObservationType, Field, NumericField, LookupField, LookupValue, 
+    MultipleLookupField, MultipleLookupValue
 )
 from .forms import ObservationTypeCreateForm, FieldCreateForm
 from .serializer import (
@@ -445,6 +446,14 @@ class FieldLookups(APIView):
 
             serializer = LookupFieldSerializer(field)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        elif isinstance(field, MultipleLookupField):
+            MultipleLookupValue.objects.create(
+                name=request.DATA.get('name'), field=field)
+
+            serializer = LookupFieldSerializer(field)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         else:
             return Response(
                 {'error': 'This field is not a lookup field'},
@@ -467,7 +476,8 @@ class FieldLookupsUpdate(APIView):
         field = Field.objects.as_admin(
             request.user, project_id, observationtype_id, field_id)
 
-        if isinstance(field, LookupField):
+        if (isinstance(field, LookupField) or
+                isinstance(field, MultipleLookupField)):
             field.lookupvalues.get(pk=value_id).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:

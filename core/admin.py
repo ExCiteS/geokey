@@ -13,7 +13,6 @@ urlpatterns = patterns(
     '',
     url(r'^$', login_views.Index.as_view(), name='index'),
     url(r'^dashboard/$', login_views.Dashboard.as_view(), name='dashboard'),
-
     url(r'^accounts/signup/$', login_views.SignupAdminView.as_view(), name='signup'),
     url(r'^accounts/login/$',  login),
     url(r'^accounts/logout/$', logout),

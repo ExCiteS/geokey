@@ -1,0 +1,11 @@
+<h5>{{name}} ({{key}})</h5>
+<div class="form-group">
+    <label for="{{key}}-ref" class="col-sm-3 col-sm-offset-1 control-label">matches at least one of</label>
+    <div class="col-sm-7">
+        <select name="{{key}}-ref" id="reference-value" multiple size="3" class="form-control">
+            {{#each lookupvalues}}
+                <option value="{{id}}">{{name}}</option>
+            {{/each}}
+        </select>
+    </div>
+</div>

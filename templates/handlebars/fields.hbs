@@ -17,5 +17,8 @@
         {{#ifCond fieldtype 'LookupField'}}
             {{> lookupfield}}
         {{/ifCond}}
+        {{#ifCond fieldtype 'MultipleLookupField'}}
+            {{> multiplelookupfield}}
+        {{/ifCond}}
     </div>
 {{/each}}
