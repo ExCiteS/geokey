@@ -63,4 +63,11 @@ def filters(rule):
 
                 s = s + '<li>%s is one of %s</li>' % (field.name, ', '.join(values))
 
+            if field.fieldtype == 'MultipleLookupField':
+                values = []
+                for lookup in json.loads(rule_filter):
+                    values.append(field.lookupvalues.get(pk=lookup).name)
+
+                s = s + '<li>%s matches at least one of %s</li>' % (field.name, ', '.join(values))
+
     return s
