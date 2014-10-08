@@ -60,7 +60,8 @@ class ObservationTypeManager(ActiveMixin, models.Manager):
 
         view = View.objects.create(
             name=category.name,
-            description=category.description,
+            description='All contributions of category %s.' % (
+                category.name),
             project=category.project,
             creator=category.creator
         )
