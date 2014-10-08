@@ -8,6 +8,7 @@
                 $('#minmax').removeClass('hidden');
                 break;
             case 'LookupField':
+            case 'MultipleLookupField':
                 $('#lookup').removeClass('hidden');
                 break;    
         }

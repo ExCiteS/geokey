@@ -108,5 +108,5 @@ class MultipleLookupValueFactory(factory.django.DjangoModelFactory):
     FACTORY_FOR = MultipleLookupValue
 
     name = factory.Sequence(lambda n: "lookupfield %s" % n)
-    field = factory.SubFactory(LookupFieldFactory)
+    field = factory.SubFactory(MultipleLookupFieldFactory)
     status = 'active'
