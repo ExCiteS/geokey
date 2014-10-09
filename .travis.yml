@@ -23,6 +23,6 @@ install:
 
 script: 
   - python manage.py test
-  - coverage run manage.py test --include="*"
+  - coverage run manage.py test
 
 after_success: coveralls
