@@ -23,6 +23,6 @@ install:
 
 script: 
   - python manage.py test
-  - coverage run manage.py test --include="*" --omit=*/migrations/*,*/tests/*
+  - coverage run manage.py test --include="*"
 
 after_success: coveralls
