@@ -1,4 +1,5 @@
 [run]
 omit =
-    /*/tests
-    /*/migrations
+    */tests/*
+    */migrations/*
+    */__init__.py
