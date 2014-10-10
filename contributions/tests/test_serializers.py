@@ -350,7 +350,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         )
 
     def test_serialize_instance(self):
-        observation = ObservationFactory.create()
+        observation = ObservationFactory.create(**{'attributes': {'key': 'value'}})
         TextFieldFactory.create(**{
             'key': 'key',
             'observationtype': observation.observationtype})

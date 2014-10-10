@@ -9,7 +9,8 @@ from ..models import Location, Observation, Comment
 
 
 class LocationFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = Location
+    class Meta:
+        model = Location
 
     name = factory.Sequence(lambda n: 'name_%d' % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
@@ -23,20 +24,25 @@ class LocationFactory(factory.django.DjangoModelFactory):
 
 
 class ObservationFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = Observation
+    class Meta:
+        model = Observation
 
     location = factory.SubFactory(LocationFactory)
     project = factory.SubFactory(ProjectF)
     status = 'active'
     observationtype = factory.SubFactory(ObservationTypeFactory)
-    attributes = {'key': 'value'}
+    # attributes = factory.Dict({
+    #     'key': 'value',
+    #     'key-2': 'value-2'
+    # })
     created_at = datetime.date(2014, 11, 11)
     creator = factory.SubFactory(UserF)
     version = 1
 
 
 class CommentFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = Comment
+    class Meta:
+        model = Comment
 
     text = factory.Sequence(lambda n: 'Comment number %d' % n)
     created_at = datetime.date(2014, 11, 11)
