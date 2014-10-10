@@ -72,6 +72,21 @@ class FieldTest(TestCase):
         self.assertEqual(len(field_types), 6)
 
 
+    def test_order(self):
+        observation_type = ObservationTypeFactory()
+        field = Field.create(
+            'name', 'key', 'description', False, observation_type,
+            'TextField'
+        )
+        self.assertEqual(field.order, 0)
+
+        another_field = field = Field.create(
+            'name-2', 'key-2', 'description', False, observation_type,
+            'TextField'
+        )
+        self.assertEqual(another_field.order, 1)
+
+
 class TextFieldTest(TestCase):
     def test_create_textfield(self):
         observation_type = ObservationTypeFactory()

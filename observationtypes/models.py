@@ -87,12 +87,15 @@ class Field(models.Model):
         Creates a new field based on the field type provided.
         """
         model_class = get_model('observationtypes', field_type)
+        order = observation_type.fields.count()
+
         field = model_class.objects.create(
             name=name,
             key=key,
             description=description,
             required=required,
             observationtype=observation_type,
+            order=order
         )
         field.save()
         return field
