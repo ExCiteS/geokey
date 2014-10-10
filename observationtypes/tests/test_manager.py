@@ -20,6 +20,19 @@ class ObservationTypeManagerTest(TestCase):
             name='Test',
             project=project,
             creator=project.creator,
+            create_grouping=False
+        )
+
+        views = project.views.all()
+        self.assertEqual(len(views), 0)
+
+    def test_create_with_view(self):
+        project = ProjectF.create()
+        category = ObservationType.objects.create(
+            name='Test',
+            project=project,
+            creator=project.creator,
+            create_grouping=True
         )
 
         views = project.views.all()

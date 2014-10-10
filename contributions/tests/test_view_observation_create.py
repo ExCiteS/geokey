@@ -29,6 +29,7 @@ class ProjectPublicApiTest(TestCase):
             add_contributors=[self.contributor],
             add_viewers=[self.view_member]
         )
+        ViewFactory.create(**{'project': self.project, 'isprivate': False})
         self.observationtype = ObservationTypeFactory(**{
             'status': 'active',
             'project': self.project

@@ -8,6 +8,8 @@ class ObservationTypeCreateForm(forms.ModelForm):
     Validates the inputs against the model definition.
     Used in .views.ObservationTypeAdminCreateView
     """
+    create_grouping = forms.CharField()
+
     class Meta:
         model = ObservationType
         fields = ('name', 'description', 'default_status')

@@ -2,11 +2,13 @@ import json
 
 from django.test import TestCase, RequestFactory
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 
 from projects.tests.model_factories import UserF, ProjectF
+from dataviews.models import View
 
 from .model_factories import (
     ObservationTypeFactory, TextFieldFactory, NumericFieldFactory,
@@ -97,6 +99,21 @@ class ObservationTypeCreateTest(TestCase):
         request.user = user
         return view(request, project_id=self.project.id).render()
 
+    def post(self, user, data):
+        view = ObservationTypeCreate.as_view()
+        url = reverse('admin:observationtype_create', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.post(url, data, follow=True)
+
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        request.user = user
+        return view(request, project_id=self.project.id)
+
     def test_get_create_with_admin(self):
         response = self.get(self.admin)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -122,6 +139,28 @@ class ObservationTypeCreateTest(TestCase):
             response,
             'Project matching query does not exist.'
         )
+
+    def test_post_valid_without_grouping(self):
+        data = {
+            'name': 'Test',
+            'description': 'Test Description',
+            'default_status': 'active',
+            'create_grouping': 'False'
+        }
+        response = self.post(self.admin, data)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+        self.assertEqual(View.objects.all().count(), 0)
+
+    def test_post_valid_with_grouping(self):
+        data = {
+            'name': 'Test',
+            'description': 'Test Description',
+            'default_status': 'active',
+            'create_grouping': 'True'
+        }
+        response = self.post(self.admin, data)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+        self.assertEqual(View.objects.all().count(), 1)
 
 
 class CategoryDisplayTest(TestCase):
