@@ -81,22 +81,6 @@ class Project(models.Model):
         - the project is public and has at least one public view
         """
 
-        # return self.status == STATUS.active and (self.is_admin(user) or 
-        #         not self.isprivate or (((
-        #         not user.is_anonymous() and self.usergroups.filter(
-        #             users=user).exists()) and (
-        #         self.views.filter(isprivate=False).exists())) or (
-        #         not user.is_anonymous() and (
-        #             self.usergroups.filter(
-        #                 can_contribute=True, users=user).exists() or
-        #             self.usergroups.filter(
-        #                 can_moderate=True, users=user).exists() or
-        #             self.usergroups.filter(
-        #                 users=user, viewgroups__isnull=False).exists())
-        #         )
-        #     )
-        # )
-
         return self.status == STATUS.active and (self.is_admin(user) or (
                 not self.isprivate and 
                     self.views.filter(isprivate=False).exists()
@@ -145,9 +129,15 @@ class Project(models.Model):
         """
         Returns all contributions a user can access in a project
         """
-        # Return everything for admins
+        data = None
         if self.is_admin(user):
+            # Return everything for admins
             return self.observations.for_moderator(user)
+        elif self.can_moderate(user):
+            data = self.observations.for_moderator(user)
+        else:
+            data = self.observations.for_viewer(user)
+
 
         grouping_queries = [
             grouping.get_where_clause()
@@ -162,8 +152,7 @@ class Project(models.Model):
             if (not user.is_anonymous()):
                 query = query + ' OR (creator_id = ' + str(user.id) + ')'
 
-            return self.observations.extra(
-                where=[query])
+            return data.extra(where=[query])
         
         # If there are no data groupings for the user, return just the user's
         # data

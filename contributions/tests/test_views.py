@@ -1,3 +1,5 @@
+import json
+
 from django.test import TestCase
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
@@ -20,9 +22,61 @@ from .model_factories import ObservationFactory, CommentFactory
 from ..views import (
     SingleMyContributionAPIView, SingleAllContributionAPIView,
     SingleGroupingContributionAPIView, AllContributionsSingleCommentAPIView,
-    GroupingContributionsSingleCommentAPIView, SingleContributionAPIView
+    GroupingContributionsSingleCommentAPIView, SingleContributionAPIView,
+    ContributionSearchAPIView
 )
 from ..models import Observation
+
+
+class ContributionSearchTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.creator = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.creator]
+        )
+        ObservationFactory.create_batch(5, **{
+            'project': self.project,
+            'attributes': {'key': 'blah'}
+        })
+        ObservationFactory.create_batch(5, **{
+            'project': self.project,
+            'attributes': {'key': 'blub'}
+        })
+
+    def get(self, user, query):
+        url = reverse('api:contributions_search', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.get(url + '?query=' + query)
+        force_authenticate(request, user=user)
+        theview = ContributionSearchAPIView.as_view()
+        return theview(request, project_id=self.project.id).render()
+
+    def test_get_with_bl(self):
+        response = self.get(self.admin, 'bl')
+        self.assertEqual(response.status_code, 200)
+
+        features = json.loads(response.content)
+        self.assertEqual(len(features.get('features')), 10)
+
+    def test_get_with_blah(self):
+        response = self.get(self.admin, 'blah')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'blub')
+
+        features = json.loads(response.content)
+        self.assertEqual(len(features.get('features')), 5)
+
+    def test_get_with_blah(self):
+        response = self.get(self.admin, 'blub')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'blah')
+
+        features = json.loads(response.content)
+        self.assertEqual(len(features.get('features')), 5)
 
 
 class SingleContributionAPIViewTest(TestCase):

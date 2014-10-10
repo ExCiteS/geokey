@@ -40,7 +40,8 @@ class Locations(APIView):
         locations = Location.objects.get_list(request.user, project_id)
 
         if q is not None:
-            locations = locations.filter(Q(name__icontains=q.lower()) | Q(description__icontains=q.lower()))
+            locations = locations.filter(Q(name__icontains=q.lower()) |
+                Q(description__icontains=q.lower()))
 
         serializer = LocationSerializer(locations, many=True)
         return Response(serializer.data)
@@ -98,23 +99,40 @@ class ProjectObservations(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+class ContributionSearchAPIView(APIView):
+    """
+    Public API endpoint to search all contributions in a project
+    /api/projects/:project_id/contributions/search/?query={query}
+    """
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, format=None):
+        q = request.GET.get('query')
+
+        project = Project.objects.get_single(request.user, project_id)
+        contributions = project.get_all_contributions(
+            request.user).filter(attributes__icontains=q)
+
+        serializer = ContributionSerializer(
+            contributions,
+            many=True,
+            context={'user': request.user, 'project': project}
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
 class ProjectObservationsView(APIView):
     """
     Public API endpoint to get all contributions in a project
     /api/projects/:project_id/data-groupings/all-contributions/
     """
-
     @handle_exceptions_for_ajax
     def get(self, request, project_id, format=None):
         project = Project.objects.get_single(request.user, project_id)
         contributions = project.get_all_contributions(request.user)
 
-        if project.can_moderate(request.user):
-            data = contributions.for_moderator(request.user)
-        else:
-            data = contributions.for_viewer(request.user)
         serializer = ContributionSerializer(
-            data,
+            contributions,
             many=True,
             context={'user': request.user, 'project': project}
         )

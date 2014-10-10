@@ -52,6 +52,7 @@ Thumbs.db
 *.pot
 *.pyc
 .coverage
+htmlcov
 local_settings.py
 core/settings/project.py
 

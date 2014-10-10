@@ -85,7 +85,7 @@ class ObservationManager(hstore.HStoreManager):
         return self.get_query_set().for_moderator(user)
 
     def for_viewer(self, user):
-        return self.for_moderator().for_viewer(user)
+        return self.get_query_set().for_viewer(user)
 
 
 class CommentManager(models.Manager):

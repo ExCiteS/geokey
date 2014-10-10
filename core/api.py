@@ -27,6 +27,10 @@ urlpatterns = patterns(
         contribution_views.ProjectObservations.as_view(),
         name='project_observations'),
     url(
+        r'^projects/(?P<project_id>[0-9]+)/contributions/search/$',
+        contribution_views.ContributionSearchAPIView.as_view(),
+        name='contributions_search'),
+    url(
         r'^projects/(?P<project_id>[0-9]+)/data-groupings/all-contributions/$',
         contribution_views.ProjectObservationsView.as_view(),
         name='project_all_observations'),
