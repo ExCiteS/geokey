@@ -1,9 +1,16 @@
+html, body {
+	margin: 0;
+    height: 100%;
+}
+
 body {
 	padding-bottom: 20px;
 }
 
 body#home {
 	background: url(../img/people.jpg) no-repeat 50% 50%;
+	background-size: cover;
+	height: 100%;
 }
 
 body#home div.jumbotron {
