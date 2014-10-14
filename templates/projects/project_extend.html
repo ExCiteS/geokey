@@ -30,18 +30,31 @@
                         <a href="{% url 'admin:category_list' project.id %}" class="list-group-item"><span class="badge">{{ project.observationtypes.count }}</span>Categories</a>
                         <a href="{% url 'admin:grouping_list' project.id %}" class="list-group-item"><span class="badge">{{ project.views.count }}</span>Data groupings</a>
                         <a href="{% url 'admin:usergroup_list' project.id %}" class="list-group-item"><span class="badge">{{ project.usergroups.count }}</span>User groups</a>
-                        <a href="{% url 'admin:project_settings' project.id %}" class="list-group-item active">Settings</a>
+                        <a href="{% url 'admin:project_extend' project.id %}" class="list-group-item active">Geographic extend</a>
+                        <a href="{% url 'admin:project_settings' project.id %}" class="list-group-item">Settings</a>
                     </div>
                 </div>
 
                 <div class="col-sm-8">
                     <h3 class="header">Geographic Extend</h3>
-
+                    <div id="map"></div>
+                    <form method="POST" action="{% url 'admin:project_extend' project.id %}" novalidate>
+                        {% csrf_token %}
+                        <input type="hidden" name="geometry" id="geometry" value="{{ project.geographic_extend.json }}">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                            <button type="reset" class="btn btn-link">Reset</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
 {% endblock %}
 
 {% block libraries %}
-            
+    <script src="https://api.tiles.mapbox.com/mapbox.js/v2.1.2/mapbox.js"></script>
+    <link href="https://api.tiles.mapbox.com/mapbox.js/v2.1.2/mapbox.css" rel="stylesheet">
+    <link href="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.css" rel="stylesheet">
+    <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.js"></script>
+    <script src="/static/js/admin.ui.project.extent.js"></script>
 {% endblock %}

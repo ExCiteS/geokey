@@ -491,3 +491,8 @@ h6.item-info + h3 {
 .message {
 	padding: 15px;
 }
+
+#map {
+	height: 400px;
+	margin-bottom: 30px;
+}
