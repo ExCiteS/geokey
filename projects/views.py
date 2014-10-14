@@ -90,7 +90,7 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
 class ProjectSettings(LoginRequiredMixin, TemplateView):
     """
     Displays the project settings page
-    `/admin/projects/:project_id`
+    `/admin/projects/:project_id/settings/`
     """
     model = Project
     template_name = 'projects/project_settings.html'
