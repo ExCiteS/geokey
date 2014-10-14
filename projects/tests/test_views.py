@@ -759,6 +759,7 @@ class SingleProjectTest(TestCase):
         self.assertContains(response, '"can_contribute": true')
         self.assertContains(response, '"is_involved": true')
         self.assertContains(response, '"num_contributions"')
+        self.assertContains(response, '"geographic_extent"')
 
     def test_get_inactive_project_with_admin(self):
         user = UserF.create()
