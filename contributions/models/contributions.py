@@ -1,6 +1,5 @@
 from django.db import models
 from django.conf import settings
-from django.contrib.gis.db import models as gis
 from django.core.exceptions import ValidationError
 
 from django_hstore import hstore
@@ -8,37 +7,14 @@ from simple_history.models import HistoricalRecords
 
 from core.exceptions import InputError
 
-from .base import LOCATION_STATUS, OBSERVATION_STATUS, COMMENT_STATUS
-from .manager import LocationManager, ObservationManager, CommentManager
-
-
-class Location(models.Model):
-    """
-    Represents a location to which an arbitrary number of observations can be
-    attached.
-    """
-    name = models.CharField(max_length=100, blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
-    geometry = gis.GeometryField(geography=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL)
-    version = models.IntegerField(default=1)
-    private = models.BooleanField(default=False)
-    private_for_project = models.ForeignKey('projects.Project', null=True)
-    status = models.CharField(
-        choices=LOCATION_STATUS,
-        default=LOCATION_STATUS.active,
-        max_length=20
-    )
-
-    objects = LocationManager()
-
+from ..base import OBSERVATION_STATUS, COMMENT_STATUS
+from ..manager import ObservationManager, CommentManager
 
 class Observation(models.Model):
     """
     Stores a single observation.
     """
-    location = models.ForeignKey('Location', related_name='locations')
+    location = models.ForeignKey('contributions.Location', related_name='locations')
     project = models.ForeignKey(
         'projects.Project', related_name='observations'
     )
@@ -64,6 +40,9 @@ class Observation(models.Model):
 
     history = HistoricalRecords()
     objects = ObservationManager()
+
+    class Meta:
+        app_label = 'contributions'
 
     @classmethod
     def validate_partial(self, observationtype, data):
@@ -188,6 +167,9 @@ class Comment(models.Model):
     )
 
     objects = CommentManager()
+
+    class Meta:
+        app_label = 'contributions'
 
     def delete(self):
         """
