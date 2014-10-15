@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 
+from ..manager import MediaFileManager
+
 class MediaFile(models.Model):
     """
     Base class for all media files. Not to be instaciate; instaciate one of
@@ -13,6 +15,8 @@ class MediaFile(models.Model):
     )
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = MediaFileManager()
 
     class Meta:
         app_label = 'contributions'
