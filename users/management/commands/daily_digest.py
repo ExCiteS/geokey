@@ -13,14 +13,6 @@ from users.models import User
 from contributions.models import Observation
 
 class Command(NoArgsCommand):
-    def handle_noargs(self,**options):
-        try:
-            self.daily_digest()
-        except Exception, e:
-            print e
-        finally:
-            connection.close()
-
     def get_updated_projects(self, yesterday):
         """
         Returns all projects that where updated during the previous day
