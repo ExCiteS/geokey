@@ -9,17 +9,6 @@ from users.tests.model_factories import UserF
 
 from .model_factories import get_image
 
-class MediaFileTest(TestCase):
-    @raises(NotImplementedError)
-    def test_get_type_name(self):
-        media_file = MediaFile.objects.create(
-            name='Test name',
-            description='Test Description',
-            contribution=ObservationFactory.create(),
-            creator=UserF.create()
-        )
-        media_file.type_name
-
 
 class ImageFileTest(TestCase):
     def test_get_type_name(self):

@@ -12,7 +12,7 @@ from .serializers import (
     ContributionSerializer, LocationSerializer, CommentSerializer,
     FileSerializer
 )
-from .models import Location, Comment, Observation, ImageFile
+from .models import Location, Comment, Observation, MediaFile
 from projects.models import Project
 from dataviews.models import View
 from dataviews.serializers import ViewSerializer
@@ -518,14 +518,15 @@ class MediaFileListAbstractAPIView(APIView):
         if user.is_anonymous():
             user = User.objects.get(display_name='AnonymousUser')
 
-        image = ImageFile.objects.create(
+        the_file = MediaFile.objects.create(
             name=data.get('name'),
             description=data.get('description'),
             contribution=contribution,
             creator=user,
-            image=self.request.FILES.get('file')
+            the_file=self.request.FILES.get('file')
         )
-        serializer = FileSerializer(image, context={'user': user})
+
+        serializer = FileSerializer(the_file, context={'user': user})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 

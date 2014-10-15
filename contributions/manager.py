@@ -1,6 +1,9 @@
+import os
+
 from django.contrib.gis.db import models
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
+from django.db.models.loading import get_model
 
 from model_utils.managers import InheritanceManager
 from django_hstore import hstore, query
@@ -111,3 +114,28 @@ class MediaFileManager(InheritanceManager):
         actual instances when searching all files of a contribution.
         """
         return super(MediaFileManager, self).get_query_set().select_subclasses()
+
+    def create(self, the_file=None, *args, **kwargs):
+        """
+        Create a new file. Selects the class by examining the file name
+        extension.
+        """
+        name = kwargs.get('name')
+        description = kwargs.get('description')
+        creator = kwargs.get('creator')
+        contribution = kwargs.get('contribution')
+
+        filename, extension = os.path.splitext(the_file.name)
+
+        if extension in ('.png', '.jpeg', '.jpg', '.gif'):
+            ImageFile = get_model('contributions', 'ImageFile')
+            return ImageFile.objects.create(
+                name=name,
+                description=description,
+                creator=creator,
+                contribution=contribution,
+                image=the_file
+            )
+        else:
+            raise TypeError('Files of type %s are currently not supported.'
+                            % extension)
