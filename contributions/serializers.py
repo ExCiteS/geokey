@@ -12,7 +12,7 @@ from observationtypes.serializer import ObservationTypeSerializer
 from observationtypes.models import ObservationType
 from users.serializers import UserSerializer
 
-from .models import Location, Observation, Comment
+from .models import Location, Observation, Comment, MediaFile, ImageFile
 
 
 class LocationSerializer(geoserializers.GeoFeatureModelSerializer):
@@ -245,8 +245,12 @@ class ContributionSerializer(object):
 
 class CommentSerializer(serializers.ModelSerializer):
     creator = UserSerializer()
-
     isowner = serializers.SerializerMethodField('get_is_owner')
+
+    class Meta:
+        model = Comment
+        fields = ('id', 'text', 'creator', 'respondsto', 'created_at',
+            'isowner')
 
     def to_native(self, obj):
         native = super(CommentSerializer, self).to_native(obj)
@@ -258,10 +262,23 @@ class CommentSerializer(serializers.ModelSerializer):
 
         return native
 
-    class Meta:
-        model = Comment
-        fields = ('id', 'text', 'creator', 'respondsto', 'created_at',
-            'isowner')
-
     def get_is_owner(self, comment):
         return comment.creator == self.context.get('user')
+
+
+class FileSerializer(serializers.ModelSerializer):
+    creator = UserSerializer()
+    isowner = serializers.SerializerMethodField('get_is_owner')
+    url = serializers.SerializerMethodField('get_url')
+
+    class Meta:
+        model = MediaFile
+        fields = ('id', 'name', 'description', 'created_at', 'isowner', 'url')
+
+    def get_is_owner(self, obj):
+        return obj.creator == self.context.get('user')
+
+    def get_url(self, obj):
+        if isinstance(obj, ImageFile):
+            return obj.image.url
+
