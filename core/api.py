@@ -97,6 +97,15 @@ urlpatterns = patterns(
         name='myobservations_single_comment'),
 
     # ###########################
+    # MEDIA
+    # ###########################
+    
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/all-contributions/contributions/(?P<contribution_id>[0-9]+)/media/$',
+        contribution_views.AllContributionsMediaAPIView.as_view(),
+        name='project_media'),
+
+    # ###########################
     # OBSERVATION TYPES
     # ###########################
     url(

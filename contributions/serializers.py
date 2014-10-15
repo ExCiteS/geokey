@@ -273,12 +273,22 @@ class FileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MediaFile
-        fields = ('id', 'name', 'description', 'created_at', 'isowner', 'url')
+        fields = (
+            'id', 'name', 'description', 'created_at', 'creator', 'isowner',
+            'url'
+        )
 
     def get_is_owner(self, obj):
+        """
+        Returns `True` if the user provided in the serializer context is the
+        creator of this file
+        """
         return obj.creator == self.context.get('user')
 
     def get_url(self, obj):
+        """
+        Return the url to access this file based on its file type
+        """
         if isinstance(obj, ImageFile):
             return obj.image.url
 

@@ -9,9 +9,10 @@ from core.decorators import handle_exceptions_for_ajax
 from core.exceptions import MalformedRequestData
 
 from .serializers import (
-    ContributionSerializer, LocationSerializer, CommentSerializer
+    ContributionSerializer, LocationSerializer, CommentSerializer,
+    FileSerializer
 )
-from .models import Location, Comment, Observation
+from .models import Location, Comment, Observation, ImageFile
 from projects.models import Project
 from dataviews.models import View
 from dataviews.serializers import ViewSerializer
@@ -488,3 +489,66 @@ class MyContributionsSingleCommentAPIView(
         observation = self.get_object(request.user, project_id, observation_id)
         comment = observation.comments.get(pk=comment_id)
         return self.delete_and_respond(request, comment)
+
+
+# ############################################################################
+#
+# Media
+#
+# ############################################################################
+
+class MediaFileListAbstractAPIView(APIView):
+    def get_list_and_respond(self, user, contribution):
+        """
+        Serialises all files attached to the contribution and returns the
+        JSON response
+        """
+        files = contribution.files_attached.all()
+        serializer = FileSerializer(
+            files, many=True, context={'user': user})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def create_and_respond(self, user, contribution):
+        """
+        Creates an image and responds with the file information
+        """
+        user = self.request.user
+        data = self.request.POST
+
+        if user.is_anonymous():
+            user = User.objects.get(display_name='AnonymousUser')
+
+        image = ImageFile.objects.create(
+            name=data.get('name'),
+            description=data.get('description'),
+            contribution=contribution,
+            creator=user,
+            image=self.request.FILES.get('file')
+        )
+        serializer = FileSerializer(image, context={'user': user})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class AllContributionsMediaAPIView(
+    MediaFileListAbstractAPIView, SingleAllContribution):
+
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, contribution_id, format=None):
+        """
+        Returns a list of all files attached to the observation
+        """
+        contribution = self.get_object(
+            request.user,
+            project_id,
+            contribution_id
+        )
+        return self.get_list_and_respond(request.user, contribution)
+
+    @handle_exceptions_for_ajax
+    def post(self, request, project_id, contribution_id, format=None):
+        contribution = self.get_object(
+            request.user,
+            project_id,
+            contribution_id
+        )
+        return self.create_and_respond(request.user, contribution)
