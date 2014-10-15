@@ -39,5 +39,5 @@ LOGIN_REDIRECT_URL = '/admin/dashboard/'
 
 DEFAULT_FROM_EMAIL = ''
 
-MEDIA_ROOT = '/var/www/opencommuntymaps/media/'
+MEDIA_ROOT = normpath(join(SITE_ROOT, 'media'))
 MEDIA_URL = '/media/'
