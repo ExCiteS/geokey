@@ -5,7 +5,6 @@ from django.utils import timezone
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
-from contributions.models import Observation, Comment
 from projects.models import Project
 
 from .manager import UserManager
@@ -24,16 +23,6 @@ class User(AbstractBaseUser):
     USERNAME_FIELD = 'email'
 
     objects = UserManager()
-
-    def get_stats(self):
-        stats = {}
-
-        stats['observations'] = Observation.objects.filter(
-            creator=self).count()
-        stats['comments'] = Comment.objects.filter(creator=self).count()
-        stats['projects'] = Project.objects.filter(creator=self).count()
-
-        return stats
 
 
 class UserGroup(models.Model):
