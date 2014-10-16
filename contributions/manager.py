@@ -128,7 +128,8 @@ class MediaFileManager(InheritanceManager):
         filename, extension = os.path.splitext(the_file.name)
 
         if extension in ('.png', '.jpeg', '.jpg', '.gif'):
-            ImageFile = get_model('contributions', 'ImageFile')
+            from contributions.models import ImageFile
+
             return ImageFile.objects.create(
                 name=name,
                 description=description,
