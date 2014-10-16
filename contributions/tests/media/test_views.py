@@ -19,7 +19,9 @@ from contributions.models import ImageFile
 
 from contributions.views import (
     MediaFileListAbstractAPIView, AllContributionsMediaAPIView,
-    MediaFileSingleAbstractView, AllContributionsSingleMediaApiView
+    MediaFileSingleAbstractView, AllContributionsSingleMediaApiView,
+    MyContributionsMediaApiView, MyContributionsSingleMediaApiView,
+    GroupingContributionsMediaApiView, GroupingContributionsSingleMediaApiView
 )
 
 from ..model_factories import ObservationFactory
@@ -323,6 +325,245 @@ class AllContributionsMediaAPIViewTest(TestCase):
         response = self.post(self.admin, data=data)
         self.assertEqual(response.status_code, 400)
 
+
+class MyContributionsMediaApiViewTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.creator = UserF.create()
+        self.viewer = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.creator]
+        )
+
+        self.contribution = ObservationFactory.create(
+            **{'project': self.project, 'creator': self.creator}
+        )
+
+        ImageFileFactory.create_batch(5, **{'contribution': self.contribution})
+
+    def get(self, user):
+        url = reverse(
+            'api:mycontributions_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id
+            }
+        )
+        
+        request = self.factory.get(url)
+        force_authenticate(request, user)
+        view = MyContributionsMediaApiView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            contribution_id=self.contribution.id
+        ).render()
+
+    def post(self, user, data=None):
+        if data is None:
+            data = {
+                'name': 'A test image',
+                'description': 'Test image description',
+                'file': get_image()
+            }
+
+        url = reverse(
+            'api:mycontributions_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id
+            }
+        )
+        
+        request = self.factory.post(url, data)
+        force_authenticate(request, user)
+        view = MyContributionsMediaApiView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            contribution_id=self.contribution.id
+        ).render()
+
+    def test_get_images_with_admin(self):
+        response = self.get(self.admin)
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_images_with_contributor(self):
+        response = self.get(self.creator)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_images_with_some_dude(self):
+        response = self.get(UserF.create())
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_images_with_anonymous(self):
+        response = self.get(AnonymousUser())
+        self.assertEqual(response.status_code, 404)
+
+    def test_upload_image_with_admin(self):
+        response = self.post(self.admin)
+        self.assertEqual(response.status_code, 404)
+
+    def test_upload_image_with_contributor(self):
+        response = self.post(self.creator)
+        self.assertEqual(response.status_code, 201)
+
+    def test_upload_image_with_some_dude(self):
+        response = self.post(UserF.create())
+        self.assertEqual(response.status_code, 404)
+
+    def test_upload_image_with_anonymous(self):
+        response = self.post(AnonymousUser())
+        self.assertEqual(response.status_code, 404)
+
+    def test_upload_unsupported_file_format(self):
+        xyz_file = StringIO()
+        xyz = Image.new('RGBA', size=(50,50), color=(256,0,0))
+        xyz.save(xyz_file, 'png')
+        xyz_file.seek(0)
+
+        data = {
+            'name': 'A test image',
+            'description': 'Test image description',
+            'file': ContentFile(xyz_file.read(), 'test.xyz')
+        }
+
+        response = self.post(self.creator, data=data)
+        self.assertEqual(response.status_code, 400)
+
+
+class GroupingContributionsMediaApiViewTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.creator = UserF.create()
+        self.viewer = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.creator]
+        )
+
+        self.contribution = ObservationFactory.create(
+            **{'project': self.project, 'creator': self.creator}
+        )
+
+        self.viewer = UserF.create()
+        self.grouping = ViewFactory.create(
+            add_viewers=[self.viewer],
+            **{'project': self.project}
+        )
+        RuleFactory.create(**{
+            'view': self.grouping,
+            'observation_type': self.contribution.observationtype
+        })
+
+        ImageFileFactory.create_batch(5, **{'contribution': self.contribution})
+
+    def get(self, user):
+        url = reverse(
+            'api:grouping_media',
+            kwargs={
+                'project_id': self.project.id,
+                'grouping_id': self.grouping.id,
+                'contribution_id': self.contribution.id
+            }
+        )
+        
+        request = self.factory.get(url)
+        force_authenticate(request, user)
+        view = GroupingContributionsMediaApiView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            grouping_id=self.grouping.id,
+            contribution_id=self.contribution.id
+        ).render()
+
+    def post(self, user, data=None):
+        if data is None:
+            data = {
+                'name': 'A test image',
+                'description': 'Test image description',
+                'file': get_image()
+            }
+
+        url = reverse(
+            'api:grouping_media',
+            kwargs={
+                'project_id': self.project.id,
+                'grouping_id': self.grouping.id,
+                'contribution_id': self.contribution.id
+            }
+        )
+        
+        request = self.factory.post(url, data)
+        force_authenticate(request, user)
+        view = GroupingContributionsMediaApiView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            grouping_id=self.grouping.id,
+            contribution_id=self.contribution.id
+        ).render()
+
+    def test_get_images_with_admin(self):
+        response = self.get(self.admin)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_images_with_contributor(self):
+        response = self.get(self.creator)
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_images_with_viewer(self):
+        response = self.get(self.viewer)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_images_with_some_dude(self):
+        response = self.get(UserF.create())
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_images_with_anonymous(self):
+        response = self.get(AnonymousUser())
+        self.assertEqual(response.status_code, 404)
+
+    def test_upload_image_with_admin(self):
+        response = self.post(self.admin)
+        self.assertEqual(response.status_code, 201)
+
+    def test_upload_image_with_contributor(self):
+        response = self.post(self.creator)
+        self.assertEqual(response.status_code, 404)
+
+    def test_upload_image_with_viewer(self):
+        response = self.post(self.viewer)
+        self.assertEqual(response.status_code, 201)
+
+    def test_upload_image_with_some_dude(self):
+        response = self.post(UserF.create())
+        self.assertEqual(response.status_code, 404)
+
+    def test_upload_image_with_anonymous(self):
+        response = self.post(AnonymousUser())
+        self.assertEqual(response.status_code, 404)
+
+    def test_upload_unsupported_file_format(self):
+        xyz_file = StringIO()
+        xyz = Image.new('RGBA', size=(50,50), color=(256,0,0))
+        xyz.save(xyz_file, 'png')
+        xyz_file.seek(0)
+
+        data = {
+            'name': 'A test image',
+            'description': 'Test image description',
+            'file': ContentFile(xyz_file.read(), 'test.xyz')
+        }
+
+        response = self.post(self.viewer, data=data)
+        self.assertEqual(response.status_code, 400)
+
+
 class AllContributionsSingleMediaApiViewTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
@@ -430,6 +671,238 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
             'observation_type': self.contribution.observationtype
         })
         response = self.delete(viewer)
+        self.assertEqual(response.status_code, 403)
+
+    def test_delete_image_with_some_dude(self):
+        response = self.delete(UserF.create())
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_image_with_anonymous(self):
+        response = self.delete(AnonymousUser())
+        self.assertEqual(response.status_code, 404)
+
+
+class MyContributionsSingleMediaApiViewTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.creator = UserF.create()
+        self.viewer = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.creator]
+        )
+
+        self.contribution = ObservationFactory.create(
+            **{'project': self.project, 'creator': self.creator}
+        )
+
+        self.image_file = ImageFileFactory.create(
+            **{'contribution': self.contribution, 'creator': self.creator}
+        )
+
+    def get(self, user):
+        url = reverse(
+            'api:mycontributions_single_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id,
+                'file_id': self.image_file.id
+            }
+        )
+        
+        request = self.factory.get(url)
+        force_authenticate(request, user)
+        view = MyContributionsSingleMediaApiView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            contribution_id=self.contribution.id,
+            file_id=self.image_file.id
+        ).render()
+
+    def delete(self, user):
+        url = reverse(
+            'api:mycontributions_single_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id,
+                'file_id': self.image_file.id
+            }
+        )
+        
+        request = self.factory.delete(url)
+        force_authenticate(request, user)
+        view = MyContributionsSingleMediaApiView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            contribution_id=self.contribution.id,
+            file_id=self.image_file.id
+        ).render()
+
+    def test_get_image_with_admin(self):
+        response = self.get(self.admin)
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_image_with_contributor(self):
+        response = self.get(self.creator)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_image_with_viewer(self):
+        viewer = UserF.create()
+        dataview = ViewFactory.create(
+            add_viewers=[viewer],
+            **{'project': self.project}
+        )
+        RuleFactory.create(**{
+            'view': dataview,
+            'observation_type': self.contribution.observationtype
+        })
+        response = self.get(viewer)
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_image_with_some_dude(self):
+        response = self.get(UserF.create())
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_image_with_anonymous(self):
+        response = self.get(AnonymousUser())
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_image_with_admin(self):
+        response = self.delete(self.admin)
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_image_with_contributor(self):
+        response = self.delete(self.creator)
+        self.assertEqual(response.status_code, 204)
+
+    def test_delete_image_with_viewer(self):
+        viewer = UserF.create()
+        dataview = ViewFactory.create(
+            add_viewers=[viewer],
+            **{'project': self.project}
+        )
+        RuleFactory.create(**{
+            'view': dataview,
+            'observation_type': self.contribution.observationtype
+        })
+        response = self.delete(viewer)
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_image_with_some_dude(self):
+        response = self.delete(UserF.create())
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_image_with_anonymous(self):
+        response = self.delete(AnonymousUser())
+        self.assertEqual(response.status_code, 404)
+
+
+class MyContributionsSingleMediaApiViewTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.creator = UserF.create()
+        self.viewer = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.creator]
+        )
+
+        self.contribution = ObservationFactory.create(
+            **{'project': self.project, 'creator': self.creator}
+        )
+
+        self.viewer = UserF.create()
+        self.grouping = ViewFactory.create(
+            add_viewers=[self.viewer],
+            **{'project': self.project}
+        )
+        RuleFactory.create(**{
+            'view': self.grouping,
+            'observation_type': self.contribution.observationtype
+        })
+
+        self.image_file = ImageFileFactory.create(
+            **{'contribution': self.contribution, 'creator': self.creator}
+        )
+
+    def get(self, user):
+        url = reverse(
+            'api:grouping_single_media',
+            kwargs={
+                'project_id': self.project.id,
+                'grouping_id': self.grouping.id,
+                'contribution_id': self.contribution.id,
+                'file_id': self.image_file.id
+            }
+        )
+        
+        request = self.factory.get(url)
+        force_authenticate(request, user)
+        view = GroupingContributionsSingleMediaApiView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            grouping_id=self.grouping.id,
+            contribution_id=self.contribution.id,
+            file_id=self.image_file.id
+        ).render()
+
+    def delete(self, user):
+        url = reverse(
+            'api:grouping_single_media',
+            kwargs={
+                'project_id': self.project.id,
+                'grouping_id': self.grouping.id,
+                'contribution_id': self.contribution.id,
+                'file_id': self.image_file.id
+            }
+        )
+        
+        request = self.factory.delete(url)
+        force_authenticate(request, user)
+        view = GroupingContributionsSingleMediaApiView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            grouping_id=self.grouping.id,
+            contribution_id=self.contribution.id,
+            file_id=self.image_file.id
+        ).render()
+
+    def test_get_image_with_admin(self):
+        response = self.get(self.admin)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_image_with_contributor(self):
+        response = self.get(self.creator)
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_image_with_viewer(self):
+        response = self.get(self.viewer)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_image_with_some_dude(self):
+        response = self.get(UserF.create())
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_image_with_anonymous(self):
+        response = self.get(AnonymousUser())
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_image_with_admin(self):
+        response = self.delete(self.admin)
+        self.assertEqual(response.status_code, 204)
+
+    def test_delete_image_with_contributor(self):
+        response = self.delete(self.creator)
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_image_with_viewer(self):
+        response = self.delete(self.viewer)
         self.assertEqual(response.status_code, 403)
 
     def test_delete_image_with_some_dude(self):
