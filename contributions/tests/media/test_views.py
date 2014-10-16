@@ -7,14 +7,19 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AnonymousUser
 from django.core.files.base import ContentFile
+from django.core.exceptions import PermissionDenied
 
+from nose.tools import raises
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework.renderers import JSONRenderer
 
 from projects.tests.model_factories import UserF, ProjectF
+from dataviews.tests.model_factories import ViewFactory, RuleFactory
+from contributions.models import ImageFile
 
 from contributions.views import (
-    MediaFileListAbstractAPIView, AllContributionsMediaAPIView
+    MediaFileListAbstractAPIView, AllContributionsMediaAPIView,
+    MediaFileSingleAbstractView, AllContributionsSingleMediaApiView
 )
 
 from ..model_factories import ObservationFactory
@@ -33,10 +38,6 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         self.contribution = ObservationFactory.create(
             **{'project': self.project}
         )
-
-        # self.image_file = ImageFileFactory.create(
-        #     **{'contribution': self.contribution}
-        # )
 
     def render(self, response):
         response.accepted_renderer = JSONRenderer()
@@ -101,6 +102,118 @@ class MediaFileAbstractListAPIViewTest(TestCase):
             response_json.get('creator').get('display_name'),
             request.user.display_name
         )
+
+
+class MediaFileSingleAbstractViewTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.creator = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.creator]
+        )
+
+        self.contribution = ObservationFactory.create(
+            **{'project': self.project, 'creator': self.creator}
+        )
+
+        self.image_file = ImageFileFactory.create(
+            **{'contribution': self.contribution, 'creator': self.creator}
+        )
+
+    def render(self, response):
+        response.accepted_renderer = JSONRenderer()
+        response.accepted_media_type = 'application/json'
+        response.renderer_context = {'blah': 'blubb'}
+        return response.render()
+
+    def test_get_and_respond(self):
+        url = reverse(
+            'api:project_single_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id,
+                'file_id': self.image_file.id
+            }
+        )
+
+        request = self.factory.get(url)
+        view = MediaFileSingleAbstractView()
+        view.request = request
+
+        response = self.render(
+            view.get_and_respond(
+                self.admin,
+                self.image_file
+            )
+        )
+        response_json = json.loads(response.content)
+        self.assertEqual(response_json.get('id'), self.image_file.id)
+
+    @raises(ImageFile.DoesNotExist)
+    def test_delete_and_respond_with_admin(self):
+        url = reverse(
+            'api:project_single_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id,
+                'file_id': self.image_file.id
+            }
+        )
+
+        request = self.factory.delete(url)
+        view = MediaFileSingleAbstractView()
+        view.request = request
+
+        response = self.render(
+            view.delete_and_respond(
+                self.admin,
+                self.image_file
+            )
+        )
+        ImageFile.objects.get(pk=self.image_file.id)
+
+    @raises(ImageFile.DoesNotExist)
+    def test_delete_and_respond_with_contributor(self):
+        url = reverse(
+            'api:project_single_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id,
+                'file_id': self.image_file.id
+            }
+        )
+
+        request = self.factory.delete(url)
+        view = MediaFileSingleAbstractView()
+        view.request = request
+
+        response = self.render(
+            view.delete_and_respond(
+                self.creator,
+                self.image_file
+            )
+        )
+        ImageFile.objects.get(pk=self.image_file.id)
+
+
+    @raises(PermissionDenied)
+    def test_delete_and_respond_with_some_dude(self):
+        url = reverse(
+            'api:project_single_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id,
+                'file_id': self.image_file.id
+            }
+        )
+
+        request = self.factory.delete(url)
+        view = MediaFileSingleAbstractView()
+        view.request = request
+
+        view.delete_and_respond(UserF.create(), self.image_file)
 
 
 class AllContributionsMediaAPIViewTest(TestCase):
@@ -210,3 +323,119 @@ class AllContributionsMediaAPIViewTest(TestCase):
         response = self.post(self.admin, data=data)
         self.assertEqual(response.status_code, 400)
 
+class AllContributionsSingleMediaApiViewTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.creator = UserF.create()
+        self.viewer = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.creator]
+        )
+
+        self.contribution = ObservationFactory.create(
+            **{'project': self.project, 'creator': self.creator}
+        )
+
+        self.image_file = ImageFileFactory.create(
+            **{'contribution': self.contribution, 'creator': self.creator}
+        )
+
+    def get(self, user):
+        url = reverse(
+            'api:project_single_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id,
+                'file_id': self.image_file.id
+            }
+        )
+        
+        request = self.factory.get(url)
+        force_authenticate(request, user)
+        view = AllContributionsSingleMediaApiView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            contribution_id=self.contribution.id,
+            file_id=self.image_file.id
+        ).render()
+
+    def delete(self, user):
+        url = reverse(
+            'api:project_single_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id,
+                'file_id': self.image_file.id
+            }
+        )
+        
+        request = self.factory.delete(url)
+        force_authenticate(request, user)
+        view = AllContributionsSingleMediaApiView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            contribution_id=self.contribution.id,
+            file_id=self.image_file.id
+        ).render()
+
+    def test_get_image_with_admin(self):
+        response = self.get(self.admin)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_image_with_contributor(self):
+        response = self.get(self.creator)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_image_with_viewer(self):
+        viewer = UserF.create()
+        dataview = ViewFactory.create(
+            add_viewers=[viewer],
+            **{'project': self.project}
+        )
+        RuleFactory.create(**{
+            'view': dataview,
+            'observation_type': self.contribution.observationtype
+        })
+        response = self.get(viewer)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_image_with_some_dude(self):
+        response = self.get(UserF.create())
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_image_with_anonymous(self):
+        response = self.get(AnonymousUser())
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_image_with_admin(self):
+        response = self.delete(self.admin)
+        self.assertEqual(response.status_code, 204)
+
+    def test_delete_image_with_contributor(self):
+        response = self.delete(self.creator)
+        self.assertEqual(response.status_code, 204)
+
+    def test_delete_image_with_viewer(self):
+        viewer = UserF.create()
+        dataview = ViewFactory.create(
+            add_viewers=[viewer],
+            **{'project': self.project}
+        )
+        RuleFactory.create(**{
+            'view': dataview,
+            'observation_type': self.contribution.observationtype
+        })
+        response = self.delete(viewer)
+        self.assertEqual(response.status_code, 403)
+
+    def test_delete_image_with_some_dude(self):
+        response = self.delete(UserF.create())
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_image_with_anonymous(self):
+        response = self.delete(AnonymousUser())
+        self.assertEqual(response.status_code, 404)

@@ -104,6 +104,10 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/data-groupings/all-contributions/contributions/(?P<contribution_id>[0-9]+)/media/$',
         contribution_views.AllContributionsMediaAPIView.as_view(),
         name='project_media'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/all-contributions/contributions/(?P<contribution_id>[0-9]+)/media/(?P<file_id>[0-9]+)$',
+        contribution_views.AllContributionsSingleMediaApiView.as_view(),
+        name='project_single_media'),
 
     # ###########################
     # OBSERVATION TYPES

@@ -553,3 +553,48 @@ class AllContributionsMediaAPIView(
             contribution_id
         )
         return self.create_and_respond(request.user, contribution)
+
+
+class MediaFileSingleAbstractView(APIView):
+    def get_and_respond(self, user, media_file):
+        serializer = FileSerializer(media_file, context={'user': user})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete_and_respond(self, user, media_file):
+        if (media_file.creator == user or
+                media_file.contribution.project.can_moderate(user)):
+            media_file.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        raise PermissionDenied('You neither are the creator if this file '
+                               'nor a project moderator and therefore '
+                               'not eligable to delete this file.')
+
+
+class AllContributionsSingleMediaApiView(
+    MediaFileSingleAbstractView, SingleAllContribution):
+
+    def get_file(self, user, project_id, contribution_id, file_id):
+        contribution = self.get_object(user, project_id, contribution_id)
+        return contribution.files_attached.get(pk=file_id)
+
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, contribution_id, file_id, format=None):
+        media_file = self.get_file(
+            request.user,
+            project_id,
+            contribution_id,
+            file_id
+        )
+        return self.get_and_respond(request.user, media_file)
+
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, contribution_id, file_id,
+               format=None):
+        media_file = self.get_file(
+            request.user,
+            project_id,
+            contribution_id,
+            file_id
+        )
+        return self.delete_and_respond(request.user, media_file)
