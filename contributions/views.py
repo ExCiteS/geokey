@@ -512,22 +512,25 @@ class MediaFileListAbstractAPIView(APIView):
         """
         Creates an image and responds with the file information
         """
-        user = self.request.user
         data = self.request.POST
 
         if user.is_anonymous():
             user = User.objects.get(display_name='AnonymousUser')
 
-        the_file = MediaFile.objects.create(
-            name=data.get('name'),
-            description=data.get('description'),
-            contribution=contribution,
-            creator=user,
-            the_file=self.request.FILES.get('file')
-        )
+        if contribution.project.can_contribute(user):
+            the_file = MediaFile.objects.create(
+                name=data.get('name'),
+                description=data.get('description'),
+                contribution=contribution,
+                creator=user,
+                the_file=self.request.FILES.get('file')
+            )
 
-        serializer = FileSerializer(the_file, context={'user': user})
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            serializer = FileSerializer(the_file, context={'user': user})
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            raise PermissionDenied('You are not allowed to contribute to the'
+                                   'project.')
 
 
 class AllContributionsMediaAPIView(

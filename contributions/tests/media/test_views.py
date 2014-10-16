@@ -83,7 +83,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         }
 
         request = self.factory.post(url, data)
-        request.user = UserF.create()
+        request.user = self.admin
         view = MediaFileListAbstractAPIView()
         view.request = request
 
@@ -538,7 +538,7 @@ class GroupingContributionsMediaApiViewTest(TestCase):
 
     def test_upload_image_with_viewer(self):
         response = self.post(self.viewer)
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 403)
 
     def test_upload_image_with_some_dude(self):
         response = self.post(UserF.create())
@@ -560,7 +560,7 @@ class GroupingContributionsMediaApiViewTest(TestCase):
             'file': ContentFile(xyz_file.read(), 'test.xyz')
         }
 
-        response = self.post(self.viewer, data=data)
+        response = self.post(self.admin, data=data)
         self.assertEqual(response.status_code, 400)
 
 
