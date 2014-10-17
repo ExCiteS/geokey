@@ -58,7 +58,6 @@ class Dashboard(LoginRequiredMixin, TemplateView):
         projects = Project.objects.get_list(self.request.user)
 
         return {
-            'stats': self.request.user.get_stats(),
             'admin_projects': projects.filter(admins=self.request.user),
             'involved_projects': projects.exclude(admins=self.request.user),
             'status_types': STATUS

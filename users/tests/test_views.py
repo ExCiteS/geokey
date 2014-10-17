@@ -20,7 +20,7 @@ from .model_factories import UserF, UserGroupF, ViewUserGroupFactory
 from ..views import (
     UserGroup, UserGroupUsers, UserGroupSingleUser, UserGroupViews,
     UserGroupSingleView, UserGroupCreate, UserGroupSettings, UserProfile,
-    ChangePassword, CreateUserMixin, SignupAPIView
+    ChangePassword, CreateUserMixin, SignupAPIView, Dashboard
 )
 from ..models import User, UserGroup as Group
 
@@ -30,6 +30,46 @@ from ..models import User, UserGroup as Group
 # ADMIN VIEWS
 #
 # ############################################################################
+
+class DashboardTest(TestCase):
+    def setUp(self):
+        self.creator = UserF.create()
+        self.admin = UserF.create()
+        self.view_member = UserF.create()
+        self.contributor = UserF.create()
+        ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+
+        ProjectF.create(
+            add_admins=[self.admin, self.contributor]
+        )
+
+    def test_get_context_data_with_admin(self):
+        dashboard_view = Dashboard()
+        url = reverse('admin:dashboard')
+        request = APIRequestFactory().get(url)
+        
+        request.user = self.admin
+        dashboard_view.request = request
+        context = dashboard_view.get_context_data()
+
+        self.assertEqual(len(context.get('admin_projects')), 2)
+        self.assertEqual(len(context.get('involved_projects')), 0)
+
+    def test_get_context_data_with_contributor(self):
+        dashboard_view = Dashboard()
+        url = reverse('admin:dashboard')
+        request = APIRequestFactory().get(url)
+        
+        request.user = self.contributor
+        dashboard_view.request = request
+        context = dashboard_view.get_context_data()
+
+        self.assertEqual(len(context.get('admin_projects')), 1)
+        self.assertEqual(len(context.get('involved_projects')), 1)
+
 
 class CreateUserMixinTest(TestCase):
     def setUp(self):
