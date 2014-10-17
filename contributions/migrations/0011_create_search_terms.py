@@ -4,7 +4,7 @@ from south.db import db
 from south.v2 import DataMigration
 from django.db import models
 
-from observationtypes.models import Field
+from observationtypes.models import Field, LookupValue, MultipleLookupValue
 
 class Migration(DataMigration):
 
@@ -32,7 +32,7 @@ class Migration(DataMigration):
                         try:
                             lookup = field.lookupvalues.get(pk=l_id)
                             search_matches.append(lookup.name)
-                        except observationtypes.models.DoesNotExist:
+                        except LookupValue.DoesNotExist:
                             pass
 
                     elif field.fieldtype == 'MultipleLookupField':
@@ -42,7 +42,7 @@ class Migration(DataMigration):
                             try:
                                 lookup = field.lookupvalues.get(pk=l_id)
                                 search_matches.append(lookup.name)
-                            except observationtypes.models.DoesNotExist:
+                            except MultipleLookupValue.DoesNotExist:
                                 pass
 
             observation.search_matches = '#####'.join(search_matches)
