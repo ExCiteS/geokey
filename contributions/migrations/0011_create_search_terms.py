@@ -29,15 +29,21 @@ class Migration(DataMigration):
 
                     elif field.fieldtype == 'LookupField':
                         l_id = observation.attributes.get(field.key)
-                        lookup = field.lookupvalues.get(pk=l_id)
-                        search_matches.append(lookup.name)
+                        try:
+                            lookup = field.lookupvalues.get(pk=l_id)
+                            search_matches.append(lookup.name)
+                        except observationtypes.models.DoesNotExist:
+                            pass
 
                     elif field.fieldtype == 'MultipleLookupField':
                         l_ids = json.loads(observation.attributes.get(field.key))
 
                         for l_id in l_ids:
-                            lookup = field.lookupvalues.get(pk=l_id)
-                            search_matches.append(lookup.name)
+                            try:
+                                lookup = field.lookupvalues.get(pk=l_id)
+                                search_matches.append(lookup.name)
+                            except observationtypes.models.DoesNotExist:
+                                pass
 
             observation.search_matches = '#####'.join(search_matches)
             observation.save()
