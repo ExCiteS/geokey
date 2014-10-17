@@ -1,14 +1,12 @@
-from django.test import TestCase
 from django.core.exceptions import PermissionDenied
+from django.test import TestCase
 
 from nose.tools import raises
 
 from projects.tests.model_factories import ProjectF, UserF
 
-from ..models import Location, Observation, Comment
-from .model_factories import (
-    LocationFactory, ObservationFactory, CommentFactory
-)
+from ..model_factories import LocationFactory
+from contributions.models import Location
 
 
 class LocationTest(TestCase):
@@ -65,57 +63,3 @@ class LocationTest(TestCase):
     def test_get_private_location_for_project2_with_admin(self):
         Location.objects.get_single(
             self.admin, self.project2.id, self.private_location.id)
-
-
-class ObservationTest(TestCase):
-    def setUp(self):
-        self.creator = UserF.create()
-        ObservationFactory.create_batch(
-            5, **{'status': 'active', 'creator': self.creator})
-        ObservationFactory.create_batch(
-            5, **{'status': 'draft', 'creator': self.creator})
-        ObservationFactory.create_batch(
-            5, **{'status': 'pending', 'creator': self.creator})
-        ObservationFactory.create_batch(
-            5, **{'status': 'deleted', 'creator': self.creator})
-
-    def test_for_creator_moderator(self):
-        observations = Observation.objects.all().for_moderator(self.creator)
-        self.assertEqual(len(observations), 15)
-        for observation in observations:
-            self.assertNotIn(
-                observation.status,
-                ['deleted']
-            )
-
-    def test_for_moderator(self):
-        observations = Observation.objects.all().for_moderator(UserF.create())
-        self.assertEqual(len(observations), 10)
-        for observation in observations:
-            self.assertNotIn(
-                observation.status,
-                ['draft', 'deleted']
-            )
-
-    def test_for_viewer(self):
-        observations = Observation.objects.all().for_viewer(UserF.create())
-        self.assertEqual(len(observations), 5)
-        for observation in observations:
-            self.assertNotIn(
-                observation.status,
-                ['draft', 'pending', 'deleted']
-            )
-
-
-class CommentTest(TestCase):
-    def test_get_comments(self):
-        observation = ObservationFactory.create()
-        CommentFactory.create_batch(5, **{'commentto': observation})
-        CommentFactory.create(**{
-            'commentto': observation,
-            'status': 'deleted'
-        })
-        comments = Comment.objects.all()
-        self.assertEqual(len(comments), 5)
-        for comment in comments:
-            self.assertNotEqual(comment.status, 'deleted')

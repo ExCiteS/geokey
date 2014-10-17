@@ -19,18 +19,14 @@ from users.tests.model_factories import UserGroupF, ViewUserGroupFactory
 
 from observationtypes.tests.model_factories import TextFieldFactory
 
-from .model_factories import ObservationFactory, CommentFactory
+from ..model_factories import ObservationFactory, CommentFactory
 
-from ..views.observations import (
+from contributions.views.observations import (
     SingleMyContributionAPIView, SingleAllContributionAPIView,
     SingleGroupingContributionAPIView, SingleContributionAPIView,
     ContributionSearchAPIView
 )
-from ..views.comments import (
-    AllContributionsSingleCommentAPIView,
-    GroupingContributionsSingleCommentAPIView
-)
-from ..models import Observation
+from contributions.models import Observation
 
 
 class ContributionSearchTest(TestCase):
@@ -521,100 +517,3 @@ class SingleMyContributionAPIViewTest(TestCase):
         view = SingleMyContributionAPIView()
         view.get_object(
             some_dude, self.observation.project.id, self.observation.id)
-
-
-class AllContributionsSingleCommentAPIViewTest(TestCase):
-    def setUp(self):
-        self.admin = UserF.create()
-        self.creator = UserF.create()
-        self.project = ProjectF(
-            add_admins=[self.admin],
-            add_contributors=[self.creator]
-        )
-        self.observation = ObservationFactory.create(**{
-            'project': self.project,
-            'creator': self.creator
-        })
-
-    def test_get_object_with_admin(self):
-        view = AllContributionsSingleCommentAPIView()
-        observation = view.get_object(
-            self.admin, self.project.id, self.observation.id)
-        self.assertEqual(observation, self.observation)
-
-    def test_get_object_with_creator(self):
-        view = AllContributionsSingleCommentAPIView()
-        view.get_object(self.creator, self.project.id, self.observation.id)
-
-    @raises(Project.DoesNotExist)
-    def test_get_object_with_some_dude(self):
-        some_dude = UserF.create()
-        view = AllContributionsSingleCommentAPIView()
-        view.get_object(some_dude, self.project.id, self.observation.id)
-
-
-class GroupingContributionsSingleCommentAPIViewTest(TestCase):
-    def setUp(self):
-        self.admin = UserF.create()
-        self.creator = UserF.create()
-        self.project = ProjectF(
-            add_admins=[self.admin],
-            add_contributors=[self.creator]
-        )
-
-        observation_type = ObservationTypeFactory(**{'project': self.project})
-
-        self.observation = ObservationFactory.create(**{
-            'project': self.project,
-            'creator': self.creator,
-            'observationtype': observation_type
-        })
-
-        self.view = ViewFactory(**{'project': self.project})
-        RuleFactory(**{
-            'view': self.view,
-            'observation_type': observation_type}
-        )
-
-    def test_get_object_with_admin(self):
-        view = GroupingContributionsSingleCommentAPIView()
-        observation = view.get_object(
-            self.admin, self.project.id, self.view.id, self.observation.id)
-        self.assertEqual(observation, self.observation)
-
-    @raises(View.DoesNotExist)
-    def test_get_object_with_creator_not_viewmember(self):
-        view = GroupingContributionsSingleCommentAPIView()
-        view.get_object(
-            self.creator, self.project.id, self.view.id, self.observation.id
-        )
-
-    def test_get_object_with_creator_is_viewmember(self):
-        group = UserGroupF.create(
-            add_users=[self.creator],
-            **{'project': self.view.project}
-        )
-        ViewUserGroupFactory.create(
-            **{'view': self.view, 'usergroup': group}
-        )
-        view = GroupingContributionsSingleCommentAPIView()
-        observation = view.get_object(
-            self.creator, self.observation.project.id,
-            self.view.id, self.observation.id
-        )
-        self.assertEqual(observation, self.observation)
-
-    def test_get_object_with_view_member_not_creator(self):
-        view_member = UserF.create()
-        group = UserGroupF.create(
-            add_users=[view_member],
-            **{'project': self.view.project}
-        )
-        ViewUserGroupFactory.create(
-            **{'view': self.view, 'usergroup': group}
-        )
-        view = GroupingContributionsSingleCommentAPIView()
-        view.get_object(
-            view_member, self.observation.project.id,
-            self.view.id, self.observation.id
-        )

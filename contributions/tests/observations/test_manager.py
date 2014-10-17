@@ -3,12 +3,52 @@ from django.test import TestCase
 
 from contributions.models import Observation
 
-from projects.tests.model_factories import ProjectF
+from projects.tests.model_factories import ProjectF, UserF
 from observationtypes.tests.model_factories import (
     ObservationTypeFactory, LookupFieldFactory, LookupValueFactory,
     TextFieldFactory, MultipleLookupFieldFactory, MultipleLookupValueFactory
 )
 from ..model_factories import ObservationFactory
+
+
+class ObservationTest(TestCase):
+    def setUp(self):
+        self.creator = UserF.create()
+        ObservationFactory.create_batch(
+            5, **{'status': 'active', 'creator': self.creator})
+        ObservationFactory.create_batch(
+            5, **{'status': 'draft', 'creator': self.creator})
+        ObservationFactory.create_batch(
+            5, **{'status': 'pending', 'creator': self.creator})
+        ObservationFactory.create_batch(
+            5, **{'status': 'deleted', 'creator': self.creator})
+
+    def test_for_creator_moderator(self):
+        observations = Observation.objects.all().for_moderator(self.creator)
+        self.assertEqual(len(observations), 15)
+        for observation in observations:
+            self.assertNotIn(
+                observation.status,
+                ['deleted']
+            )
+
+    def test_for_moderator(self):
+        observations = Observation.objects.all().for_moderator(UserF.create())
+        self.assertEqual(len(observations), 10)
+        for observation in observations:
+            self.assertNotIn(
+                observation.status,
+                ['draft', 'deleted']
+            )
+
+    def test_for_viewer(self):
+        observations = Observation.objects.all().for_viewer(UserF.create())
+        self.assertEqual(len(observations), 5)
+        for observation in observations:
+            self.assertNotIn(
+                observation.status,
+                ['draft', 'pending', 'deleted']
+            )
 
 
 class TestSearch(TestCase):
