@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.gis.db import models as gis
 
 from .manager import ProjectManager
 from .base import STATUS
@@ -23,6 +24,7 @@ class Project(models.Model):
     )
     admins = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name='admins')
+    geographic_extend = gis.PolygonField(null=True, geography=True)
 
     objects = ProjectManager()
 

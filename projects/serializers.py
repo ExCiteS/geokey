@@ -1,3 +1,4 @@
+import json
 from django.db.models import Q
 
 from rest_framework import serializers
@@ -28,13 +29,16 @@ class ProjectSerializer(FieldSelectorSerializer):
         'get_contribution_info')
     user_info = serializers.SerializerMethodField(
         'get_user_info')
+    geographic_extent = serializers.SerializerMethodField(
+        'get_extent')
 
     class Meta:
         model = Project
         depth = 1
         fields = ('id', 'name', 'description', 'isprivate', 'status',
                   'created_at', 'categories', 'data_groupings',
-                  'contribution_info', 'user_info', 'num_locations')
+                  'contribution_info', 'user_info', 'num_locations',
+                  'geographic_extent')
         read_only_fields = ('id', 'name')
 
     def get_categories(self, project):
@@ -54,6 +58,12 @@ class ProjectSerializer(FieldSelectorSerializer):
                 'created_at', 'symbol', 'colour'),
             context={'user': user})
         return view_serializer.data
+
+    def get_extent(self, project):
+        """
+        Returns the geographic extent of the project as geojson.
+        """
+        return json.loads(project.geographic_extend.json)
 
     def get_number_locations(self, project):
         """

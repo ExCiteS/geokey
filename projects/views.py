@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.utils.html import strip_tags
+from django.contrib.gis.geos import GEOSGeometry
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -87,10 +88,45 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
             raise PermissionDenied('You are not allowed to access this project')
 
 
+class ProjectExtend(LoginRequiredMixin, TemplateView):
+    template_name = 'projects/project_extend.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id):
+        """
+        Creates the request context for rendering the page. If the user is not
+        an administrator of the project, `PermissionDenied` is caught and
+        handled in the `handle_exceptions_for_admin` decorator and an error
+        message is displayed.
+        """
+        project = Project.objects.as_admin(self.request.user, project_id)
+
+        context = super(ProjectExtend, self).get_context_data()
+        context['project'] = project
+
+        return context
+
+    def post(self, request, project_id):
+        data = request.POST
+        context = self.get_context_data(project_id)
+        project = context.pop('project', None)
+
+        if project is not None:
+            project.geographic_extend = GEOSGeometry(data.get('geometry'))
+            project.save()
+
+            messages.success(
+                self.request,
+                'The geographic extend has been updated successfully.'
+            )
+            context['project'] = project
+            return self.render_to_response(context)
+
+
 class ProjectSettings(LoginRequiredMixin, TemplateView):
     """
     Displays the project settings page
-    `/admin/projects/:project_id`
+    `/admin/projects/:project_id/settings/`
     """
     model = Project
     template_name = 'projects/project_settings.html'

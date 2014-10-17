@@ -1,6 +1,8 @@
 import datetime
 import factory
 
+from django.contrib.gis.geos import GEOSGeometry
+
 from users.tests.model_factories import UserF
 
 from ..models import Project
@@ -16,6 +18,10 @@ class ProjectF(factory.django.DjangoModelFactory):
     created_at = datetime.date(2014, 11, 11)
     creator = factory.SubFactory(UserF)
     status = 'active'
+    geographic_extend = GEOSGeometry(
+        '{"type": "Polygon","coordinates": [[[-0.508,51.682],[-0.53,51.327],'
+        '[0.225,51.323],[0.167,51.667],[-0.508,51.682]]]}'
+    )
 
     @factory.post_generation
     def add_admins(self, create, extracted, **kwargs):
