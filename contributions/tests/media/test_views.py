@@ -17,7 +17,7 @@ from projects.tests.model_factories import UserF, ProjectF
 from dataviews.tests.model_factories import ViewFactory, RuleFactory
 from contributions.models import ImageFile
 
-from contributions.views import (
+from contributions.views.media import (
     MediaFileListAbstractAPIView, AllContributionsMediaAPIView,
     MediaFileSingleAbstractView, AllContributionsSingleMediaApiView,
     MyContributionsMediaApiView, MyContributionsSingleMediaApiView,
@@ -26,6 +26,7 @@ from contributions.views import (
 
 from ..model_factories import ObservationFactory
 from .model_factories import ImageFileFactory, get_image
+
 
 class MediaFileAbstractListAPIViewTest(TestCase):
     def setUp(self):
@@ -199,7 +200,6 @@ class MediaFileSingleAbstractViewTest(TestCase):
         )
         ImageFile.objects.get(pk=self.image_file.id)
 
-
     @raises(PermissionDenied)
     def test_delete_and_respond_with_some_dude(self):
         url = reverse(
@@ -243,7 +243,7 @@ class AllContributionsMediaAPIViewTest(TestCase):
                 'contribution_id': self.contribution.id
             }
         )
-        
+
         request = self.factory.get(url)
         force_authenticate(request, user)
         view = AllContributionsMediaAPIView.as_view()
@@ -268,7 +268,7 @@ class AllContributionsMediaAPIViewTest(TestCase):
                 'contribution_id': self.contribution.id
             }
         )
-        
+
         request = self.factory.post(url, data)
         force_authenticate(request, user)
         view = AllContributionsMediaAPIView.as_view()
@@ -312,7 +312,7 @@ class AllContributionsMediaAPIViewTest(TestCase):
 
     def test_upload_unsupported_file_format(self):
         xyz_file = StringIO()
-        xyz = Image.new('RGBA', size=(50,50), color=(256,0,0))
+        xyz = Image.new('RGBA', size=(50, 50), color=(256, 0, 0))
         xyz.save(xyz_file, 'png')
         xyz_file.seek(0)
 
@@ -351,7 +351,7 @@ class MyContributionsMediaApiViewTest(TestCase):
                 'contribution_id': self.contribution.id
             }
         )
-        
+
         request = self.factory.get(url)
         force_authenticate(request, user)
         view = MyContributionsMediaApiView.as_view()
@@ -376,7 +376,7 @@ class MyContributionsMediaApiViewTest(TestCase):
                 'contribution_id': self.contribution.id
             }
         )
-        
+
         request = self.factory.post(url, data)
         force_authenticate(request, user)
         view = MyContributionsMediaApiView.as_view()
@@ -420,7 +420,7 @@ class MyContributionsMediaApiViewTest(TestCase):
 
     def test_upload_unsupported_file_format(self):
         xyz_file = StringIO()
-        xyz = Image.new('RGBA', size=(50,50), color=(256,0,0))
+        xyz = Image.new('RGBA', size=(50, 50), color=(256, 0, 0))
         xyz.save(xyz_file, 'png')
         xyz_file.seek(0)
 
@@ -470,7 +470,7 @@ class GroupingContributionsMediaApiViewTest(TestCase):
                 'contribution_id': self.contribution.id
             }
         )
-        
+
         request = self.factory.get(url)
         force_authenticate(request, user)
         view = GroupingContributionsMediaApiView.as_view()
@@ -497,7 +497,7 @@ class GroupingContributionsMediaApiViewTest(TestCase):
                 'contribution_id': self.contribution.id
             }
         )
-        
+
         request = self.factory.post(url, data)
         force_authenticate(request, user)
         view = GroupingContributionsMediaApiView.as_view()
@@ -550,7 +550,7 @@ class GroupingContributionsMediaApiViewTest(TestCase):
 
     def test_upload_unsupported_file_format(self):
         xyz_file = StringIO()
-        xyz = Image.new('RGBA', size=(50,50), color=(256,0,0))
+        xyz = Image.new('RGBA', size=(50, 50), color=(256, 0, 0))
         xyz.save(xyz_file, 'png')
         xyz_file.seek(0)
 
@@ -592,7 +592,7 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
                 'file_id': self.image_file.id
             }
         )
-        
+
         request = self.factory.get(url)
         force_authenticate(request, user)
         view = AllContributionsSingleMediaApiView.as_view()
@@ -612,7 +612,7 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
                 'file_id': self.image_file.id
             }
         )
-        
+
         request = self.factory.delete(url)
         force_authenticate(request, user)
         view = AllContributionsSingleMediaApiView.as_view()
@@ -710,7 +710,7 @@ class MyContributionsSingleMediaApiViewTest(TestCase):
                 'file_id': self.image_file.id
             }
         )
-        
+
         request = self.factory.get(url)
         force_authenticate(request, user)
         view = MyContributionsSingleMediaApiView.as_view()
@@ -730,7 +730,7 @@ class MyContributionsSingleMediaApiViewTest(TestCase):
                 'file_id': self.image_file.id
             }
         )
-        
+
         request = self.factory.delete(url)
         force_authenticate(request, user)
         view = MyContributionsSingleMediaApiView.as_view()
@@ -839,7 +839,7 @@ class MyContributionsSingleMediaApiViewTest(TestCase):
                 'file_id': self.image_file.id
             }
         )
-        
+
         request = self.factory.get(url)
         force_authenticate(request, user)
         view = GroupingContributionsSingleMediaApiView.as_view()
@@ -861,7 +861,7 @@ class MyContributionsSingleMediaApiViewTest(TestCase):
                 'file_id': self.image_file.id
             }
         )
-        
+
         request = self.factory.delete(url)
         force_authenticate(request, user)
         view = GroupingContributionsSingleMediaApiView.as_view()

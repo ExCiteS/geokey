@@ -17,17 +17,18 @@ from dataviews.tests.model_factories import (
 from dataviews.models import View
 from users.tests.model_factories import UserGroupF, ViewUserGroupFactory
 
-from observationtypes.tests.model_factories import (
-    ObservationTypeFactory, TextFieldFactory
-)
+from observationtypes.tests.model_factories import TextFieldFactory
 
 from .model_factories import ObservationFactory, CommentFactory
 
-from ..views import (
+from ..views.observations import (
     SingleMyContributionAPIView, SingleAllContributionAPIView,
-    SingleGroupingContributionAPIView, AllContributionsSingleCommentAPIView,
-    GroupingContributionsSingleCommentAPIView, SingleContributionAPIView,
+    SingleGroupingContributionAPIView, SingleContributionAPIView,
     ContributionSearchAPIView
+)
+from ..views.comments import (
+    AllContributionsSingleCommentAPIView,
+    GroupingContributionsSingleCommentAPIView
 )
 from ..models import Observation
 
@@ -79,7 +80,7 @@ class ContributionSearchTest(TestCase):
         features = json.loads(response.content)
         self.assertEqual(len(features.get('features')), 5)
 
-    def test_get_with_blah(self):
+    def test_get_with_blub(self):
         response = self.get(self.admin, 'blub')
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'blah')
@@ -120,8 +121,11 @@ class SingleContributionAPIViewTest(TestCase):
         request.user = self.admin
 
         view = SingleContributionAPIView()
-        data = view.update_and_respond(request, self.observation)
-        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'active')
+        view.update_and_respond(request, self.observation)
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'active'
+        )
 
     def test_approve_pending_with_moderator(self):
         self.observation.status = 'pending'
@@ -135,8 +139,11 @@ class SingleContributionAPIViewTest(TestCase):
         request.user = self.moderator
 
         view = SingleContributionAPIView()
-        data = view.update_and_respond(request, self.observation)
-        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'active')
+        view.update_and_respond(request, self.observation)
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'active'
+        )
 
     @raises(PermissionDenied)
     def test_approve_pending_with_contributor(self):
@@ -151,8 +158,11 @@ class SingleContributionAPIViewTest(TestCase):
         request.user = self.creator
 
         view = SingleContributionAPIView()
-        data = view.update_and_respond(request, self.observation)
-        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
+        view.update_and_respond(request, self.observation)
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'pending'
+        )
 
     def test_approve_pending_with_contributor_who_is_moderator(self):
         self.moderators.users.add(self.creator)
@@ -167,8 +177,11 @@ class SingleContributionAPIViewTest(TestCase):
         request.user = self.creator
 
         view = SingleContributionAPIView()
-        data = view.update_and_respond(request, self.observation)
-        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'active')
+        view.update_and_respond(request, self.observation)
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'active'
+        )
 
     def test_flag_with_admin(self):
         url = reverse('api:project_all_observations', kwargs={
@@ -179,8 +192,11 @@ class SingleContributionAPIViewTest(TestCase):
         request.user = self.admin
 
         view = SingleContributionAPIView()
-        data = view.update_and_respond(request, self.observation)
-        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
+        view.update_and_respond(request, self.observation)
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'pending'
+        )
 
     def test_flag_with_moderator(self):
         url = reverse('api:project_all_observations', kwargs={
@@ -191,7 +207,7 @@ class SingleContributionAPIViewTest(TestCase):
         request.user = self.moderator
 
         view = SingleContributionAPIView()
-        data = view.update_and_respond(request, self.observation)
+        view.update_and_respond(request, self.observation)
         ref = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(ref.status, 'pending')
 
@@ -200,11 +216,14 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': 'pending', 'key': 'updated', 'review_comment': 'check das'}}
+        request.DATA = {'properties': {
+            'status': 'pending',
+            'key': 'updated',
+            'review_comment': 'check das'}}
         request.user = self.moderator
 
         view = SingleContributionAPIView()
-        data = view.update_and_respond(request, self.observation)
+        view.update_and_respond(request, self.observation)
         ref = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(ref.status, 'pending')
         self.assertEqual(ref.review_comment, 'check das')
@@ -219,8 +238,11 @@ class SingleContributionAPIViewTest(TestCase):
         request.user = self.creator
 
         view = SingleContributionAPIView()
-        data = view.update_and_respond(request, self.observation)
-        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
+        view.update_and_respond(request, self.observation)
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'pending'
+        )
 
     def test_flag_with_anonymous(self):
         url = reverse('api:project_all_observations', kwargs={
@@ -231,8 +253,11 @@ class SingleContributionAPIViewTest(TestCase):
         request.user = AnonymousUser()
 
         view = SingleContributionAPIView()
-        data = view.update_and_respond(request, self.observation)
-        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
+        view.update_and_respond(request, self.observation)
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'pending'
+        )
 
     @raises(PermissionDenied)
     def test_commit_from_draft_admin(self):
@@ -247,8 +272,11 @@ class SingleContributionAPIViewTest(TestCase):
         request.user = self.admin
 
         view = SingleContributionAPIView()
-        data = view.update_and_respond(request, self.observation)
-        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
+        view.update_and_respond(request, self.observation)
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'pending'
+        )
 
     @raises(PermissionDenied)
     def test_commit_from_draft_with_moderator(self):
@@ -263,8 +291,11 @@ class SingleContributionAPIViewTest(TestCase):
         request.user = self.moderator
 
         view = SingleContributionAPIView()
-        data = view.update_and_respond(request, self.observation)
-        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
+        view.update_and_respond(request, self.observation)
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'pending'
+        )
 
     def test_commit_from_draft_with_contributor(self):
         self.moderators.users.add(self.creator)
@@ -280,8 +311,11 @@ class SingleContributionAPIViewTest(TestCase):
         request.user = self.creator
 
         view = SingleContributionAPIView()
-        data = view.update_and_respond(request, self.observation)
-        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'active')
+        view.update_and_respond(request, self.observation)
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'active'
+        )
 
     def test_commit_from_draft_with_contributor_who_is_moderator(self):
         self.observation.status = 'draft'
@@ -295,8 +329,11 @@ class SingleContributionAPIViewTest(TestCase):
         request.user = self.creator
 
         view = SingleContributionAPIView()
-        data = view.update_and_respond(request, self.observation)
-        self.assertEqual(Observation.objects.get(pk=self.observation.id).status, 'pending')
+        view.update_and_respond(request, self.observation)
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'pending'
+        )
 
     def test_commit_from_draft_with_contributor_with_data(self):
         self.observation.status = 'draft'
@@ -317,10 +354,11 @@ class SingleContributionAPIViewTest(TestCase):
         request.user = self.creator
 
         view = SingleContributionAPIView()
-        data = view.update_and_respond(request, self.observation)
+        view.update_and_respond(request, self.observation)
         ref = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(ref.status, 'pending')
         self.assertEqual(ref.attributes.get('key'), 'updated')
+
 
 class SingleAllContributionAPIViewTest(TestCase):
     def setUp(self):
@@ -446,7 +484,7 @@ class SingleGroupingContributionAPIViewTest(TestCase):
         self.observation.save()
 
         view = SingleGroupingContributionAPIView()
-        observation = view.get_object(
+        view.get_object(
             self.non_moderator, self.observation.project.id,
             self.view.id, self.observation.id
         )
