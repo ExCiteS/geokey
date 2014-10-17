@@ -9,9 +9,10 @@ from core.decorators import handle_exceptions_for_ajax
 from core.exceptions import MalformedRequestData
 
 from .serializers import (
-    ContributionSerializer, LocationSerializer, CommentSerializer
+    ContributionSerializer, LocationSerializer, CommentSerializer,
+    FileSerializer
 )
-from .models import Location, Comment, Observation
+from .models import Location, Comment, Observation, MediaFile
 from projects.models import Project
 from dataviews.models import View
 from dataviews.serializers import ViewSerializer
@@ -488,3 +489,229 @@ class MyContributionsSingleCommentAPIView(
         observation = self.get_object(request.user, project_id, observation_id)
         comment = observation.comments.get(pk=comment_id)
         return self.delete_and_respond(request, comment)
+
+
+# ############################################################################
+#
+# Media
+#
+# ############################################################################
+
+class MediaFileListAbstractAPIView(APIView):
+    def get_list_and_respond(self, user, contribution):
+        """
+        Serialises all files attached to the contribution and returns the
+        JSON response
+        """
+        files = contribution.files_attached.all()
+        serializer = FileSerializer(
+            files, many=True, context={'user': user})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def create_and_respond(self, user, contribution):
+        """
+        Creates an image and responds with the file information
+        """
+        data = self.request.POST
+
+        if user.is_anonymous():
+            user = User.objects.get(display_name='AnonymousUser')
+
+        if contribution.project.can_contribute(user):
+            the_file = MediaFile.objects.create(
+                name=data.get('name'),
+                description=data.get('description'),
+                contribution=contribution,
+                creator=user,
+                the_file=self.request.FILES.get('file')
+            )
+
+            serializer = FileSerializer(the_file, context={'user': user})
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            raise PermissionDenied('You are not allowed to contribute to the'
+                                   'project.')
+
+
+class AllContributionsMediaAPIView(
+    MediaFileListAbstractAPIView, SingleAllContribution):
+
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, contribution_id, format=None):
+        """
+        Returns a list of all files attached to the observation
+        """
+        contribution = self.get_object(
+            request.user,
+            project_id,
+            contribution_id
+        )
+        return self.get_list_and_respond(request.user, contribution)
+
+    @handle_exceptions_for_ajax
+    def post(self, request, project_id, contribution_id, format=None):
+        contribution = self.get_object(
+            request.user,
+            project_id,
+            contribution_id
+        )
+        return self.create_and_respond(request.user, contribution)
+
+
+class MyContributionsMediaApiView(
+    MediaFileListAbstractAPIView, SingleMyContribution):
+
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, contribution_id, format=None):
+        """
+        Returns a list of all files attached to the observation
+        """
+        contribution = self.get_object(
+            request.user,
+            project_id,
+            contribution_id
+        )
+        return self.get_list_and_respond(request.user, contribution)
+
+    @handle_exceptions_for_ajax
+    def post(self, request, project_id, contribution_id, format=None):
+        contribution = self.get_object(
+            request.user,
+            project_id,
+            contribution_id
+        )
+        return self.create_and_respond(request.user, contribution)
+
+
+class GroupingContributionsMediaApiView(
+    MediaFileListAbstractAPIView, SingleGroupingContribution):
+
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, grouping_id, contribution_id, 
+            format=None):
+        """
+        Returns a list of all files attached to the observation
+        """
+        contribution = self.get_object(
+            request.user,
+            project_id,
+            grouping_id,
+            contribution_id
+        )
+        return self.get_list_and_respond(request.user, contribution)
+
+    @handle_exceptions_for_ajax
+    def post(self, request, project_id, grouping_id, contribution_id,
+             format=None):
+        contribution = self.get_object(
+            request.user,
+            project_id,
+            grouping_id,
+            contribution_id
+        )
+        return self.create_and_respond(request.user, contribution)
+
+
+class MediaFileSingleAbstractView(APIView):
+    def get_and_respond(self, user, media_file):
+        serializer = FileSerializer(media_file, context={'user': user})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete_and_respond(self, user, media_file):
+        if (media_file.creator == user or
+                media_file.contribution.project.can_moderate(user)):
+            media_file.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        raise PermissionDenied('You neither are the creator if this file '
+                               'nor a project moderator and therefore '
+                               'not eligable to delete this file.')
+
+
+class AllContributionsSingleMediaApiView(
+    MediaFileSingleAbstractView, SingleAllContribution):
+
+    def get_file(self, user, project_id, contribution_id, file_id):
+        contribution = self.get_object(user, project_id, contribution_id)
+        return contribution.files_attached.get(pk=file_id)
+
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, contribution_id, file_id, format=None):
+        media_file = self.get_file(
+            request.user,
+            project_id,
+            contribution_id,
+            file_id
+        )
+        return self.get_and_respond(request.user, media_file)
+
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, contribution_id, file_id,
+               format=None):
+        media_file = self.get_file(
+            request.user,
+            project_id,
+            contribution_id,
+            file_id
+        )
+        return self.delete_and_respond(request.user, media_file)
+
+
+class MyContributionsSingleMediaApiView(
+    MediaFileSingleAbstractView, SingleMyContribution):
+
+    def get_file(self, user, project_id, contribution_id, file_id):
+        contribution = self.get_object(user, project_id, contribution_id)
+        return contribution.files_attached.get(pk=file_id)
+
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, contribution_id, file_id, format=None):
+        media_file = self.get_file(
+            request.user,
+            project_id,
+            contribution_id,
+            file_id
+        )
+        return self.get_and_respond(request.user, media_file)
+
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, contribution_id, file_id,
+               format=None):
+        media_file = self.get_file(
+            request.user,
+            project_id,
+            contribution_id,
+            file_id
+        )
+        return self.delete_and_respond(request.user, media_file)
+
+
+class GroupingContributionsSingleMediaApiView(
+    MediaFileSingleAbstractView, SingleGroupingContribution):
+
+    def get_file(self, user, project_id, grouping_id, contribution_id, file_id):
+        contribution = self.get_object(user, project_id, grouping_id, contribution_id)
+        return contribution.files_attached.get(pk=file_id)
+
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, grouping_id, contribution_id, file_id, format=None):
+        media_file = self.get_file(
+            request.user,
+            project_id,
+            grouping_id, 
+            contribution_id,
+            file_id
+        )
+        return self.get_and_respond(request.user, media_file)
+
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, grouping_id, contribution_id, file_id,
+               format=None):
+        media_file = self.get_file(
+            request.user,
+            project_id,
+            grouping_id, 
+            contribution_id,
+            file_id
+        )
+        return self.delete_and_respond(request.user, media_file)
