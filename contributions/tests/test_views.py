@@ -17,6 +17,10 @@ from dataviews.tests.model_factories import (
 from dataviews.models import View
 from users.tests.model_factories import UserGroupF, ViewUserGroupFactory
 
+from observationtypes.tests.model_factories import (
+    ObservationTypeFactory, TextFieldFactory
+)
+
 from .model_factories import ObservationFactory, CommentFactory
 
 from ..views import (
@@ -37,13 +41,18 @@ class ContributionSearchTest(TestCase):
             add_admins=[self.admin],
             add_contributors=[self.creator]
         )
+        o_type = ObservationTypeFactory.create()
+        TextFieldFactory.create(**{'key': 'key', 'observationtype': o_type})
+
         ObservationFactory.create_batch(5, **{
+            'attributes': {'key': 'blah'},
             'project': self.project,
-            'attributes': {'key': 'blah'}
+            'observationtype': o_type
         })
         ObservationFactory.create_batch(5, **{
+            'attributes': {'key': 'blub'},
             'project': self.project,
-            'attributes': {'key': 'blub'}
+            'observationtype': o_type
         })
 
     def get(self, user, query):

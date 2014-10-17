@@ -72,6 +72,12 @@ class ObservationQuerySet(query.HStoreQuerySet):
         return self.for_moderator(user).exclude(
             ~Q(creator=user), status='pending')
 
+    def search(self, query):
+        """
+        Returns a subset of the query set filtered by query provided
+        """
+        return self.filter(search_matches__icontains=query)
+
 
 class ObservationManager(hstore.HStoreManager):
     """

@@ -110,8 +110,7 @@ class ContributionSearchAPIView(APIView):
         q = request.GET.get('query')
 
         project = Project.objects.get_single(request.user, project_id)
-        contributions = project.get_all_contributions(
-            request.user).filter(attributes__icontains=q)
+        contributions = project.get_all_contributions(request.user).search(q)
 
         serializer = ContributionSerializer(
             contributions,

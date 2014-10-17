@@ -1,6 +1,10 @@
+import json
+
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.dispatch import receiver
+from django.db.models.signals import pre_save
 
 from django_hstore import hstore
 from simple_history.models import HistoricalRecords
@@ -37,6 +41,7 @@ class Observation(models.Model):
         null=True
     )
     version = models.IntegerField(default=1)
+    search_matches = models.TextField()
 
     history = HistoricalRecords()
     objects = ObservationManager()
@@ -151,6 +156,34 @@ class Observation(models.Model):
         """
         self.status = OBSERVATION_STATUS.deleted
         self.save()
+
+
+@receiver(pre_save, sender=Observation)
+def update_search_matches(sender, **kwargs):
+    observation = kwargs.get('instance')
+    search_matches = []
+
+    for field in observation.observationtype.fields.all():
+        if field.key in observation.attributes.keys():
+
+            if field.fieldtype == 'TextField':
+                term = observation.attributes.get(field.key)
+                if term is not None:
+                    search_matches.append(term)
+
+            elif field.fieldtype == 'LookupField':
+                l_id = observation.attributes.get(field.key)
+                lookup = field.lookupvalues.get(pk=l_id)
+                search_matches.append(lookup.name)
+
+            elif field.fieldtype == 'MultipleLookupField':
+                l_ids = json.loads(observation.attributes.get(field.key))
+
+                for l_id in l_ids:
+                    lookup = field.lookupvalues.get(pk=l_id)
+                    search_matches.append(lookup.name)
+
+    observation.search_matches = '#####'.join(search_matches)
 
 
 class Comment(models.Model):
