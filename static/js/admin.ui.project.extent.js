@@ -7,14 +7,14 @@ $(function () {
     var map = L.mapbox.map('map', 'examples.map-i86nkdio').setView([51.51173391474148, -0.116729736328125], 10);
     var featureGroup;
 
-    var geom = JSON.parse(geometryField.val());
+    var geom = geometryField.val();
     if (geom) {
-        featureGroup = L.geoJson({type: 'Feature', geometry: geom}).addTo(map);
+        featureGroup = L.geoJson({type: 'Feature', geometry: JSON.parse(geom)}).addTo(map);
         map.fitBounds(featureGroup.getBounds());
     } else {
-        featureGroup = L.featureGroup().addTo(map);    
+        featureGroup = L.featureGroup().addTo(map);
     }
-    
+
     var drawControl = new L.Control.Draw({
         draw: {
             polyline: false,
