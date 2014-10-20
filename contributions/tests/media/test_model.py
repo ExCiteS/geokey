@@ -1,8 +1,6 @@
 from django.test import TestCase
 
-from nose.tools import raises
-
-from contributions.models import MediaFile, ImageFile
+from contributions.models import ImageFile, VideoFile
 
 from contributions.tests.model_factories import ObservationFactory
 from users.tests.model_factories import UserF
@@ -21,3 +19,16 @@ class ImageFileTest(TestCase):
         )
         self.assertEqual(image_file.type_name, 'ImageFile')
 
+
+class VideoFileTest(TestCase):
+    def test_get_type_name(self):
+        image_file = VideoFile.objects.create(
+            name='Test name',
+            description='Test Description',
+            contribution=ObservationFactory.create(),
+            creator=UserF.create(),
+            video=get_image(),
+            youtube_link='http://example.com/1122323',
+            swf_link='http://example.com/1122323.swf'
+        )
+        self.assertEqual(image_file.type_name, 'VideoFile')

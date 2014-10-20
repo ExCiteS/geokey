@@ -1,8 +1,12 @@
+import os
+import glob
+
 from PIL import Image
 from StringIO import StringIO
 
 from django.core.files.base import ContentFile
 from django.test import TestCase
+from django.conf import settings
 
 from nose.tools import raises
 
@@ -11,8 +15,18 @@ from contributions.models import MediaFile
 from contributions.tests.model_factories import ObservationFactory
 from users.tests.model_factories import UserF
 from .model_factories import ImageFileFactory, get_image
+from contributions.manager import MediaFileManager
+
 
 class ModelManagerTest(TestCase):
+    def tearDown(self):
+        files = glob.glob(os.path.join(
+            settings.MEDIA_ROOT,
+            'user-uploads/images/*'
+        ))
+        for f in files:
+            os.remove(f)
+
     def test_get_queryset(self):
         ImageFileFactory.create_batch(3)
         files = MediaFile.objects.all()
@@ -34,14 +48,23 @@ class ModelManagerTest(TestCase):
     @raises(TypeError)
     def test_create_not_supported(self):
         xyz_file = StringIO()
-        xyz = Image.new('RGBA', size=(50,50), color=(256,0,0))
+        xyz = Image.new('RGBA', size=(50, 50), color=(256, 0, 0))
         xyz.save(xyz_file, 'png')
         xyz_file.seek(0)
 
-        image_file = MediaFile.objects.create(
+        MediaFile.objects.create(
             name='Test name',
             description='Test Description',
             contribution=ObservationFactory.create(),
             creator=UserF.create(),
             the_file=ContentFile(xyz_file.read(), 'test.xyz')
         )
+
+    def test_upload_youtube(self):
+        path = '/home/oroick/opencomap/contributions/tests/media/video.MOV'
+        youtube_link, swf_link = MediaFileManager()._upload_to_youtube(
+            'Test video',
+            path
+        )
+        self.assertIsNotNone(youtube_link)
+        self.assertIsNotNone(swf_link)

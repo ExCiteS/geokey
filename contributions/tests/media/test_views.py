@@ -1,4 +1,6 @@
 import json
+import os
+import glob
 
 from PIL import Image
 from StringIO import StringIO
@@ -8,6 +10,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AnonymousUser
 from django.core.files.base import ContentFile
 from django.core.exceptions import PermissionDenied
+from django.conf import settings
 
 from nose.tools import raises
 from rest_framework.test import APIRequestFactory, force_authenticate
@@ -41,6 +44,14 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         self.contribution = ObservationFactory.create(
             **{'project': self.project}
         )
+
+    def tearDown(self):
+        files = glob.glob(os.path.join(
+            settings.MEDIA_ROOT,
+            'user-uploads/**/*'
+        ))
+        for f in files:
+            os.remove(f)
 
     def render(self, response):
         response.accepted_renderer = JSONRenderer()
@@ -106,6 +117,48 @@ class MediaFileAbstractListAPIViewTest(TestCase):
             request.user.display_name
         )
 
+    def test_create_video_and_respond(self):
+        url = reverse(
+            'api:project_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id
+            }
+        )
+
+        video = open(
+            '/home/oroick/opencomap/contributions/tests/media/video.MOV'
+        )
+
+        data = {
+            'name': 'A test image',
+            'description': 'Test image description',
+            'file': video
+        }
+
+        request = self.factory.post(url, data)
+        request.user = self.admin
+        view = MediaFileListAbstractAPIView()
+        view.request = request
+
+        response = self.render(
+            view.create_and_respond(self.admin, self.contribution)
+        )
+
+        response_json = json.loads(response.content)
+        self.assertEqual(
+            response_json.get('name'),
+            data.get('name')
+        )
+        self.assertEqual(
+            response_json.get('description'),
+            data.get('description')
+        )
+        self.assertEqual(
+            response_json.get('creator').get('display_name'),
+            request.user.display_name
+        )
+
 
 class MediaFileSingleAbstractViewTest(TestCase):
     def setUp(self):
@@ -124,6 +177,14 @@ class MediaFileSingleAbstractViewTest(TestCase):
         self.image_file = ImageFileFactory.create(
             **{'contribution': self.contribution, 'creator': self.creator}
         )
+
+    def tearDown(self):
+        files = glob.glob(os.path.join(
+            settings.MEDIA_ROOT,
+            'user-uploads/images/*'
+        ))
+        for f in files:
+            os.remove(f)
 
     def render(self, response):
         response.accepted_renderer = JSONRenderer()
@@ -169,12 +230,7 @@ class MediaFileSingleAbstractViewTest(TestCase):
         view = MediaFileSingleAbstractView()
         view.request = request
 
-        response = self.render(
-            view.delete_and_respond(
-                self.admin,
-                self.image_file
-            )
-        )
+        view.delete_and_respond(self.admin, self.image_file)
         ImageFile.objects.get(pk=self.image_file.id)
 
     @raises(ImageFile.DoesNotExist)
@@ -192,12 +248,7 @@ class MediaFileSingleAbstractViewTest(TestCase):
         view = MediaFileSingleAbstractView()
         view.request = request
 
-        response = self.render(
-            view.delete_and_respond(
-                self.creator,
-                self.image_file
-            )
-        )
+        view.delete_and_respond(self.creator, self.image_file)
         ImageFile.objects.get(pk=self.image_file.id)
 
     @raises(PermissionDenied)
@@ -234,6 +285,14 @@ class AllContributionsMediaAPIViewTest(TestCase):
         )
 
         ImageFileFactory.create_batch(5, **{'contribution': self.contribution})
+
+    def tearDown(self):
+        files = glob.glob(os.path.join(
+            settings.MEDIA_ROOT,
+            'user-uploads/images/*'
+        ))
+        for f in files:
+            os.remove(f)
 
     def get(self, user):
         url = reverse(
@@ -342,6 +401,14 @@ class MyContributionsMediaApiViewTest(TestCase):
         )
 
         ImageFileFactory.create_batch(5, **{'contribution': self.contribution})
+
+    def tearDown(self):
+        files = glob.glob(os.path.join(
+            settings.MEDIA_ROOT,
+            'user-uploads/images/*'
+        ))
+        for f in files:
+            os.remove(f)
 
     def get(self, user):
         url = reverse(
@@ -460,6 +527,14 @@ class GroupingContributionsMediaApiViewTest(TestCase):
         })
 
         ImageFileFactory.create_batch(5, **{'contribution': self.contribution})
+
+    def tearDown(self):
+        files = glob.glob(os.path.join(
+            settings.MEDIA_ROOT,
+            'user-uploads/images/*'
+        ))
+        for f in files:
+            os.remove(f)
 
     def get(self, user):
         url = reverse(
@@ -583,6 +658,14 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
             **{'contribution': self.contribution, 'creator': self.creator}
         )
 
+    def tearDown(self):
+        files = glob.glob(os.path.join(
+            settings.MEDIA_ROOT,
+            'user-uploads/images/*'
+        ))
+        for f in files:
+            os.remove(f)
+
     def get(self, user):
         url = reverse(
             'api:project_single_media',
@@ -701,6 +784,14 @@ class MyContributionsSingleMediaApiViewTest(TestCase):
             **{'contribution': self.contribution, 'creator': self.creator}
         )
 
+    def tearDown(self):
+        files = glob.glob(os.path.join(
+            settings.MEDIA_ROOT,
+            'user-uploads/images/*'
+        ))
+        for f in files:
+            os.remove(f)
+
     def get(self, user):
         url = reverse(
             'api:mycontributions_single_media',
@@ -800,7 +891,7 @@ class MyContributionsSingleMediaApiViewTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
-class MyContributionsSingleMediaApiViewTest(TestCase):
+class GroupingContributionsSingleMediaApiViewTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserF.create()
@@ -828,6 +919,14 @@ class MyContributionsSingleMediaApiViewTest(TestCase):
         self.image_file = ImageFileFactory.create(
             **{'contribution': self.contribution, 'creator': self.creator}
         )
+
+    def tearDown(self):
+        files = glob.glob(os.path.join(
+            settings.MEDIA_ROOT,
+            'user-uploads/images/*'
+        ))
+        for f in files:
+            os.remove(f)
 
     def get(self, user):
         url = reverse(

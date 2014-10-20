@@ -3,6 +3,7 @@ from django.conf import settings
 
 from ..manager import MediaFileManager
 
+
 class MediaFile(models.Model):
     """
     Base class for all media files. Not to be instaciate; instaciate one of
@@ -36,7 +37,7 @@ class ImageFile(MediaFile):
     """
     Stores images uploaded by users.
     """
-    image = models.ImageField(upload_to='user-uploads')
+    image = models.ImageField(upload_to='user-uploads/images')
 
     class Meta:
         app_label = 'contributions'
@@ -47,3 +48,22 @@ class ImageFile(MediaFile):
         Returns 'ImageFile'
         """
         return 'ImageFile'
+
+
+class VideoFile(MediaFile):
+    """
+    Stores images uploaded by users.
+    """
+    video = models.ImageField(upload_to='user-uploads/videos')
+    youtube_link = models.URLField(max_length=255, null=True, blank=True)
+    swf_link = models.URLField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        app_label = 'contributions'
+
+    @property
+    def type_name(self):
+        """
+        Returns 'VideoFile'
+        """
+        return 'VideoFile'

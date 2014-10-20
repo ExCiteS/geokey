@@ -11,7 +11,7 @@ from contributions.models import ImageFile
 
 def get_image():
     image_file = StringIO()
-    image = Image.new('RGBA', size=(50,50), color=(256,0,0))
+    image = Image.new('RGBA', size=(50, 50), color=(256, 0, 0))
     image.save(image_file, 'png')
     image_file.seek(0)
 
