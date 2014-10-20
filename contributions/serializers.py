@@ -12,7 +12,9 @@ from observationtypes.serializer import ObservationTypeSerializer
 from observationtypes.models import ObservationType
 from users.serializers import UserSerializer
 
-from .models import Location, Observation, Comment, MediaFile, ImageFile
+from .models import (
+    Location, Observation, Comment, MediaFile, ImageFile, VideoFile
+)
 
 
 class LocationSerializer(geoserializers.GeoFeatureModelSerializer):
@@ -272,13 +274,20 @@ class FileSerializer(serializers.ModelSerializer):
     creator = UserSerializer()
     isowner = serializers.SerializerMethodField('get_is_owner')
     url = serializers.SerializerMethodField('get_url')
+    file_type = serializers.SerializerMethodField('get_type')
 
     class Meta:
         model = MediaFile
         fields = (
             'id', 'name', 'description', 'created_at', 'creator', 'isowner',
-            'url'
+            'url', 'file_type'
         )
+
+    def get_type(self, obj):
+        """
+        Returns the type of the MediaFile
+        """
+        return obj.type_name
 
     def get_is_owner(self, obj):
         """
@@ -293,3 +302,5 @@ class FileSerializer(serializers.ModelSerializer):
         """
         if isinstance(obj, ImageFile):
             return obj.image.url
+        elif isinstance(obj, VideoFile):
+            return obj.youtube_link
