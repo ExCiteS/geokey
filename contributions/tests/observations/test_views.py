@@ -17,14 +17,19 @@ from dataviews.tests.model_factories import (
 from dataviews.models import View
 from users.tests.model_factories import UserGroupF, ViewUserGroupFactory
 
-from observationtypes.tests.model_factories import TextFieldFactory
+from observationtypes.tests.model_factories import (
+    TextFieldFactory, NumericFieldFactory
+)
 
-from ..model_factories import ObservationFactory, CommentFactory
+from ..model_factories import (
+    ObservationFactory, CommentFactory, LocationFactory
+)
 
 from contributions.views.observations import (
     SingleMyContributionAPIView, SingleAllContributionAPIView,
     SingleGroupingContributionAPIView, SingleContributionAPIView,
-    ContributionSearchAPIView
+    ContributionSearchAPIView, MyObservations, ProjectObservationsView,
+    ViewObservations, ProjectObservations
 )
 from contributions.models import Observation
 
@@ -517,3 +522,1294 @@ class SingleMyContributionAPIViewTest(TestCase):
         view = SingleMyContributionAPIView()
         view.get_object(
             some_dude, self.observation.project.id, self.observation.id)
+
+
+class ProjectPublicApiTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.view_member = UserF.create()
+        self.non_member = UserF.create()
+
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member]
+        )
+        ViewFactory.create(**{'project': self.project, 'isprivate': False})
+        self.observationtype = ObservationTypeFactory(**{
+            'status': 'active',
+            'project': self.project
+        })
+
+        TextFieldFactory.create(**{
+            'key': 'key_1',
+            'observationtype': self.observationtype,
+            'required': True
+        })
+        NumericFieldFactory.create(**{
+            'key': 'key_2',
+            'observationtype': self.observationtype,
+            'minval': 0,
+            'maxval': 1000
+        })
+
+        self.data = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -0.13404607772827148,
+                    51.52439200896907
+                ]
+            },
+            "properties": {
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                },
+                "category": self.observationtype.id,
+                "location": {
+                    "name": "UCL",
+                    "description": "UCL's main quad",
+                    "private": True
+                },
+            }
+        }
+
+    def _post(self, data, user):
+        url = reverse(
+            'api:project_observations',
+            kwargs={
+                'project_id': self.project.id
+            }
+        )
+        request = self.factory.post(
+            url, json.dumps(data), content_type='application/json')
+        force_authenticate(request, user=user)
+        view = ProjectObservations.as_view()
+        return view(request, project_id=self.project.id).render()
+
+    def test_contribute_with_wrong_observation_type(self):
+        self.data['properties']['category'] = 3864
+
+        response = self._post(self.data, self.admin)
+        self.assertEqual(response.status_code, 400)
+
+    def test_contribute_with_invalid(self):
+        data = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -0.13404607772827148,
+                    51.52439200896907
+                ]
+            },
+            "properties": {
+                "attributes": {
+                    "key_1": 12,
+                    "key_2": "jsdbdjhsb"
+                },
+                "category": self.observationtype.id,
+                "location": {
+                    "name": "UCL",
+                    "description": "UCL's main quad",
+                    "private": True
+                },
+            }
+        }
+
+        response = self._post(data, self.admin)
+        self.assertEqual(response.status_code, 400)
+
+    def test_contribute_with_invalid_number(self):
+        data = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -0.13404607772827148,
+                    51.52439200896907
+                ]
+            },
+            "properties": {
+                "attributes": {
+                    "key_1": 12,
+                    "key_2": 2000
+                },
+                "category": self.observationtype.id,
+                "location": {
+                    "name": "UCL",
+                    "description": "UCL's main quad",
+                    "private": True
+                },
+            }
+        }
+
+        response = self._post(data, self.admin)
+        self.assertEqual(response.status_code, 400)
+
+    def test_contribute_with_existing_location(self):
+        location = LocationFactory()
+        data = {
+            "type": "Feature",
+            "geometry": location.geometry.geojson,
+            "properties": {
+                "location": {
+                    "id": location.id,
+                    "name": location.name,
+                    "description": location.description,
+                    "private": location.private
+                },
+                "category": self.observationtype.id,
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                }
+            }
+        }
+
+        response = self._post(data, self.admin)
+        self.assertEqual(response.status_code, 201)
+
+    def test_contribute_with_private_for_project_location(self):
+        location = LocationFactory(**{
+            'private': True,
+            'private_for_project': self.project
+        })
+
+        data = {
+            "type": "Feature",
+            "geometry": location.geometry.geojson,
+            "properties": {
+                "location": {
+                    "id": location.id,
+                    "name": location.name,
+                    "description": location.description,
+                    "private": location.private
+                },
+                "category": self.observationtype.id,
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                }
+            }
+        }
+        response = self._post(data, self.admin)
+        self.assertEqual(response.status_code, 201)
+
+    def test_contribute_with_wrong_project_location(self):
+        project = ProjectF()
+        location = LocationFactory(**{
+            'private': True,
+            'private_for_project': project
+        })
+
+        data = {
+            "type": "Feature",
+            "geometry": location.geometry.geojson,
+            "properties": {
+                "location": {
+                    "id": location.id,
+                    "name": location.name,
+                    "description": location.description,
+                    "private": location.private
+                },
+                "category": self.observationtype.id,
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                }
+            }
+        }
+
+        response = self._post(data, self.admin)
+        self.assertEqual(response.status_code, 400)
+
+    def test_contribute_with_private_location(self):
+        location = LocationFactory(**{
+            'private': True
+        })
+
+        data = {
+            "type": "Feature",
+            "geometry": location.geometry.geojson,
+            "properties": {
+                "location": {
+                    "id": location.id,
+                    "name": location.name,
+                    "description": location.description,
+                    "private": location.private
+                },
+                "category": self.observationtype.id,
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                }
+            }
+        }
+
+        response = self._post(data, self.admin)
+        self.assertEqual(response.status_code, 400)
+
+    def test_contribute_valid_draft(self):
+        self.data = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -0.13404607772827148,
+                    51.52439200896907
+                ]
+            },
+            "properties": {
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                },
+                "category": self.observationtype.id,
+                "location": {
+                    "name": "UCL",
+                    "description": "UCL's main quad",
+                    "private": True
+                },
+                "status": "draft"
+            }
+        }
+        response = self._post(self.data, self.admin)
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('"status": "draft"', response.content)
+
+    def test_contribute_valid_draft_with_empty_required(self):
+        self.data = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -0.13404607772827148,
+                    51.52439200896907
+                ]
+            },
+            "properties": {
+                "attributes": {
+                    "key_1": None,
+                    "key_2": 12
+                },
+                "category": self.observationtype.id,
+                "location": {
+                    "name": "UCL",
+                    "description": "UCL's main quad",
+                    "private": True
+                },
+                "status": "draft"
+            }
+        }
+        response = self._post(self.data, self.admin)
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('"status": "draft"', response.content)
+
+    def test_contribute_invalid_draft(self):
+        self.data = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -0.13404607772827148,
+                    51.52439200896907
+                ]
+            },
+            "properties": {
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 'Blah'
+                },
+                "category": self.observationtype.id,
+                "location": {
+                    "name": "UCL",
+                    "description": "UCL's main quad",
+                    "private": True
+                },
+                "status": "draft"
+            }
+        }
+        response = self._post(self.data, self.admin)
+        self.assertEqual(response.status_code, 400)
+
+    def test_contribute_to_public_everyone_with_Anonymous(self):
+        self.project.everyone_contributes = True
+        self.project.isprivate = False
+        self.project.save()
+
+        ViewFactory.create(**{'project': self.project, 'isprivate': False})
+
+        response = self._post(self.data, AnonymousUser())
+        self.assertEqual(response.status_code, 201)
+
+    def test_contribute_to_public_with_admin(self):
+        self.project.isprivate = False
+        self.project.save()
+        response = self._post(self.data, self.admin)
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('"status": "active"', response.content)
+
+    def test_contribute_to_public_with_contributor(self):
+        self.project.isprivate = False
+        self.project.save()
+
+        response = self._post(self.data, self.contributor)
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('"status": "pending"', response.content)
+
+    def test_contribute_to_public_with_view_member(self):
+        self.project.isprivate = False
+        self.project.save()
+
+        response = self._post(self.data, self.view_member)
+        self.assertEqual(response.status_code, 403)
+
+    def test_contribute_to_public_with_non_member(self):
+        self.project.isprivate = False
+        self.project.save()
+
+        response = self._post(self.data, self.non_member)
+        self.assertEqual(response.status_code, 403)
+
+    def test_contribute_to_public_with_anonymous(self):
+        self.project.isprivate = False
+        self.project.save()
+
+        response = self._post(self.data, AnonymousUser())
+        self.assertEqual(response.status_code, 403)
+
+    def test_contribute_to_private_with_admin(self):
+        response = self._post(self.data, self.admin)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(len(self.project.observations.all()), 1)
+
+    def test_contribute_to_private_with_contributor(self):
+        response = self._post(self.data, self.contributor)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(len(self.project.observations.all()), 1)
+
+    def test_contribute_to_private_with_view_member(self):
+        response = self._post(self.data, self.view_member)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(len(self.project.observations.all()), 0)
+
+    def test_contribute_to_private_with_non_member(self):
+        response = self._post(self.data, self.non_member)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(len(self.project.observations.all()), 0)
+
+    def test_contribute_to_private_with_anonymous(self):
+        response = self._post(self.data, AnonymousUser())
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(len(self.project.observations.all()), 0)
+
+    def test_contribute_to_inactive_with_admin(self):
+        self.project.status = 'inactive'
+        self.project.save()
+
+        response = self._post(self.data, self.admin)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(len(self.project.observations.all()), 0)
+
+    def test_contribute_to_inactive_with_contributor(self):
+        self.project.status = 'inactive'
+        self.project.save()
+
+        response = self._post(self.data, self.contributor)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(len(self.project.observations.all()), 0)
+
+    def test_contribute_to_inactive_with_view_member(self):
+        self.project.status = 'inactive'
+        self.project.save()
+
+        response = self._post(self.data, self.view_member)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(len(self.project.observations.all()), 0)
+
+    def test_contribute_to_inactive_with_non_member(self):
+        self.project.status = 'inactive'
+        self.project.save()
+
+        response = self._post(self.data, self.non_member)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(len(self.project.observations.all()), 0)
+
+    def test_contribute_to_inactive_with_Anonymous(self):
+        self.project.status = 'inactive'
+        self.project.save()
+
+        response = self._post(self.data, AnonymousUser())
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(len(self.project.observations.all()), 0)
+
+    def test_contribute_to_deleted_with_admin(self):
+        self.project.status = 'deleted'
+        self.project.save()
+
+        response = self._post(self.data, self.admin)
+        self.assertEqual(response.status_code, 404)
+
+    def test_contribute_to_deleted_with_contributor(self):
+        self.project.status = 'deleted'
+        self.project.save()
+
+        response = self._post(self.data, self.contributor)
+        self.assertEqual(response.status_code, 404)
+
+    def test_contribute_to_deleted_with_view_member(self):
+        self.project.status = 'deleted'
+        self.project.save()
+
+        response = self._post(self.data, self.view_member)
+        self.assertEqual(response.status_code, 404)
+
+    def test_contribute_to_deleted_with_non_member(self):
+        self.project.status = 'deleted'
+        self.project.save()
+
+        response = self._post(self.data, self.non_member)
+        self.assertEqual(response.status_code, 404)
+
+    def test_contribute_to_deleted_with_anonymous(self):
+        self.project.status = 'deleted'
+        self.project.save()
+
+        response = self._post(self.data, AnonymousUser())
+        self.assertEqual(response.status_code, 404)
+
+
+class GetSingleObservationInProject(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.view_member = UserF.create()
+
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member]
+        )
+        self.observation = ObservationFactory(
+            **{'project': self.project, 'creator': self.contributor})
+
+    def _get(self, user):
+        url = reverse(
+            'api:project_single_observation',
+            kwargs={
+                'project_id': self.project.id,
+                'observation_id': self.observation.id
+            }
+        )
+        request = self.factory.get(url)
+        force_authenticate(request, user=user)
+        view = SingleAllContributionAPIView.as_view()
+        return view(
+            request, project_id=self.project.id,
+            observation_id=self.observation.id).render()
+
+    def test_get_with_admin(self):
+        response = self._get(self.admin)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_contributor(self):
+        response = self._get(self.contributor)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_view_member(self):
+        response = self._get(self.view_member)
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_with_non_member(self):
+        user = UserF.create()
+        response = self._get(user)
+        self.assertEqual(response.status_code, 404)
+
+
+class UpdateObservationInProject(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.view_member = UserF.create()
+        self.non_member = UserF.create()
+
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member]
+        )
+        self.observationtype = ObservationTypeFactory(**{
+            'status': 'active',
+            'project': self.project
+        })
+
+        TextFieldFactory.create(**{
+            'key': 'key_1',
+            'observationtype': self.observationtype
+        })
+        NumericFieldFactory.create(**{
+            'key': 'key_2',
+            'observationtype': self.observationtype
+        })
+
+        location = LocationFactory()
+
+        self.observation = ObservationFactory.create(**{
+            'attributes': {
+                "key_1": "value 1",
+                "key_2": 12,
+            },
+            'observationtype': self.observationtype,
+            'project': self.project,
+            'location': location,
+            'creator': self.admin,
+            'status': 'active'
+        })
+
+        self.update_data = {
+            "properties": {
+                "attributes": {
+                    "version": 1,
+                    "key_2": 15
+                }
+            }
+        }
+
+    def _patch(self, data, user):
+        url = reverse(
+            'api:project_single_observation',
+            kwargs={
+                'project_id': self.project.id,
+                'observation_id': self.observation.id
+            }
+        )
+        request = self.factory.patch(
+            url, json.dumps(data), content_type='application/json')
+        force_authenticate(request, user=user)
+        view = SingleAllContributionAPIView.as_view()
+        return view(
+            request, project_id=self.project.id,
+            observation_id=self.observation.id).render()
+
+    def _delete(self, user):
+        url = reverse(
+            'api:project_single_observation',
+            kwargs={
+                'project_id': self.project.id,
+                'observation_id': self.observation.id
+            }
+        )
+        request = self.factory.delete(url, content_type='application/json')
+        force_authenticate(request, user=user)
+        view = SingleAllContributionAPIView.as_view()
+        return view(
+            request, project_id=self.project.id,
+            observation_id=self.observation.id).render()
+
+    def test_update_conflict(self):
+        response = self._patch(
+            self.update_data,
+            self.admin
+        )
+        self.assertEqual(response.status_code, 200)
+
+        data = {"properties": {"attributes": {"version": 1, "key_2": 2}}}
+        response = self._patch(
+            data,
+            self.admin
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_location_with_admin(self):
+        self.update_data['geometry'] = {
+            'type': 'Point',
+            'coordinates': [
+                -0.1444154977798462,
+                51.54671869005856
+            ]
+        }
+        self.update_data['properties']['location'] = {
+            'name': 'New name'
+        }
+        response = self._patch(
+            self.update_data,
+            self.admin
+        )
+        self.assertEqual(response.status_code, 200)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(
+            observation.attributes.get('key_2'), '15')
+
+        self.assertContains(response, 'New name')
+        self.assertContains(response, '-0.144415')
+
+    def test_update_with_admin(self):
+        response = self._patch(
+            self.update_data,
+            self.admin
+        )
+        self.assertEqual(response.status_code, 200)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(
+            observation.attributes.get('key_2'), '15')
+
+    @raises(Observation.DoesNotExist)
+    def test_delete_with_admin(self):
+        response = self._delete(
+            self.admin
+        )
+
+        self.assertEqual(response.status_code, 204)
+        Observation.objects.get(pk=self.observation.id)
+
+    def test_update_with_contributor(self):
+        response = self._patch(
+            self.update_data,
+            self.contributor
+        )
+        self.assertEqual(response.status_code, 404)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(
+            observation.attributes.get('key_2'), '12')
+
+    def test_delete_with_contributor(self):
+        response = self._delete(
+            self.contributor
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_update_with_view_member(self):
+        response = self._patch(
+            self.update_data,
+            self.view_member
+        )
+        self.assertEqual(response.status_code, 404)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(
+            observation.attributes.get('key_2'), '12')
+
+    def test_delete_with_view_member(self):
+        response = self._delete(
+            self.view_member
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertNotEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'deleted'
+        )
+
+    def test_update_with_non_member(self):
+        response = self._patch(
+            self.update_data,
+            self.non_member
+        )
+        self.assertEqual(response.status_code, 404)
+
+        self.assertEqual(
+            self.observation.attributes.get('key_2'), '12')
+
+    def test_delete_with_non_member(self):
+        response = self._delete(
+            self.non_member
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertNotEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'deleted'
+        )
+
+
+class GetObservationInView(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.view_member = UserF.create()
+
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+
+        self.view = ViewFactory(add_viewers=[self.view_member], **{
+            'project': self.project,
+        })
+
+        observationtype = ObservationTypeFactory(**{
+            'status': 'active',
+            'project': self.project
+        })
+        RuleFactory.create(**{
+            'view': self.view,
+            'observation_type': observationtype
+        })
+
+        self.observation = ObservationFactory.create(**{
+            'project': self.project,
+            'observationtype': observationtype,
+            'creator': self.contributor
+        })
+
+    def _get(self, user):
+        url = reverse(
+            'api:view_single_observation',
+            kwargs={
+                'project_id': self.project.id,
+                'view_id': self.view.id,
+                'observation_id': self.observation.id
+            }
+        )
+        request = self.factory.get(url)
+        force_authenticate(request, user=user)
+        view = SingleGroupingContributionAPIView.as_view()
+        return view(
+            request, project_id=self.project.id, view_id=self.view.id,
+            observation_id=self.observation.id).render()
+
+    def test_get_with_admin(self):
+        response = self._get(self.admin)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_contributor(self):
+        response = self._get(self.contributor)
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_with_view_member(self):
+        response = self._get(self.view_member)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_non_member(self):
+        some_dude = UserF.create()
+        response = self._get(some_dude)
+        self.assertEqual(response.status_code, 404)
+
+
+class UpdateObservationInView(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.view_member = UserF.create()
+        self.non_member = UserF.create()
+
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member]
+        )
+        self.observationtype = ObservationTypeFactory(**{
+            'status': 'active',
+            'project': self.project
+        })
+
+        self.view = ViewFactory(**{
+            'project': self.project,
+        })
+
+        RuleFactory.create(**{
+            'view': self.view,
+            'observation_type': self.observationtype
+        })
+
+        TextFieldFactory.create(**{
+            'key': 'key_1',
+            'observationtype': self.observationtype
+        })
+        NumericFieldFactory.create(**{
+            'key': 'key_2',
+            'observationtype': self.observationtype
+        })
+
+        location = LocationFactory()
+
+        self.observation = Observation.create(
+            attributes={
+                "key_1": "value 1",
+                "key_2": 12,
+            },
+            observationtype=self.observationtype,
+            project=self.project,
+            location=location,
+            creator=self.admin
+        )
+
+        self.update_data = {
+            "properties": {
+                "attributes": {
+                    "version": 1,
+                    "key_2": 15
+                }
+            }
+        }
+
+    def _patch(self, data, user):
+        url = reverse(
+            'api:view_single_observation',
+            kwargs={
+                'project_id': self.project.id,
+                'view_id': self.view.id,
+                'observation_id': self.observation.id
+            }
+        )
+        request = self.factory.patch(
+            url, json.dumps(data), content_type='application/json')
+        force_authenticate(request, user=user)
+        view = SingleGroupingContributionAPIView.as_view()
+        return view(
+            request, project_id=self.project.id, view_id=self.view.id,
+            observation_id=self.observation.id).render()
+
+    def _delete(self, user):
+        url = reverse(
+            'api:view_single_observation',
+            kwargs={
+                'project_id': self.project.id,
+                'view_id': self.view.id,
+                'observation_id': self.observation.id
+            }
+        )
+        request = self.factory.delete(url, content_type='application/json')
+        force_authenticate(request, user=user)
+        view = SingleGroupingContributionAPIView.as_view()
+        return view(
+            request, project_id=self.project.id, view_id=self.view.id,
+            observation_id=self.observation.id).render()
+
+    def test_update_conflict(self):
+        response = self._patch(
+            self.update_data,
+            self.admin
+        )
+        self.assertEqual(response.status_code, 200)
+
+        data = {"properties": {"attributes": {"version": 1, "key_2": 2}}}
+        response = self._patch(data, self.admin)
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_with_admin(self):
+        response = self._patch(self.update_data, self.admin)
+        self.assertEqual(response.status_code, 200)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(
+            observation.attributes.get('key_2'), '15')
+
+    @raises(Observation.DoesNotExist)
+    def test_delete_with_admin(self):
+        response = self._delete(
+            self.admin
+        )
+        self.assertEqual(response.status_code, 204)
+        Observation.objects.get(pk=self.observation.id)
+
+    def test_update_with_contributor(self):
+        response = self._patch(
+            self.update_data,
+            self.contributor
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_with_contributor(self):
+        response = self._delete(
+            self.contributor
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_update_with_view_member(self):
+        response = self._patch(
+            self.update_data,
+            self.view_member
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_with_view_member(self):
+        response = self._delete(
+            self.view_member
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_update_with_non_member(self):
+        response = self._patch(
+            self.update_data,
+            self.non_member
+        )
+        self.assertEqual(response.status_code, 404)
+
+        self.assertEqual(
+            self.observation.attributes.get('key_2'), '12')
+
+    def test_delete_with_non_member(self):
+        response = self._delete(
+            self.non_member
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertNotEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'deleted'
+        )
+
+
+class GetMySingleObervation(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.viewer = UserF.create()
+
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            add_viewers=[self.viewer]
+        )
+        self.observation = ObservationFactory.create(
+            **{'creator': self.contributor, 'project': self.project})
+
+    def _get(self, user):
+        url = reverse(
+            'api:project_my_single_observation',
+            kwargs={
+                'project_id': self.project.id,
+                'observation_id': self.observation.id
+            }
+        )
+        request = self.factory.get(url)
+        force_authenticate(request, user=user)
+        view = SingleMyContributionAPIView.as_view()
+        return view(
+            request, project_id=self.project.id,
+            observation_id=self.observation.id).render()
+
+    def test_with_admin(self):
+        response = self._get(self.admin)
+        self.assertEqual(response.status_code, 404)
+
+    def test_with_viewer(self):
+        response = self._get(self.admin)
+        self.assertEqual(response.status_code, 404)
+
+    def test_with_contributor(self):
+        response = self._get(self.contributor)
+        self.assertEqual(response.status_code, 200)
+
+    def test_with_some_dude(self):
+        user = UserF.create()
+        response = self._get(user)
+        self.assertEqual(response.status_code, 404)
+
+
+class UpdateMyObservation(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
+
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+        self.observationtype = ObservationTypeFactory(**{
+            'status': 'active',
+            'project': self.project
+        })
+
+        TextFieldFactory.create(**{
+            'key': 'key_1',
+            'observationtype': self.observationtype,
+            'required': True
+        })
+        NumericFieldFactory.create(**{
+            'key': 'key_2',
+            'observationtype': self.observationtype
+        })
+
+        location = LocationFactory()
+
+        self.observation = Observation.create(
+            attributes={
+                "key_1": "value 1",
+                "key_2": 12,
+            },
+            observationtype=self.observationtype,
+            project=self.project,
+            location=location,
+            creator=self.contributor
+        )
+
+        self.update_data = {
+            "properties": {
+                "attributes": {
+                    "version": 1,
+                    "key_2": 15
+                }
+            }
+        }
+
+    def _patch(self, data, user):
+        url = reverse(
+            'api:project_my_single_observation',
+            kwargs={
+                'project_id': self.project.id,
+                'observation_id': self.observation.id
+            }
+        )
+        request = self.factory.patch(
+            url, json.dumps(data), content_type='application/json')
+        force_authenticate(request, user=user)
+        view = SingleMyContributionAPIView.as_view()
+        return view(
+            request, project_id=self.project.id,
+            observation_id=self.observation.id).render()
+
+    def _delete(self, user):
+        url = reverse(
+            'api:project_my_single_observation',
+            kwargs={
+                'project_id': self.project.id,
+                'observation_id': self.observation.id
+            }
+        )
+        request = self.factory.delete(url, content_type='application/json')
+        force_authenticate(request, user=user)
+        view = SingleMyContributionAPIView.as_view()
+        return view(
+            request, project_id=self.project.id,
+            observation_id=self.observation.id).render()
+
+    def test_update_with_contributor(self):
+        response = self._patch(self.update_data, self.contributor)
+        self.assertEqual(response.status_code, 200)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(
+            observation.attributes.get('key_2'), '15')
+
+    def test_delete_with_admin(self):
+        response = self._delete(self.admin)
+        self.assertEqual(response.status_code, 404)
+        Observation.objects.get(pk=self.observation.id)
+
+    def test_update_with_admin(self):
+        response = self._patch(self.update_data, self.admin)
+        self.assertEqual(response.status_code, 404)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(
+            observation.attributes.get('key_2'), '12')
+
+    @raises(Observation.DoesNotExist)
+    def test_delete_with_contributor(self):
+        response = self._delete(self.contributor)
+        self.assertEqual(response.status_code, 204)
+        Observation.objects.get(pk=self.observation.id)
+
+    def test_update_with_non_member(self):
+        response = self._patch(self.update_data, self.non_member)
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_with_non_member(self):
+        response = self._delete(self.non_member)
+        self.assertEqual(response.status_code, 404)
+
+
+class MyContributionsTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.contributor = UserF.create()
+        self.some_dude = UserF.create()
+
+        self.project = ProjectF.create(add_contributors=[self.contributor])
+
+        for x in range(0, 5):
+            ObservationFactory.create(**{
+                'project': self.project,
+                'creator': self.contributor
+            })
+            ObservationFactory.create(**{
+                'project': self.project,
+                'creator': self.some_dude
+            })
+
+    def get(self, user):
+        url = reverse('api:project_my_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.get(url)
+        force_authenticate(request, user=user)
+        theview = MyObservations.as_view()
+        return theview(
+            request,
+            project_id=self.project.id).render()
+
+    def test_my_contributions_view(self):
+        response = self.get(self.contributor)
+
+        self.assertEqual(response.status_code, 200)
+        objects = json.loads(response.content)
+        self.assertEqual(len(objects.get('features')), 5)
+
+    def test_my_contributions_with_non_member(self):
+        user = UserF.create()
+
+        response = self.get(user)
+        self.assertEqual(response.status_code, 404)
+
+    def test_my_contributions_with_non_contributor(self):
+        view_user = UserF.create()
+        ViewFactory(add_viewers=[view_user], **{
+            'project': self.project
+        })
+
+        response = self.get(view_user)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            'You are not a contributor of this project.',
+            json.loads(response.content).get('error')
+        )
+
+
+class TestDataViewsPublicApi(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.view_member = UserF.create()
+        self.some_dude = UserF.create()
+
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+
+    def get(self, view, user):
+        url = reverse('api:single_view', kwargs={
+            'project_id': view.project.id,
+            'view_id': view.id
+        })
+        request = self.factory.get(url)
+        force_authenticate(request, user=user)
+        theview = ViewObservations.as_view()
+        return theview(
+            request,
+            project_id=view.project.id,
+            view_id=view.id).render()
+
+    def test_get_active_view_with_admin(self):
+        view = ViewFactory(**{'project': self.project})
+        response = self.get(view, self.admin)
+
+        self.assertEquals(response.status_code, 200)
+
+    def test_get_inactive_view_with_admin(self):
+        view = ViewFactory(**{
+            'project': self.project,
+            'status': 'deleted'
+        })
+        response = self.get(view, self.admin)
+        self.assertEquals(response.status_code, 404)
+
+    def test_get_active_view_with_contributor(self):
+        view = ViewFactory(**{'project': self.project})
+        response = self.get(view, self.contributor)
+
+        self.assertEquals(response.status_code, 404)
+
+    def test_get_inactive_view_with_contributor(self):
+        view = ViewFactory(**{
+            'project': self.project,
+            'status': 'deleted'
+        })
+        response = self.get(view, self.contributor)
+        self.assertEquals(response.status_code, 404)
+
+    def test_get_active_view_with_view_member(self):
+        view = ViewFactory(
+            add_viewers=[self.view_member],
+            **{'project': self.project}
+        )
+        response = self.get(view, self.view_member)
+
+        self.assertEquals(response.status_code, 200)
+
+    def test_get_inactive_view_with_view_member(self):
+        view = ViewFactory(
+            add_viewers=[self.view_member],
+            **{'project': self.project, 'status': 'inactive'}
+        )
+        response = self.get(view, self.view_member)
+        self.assertEquals(response.status_code, 404)
+
+    def test_get_active_view_with_non_member(self):
+        view = ViewFactory(**{'project': self.project})
+        response = self.get(view, self.some_dude)
+
+        self.assertEquals(response.status_code, 404)
+
+    def test_get_inactive_view_with_non_member(self):
+        view = ViewFactory(**{
+            'project': self.project,
+            'status': 'deleted'
+        })
+
+        response = self.get(view, self.some_dude)
+        self.assertEquals(response.status_code, 404)
+
+
+class TestProjectPublicApi(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.view_member = UserF.create()
+
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            add_viewers=[self.view_member]
+        )
+
+    def get(self, user):
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.get(url)
+        force_authenticate(request, user=user)
+        theview = ProjectObservationsView.as_view()
+        return theview(
+            request,
+            project_id=self.project.id).render()
+
+    def test_get_with_admin(self):
+        response = self.get(self.admin)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_contributor(self):
+        response = self.get(self.contributor)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_view_member(self):
+        response = self.get(self.view_member)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_some_dude(self):
+        some_dude = UserF.create()
+        response = self.get(some_dude)
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_with_anonymous(self):
+        self.project.isprivate = False
+        self.project.save()
+
+        response = self.get(AnonymousUser())
+        self.assertEqual(response.status_code, 404)
