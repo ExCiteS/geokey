@@ -4,6 +4,14 @@ from .contrib import *
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
 AUTH_USER_MODEL = 'users.User'
+DEFAULT_FROM_EMAIL = 'sender@example.com'
+
+YOUTUBE_AUTH_EMAIL = 'your-email@example.com'
+YOUTUBE_AUTH_PASSWORD = 'password'
+YOUTUBE_DEVELOPER_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+YOUTUBE_CLIENT_ID = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com'
+
+SECRET_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
 DATABASES = {
     'default': {
