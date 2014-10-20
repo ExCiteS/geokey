@@ -63,7 +63,7 @@ class ProjectSerializer(FieldSelectorSerializer):
         """
         Returns the geographic extent of the project as geojson.
         """
-        if project.geographic_extent is not None:
+        if project.geographic_extend is not None:
             return json.loads(project.geographic_extend.json)
         else:
             return None
