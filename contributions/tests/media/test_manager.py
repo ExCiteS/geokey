@@ -15,7 +15,7 @@ from contributions.models import MediaFile
 from contributions.tests.model_factories import ObservationFactory
 from users.tests.model_factories import UserF
 from .model_factories import ImageFileFactory, get_image
-from contributions.manager import MediaFileManager
+# from contributions.manager import MediaFileManager
 
 
 class ModelManagerTest(TestCase):
@@ -60,11 +60,11 @@ class ModelManagerTest(TestCase):
             the_file=ContentFile(xyz_file.read(), 'test.xyz')
         )
 
-    def test_upload_youtube(self):
-        path = '/home/oroick/opencomap/contributions/tests/media/video.MOV'
-        youtube_link, swf_link = MediaFileManager()._upload_to_youtube(
-            'Test video',
-            path
-        )
-        self.assertIsNotNone(youtube_link)
-        self.assertIsNotNone(swf_link)
+    # def test_upload_youtube(self):
+    #     path = '/home/oroick/opencomap/contributions/tests/media/video.MOV'
+    #     youtube_link, swf_link = MediaFileManager()._upload_to_youtube(
+    #         'Test video',
+    #         path
+    #     )
+    #     self.assertIsNotNone(youtube_link)
+    #     self.assertIsNotNone(swf_link)
