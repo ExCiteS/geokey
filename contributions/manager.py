@@ -116,10 +116,11 @@ class MediaFileManager(InheritanceManager):
     """
     def get_query_set(self):
         """
-        Returns the subclasses of the MediaFiles. Needed to get access to the 
+        Returns the subclasses of the MediaFiles. Needed to get access to the
         actual instances when searching all files of a contribution.
         """
-        return super(MediaFileManager, self).get_query_set().select_subclasses()
+        query_set = super(MediaFileManager, self).get_query_set()
+        return query_set.select_subclasses()
 
     def create(self, the_file=None, *args, **kwargs):
         """

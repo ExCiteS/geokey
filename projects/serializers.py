@@ -22,7 +22,7 @@ class ProjectSerializer(FieldSelectorSerializer):
         'get_number_contrbutions')
     num_locations = serializers.SerializerMethodField(
         'get_number_locations')
-    
+
     categories = serializers.SerializerMethodField(
         'get_categories')
     contribution_info = serializers.SerializerMethodField(
@@ -55,7 +55,7 @@ class ProjectSerializer(FieldSelectorSerializer):
         view_serializer = ViewSerializer(
             maps, many=True,
             fields=('id', 'name', 'description', 'num_contributions',
-                'created_at', 'symbol', 'colour'),
+                    'created_at', 'symbol', 'colour'),
             context={'user': user})
         return view_serializer.data
 
@@ -63,7 +63,10 @@ class ProjectSerializer(FieldSelectorSerializer):
         """
         Returns the geographic extent of the project as geojson.
         """
-        return json.loads(project.geographic_extend.json)
+        if project.geographic_extent is not None:
+            return json.loads(project.geographic_extend.json)
+        else:
+            return None
 
     def get_number_locations(self, project):
         """

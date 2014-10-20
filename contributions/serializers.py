@@ -77,15 +77,17 @@ class ContributionSerializer(object):
         if instance is not None:
             if data is not None:
                 instance.name = data.get('name') or instance.name
-                instance.description = data.get('description') or instance.description
-                private=data.get('private') or instance.private
-                private_for_project=data.get('private_for_project') or instance.private_for_project
+                instance.description = (data.get('description') or
+                                        instance.description)
+                private = data.get('private') or instance.private
+                private_for_project = (data.get('private_for_project') or
+                                       instance.private_for_project)
 
             if geometry is not None:
                 if type(geometry) is not unicode:
                     geometry = json.dumps(geometry)
-                
-                instance.geometry=GEOSGeometry(geometry)
+
+                instance.geometry = GEOSGeometry(geometry)
 
             instance.save()
             return instance
@@ -174,7 +176,7 @@ class ContributionSerializer(object):
         location = obj.location
 
         updator = None
-        if obj.updator is not None: 
+        if obj.updator is not None:
             updator = {
                 'id': obj.updator.id,
                 'display_name': obj.updator.display_name
@@ -211,7 +213,7 @@ class ContributionSerializer(object):
             'id': obj.observationtype.id,
             'name': obj.observationtype.name,
             'description': obj.observationtype.description,
-            'symbol': (obj.observationtype.symbol.url 
+            'symbol': (obj.observationtype.symbol.url
                        if obj.observationtype.symbol else None),
             'colour': obj.observationtype.colour
         }
@@ -250,7 +252,7 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('id', 'text', 'creator', 'respondsto', 'created_at',
-            'isowner')
+                  'isowner')
 
     def to_native(self, obj):
         native = super(CommentSerializer, self).to_native(obj)
@@ -291,4 +293,3 @@ class FileSerializer(serializers.ModelSerializer):
         """
         if isinstance(obj, ImageFile):
             return obj.image.url
-
