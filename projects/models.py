@@ -176,4 +176,5 @@ class Admins(models.Model):
     contact = models.BooleanField(default=True)
 
     class Meta:
+        ordering = ['project__name']
         unique_together = ('project', 'user')

@@ -3,7 +3,6 @@ from django.contrib import auth
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from django.db import IntegrityError
 from django.utils.html import strip_tags
 
 from braces.views import LoginRequiredMixin
@@ -17,9 +16,8 @@ from provider.oauth2.models import Client
 from core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
-from projects.models import Project
+from projects.models import Project, Admins
 from projects.base import STATUS
-from applications.models import Application
 from dataviews.models import View
 
 from .serializers import (
@@ -327,6 +325,38 @@ class UserProfile(LoginRequiredMixin, TemplateView):
 
         context = self.get_context_data()
         messages.success(request, 'The user information has been updated.')
+        return self.render_to_response(context)
+
+
+class UserNotifications(LoginRequiredMixin, TemplateView):
+    """
+    Displays the notifications settings page
+    `/admin/profile/notifications/`
+    """
+    template_name = 'users/notifications.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, **kwargs):
+        user = self.request.user
+
+        context = super(UserNotifications, self).get_context_data(**kwargs)
+        context['admins'] = Admins.objects.filter(user=user)
+
+        return context
+
+    @handle_exceptions_for_admin
+    def post(self, request):
+        context = self.get_context_data()
+        data = self.request.POST
+
+        for project in context.get('admins'):
+            new_val = data.get(str(project.project.id)) is not None
+
+            if project.contact != new_val:
+                project.contact = new_val
+                project.save()
+
+        messages.success(request, 'Notifications have been updated.')
         return self.render_to_response(context)
 
 

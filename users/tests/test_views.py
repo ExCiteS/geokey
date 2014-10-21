@@ -20,7 +20,8 @@ from .model_factories import UserF, UserGroupF, ViewUserGroupFactory
 from ..views import (
     UserGroup, UserGroupUsers, UserGroupSingleUser, UserGroupViews,
     UserGroupSingleView, UserGroupCreate, UserGroupSettings, UserProfile,
-    ChangePassword, CreateUserMixin, SignupAPIView, Dashboard
+    ChangePassword, CreateUserMixin, SignupAPIView, Dashboard,
+    UserNotifications
 )
 from ..models import User, UserGroup as Group
 
@@ -50,7 +51,7 @@ class DashboardTest(TestCase):
         dashboard_view = Dashboard()
         url = reverse('admin:dashboard')
         request = APIRequestFactory().get(url)
-        
+
         request.user = self.admin
         dashboard_view.request = request
         context = dashboard_view.get_context_data()
@@ -62,7 +63,7 @@ class DashboardTest(TestCase):
         dashboard_view = Dashboard()
         url = reverse('admin:dashboard')
         request = APIRequestFactory().get(url)
-        
+
         request.user = self.contributor
         dashboard_view.request = request
         context = dashboard_view.get_context_data()
@@ -303,6 +304,26 @@ class ChangePasswordTest(TestCase):
         user = AnonymousUser()
         view = ChangePassword.as_view()
         url = reverse('admin:changepassword')
+        request = APIRequestFactory().get(url)
+        request.user = user
+        response = view(request)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+
+class UserNotificationsTest(TestCase):
+    def test_with_user(self):
+        user = UserF.create()
+        view = UserNotifications.as_view()
+        url = reverse('admin:notifications')
+        request = APIRequestFactory().get(url)
+        request.user = user
+        response = view(request).render()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_with_anonymous(self):
+        user = AnonymousUser()
+        view = UserNotifications.as_view()
+        url = reverse('admin:notifications')
         request = APIRequestFactory().get(url)
         request.user = user
         response = view(request)
