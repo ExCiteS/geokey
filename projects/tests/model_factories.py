@@ -5,7 +5,7 @@ from django.contrib.gis.geos import GEOSGeometry
 
 from users.tests.model_factories import UserF
 
-from ..models import Project
+from ..models import Project, Admins
 
 
 class ProjectF(factory.django.DjangoModelFactory):
@@ -28,10 +28,10 @@ class ProjectF(factory.django.DjangoModelFactory):
         if not create:
             return
 
-        self.admins.add(self.creator)
+        Admins.objects.create(project=self, user=self.creator)
         if extracted:
             for user in extracted:
-                self.admins.add(user)
+                Admins.objects.create(project=self, user=user)
 
     @factory.post_generation
     def add_contributors(self, create, extracted, **kwargs):

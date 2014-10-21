@@ -1,9 +1,7 @@
 from django.views.generic import CreateView, TemplateView
 from django.shortcuts import redirect
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.contrib import messages
-from django.http import HttpResponseRedirect
 from django.utils.html import strip_tags
 from django.contrib.gis.geos import GEOSGeometry
 
@@ -16,13 +14,11 @@ from braces.views import LoginRequiredMixin
 from core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
-from dataviews.models import View
-from contributions.serializers import ContributionSerializer
 from users.serializers import UserSerializer
 from users.models import User
 
 from .base import STATUS
-from .models import Project
+from .models import Project, Admins
 from .forms import ProjectCreateForm
 from .serializers import ProjectSerializer
 
@@ -85,7 +81,9 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
                 'maps': project.views.filter(status='active').count()
             }
         else:
-            raise PermissionDenied('You are not allowed to access this project')
+            raise PermissionDenied(
+                'You are not allowed to access this project'
+            )
 
 
 class ProjectExtend(LoginRequiredMixin, TemplateView):
@@ -152,7 +150,9 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
 
         project.name = strip_tags(data.get('name'))
         project.description = strip_tags(data.get('description'))
-        project.everyone_contributes = data.get('everyone_contributes') == 'true'
+        project.everyone_contributes = (
+            data.get('everyone_contributes') == 'true'
+        )
         project.save()
 
         messages.success(self.request, "The project has been updated.")
@@ -179,7 +179,7 @@ class ProjectDelete(LoginRequiredMixin, TemplateView):
             messages.success(self.request, "The project has been deleted.")
             return redirect('admin:dashboard')
 
-        return self.render_to_response(context)     
+        return self.render_to_response(context)
 
 
 # ############################################################################
@@ -244,7 +244,7 @@ class ProjectAdmins(APIView):
 
         try:
             user = User.objects.get(pk=request.DATA.get('userId'))
-            project.admins.add(user)
+            Admins.objects.create(project=project, user=user)
 
             serializer = UserSerializer(project.admins.all(), many=True)
             return Response(
@@ -273,7 +273,7 @@ class ProjectAdminsUser(APIView):
         """
         project = Project.objects.as_admin(request.user, project_id)
         user = project.admins.get(pk=user_id)
-        project.admins.remove(user)
+        Admins.objects.get(project=project, user=user).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -320,6 +320,6 @@ class SingleProject(APIView):
                 project, context={'user': request.user}
             )
             return Response(serializer.data)
-        
+
         raise PermissionDenied('The project is inactive and therefore '
                                'not accessable through the public API.')

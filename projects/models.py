@@ -23,16 +23,21 @@ class Project(models.Model):
         max_length=20
     )
     admins = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, related_name='admins')
+        settings.AUTH_USER_MODEL,
+        related_name='admins',
+        through='Admins'
+    )
     geographic_extend = gis.PolygonField(null=True, geography=True)
 
     objects = ProjectManager()
 
     def __str__(self):
-        return self.name + ' status: ' + self.status + ' private: ' + str(self.isprivate)
+        return '%s status: %s private: %s' % (
+            self.name, self.status, self.isprivate)
 
     @classmethod
-    def create(cls, name, description, isprivate, everyone_contributes, creator):
+    def create(cls, name, description, isprivate, everyone_contributes,
+               creator):
         """
         Creates a new project. Creates two usergroups and adds the creator to
         the administrators user group.
@@ -46,7 +51,7 @@ class Project(models.Model):
         )
 
         project.save()
-        project.admins.add(creator)
+        Admins.objects.create(project=project, user=creator)
 
         return project
 
@@ -84,18 +89,17 @@ class Project(models.Model):
         """
 
         return self.status == STATUS.active and (self.is_admin(user) or (
-                not self.isprivate and 
-                    self.views.filter(isprivate=False).exists()
-                ) or (
-                not user.is_anonymous() and (
-                    self.usergroups.filter(
-                        can_contribute=True, users=user).exists() or
-                    self.usergroups.filter(
-                        can_moderate=True, users=user).exists() or
-                    self.usergroups.filter(
-                        users=user, viewgroups__isnull=False).exists())
-                )
+            not self.isprivate and self.views.filter(isprivate=False).exists()
+            ) or (
+            not user.is_anonymous() and (
+                self.usergroups.filter(
+                    can_contribute=True, users=user).exists() or
+                self.usergroups.filter(
+                    can_moderate=True, users=user).exists() or
+                self.usergroups.filter(
+                    users=user, viewgroups__isnull=False).exists())
             )
+        )
 
     def can_contribute(self, user):
         """
@@ -140,7 +144,6 @@ class Project(models.Model):
         else:
             data = self.observations.for_viewer(user)
 
-
         grouping_queries = [
             grouping.get_where_clause()
             for grouping in self.views.get_list(user, self.id)
@@ -155,10 +158,22 @@ class Project(models.Model):
                 query = query + ' OR (creator_id = ' + str(user.id) + ')'
 
             return data.extra(where=[query])
-        
+
         # If there are no data groupings for the user, return just the user's
         # data
         if (not user.is_anonymous()):
             return self.observations.filter(creator=user)
         else:
             return self.observations.none()
+
+
+class Admins(models.Model):
+    project = models.ForeignKey('Project', related_name='admin_of')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='has_admins'
+    )
+    contact = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('project', 'user')
