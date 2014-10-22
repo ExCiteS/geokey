@@ -14,6 +14,7 @@ from braces.views import LoginRequiredMixin
 from core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
+from core.exceptions import Unauthenticated
 from users.serializers import UserSerializer
 from users.models import User
 
@@ -320,6 +321,32 @@ class SingleProject(APIView):
                 project, context={'user': request.user}
             )
             return Response(serializer.data)
+
+        raise PermissionDenied('The project is inactive and therefore '
+                               'not accessable through the public API.')
+
+
+class ProjectContactAdmins(APIView):
+    """
+    API Endpoint for single project in the public API.
+    /api/projects/:project_id/get-in-touch/
+    """
+    @handle_exceptions_for_ajax
+    def post(self, request, project_id, format=None):
+        """
+        Sends an email to all admins that are contact persons for the given
+        project.
+        """
+        user = request.user
+        if user.is_anonymous():
+            raise Unauthenticated('Unauthenticated users can not contact the '
+                                  'administrators of the project.')
+
+        email_text = self.request.POST.get('email_text')
+        project = Project.objects.get_single(request.user, project_id)
+        if project.status == 'active':
+            project.contact_admins(user, email_text)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
         raise PermissionDenied('The project is inactive and therefore '
                                'not accessable through the public API.')
