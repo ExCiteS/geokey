@@ -1,6 +1,9 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.gis.db import models as gis
+from django.core import mail
+from django.template.loader import get_template
+from django.template import Context
 
 from .manager import ProjectManager
 from .base import STATUS
@@ -165,6 +168,37 @@ class Project(models.Model):
             return self.observations.filter(creator=user)
         else:
             return self.observations.none()
+
+    def contact_admins(self, sender, mail_content):
+        """
+        Sends an email with `mail_content` to all admins of the project, that
+        are contact persons.
+        """
+        messages = []
+        email_text = get_template('contact_admins_email.txt')
+
+        for contact_admin in Admins.objects.filter(project=self, contact=True):
+            context = Context({
+                'sender': sender,
+                'admin': contact_admin.user,
+                'email_text': mail_content,
+                'project': self.name
+            })
+            text = email_text.render(context)
+
+            email = mail.EmailMessage(
+                'Enquiry from %s' % sender.display_name,
+                text,
+                sender.email,
+                [contact_admin.user.email]
+            )
+            messages.append(email)
+
+        if len(messages) > 0:
+            connection = mail.get_connection()
+            connection.open()
+            connection.send_messages(messages)
+            connection.close()
 
 
 class Admins(models.Model):
