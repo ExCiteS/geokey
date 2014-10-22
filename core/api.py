@@ -17,6 +17,10 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/$',
         project_views.SingleProject.as_view(),
         name='project_single'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/get-in-touch/$',
+        project_views.ProjectContactAdmins.as_view(),
+        name='project_contact_admins'),
 
     # ###########################
     # OBSERVATIONS
@@ -99,7 +103,7 @@ urlpatterns = patterns(
     # ###########################
     # MEDIA
     # ###########################
-    
+
     url(
         r'^projects/(?P<project_id>[0-9]+)/data-groupings/all-contributions/contributions/(?P<contribution_id>[0-9]+)/media/$',
         contribution_views.AllContributionsMediaAPIView.as_view(),

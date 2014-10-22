@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpResponseRedirect
 from django.contrib.gis.geos import GEOSGeometry
+from django.core import mail
 
 from nose.tools import raises
 
@@ -19,7 +20,8 @@ from .model_factories import UserF, ProjectF
 from ..models import Project
 from ..views import (
     ProjectCreate, ProjectSettings, ProjectUpdate, ProjectAdmins,
-    ProjectAdminsUser, Projects, SingleProject, ProjectOverview, ProjectExtend
+    ProjectAdminsUser, Projects, SingleProject, ProjectOverview, ProjectExtend,
+    ProjectContactAdmins
 )
 
 # ############################################################################
@@ -123,7 +125,9 @@ class ProjectExtendTest(TestCase):
         self.assertContains(response, 'Project matching query does not exist.')
 
     def test_update(self):
-        data = {'geometry': '{"type": "Polygon","coordinates": [[[-0.508,51.682],[-0.53,51.327],[0.225,51.323],[0.167,51.667],[-0.508,51.682]]]}'}
+        data = {'geometry': '{"type": "Polygon","coordinates": [['
+                            '[-0.508,51.682],[-0.53,51.327],[0.225,51.323],'
+                            '[0.167,51.667],[-0.508,51.682]]]}'}
         view = ProjectExtend.as_view()
         url = reverse('admin:project_extend',
                       kwargs={'project_id': self.project.id})
@@ -710,7 +714,9 @@ class SingleProjectTest(TestCase):
             add_admins=[user]
         )
         ObservationTypeFactory.create(**{'project': project})
-        ObservationTypeFactory.create(**{'project': project, 'status': 'inactive'})
+        ObservationTypeFactory.create(
+            **{'project': project, 'status': 'inactive'}
+        )
         o1 = ObservationTypeFactory.create(**{'project': project})
         TextFieldFactory.create(**{'observationtype': o1})
         o2 = ObservationTypeFactory.create(**{'project': project})
@@ -723,7 +729,10 @@ class SingleProjectTest(TestCase):
         response = view(request, project_id=project.id).render()
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(2, len(json.loads(response.content).get('categories')))
+        self.assertEqual(
+            2,
+            len(json.loads(response.content).get('categories'))
+        )
 
     def test_get_deleted_project_with_admin(self):
         user = UserF.create()
@@ -997,8 +1006,7 @@ class SingleProjectTest(TestCase):
         })
         ViewFactory(**{'project': project, 'isprivate': False})
 
-        request = self.factory.get(
-            '/api/projects/%s/' % project.id)
+        request = self.factory.get('/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
         view = SingleProject.as_view()
         response = view(request, project_id=project.id).render()
@@ -1006,3 +1014,79 @@ class SingleProjectTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, project.name)
         self.assertContains(response, '"can_contribute": false')
+
+
+class ProjectContactAdminsTest(TestCase):
+    def test_with_active_project(self):
+        admin = UserF.create()
+        email_user = UserF.create()
+
+        project = ProjectF.create(
+            add_admins=[admin],
+            add_viewers=[email_user]
+        )
+
+        view = ProjectContactAdmins.as_view()
+        url = reverse(
+            'api:project_contact_admins',
+            kwargs={
+                'project_id': project.id
+            }
+        )
+        request = APIRequestFactory().post(url, {'email_text': 'Blah Blah'})
+        force_authenticate(request, user=email_user)
+
+        response = view(request, project_id=project.id).render()
+        self.assertEqual(response.status_code, 204)
+        self.assertEquals(len(mail.outbox), 2)
+
+    def test_with_inactive_project(self):
+        admin = UserF.create()
+        email_user = UserF.create()
+
+        project = ProjectF.create(
+            add_admins=[admin],
+            add_viewers=[email_user],
+            **{'status': 'inactive'}
+        )
+
+        view = ProjectContactAdmins.as_view()
+        url = reverse(
+            'api:project_contact_admins',
+            kwargs={
+                'project_id': project.id
+            }
+        )
+        request = APIRequestFactory().post(url, {'email_text': 'Blah Blah'})
+        force_authenticate(request, user=email_user)
+
+        response = view(request, project_id=project.id).render()
+        self.assertEqual(response.status_code, 404)
+        self.assertEquals(len(mail.outbox), 0)
+
+    def test_with_anonymous(self):
+        admin = UserF.create()
+        email_user = AnonymousUser()
+
+        project = ProjectF.create(
+            add_admins=[admin],
+            **{'isprivate': False}
+        )
+        ViewFactory.create(**{
+            'isprivate': False,
+            'project': project
+        })
+
+        view = ProjectContactAdmins.as_view()
+        url = reverse(
+            'api:project_contact_admins',
+            kwargs={
+                'project_id': project.id
+            }
+        )
+        request = APIRequestFactory().post(url, {'email_text': 'Blah Blah'})
+        force_authenticate(request, user=email_user)
+
+        response = view(request, project_id=project.id).render()
+        self.assertEqual(response.status_code, 401)
+        self.assertEquals(len(mail.outbox), 0)

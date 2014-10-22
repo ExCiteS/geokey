@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser
+from django.core import mail
 
 from nose.tools import raises
 
@@ -7,7 +8,7 @@ from dataviews.tests.model_factories import ViewFactory
 from users.tests.model_factories import UserF, UserGroupF, ViewUserGroupFactory
 
 from .model_factories import ProjectF
-from ..models import Project
+from ..models import Project, Admins
 
 
 class CreateProjectTest(TestCase):
@@ -602,3 +603,36 @@ class PublicProjectTest_PublicView(TestCase):
 
         self.assertFalse(self.project.is_involved(self.some_dude))
         self.assertFalse(self.project.is_involved(AnonymousUser()))
+
+
+class ProjectContactAdminsTest(TestCase):
+    def test_all_contacts(self):
+        admin = UserF.create()
+        contributor = UserF.create()
+        email_user = UserF.create()
+
+        project = ProjectF.create(
+            add_admins=[admin],
+            add_contributors=[contributor]
+        )
+
+        project.contact_admins(email_user, 'Test email')
+        # Should be 2 because project creator is admin too
+        self.assertEquals(len(mail.outbox), 2)
+
+    def test_selected_contacts(self):
+        admin = UserF.create()
+        contributor = UserF.create()
+        email_user = UserF.create()
+
+        project = ProjectF.create(
+            add_admins=[admin],
+            add_contributors=[contributor]
+        )
+
+        admin_rel = Admins.objects.get(project=project, user=admin)
+        admin_rel.contact = False
+        admin_rel.save()
+
+        project.contact_admins(email_user, 'Test email')
+        self.assertEquals(len(mail.outbox), 1)
