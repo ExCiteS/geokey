@@ -184,8 +184,14 @@ class ContributionSerializerIntegrationTests(TestCase):
 
         self.assertEqual(result.get('type'), 'Feature')
         self.assertEqual(result.get('geometry'), data.get('geometry'))
-        self.assertEqual(result.get('properties').get('attributes').get('key_1'), 'value 1')
-        self.assertEqual(result.get('properties').get('attributes').get('key_2'), 12)
+        self.assertEqual(
+            result.get('properties').get('attributes').get('key_1'),
+            'value 1'
+        )
+        self.assertEqual(
+            result.get('properties').get('attributes').get('key_2'),
+            12
+        )
         self.assertEqual(
             result.get('category').get('id'),
             self.observationtype.id)
@@ -222,8 +228,14 @@ class ContributionSerializerIntegrationTests(TestCase):
 
         self.assertEqual(result.get('type'), 'Feature')
         self.assertEqual(result.get('geometry'), data.get('geometry'))
-        self.assertEqual(result.get('properties').get('attributes').get('key_1'), 'value 1')
-        self.assertEqual(result.get('properties').get('attributes').get('key_2'), 12)
+        self.assertEqual(
+            result.get('properties').get('attributes').get('key_1'),
+            'value 1'
+        )
+        self.assertEqual(
+            result.get('properties').get('attributes').get('key_2'),
+            12
+        )
         self.assertEqual(
             result.get('category').get('id'),
             self.observationtype.id)
@@ -263,8 +275,14 @@ class ContributionSerializerIntegrationTests(TestCase):
 
         self.assertEqual(result.get('type'), 'Feature')
         self.assertEqual(result.get('geometry'), data.get('geometry'))
-        self.assertEqual(result.get('properties').get('attributes').get('key_1'), 'value 1')
-        self.assertEqual(result.get('properties').get('attributes').get('key_2'), 12)
+        self.assertEqual(
+            result.get('properties').get('attributes').get('key_1'),
+            'value 1'
+        )
+        self.assertEqual(
+            result.get('properties').get('attributes').get('key_2'),
+            12
+        )
         self.assertEqual(
             result.get('category').get('id'),
             self.observationtype.id)
@@ -331,7 +349,7 @@ class ContributionSerializerIntegrationTests(TestCase):
                     51.52439200896907
                 ]
             },
-            "properties": {                
+            "properties": {
                 "attributes": {
                     "key_1": "value 1",
                     "key_2": "blah"
@@ -350,7 +368,9 @@ class ContributionSerializerIntegrationTests(TestCase):
         )
 
     def test_serialize_instance(self):
-        observation = ObservationFactory.create(**{'attributes': {'key': 'value'}})
+        observation = ObservationFactory.create(
+            **{'attributes': {'key': 'value'}}
+        )
         TextFieldFactory.create(**{
             'key': 'key',
             'observationtype': observation.observationtype})
@@ -364,7 +384,10 @@ class ContributionSerializerIntegrationTests(TestCase):
         self.assertEqual(
             result.get('geometry'),
             json.loads(observation.location.geometry.geojson))
-        self.assertEqual(result.get('properties').get('attributes').get('key'), 'value')
+        self.assertEqual(
+            result.get('properties').get('attributes').get('key'),
+            'value'
+        )
         self.assertEqual(
             result.get('category').get('id'),
             observation.observationtype.id)
@@ -376,10 +399,9 @@ class ContributionSerializerIntegrationTests(TestCase):
             observation.location.description)
 
     def test_serialize_bulk(self):
-        number = 20
+        number = 1000
 
         ObservationFactory.create_batch(number)
-
         observations = Observation.objects.prefetch_related(
             'location', 'observationtype', 'creator', 'updator')
         serializer = ContributionSerializer(
@@ -402,7 +424,7 @@ class ContributionSerializerIntegrationTests(TestCase):
             observation,
             data={
                 'properties': {
-                    'attributes' : {
+                    'attributes': {
                         'number': 15
                     }
                 }
@@ -411,7 +433,10 @@ class ContributionSerializerIntegrationTests(TestCase):
         )
         result = serializer.data
 
-        self.assertEqual(result.get('properties').get('attributes').get('number'), 15)
+        self.assertEqual(
+            result.get('properties').get('attributes').get('number'),
+            15
+        )
 
     @raises(ValidationError)
     def test_serialize_invalid_update(self):
@@ -424,10 +449,10 @@ class ContributionSerializerIntegrationTests(TestCase):
             observation,
             data={
                 'properties': {
-                    'attributes' : {
+                    'attributes': {
                         'number': "blah"
-                    }   
-                    
+                    }
+
                 }
             },
             context={'user': self.contributor, 'project': self.project}

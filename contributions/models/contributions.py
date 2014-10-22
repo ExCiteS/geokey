@@ -14,11 +14,14 @@ from core.exceptions import InputError
 from ..base import OBSERVATION_STATUS, COMMENT_STATUS
 from ..manager import ObservationManager, CommentManager
 
+
 class Observation(models.Model):
     """
     Stores a single observation.
     """
-    location = models.ForeignKey('contributions.Location', related_name='locations')
+    location = models.ForeignKey(
+        'contributions.Location', related_name='locations'
+    )
     project = models.ForeignKey(
         'projects.Project', related_name='observations'
     )
@@ -91,7 +94,6 @@ class Observation(models.Model):
 
         return attributes
 
-
     @classmethod
     def create(cls, attributes=None, creator=None, location=None,
                observationtype=None, project=None, status=None):
@@ -102,7 +104,7 @@ class Observation(models.Model):
         """
         attributes = cls.replace_null(attributes)
 
-        if status == None:
+        if status is None:
             status = observationtype.default_status
 
         if status == 'draft':
@@ -141,7 +143,7 @@ class Observation(models.Model):
             self.review_comment = review_comment
 
         if status == 'active':
-            self.review_comment = None            
+            self.review_comment = None
 
         self.attributes = update
         self.updator = updator
