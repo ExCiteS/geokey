@@ -171,19 +171,19 @@ def update_search_matches(sender, **kwargs):
             if field.fieldtype == 'TextField':
                 term = observation.attributes.get(field.key)
                 if term is not None:
-                    search_matches.append(term)
+                    search_matches.append('%s:%s' % (field.key, term))
 
             elif field.fieldtype == 'LookupField':
                 l_id = observation.attributes.get(field.key)
                 lookup = field.lookupvalues.get(pk=l_id)
-                search_matches.append(lookup.name)
+                search_matches.append('%s:%s' % (field.key, lookup.name))
 
             elif field.fieldtype == 'MultipleLookupField':
                 l_ids = json.loads(observation.attributes.get(field.key))
 
                 for l_id in l_ids:
                     lookup = field.lookupvalues.get(pk=l_id)
-                    search_matches.append(lookup.name)
+                    search_matches.append('%s:%s' % (field.key, lookup.name))
 
     observation.search_matches = '#####'.join(search_matches)
 

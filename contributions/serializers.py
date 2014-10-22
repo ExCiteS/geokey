@@ -207,6 +207,16 @@ class ContributionSerializer(object):
             'isowner': obj.creator == self.context.get('user')
         }
 
+        q = self.context.get('search')
+        if q is not None:
+            json_object['search_matches'] = {}
+            matcher = obj.search_matches.split('#####')
+
+            for field in matcher:
+                if q in field:
+                    match = field.split(':')
+                    json_object['search_matches'][match[0]] = match[1]
+
         return json_object
 
     def to_native_min(self, obj):

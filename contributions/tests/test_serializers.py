@@ -399,11 +399,12 @@ class ContributionSerializerIntegrationTests(TestCase):
             observation.location.description)
 
     def test_serialize_bulk(self):
-        number = 1000
+        number = 20
 
         ObservationFactory.create_batch(number)
         observations = Observation.objects.prefetch_related(
             'location', 'observationtype', 'creator', 'updator')
+
         serializer = ContributionSerializer(
             observations,
             many=True,
@@ -413,6 +414,58 @@ class ContributionSerializerIntegrationTests(TestCase):
 
         self.assertEqual(result.get('type'), 'FeatureCollection')
         self.assertEqual(len(result.get('features')), number)
+
+        for f in result.get('features'):
+            self.assertIsNone(f.get('search_matches'))
+
+    def test_serialize_bulk_search(self):
+        number = 20
+
+        o_type = ObservationTypeFactory.create()
+        TextFieldFactory.create(**{
+            'observationtype': o_type,
+            'key': 'field-1'
+        })
+        TextFieldFactory.create(**{
+            'observationtype': o_type,
+            'key': 'field-2'
+        })
+        TextFieldFactory.create(**{
+            'observationtype': o_type,
+            'key': 'field-3'
+        })
+
+        ObservationFactory.create_batch(
+            number,
+            **{
+                'attributes': {
+                    'field-1': 'blah',
+                    'field-2': 'blabla',
+                    'field-3': 'sddsdsfdsf'
+                },
+                'observationtype': o_type
+            }
+        )
+        observations = Observation.objects.prefetch_related(
+            'location', 'observationtype', 'creator', 'updator')
+
+        serializer = ContributionSerializer(
+            observations,
+            many=True,
+            context={
+                'user': self.contributor,
+                'project': self.project,
+                'search': 'bla'
+            }
+        )
+        result = serializer.data
+
+        self.assertEqual(result.get('type'), 'FeatureCollection')
+        self.assertEqual(len(result.get('features')), number)
+
+        for f in result.get('features'):
+            self.assertIsNotNone(f.get('search_matches'))
+            self.assertIsNone(f.get('search_matches').get('field-3'))
 
     def test_serialize_update(self):
         observation = ObservationFactory.create(

@@ -8,18 +8,19 @@ from django.db import models
 
 from observationtypes.models import Field, LookupValue, MultipleLookupValue
 
+
 class Migration(DataMigration):
 
     def forwards(self, orm):
         "Write your forwards methods here."
-        # Note: Don't use "from appname.models import ModelName". 
+        # Note: Don't use "from appname.models import ModelName".
         # Use orm.ModelName to refer to models in this application,
         # and orm['appname.ModelName'] for models in other applications.
         for observation in orm.Observation.objects.all():
             search_matches = []
 
             for field in Field.objects.filter(
-                observationtype_id=observation.observationtype_id):
+                    observationtype_id=observation.observationtype_id):
 
             # for field in observation.observationtype.fields.all():
                 if field.key in observation.attributes.keys():
@@ -27,13 +28,13 @@ class Migration(DataMigration):
                     if field.fieldtype == 'TextField':
                         term = observation.attributes.get(field.key)
                         if term is not None:
-                            search_matches.append(term)
+                            search_matches.append('%s:%s' % (field.key, term))
 
                     elif field.fieldtype == 'LookupField':
                         l_id = observation.attributes.get(field.key)
                         try:
                             lookup = field.lookupvalues.get(pk=l_id)
-                            search_matches.append(lookup.name)
+                            search_matches.append('%s:%s' % (field.key, lookup.name))
                         except LookupValue.DoesNotExist:
                             pass
 
@@ -45,7 +46,7 @@ class Migration(DataMigration):
                             for l_id in l_ids:
                                 try:
                                     lookup = field.lookupvalues.get(pk=l_id)
-                                    search_matches.append(lookup.name)
+                                    search_matches.append('%s:%s' % (field.key, lookup.name))
                                 except MultipleLookupValue.DoesNotExist:
                                     pass
 
