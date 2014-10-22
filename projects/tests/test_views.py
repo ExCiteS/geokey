@@ -1033,7 +1033,11 @@ class ProjectContactAdminsTest(TestCase):
                 'project_id': project.id
             }
         )
-        request = APIRequestFactory().post(url, {'email_text': 'Blah Blah'})
+        request = APIRequestFactory().post(
+            url,
+            json.dumps({'email_text': 'Blah Blah'}),
+            content_type='application/json'
+        )
         force_authenticate(request, user=email_user)
 
         response = view(request, project_id=project.id).render()
@@ -1057,7 +1061,11 @@ class ProjectContactAdminsTest(TestCase):
                 'project_id': project.id
             }
         )
-        request = APIRequestFactory().post(url, {'email_text': 'Blah Blah'})
+        request = APIRequestFactory().post(
+            url,
+            json.dumps({'email_text': 'Blah Blah'}),
+            content_type='application/json'
+        )
         force_authenticate(request, user=email_user)
 
         response = view(request, project_id=project.id).render()
@@ -1084,7 +1092,11 @@ class ProjectContactAdminsTest(TestCase):
                 'project_id': project.id
             }
         )
-        request = APIRequestFactory().post(url, {'email_text': 'Blah Blah'})
+        request = APIRequestFactory().post(
+            url,
+            json.dumps({'email_text': 'Blah Blah'}),
+            content_type='application/json'
+        )
         force_authenticate(request, user=email_user)
 
         response = view(request, project_id=project.id).render()

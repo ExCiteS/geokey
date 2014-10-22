@@ -342,7 +342,7 @@ class ProjectContactAdmins(APIView):
             raise Unauthenticated('Unauthenticated users can not contact the '
                                   'administrators of the project.')
 
-        email_text = self.request.POST.get('email_text')
+        email_text = self.request.DATA.get('email_text')
         project = Project.objects.get_single(request.user, project_id)
         if project.status == 'active':
             project.contact_admins(user, email_text)
