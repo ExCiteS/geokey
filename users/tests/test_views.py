@@ -13,6 +13,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 
 from projects.tests.model_factories import ProjectF
+from projects.models import Admins
 from dataviews.tests.model_factories import ViewFactory
 from applications.tests.model_factories import ClientFactory
 
@@ -329,6 +330,34 @@ class UserNotificationsTest(TestCase):
         response = view(request)
         self.assertTrue(isinstance(response, HttpResponseRedirect))
 
+    def test_post_with_admin(self):
+        user = UserF.create()
+        project_1 = ProjectF.create(**{'creator': user})
+        project_2 = ProjectF.create(**{'creator': user})
+        data = {
+            str(project_1.id): 'on'
+        }
+
+        view = UserNotifications.as_view()
+        url = reverse('admin:notifications')
+        request = APIRequestFactory().post(url, data)
+        request.user = user
+
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = view(request).render()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertTrue(
+            Admins.objects.get(project=project_1, user=user).contact
+        )
+        self.assertFalse(
+            Admins.objects.get(project=project_2, user=user).contact
+        )
+
 
 # ############################################################################
 #
@@ -336,10 +365,8 @@ class UserNotificationsTest(TestCase):
 #
 # ############################################################################
 
-
 class QueryUsersTest(TestCase):
     def _get(self, query):
-        # self.client.login(username=user.username, password='123456')
         return self.client.get('/ajax/users/?query=' + query)
 
     def setUp(self):
