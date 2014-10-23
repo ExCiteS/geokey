@@ -214,7 +214,7 @@ class ContributionSerializer(object):
 
             for field in matcher:
                 if q in field:
-                    match = field.split(':')
+                    match = field.split(':', 1)
                     json_object['search_matches'][match[0]] = match[1]
 
         return json_object
