@@ -5,12 +5,11 @@ from django.test import TestCase
 from django.core import mail
 
 from projects.tests.model_factories import ProjectF
-from projects.models  import Project
 from contributions.tests.model_factories import ObservationFactory
 
-from..models import User
 from ..management.commands.daily_digest import Command
 from ..tests.model_factories import UserF
+
 
 class CommandTest(TestCase):
     def test_get_update_projects(self):
@@ -20,14 +19,15 @@ class CommandTest(TestCase):
         not_updated_project = ProjectF.create()
 
         for x in range(0, 2):
-            for project in [updated_project_1, updated_project_2, not_updated_project]:
-                o = ObservationFactory.create(project=project)
+            for project in [
+                    updated_project_1, updated_project_2, not_updated_project]:
+                ObservationFactory.create(project=project)
 
         updated = ObservationFactory.create(project=updated_project_2)
 
         yesterday = datetime.utcnow().replace(tzinfo=utc)
 
-        created = ObservationFactory.create(project=updated_project_1)
+        ObservationFactory.create(project=updated_project_1)
         updated.update(attributes={'key': 'value'}, updator=UserF.create())
 
         # the tests
@@ -66,8 +66,12 @@ class CommandTest(TestCase):
         )
 
         yesterday = datetime.utcnow().replace(tzinfo=utc)
-        
-        reported.update(attributes=None, status='pending', updator=UserF.create())
+
+        reported.update(
+            attributes=None,
+            status='pending',
+            updator=UserF.create()
+        )
         updated.update(attributes={'key': 'value'}, updator=UserF.create())
         approved.update(attributes=None, status='active', updator=moderator)
 
@@ -84,11 +88,7 @@ class CommandTest(TestCase):
         to_moderate = report.get('to_moderate')
         self.assertEqual(len(to_moderate.get('new')), 2)
         self.assertEqual(len(to_moderate.get('reported')), 1)
-
-        yours = report.get('yours')
-        self.assertEqual(len(yours.get('changed')), 0)
-        self.assertEqual(len(yours.get('approved')), 0)
-        self.assertEqual(len(yours.get('reported')), 0)
+        self.assertIsNone(report.get('yours'))
 
         report = command.get_updated_items(project, contributor, yesterday)
 
@@ -103,7 +103,7 @@ class CommandTest(TestCase):
     def test_daily_digest(self):
         moderator = UserF.create()
         contributor = UserF.create()
-        some_dude = UserF.create()
+        UserF.create()
 
         project = ProjectF.create(
             add_admins=[moderator],
@@ -128,9 +128,11 @@ class CommandTest(TestCase):
             status='pending'
         )
 
-        yesterday = datetime.utcnow().replace(tzinfo=utc)
-        
-        reported.update(attributes=None, status='pending', updator=UserF.create())
+        reported.update(
+            attributes=None,
+            status='pending',
+            updator=UserF.create()
+        )
         updated.update(attributes={'key': 'value'}, updator=UserF.create())
         approved.update(attributes=None, status='active', updator=moderator)
 

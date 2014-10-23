@@ -3,14 +3,17 @@ from pytz import utc
 
 from django.conf import settings
 from django.core.management.base import NoArgsCommand
-from django.db import connection
 from django.db.models import Q
 from django.core import mail
+
+from django.template.loader import get_template
+from django.template import Context
 
 
 from projects.models import Project
 from users.models import User
 from contributions.models import Observation
+
 
 class Command(NoArgsCommand):
     def get_updated_projects(self, yesterday):
@@ -73,11 +76,11 @@ class Command(NoArgsCommand):
                     except Observation.DoesNotExist:
                         pass
 
-                items['yours'] = {
-                     'changed': updated_items.filter(creator=user),
-                     'approved': approved,
-                     'reported': reported
-                }
+                    items['yours'] = {
+                        'changed': updated_items.filter(creator=user),
+                        'approved': approved,
+                        'reported': reported
+                    }
                 return items
 
         return None
@@ -98,45 +101,38 @@ class Command(NoArgsCommand):
         for user in User.objects.all():
             reports = []
             for project in updated_projects:
-                updated_items = self.get_updated_items(project, user, yesterday)
+                updated_items = self.get_updated_items(
+                    project,
+                    user,
+                    yesterday
+                )
 
                 if updated_items is not None:
-                    project_report = ''
-
                     to_moderate = updated_items.pop('to_moderate', None)
-                    if to_moderate is not None:
-                        text = ('  Please moderate %s new contributions and %s '
-                                'reported contributions.' % (
-                                    len(to_moderate.get('new')),
-                                    len(to_moderate.get('reported'))
-                                ))
-                        project_report = project_report + text + '\n'
-
                     yours = updated_items.pop('yours', None)
-                    if yours is not None:
-                        text = ('  %s of your contributions have been changed.'
-                                ' %s where approved, %s where reported.' % (
-                                len(yours.get('changed')),
-                                len(yours.get('approved')),
-                                len(yours.get('reported'))
-                            ))
-                        project_report = project_report + text + '\n\n\n'
 
-                    if len(project_report) > 0:
-                        reports.append(
-                            '- %s\n\n%s' % (project.name, project_report))
+                    if to_moderate is not None or yours is not None:
+                        reports.append({
+                            'project': project.name,
+                            'to_moderate': to_moderate,
+                            'yours': yours
+                        })
 
             if len(reports) > 0:
-                text = ('Dear %s,\n\nhere\'s an overview of what happened in '
-                    'your projects on %s:\n\n %sHappy mapping, the GeoKey Team.' %
-                    (
-                        user.display_name,
-                        yesterday.strftime('%d %B %Y'),
-                        '\n\n\n'.join(reports)
-                    ))
+                email_text = get_template('users/daily_digest.txt')
+                context = Context({
+                    'user': user.display_name,
+                    'yesterday': yesterday.strftime('%d %B %Y'),
+                    'reports': reports,
+                    'platform': settings.PLATFORM_NAME
+                })
+                text = email_text.render(context)
 
                 email = mail.EmailMessage(
-                    'GeoKey daily digest for ' + yesterday.strftime('%d %B %Y'),
+                    '%s daily digest for %s' % (
+                        settings.PLATFORM_NAME,
+                        yesterday.strftime('%d %B %Y')
+                    ),
                     text,
                     settings.DEFAULT_FROM_EMAIL,
                     [user.email]
@@ -148,4 +144,3 @@ class Command(NoArgsCommand):
             connection.open()
             connection.send_messages(messages)
             connection.close()
-
