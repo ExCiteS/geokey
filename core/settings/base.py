@@ -70,6 +70,12 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger'
 }
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "core.context_processors.project_settings",
+    "django.contrib.messages.context_processors.messages"
+)
+
 APPEND_SLASH = True
 
 ROOT_URLCONF = 'core.urls'

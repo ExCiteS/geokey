@@ -16,8 +16,8 @@
             {% include 'snippets/messages.html' %}
 
             <div class="row">
+                {% if role == 'administrator' %}
                 <div class="col-sm-4">
-                    {% if role == 'administrator' %}
                     <div class="alert alert-info">
                         <h4>Do you need help?</h4>
                         <p><a href="#" id="help-link">Click here to get started.</a></p>
@@ -32,11 +32,10 @@
                             <a href="{% url 'admin:usergroup_list' project.id %}" class="list-group-item"><span class="badge">{{ project.usergroups.count }}</span>User groups</a>
                             <a href="{% url 'admin:project_extend' project.id %}" class="list-group-item">Geographic extend</a>
                             <a href="{% url 'admin:project_settings' project.id %}" class="list-group-item">Settings</a>
-                        </div>    
+                        </div>
                     </div>
-                    {% endif %}
-                    
                 </div>
+                {% endif %}
                 <div class="col-sm-8" id="stats-bock">
                     <h3 class="header">You are {{role}} of this project</h3>
                     <div class="row" id="stats">
@@ -50,9 +49,9 @@
                         {% else %}
                             <div class="col-sm-6">
                                 You can not contribute to this project, but there are
-                                <span class="number">{{ maps }}</span><br>data groupings you can access  
+                                <span class="number">{{ maps }}</span><br>data groupings you can access
                             </div>
-                        {% endif%}        
+                        {% endif%}
                     </div>
                 </div>
                 {% include 'snippets/project-help.html' %}

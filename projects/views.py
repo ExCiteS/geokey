@@ -118,6 +118,7 @@ class ProjectExtend(LoginRequiredMixin, TemplateView):
                 self.request,
                 'The geographic extend has been updated successfully.'
             )
+
             context['project'] = project
             return self.render_to_response(context)
 

@@ -182,7 +182,8 @@ class Project(models.Model):
                 'sender': sender,
                 'admin': contact_admin.user,
                 'email_text': mail_content,
-                'project_name': self.name
+                'project_name': self.name,
+                'platform': settings.PLATFORM_NAME
             })
             text = email_text.render(context)
 
