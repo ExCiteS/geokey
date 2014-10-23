@@ -4,6 +4,7 @@ from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.utils.html import strip_tags
+from django.contrib.auth.views import password_reset_confirm as reset_view
 
 from braces.views import LoginRequiredMixin
 
@@ -11,7 +12,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from provider.oauth2.models import Client
+from provider.oauth2.models import Client, AccessToken
 
 from core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
@@ -24,7 +25,11 @@ from .serializers import (
     UserSerializer, UserGroupSerializer, ViewGroupSerializer
 )
 from .models import User, ViewUserGroup
-from .forms import UserRegistrationForm, UsergroupCreateForm
+from .forms import (
+    UserRegistrationForm,
+    UsergroupCreateForm,
+    CustomPasswordChangeForm
+)
 
 
 # ############################################################################
@@ -32,6 +37,7 @@ from .forms import UserRegistrationForm, UsergroupCreateForm
 # ADMIN VIEWS
 #
 # ############################################################################
+
 
 class Index(TemplateView):
     """
@@ -360,6 +366,15 @@ class UserNotifications(LoginRequiredMixin, TemplateView):
         return self.render_to_response(context)
 
 
+def password_reset_confirm(request, *args, **kwargs):
+    return reset_view(
+        request,
+        set_password_form=CustomPasswordChangeForm,
+        *args,
+        **kwargs
+    )
+
+
 class ChangePassword(LoginRequiredMixin, TemplateView):
     """
     Displays the change password page
@@ -380,6 +395,9 @@ class ChangePassword(LoginRequiredMixin, TemplateView):
         if user is not None:
             user.set_password(request.POST.get('new_password1'))
             user.save()
+
+            AccessToken.objects.filter(user=user).delete()
+
             messages.success(request, 'The password has been changed.')
             return redirect('admin:userprofile')
         else:

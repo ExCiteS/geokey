@@ -1,5 +1,8 @@
 from django import forms
 from django.utils.html import strip_tags
+from django.contrib.auth.forms import SetPasswordForm
+
+from provider.oauth2.models import AccessToken
 
 from .models import User, UserGroup
 
@@ -29,3 +32,10 @@ class UsergroupCreateForm(forms.ModelForm):
         cleaned_data['description'] = strip_tags(cleaned_data['description'])
 
         return cleaned_data
+
+
+class CustomPasswordChangeForm(SetPasswordForm):
+    def save(self, *args, **kwargs):
+        user = super(CustomPasswordChangeForm, self).save(*args, **kwargs)
+        AccessToken.objects.filter(user=user).delete()
+        return user

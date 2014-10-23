@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url, include
+from django.conf.urls import patterns, url
 
 from projects import views as project_views
 from observationtypes import views as observationtype_views
@@ -194,7 +194,7 @@ urlpatterns = patterns(
     url(r'^accounts/password/reset/done/$',
         'django.contrib.auth.views.password_reset_done'),
     url(r'^accounts/password/reset/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/$',
-        'django.contrib.auth.views.password_reset_confirm',
+        'users.views.password_reset_confirm',
         {'post_reset_redirect': '/admin/accounts/password/done/'},
         name="password_reset_confirm"),
     url(r'^accounts/password/done/$',
