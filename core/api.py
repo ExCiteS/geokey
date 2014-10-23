@@ -17,6 +17,10 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/$',
         project_views.SingleProject.as_view(),
         name='project_single'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/get-in-touch/$',
+        project_views.ProjectContactAdmins.as_view(),
+        name='project_contact_admins'),
 
     # ###########################
     # OBSERVATIONS
@@ -95,6 +99,35 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/data-groupings/my-contributions/contributions/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
         contribution_views.MyContributionsSingleCommentAPIView.as_view(),
         name='myobservations_single_comment'),
+
+    # ###########################
+    # MEDIA
+    # ###########################
+
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/all-contributions/contributions/(?P<contribution_id>[0-9]+)/media/$',
+        contribution_views.AllContributionsMediaAPIView.as_view(),
+        name='project_media'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/all-contributions/contributions/(?P<contribution_id>[0-9]+)/media/(?P<file_id>[0-9]+)$',
+        contribution_views.AllContributionsSingleMediaApiView.as_view(),
+        name='project_single_media'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/my-contributions/contributions/(?P<contribution_id>[0-9]+)/media/$',
+        contribution_views.MyContributionsMediaApiView.as_view(),
+        name='mycontributions_media'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/my-contributions/contributions/(?P<contribution_id>[0-9]+)/media/(?P<file_id>[0-9]+)$',
+        contribution_views.MyContributionsSingleMediaApiView.as_view(),
+        name='mycontributions_single_media'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/contributions/(?P<contribution_id>[0-9]+)/media/$',
+        contribution_views.GroupingContributionsMediaApiView.as_view(),
+        name='grouping_media'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/contributions/(?P<contribution_id>[0-9]+)/media/(?P<file_id>[0-9]+)$',
+        contribution_views.GroupingContributionsSingleMediaApiView.as_view(),
+        name='grouping_single_media'),
 
     # ###########################
     # OBSERVATION TYPES

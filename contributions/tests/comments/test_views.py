@@ -1,0 +1,1244 @@
+import json
+
+from django.test import TestCase
+from django.contrib.auth.models import AnonymousUser
+from django.core.urlresolvers import reverse
+
+from nose.tools import raises
+
+from rest_framework.test import APITestCase
+from rest_framework.test import APIRequestFactory, force_authenticate
+from rest_framework import status
+
+from projects.tests.model_factories import UserF, ProjectF
+from projects.models import Project
+from observationtypes.tests.model_factories import ObservationTypeFactory
+from dataviews.tests.model_factories import (
+    ViewFactory, RuleFactory
+)
+from dataviews.models import View
+from contributions.models import Observation
+
+from users.tests.model_factories import UserGroupF, ViewUserGroupFactory
+from ..model_factories import ObservationFactory, CommentFactory
+
+from contributions.views.comments import (
+    AllContributionsSingleCommentAPIView,
+    GroupingContributionsSingleCommentAPIView,
+    AllContributionsCommentsAPIView, MyContributionsCommentsAPIView,
+    MyContributionsSingleCommentAPIView, GroupingContributionsCommentsAPIView
+)
+
+
+class AllContributionsSingleCommentAPIViewTest(TestCase):
+    def setUp(self):
+        self.admin = UserF.create()
+        self.creator = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.creator]
+        )
+        self.observation = ObservationFactory.create(**{
+            'project': self.project,
+            'creator': self.creator
+        })
+
+    def test_get_object_with_admin(self):
+        view = AllContributionsSingleCommentAPIView()
+        observation = view.get_object(
+            self.admin, self.project.id, self.observation.id)
+        self.assertEqual(observation, self.observation)
+
+    def test_get_object_with_creator(self):
+        view = AllContributionsSingleCommentAPIView()
+        view.get_object(self.creator, self.project.id, self.observation.id)
+
+    @raises(Project.DoesNotExist)
+    def test_get_object_with_some_dude(self):
+        some_dude = UserF.create()
+        view = AllContributionsSingleCommentAPIView()
+        view.get_object(some_dude, self.project.id, self.observation.id)
+
+
+class GroupingContributionsSingleCommentAPIViewTest(TestCase):
+    def setUp(self):
+        self.admin = UserF.create()
+        self.creator = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.creator]
+        )
+
+        observation_type = ObservationTypeFactory(**{'project': self.project})
+
+        self.observation = ObservationFactory.create(**{
+            'project': self.project,
+            'creator': self.creator,
+            'observationtype': observation_type
+        })
+
+        self.view = ViewFactory(**{'project': self.project})
+        RuleFactory(**{
+            'view': self.view,
+            'observation_type': observation_type}
+        )
+
+    def test_get_object_with_admin(self):
+        view = GroupingContributionsSingleCommentAPIView()
+        observation = view.get_object(
+            self.admin, self.project.id, self.view.id, self.observation.id)
+        self.assertEqual(observation, self.observation)
+
+    @raises(View.DoesNotExist)
+    def test_get_object_with_creator_not_viewmember(self):
+        view = GroupingContributionsSingleCommentAPIView()
+        view.get_object(
+            self.creator, self.project.id, self.view.id, self.observation.id
+        )
+
+    def test_get_object_with_creator_is_viewmember(self):
+        group = UserGroupF.create(
+            add_users=[self.creator],
+            **{'project': self.view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': self.view, 'usergroup': group}
+        )
+        view = GroupingContributionsSingleCommentAPIView()
+        observation = view.get_object(
+            self.creator, self.observation.project.id,
+            self.view.id, self.observation.id
+        )
+        self.assertEqual(observation, self.observation)
+
+    def test_get_object_with_view_member_not_creator(self):
+        view_member = UserF.create()
+        group = UserGroupF.create(
+            add_users=[view_member],
+            **{'project': self.view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': self.view, 'usergroup': group}
+        )
+        view = GroupingContributionsSingleCommentAPIView()
+        view.get_object(
+            view_member, self.observation.project.id,
+            self.view.id, self.observation.id
+        )
+
+
+class GetProjectComments(APITestCase):
+    def setUp(self):
+        self.contributor = UserF.create()
+        self.admin = UserF.create()
+        self.non_member = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+        self.observation = ObservationFactory.create(**{
+            'project': self.project,
+            'creator': self.contributor
+        })
+        comment = CommentFactory.create(**{
+            'commentto': self.observation
+        })
+        response = CommentFactory.create(**{
+            'commentto': self.observation,
+            'respondsto': comment
+        })
+        CommentFactory.create(**{
+            'commentto': self.observation,
+            'respondsto': response
+        })
+        CommentFactory.create(**{
+            'commentto': self.observation,
+            'respondsto': comment
+        })
+        CommentFactory.create(**{
+            'commentto': self.observation
+        })
+
+    def get_response(self, user):
+        factory = APIRequestFactory()
+        request = factory.get(
+            '/api/projects/%s/observations/%s/comments/' %
+            (self.project.id, self.observation.id)
+        )
+        force_authenticate(request, user=user)
+        view = AllContributionsCommentsAPIView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            observation_id=self.observation.id
+        ).render()
+
+    def test_get_comments_with_admin(self):
+        response = self.get_response(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_comments_with_view_member(self):
+        view_member = UserF.create()
+
+        ViewFactory(add_viewers=[view_member], **{
+            'project': self.project
+        })
+        response = self.get_response(view_member)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_comments_with_contributor(self):
+        response = self.get_response(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_comments_with_non_member(self):
+        response = self.get_response(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class AddCommentToPrivateProjectTest(APITestCase):
+    def setUp(self):
+        self.contributor = UserF.create()
+        self.admin = UserF.create()
+        self.non_member = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+        self.observation = ObservationFactory.create(**{
+            'project': self.project,
+            'creator': self.contributor
+        })
+
+    def get_response(self, user):
+        factory = APIRequestFactory()
+        request = factory.post(
+            '/api/projects/%s/observations/%s/comments/' %
+            (self.project.id, self.observation.id),
+            {'text': 'A comment to the observation'}
+        )
+        force_authenticate(request, user=user)
+        view = AllContributionsCommentsAPIView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            observation_id=self.observation.id
+        ).render()
+
+    def test_add_comment_to_observation_with_admin(self):
+        response = self.get_response(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_add_comment_to_observation_with_contributor(self):
+        response = self.get_response(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_add_comment_to_observation_with_non_member(self):
+        response = self.get_response(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_add_comment_to_observation_with_view_member(self):
+        view_member = UserF.create()
+        ViewFactory(add_viewers=[view_member], **{
+            'project': self.project
+        })
+        response = self.get_response(view_member)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class AddCommentToPublicProjectTest(APITestCase):
+    def setUp(self):
+        self.contributor = UserF.create()
+        self.admin = UserF.create()
+        self.non_member = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            **{'isprivate': False}
+        )
+        self.observation = ObservationFactory.create(**{
+            'project': self.project,
+            'creator': self.contributor
+        })
+
+    def get_response(self, user):
+        factory = APIRequestFactory()
+        request = factory.post(
+            '/api/projects/%s/maps/all-contributions/%s/comments/' %
+            (self.project.id, self.observation.id),
+            {'text': 'A comment to the observation'}
+        )
+        force_authenticate(request, user=user)
+        view = AllContributionsCommentsAPIView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            observation_id=self.observation.id
+        ).render()
+
+    def test_add_comment_to_observation_with_admin(self):
+        response = self.get_response(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_add_comment_to_observation_with_contributor(self):
+        response = self.get_response(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_add_comment_to_observation_with_non_member(self):
+        response = self.get_response(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_add_comment_to_observation_with_view_member(self):
+        view_member = UserF.create()
+        ViewFactory(add_viewers=[view_member], **{
+            'project': self.project
+        })
+        response = self.get_response(view_member)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_add_comment_to_observation_with_anonymous(self):
+        response = self.get_response(AnonymousUser())
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class AddCommentToWrongProjectObservation(APITestCase):
+    def test(self):
+        admin = UserF.create()
+        project = ProjectF(add_admins=[admin])
+        observation = ObservationFactory.create()
+
+        factory = APIRequestFactory()
+        request = factory.post(
+            '/api/projects/%s/observations/%s/comments/' %
+            (project.id, observation.id),
+            {'text': 'A comment to the observation'}
+        )
+        force_authenticate(request, user=admin)
+        view = AllContributionsCommentsAPIView.as_view()
+        response = view(
+            request,
+            project_id=project.id,
+            observation_id=observation.id
+        ).render()
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class AddResponseToProjectCommentTest(APITestCase):
+    def test(self):
+        admin = UserF.create()
+        project = ProjectF(add_admins=[admin])
+        observation = ObservationFactory.create(**{
+            'project': project
+        })
+        comment = CommentFactory.create(**{
+            'commentto': observation
+        })
+
+        factory = APIRequestFactory()
+        request = factory.post(
+            '/api/projects/%s/observations/%s/comments/' %
+            (project.id, observation.id),
+            {
+                'text': 'Response to a comment',
+                'respondsto': comment.id
+            }
+        )
+        force_authenticate(request, user=admin)
+        view = AllContributionsCommentsAPIView.as_view()
+        response = view(
+            request,
+            project_id=project.id,
+            observation_id=observation.id
+        ).render()
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            json.loads(response.content).get('respondsto'),
+            comment.id
+        )
+
+
+class AddResponseToWrongProjectCommentTest(APITestCase):
+    def test(self):
+        admin = UserF.create()
+        project = ProjectF(add_admins=[admin])
+        observation = ObservationFactory.create(**{
+            'project': project
+        })
+        comment = CommentFactory.create()
+
+        factory = APIRequestFactory()
+        request = factory.post(
+            '/api/projects/%s/observations/%s/comments/' %
+            (project.id, observation.id),
+            {
+                'text': 'Response to a comment',
+                'respondsto': comment.id
+            }
+        )
+        force_authenticate(request, user=admin)
+        view = AllContributionsCommentsAPIView.as_view()
+        response = view(
+            request,
+            project_id=project.id,
+            observation_id=observation.id
+        ).render()
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            json.loads(response.content).get('error'),
+            'The comment you try to respond to is not a comment to the '
+            'observation.'
+        )
+
+
+class DeleteProjectCommentTest(APITestCase):
+    def setUp(self):
+        self.contributor = UserF.create()
+        self.admin = UserF.create()
+        self.non_member = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor],
+            **{'isprivate': False}
+        )
+        self.observation = ObservationFactory.create(**{
+            'project': self.project,
+            'creator': self.contributor
+        })
+        self.comment = CommentFactory.create(**{
+            'commentto': self.observation
+        })
+        self.comment_to_remove = CommentFactory.create(**{
+            'commentto': self.observation,
+            'creator': self.contributor
+        })
+
+    def get_response(self, user):
+        factory = APIRequestFactory()
+        request = factory.delete(
+            '/api/projects/%s/observations/%s/comments/%s/' %
+            (self.project.id, self.observation.id, self.comment_to_remove.id),
+            {'text': 'A comment to the observation'}
+        )
+        force_authenticate(request, user=user)
+        view = AllContributionsSingleCommentAPIView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            observation_id=self.observation.id,
+            comment_id=self.comment_to_remove.id
+        ).render()
+
+    def test_delete_comment_with_admin(self):
+        response = self.get_response(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertIn(self.comment, observation.comments.all())
+        self.assertNotIn(self.comment_to_remove, observation.comments.all())
+
+    def test_delete_comment_with_comment_creator(self):
+        response = self.get_response(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertIn(self.comment, observation.comments.all())
+        self.assertNotIn(self.comment_to_remove, observation.comments.all())
+
+
+class DeleteWrongProjectComment(APITestCase):
+    def test(self):
+        admin = UserF.create()
+        project = ProjectF(add_admins=[admin])
+        observation = ObservationFactory.create(**{
+            'project': project
+        })
+        comment = CommentFactory.create()
+
+        factory = APIRequestFactory()
+        request = factory.delete(
+            '/api/projects/%s/observations/%s/comments/%s/' %
+            (project.id, observation.id, comment.id),
+            {'text': 'A comment to the observation'}
+        )
+        force_authenticate(request, user=admin)
+        view = AllContributionsSingleCommentAPIView.as_view()
+        response = view(
+            request,
+            project_id=project.id,
+            observation_id=observation.id,
+            comment_id=comment.id
+        ).render()
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class GetMyObservationComments(APITestCase):
+    def setUp(self):
+        self.creator = UserF.create()
+        self.contributor = UserF.create()
+        self.admin = UserF.create()
+        self.non_member = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor, self.creator]
+        )
+        self.observation = ObservationFactory.create(**{
+            'project': self.project,
+            'creator': self.creator
+        })
+        comment = CommentFactory.create(**{
+            'commentto': self.observation
+        })
+        response = CommentFactory.create(**{
+            'commentto': self.observation,
+            'respondsto': comment
+        })
+        CommentFactory.create(**{
+            'commentto': self.observation,
+            'respondsto': response
+        })
+        CommentFactory.create(**{
+            'commentto': self.observation,
+            'respondsto': comment
+        })
+        CommentFactory.create(**{
+            'commentto': self.observation
+        })
+
+    def get_response(self, user):
+        factory = APIRequestFactory()
+        url = reverse('api:myobservations_comments', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
+        })
+        request = factory.get(url)
+        force_authenticate(request, user=user)
+        view = MyContributionsCommentsAPIView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            observation_id=self.observation.id
+        ).render()
+
+    def test_get_comments_with_admin(self):
+        response = self.get_response(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_comments_with_view_member(self):
+        view_member = UserF.create()
+
+        ViewFactory(add_viewers=[view_member], **{
+            'project': self.project
+        })
+        response = self.get_response(view_member)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_comments_with_contributor(self):
+        response = self.get_response(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_comments_with_non_member(self):
+        response = self.get_response(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_comments_with_creator(self):
+        response = self.get_response(self.creator)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class AddMyObservationCommentTest(APITestCase):
+    def setUp(self):
+        self.contributor = UserF.create()
+        self.creator = UserF.create()
+        self.admin = UserF.create()
+        self.non_member = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor, self.creator]
+        )
+        self.observation = ObservationFactory.create(**{
+            'project': self.project,
+            'creator': self.creator
+        })
+
+    def get_response(self, user):
+        factory = APIRequestFactory()
+        url = reverse('api:myobservations_comments', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
+        })
+        request = factory.post(url, {'text': 'A comment to the observation'})
+        force_authenticate(request, user=user)
+        view = MyContributionsCommentsAPIView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            observation_id=self.observation.id
+        ).render()
+
+    def test_add_comment_to_observation_with_admin(self):
+        response = self.get_response(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_add_comment_to_observation_with_contributor(self):
+        response = self.get_response(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_add_comment_to_observation_with_non_member(self):
+        response = self.get_response(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_add_comment_to_observation_with_view_member(self):
+        view_member = UserF.create()
+        ViewFactory(add_viewers=[view_member], **{
+            'project': self.project
+        })
+        response = self.get_response(view_member)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_add_comment_to_observation_with_creator(self):
+        response = self.get_response(self.creator)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+
+class AddCommentToWrongMyObservation(APITestCase):
+    def test(self):
+        admin = UserF.create()
+        project = ProjectF(add_admins=[admin])
+        observation = ObservationFactory.create()
+
+        factory = APIRequestFactory()
+        url = reverse('api:myobservations_comments', kwargs={
+            'project_id': project.id,
+            'observation_id': observation.id
+        })
+        request = factory.post(url, {'text': 'A comment to the observation'})
+        force_authenticate(request, user=admin)
+        view = MyContributionsCommentsAPIView.as_view()
+        response = view(
+            request,
+            project_id=project.id,
+            observation_id=observation.id
+        ).render()
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class AddResponseToMyObservationCommentTest(APITestCase):
+    def test(self):
+        admin = UserF.create()
+        project = ProjectF(add_admins=[admin])
+        observation = ObservationFactory.create(**{
+            'project': project,
+            'creator': admin
+        })
+        comment = CommentFactory.create(**{
+            'commentto': observation
+        })
+
+        factory = APIRequestFactory()
+        url = reverse('api:myobservations_comments', kwargs={
+            'project_id': project.id,
+            'observation_id': observation.id
+        })
+        request = factory.post(
+            url,
+            {
+                'text': 'Response to a comment',
+                'respondsto': comment.id
+            }
+        )
+        force_authenticate(request, user=admin)
+        view = MyContributionsCommentsAPIView.as_view()
+        response = view(
+            request,
+            project_id=project.id,
+            observation_id=observation.id
+        ).render()
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            json.loads(response.content).get('respondsto'),
+            comment.id
+        )
+
+
+class AddResponseToWrongMyObservationCommentTest(APITestCase):
+    def test(self):
+        admin = UserF.create()
+        project = ProjectF(add_admins=[admin])
+        observation = ObservationFactory.create(**{
+            'project': project,
+            'creator': admin
+        })
+        comment = CommentFactory.create()
+
+        factory = APIRequestFactory()
+        url = reverse('api:myobservations_comments', kwargs={
+            'project_id': project.id,
+            'observation_id': observation.id
+        })
+        request = factory.post(
+            url,
+            {
+                'text': 'Response to a comment',
+                'respondsto': comment.id
+            }
+        )
+        force_authenticate(request, user=admin)
+        view = MyContributionsCommentsAPIView.as_view()
+        response = view(
+            request,
+            project_id=project.id,
+            observation_id=observation.id
+        ).render()
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            json.loads(response.content).get('error'),
+            'The comment you try to respond to is not a comment to the '
+            'observation.'
+        )
+
+
+class DeleteMyObservationCommentTest(APITestCase):
+    def setUp(self):
+        self.creator = UserF.create()
+        self.contributor = UserF.create()
+        self.admin = UserF.create()
+        self.non_member = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor, self.creator],
+            **{'isprivate': False}
+        )
+        self.observation = ObservationFactory.create(**{
+            'project': self.project,
+            'creator': self.creator
+        })
+        self.comment = CommentFactory.create(**{
+            'commentto': self.observation
+        })
+        self.comment_to_remove = CommentFactory.create(**{
+            'commentto': self.observation,
+            'creator': self.creator
+        })
+
+    def get_response(self, user):
+        factory = APIRequestFactory()
+        url = reverse('api:myobservations_single_comment', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id,
+            'comment_id': self.comment_to_remove.id
+        })
+        request = factory.delete(
+            url,
+            {'text': 'A comment to the observation'}
+        )
+        force_authenticate(request, user=user)
+        view = MyContributionsSingleCommentAPIView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            observation_id=self.observation.id,
+            comment_id=self.comment_to_remove.id
+        ).render()
+
+    def test_delete_comment_with_admin(self):
+        response = self.get_response(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertIn(self.comment, observation.comments.all())
+        self.assertIn(self.comment_to_remove, observation.comments.all())
+
+    def test_delete_comment_with_contributor(self):
+        response = self.get_response(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertIn(self.comment, observation.comments.all())
+        self.assertIn(self.comment_to_remove, observation.comments.all())
+
+    def test_delete_comment_with_comment_creator(self):
+        response = self.get_response(self.creator)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertIn(self.comment, observation.comments.all())
+        self.assertNotIn(self.comment_to_remove, observation.comments.all())
+
+    def test_delete_comment_with_creator_but_other_comment(self):
+        comment = CommentFactory.create(**{
+            'commentto': self.observation
+        })
+        factory = APIRequestFactory()
+        url = reverse('api:myobservations_single_comment', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id,
+            'comment_id': self.comment_to_remove.id
+        })
+        request = factory.delete(
+            url,
+            {'text': 'A comment to the observation'}
+        )
+        force_authenticate(request, user=self.creator)
+        view = MyContributionsSingleCommentAPIView.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            observation_id=self.observation.id,
+            comment_id=comment.id
+        ).render()
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertIn(self.comment, observation.comments.all())
+        self.assertIn(self.comment_to_remove, observation.comments.all())
+
+
+class DeleteWrongMyObservationComment(APITestCase):
+    def test(self):
+        creator = UserF.create()
+        admin = UserF.create()
+        project = ProjectF(add_admins=[admin])
+        observation = ObservationFactory.create(**{
+            'project': project,
+            'creator': creator
+        })
+        comment = CommentFactory.create()
+
+        factory = APIRequestFactory()
+        url = reverse('api:myobservations_single_comment', kwargs={
+            'project_id': project.id,
+            'observation_id': observation.id,
+            'comment_id': comment.id
+        })
+        request = factory.delete(url)
+        force_authenticate(request, user=admin)
+        view = MyContributionsSingleCommentAPIView.as_view()
+        response = view(
+            request,
+            project_id=project.id,
+            observation_id=observation.id,
+            comment_id=comment.id
+        ).render()
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class GetCommentsView(APITestCase):
+    def setUp(self):
+        self.contributor = UserF.create()
+        self.admin = UserF.create()
+        self.non_member = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+        observation_type = ObservationTypeFactory(**{'project': self.project})
+        self.view = ViewFactory(**{'project': self.project})
+        RuleFactory(**{
+            'view': self.view,
+            'observation_type': observation_type}
+        )
+
+        self.observation = ObservationFactory.create(**{
+            'project': self.project,
+            'observationtype': observation_type
+        })
+        comment = CommentFactory.create(**{
+            'commentto': self.observation
+        })
+        response = CommentFactory.create(**{
+            'commentto': self.observation,
+            'respondsto': comment
+        })
+        CommentFactory.create(**{
+            'commentto': self.observation,
+            'respondsto': response
+        })
+        CommentFactory.create(**{
+            'commentto': self.observation,
+            'respondsto': comment
+        })
+        CommentFactory.create(**{
+            'commentto': self.observation
+        })
+
+    def get_response(self, user):
+        factory = APIRequestFactory()
+        url = reverse(
+            'api:view_comments',
+            kwargs={
+                'project_id': self.project.id,
+                'view_id': self.view.id,
+                'observation_id': self.observation.id
+            }
+        )
+        request = factory.get(url)
+        force_authenticate(request, user=user)
+        view = GroupingContributionsCommentsAPIView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            view_id=self.view.id,
+            observation_id=self.observation.id
+        ).render()
+
+    def test_get_comments_with_admin(self):
+        response = self.get_response(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_comments_with_view_member(self):
+        view_member = UserF.create()
+        ViewFactory.create(
+            add_viewers=[view_member],
+            **{'project': self.project}
+        )
+
+        response = self.get_response(view_member)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_comments_with_view_contributor(self):
+        response = self.get_response(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_comments_with_view_non_member(self):
+        response = self.get_response(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class AddCommentToViewTest(APITestCase):
+    def setUp(self):
+        self.contributor = UserF.create()
+        self.admin = UserF.create()
+        self.non_member = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+        observation_type = ObservationTypeFactory(**{'project': self.project})
+        self.view = ViewFactory(**{'project': self.project})
+        RuleFactory(**{
+            'view': self.view,
+            'observation_type': observation_type}
+        )
+
+        self.observation = ObservationFactory.create(**{
+            'project': self.project,
+            'observationtype': observation_type
+        })
+
+    def get_response(self, user):
+        factory = APIRequestFactory()
+        url = reverse(
+            'api:view_comments',
+            kwargs={
+                'project_id': self.project.id,
+                'view_id': self.view.id,
+                'observation_id': self.observation.id
+            }
+        )
+        request = factory.post(url, {'text': 'A comment to the observation'})
+        force_authenticate(request, user=user)
+        view = GroupingContributionsCommentsAPIView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            view_id=self.view.id,
+            observation_id=self.observation.id
+        ).render()
+
+    def test_add_comment_to_observation_with_admin(self):
+        response = self.get_response(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_add_comment_to_observation_with_contributor(self):
+        response = self.get_response(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_add_comment_to_observation_with_non_member(self):
+        response = self.get_response(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_add_comment_to_observation_with_view_member(self):
+        view_member = UserF.create()
+        group = UserGroupF.create(
+            add_users=[view_member],
+            **{'project': self.view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': self.view, 'usergroup': group}
+        )
+        response = self.get_response(view_member)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+
+class AddCommentToWrongGroupingObservation(APITestCase):
+    def test(self):
+        admin = UserF.create()
+        project = ProjectF(
+            add_admins=[admin]
+        )
+        observation = ObservationFactory.create()
+        observation_type = ObservationTypeFactory(**{'project': project})
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{'view': view, 'observation_type': observation_type})
+
+        url = reverse(
+            'api:view_comments',
+            kwargs={
+                'project_id': project.id,
+                'view_id': view.id,
+                'observation_id': observation.id
+            }
+        )
+        factory = APIRequestFactory()
+        request = factory.post(url, {'text': 'A comment to the observation'})
+        force_authenticate(request, user=admin)
+        dataview = GroupingContributionsCommentsAPIView.as_view()
+        response = dataview(
+            request,
+            project_id=project.id,
+            view_id=view.id,
+            observation_id=observation.id
+        ).render()
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class AddResponseToGroupingCommentTest(APITestCase):
+    def test(self):
+        admin = UserF.create()
+        project = ProjectF(
+            add_admins=[admin]
+        )
+        observation_type = ObservationTypeFactory(**{'project': project})
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{'view': view, 'observation_type': observation_type})
+
+        observation = ObservationFactory.create(**{
+            'project': project,
+            'observationtype': observation_type
+        })
+        comment = CommentFactory.create(**{
+            'commentto': observation
+        })
+
+        url = reverse(
+            'api:view_comments',
+            kwargs={
+                'project_id': project.id,
+                'view_id': view.id,
+                'observation_id': observation.id
+            }
+        )
+        factory = APIRequestFactory()
+        request = factory.post(
+            url,
+            {
+                'text': 'Response to a comment',
+                'respondsto': comment.id
+            }
+        )
+        force_authenticate(request, user=admin)
+        dataview = GroupingContributionsCommentsAPIView.as_view()
+        response = dataview(
+            request,
+            project_id=project.id,
+            view_id=view.id,
+            observation_id=observation.id
+        ).render()
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            json.loads(response.content).get('respondsto'),
+            comment.id
+        )
+
+
+class AddResponseToWrongGroupingCommentTest(APITestCase):
+    def test(self):
+        admin = UserF.create()
+        project = ProjectF(
+            add_admins=[admin]
+        )
+        observation_type = ObservationTypeFactory(**{'project': project})
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{'view': view, 'observation_type': observation_type})
+
+        observation = ObservationFactory.create(**{
+            'project': project,
+            'observationtype': observation_type
+        })
+        comment = CommentFactory.create()
+
+        url = reverse(
+            'api:view_comments',
+            kwargs={
+                'project_id': project.id,
+                'view_id': view.id,
+                'observation_id': observation.id
+            }
+        )
+        factory = APIRequestFactory()
+        request = factory.post(
+            url,
+            {
+                'text': 'Response to a comment',
+                'respondsto': comment.id
+            }
+        )
+        force_authenticate(request, user=admin)
+        dataview = GroupingContributionsCommentsAPIView.as_view()
+        response = dataview(
+            request,
+            project_id=project.id,
+            view_id=view.id,
+            observation_id=observation.id
+        ).render()
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            json.loads(response.content).get('error'),
+            'The comment you try to respond to is not a comment to the '
+            'observation.'
+        )
+
+
+class DeleteGroupingCommentTest(APITestCase):
+    def setUp(self):
+        self.contributor = UserF.create()
+        self.admin = UserF.create()
+        self.non_member = UserF.create()
+        self.view_member = UserF.create()
+        self.commentor = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+        observation_type = ObservationTypeFactory(**{'project': self.project})
+        self.view = ViewFactory(**{'project': self.project})
+        group = UserGroupF.create(
+            add_users=[self.view_member, self.commentor],
+            **{'project': self.view.project}
+        )
+        ViewUserGroupFactory.create(
+            **{'view': self.view, 'usergroup': group}
+        )
+        RuleFactory(
+            **{'view': self.view, 'observation_type': observation_type}
+        )
+
+        self.observation = ObservationFactory.create(**{
+            'project': self.project,
+            'observationtype': observation_type
+        })
+
+        self.comment = CommentFactory.create(**{
+            'commentto': self.observation
+        })
+        self.comment_to_remove = CommentFactory.create(**{
+            'commentto': self.observation,
+            'creator': self.commentor
+        })
+
+    def get_response(self, user):
+        factory = APIRequestFactory()
+        url = reverse(
+            'api:view_single_comment',
+            kwargs={
+                'project_id': self.project.id,
+                'view_id': self.view.id,
+                'observation_id': self.observation.id,
+                'comment_id': self.comment_to_remove.id
+            }
+        )
+        request = factory.delete(url)
+        force_authenticate(request, user=user)
+        view = GroupingContributionsSingleCommentAPIView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            view_id=self.view.id,
+            observation_id=self.observation.id,
+            comment_id=self.comment_to_remove.id
+        ).render()
+
+    def test_delete_comment_with_admin(self):
+        response = self.get_response(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertIn(self.comment, observation.comments.all())
+        self.assertNotIn(self.comment_to_remove, observation.comments.all())
+
+    def test_delete_comment_with_view_comment_creator(self):
+        response = self.get_response(self.commentor)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertIn(self.comment, observation.comments.all())
+        self.assertNotIn(self.comment_to_remove, observation.comments.all())
+
+    def test_delete_comment_with_view_member(self):
+        response = self.get_response(self.view_member)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            json.loads(response.content).get('error'),
+            'You are neither the author if this comment nor a project '
+            'administrator and therefore not eligable to delete this comment.'
+        )
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertIn(self.comment, observation.comments.all())
+        self.assertIn(self.comment_to_remove, observation.comments.all())
+
+    def test_delete_comment_with_non_member(self):
+        response = self.get_response(self.non_member)
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertIn(self.comment, observation.comments.all())
+        self.assertIn(self.comment_to_remove, observation.comments.all())
+
+
+class DeleteWrongGroupingComment(APITestCase):
+    def test(self):
+        admin = UserF.create()
+        project = ProjectF(add_admins=[admin])
+        observation_type = ObservationTypeFactory(**{'project': project})
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{'view': view, 'observation_type': observation_type})
+
+        observation = ObservationFactory.create(**{
+            'project': project,
+            'observationtype': observation_type
+        })
+        comment = CommentFactory.create()
+
+        factory = APIRequestFactory()
+        factory = APIRequestFactory()
+        url = reverse(
+            'api:view_single_comment',
+            kwargs={
+                'project_id': project.id,
+                'view_id': view.id,
+                'observation_id': observation.id,
+                'comment_id': comment.id
+            }
+        )
+        request = factory.delete(url)
+        force_authenticate(request, user=admin)
+        dataview = GroupingContributionsSingleCommentAPIView.as_view()
+        response = dataview(
+            request,
+            project_id=project.id,
+            view_id=view.id,
+            observation_id=observation.id,
+            comment_id=comment.id
+        ).render()
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

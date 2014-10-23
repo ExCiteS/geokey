@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from rest_framework import status
 from rest_framework.response import Response
 
-from core.exceptions import MalformedRequestData
+from core.exceptions import MalformedRequestData, Unauthenticated
 from projects.models import Project
 from users.models import User, UserGroup, ViewUserGroup
 from observationtypes.models import (
@@ -19,7 +19,10 @@ def handle_exceptions_for_admin(func):
         try:
             return func(*args, **kwargs)
         except PermissionDenied, error:
-            return {"error_description": str(error), "error": "Permission denied."}
+            return {
+                "error_description": str(error),
+                "error": "Permission denied."
+            }
         except (
             Project.DoesNotExist,
             ObservationType.DoesNotExist,
@@ -37,6 +40,11 @@ def handle_exceptions_for_ajax(func):
     def wrapped(*args, **kwargs):
         try:
             return func(*args, **kwargs)
+        except Unauthenticated, error:
+            return Response(
+                {"error": str(error)},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
         except PermissionDenied, error:
             return Response(
                 {"error": str(error)},
@@ -47,7 +55,7 @@ def handle_exceptions_for_ajax(func):
                 {"error": error.messages},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        except MalformedRequestData, error:
+        except (MalformedRequestData, TypeError), error:
             return Response(
                 {"error": str(error)},
                 status=status.HTTP_400_BAD_REQUEST

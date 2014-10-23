@@ -29,3 +29,10 @@ class UserManager(BaseUserManager):
         user.is_superuser = True
         user.save()
         return user
+
+    def get_by_natural_key(self, username):
+        """
+        Returns the user identified by email. Overwrites parent method to
+        make user names not case-sensitive.
+        """
+        return self.get(email__iexact=username)

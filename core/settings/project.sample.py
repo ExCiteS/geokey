@@ -2,8 +2,15 @@ from .contrib import *
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
+PLATFORM_NAME = 'GeoKey'
+DEFAULT_FROM_EMAIL = 'sender@example.com'
 
-AUTH_USER_MODEL = 'users.User'
+YOUTUBE_AUTH_EMAIL = 'your-email@example.com'
+YOUTUBE_AUTH_PASSWORD = 'password'
+YOUTUBE_DEVELOPER_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+YOUTUBE_CLIENT_ID = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com'
+
+SECRET_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
 DATABASES = {
     'default': {
@@ -27,6 +34,8 @@ INSTALLED_APPS += (
     'applications'
 )
 
+AUTH_USER_MODEL = 'users.User'
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
@@ -39,5 +48,5 @@ LOGIN_REDIRECT_URL = '/admin/dashboard/'
 
 DEFAULT_FROM_EMAIL = ''
 
-MEDIA_ROOT = '/var/www/opencommuntymaps/media/'
+MEDIA_ROOT = normpath(join(SITE_ROOT, 'media'))
 MEDIA_URL = '/media/'

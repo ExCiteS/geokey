@@ -1,0 +1,9 @@
+Dear {{ admin.display_name}},
+
+{{ sender.display_name }} has send an inquiry on {{ platform }} in regards to project {{ project_name }}:
+
+{{ email_text|safe }}
+
+Simply reply to this email if you want to get in touch with {{ sender.display_name }}.
+
+Happy mapping!

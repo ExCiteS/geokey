@@ -1,0 +1,34 @@
+from django.test import TestCase
+
+from contributions.models import ImageFile, VideoFile
+
+from contributions.tests.model_factories import ObservationFactory
+from users.tests.model_factories import UserF
+
+from .model_factories import get_image
+
+
+class ImageFileTest(TestCase):
+    def test_get_type_name(self):
+        image_file = ImageFile.objects.create(
+            name='Test name',
+            description='Test Description',
+            contribution=ObservationFactory.create(),
+            creator=UserF.create(),
+            image=get_image()
+        )
+        self.assertEqual(image_file.type_name, 'ImageFile')
+
+
+class VideoFileTest(TestCase):
+    def test_get_type_name(self):
+        image_file = VideoFile.objects.create(
+            name='Test name',
+            description='Test Description',
+            contribution=ObservationFactory.create(),
+            creator=UserF.create(),
+            video=get_image(),
+            youtube_link='http://example.com/1122323',
+            swf_link='http://example.com/1122323.swf'
+        )
+        self.assertEqual(image_file.type_name, 'VideoFile')

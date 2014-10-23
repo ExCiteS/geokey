@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url, include
+from django.conf.urls import patterns, url
 
 from projects import views as project_views
 from observationtypes import views as observationtype_views
@@ -28,6 +28,10 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/$',
         project_views.ProjectOverview.as_view(),
         name='project_overview'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/geographic-extend/$',
+        project_views.ProjectExtend.as_view(),
+        name='project_extend'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/settings/$',
         project_views.ProjectSettings.as_view(),
@@ -177,6 +181,9 @@ urlpatterns = patterns(
     url(r'^profile/$',
         login_views.UserProfile.as_view(),
         name="userprofile"),
+    url(r'^profile/notifications/$',
+        login_views.UserNotifications.as_view(),
+        name="notifications"),
     url(r'^accounts/password/change/$',
         login_views.ChangePassword.as_view(),
         name="changepassword"),
@@ -187,7 +194,7 @@ urlpatterns = patterns(
     url(r'^accounts/password/reset/done/$',
         'django.contrib.auth.views.password_reset_done'),
     url(r'^accounts/password/reset/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/$',
-        'django.contrib.auth.views.password_reset_confirm',
+        'users.views.password_reset_confirm',
         {'post_reset_redirect': '/admin/accounts/password/done/'},
         name="password_reset_confirm"),
     url(r'^accounts/password/done/$',

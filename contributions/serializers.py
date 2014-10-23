@@ -12,7 +12,9 @@ from observationtypes.serializer import ObservationTypeSerializer
 from observationtypes.models import ObservationType
 from users.serializers import UserSerializer
 
-from .models import Location, Observation, Comment
+from .models import (
+    Location, Observation, Comment, MediaFile, ImageFile, VideoFile
+)
 
 
 class LocationSerializer(geoserializers.GeoFeatureModelSerializer):
@@ -77,15 +79,17 @@ class ContributionSerializer(object):
         if instance is not None:
             if data is not None:
                 instance.name = data.get('name') or instance.name
-                instance.description = data.get('description') or instance.description
-                private=data.get('private') or instance.private
-                private_for_project=data.get('private_for_project') or instance.private_for_project
+                instance.description = (data.get('description') or
+                                        instance.description)
+                private = data.get('private') or instance.private
+                private_for_project = (data.get('private_for_project') or
+                                       instance.private_for_project)
 
             if geometry is not None:
                 if type(geometry) is not unicode:
                     geometry = json.dumps(geometry)
-                
-                instance.geometry=GEOSGeometry(geometry)
+
+                instance.geometry = GEOSGeometry(geometry)
 
             instance.save()
             return instance
@@ -174,7 +178,7 @@ class ContributionSerializer(object):
         location = obj.location
 
         updator = None
-        if obj.updator is not None: 
+        if obj.updator is not None:
             updator = {
                 'id': obj.updator.id,
                 'display_name': obj.updator.display_name
@@ -203,6 +207,16 @@ class ContributionSerializer(object):
             'isowner': obj.creator == self.context.get('user')
         }
 
+        q = self.context.get('search')
+        if q is not None:
+            json_object['search_matches'] = {}
+            matcher = obj.search_matches.split('#####')
+
+            for field in matcher:
+                if q in field:
+                    match = field.split(':', 1)
+                    json_object['search_matches'][match[0]] = match[1]
+
         return json_object
 
     def to_native_min(self, obj):
@@ -211,7 +225,7 @@ class ContributionSerializer(object):
             'id': obj.observationtype.id,
             'name': obj.observationtype.name,
             'description': obj.observationtype.description,
-            'symbol': (obj.observationtype.symbol.url 
+            'symbol': (obj.observationtype.symbol.url
                        if obj.observationtype.symbol else None),
             'colour': obj.observationtype.colour
         }
@@ -245,8 +259,12 @@ class ContributionSerializer(object):
 
 class CommentSerializer(serializers.ModelSerializer):
     creator = UserSerializer()
-
     isowner = serializers.SerializerMethodField('get_is_owner')
+
+    class Meta:
+        model = Comment
+        fields = ('id', 'text', 'creator', 'respondsto', 'created_at',
+                  'isowner')
 
     def to_native(self, obj):
         native = super(CommentSerializer, self).to_native(obj)
@@ -258,10 +276,41 @@ class CommentSerializer(serializers.ModelSerializer):
 
         return native
 
-    class Meta:
-        model = Comment
-        fields = ('id', 'text', 'creator', 'respondsto', 'created_at',
-            'isowner')
-
     def get_is_owner(self, comment):
         return comment.creator == self.context.get('user')
+
+
+class FileSerializer(serializers.ModelSerializer):
+    creator = UserSerializer()
+    isowner = serializers.SerializerMethodField('get_is_owner')
+    url = serializers.SerializerMethodField('get_url')
+    file_type = serializers.SerializerMethodField('get_type')
+
+    class Meta:
+        model = MediaFile
+        fields = (
+            'id', 'name', 'description', 'created_at', 'creator', 'isowner',
+            'url', 'file_type'
+        )
+
+    def get_type(self, obj):
+        """
+        Returns the type of the MediaFile
+        """
+        return obj.type_name
+
+    def get_is_owner(self, obj):
+        """
+        Returns `True` if the user provided in the serializer context is the
+        creator of this file
+        """
+        return obj.creator == self.context.get('user')
+
+    def get_url(self, obj):
+        """
+        Return the url to access this file based on its file type
+        """
+        if isinstance(obj, ImageFile):
+            return obj.image.url
+        elif isinstance(obj, VideoFile):
+            return obj.youtube_link

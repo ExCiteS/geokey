@@ -16,19 +16,19 @@
 
         function handleSuccess(response) {
             var btnText = $('<span class="text-success">Grant access</span>');
-            var msg = 'Access revoked.'
+            var msg = 'Access revoked.';
             if (target.hasClass('active')) {
                 btnText = $('<span class="text-danger">Revoke access</span>');
-                msg = 'Access granted.'
+                msg = 'Access granted.';
             }
             target.children().remove();
             target.append(btnText);
-            
+
             var html = $('<div class="bg-success text-success message"><span class="glyphicon glyphicon-ok"></span> ' + msg + '</div>');
             target.before(html);
             setTimeout(function () { html.remove(); }, 5000);
         }
-        
+
         if (target.hasClass('active')) {
             Control.Ajax.del(url + 'views/' + viewId +'/', handleSuccess, handleError);
         } else {

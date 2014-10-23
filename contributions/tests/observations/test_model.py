@@ -3,16 +3,63 @@ from django.core.exceptions import ValidationError
 
 from nose.tools import raises
 
+from contributions.models import Observation, update_search_matches
 from projects.tests.model_factories import UserF
+
 from observationtypes.tests.model_factories import (
-    ObservationTypeFactory, TextFieldFactory, NumericFieldFactory
+    ObservationTypeFactory, LookupFieldFactory, LookupValueFactory,
+    TextFieldFactory, MultipleLookupFieldFactory, MultipleLookupValueFactory,
+    NumericFieldFactory
 )
+from ..model_factories import ObservationFactory, LocationFactory
 
-from ..models import Observation, Comment
 
-from .model_factories import (
-    LocationFactory, ObservationFactory, CommentFactory
-)
+class TestContributionsPreSave(TestCase):
+    def test_pre_save(self):
+        o_type = ObservationTypeFactory.create()
+        TextFieldFactory.create(**{'key': 'key', 'observationtype': o_type})
+
+        lookup = LookupFieldFactory.create(
+            **{'observationtype': o_type, 'key': 'lookup'}
+        )
+        kermit = LookupValueFactory.create(**{
+            'field': lookup,
+            'name': 'Kermit'
+        })
+        LookupValueFactory.create(**{
+            'field': lookup,
+            'name': 'Gonzo'
+        })
+
+        m_lookup = MultipleLookupFieldFactory.create(
+            **{'observationtype': o_type, 'key': 'm_lookup'}
+        )
+        m_kermit = MultipleLookupValueFactory.create(**{
+            'field': m_lookup,
+            'name': 'Kermit'
+        })
+        MultipleLookupValueFactory.create(**{
+            'field': m_lookup,
+            'name': 'Gonzo'
+        })
+        m_piggy = MultipleLookupValueFactory.create(**{
+            'field': m_lookup,
+            'name': 'Ms Piggy'
+        })
+
+        o = ObservationFactory.create(**{
+            'attributes': {
+                'key': 'blah',
+                'lookup': kermit.id,
+                'm_lookup': [m_kermit.id, m_piggy.id]
+            },
+            'observationtype': o_type
+        })
+
+        update_search_matches(Observation, instance=o)
+        self.assertIn('Ms Piggy', o.search_matches)
+        self.assertIn('Kermit', o.search_matches)
+        self.assertIn('blah', o.search_matches)
 
 
 class ObservationTest(TestCase):
@@ -281,17 +328,3 @@ class ObservationTest(TestCase):
             attributes=data, creator=creator, location=location,
             observationtype=observationtype, project=observationtype.project
         )
-
-    # ########################################################################
-    #
-    # COMMENTS
-    #
-    # ########################################################################
-
-
-class CommentTest(TestCase):
-    @raises(Comment.DoesNotExist)
-    def test_delete_comment(self):
-        comment = CommentFactory()
-        comment.delete()
-        Comment.objects.get(pk=comment.id)

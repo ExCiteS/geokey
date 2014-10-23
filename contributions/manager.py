@@ -1,12 +1,20 @@
+import os
+
 from django.contrib.gis.db import models
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
+from django.conf import settings
 
+from model_utils.managers import InheritanceManager
 from django_hstore import hstore, query
+from django_youtube.api import Api as Youtube, AccessControl
 
 from projects.models import Project
 
-from .base import OBSERVATION_STATUS, COMMENT_STATUS
+from .base import (
+    OBSERVATION_STATUS, COMMENT_STATUS, ACCEPTED_IMAGE_FORMATS,
+    ACCEPTED_VIDEO_FORMATS
+)
 
 
 class LocationQuerySet(models.query.QuerySet):
@@ -68,6 +76,12 @@ class ObservationQuerySet(query.HStoreQuerySet):
         return self.for_moderator(user).exclude(
             ~Q(creator=user), status='pending')
 
+    def search(self, query):
+        """
+        Returns a subset of the query set filtered by query provided
+        """
+        return self.filter(search_matches__icontains=query)
+
 
 class ObservationManager(hstore.HStoreManager):
     """
@@ -98,3 +112,113 @@ class CommentManager(models.Manager):
         """
         return super(CommentManager, self).get_query_set().exclude(
             status=COMMENT_STATUS.deleted)
+
+
+class MediaFileManager(InheritanceManager):
+    """
+    Manger for `MediaFile` model
+    """
+    def get_query_set(self):
+        """
+        Returns the subclasses of the MediaFiles. Needed to get access to the
+        actual instances when searching all files of a contribution.
+        """
+        query_set = super(MediaFileManager, self).get_query_set()
+        return query_set.select_subclasses()
+
+    def _create_image_file(self, name, description, creator, contribution,
+                           the_file):
+        """
+        Creates an ImageFile and returns the instance.
+        """
+        from contributions.models import ImageFile
+
+        return ImageFile.objects.create(
+            name=name,
+            description=description,
+            creator=creator,
+            contribution=contribution,
+            image=the_file
+        )
+
+    def _upload_to_youtube(self, name, path):
+        """
+        Uploads the file from the given path to youtube
+        """
+        youtube = Youtube()
+        youtube.authenticate()
+        video_entry = youtube.upload_direct(
+            path,
+            name,
+            access_control=AccessControl.Unlisted
+        )
+        return video_entry.id.text, video_entry.GetSwfUrl()
+
+    def _create_video_file(self, name, description, creator, contribution,
+                           the_file):
+        """
+        Creates a new video file. Uploads the video to Youtube and returns the
+        VideoFile instance.
+        """
+        from contributions.models import VideoFile
+        from django.core.files.storage import default_storage
+        from django.core.files.base import ContentFile
+
+        filename, extension = os.path.splitext(the_file.name)
+
+        path = default_storage.save(
+            'tmp/' + filename + extension,
+            ContentFile(the_file.read())
+        )
+        tmp_file = os.path.join(settings.MEDIA_ROOT, path)
+
+        youtube_link, swf_link = self._upload_to_youtube(
+            name,
+            tmp_file
+        )
+
+        os.remove(tmp_file)
+
+        return VideoFile.objects.create(
+            name=name,
+            description=description,
+            creator=creator,
+            contribution=contribution,
+            video=the_file,
+            youtube_link=youtube_link,
+            swf_link=swf_link
+        )
+
+    def create(self, the_file=None, *args, **kwargs):
+        """
+        Create a new file. Selects the class by examining the file name
+        extension.
+        """
+        name = kwargs.get('name')
+        description = kwargs.get('description')
+        creator = kwargs.get('creator')
+        contribution = kwargs.get('contribution')
+
+        filename, extension = os.path.splitext(the_file.name)
+        extension = extension.lower()
+
+        if extension in ACCEPTED_IMAGE_FORMATS:
+            return self._create_image_file(
+                name,
+                description,
+                creator,
+                contribution,
+                the_file
+            )
+
+        elif extension in ACCEPTED_VIDEO_FORMATS:
+            return self._create_video_file(
+                name,
+                description,
+                creator,
+                contribution,
+                the_file
+            )
+        else:
+            raise TypeError('Files of type %s are currently not supported.'
+                            % extension)
