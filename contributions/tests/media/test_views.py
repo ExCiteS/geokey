@@ -16,6 +16,7 @@ from nose.tools import raises
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework.renderers import JSONRenderer
 
+from core.exceptions import MalformedRequestData
 from projects.tests.model_factories import UserF, ProjectF
 from dataviews.tests.model_factories import ViewFactory, RuleFactory
 from contributions.models import ImageFile
@@ -116,6 +117,51 @@ class MediaFileAbstractListAPIViewTest(TestCase):
             response_json.get('creator').get('display_name'),
             request.user.display_name
         )
+
+    @raises(MalformedRequestData)
+    def test_create_and_respond_without_file(self):
+        url = reverse(
+            'api:project_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id
+            }
+        )
+
+        data = {
+            'name': 'A test image',
+            'description': 'Test image description'
+        }
+
+        request = self.factory.post(url, data)
+        request.user = self.admin
+        view = MediaFileListAbstractAPIView()
+        view.request = request
+
+        view.create_and_respond(self.admin, self.contribution)
+
+    @raises(MalformedRequestData)
+    def test_create_and_respond_without_name(self):
+        url = reverse(
+            'api:project_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id
+            }
+        )
+
+        data = {
+            'description': 'Test image description',
+            'file': get_image()
+        }
+
+        request = self.factory.post(url, data)
+        request.user = self.admin
+        view = MediaFileListAbstractAPIView()
+        view.request = request
+
+        view.create_and_respond(self.admin, self.contribution)
+
 
     # def test_create_video_and_respond(self):
     #     url = reverse(
@@ -328,7 +374,8 @@ class AllContributionsMediaAPIViewTest(TestCase):
             }
         )
 
-        request = self.factory.post(url, data)
+        request = self.factory.post(
+            url, data, content_type='multipart/form-data; boundary=---XXX---')
         force_authenticate(request, user)
         view = AllContributionsMediaAPIView.as_view()
         return view(
@@ -355,6 +402,7 @@ class AllContributionsMediaAPIViewTest(TestCase):
 
     def test_upload_image_with_admin(self):
         response = self.post(self.admin)
+        print response
         self.assertEqual(response.status_code, 201)
 
     def test_upload_image_with_contributor(self):

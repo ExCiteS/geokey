@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from core.exceptions import MalformedRequestData
 from core.decorators import handle_exceptions_for_ajax
 from .base import (
     SingleAllContribution, SingleGroupingContribution, SingleMyContribution
@@ -29,18 +30,31 @@ class MediaFileListAbstractAPIView(APIView):
         """
         Creates an image and responds with the file information
         """
-        data = self.request.POST
-
         if user.is_anonymous():
             user = User.objects.get(display_name='AnonymousUser')
 
+        data = self.request.POST
+        name = data.get('name')
+        description = data.get('description')
+        the_file = self.request.FILES.get('file')
+        errors = []
+
+        if name is None:
+            errors.append('Property name is not set.')
+
+        if the_file is None:
+            errors.append('No file attached.')
+
+        if errors:
+            raise MalformedRequestData(', '.join(errors))
+
         if contribution.project.can_contribute(user):
             the_file = MediaFile.objects.create(
-                name=data.get('name'),
-                description=data.get('description'),
+                name=name,
+                description=description,
                 contribution=contribution,
                 creator=user,
-                the_file=self.request.FILES.get('file')
+                the_file=the_file
             )
 
             serializer = FileSerializer(the_file, context={'user': user})
