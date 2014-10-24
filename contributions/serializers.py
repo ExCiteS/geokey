@@ -207,13 +207,13 @@ class ContributionSerializer(object):
             'isowner': obj.creator == self.context.get('user')
         }
 
-        q = self.context.get('search').lower()
+        q = self.context.get('search')
         if q is not None:
             json_object['search_matches'] = {}
             matcher = obj.search_matches.split('#####')
 
             for field in matcher:
-                if q in field.lower():
+                if q.lower() in field.lower():
                     match = field.split(':', 1)
                     json_object['search_matches'][match[0]] = match[1]
 
