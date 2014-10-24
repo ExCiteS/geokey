@@ -9,7 +9,8 @@ from ..models import Project, Admins
 
 
 class ProjectF(factory.django.DjangoModelFactory):
-    FACTORY_FOR = Project
+    class Meta:
+        model = Project
 
     name = factory.Sequence(lambda n: 'project %d' % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)

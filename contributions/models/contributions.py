@@ -1,4 +1,6 @@
 import json
+from pytz import utc
+from datetime import datetime
 
 from django.db import models
 from django.conf import settings
@@ -38,6 +40,7 @@ class Observation(models.Model):
         settings.AUTH_USER_MODEL,
         related_name='creator'
     )
+    updated_at = models.DateTimeField(null=True)
     updator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='updator',
@@ -148,6 +151,7 @@ class Observation(models.Model):
         self.attributes = update
         self.updator = updator
         self.status = status or self.status
+        self.updated_at = datetime.utcnow().replace(tzinfo=utc)
 
         self.save()
         return self
