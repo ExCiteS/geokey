@@ -374,8 +374,7 @@ class AllContributionsMediaAPIViewTest(TestCase):
             }
         )
 
-        request = self.factory.post(
-            url, data, content_type='multipart/form-data; boundary=---XXX---')
+        request = self.factory.post(url, data)
         force_authenticate(request, user)
         view = AllContributionsMediaAPIView.as_view()
         return view(
@@ -402,7 +401,6 @@ class AllContributionsMediaAPIViewTest(TestCase):
 
     def test_upload_image_with_admin(self):
         response = self.post(self.admin)
-        print response
         self.assertEqual(response.status_code, 201)
 
     def test_upload_image_with_contributor(self):
