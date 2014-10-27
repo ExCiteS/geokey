@@ -8,4 +8,4 @@ COMMENT_STATUS = Choices('active', 'deleted')
 
 ACCEPTED_IMAGE_FORMATS = ('.png', '.jpeg', '.jpg', '.gif')
 ACCEPTED_VIDEO_FORMATS = ('.mov', '.mpeg4', '.avi', '.wmv', '.flv', '.3gpp',
-                          '.webm')
+                          '.webm', '.mp4')
