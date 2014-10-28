@@ -16,6 +16,8 @@ from .base import (
     ACCEPTED_VIDEO_FORMATS
 )
 
+FILE_NAME_TRUNC = 60 - len(settings.MEDIA_URL)
+
 
 class LocationQuerySet(models.query.QuerySet):
     """
@@ -132,6 +134,9 @@ class MediaFileManager(InheritanceManager):
         Creates an ImageFile and returns the instance.
         """
         from contributions.models import ImageFile
+
+        filename, extension = os.path.splitext(the_file.name)
+        the_file.name = filename[:FILE_NAME_TRUNC] + extension
 
         return ImageFile.objects.create(
             name=name,

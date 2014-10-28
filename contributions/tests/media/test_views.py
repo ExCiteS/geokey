@@ -162,7 +162,6 @@ class MediaFileAbstractListAPIViewTest(TestCase):
 
         view.create_and_respond(self.admin, self.contribution)
 
-
     # def test_create_video_and_respond(self):
     #     url = reverse(
     #         'api:project_media',
@@ -429,6 +428,19 @@ class AllContributionsMediaAPIViewTest(TestCase):
 
         response = self.post(self.admin, data=data)
         self.assertEqual(response.status_code, 400)
+
+    def test_upload_with_loooooong_filename(self):
+        data = {
+            'name': 'A test image ',
+            'description': 'Test image description',
+            'file': get_image(file_name='One two three four six seven eight '
+                                        'nine ten eleven twelve thirteen '
+                                        'fourteen fifteen.png')
+        }
+
+        response = self.post(self.admin, data=data)
+        print response
+        self.assertEqual(response.status_code, 201)
 
 
 class MyContributionsMediaApiViewTest(TestCase):

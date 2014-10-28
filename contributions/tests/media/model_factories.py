@@ -9,13 +9,13 @@ from contributions.tests.model_factories import ObservationFactory
 from contributions.models import ImageFile, VideoFile
 
 
-def get_image():
+def get_image(file_name='test.png'):
     image_file = StringIO()
     image = Image.new('RGBA', size=(50, 50), color=(256, 0, 0))
     image.save(image_file, 'png')
     image_file.seek(0)
 
-    return ContentFile(image_file.read(), 'test.png')
+    return ContentFile(image_file.read(), file_name)
 
 
 class ImageFileFactory(factory.django.DjangoModelFactory):
