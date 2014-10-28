@@ -313,4 +313,4 @@ class FileSerializer(serializers.ModelSerializer):
         if isinstance(obj, ImageFile):
             return obj.image.url
         elif isinstance(obj, VideoFile):
-            return obj.youtube_link
+            return obj.swf_link
