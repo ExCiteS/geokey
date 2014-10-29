@@ -316,7 +316,7 @@ class FileSerializer(serializers.ModelSerializer):
         if isinstance(obj, ImageFile):
             return obj.image.url
         elif isinstance(obj, VideoFile):
-            return obj.swf_link
+            return obj.youtube_link
 
     def get_thumbnail_url(self, obj):
         """

@@ -157,7 +157,11 @@ class MediaFileManager(InheritanceManager):
             name,
             access_control=AccessControl.Unlisted
         )
-        return video_entry.id.text, video_entry.GetSwfUrl()
+
+        embed_link = 'http://www.youtube.com/embed/' + (
+            video_entry.id.text.split('/')[-1]
+        )
+        return embed_link, video_entry.GetSwfUrl()
 
     def _create_video_file(self, name, description, creator, contribution,
                            the_file):
