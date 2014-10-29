@@ -5,4 +5,5 @@ INSTALLED_APPS += (
     'provider',
     'provider.oauth2',
     'south',
+    'easy_thumbnails',
 )

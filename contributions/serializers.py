@@ -4,6 +4,8 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.core.exceptions import PermissionDenied
 from django.utils.html import strip_tags
 
+from easy_thumbnails.files import get_thumbnailer
+
 from rest_framework import serializers
 from rest_framework_gis import serializers as geoserializers
 
@@ -285,12 +287,13 @@ class FileSerializer(serializers.ModelSerializer):
     isowner = serializers.SerializerMethodField('get_is_owner')
     url = serializers.SerializerMethodField('get_url')
     file_type = serializers.SerializerMethodField('get_type')
+    thumbnail_url = serializers.SerializerMethodField('get_thumbnail_url')
 
     class Meta:
         model = MediaFile
         fields = (
             'id', 'name', 'description', 'created_at', 'creator', 'isowner',
-            'url', 'file_type'
+            'url', 'thumbnail_url', 'file_type'
         )
 
     def get_type(self, obj):
@@ -314,3 +317,18 @@ class FileSerializer(serializers.ModelSerializer):
             return obj.image.url
         elif isinstance(obj, VideoFile):
             return obj.swf_link
+
+    def get_thumbnail_url(self, obj):
+        """
+        Creates and returns a thumbnail for the ImageFile object
+        """
+        if isinstance(obj, ImageFile):
+            thumbnailer = get_thumbnailer(obj.image)
+            thumb = thumbnailer.get_thumbnail({
+                'crop': True,
+                'size': (500, 500)
+            })
+            return thumb.url
+
+        else:
+            return None

@@ -9,9 +9,9 @@ from contributions.tests.model_factories import ObservationFactory
 from contributions.models import ImageFile, VideoFile
 
 
-def get_image(file_name='test.png'):
+def get_image(file_name='test.png', width=200, height=200):
     image_file = StringIO()
-    image = Image.new('RGBA', size=(50, 50), color=(256, 0, 0))
+    image = Image.new('RGBA', size=(width, height), color=(255, 0, 255))
     image.save(image_file, 'png')
     image_file.seek(0)
 

@@ -439,7 +439,6 @@ class AllContributionsMediaAPIViewTest(TestCase):
         }
 
         response = self.post(self.admin, data=data)
-        print response
         self.assertEqual(response.status_code, 201)
 
 

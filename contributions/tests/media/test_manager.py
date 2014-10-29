@@ -15,7 +15,6 @@ from contributions.models import MediaFile
 from contributions.tests.model_factories import ObservationFactory
 from users.tests.model_factories import UserF
 from .model_factories import ImageFileFactory, get_image
-# from contributions.manager import MediaFileManager
 
 
 class ModelManagerTest(TestCase):
@@ -43,6 +42,8 @@ class ModelManagerTest(TestCase):
             creator=UserF.create(),
             the_file=get_image()
         )
+
+        self.assertIsNotNone(image_file.image)
         self.assertEqual(image_file.type_name, 'ImageFile')
 
     @raises(TypeError)
