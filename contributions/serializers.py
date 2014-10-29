@@ -318,17 +318,23 @@ class FileSerializer(serializers.ModelSerializer):
         elif isinstance(obj, VideoFile):
             return obj.youtube_link
 
+    def _get_thumb(self, image):
+        thumbnailer = get_thumbnailer(image)
+        thumb = thumbnailer.get_thumbnail({
+            'crop': True,
+            'size': (500, 500)
+        })
+        return thumb
+
     def get_thumbnail_url(self, obj):
         """
         Creates and returns a thumbnail for the ImageFile object
         """
         if isinstance(obj, ImageFile):
-            thumbnailer = get_thumbnailer(obj.image)
-            thumb = thumbnailer.get_thumbnail({
-                'crop': True,
-                'size': (500, 500)
-            })
-            return thumb.url
+            return self._get_thumb(obj.image).url
 
-        else:
-            return None
+        elif isinstance(obj, VideoFile):
+            if obj.thumbnail:
+                return self._get_thumb(obj.thumbnail).url
+            else:
+                return '/static/img/play.png'

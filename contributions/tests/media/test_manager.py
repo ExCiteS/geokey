@@ -64,9 +64,9 @@ class ModelManagerTest(TestCase):
     # def test_upload_youtube(self):
     #     from contributions.manager import MediaFileManager
     #     path = '/home/oroick/opencomap/contributions/tests/media/video.MOV'
-    #     youtube_link, swf_link = MediaFileManager()._upload_to_youtube(
+    #     video_id, swf_link = MediaFileManager()._upload_to_youtube(
     #         'Test video',
     #         path
     #     )
-    #     self.assertIsNotNone(youtube_link)
+    #     self.assertIsNotNone(video_id)
     #     self.assertIsNotNone(swf_link)

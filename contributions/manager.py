@@ -158,10 +158,7 @@ class MediaFileManager(InheritanceManager):
             access_control=AccessControl.Unlisted
         )
 
-        embed_link = 'http://www.youtube.com/embed/' + (
-            video_entry.id.text.split('/')[-1]
-        )
-        return embed_link, video_entry.GetSwfUrl()
+        return video_entry.id.text.split('/')[-1], video_entry.GetSwfUrl()
 
     def _create_video_file(self, name, description, creator, contribution,
                            the_file):
@@ -181,11 +178,10 @@ class MediaFileManager(InheritanceManager):
         )
         tmp_file = os.path.join(settings.MEDIA_ROOT, path)
 
-        youtube_link, swf_link = self._upload_to_youtube(
+        video_id, swf_link = self._upload_to_youtube(
             name,
             tmp_file
         )
-
         os.remove(tmp_file)
 
         return VideoFile.objects.create(
@@ -194,7 +190,7 @@ class MediaFileManager(InheritanceManager):
             creator=creator,
             contribution=contribution,
             video=the_file,
-            youtube_link=youtube_link,
+            youtube_link='http://www.youtube.com/embed/' + video_id,
             swf_link=swf_link
         )
 

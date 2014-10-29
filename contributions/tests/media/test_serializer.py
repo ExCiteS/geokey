@@ -53,7 +53,10 @@ class FileSerializerTest(TestCase):
         video = VideoFileFactory.create()
 
         serializer = FileSerializer(video, context={'user': video.creator})
-        self.assertIsNone(serializer.get_thumbnail_url(video))
+        self.assertEqual(
+            serializer.get_thumbnail_url(video),
+            '/static/img/play.png'
+        )
 
     def test_get_video_file_type(self):
         video = VideoFileFactory.create()

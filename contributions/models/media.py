@@ -55,6 +55,7 @@ class VideoFile(MediaFile):
     Stores images uploaded by users.
     """
     video = models.ImageField(upload_to='user-uploads/videos')
+    thumbnail = models.ImageField(upload_to='user-uploads/videos', null=True)
     youtube_link = models.URLField(max_length=255, null=True, blank=True)
     swf_link = models.URLField(max_length=255, null=True, blank=True)
 
