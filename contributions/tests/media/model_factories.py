@@ -37,5 +37,6 @@ class VideoFileFactory(factory.django.DjangoModelFactory):
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     creator = factory.SubFactory(UserF)
     contribution = factory.SubFactory(ObservationFactory)
+    youtube_id = 'qb2Cd1--YvY'
     youtube_link = 'http://example.com/98aishfijh'
     swf_link = 'http://example.com/98aishfijh'

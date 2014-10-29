@@ -49,11 +49,20 @@ class FileSerializerTest(TestCase):
         serializer = FileSerializer(video, context={'user': video.creator})
         self.assertEqual(serializer.get_url(video), video.youtube_link)
 
+    def test_get_youtube_no_thumb(self):
+        video = VideoFileFactory.create(**{'youtube_id': 'asadf'})
+
+        serializer = FileSerializer(video, context={'user': video.creator})
+        self.assertEqual(
+            serializer.get_thumbnail_url(video),
+            '/static/img/play.png'
+        )
+
     def test_get_youtube_thumb(self):
         video = VideoFileFactory.create()
 
         serializer = FileSerializer(video, context={'user': video.creator})
-        self.assertEqual(
+        self.assertNotEqual(
             serializer.get_thumbnail_url(video),
             '/static/img/play.png'
         )

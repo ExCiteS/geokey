@@ -1,4 +1,7 @@
 import json
+import requests
+import tempfile
+from django.core import files
 
 from django.contrib.gis.geos import GEOSGeometry
 from django.core.exceptions import PermissionDenied
@@ -335,6 +338,31 @@ class FileSerializer(serializers.ModelSerializer):
 
         elif isinstance(obj, VideoFile):
             if obj.thumbnail:
+                # thumbnail has been downloaded, return the link
                 return self._get_thumb(obj.thumbnail).url
-            else:
+
+            # fetch the preview image from youtube
+            url = 'http://img.youtube.com/vi/%s/sddefault.jpg' % (
+                obj.youtube_id
+            )
+            request = requests.get(url, stream=True)
+
+            if request.status_code != requests.codes.ok:
+                # Image not found, return placeholder thumbnail
                 return '/static/img/play.png'
+
+            lf = tempfile.NamedTemporaryFile()
+            # Read the streamed image in sections
+            for block in request.iter_content(1024 * 8):
+
+                # If no more file then stop
+                if not block:
+                    break
+
+                # Write image block to temporary file
+                lf.write(block)
+
+            file_name = obj.youtube_id + '.jpg'
+            obj.thumbnail.save(file_name, files.File(lf))
+
+            return self._get_thumb(obj.thumbnail).url
