@@ -6,6 +6,6 @@ OBSERVATION_STATUS = Choices(
 )
 COMMENT_STATUS = Choices('active', 'deleted')
 
-ACCEPTED_IMAGE_FORMATS = ('.png', '.jpeg', '.jpg', '.gif')
-ACCEPTED_VIDEO_FORMATS = ('.mov', '.mpeg4', '.avi', '.wmv', '.flv', '.3gpp',
-                          '.webm', '.mp4', '.mpegps')
+ACCEPTED_IMAGE_FORMATS = ('png', 'jpeg', 'gif')
+ACCEPTED_VIDEO_FORMATS = ('mpeg', 'mp4', 'quicktime', 'x-msvideo', '3gpp',
+                          'x-flv', 'x-ms-wmv')

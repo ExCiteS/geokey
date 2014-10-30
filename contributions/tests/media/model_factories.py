@@ -15,7 +15,10 @@ def get_image(file_name='test.png', width=200, height=200):
     image.save(image_file, 'png')
     image_file.seek(0)
 
-    return ContentFile(image_file.read(), file_name)
+    the_file = ContentFile(image_file.read(), file_name)
+    the_file.content_type = 'image/png'
+
+    return the_file
 
 
 class ImageFileFactory(factory.django.DjangoModelFactory):

@@ -53,12 +53,15 @@ class ModelManagerTest(TestCase):
         xyz.save(xyz_file, 'png')
         xyz_file.seek(0)
 
+        the_file = ContentFile(xyz_file.read(), 'test.xyz')
+        the_file.content_type = 'chemical/x-xyz'
+
         MediaFile.objects.create(
             name='Test name',
             description='Test Description',
             contribution=ObservationFactory.create(),
             creator=UserF.create(),
-            the_file=ContentFile(xyz_file.read(), 'test.xyz')
+            the_file=the_file
         )
 
     # def test_upload_youtube(self):

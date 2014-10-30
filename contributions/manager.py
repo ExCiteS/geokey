@@ -205,10 +205,10 @@ class MediaFileManager(InheritanceManager):
         creator = kwargs.get('creator')
         contribution = kwargs.get('contribution')
 
-        filename, extension = os.path.splitext(the_file.name)
-        extension = extension.lower()
+        content_type = the_file.content_type.split('/')
 
-        if extension in ACCEPTED_IMAGE_FORMATS:
+        if (content_type[0] == 'image' and
+                content_type[1] in ACCEPTED_IMAGE_FORMATS):
             return self._create_image_file(
                 name,
                 description,
@@ -217,7 +217,8 @@ class MediaFileManager(InheritanceManager):
                 the_file
             )
 
-        elif extension in ACCEPTED_VIDEO_FORMATS:
+        elif (content_type[0] == 'video' and
+                content_type[1] in ACCEPTED_VIDEO_FORMATS):
             return self._create_video_file(
                 name,
                 description,
@@ -227,4 +228,4 @@ class MediaFileManager(InheritanceManager):
             )
         else:
             raise TypeError('Files of type %s are currently not supported.'
-                            % extension)
+                            % the_file.content_type)
