@@ -6,6 +6,7 @@ from django.core import files
 from django.contrib.gis.geos import GEOSGeometry
 from django.core.exceptions import PermissionDenied
 from django.utils.html import strip_tags
+from django_youtube.api import Api as Youtube
 
 from easy_thumbnails.files import get_thumbnailer
 
@@ -321,11 +322,11 @@ class FileSerializer(serializers.ModelSerializer):
         elif isinstance(obj, VideoFile):
             return obj.youtube_link
 
-    def _get_thumb(self, image):
+    def _get_thumb(self, image, size=(300, 300)):
         thumbnailer = get_thumbnailer(image)
         thumb = thumbnailer.get_thumbnail({
             'crop': True,
-            'size': (500, 500)
+            'size': size
         })
         return thumb
 
@@ -341,11 +342,10 @@ class FileSerializer(serializers.ModelSerializer):
                 # thumbnail has been downloaded, return the link
                 return self._get_thumb(obj.thumbnail).url
 
-            # fetch the preview image from youtube
-            url = 'http://img.youtube.com/vi/%s/sddefault.jpg' % (
-                obj.youtube_id
+            request = requests.get(
+                'http://img.youtube.com/vi/%s/0.jpg' % obj.youtube_id,
+                stream=True
             )
-            request = requests.get(url, stream=True)
 
             if request.status_code != requests.codes.ok:
                 # Image not found, return placeholder thumbnail
@@ -364,5 +364,12 @@ class FileSerializer(serializers.ModelSerializer):
 
             file_name = obj.youtube_id + '.jpg'
             obj.thumbnail.save(file_name, files.File(lf))
+
+            from PIL import Image
+
+            w, h = Image.open(obj.thumbnail).size
+
+            thumb = self._get_thumb(obj.thumbnail, size=(h, h))
+            obj.thumbnail.save(file_name, thumb)
 
             return self._get_thumb(obj.thumbnail).url
