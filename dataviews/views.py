@@ -5,6 +5,7 @@ from django.views.generic import CreateView, TemplateView
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.contrib import messages
+from django.utils.html import strip_tags
 
 from braces.views import LoginRequiredMixin
 
@@ -120,8 +121,8 @@ class ViewSettings(LoginRequiredMixin, TemplateView):
         grouping = context.pop('view')
         data = request.POST
 
-        grouping.name = data.get('name')
-        grouping.description = data.get('description')
+        grouping.name = strip_tags(data.get('name'))
+        grouping.description = strip_tags(data.get('description'))
         grouping.save()
 
         messages.success(self.request, "The data grouping has been updated.")

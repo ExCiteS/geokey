@@ -49,3 +49,18 @@ class TestCreateUser(TestCase):
         email = 'bla@example.com'
         password = 'password'
         User.objects.create_user(email, password=password)
+
+
+class TestGetUser(TestCase):
+    def test(self):
+        email = 'bla@example.com'
+        display_name = 'user'
+        password = 'password'
+        user = User.objects.create_user(email, display_name, password)
+
+        self.assertEqual(
+            user, User.objects.get_by_natural_key(user.email)
+        )
+        self.assertEqual(
+            user, User.objects.get_by_natural_key('BLA@example.com')
+        )

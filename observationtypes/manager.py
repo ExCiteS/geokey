@@ -55,20 +55,22 @@ class ObservationTypeManager(ActiveMixin, models.Manager):
             user, project_id
             ).observationtypes.get(pk=observationtype_id)
 
-    def create(self, *args, **kwargs):
+    def create(self, create_grouping=False, *args, **kwargs):
         category = super(ObservationTypeManager, self).create(*args, **kwargs)
 
-        view = View.objects.create(
-            name=category.name,
-            description=category.description,
-            project=category.project,
-            creator=category.creator
-        )
+        if create_grouping:
+            view = View.objects.create(
+                name=category.name,
+                description='All contributions of category %s.' % (
+                    category.name),
+                project=category.project,
+                creator=category.creator
+            )
 
-        Rule.objects.create(
-            view=view,
-            observation_type=category
-        )
+            Rule.objects.create(
+                view=view,
+                observation_type=category
+            )
 
         return category
 

@@ -9,7 +9,8 @@ from projects.tests.model_factories import ProjectF
 from observationtypes.tests.model_factories import (
     ObservationTypeFactory, TextFieldFactory, NumericFieldFactory,
     TrueFalseFieldFactory, LookupFieldFactory, LookupValueFactory,
-    DateTimeFieldFactory
+    DateTimeFieldFactory, MultipleLookupFieldFactory,
+    MultipleLookupValueFactory,
 )
 from contributions.tests.model_factories import ObservationFactory
 from users.tests.model_factories import UserF, UserGroupF, ViewUserGroupFactory
@@ -652,3 +653,61 @@ class ViewTest(TestCase):
         })
 
         self.assertEqual(len(view.data), 5)
+
+
+    def test_get_data_multiple_lookup_filter(self):
+        project = ProjectF()
+        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        lookup_field = MultipleLookupFieldFactory(**{
+            'key': 'lookup',
+            'observationtype': observation_type_1
+        })
+        lookup_1 = MultipleLookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': lookup_field
+        })
+        lookup_2 = MultipleLookupValueFactory(**{
+            'name': 'Kermit',
+            'field': lookup_field
+        })
+        lookup_3 = MultipleLookupValueFactory(**{
+            'name': 'Gonzo',
+            'field': lookup_field
+        })
+        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        lookup_field_2 = MultipleLookupFieldFactory(**{
+            'key': 'bla',
+            'observationtype': observation_type_2
+        })
+        lookup_4 = MultipleLookupValueFactory(**{
+            'name': 'Gonzo',
+            'field': lookup_field_2
+        })
+
+        for x in range(0, 5):
+            ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1,
+                'attributes': {'lookup': [lookup_1.id, lookup_3.id] }
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_1,
+                'attributes': {'lookup': [lookup_2.id, lookup_3.id]}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'observationtype': observation_type_2,
+                'attributes': {'bla': [lookup_4.id]}
+            })
+
+        view = ViewFactory(**{'project': project})
+        RuleFactory(**{
+            'view': view,
+            'observation_type': observation_type_1,
+            'filters': {'lookup': [lookup_1.id, lookup_2.id]}
+        })
+
+        self.assertEqual(len(view.data), 10)

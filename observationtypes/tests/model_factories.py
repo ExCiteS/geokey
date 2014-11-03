@@ -5,7 +5,7 @@ from users.tests.model_factories import UserF
 
 from ..models import (
     ObservationType, TextField, NumericField, TrueFalseField, DateTimeField,
-    LookupField, LookupValue, Field
+    LookupField, LookupValue, Field, MultipleLookupField, MultipleLookupValue
 )
 
 
@@ -90,4 +90,23 @@ class LookupValueFactory(factory.django.DjangoModelFactory):
 
     name = factory.Sequence(lambda n: "lookupfield %s" % n)
     field = factory.SubFactory(LookupFieldFactory)
+    status = 'active'
+
+
+class MultipleLookupFieldFactory(factory.django.DjangoModelFactory):
+    FACTORY_FOR = MultipleLookupField
+
+    name = factory.Sequence(lambda n: "lookupfield %s" % n)
+    key = factory.Sequence(lambda n: "lookupfield_%s" % n)
+    description = factory.LazyAttribute(lambda o: '%s description' % o.name)
+    observationtype = factory.SubFactory(ObservationTypeFactory)
+    status = 'active'
+    required = False
+
+
+class MultipleLookupValueFactory(factory.django.DjangoModelFactory):
+    FACTORY_FOR = MultipleLookupValue
+
+    name = factory.Sequence(lambda n: "lookupfield %s" % n)
+    field = factory.SubFactory(MultipleLookupFieldFactory)
     status = 'active'

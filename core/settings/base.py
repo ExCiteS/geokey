@@ -29,9 +29,6 @@ STATICFILES_DIRS = (
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '6q%yhmxh88#a)s-4w7#&7tr_d^-xb22kz17whf5s4biir)-m(&'
-
 # Application definition
 
 INSTALLED_APPS = (
@@ -57,6 +54,10 @@ MIDDLEWARE_CLASSES = (
 
 SOUTH_DATABASE_ADAPTERS = {'default': 'south.db.postgresql_psycopg2'}
 
+SOUTH_MIGRATION_MODULES = {
+    'easy_thumbnails': 'easy_thumbnails.south_migrations',
+}
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
@@ -72,6 +73,12 @@ MESSAGE_TAGS = {
     messages.WARNING: 'warning',
     messages.ERROR: 'danger'
 }
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "core.context_processors.project_settings",
+    "django.contrib.messages.context_processors.messages"
+)
 
 APPEND_SLASH = True
 

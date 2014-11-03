@@ -3,7 +3,8 @@ from django.contrib import auth
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from django.db import IntegrityError
+from django.utils.html import strip_tags
+from django.contrib.auth.views import password_reset_confirm as reset_view
 
 from braces.views import LoginRequiredMixin
 
@@ -11,21 +12,24 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from provider.oauth2.models import Client
+from provider.oauth2.models import Client, AccessToken
 
 from core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
-from projects.models import Project
+from projects.models import Project, Admins
 from projects.base import STATUS
-from applications.models import Application
 from dataviews.models import View
 
 from .serializers import (
     UserSerializer, UserGroupSerializer, ViewGroupSerializer
 )
 from .models import User, ViewUserGroup
-from .forms import UserRegistrationForm, UsergroupCreateForm
+from .forms import (
+    UserRegistrationForm,
+    UsergroupCreateForm,
+    CustomPasswordChangeForm
+)
 
 
 # ############################################################################
@@ -33,6 +37,7 @@ from .forms import UserRegistrationForm, UsergroupCreateForm
 # ADMIN VIEWS
 #
 # ############################################################################
+
 
 class Index(TemplateView):
     """
@@ -57,7 +62,6 @@ class Dashboard(LoginRequiredMixin, TemplateView):
         projects = Project.objects.get_list(self.request.user)
 
         return {
-            'stats': self.request.user.get_stats(),
             'admin_projects': projects.filter(admins=self.request.user),
             'involved_projects': projects.exclude(admins=self.request.user),
             'status_types': STATUS
@@ -245,8 +249,8 @@ class UserGroupSettings(LoginRequiredMixin, TemplateView):
 
         data = request.POST
 
-        group.name = data.get('name')
-        group.description = data.get('description')
+        group.name = strip_tags(data.get('name'))
+        group.description = strip_tags(data.get('description'))
         group.save()
 
         messages.success(self.request, "The user group has been updated.")
@@ -330,6 +334,47 @@ class UserProfile(LoginRequiredMixin, TemplateView):
         return self.render_to_response(context)
 
 
+class UserNotifications(LoginRequiredMixin, TemplateView):
+    """
+    Displays the notifications settings page
+    `/admin/profile/notifications/`
+    """
+    template_name = 'users/notifications.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, **kwargs):
+        user = self.request.user
+
+        context = super(UserNotifications, self).get_context_data(**kwargs)
+        context['admins'] = Admins.objects.filter(user=user)
+
+        return context
+
+    @handle_exceptions_for_admin
+    def post(self, request):
+        context = self.get_context_data()
+        data = self.request.POST
+
+        for project in context.get('admins'):
+            new_val = data.get(str(project.project.id)) is not None
+
+            if project.contact != new_val:
+                project.contact = new_val
+                project.save()
+
+        messages.success(request, 'Notifications have been updated.')
+        return self.render_to_response(context)
+
+
+def password_reset_confirm(request, *args, **kwargs):
+    return reset_view(
+        request,
+        set_password_form=CustomPasswordChangeForm,
+        *args,
+        **kwargs
+    )
+
+
 class ChangePassword(LoginRequiredMixin, TemplateView):
     """
     Displays the change password page
@@ -350,6 +395,9 @@ class ChangePassword(LoginRequiredMixin, TemplateView):
         if user is not None:
             user.set_password(request.POST.get('new_password1'))
             user.save()
+
+            AccessToken.objects.filter(user=user).delete()
+
             messages.success(request, 'The password has been changed.')
             return redirect('admin:userprofile')
         else:

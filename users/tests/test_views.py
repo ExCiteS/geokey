@@ -13,6 +13,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 
 from projects.tests.model_factories import ProjectF
+from projects.models import Admins
 from dataviews.tests.model_factories import ViewFactory
 from applications.tests.model_factories import ClientFactory
 
@@ -20,7 +21,8 @@ from .model_factories import UserF, UserGroupF, ViewUserGroupFactory
 from ..views import (
     UserGroup, UserGroupUsers, UserGroupSingleUser, UserGroupViews,
     UserGroupSingleView, UserGroupCreate, UserGroupSettings, UserProfile,
-    ChangePassword, CreateUserMixin, SignupAPIView
+    ChangePassword, CreateUserMixin, SignupAPIView, Dashboard,
+    UserNotifications
 )
 from ..models import User, UserGroup as Group
 
@@ -30,6 +32,46 @@ from ..models import User, UserGroup as Group
 # ADMIN VIEWS
 #
 # ############################################################################
+
+class DashboardTest(TestCase):
+    def setUp(self):
+        self.creator = UserF.create()
+        self.admin = UserF.create()
+        self.view_member = UserF.create()
+        self.contributor = UserF.create()
+        ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+
+        ProjectF.create(
+            add_admins=[self.admin, self.contributor]
+        )
+
+    def test_get_context_data_with_admin(self):
+        dashboard_view = Dashboard()
+        url = reverse('admin:dashboard')
+        request = APIRequestFactory().get(url)
+
+        request.user = self.admin
+        dashboard_view.request = request
+        context = dashboard_view.get_context_data()
+
+        self.assertEqual(len(context.get('admin_projects')), 2)
+        self.assertEqual(len(context.get('involved_projects')), 0)
+
+    def test_get_context_data_with_contributor(self):
+        dashboard_view = Dashboard()
+        url = reverse('admin:dashboard')
+        request = APIRequestFactory().get(url)
+
+        request.user = self.contributor
+        dashboard_view.request = request
+        context = dashboard_view.get_context_data()
+
+        self.assertEqual(len(context.get('admin_projects')), 1)
+        self.assertEqual(len(context.get('involved_projects')), 1)
+
 
 class CreateUserMixinTest(TestCase):
     def setUp(self):
@@ -61,7 +103,7 @@ class CreateUserMixinTest(TestCase):
 class SignupAPIViewTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.url = reverse('admin:sign_up_api')
+        self.url = reverse('sign_up_api')
         self.client = ClientFactory.create()
         self.user_data = {
             'display_name': 'user-1',
@@ -269,16 +311,62 @@ class ChangePasswordTest(TestCase):
         self.assertTrue(isinstance(response, HttpResponseRedirect))
 
 
+class UserNotificationsTest(TestCase):
+    def test_with_user(self):
+        user = UserF.create()
+        view = UserNotifications.as_view()
+        url = reverse('admin:notifications')
+        request = APIRequestFactory().get(url)
+        request.user = user
+        response = view(request).render()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_with_anonymous(self):
+        user = AnonymousUser()
+        view = UserNotifications.as_view()
+        url = reverse('admin:notifications')
+        request = APIRequestFactory().get(url)
+        request.user = user
+        response = view(request)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+    def test_post_with_admin(self):
+        user = UserF.create()
+        project_1 = ProjectF.create(**{'creator': user})
+        project_2 = ProjectF.create(**{'creator': user})
+        data = {
+            str(project_1.id): 'on'
+        }
+
+        view = UserNotifications.as_view()
+        url = reverse('admin:notifications')
+        request = APIRequestFactory().post(url, data)
+        request.user = user
+
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = view(request).render()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertTrue(
+            Admins.objects.get(project=project_1, user=user).contact
+        )
+        self.assertFalse(
+            Admins.objects.get(project=project_2, user=user).contact
+        )
+
+
 # ############################################################################
 #
 # AJAX VIEWS
 #
 # ############################################################################
 
-
 class QueryUsersTest(TestCase):
     def _get(self, query):
-        # self.client.login(username=user.username, password='123456')
         return self.client.get('/ajax/users/?query=' + query)
 
     def setUp(self):

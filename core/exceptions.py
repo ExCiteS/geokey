@@ -4,3 +4,7 @@ class MalformedRequestData(BaseException):
 
 class InputError(BaseException):
     pass
+
+
+class Unauthenticated(BaseException):
+    pass

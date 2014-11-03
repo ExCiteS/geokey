@@ -8,13 +8,13 @@ from ..models import User, UserGroup, ViewUserGroup
 class UserF(factory.django.DjangoModelFactory):
     FACTORY_FOR = User
 
-    @classmethod
-    def _setup_next_sequence(cls):
-        try:
-            return cls._associated_class.objects.values_list(
-                'id', flat=True).order_by('-id')[0] + 1
-        except IndexError:
-            return 0
+    # @classmethod
+    # def _setup_next_sequence(cls):
+    #     try:
+    #         return cls._associated_class.objects.values_list(
+    #             'id', flat=True).order_by('-id')[0] + 1
+    #     except IndexError:
+    #         return 0
 
     display_name = factory.Sequence(lambda n: "display_name%s" % n)
     email = factory.Sequence(lambda n: "email%s@example.com" % n)

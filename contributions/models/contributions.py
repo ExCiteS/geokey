@@ -1,44 +1,29 @@
+import json
+from pytz import utc
+from datetime import datetime
+
 from django.db import models
 from django.conf import settings
-from django.contrib.gis.db import models as gis
 from django.core.exceptions import ValidationError
+from django.dispatch import receiver
+from django.db.models.signals import pre_save
 
 from django_hstore import hstore
 from simple_history.models import HistoricalRecords
 
 from core.exceptions import InputError
 
-from .base import LOCATION_STATUS, OBSERVATION_STATUS, COMMENT_STATUS
-from .manager import LocationManager, ObservationManager, CommentManager
-
-
-class Location(models.Model):
-    """
-    Represents a location to which an arbitrary number of observations can be
-    attached.
-    """
-    name = models.CharField(max_length=100, blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
-    geometry = gis.GeometryField(geography=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL)
-    version = models.IntegerField(default=1)
-    private = models.BooleanField(default=False)
-    private_for_project = models.ForeignKey('projects.Project', null=True)
-    status = models.CharField(
-        choices=LOCATION_STATUS,
-        default=LOCATION_STATUS.active,
-        max_length=20
-    )
-
-    objects = LocationManager()
+from ..base import OBSERVATION_STATUS, COMMENT_STATUS
+from ..manager import ObservationManager, CommentManager
 
 
 class Observation(models.Model):
     """
     Stores a single observation.
     """
-    location = models.ForeignKey('Location', related_name='locations')
+    location = models.ForeignKey(
+        'contributions.Location', related_name='locations'
+    )
     project = models.ForeignKey(
         'projects.Project', related_name='observations'
     )
@@ -55,15 +40,20 @@ class Observation(models.Model):
         settings.AUTH_USER_MODEL,
         related_name='creator'
     )
+    updated_at = models.DateTimeField(null=True)
     updator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='updator',
         null=True
     )
     version = models.IntegerField(default=1)
+    search_matches = models.TextField()
 
     history = HistoricalRecords()
     objects = ObservationManager()
+
+    class Meta:
+        app_label = 'contributions'
 
     @classmethod
     def validate_partial(self, observationtype, data):
@@ -107,7 +97,6 @@ class Observation(models.Model):
 
         return attributes
 
-
     @classmethod
     def create(cls, attributes=None, creator=None, location=None,
                observationtype=None, project=None, status=None):
@@ -118,7 +107,7 @@ class Observation(models.Model):
         """
         attributes = cls.replace_null(attributes)
 
-        if status == None:
+        if status is None:
             status = observationtype.default_status
 
         if status == 'draft':
@@ -157,11 +146,12 @@ class Observation(models.Model):
             self.review_comment = review_comment
 
         if status == 'active':
-            self.review_comment = None            
+            self.review_comment = None
 
         self.attributes = update
         self.updator = updator
         self.status = status or self.status
+        self.updated_at = datetime.utcnow().replace(tzinfo=utc)
 
         self.save()
         return self
@@ -172,6 +162,34 @@ class Observation(models.Model):
         """
         self.status = OBSERVATION_STATUS.deleted
         self.save()
+
+
+@receiver(pre_save, sender=Observation)
+def update_search_matches(sender, **kwargs):
+    observation = kwargs.get('instance')
+    search_matches = []
+
+    for field in observation.observationtype.fields.all():
+        if field.key in observation.attributes.keys():
+
+            if field.fieldtype == 'TextField':
+                term = observation.attributes.get(field.key)
+                if term is not None:
+                    search_matches.append('%s:%s' % (field.key, term))
+
+            elif field.fieldtype == 'LookupField':
+                l_id = observation.attributes.get(field.key)
+                lookup = field.lookupvalues.get(pk=l_id)
+                search_matches.append('%s:%s' % (field.key, lookup.name))
+
+            elif field.fieldtype == 'MultipleLookupField':
+                l_ids = json.loads(observation.attributes.get(field.key))
+
+                for l_id in l_ids:
+                    lookup = field.lookupvalues.get(pk=l_id)
+                    search_matches.append('%s:%s' % (field.key, lookup.name))
+
+    observation.search_matches = '#####'.join(search_matches)
 
 
 class Comment(models.Model):
@@ -188,6 +206,9 @@ class Comment(models.Model):
     )
 
     objects = CommentManager()
+
+    class Meta:
+        app_label = 'contributions'
 
     def delete(self):
         """

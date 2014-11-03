@@ -5,6 +5,7 @@ from django.db import IntegrityError
 from django.contrib import messages
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import slugify
+from django.utils.html import strip_tags
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -19,7 +20,8 @@ from core.decorators import (
 
 from .base import STATUS
 from .models import (
-    ObservationType, Field, NumericField, LookupField, LookupValue
+    ObservationType, Field, NumericField, LookupField, LookupValue, 
+    MultipleLookupField, MultipleLookupValue
 )
 from .forms import ObservationTypeCreateForm, FieldCreateForm
 from .serializer import (
@@ -116,9 +118,10 @@ class ObservationTypeCreate(LoginRequiredMixin, CreateView):
         category = ObservationType.objects.create(
             project=project,
             creator=self.request.user,
-            name=data.get('name'),
-            description=data.get('description'),
-            default_status=data.get('default_status')
+            name=strip_tags(data.get('name')),
+            description=strip_tags(data.get('description')),
+            default_status=data.get('default_status'),
+            create_grouping=(data.get('create_grouping') == 'True')
         )
 
         messages.success(self.request, "The category has been created.")
@@ -154,8 +157,8 @@ class ObservationTypeSettings(LoginRequiredMixin, TemplateView):
         category = context.pop('observationtype')
         data = request.POST
 
-        category.name = data.get('name')
-        category.description = data.get('description')
+        category.name = strip_tags(data.get('name'))
+        category.description = strip_tags(data.get('description'))
         category.default_status = data.get('default_status')
         category.save()
 
@@ -253,7 +256,7 @@ class FieldCreate(LoginRequiredMixin, CreateView):
             self.request.user, project_id, observationtype_id)
 
 
-        proposed_key = slugify(data.get('name'))
+        proposed_key = slugify(strip_tags(data.get('name')))
         suggested_key = proposed_key
         
         count = 1
@@ -262,9 +265,9 @@ class FieldCreate(LoginRequiredMixin, CreateView):
             count = count + 1
 
         field = Field.create(
-            data.get('name'),
+            strip_tags(data.get('name')),
             suggested_key,
-            data.get('description'),
+            strip_tags(data.get('description')),
             data.get('required'),
             observation_type,
             self.request.POST.get('type')
@@ -321,8 +324,8 @@ class FieldSettings(LoginRequiredMixin, TemplateView):
         field = context.pop('field')
         data = request.POST
 
-        field.name = data.get('name')
-        field.description = data.get('description')
+        field.name = strip_tags(data.get('name'))
+        field.description = strip_tags(data.get('description'))
         field.required = data.get('required') or False
 
         if isinstance(field, NumericField):
@@ -438,13 +441,20 @@ class FieldLookups(APIView):
         """
         field = Field.objects.as_admin(
             request.user, project_id, observationtype_id, field_id)
+        name = strip_tags(request.DATA.get('name'))
 
         if isinstance(field, LookupField):
-            LookupValue.objects.create(
-                name=request.DATA.get('name'), field=field)
+            LookupValue.objects.create(name=name, field=field)
 
             serializer = LookupFieldSerializer(field)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        elif isinstance(field, MultipleLookupField):
+            MultipleLookupValue.objects.create(name=name, field=field)
+
+            serializer = LookupFieldSerializer(field)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         else:
             return Response(
                 {'error': 'This field is not a lookup field'},
@@ -467,7 +477,8 @@ class FieldLookupsUpdate(APIView):
         field = Field.objects.as_admin(
             request.user, project_id, observationtype_id, field_id)
 
-        if isinstance(field, LookupField):
+        if (isinstance(field, LookupField) or
+                isinstance(field, MultipleLookupField)):
             field.lookupvalues.get(pk=value_id).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
