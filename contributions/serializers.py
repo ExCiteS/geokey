@@ -252,6 +252,13 @@ class ContributionSerializer(object):
         )
         json_object['comments'] = comment_serializer.data
 
+        file_serializer = FileSerializer(
+            obj.files_attached.all(),
+            many=True,
+            context=self.context
+        )
+        json_object['media'] = file_serializer.data
+
         attributes = {}
         for field in obj.observationtype.fields.all():
             value = obj.attributes.get(field.key)
