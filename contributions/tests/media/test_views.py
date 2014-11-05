@@ -743,13 +743,16 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
             file_id=self.image_file.id
         ).render()
 
-    def delete(self, user):
+    def delete(self, user, image_id=None):
+        if image_id is None:
+            image_id = self.image_file.id
+
         url = reverse(
             'api:project_single_media',
             kwargs={
                 'project_id': self.project.id,
                 'contribution_id': self.contribution.id,
-                'file_id': self.image_file.id
+                'file_id': image_id
             }
         )
 
@@ -760,7 +763,7 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
             request,
             project_id=self.project.id,
             contribution_id=self.contribution.id,
-            file_id=self.image_file.id
+            file_id=image_id
         ).render()
 
     def test_get_image_with_admin(self):
@@ -795,6 +798,10 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
     def test_delete_image_with_admin(self):
         response = self.delete(self.admin)
         self.assertEqual(response.status_code, 204)
+
+    def test_get_not_existing_image_with_admin(self):
+        response = self.delete(self.admin, image_id=545487654)
+        self.assertEqual(response.status_code, 404)
 
     def test_delete_image_with_contributor(self):
         response = self.delete(self.creator)

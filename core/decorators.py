@@ -11,7 +11,7 @@ from observationtypes.models import (
 )
 from dataviews.models import View, Rule
 from applications.models import Application
-from contributions.models import Observation, Location, Comment
+from contributions.models import Observation, Location, Comment, MediaFile
 
 
 def handle_exceptions_for_admin(func):
@@ -73,7 +73,8 @@ def handle_exceptions_for_ajax(func):
             Application.DoesNotExist,
             Observation.DoesNotExist,
             Location.DoesNotExist,
-            Comment.DoesNotExist
+            Comment.DoesNotExist,
+            MediaFile.DoesNotExist
         ) as error:
             return Response(
                 {"error": str(error)},
