@@ -13,7 +13,7 @@ from projects.models import Project
 
 from .base import (
     OBSERVATION_STATUS, COMMENT_STATUS, ACCEPTED_IMAGE_FORMATS,
-    ACCEPTED_VIDEO_FORMATS
+    ACCEPTED_VIDEO_FORMATS, MEDIA_STATUS
 )
 
 FILE_NAME_TRUNC = 60 - len(settings.MEDIA_URL)
@@ -125,7 +125,9 @@ class MediaFileManager(InheritanceManager):
         Returns the subclasses of the MediaFiles. Needed to get access to the
         actual instances when searching all files of a contribution.
         """
-        query_set = super(MediaFileManager, self).get_query_set()
+        query_set = super(MediaFileManager, self).get_query_set().exclude(
+            status=MEDIA_STATUS.deleted
+        )
         return query_set.select_subclasses()
 
     def _create_image_file(self, name, description, creator, contribution,

@@ -19,7 +19,7 @@ from rest_framework.renderers import JSONRenderer
 from core.exceptions import MalformedRequestData
 from projects.tests.model_factories import UserF, ProjectF
 from dataviews.tests.model_factories import ViewFactory, RuleFactory
-from contributions.models import ImageFile
+from contributions.models import ImageFile, MediaFile
 
 from contributions.views.media import (
     MediaFileListAbstractAPIView, AllContributionsMediaAPIView,
@@ -260,7 +260,7 @@ class MediaFileSingleAbstractViewTest(TestCase):
         response_json = json.loads(response.content)
         self.assertEqual(response_json.get('id'), self.image_file.id)
 
-    @raises(ImageFile.DoesNotExist)
+    @raises(MediaFile.DoesNotExist)
     def test_delete_and_respond_with_admin(self):
         url = reverse(
             'api:project_single_media',
@@ -276,9 +276,9 @@ class MediaFileSingleAbstractViewTest(TestCase):
         view.request = request
 
         view.delete_and_respond(self.admin, self.image_file)
-        ImageFile.objects.get(pk=self.image_file.id)
+        MediaFile.objects.get(pk=self.image_file.id)
 
-    @raises(ImageFile.DoesNotExist)
+    @raises(MediaFile.DoesNotExist)
     def test_delete_and_respond_with_contributor(self):
         url = reverse(
             'api:project_single_media',
@@ -294,7 +294,7 @@ class MediaFileSingleAbstractViewTest(TestCase):
         view.request = request
 
         view.delete_and_respond(self.creator, self.image_file)
-        ImageFile.objects.get(pk=self.image_file.id)
+        MediaFile.objects.get(pk=self.image_file.id)
 
     @raises(PermissionDenied)
     def test_delete_and_respond_with_some_dude(self):
@@ -743,13 +743,16 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
             file_id=self.image_file.id
         ).render()
 
-    def delete(self, user):
+    def delete(self, user, image_id=None):
+        if image_id is None:
+            image_id = self.image_file.id
+
         url = reverse(
             'api:project_single_media',
             kwargs={
                 'project_id': self.project.id,
                 'contribution_id': self.contribution.id,
-                'file_id': self.image_file.id
+                'file_id': image_id
             }
         )
 
@@ -760,7 +763,7 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
             request,
             project_id=self.project.id,
             contribution_id=self.contribution.id,
-            file_id=self.image_file.id
+            file_id=image_id
         ).render()
 
     def test_get_image_with_admin(self):
@@ -795,6 +798,10 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
     def test_delete_image_with_admin(self):
         response = self.delete(self.admin)
         self.assertEqual(response.status_code, 204)
+
+    def test_get_not_existing_image_with_admin(self):
+        response = self.delete(self.admin, image_id=545487654)
+        self.assertEqual(response.status_code, 404)
 
     def test_delete_image_with_contributor(self):
         response = self.delete(self.creator)
