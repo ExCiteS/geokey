@@ -19,6 +19,17 @@ class ImageFileTest(TestCase):
         )
         self.assertEqual(image_file.type_name, 'ImageFile')
 
+    def test_delete_file(self):
+        image_file = ImageFile.objects.create(
+            name='Test name',
+            description='Test Description',
+            contribution=ObservationFactory.create(),
+            creator=UserF.create(),
+            image=get_image()
+        )
+        image_file.delete()
+        self.assertEquals(image_file.status, 'deleted')
+
 
 class VideoFileTest(TestCase):
     def test_get_type_name(self):

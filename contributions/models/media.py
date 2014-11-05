@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 
 from ..manager import MediaFileManager
+from ..base import MEDIA_STATUS
 
 
 class MediaFile(models.Model):
@@ -16,6 +17,11 @@ class MediaFile(models.Model):
     )
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        choices=MEDIA_STATUS,
+        default=MEDIA_STATUS.active,
+        max_length=20
+    )
 
     objects = MediaFileManager()
 
@@ -31,6 +37,13 @@ class MediaFile(models.Model):
             'The property `type_name` has not been implemented for this '
             'subclass of `MediaFile`.'
         )
+
+    def delete(self):
+        """
+        Deletes a file by setting its status to active
+        """
+        self.status = MEDIA_STATUS.deleted
+        self.save()
 
 
 class ImageFile(MediaFile):
