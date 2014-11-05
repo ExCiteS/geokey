@@ -1,3 +1,4 @@
+import json
 from django.test import TestCase
 
 from nose.tools import raises
@@ -509,7 +510,9 @@ class MultipleLookupTest(TestCase):
             'field': field
         })
         try:
-            field.validate_input([lookup_value_1.id, lookup_value_2.id])
+            field.validate_input(
+                json.dumps([lookup_value_1.id, lookup_value_2.id])
+            )
         except InputError:
             self.fail('multiplelookupfield.validate_input() raised InputError '
                       'unexpectedly!')
@@ -560,6 +563,26 @@ class MultipleLookupTest(TestCase):
             self.fail('multiplelookupfield.validate_input() raised InputError '
                       'unexpectedly!')
 
+    def test_validate_string_input(self):
+        field = MultipleLookupFieldFactory.create(
+            **{'required': True, 'status': 'inactive'})
+        lookup_value_1 = MultipleLookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': field
+        })
+        lookup_value_2 = MultipleLookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': field
+        })
+        try:
+            field.validate_input(
+                json.dumps([lookup_value_1.id, lookup_value_2.id])
+            )
+            field.validate_input(json.dumps([lookup_value_1.id]))
+        except InputError:
+            self.fail('multiplelookupfield.validate_input() raised InputError '
+                      'unexpectedly!')
+
     def test_validate_input(self):
         field = MultipleLookupFieldFactory.create(
             **{'required': True, 'status': 'inactive'})
@@ -590,4 +613,4 @@ class MultipleLookupTest(TestCase):
             'name': 'Ms. Piggy',
             'field': field
         })
-        field.validate_input([lookup_value_1.id, 8986552121])
+        field.validate_input(json.dumps([lookup_value_1.id, 8986552121]))

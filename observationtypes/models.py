@@ -6,9 +6,6 @@ from iso8601.iso8601 import ParseError
 from django.conf import settings
 from django.db import models
 from django.db.models.loading import get_model
-from django.db.models import Q
-from django.db.models.signals import post_init
-from django.dispatch import receiver
 
 from core.exceptions import InputError
 
@@ -463,6 +460,9 @@ class MultipleLookupField(Field):
         valid = True
 
         if provided_vals is not None:
+            if isinstance(provided_vals, (str, unicode)):
+                provided_vals = json.loads(provided_vals)
+
             accepted_values = [value.id for value in self.lookupvalues.all()]
             intersection = [
                 val for val in provided_vals if val in accepted_values
