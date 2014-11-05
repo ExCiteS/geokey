@@ -3,6 +3,7 @@ import glob
 
 from django.test import TestCase
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
 
 from users.tests.model_factories import UserF
 
@@ -26,6 +27,9 @@ class FileSerializerTest(TestCase):
         self.assertTrue(serializer.get_is_owner(image))
 
         serializer = FileSerializer(image, context={'user': UserF.create()})
+        self.assertFalse(serializer.get_is_owner(image))
+
+        serializer = FileSerializer(image, context={'user': AnonymousUser()})
         self.assertFalse(serializer.get_is_owner(image))
 
     def test_get_image_url(self):

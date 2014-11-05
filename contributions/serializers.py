@@ -6,7 +6,6 @@ from django.core import files
 from django.contrib.gis.geos import GEOSGeometry
 from django.core.exceptions import PermissionDenied
 from django.utils.html import strip_tags
-from django_youtube.api import Api as Youtube
 
 from easy_thumbnails.files import get_thumbnailer
 
@@ -183,6 +182,10 @@ class ContributionSerializer(object):
     def to_native_base(self, obj):
         location = obj.location
 
+        isowner = False
+        if not self.context.get('user').is_anonymous():
+            isowner = obj.creator == self.context.get('user')
+
         updator = None
         if obj.updator is not None:
             updator = {
@@ -210,7 +213,7 @@ class ContributionSerializer(object):
                     'description': location.description
                 }
             },
-            'isowner': obj.creator == self.context.get('user')
+            'isowner': isowner
         }
 
         q = self.context.get('search')
@@ -290,7 +293,10 @@ class CommentSerializer(serializers.ModelSerializer):
         return native
 
     def get_is_owner(self, comment):
-        return comment.creator == self.context.get('user')
+        if not self.context.get('user').is_anonymous():
+            return comment.creator == self.context.get('user')
+        else:
+            return False
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -318,7 +324,10 @@ class FileSerializer(serializers.ModelSerializer):
         Returns `True` if the user provided in the serializer context is the
         creator of this file
         """
-        return obj.creator == self.context.get('user')
+        if not self.context.get('user').is_anonymous():
+            return obj.creator == self.context.get('user')
+        else:
+            return False
 
     def get_url(self, obj):
         """
