@@ -219,8 +219,10 @@ class NumericField(Field):
                 try:
                     value = float(value) if '.' in value else int(value)
                 except ValueError:
-                    raise InputError('The value provided for field %s is not a '
-                                 'number.' % self.name)
+                    raise InputError(
+                        'The value provided for field %s is not a number.' %
+                        self.name
+                    )
 
             if isinstance(value, (int, long, float, complex)):
                 if self.minval and self.maxval and (
@@ -231,13 +233,13 @@ class NumericField(Field):
 
                 else:
                     if self.minval and (not (value >= self.minval)):
-                        raise InputError('The value provided for field %s must '
-                                         'be greater than %s.'
+                        raise InputError('The value provided for field %s must'
+                                         ' be greater than %s.'
                                          % (self.name, self.minval))
 
                     if self.maxval and (not (value <= self.maxval)):
-                        raise InputError('The value provided for field %s must '
-                                         'be lower than %s.'
+                        raise InputError('The value provided for field %s must'
+                                         ' be lower than %s.'
                                          % (self.name, self.maxval))
 
             else:
@@ -462,7 +464,9 @@ class MultipleLookupField(Field):
 
         if provided_vals is not None:
             accepted_values = [value.id for value in self.lookupvalues.all()]
-            intersection = [val for val in provided_vals if val in accepted_values]
+            intersection = [
+                val for val in provided_vals if val in accepted_values
+            ]
 
             valid = len(intersection) == len(provided_vals)
 
@@ -487,8 +491,7 @@ class MultipleLookupField(Field):
     def get_filter(self, rule):
         return '(regexp_split_to_array(\
             btrim(attributes -> \'' + self.key + '\', \'[]\'), \',\')::int[]\
-            && ARRAY' + json.dumps(rule) +')'
-
+            && ARRAY' + json.dumps(rule) + ')'
 
 
 class MultipleLookupValue(models.Model):

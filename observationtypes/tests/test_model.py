@@ -23,7 +23,7 @@ class CategoryTest(TestCase):
         field_2 = TextFieldFactory.create(**{'observationtype': category})
         field_3 = TextFieldFactory.create(**{'observationtype': category})
         field_4 = TextFieldFactory.create(**{'observationtype': category})
-        
+
         category.re_order_fields(
             [field_4.id, field_0.id, field_2.id, field_1.id,  field_3.id]
         )
@@ -70,7 +70,6 @@ class FieldTest(TestCase):
     def test_get_field_types(self):
         field_types = Field.get_field_types()
         self.assertEqual(len(field_types), 6)
-
 
     def test_order(self):
         observation_type = ObservationTypeFactory()
@@ -495,7 +494,7 @@ class MultipleLookupTest(TestCase):
 
     def test_convert_from_string(self):
         field = MultipleLookupFieldFactory.create()
-        
+
         self.assertEqual(None, field.convert_from_string(''))
         self.assertEqual([1, 2, 3], field.convert_from_string('[1, 2, 3]'))
 
@@ -518,11 +517,11 @@ class MultipleLookupTest(TestCase):
     @raises(InputError)
     def test_validate_required_none_type(self):
         field = MultipleLookupFieldFactory.create(**{'required': True})
-        lookup_value_1 = MultipleLookupValueFactory(**{
+        MultipleLookupValueFactory(**{
             'name': 'Ms. Piggy',
             'field': field
         })
-        lookup_value_2 = MultipleLookupValueFactory(**{
+        MultipleLookupValueFactory(**{
             'name': 'Ms. Piggy',
             'field': field
         })
@@ -530,11 +529,11 @@ class MultipleLookupTest(TestCase):
 
     def test_lookupfield_validate_not_required_none_type(self):
         field = MultipleLookupFieldFactory.create(**{'required': False})
-        lookup_value_1 = MultipleLookupValueFactory(**{
+        MultipleLookupValueFactory(**{
             'name': 'Ms. Piggy',
             'field': field
         })
-        lookup_value_2 = MultipleLookupValueFactory(**{
+        MultipleLookupValueFactory(**{
             'name': 'Ms. Piggy',
             'field': field
         })
@@ -547,11 +546,11 @@ class MultipleLookupTest(TestCase):
     def test_lookupfield_validate_required_inactive(self):
         field = MultipleLookupFieldFactory.create(
             **{'required': True, 'status': 'inactive'})
-        lookup_value_1 = MultipleLookupValueFactory(**{
+        MultipleLookupValueFactory(**{
             'name': 'Ms. Piggy',
             'field': field
         })
-        lookup_value_2 = MultipleLookupValueFactory(**{
+        MultipleLookupValueFactory(**{
             'name': 'Ms. Piggy',
             'field': field
         })
@@ -587,7 +586,7 @@ class MultipleLookupTest(TestCase):
             'name': 'Ms. Piggy',
             'field': field
         })
-        lookup_value_2 = MultipleLookupValueFactory(**{
+        MultipleLookupValueFactory(**{
             'name': 'Ms. Piggy',
             'field': field
         })

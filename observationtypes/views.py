@@ -20,7 +20,7 @@ from core.decorators import (
 
 from .base import STATUS
 from .models import (
-    ObservationType, Field, NumericField, LookupField, LookupValue, 
+    ObservationType, Field, NumericField, LookupField, LookupValue,
     MultipleLookupField, MultipleLookupValue
 )
 from .forms import ObservationTypeCreateForm, FieldCreateForm
@@ -222,7 +222,6 @@ class CategoryDelete(LoginRequiredMixin, TemplateView):
             return redirect('admin:category_list', project_id=project_id)
 
         return self.render_to_response(context)
-        
 
 
 class FieldCreate(LoginRequiredMixin, CreateView):
@@ -255,10 +254,9 @@ class FieldCreate(LoginRequiredMixin, CreateView):
         observation_type = ObservationType.objects.as_admin(
             self.request.user, project_id, observationtype_id)
 
-
         proposed_key = slugify(strip_tags(data.get('name')))
         suggested_key = proposed_key
-        
+
         count = 1
         while observation_type.fields.filter(key=suggested_key).exists():
             suggested_key = '%s-%s' % (proposed_key, count)
@@ -289,7 +287,7 @@ class FieldCreate(LoginRequiredMixin, CreateView):
         messages.success(
             self.request,
             mark_safe('The field has been created. <a href="%s">Add another '
-             'field.</a>' % field_create_url)
+                      'field.</a>' % field_create_url)
         )
 
         return redirect(
@@ -320,7 +318,11 @@ class FieldSettings(LoginRequiredMixin, TemplateView):
         return context
 
     def post(self, request, project_id, observationtype_id, field_id):
-        context = self.get_context_data(project_id, observationtype_id, field_id)
+        context = self.get_context_data(
+            project_id,
+            observationtype_id,
+            field_id
+        )
         field = context.pop('field')
         data = request.POST
 
@@ -357,7 +359,11 @@ class FieldDelete(LoginRequiredMixin, TemplateView):
             field.delete()
 
             messages.success(self.request, "The field has been deleted.")
-            return redirect('admin:category_overview', project_id=project_id, category_id=category_id)
+            return redirect(
+                'admin:category_overview',
+                project_id=project_id,
+                category_id=category_id
+            )
 
         return self.render_to_response(context)
 
