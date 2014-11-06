@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %} | Register a new application{% endblock %}
+
+{% block main %}
+        <div class="page-header">
+            <div class="container">
+                <h1>Applications</h1>
+            </div>
+        </div>
+
+        <div class="container">
+            {% include 'snippets/messages.html' %}
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="panel panel-default">
+                        <div class="list-group">
+                            <a href="{% url 'admin:app_overview' %}" class="list-group-item">Registered applications</a>
+                            <a href="{% url 'admin:app_connected' %}" class="list-group-item active">Connected applications</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <h3>
+                        Your connected applications
+                    </h3>
+                    {% for app in connected_apps %}
+                    <div class="overview-list-item">
+                        <a href="{% url 'admin:app_disconnect' app.id %}" class="btn btn-default pull-right">Disconnect</a>
+                        <h3>{{ app.name }}</h3>
+                        {% if app.description %}<p>{{app.description}}</p>{% endif %}
+                    </div>
+                    {% empty %}
+                        <div class="well empty-list">
+                            <p class="lead">You haven't connected any applications yet.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+{% endblock %}

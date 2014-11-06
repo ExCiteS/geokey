@@ -1,8 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser
 
-from nose.tools import raises
-
 from dataviews.tests.model_factories import ViewFactory
 from users.tests.model_factories import UserF, UserGroupF, ViewUserGroupFactory
 

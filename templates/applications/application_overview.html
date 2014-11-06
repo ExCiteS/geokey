@@ -13,9 +13,26 @@
             {% include 'snippets/messages.html' %}
 
             <div class="row">
+                <div class="col-md-4">
+                    <div class="panel panel-default">
+                        <div class="list-group">
+                            <a href="{% url 'admin:app_overview' %}" class="list-group-item active">Registered applications</a>
+                            <a href="{% url 'admin:app_connected' %}" class="list-group-item">Connected applications</a>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h5><strong>Learn more about:</strong></h5>
+                        <ul>
+                            <li><a href="https://github.com/ExCiteS/opencommunitymaps/wiki/OAuth2-Authentication">How to use OAuth to authenticate users with your application.</a></li>
+                            <li><a href="https://github.com/ExCiteS/opencommunitymaps/wiki#public-api">The Community Maps API.</a></li>
+                        </ul>
+                    </div>
+                </div>
+
                 <div class="col-md-8">
                     <h3>
-                        Your registered applications 
+                        Your registered applications
                         {% if apps %}<a href="{% url 'admin:app_register' %}" class="pull-right btn btn-sm btn-success"><span class="glyphicon glyphicon-plus"></span> Create new application</a>{% endif %}
                     </h3>
                     {% for app in apps %}
@@ -32,16 +49,6 @@
                             <a href="{% url 'admin:app_register' %}" class="btn btn-success btn-lg">Register a new application</a>
                         </div>
                     {% endfor %}
-                </div>
-                <div class="col-md-4">
-                    <div class="alert alert-info">
-
-                        <h5><strong>Learn more about:</strong></h5>
-                        <ul>
-                            <li><a href="https://github.com/ExCiteS/opencommunitymaps/wiki/OAuth2-Authentication">How to use OAuth to authenticate users with your application.</a></li>
-                            <li><a href="https://github.com/ExCiteS/opencommunitymaps/wiki#public-api">The Community Maps API.</a></li>
-                        </ul>
-                    </div>
                 </div>
             </div>
         </div>

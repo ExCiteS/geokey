@@ -163,6 +163,10 @@ urlpatterns = patterns(
         app_views.ApplicationOverview.as_view(),
         name='app_overview'),
     url(
+        r'^apps/connected/$',
+        app_views.ApplicationConnected.as_view(),
+        name='app_connected'),
+    url(
         r'^apps/register/$',
         app_views.ApplicationCreate.as_view(),
         name='app_register'),
@@ -174,6 +178,10 @@ urlpatterns = patterns(
         r'^apps/(?P<app_id>[0-9]+)/delete/$',
         app_views.ApplicationDelete.as_view(),
         name='app_delete'),
+    url(
+        r'^apps/(?P<app_id>[0-9]+)/disconnect/$',
+        app_views.ApplicationDisconnect.as_view(),
+        name='app_disconnect'),
 
     # ###########################
     # USERS
