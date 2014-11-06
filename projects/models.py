@@ -34,6 +34,9 @@ class Project(models.Model):
 
     objects = ProjectManager()
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return '%s status: %s private: %s' % (
             self.name, self.status, self.isprivate)

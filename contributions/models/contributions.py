@@ -53,6 +53,7 @@ class Observation(models.Model):
     objects = ObservationManager()
 
     class Meta:
+        ordering = ['updated_at', 'id']
         app_label = 'contributions'
 
     @classmethod
@@ -213,6 +214,7 @@ class Comment(models.Model):
     objects = CommentManager()
 
     class Meta:
+        ordering = ['id']
         app_label = 'contributions'
 
     def delete(self):

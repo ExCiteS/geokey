@@ -26,6 +26,7 @@ class MediaFile(models.Model):
     objects = MediaFileManager()
 
     class Meta:
+        ordering = ['id']
         app_label = 'contributions'
 
     @property
@@ -53,6 +54,7 @@ class ImageFile(MediaFile):
     image = models.ImageField(upload_to='user-uploads/images')
 
     class Meta:
+        ordering = ['id']
         app_label = 'contributions'
 
     @property
@@ -74,6 +76,7 @@ class VideoFile(MediaFile):
     swf_link = models.URLField(max_length=255, null=True, blank=True)
 
     class Meta:
+        ordering = ['id']
         app_label = 'contributions'
 
     @property
