@@ -19,7 +19,10 @@ def filters(rule):
         s = s + '</li>'
 
     for field in rule.observation_type.fields.all():
-        rule_filter = rule.filters.get(field.key)
+        rule_filter = None
+        if rule.filters is not None:
+            rule_filter = rule.filters.get(field.key)
+
         if rule_filter is not None:
 
             if field.fieldtype == 'TextField':
@@ -61,13 +64,17 @@ def filters(rule):
                 for lookup in json.loads(rule_filter):
                     values.append(field.lookupvalues.get(pk=lookup).name)
 
-                s = s + '<li>%s is one of %s</li>' % (field.name, ', '.join(values))
+                s = s + '<li>%s is one of %s</li>' % (
+                    field.name, ', '.join(values)
+                )
 
             if field.fieldtype == 'MultipleLookupField':
                 values = []
                 for lookup in json.loads(rule_filter):
                     values.append(field.lookupvalues.get(pk=lookup).name)
 
-                s = s + '<li>%s matches at least one of %s</li>' % (field.name, ', '.join(values))
+                s = s + '<li>%s matches at least one of %s</li>' % (
+                    field.name, ', '.join(values)
+                )
 
     return s

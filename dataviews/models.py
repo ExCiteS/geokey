@@ -1,7 +1,6 @@
 import json
 
 from django.db import models
-from django.db.models import Q
 from django.conf import settings
 
 from django_hstore import hstore
@@ -111,13 +110,13 @@ class Rule(models.Model):
 
         if self.min_date is not None:
             queries.append('(created_at >= to_date(\'' +
-                self.min_date.strftime('%Y-%m-%d %H:%I') +
-                '\', \'YYYY-MM-DD HH24:MI\'))')
+                           self.min_date.strftime('%Y-%m-%d %H:%I') +
+                           '\', \'YYYY-MM-DD HH24:MI\'))')
 
         if self.max_date is not None:
             queries.append('(created_at <= to_date(\'' +
-                self.max_date.strftime('%Y-%m-%d %H:%I') +
-                '\', \'YYYY-MM-DD HH24:MI\'))')
+                           self.max_date.strftime('%Y-%m-%d %H:%I') +
+                           '\', \'YYYY-MM-DD HH24:MI\'))')
 
         if self.filters is not None:
             for key in self.filters:
