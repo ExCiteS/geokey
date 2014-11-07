@@ -1,3 +1,9 @@
+{% if DEBUG %}
+    <div class="alert alert-warning" role="alert">
+        The administrator has enabled DEBUG mode for this service. This very likely means that the service is run as a test environment and things may break. Please get in touch with the project administrator if you constantly experience problems.
+    </div>
+{% endif %}
+
 {% if messages %}
             {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
