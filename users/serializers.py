@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import User, UserGroup, ViewUserGroup
+from .models import User, UserGroup, GroupingUserGroup
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -28,10 +28,10 @@ class UserGroupSerializer(serializers.ModelSerializer):
         )
 
 
-class ViewGroupSerializer(serializers.ModelSerializer):
+class GroupingUserGroupSerializer(serializers.ModelSerializer):
     """
     Serializer for ViewGroup model.
     """
     class Meta:
-        model = ViewUserGroup
-        fields = ('view', 'can_read', 'can_view')
+        model = GroupingUserGroup
+        fields = ('grouping', 'can_read', 'can_view')

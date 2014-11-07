@@ -13,12 +13,14 @@ from observationtypes.tests.model_factories import (
     MultipleLookupValueFactory,
 )
 from contributions.tests.model_factories import ObservationFactory
-from users.tests.model_factories import UserF, UserGroupF, ViewUserGroupFactory
+from users.tests.model_factories import (
+    UserF, UserGroupF, GroupingUserGroupFactory
+)
 
-from ..models import View, Rule
+from ..models import Grouping, Rule
 
 from .model_factories import (
-    ViewFactory, RuleFactory
+    GroupingFactory, RuleFactory
 )
 
 
@@ -26,7 +28,10 @@ class TestViewPermissions(TestCase):
     def test_admin(self):
         user = UserF.create()
         project = ProjectF.create(add_admins=[user])
-        view = ViewFactory.create(**{'project': project, 'isprivate': False})
+        view = GroupingFactory.create(**{
+            'project': project,
+            'isprivate': False
+        })
 
         self.assertTrue(view.can_view(user))
         self.assertTrue(view.can_read(user))
@@ -35,13 +40,13 @@ class TestViewPermissions(TestCase):
     def test_viewer(self):
         user = UserF.create()
 
-        view = ViewFactory.create()
+        view = GroupingFactory.create()
         group = UserGroupF.create(
             add_users=[user],
             **{'project': view.project, 'can_moderate': False}
         )
-        ViewUserGroupFactory.create(
-            **{'view': view, 'usergroup': group,
+        GroupingUserGroupFactory.create(
+            **{'grouping': view, 'usergroup': group,
                 'can_view': True, 'can_read': False}
         )
 
@@ -52,13 +57,13 @@ class TestViewPermissions(TestCase):
     def test_reader(self):
         user = UserF.create()
 
-        view = ViewFactory.create()
+        view = GroupingFactory.create()
         group = UserGroupF.create(
             add_users=[user],
             **{'project': view.project, 'can_moderate': False}
         )
-        ViewUserGroupFactory.create(
-            **{'view': view, 'usergroup': group,
+        GroupingUserGroupFactory.create(
+            **{'grouping': view, 'usergroup': group,
                 'can_view': True, 'can_read': True}
         )
 
@@ -69,13 +74,13 @@ class TestViewPermissions(TestCase):
     def test_moderator(self):
         user = UserF.create()
 
-        view = ViewFactory.create()
+        view = GroupingFactory.create()
         group = UserGroupF.create(
             add_users=[user],
             **{'project': view.project, 'can_moderate': True}
         )
-        ViewUserGroupFactory.create(
-            **{'view': view, 'usergroup': group,
+        GroupingUserGroupFactory.create(
+            **{'grouping': view, 'usergroup': group,
                 'can_view': True, 'can_read': True}
         )
 
@@ -86,7 +91,7 @@ class TestViewPermissions(TestCase):
     def test_some_dude(self):
         user = UserF.create()
 
-        view = ViewFactory.create()
+        view = GroupingFactory.create()
 
         self.assertFalse(view.can_view(user))
         self.assertFalse(view.can_read(user))
@@ -102,17 +107,17 @@ class RuleTest(TestCase):
         Rule.objects.get(pk=rule.id)
 
     def test_get_rules(self):
-        view = ViewFactory.create()
+        view = GroupingFactory.create()
         RuleFactory(**{
-            'view': view,
+            'grouping': view,
             'status': 'active'
         })
         RuleFactory(**{
-            'view': view,
+            'grouping': view,
             'status': 'active'
         })
         inactive = RuleFactory(**{
-            'view': view,
+            'grouping': view,
             'status': 'deleted'
         })
 
@@ -133,23 +138,23 @@ class ViewTest(TestCase):
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
-        self.view1 = ViewFactory(add_viewers=[self.view1_user], **{
+        self.view1 = GroupingFactory(add_viewers=[self.view1_user], **{
             'project': self.project
         })
-        self.view2 = ViewFactory(add_viewers=[self.view2_user], **{
+        self.view2 = GroupingFactory(add_viewers=[self.view2_user], **{
             'project': self.project
         })
 
-    @raises(View.DoesNotExist)
+    @raises(Grouping.DoesNotExist)
     def test_delete(self):
         self.view1.delete()
-        View.objects.get(pk=self.view1.id)
+        Grouping.objects.get(pk=self.view1.id)
 
     def test_get_data(self):
         project = ProjectF()
         observation_type_1 = ObservationTypeFactory(**{'project': project})
         observation_type_2 = ObservationTypeFactory(**{'project': project})
-        view = ViewFactory(**{'project': project})
+        view = GroupingFactory(**{'project': project})
         for x in range(0, 5):
             ObservationFactory(**{
                 'project': project,
@@ -160,7 +165,10 @@ class ViewTest(TestCase):
                 'observationtype': observation_type_2}
             )
 
-        RuleFactory(**{'view': view, 'observation_type': observation_type_1})
+        RuleFactory(**{
+            'grouping': view,
+            'observation_type': observation_type_1
+        })
 
         self.assertEqual(len(view.data), 5)
         for observation in view.data:
@@ -193,9 +201,9 @@ class ViewTest(TestCase):
                 'attributes': {'text': 'no ' + str(x)}
             })
 
-        view = ViewFactory(**{'project': project})
+        view = GroupingFactory(**{'project': project})
         RuleFactory(**{
-            'view': view,
+            'grouping': view,
             'observation_type': observation_type_1,
             'filters': {'text': 'yes'}
         })
@@ -210,7 +218,7 @@ class ViewTest(TestCase):
         observation_type_1 = ObservationTypeFactory(**{'project': project})
         observation_type_2 = ObservationTypeFactory(**{'project': project})
         observation_type_3 = ObservationTypeFactory(**{'project': project})
-        view = ViewFactory(**{'project': project})
+        view = GroupingFactory(**{'project': project})
         for x in range(0, 5):
             ObservationFactory(**{
                 'project': project,
@@ -225,8 +233,14 @@ class ViewTest(TestCase):
                 'observationtype': observation_type_3}
             )
 
-        RuleFactory(**{'view': view, 'observation_type': observation_type_1})
-        RuleFactory(**{'view': view, 'observation_type': observation_type_2})
+        RuleFactory(**{
+            'grouping': view,
+            'observation_type': observation_type_1
+        })
+        RuleFactory(**{
+            'grouping': view,
+            'observation_type': observation_type_2
+        })
 
         self.assertEqual(len(view.data), 10)
         for observation in view.data:
@@ -265,9 +279,9 @@ class ViewTest(TestCase):
                 'attributes': {'bla': 'yes ' + str(x)}}
             )
 
-        view = ViewFactory(**{'project': project})
+        view = GroupingFactory(**{'project': project})
         RuleFactory(**{
-            'view': view,
+            'grouping': view,
             'observation_type': observation_type_1,
             'filters': {'text': 'yes'}
         })
@@ -305,9 +319,9 @@ class ViewTest(TestCase):
                 'attributes': {'number': 12}}
             )
 
-        view = ViewFactory(**{'project': project})
+        view = GroupingFactory(**{'project': project})
         RuleFactory(**{
-            'view': view,
+            'grouping': view,
             'observation_type': observation_type_1,
             'filters': {'number': {'minval': '15'}}
         })
@@ -346,9 +360,9 @@ class ViewTest(TestCase):
                 'attributes': {'number': 12}
             })
 
-        view = ViewFactory(**{'project': project})
+        view = GroupingFactory(**{'project': project})
         RuleFactory(**{
-            'view': view,
+            'grouping': view,
             'observation_type': observation_type_1,
             'filters': {'number': {'maxval': 15}}
         })
@@ -387,9 +401,9 @@ class ViewTest(TestCase):
                 'attributes': {'rating': x}
             })
 
-        view = ViewFactory(**{'project': project})
+        view = GroupingFactory(**{'project': project})
         RuleFactory(**{
-            'view': view,
+            'grouping': view,
             'observation_type': observation_type_1,
             'filters': {'rating': {'minval': 8, 'maxval': 10}}
         })
@@ -428,9 +442,9 @@ class ViewTest(TestCase):
                 'attributes': {'true': True}
             })
 
-        view = ViewFactory(**{'project': project})
+        view = GroupingFactory(**{'project': project})
         RuleFactory(**{
-            'view': view,
+            'grouping': view,
             'observation_type': observation_type_1,
             'filters': {'true': True}
         })
@@ -481,9 +495,9 @@ class ViewTest(TestCase):
                 'attributes': {'bla': lookup_3.id}
             })
 
-        view = ViewFactory(**{'project': project})
+        view = GroupingFactory(**{'project': project})
         RuleFactory(**{
-            'view': view,
+            'grouping': view,
             'observation_type': observation_type_1,
             'filters': {'lookup': [lookup_1.id, lookup_2.id]}
         })
@@ -522,9 +536,9 @@ class ViewTest(TestCase):
                 'attributes': {'bla': '2014-04-09'}
             })
 
-        view = ViewFactory(**{'project': project})
+        view = GroupingFactory(**{'project': project})
         RuleFactory(**{
-            'view': view,
+            'grouping': view,
             'observation_type': observation_type_1,
             'filters': {'date': {
                 'minval': '2014-01-01', 'maxval': '2014-06-09 00:00'}
@@ -564,9 +578,9 @@ class ViewTest(TestCase):
             o.created_at = datetime(2012, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
             o.save()
 
-        view = ViewFactory(**{'project': project})
+        view = GroupingFactory(**{'project': project})
         RuleFactory(**{
-            'view': view,
+            'grouping': view,
             'observation_type': observation_type_1,
             'min_date': datetime(2013, 5, 1, 0, 0, 0, tzinfo=pytz.utc)
         })
@@ -604,9 +618,9 @@ class ViewTest(TestCase):
             o.created_at = datetime(2012, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
             o.save()
 
-        view = ViewFactory(**{'project': project})
+        view = GroupingFactory(**{'project': project})
         RuleFactory(**{
-            'view': view,
+            'grouping': view,
             'observation_type': observation_type_1,
             'max_date': datetime(2013, 5, 1, 0, 0, 0, tzinfo=pytz.utc)
         })
@@ -644,16 +658,15 @@ class ViewTest(TestCase):
             o.created_at = datetime(2012, 7, 23, 10, 34, 1, tzinfo=pytz.utc)
             o.save()
 
-        view = ViewFactory(**{'project': project})
+        view = GroupingFactory(**{'project': project})
         RuleFactory(**{
-            'view': view,
+            'grouping': view,
             'observation_type': observation_type_1,
             'min_date': datetime(2013, 1, 1, 0, 0, 0, tzinfo=pytz.utc),
             'max_date': datetime(2013, 10, 1, 0, 0, 0, tzinfo=pytz.utc)
         })
 
         self.assertEqual(len(view.data), 5)
-
 
     def test_get_data_multiple_lookup_filter(self):
         project = ProjectF()
@@ -688,7 +701,7 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'observationtype': observation_type_1,
-                'attributes': {'lookup': [lookup_1.id, lookup_3.id] }
+                'attributes': {'lookup': [lookup_1.id, lookup_3.id]}
             })
 
             ObservationFactory(**{
@@ -703,9 +716,9 @@ class ViewTest(TestCase):
                 'attributes': {'bla': [lookup_4.id]}
             })
 
-        view = ViewFactory(**{'project': project})
+        view = GroupingFactory(**{'project': project})
         RuleFactory(**{
-            'view': view,
+            'grouping': view,
             'observation_type': observation_type_1,
             'filters': {'lookup': [lookup_1.id, lookup_2.id]}
         })

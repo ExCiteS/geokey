@@ -11,11 +11,11 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from projects.tests.model_factories import UserF, ProjectF
 from projects.models import Project
 from observationtypes.tests.model_factories import ObservationTypeFactory
-from dataviews.tests.model_factories import (
-    ViewFactory, RuleFactory
+from datagroupings.tests.model_factories import (
+    GroupingFactory, RuleFactory
 )
-from dataviews.models import View
-from users.tests.model_factories import UserGroupF, ViewUserGroupFactory
+from datagroupings.models import Grouping
+from users.tests.model_factories import UserGroupF, GroupingUserGroupFactory
 
 from observationtypes.tests.model_factories import (
     TextFieldFactory, NumericFieldFactory
@@ -438,16 +438,16 @@ class SingleGroupingContributionAPIViewTest(TestCase):
             'observationtype': observation_type
         })
 
-        self.view = ViewFactory.create(
+        self.view = GroupingFactory.create(
             add_viewers=[self.non_moderator],
             **{'project': self.project}
         )
         RuleFactory(**{
-            'view': self.view,
+            'grouping': self.view,
             'observation_type': observation_type}
         )
 
-    @raises(View.DoesNotExist)
+    @raises(Grouping.DoesNotExist)
     def test_get_object_with_creator_not_viewmember(self):
         view = SingleGroupingContributionAPIView()
         view.get_object(
@@ -460,8 +460,8 @@ class SingleGroupingContributionAPIViewTest(TestCase):
             add_users=[self.creator],
             **{'project': self.view.project}
         )
-        ViewUserGroupFactory.create(
-            **{'view': self.view, 'usergroup': group, 'can_read': True}
+        GroupingUserGroupFactory.create(
+            **{'grouping': self.view, 'usergroup': group, 'can_read': True}
         )
 
         view = SingleGroupingContributionAPIView()
@@ -537,7 +537,7 @@ class ProjectPublicApiTest(TestCase):
             add_contributors=[self.contributor],
             add_viewers=[self.view_member]
         )
-        ViewFactory.create(**{'project': self.project, 'isprivate': False})
+        GroupingFactory.create(**{'project': self.project, 'isprivate': False})
         self.observationtype = ObservationTypeFactory(**{
             'status': 'active',
             'project': self.project
@@ -842,7 +842,7 @@ class ProjectPublicApiTest(TestCase):
         self.project.isprivate = False
         self.project.save()
 
-        ViewFactory.create(**{'project': self.project, 'isprivate': False})
+        GroupingFactory.create(**{'project': self.project, 'isprivate': False})
 
         response = self._post(self.data, AnonymousUser())
         self.assertEqual(response.status_code, 201)
@@ -1242,7 +1242,7 @@ class GetObservationInView(TestCase):
             add_contributors=[self.contributor]
         )
 
-        self.view = ViewFactory(add_viewers=[self.view_member], **{
+        self.view = GroupingFactory(add_viewers=[self.view_member], **{
             'project': self.project,
         })
 
@@ -1251,7 +1251,7 @@ class GetObservationInView(TestCase):
             'project': self.project
         })
         RuleFactory.create(**{
-            'view': self.view,
+            'grouping': self.view,
             'observation_type': observationtype
         })
 
@@ -1313,12 +1313,12 @@ class UpdateObservationInView(TestCase):
             'project': self.project
         })
 
-        self.view = ViewFactory(**{
+        self.view = GroupingFactory(**{
             'project': self.project,
         })
 
         RuleFactory.create(**{
-            'view': self.view,
+            'grouping': self.view,
             'observation_type': self.observationtype
         })
 
@@ -1667,7 +1667,7 @@ class MyContributionsTest(TestCase):
 
     def test_my_contributions_with_non_contributor(self):
         view_user = UserF.create()
-        ViewFactory(add_viewers=[view_user], **{
+        GroupingFactory(add_viewers=[view_user], **{
             'project': self.project
         })
 
@@ -1706,13 +1706,13 @@ class TestDataViewsPublicApi(TestCase):
             view_id=view.id).render()
 
     def test_get_active_view_with_admin(self):
-        view = ViewFactory(**{'project': self.project})
+        view = GroupingFactory(**{'project': self.project})
         response = self.get(view, self.admin)
 
         self.assertEquals(response.status_code, 200)
 
     def test_get_inactive_view_with_admin(self):
-        view = ViewFactory(**{
+        view = GroupingFactory(**{
             'project': self.project,
             'status': 'deleted'
         })
@@ -1720,13 +1720,13 @@ class TestDataViewsPublicApi(TestCase):
         self.assertEquals(response.status_code, 404)
 
     def test_get_active_view_with_contributor(self):
-        view = ViewFactory(**{'project': self.project})
+        view = GroupingFactory(**{'project': self.project})
         response = self.get(view, self.contributor)
 
         self.assertEquals(response.status_code, 404)
 
     def test_get_inactive_view_with_contributor(self):
-        view = ViewFactory(**{
+        view = GroupingFactory(**{
             'project': self.project,
             'status': 'deleted'
         })
@@ -1734,7 +1734,7 @@ class TestDataViewsPublicApi(TestCase):
         self.assertEquals(response.status_code, 404)
 
     def test_get_active_view_with_view_member(self):
-        view = ViewFactory(
+        view = GroupingFactory(
             add_viewers=[self.view_member],
             **{'project': self.project}
         )
@@ -1743,7 +1743,7 @@ class TestDataViewsPublicApi(TestCase):
         self.assertEquals(response.status_code, 200)
 
     def test_get_inactive_view_with_view_member(self):
-        view = ViewFactory(
+        view = GroupingFactory(
             add_viewers=[self.view_member],
             **{'project': self.project, 'status': 'inactive'}
         )
@@ -1751,13 +1751,13 @@ class TestDataViewsPublicApi(TestCase):
         self.assertEquals(response.status_code, 404)
 
     def test_get_active_view_with_non_member(self):
-        view = ViewFactory(**{'project': self.project})
+        view = GroupingFactory(**{'project': self.project})
         response = self.get(view, self.some_dude)
 
         self.assertEquals(response.status_code, 404)
 
     def test_get_inactive_view_with_non_member(self):
-        view = ViewFactory(**{
+        view = GroupingFactory(**{
             'project': self.project,
             'status': 'deleted'
         })

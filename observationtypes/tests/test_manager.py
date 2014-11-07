@@ -16,14 +16,14 @@ from .model_factories import (
 class ObservationTypeManagerTest(TestCase):
     def test_create(self):
         project = ProjectF.create()
-        category = ObservationType.objects.create(
+        ObservationType.objects.create(
             name='Test',
             project=project,
             creator=project.creator,
             create_grouping=False
         )
 
-        views = project.views.all()
+        views = project.groupings.all()
         self.assertEqual(len(views), 0)
 
     def test_create_with_view(self):
@@ -35,7 +35,7 @@ class ObservationTypeManagerTest(TestCase):
             create_grouping=True
         )
 
-        views = project.views.all()
+        views = project.groupings.all()
         self.assertEqual(len(views), 1)
         self.assertEqual(views[0].name, category.name)
 

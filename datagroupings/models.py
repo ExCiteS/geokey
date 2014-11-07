@@ -6,10 +6,10 @@ from django.conf import settings
 from django_hstore import hstore
 
 from .base import STATUS
-from .manager import ViewManager, RuleManager
+from .manager import GroupingManager, RuleManager
 
 
-class View(models.Model):
+class Grouping(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
@@ -20,9 +20,9 @@ class View(models.Model):
         default=STATUS.active,
         max_length=20
     )
-    project = models.ForeignKey('projects.Project', related_name='views')
+    project = models.ForeignKey('projects.Project', related_name='groupings')
 
-    objects = ViewManager()
+    objects = GroupingManager()
 
     def get_where_clause(self):
         queries = [rule.get_query() for rule in self.rules.all()]
@@ -89,7 +89,7 @@ class View(models.Model):
 
 
 class Rule(models.Model):
-    view = models.ForeignKey('View', related_name='rules')
+    grouping = models.ForeignKey('Grouping', related_name='rules')
     observation_type = models.ForeignKey('observationtypes.ObservationType')
     min_date = models.DateTimeField(null=True)
     max_date = models.DateTimeField(null=True)

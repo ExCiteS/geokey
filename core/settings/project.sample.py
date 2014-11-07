@@ -29,7 +29,7 @@ INSTALLED_APPS += (
     'projects',
     'observationtypes',
     'contributions',
-    'dataviews',
+    'datagroupings',
     'users',
     'applications'
 )

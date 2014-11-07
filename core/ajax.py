@@ -2,9 +2,8 @@ from django.conf.urls import patterns, url
 
 from projects import views as project_views
 from observationtypes import views as observationtypes_views
-from dataviews import views as view_views
+from datagroupings import views as view_views
 from users import views as user_views
-from applications import views as app_views
 
 urlpatterns = patterns(
     '',
@@ -36,11 +35,11 @@ urlpatterns = patterns(
         user_views.UserGroupSingleUser.as_view(),
         name='usergroup_single_user'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/views/$',
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/data-groupings/$',
         user_views.UserGroupViews.as_view(),
         name='usergroup_views'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/views/(?P<view_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/$',
         user_views.UserGroupSingleView.as_view(),
         name='usergroup_single_view'),
 
@@ -72,8 +71,8 @@ urlpatterns = patterns(
     # VIEWS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/views/(?P<view_id>[0-9]+)/$',
-        view_views.ViewUpdate.as_view(),
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/$',
+        view_views.GroupingUpdate.as_view(),
         name='view'),
 
     # ###########################

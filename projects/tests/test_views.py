@@ -11,7 +11,7 @@ from nose.tools import raises
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from dataviews.tests.model_factories import ViewFactory
+from datagroupings.tests.model_factories import GroupingFactory
 from observationtypes.tests.model_factories import (
     TextFieldFactory, ObservationTypeFactory
 )
@@ -614,7 +614,7 @@ class ProjectsTest(TestCase):
             }
         )
 
-        ViewFactory(
+        GroupingFactory(
             add_viewers=[self.view_member],
             **{'project': self.public_project, 'isprivate': False}
         )
@@ -986,7 +986,7 @@ class SingleProjectTest(TestCase):
         project = ProjectF.create(**{
             'isprivate': False
         })
-        ViewFactory(**{'project': project, 'isprivate': False})
+        GroupingFactory(**{'project': project, 'isprivate': False})
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
@@ -1004,7 +1004,7 @@ class SingleProjectTest(TestCase):
         project = ProjectF.create(**{
             'isprivate': False
         })
-        ViewFactory(**{'project': project, 'isprivate': False})
+        GroupingFactory(**{'project': project, 'isprivate': False})
 
         request = self.factory.get('/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
@@ -1080,7 +1080,7 @@ class ProjectContactAdminsTest(TestCase):
             add_admins=[admin],
             **{'isprivate': False}
         )
-        ViewFactory.create(**{
+        GroupingFactory.create(**{
             'isprivate': False,
             'project': project
         })

@@ -13,13 +13,13 @@ from rest_framework import status
 from projects.tests.model_factories import UserF, ProjectF
 from projects.models import Project
 from observationtypes.tests.model_factories import ObservationTypeFactory
-from dataviews.tests.model_factories import (
-    ViewFactory, RuleFactory
+from datagroupings.tests.model_factories import (
+    GroupingFactory, RuleFactory
 )
-from dataviews.models import View
+from datagroupings.models import Grouping
 from contributions.models import Observation
 
-from users.tests.model_factories import UserGroupF, ViewUserGroupFactory
+from users.tests.model_factories import UserGroupF, GroupingUserGroupFactory
 from ..model_factories import ObservationFactory, CommentFactory
 
 from contributions.views.comments import (
@@ -77,9 +77,9 @@ class GroupingContributionsSingleCommentAPIViewTest(TestCase):
             'observationtype': observation_type
         })
 
-        self.view = ViewFactory(**{'project': self.project})
+        self.view = GroupingFactory(**{'project': self.project})
         RuleFactory(**{
-            'view': self.view,
+            'grouping': self.view,
             'observation_type': observation_type}
         )
 
@@ -89,7 +89,7 @@ class GroupingContributionsSingleCommentAPIViewTest(TestCase):
             self.admin, self.project.id, self.view.id, self.observation.id)
         self.assertEqual(observation, self.observation)
 
-    @raises(View.DoesNotExist)
+    @raises(Grouping.DoesNotExist)
     def test_get_object_with_creator_not_viewmember(self):
         view = GroupingContributionsSingleCommentAPIView()
         view.get_object(
@@ -101,8 +101,8 @@ class GroupingContributionsSingleCommentAPIViewTest(TestCase):
             add_users=[self.creator],
             **{'project': self.view.project}
         )
-        ViewUserGroupFactory.create(
-            **{'view': self.view, 'usergroup': group}
+        GroupingUserGroupFactory.create(
+            **{'grouping': self.view, 'usergroup': group}
         )
         view = GroupingContributionsSingleCommentAPIView()
         observation = view.get_object(
@@ -117,8 +117,8 @@ class GroupingContributionsSingleCommentAPIViewTest(TestCase):
             add_users=[view_member],
             **{'project': self.view.project}
         )
-        ViewUserGroupFactory.create(
-            **{'view': self.view, 'usergroup': group}
+        GroupingUserGroupFactory.create(
+            **{'grouping': self.view, 'usergroup': group}
         )
         view = GroupingContributionsSingleCommentAPIView()
         view.get_object(
@@ -180,7 +180,7 @@ class GetProjectComments(APITestCase):
     def test_get_comments_with_view_member(self):
         view_member = UserF.create()
 
-        ViewFactory(add_viewers=[view_member], **{
+        GroupingFactory(add_viewers=[view_member], **{
             'project': self.project
         })
         response = self.get_response(view_member)
@@ -238,7 +238,7 @@ class AddCommentToPrivateProjectTest(APITestCase):
 
     def test_add_comment_to_observation_with_view_member(self):
         view_member = UserF.create()
-        ViewFactory(add_viewers=[view_member], **{
+        GroupingFactory(add_viewers=[view_member], **{
             'project': self.project
         })
         response = self.get_response(view_member)
@@ -289,7 +289,7 @@ class AddCommentToPublicProjectTest(APITestCase):
 
     def test_add_comment_to_observation_with_view_member(self):
         view_member = UserF.create()
-        ViewFactory(add_viewers=[view_member], **{
+        GroupingFactory(add_viewers=[view_member], **{
             'project': self.project
         })
         response = self.get_response(view_member)
@@ -528,7 +528,7 @@ class GetMyObservationComments(APITestCase):
     def test_get_comments_with_view_member(self):
         view_member = UserF.create()
 
-        ViewFactory(add_viewers=[view_member], **{
+        GroupingFactory(add_viewers=[view_member], **{
             'project': self.project
         })
         response = self.get_response(view_member)
@@ -591,7 +591,7 @@ class AddMyObservationCommentTest(APITestCase):
 
     def test_add_comment_to_observation_with_view_member(self):
         view_member = UserF.create()
-        ViewFactory(add_viewers=[view_member], **{
+        GroupingFactory(add_viewers=[view_member], **{
             'project': self.project
         })
         response = self.get_response(view_member)
@@ -837,9 +837,9 @@ class GetCommentsView(APITestCase):
             add_contributors=[self.contributor]
         )
         observation_type = ObservationTypeFactory(**{'project': self.project})
-        self.view = ViewFactory(**{'project': self.project})
+        self.view = GroupingFactory(**{'project': self.project})
         RuleFactory(**{
-            'view': self.view,
+            'grouping': self.view,
             'observation_type': observation_type}
         )
 
@@ -892,7 +892,7 @@ class GetCommentsView(APITestCase):
 
     def test_get_comments_with_view_member(self):
         view_member = UserF.create()
-        ViewFactory.create(
+        GroupingFactory.create(
             add_viewers=[view_member],
             **{'project': self.project}
         )
@@ -919,11 +919,11 @@ class AddCommentToViewTest(APITestCase):
             add_contributors=[self.contributor]
         )
         observation_type = ObservationTypeFactory(**{'project': self.project})
-        self.view = ViewFactory(**{'project': self.project})
+        self.view = GroupingFactory(**{'project': self.project})
         RuleFactory(**{
-            'view': self.view,
-            'observation_type': observation_type}
-        )
+            'grouping': self.view,
+            'observation_type': observation_type
+        })
 
         self.observation = ObservationFactory.create(**{
             'project': self.project,
@@ -968,8 +968,8 @@ class AddCommentToViewTest(APITestCase):
             add_users=[view_member],
             **{'project': self.view.project}
         )
-        ViewUserGroupFactory.create(
-            **{'view': self.view, 'usergroup': group}
+        GroupingUserGroupFactory.create(
+            **{'grouping': self.view, 'usergroup': group}
         )
         response = self.get_response(view_member)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -983,8 +983,8 @@ class AddCommentToWrongGroupingObservation(APITestCase):
         )
         observation = ObservationFactory.create()
         observation_type = ObservationTypeFactory(**{'project': project})
-        view = ViewFactory(**{'project': project})
-        RuleFactory(**{'view': view, 'observation_type': observation_type})
+        view = GroupingFactory(**{'project': project})
+        RuleFactory(**{'grouping': view, 'observation_type': observation_type})
 
         url = reverse(
             'api:view_comments',
@@ -1015,8 +1015,8 @@ class AddResponseToGroupingCommentTest(APITestCase):
             add_admins=[admin]
         )
         observation_type = ObservationTypeFactory(**{'project': project})
-        view = ViewFactory(**{'project': project})
-        RuleFactory(**{'view': view, 'observation_type': observation_type})
+        view = GroupingFactory(**{'project': project})
+        RuleFactory(**{'grouping': view, 'observation_type': observation_type})
 
         observation = ObservationFactory.create(**{
             'project': project,
@@ -1065,8 +1065,8 @@ class AddResponseToWrongGroupingCommentTest(APITestCase):
             add_admins=[admin]
         )
         observation_type = ObservationTypeFactory(**{'project': project})
-        view = ViewFactory(**{'project': project})
-        RuleFactory(**{'view': view, 'observation_type': observation_type})
+        view = GroupingFactory(**{'project': project})
+        RuleFactory(**{'grouping': view, 'observation_type': observation_type})
 
         observation = ObservationFactory.create(**{
             'project': project,
@@ -1119,16 +1119,16 @@ class DeleteGroupingCommentTest(APITestCase):
             add_contributors=[self.contributor]
         )
         observation_type = ObservationTypeFactory(**{'project': self.project})
-        self.view = ViewFactory(**{'project': self.project})
+        self.view = GroupingFactory(**{'project': self.project})
         group = UserGroupF.create(
             add_users=[self.view_member, self.commentor],
             **{'project': self.view.project}
         )
-        ViewUserGroupFactory.create(
-            **{'view': self.view, 'usergroup': group}
+        GroupingUserGroupFactory.create(
+            **{'grouping': self.view, 'usergroup': group}
         )
         RuleFactory(
-            **{'view': self.view, 'observation_type': observation_type}
+            **{'grouping': self.view, 'observation_type': observation_type}
         )
 
         self.observation = ObservationFactory.create(**{
@@ -1210,8 +1210,8 @@ class DeleteWrongGroupingComment(APITestCase):
         admin = UserF.create()
         project = ProjectF(add_admins=[admin])
         observation_type = ObservationTypeFactory(**{'project': project})
-        view = ViewFactory(**{'project': project})
-        RuleFactory(**{'view': view, 'observation_type': observation_type})
+        view = GroupingFactory(**{'project': project})
+        RuleFactory(**{'grouping': view, 'observation_type': observation_type})
 
         observation = ObservationFactory.create(**{
             'project': project,

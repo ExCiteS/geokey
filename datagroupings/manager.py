@@ -1,64 +1,64 @@
 from django.db import models
 from django.db.models import Q
-from django.core.exceptions import PermissionDenied
 
 from projects.models import Project
 
 from .base import STATUS
 
 
-class ViewQuerySet(models.query.QuerySet):
+class GroupingQuerySet(models.query.QuerySet):
     """
     Queryset Manager for View model
     """
     def for_user(self, user):
         """
-        Returns all views accessable by the user.
+        Returns all groupings accessable by the user.
         """
         if user.is_anonymous():
             return self.filter(
                 status='active', isprivate=False, project__isprivate=False)
         else:
             return self.filter(Q(status='active') & (
-                               Q(isprivate=False, project__isprivate=False) | 
+                               Q(isprivate=False, project__isprivate=False) |
                                Q(project__admins=user) |
-                               Q(usergroups__usergroup__users=user))).distinct()
+                               Q(usergroups__usergroup__users=user))
+                               ).distinct()
 
 
-class ViewManager(models.Manager):
+class GroupingManager(models.Manager):
     def get_query_set(self):
         """
-        Returns all views excluding those with status deleted.
+        Returns all groupings excluding those with status deleted.
         """
-        return ViewQuerySet(self.model).exclude(status=STATUS.deleted)
+        return GroupingQuerySet(self.model).exclude(status=STATUS.deleted)
 
     def for_user(self, user):
         """
-        Returns all views accessable by the user.
+        Returns all groupings accessable by the user.
         """
         return self.get_query_set().for_user(user)
 
     def get_list(self, user, project_id):
         """
-        Returns all views accessable by the user in the given project.
+        Returns all groupings accessable by the user in the given project.
         """
         project = Project.objects.get_single(user, project_id)
-        return project.views.for_user(user)
+        return project.groupings.for_user(user)
 
     def get_single(self, user, project_id, view_id):
         """
-        Returns a single views from the given project, if accessable by the
+        Returns a single groupings from the given project, if accessable by the
         user.
         """
         return self.get_list(user, project_id).get(pk=view_id)
 
     def as_admin(self, user, project_id, view_id):
         """
-        Returns a single views from the given project, if the user is admin of
-        the project.
+        Returns a single groupings from the given project, if the user is admin
+        of the project.
         """
         project = Project.objects.as_admin(user, project_id)
-        return project.views.get(pk=view_id)
+        return project.groupings.get(pk=view_id)
 
 
 class RuleManager(models.Manager):

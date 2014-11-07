@@ -8,7 +8,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 
 from projects.tests.model_factories import UserF, ProjectF
-from dataviews.models import View
+from datagroupings.models import Grouping
 
 from .model_factories import (
     ObservationTypeFactory, TextFieldFactory, NumericFieldFactory,
@@ -149,7 +149,7 @@ class ObservationTypeCreateTest(TestCase):
         }
         response = self.post(self.admin, data)
         self.assertTrue(isinstance(response, HttpResponseRedirect))
-        self.assertEqual(View.objects.all().count(), 0)
+        self.assertEqual(Grouping.objects.all().count(), 0)
 
     def test_post_valid_with_grouping(self):
         data = {
@@ -160,7 +160,7 @@ class ObservationTypeCreateTest(TestCase):
         }
         response = self.post(self.admin, data)
         self.assertTrue(isinstance(response, HttpResponseRedirect))
-        self.assertEqual(View.objects.all().count(), 1)
+        self.assertEqual(Grouping.objects.all().count(), 1)
 
 
 class CategoryDisplayTest(TestCase):

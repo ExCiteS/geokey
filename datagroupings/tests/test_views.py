@@ -3,16 +3,13 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from nose.tools import raises
-
 from projects.tests.model_factories import ProjectF, UserF
-from projects.models import Project
-from users.tests.model_factories import ViewUserGroupFactory, UserGroupF
+from users.tests.model_factories import GroupingUserGroupFactory, UserGroupF
 
-from ..models import View
-from ..views import ViewUpdate
+from ..models import Grouping
+from ..views import GroupingUpdate
 
-from .model_factories import ViewFactory
+from .model_factories import GroupingFactory
 
 
 class ViewAjaxTest(TestCase):
@@ -26,7 +23,7 @@ class ViewAjaxTest(TestCase):
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
-        self.view = ViewFactory(**{
+        self.view = GroupingFactory(**{
             'project': self.project,
             'description': 'description'
         })
@@ -34,30 +31,39 @@ class ViewAjaxTest(TestCase):
     def _put(self, data, user):
         url = reverse('ajax:view', kwargs={
             'project_id': self.project.id,
-            'view_id': self.view.id
+            'grouping_id': self.view.id
         })
         request = self.factory.put(url, data)
         force_authenticate(request, user=user)
-        theview = ViewUpdate.as_view()
+        theview = GroupingUpdate.as_view()
         return theview(
             request,
             project_id=self.project.id,
-            view_id=self.view.id).render()
+            grouping_id=self.view.id).render()
 
     def test_update_description_with_admin(self):
         response = self._put({'description': 'bockwurst'}, self.admin)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(View.objects.get(pk=self.view.id).description, 'bockwurst')
+        self.assertEqual(
+            Grouping.objects.get(pk=self.view.id).description,
+            'bockwurst'
+        )
 
     def test_update_description_with_contributor(self):
         response = self._put({'description': 'bockwurst'}, self.contributor)
         self.assertEqual(response.status_code, 403)
-        self.assertEqual(View.objects.get(pk=self.view.id).description, 'description')
+        self.assertEqual(
+            Grouping.objects.get(pk=self.view.id).description,
+            'description'
+        )
 
     def test_update_description_with_non_member(self):
         response = self._put({'description': 'bockwurst'}, self.non_member)
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(View.objects.get(pk=self.view.id).description, 'description')
+        self.assertEqual(
+            Grouping.objects.get(pk=self.view.id).description,
+            'description'
+        )
 
     def test_update_description_with_view_member(self):
         view_member = UserF.create()
@@ -65,10 +71,13 @@ class ViewAjaxTest(TestCase):
             add_users=[view_member],
             **{'project': self.view.project}
         )
-        ViewUserGroupFactory.create(
-            **{'view': self.view, 'usergroup': group}
+        GroupingUserGroupFactory.create(
+            **{'grouping': self.view, 'usergroup': group}
         )
 
         response = self._put({'description': 'bockwurst'}, view_member)
         self.assertEqual(response.status_code, 403)
-        self.assertEqual(View.objects.get(pk=self.view.id).description, 'description')
+        self.assertEqual(
+            Grouping.objects.get(pk=self.view.id).description,
+            'description'
+        )

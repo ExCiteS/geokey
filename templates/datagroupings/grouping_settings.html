@@ -3,7 +3,7 @@
 {% load filters %}
 {% load usergroups %}
 
-{% block title %} | Data grouping: {{view.name}}{% endblock %}
+{% block title %} | Data grouping: {{grouping.name}}{% endblock %}
 
 {% block main %}
 	{% csrf_token %}
@@ -12,13 +12,13 @@
             <div class="container">
                 <div class="row">
                     <div class="col-sm-6">
-                        <h1 class="smaller"><a href="{% url 'admin:project_overview' view.project.id %}">{{view.project.name}}</a></h1>
-                        <a href="{% url 'admin:project_overview' view.project.id  %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' grouping.project.id %}">{{grouping.project.name}}</a></h1>
+                        <a href="{% url 'admin:project_overview' grouping.project.id  %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
                     </div>
                     <ul class="header-nav">
-                        <li><a href="{% url 'admin:category_list' view.project.id %}">Categories <span class="badge">{{ view.project.observationtypes.count }}</span></a></li>
-                        <li class="active"><a href="{% url 'admin:grouping_list' view.project.id %}">Data groupings <span class="badge">{{ view.project.views.count }}</span></a></li>
-                        <li><a href="{% url 'admin:usergroup_list' view.project.id %}">User groups <span class="badge">{{ view.project.usergroups.count }}</span></a></li>
+                        <li><a href="{% url 'admin:category_list' grouping.project.id %}">Categories <span class="badge">{{groupingw.project.observationtypes.count }}</span></a></li>
+                        <li class="active"><a href="{% url 'admin:grouping_list' grouping.project.id %}">Data groupings <span class="badge">{{groupingw.project.views.count }}</span></a></li>
+                        <li><a href="{% url 'admin:usergroup_list' grouping.project.id %}">User groups <span class="badge">{{groupingw.project.usergroups.count }}</span></a></li>
                     </ul>
                 </div>
             </div>
@@ -32,29 +32,29 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h6 class="item-info">Data grouping</h6>
-                            <h3>{{ view.name }}</h3>
-                            {% if view.description %}<p>{{ view.description }}</p>{% endif %}
+                            <h3>{{ grouping.name }}</h3>
+                            {% if grouping.description %}<p>{{ grouping.description }}</p>{% endif %}
                         </div>
                         <div class="list-group">
-                            <a href="{% url 'admin:grouping_overview' view.project.id view.id %}" class="list-group-item">Filters</a>
-                            <a href="{% url 'admin:grouping_permissions' view.project.id view.id %}" class="list-group-item">Permissions</a>
-                            <a href="{% url 'admin:view_settings' view.project.id view.id %}" class="list-group-item active">Settings</a>
+                            <a href="{% url 'admin:grouping_overview' grouping.project.id grouping.id %}" class="list-group-item">Filters</a>
+                            <a href="{% url 'admin:grouping_permissions' grouping.project.id grouping.id %}" class="list-group-item">Permissions</a>
+                            <a href="{% url 'admin:grouping_settings' grouping.project.id grouping.id %}" class="list-group-item active">Settings</a>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-sm-8">
                     <h3 class="header">Settings</h3>
-                    <form  role="form" method="POST" action="{% url 'admin:view_settings' view.project.id view.id %}" novalidate>
+                    <form  role="form" method="POST" action="{% url 'admin:grouping_settings' grouping.project.id grouping.id %}" novalidate>
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="name" class="control-label">Name (required)</label>
-                            <input type="text" class="form-control input-lg" id="name" name="name" required value="{{ view.name }}">
+                            <input type="text" class="form-control input-lg" id="name" name="name" required value="{{ grouping.name }}">
                         </div>
 
                         <div class="form-group">
                             <label for="description" class="control-label">Description</label>
-                            <textarea class="form-control input-lg" rows="5" name="description" id="description">{{ view.description }}</textarea>
+                            <textarea class="form-control input-lg" rows="5" name="description" id="description">{{ grouping.description }}</textarea>
                         </div>
 
                         <div class="form-group">
@@ -99,7 +99,7 @@
             </div>
 
 			<div class="row tab-pane" id="general-settings">
-				
+
 			</div>
 		</div>
 {% endblock %}
@@ -114,14 +114,14 @@
 						<h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
 					</div>
 					<div class="modal-body panel-body">
-						<p class="text-danger">You are about to delete the data grouping <strong>{{view.name}}</strong>. This can not be undone.</p>
+						<p class="text-danger">You are about to delete the data grouping <strong>{{grouping.name}}</strong>. This can not be undone.</p>
 						<ul>
 							<li>All users who are solely assigned to one of the views user groups will not be able to access the project any longer.</li>
                             <li>However, the data accesible through this grouping will not be deleted.</li>
 						</ul>
 					</div>
 					<div class="modal-footer panel-footer">
-                        <a href="{% url 'admin:grouping_delete' view.project.id view.id %}" class="btn btn-danger">I'm absolutely sure, delete the data grouping!</a>
+                        <a href="{% url 'admin:grouping_delete' grouping.project.id grouping.id %}" class="btn btn-danger">I'm absolutely sure, delete the data grouping!</a>
 					</div>
 				</div>
 			</div>

@@ -5,11 +5,11 @@ from users.tests.model_factories import UserF
 from projects.tests.model_factories import ProjectF
 from observationtypes.tests.model_factories import ObservationTypeFactory
 
-from ..models import View, Rule
+from ..models import Grouping, Rule
 
 
-class ViewFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = View
+class GroupingFactory(factory.django.DjangoModelFactory):
+    FACTORY_FOR = Grouping
 
     name = factory.Sequence(lambda n: 'name_%d' % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
@@ -26,15 +26,15 @@ class ViewFactory(factory.django.DjangoModelFactory):
 
         if extracted:
             from users.tests.model_factories import (
-                UserGroupF, ViewUserGroupFactory
+                UserGroupF, GroupingUserGroupFactory
             )
             group = UserGroupF(add_users=extracted, **{
                 'project': self.project,
                 'can_contribute': False
             })
 
-            ViewUserGroupFactory(**{
-                'view': self,
+            GroupingUserGroupFactory(**{
+                'grouping': self,
                 'usergroup': group
             })
 
@@ -43,6 +43,6 @@ class RuleFactory(factory.django.DjangoModelFactory):
     FACTORY_FOR = Rule
 
     observation_type = factory.SubFactory(ObservationTypeFactory)
-    view = factory.SubFactory(ViewFactory)
+    grouping = factory.SubFactory(GroupingFactory)
     filters = None
     status = 'active'

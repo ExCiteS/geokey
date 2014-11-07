@@ -1,16 +1,16 @@
 from django import forms
 from django.utils.html import strip_tags
 
-from .models import View
+from .models import Grouping
 
 
-class ViewCreateForm(forms.ModelForm):
+class GroupingCreateForm(forms.ModelForm):
     """
     Validates the inputs against the model definition.
     Used in .views.ViewAdminCreateView
     """
     class Meta:
-        model = View
+        model = Grouping
         fields = ('name', 'description', 'isprivate')
 
     def clean(self):

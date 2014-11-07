@@ -7,8 +7,8 @@ from rest_framework.views import APIView
 from core.decorators import handle_exceptions_for_ajax
 from users.models import User
 from projects.models import Project
-from dataviews.models import View
-from dataviews.serializers import ViewSerializer
+from datagroupings.models import Grouping
+from datagroupings.serializers import GroupingSerializer
 
 from .base import (
     SingleAllContribution, SingleGroupingContribution, SingleMyContribution
@@ -114,8 +114,8 @@ class ViewObservations(APIView):
         Returns a single view and its data
         /api/projects/:project_id/data-groupings/:view_id/
         """
-        view = View.objects.get_single(request.user, project_id, view_id)
-        serializer = ViewSerializer(view, context={'user': request.user})
+        view = Grouping.objects.get_single(request.user, project_id, view_id)
+        serializer = GroupingSerializer(view, context={'user': request.user})
         return Response(serializer.data)
 
 

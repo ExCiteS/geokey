@@ -1,7 +1,6 @@
 from django.views.generic import CreateView, TemplateView
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
-from django.db import IntegrityError
 from django.contrib import messages
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import slugify

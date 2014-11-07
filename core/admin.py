@@ -3,7 +3,7 @@ from django.conf.urls import patterns, url
 from projects import views as project_views
 from observationtypes import views as observationtype_views
 from users import views as login_views
-from dataviews import views as dataviews
+from datagroupings import views as dataviews
 from applications import views as app_views
 
 from django.contrib.auth.views import login, logout
@@ -115,7 +115,7 @@ urlpatterns = patterns(
         name='category_field_delete'),
 
     # ###########################
-    # VIEWS
+    # DATA GROUPINGS
     # ###########################
     url(
         r'^projects/(?P<project_id>[0-9]+)/data-groupings/$',
@@ -123,8 +123,8 @@ urlpatterns = patterns(
         name='grouping_list'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/data-groupings/new/$',
-        dataviews.ViewCreate.as_view(),
-        name='view_create'),
+        dataviews.GroupingCreate.as_view(),
+        name='grouping_create'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/$',
         dataviews.GroupingOverview.as_view(),
@@ -134,19 +134,19 @@ urlpatterns = patterns(
         dataviews.GroupingPermissions.as_view(),
         name='grouping_permissions'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<view_id>[0-9]+)/settings/$',
-        dataviews.ViewSettings.as_view(),
-        name='view_settings'),
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/settings/$',
+        dataviews.GroupingSettings.as_view(),
+        name='grouping_settings'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/delete/$',
         dataviews.GroupingDelete.as_view(),
         name='grouping_delete'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<view_id>[0-9]+)/filter/new/$',
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/filter/new/$',
         dataviews.RuleCreate.as_view(),
         name='view_rule_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<view_id>[0-9]+)/filter/(?P<rule_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/filter/(?P<rule_id>[0-9]+)/$',
         dataviews.RuleSettings.as_view(),
         name='rule_settings'),
     url(

@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 
 from model_utils.managers import InheritanceManager
 
-from dataviews.models import View, Rule
+from datagroupings.models import Grouping, Rule
 from projects.models import Project
 
 from .base import STATUS
@@ -59,7 +59,7 @@ class ObservationTypeManager(ActiveMixin, models.Manager):
         category = super(ObservationTypeManager, self).create(*args, **kwargs)
 
         if create_grouping:
-            view = View.objects.create(
+            grouping = Grouping.objects.create(
                 name=category.name,
                 description='All contributions of category %s.' % (
                     category.name),
@@ -68,7 +68,7 @@ class ObservationTypeManager(ActiveMixin, models.Manager):
             )
 
             Rule.objects.create(
-                view=view,
+                grouping=grouping,
                 observation_type=category
             )
 

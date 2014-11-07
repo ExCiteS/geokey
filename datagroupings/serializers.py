@@ -3,10 +3,10 @@ from rest_framework import serializers
 
 from contributions.serializers import ContributionSerializer
 
-from .models import View
+from .models import Grouping
 
 
-class ViewSerializer(FieldSelectorSerializer):
+class GroupingSerializer(FieldSelectorSerializer):
     """
     Serializer for Views.
     """
@@ -15,7 +15,7 @@ class ViewSerializer(FieldSelectorSerializer):
         'get_number_contributions')
 
     class Meta:
-        model = View
+        model = Grouping
         depth = 1
         fields = ('id', 'name', 'description', 'status',
                   'created_at', 'contributions', 'isprivate', 'status',

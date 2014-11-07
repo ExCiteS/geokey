@@ -19,12 +19,12 @@ from core.decorators import (
 )
 from projects.models import Project, Admins
 from projects.base import STATUS
-from dataviews.models import View
+from datagroupings.models import Grouping
 
 from .serializers import (
-    UserSerializer, UserGroupSerializer, ViewGroupSerializer
+    UserSerializer, UserGroupSerializer, GroupingUserGroupSerializer
 )
-from .models import User, ViewUserGroup
+from .models import User, GroupingUserGroup
 from .forms import (
     UserRegistrationForm,
     UsergroupCreateForm,
@@ -521,25 +521,27 @@ class UserGroupViews(APIView):
         group = project.usergroups.get(pk=group_id)
 
         try:
-            if (request.DATA.get('view') == 'all-contributions'):
+            if (request.DATA.get('grouping') == 'all-contributions'):
                 group.view_all_contrib = True
                 group.read_all_contrib = True
                 group.save()
 
                 response = {
-                    'view': 'all-contributions',
+                    'grouping': 'all-contributions',
                     'can_view': group.view_all_contrib,
                     'can_read': group.read_all_contrib
                 }
 
                 return Response(response, status=status.HTTP_201_CREATED)
             else:
-                view = project.views.get(pk=request.DATA.get('view'))
-                view_group = ViewUserGroup.objects.create(
-                    view=view,
+                grouping = project.groupings.get(
+                    pk=request.DATA.get('grouping')
+                )
+                view_group = GroupingUserGroup.objects.create(
+                    grouping=grouping,
                     usergroup=group
                 )
-                serializer = ViewGroupSerializer(
+                serializer = GroupingUserGroupSerializer(
                     view_group, data=request.DATA, partial=True)
                 if serializer.is_valid():
                     serializer.save()
@@ -548,7 +550,7 @@ class UserGroupViews(APIView):
 
                 return Response(
                     serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except View.DoesNotExist:
+        except Grouping.DoesNotExist:
             return Response(
                 'The view you are trying to add to the user group is not'
                 'assigned to this project.',
@@ -561,21 +563,21 @@ class UserGroupSingleView(APIView):
     AJAX API endpoint for views assigned to the user group
     `/ajax/project/:project_id/usergroups/:group_id/views/:view_id/`
     """
-    def get_object(self, user, project_id, group_id, view_id):
+    def get_object(self, user, project_id, group_id, grouping_id):
         project = Project.objects.as_admin(user, project_id)
         group = project.usergroups.get(pk=group_id)
-        return group.viewgroups.get(view_id=view_id)
+        return group.viewgroups.get(grouping_id=grouping_id)
 
     @handle_exceptions_for_ajax
-    def put(self, request, project_id, group_id, view_id, format=None):
+    def put(self, request, project_id, group_id, grouping_id, format=None):
         """
         Updates the relation between user group and view, e.g. granting
         permissions on the view to the user group members.
         """
         view_group = self.get_object(
-            request.user, project_id, group_id, view_id)
+            request.user, project_id, group_id, grouping_id)
 
-        serializer = ViewGroupSerializer(
+        serializer = GroupingUserGroupSerializer(
             view_group, data=request.DATA, partial=True
         )
         if serializer.is_valid():
@@ -585,12 +587,12 @@ class UserGroupSingleView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @handle_exceptions_for_ajax
-    def delete(self, request, project_id, group_id, view_id, format=None):
+    def delete(self, request, project_id, group_id, grouping_id, format=None):
         """
         Removes the relation between usergroup and view.
         """
         view_group = self.get_object(
-            request.user, project_id, group_id, view_id)
+            request.user, project_id, group_id, grouping_id)
         view_group.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

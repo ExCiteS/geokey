@@ -3,7 +3,7 @@
 {% load filters %}
 {% load usergroups %}
 
-{% block bodydata %} data-project-id="{{grouping.project.id}}" data-view-id="{{grouping.id}}"{% endblock %}
+{% block bodydata %} data-project-id="{{grouping.project.id}}" data-grouping-id="{{grouping.id}}"{% endblock %}
 {% block title %} | Data grouping: {{grouping.name}}{% endblock %}
 
 {% block main %}
@@ -55,11 +55,11 @@
                     <div class="alert alert-info" id="grouping-visibilty">
                         <div {% if not grouping.isprivate %}class="hidden"{% endif %}>
                             <p>The project <strong>{{ grouping.project.name }}</strong> is public, but this data grouping is only accessible by members of user groups you have granted access to.</p>
-                            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#make-public-confirm">Grant access to the public</a>    
+                            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#make-public-confirm">Grant access to the public</a>
                         </div>
                         <div {% if grouping.isprivate %}class="hidden"{% endif %}>
                             <p>The project <strong>{{ grouping.project.name }}</strong> is public and this data grouping is accessible to the public.</p>
-                            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#make-private-confirm">Revoke access from the public</a>    
+                            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#make-private-confirm">Revoke access from the public</a>
                         </div>
                     </div>
                     {% endif %}
@@ -120,7 +120,7 @@
                 </div>
             </div>
         </div>
-        
+
 {% endblock %}
 
 {% block libraries %}

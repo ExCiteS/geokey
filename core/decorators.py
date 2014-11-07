@@ -5,11 +5,11 @@ from rest_framework.response import Response
 
 from core.exceptions import MalformedRequestData, Unauthenticated
 from projects.models import Project
-from users.models import User, UserGroup, ViewUserGroup
+from users.models import User, UserGroup, GroupingUserGroup
 from observationtypes.models import (
     ObservationType, Field, LookupValue, MultipleLookupValue
 )
-from dataviews.models import View, Rule
+from datagroupings.models import Grouping, Rule
 from applications.models import Application
 from contributions.models import Observation, Location, Comment, MediaFile
 
@@ -27,7 +27,7 @@ def handle_exceptions_for_admin(func):
             Project.DoesNotExist,
             ObservationType.DoesNotExist,
             Field.DoesNotExist,
-            View.DoesNotExist,
+            Grouping.DoesNotExist,
             Rule.DoesNotExist,
             Application.DoesNotExist
         ) as error:
@@ -63,13 +63,13 @@ def handle_exceptions_for_ajax(func):
         except (
             Project.DoesNotExist,
             UserGroup.DoesNotExist,
-            ViewUserGroup.DoesNotExist,
+            GroupingUserGroup.DoesNotExist,
             User.DoesNotExist,
             ObservationType.DoesNotExist,
             Field.DoesNotExist,
             MultipleLookupValue.DoesNotExist,
             LookupValue.DoesNotExist,
-            View.DoesNotExist,
+            Grouping.DoesNotExist,
             Application.DoesNotExist,
             Observation.DoesNotExist,
             Location.DoesNotExist,

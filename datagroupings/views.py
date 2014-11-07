@@ -1,6 +1,5 @@
 import json
 
-from django.core.exceptions import PermissionDenied
 from django.views.generic import CreateView, TemplateView
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
@@ -19,12 +18,11 @@ from rest_framework.response import Response
 
 from projects.models import Project
 from observationtypes.models import ObservationType
-from contributions.serializers import ContributionSerializer
 
 from .base import STATUS
-from .forms import ViewCreateForm
-from .models import View, Rule
-from .serializers import ViewSerializer
+from .forms import GroupingCreateForm
+from .models import Grouping, Rule
+from .serializers import GroupingSerializer
 
 
 # ############################################################################
@@ -34,7 +32,7 @@ from .serializers import ViewSerializer
 # ############################################################################
 
 class GroupingList(LoginRequiredMixin, TemplateView):
-    template_name = 'views/grouping_list.html'
+    template_name = 'datagroupings/grouping_list.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id):
@@ -48,12 +46,13 @@ class GroupingList(LoginRequiredMixin, TemplateView):
 
         return context
 
-class ViewCreate(LoginRequiredMixin, CreateView):
+
+class GroupingCreate(LoginRequiredMixin, CreateView):
     """
     Displays the create view page
     """
-    form_class = ViewCreateForm
-    template_name = 'views/view_create.html'
+    form_class = GroupingCreateForm
+    template_name = 'datagroupings/grouping_create.html'
 
     def get_success_url(self):
         project_id = self.kwargs['project_id']
@@ -70,7 +69,7 @@ class ViewCreate(LoginRequiredMixin, CreateView):
         project_id = self.kwargs['project_id']
 
         context = super(
-            ViewCreate, self).get_context_data(**kwargs)
+            GroupingCreate, self).get_context_data(**kwargs)
 
         context['project'] = Project.objects.as_admin(
             self.request.user, project_id
@@ -88,11 +87,11 @@ class ViewCreate(LoginRequiredMixin, CreateView):
         form.instance.project = project
         form.instance.creator = self.request.user
         messages.success(self.request, "The data grouping has been created.")
-        return super(ViewCreate, self).form_valid(form)
+        return super(GroupingCreate, self).form_valid(form)
 
 
 class GroupingOverview(LoginRequiredMixin, TemplateView):
-    template_name = 'views/grouping_overview.html'
+    template_name = 'datagroupings/grouping_overview.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, grouping_id):
@@ -100,25 +99,27 @@ class GroupingOverview(LoginRequiredMixin, TemplateView):
         Creates the request context for rendering the page
         """
         user = self.request.user
-        grouping = View.objects.as_admin(user, project_id, grouping_id)
-        return super(GroupingOverview, self).get_context_data(grouping=grouping)
+        grouping = Grouping.objects.as_admin(user, project_id, grouping_id)
+        return super(GroupingOverview, self).get_context_data(
+            grouping=grouping
+        )
 
 
-class ViewSettings(LoginRequiredMixin, TemplateView):
-    template_name = 'views/view_settings.html'
+class GroupingSettings(LoginRequiredMixin, TemplateView):
+    template_name = 'datagroupings/grouping_settings.html'
 
     @handle_exceptions_for_admin
-    def get_context_data(self, project_id, view_id):
+    def get_context_data(self, project_id, grouping_id):
         """
         Creates the request context for rendering the page
         """
         user = self.request.user
-        view = View.objects.as_admin(user, project_id, view_id)
-        return {'view': view, 'status_types': STATUS}
+        grouping = Grouping.objects.as_admin(user, project_id, grouping_id)
+        return {'grouping': grouping, 'status_types': STATUS}
 
-    def post(self, request, project_id, view_id):
-        context = self.get_context_data(project_id, view_id)
-        grouping = context.pop('view')
+    def post(self, request, project_id, grouping_id):
+        context = self.get_context_data(project_id, grouping_id)
+        grouping = context.pop('grouping')
         data = request.POST
 
         grouping.name = strip_tags(data.get('name'))
@@ -126,12 +127,12 @@ class ViewSettings(LoginRequiredMixin, TemplateView):
         grouping.save()
 
         messages.success(self.request, "The data grouping has been updated.")
-        context['view'] = grouping
+        context['grouping'] = grouping
         return self.render_to_response(context)
 
 
 class GroupingPermissions(LoginRequiredMixin, TemplateView):
-    template_name = 'views/grouping_permissions.html'
+    template_name = 'datagroupings/grouping_permissions.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, grouping_id):
@@ -139,8 +140,10 @@ class GroupingPermissions(LoginRequiredMixin, TemplateView):
         Creates the request context for rendering the page
         """
         user = self.request.user
-        grouping = View.objects.as_admin(user, project_id, grouping_id)
-        return super(GroupingPermissions, self).get_context_data(grouping=grouping)
+        grouping = Grouping.objects.as_admin(user, project_id, grouping_id)
+        return super(GroupingPermissions, self).get_context_data(
+            grouping=grouping
+        )
 
 
 class GroupingDelete(LoginRequiredMixin, TemplateView):
@@ -152,9 +155,9 @@ class GroupingDelete(LoginRequiredMixin, TemplateView):
         Creates the request context for rendering the page
         """
         user = self.request.user
-        grouping = View.objects.as_admin(user, project_id, grouping_id)
+        grouping = Grouping.objects.as_admin(user, project_id, grouping_id)
         return super(GroupingDelete, self).get_context_data(grouping=grouping)
-    
+
     def get(self, request, project_id, grouping_id):
         context = self.get_context_data(project_id, grouping_id)
         grouping = context.pop('grouping', None)
@@ -171,7 +174,7 @@ class RuleCreate(LoginRequiredMixin, CreateView):
     """
     Displays the rule create page
     """
-    template_name = 'views/view_rule_create.html'
+    template_name = 'datagroupings/rule_create.html'
     model = Rule
 
     @handle_exceptions_for_admin
@@ -180,22 +183,26 @@ class RuleCreate(LoginRequiredMixin, CreateView):
         Returns the context data for creating the view.
         """
         project_id = self.kwargs['project_id']
-        view_id = self.kwargs['view_id']
+        grouping_id = self.kwargs['grouping_id']
 
         context = super(
             RuleCreate, self).get_context_data(**kwargs)
 
-        context['grouping'] = View.objects.as_admin(
-            self.request.user, project_id, view_id
+        context['grouping'] = Grouping.objects.as_admin(
+            self.request.user, project_id, grouping_id
         )
         return context
 
     @handle_exceptions_for_admin
-    def post(self, request, project_id, view_id):
+    def post(self, request, project_id, grouping_id):
         """
         Creates a new Rule with the POSTed data.
         """
-        view = View.objects.as_admin(self.request.user, project_id, view_id)
+        view = Grouping.objects.as_admin(
+            self.request.user,
+            project_id,
+            grouping_id
+        )
         observation_type = ObservationType.objects.as_admin(
             self.request.user, project_id, request.POST.get('observationtype'))
 
@@ -219,34 +226,40 @@ class RuleCreate(LoginRequiredMixin, CreateView):
         )
         messages.success(self.request, 'The filter has been created.')
         return redirect('admin:grouping_overview',
-                        project_id=project_id, grouping_id=view_id)
+                        project_id=project_id, grouping_id=grouping_id)
 
 
 class RuleSettings(LoginRequiredMixin, TemplateView):
     """
     Displays the settings page
     """
-    template_name = 'views/view_rule_settings.html'
+    template_name = 'datagroupings/rule_settings.html'
 
     @handle_exceptions_for_admin
-    def get_context_data(self, project_id, view_id, rule_id, **kwargs):
+    def get_context_data(self, project_id, grouping_id, rule_id, **kwargs):
         """
         Creates the request context for rendering the page
         """
-        view = View.objects.as_admin(self.request.user, project_id, view_id)
+        view = Grouping.objects.as_admin(
+            self.request.user,
+            project_id,
+            grouping_id
+        )
         context = super(RuleSettings, self).get_context_data(**kwargs)
 
         context['rule'] = view.rules.get(pk=rule_id)
         return context
 
     @handle_exceptions_for_admin
-    def post(self, request, project_id, view_id, rule_id):
-        view = View.objects.as_admin(self.request.user, project_id, view_id)
+    def post(self, request, project_id, grouping_id, rule_id):
+        view = Grouping.objects.as_admin(
+            self.request.user,
+            project_id,
+            grouping_id
+        )
         rule = view.rules.get(pk=rule_id)
 
         rules = None
-        min_date = None
-        max_date = None
 
         try:
             rules = json.loads(request.POST.get('rules'))
@@ -259,7 +272,7 @@ class RuleSettings(LoginRequiredMixin, TemplateView):
         rule.save()
         messages.success(self.request, 'The filter has been updated.')
         return redirect('admin:grouping_overview',
-                        project_id=project_id, grouping_id=view_id)
+                        project_id=project_id, grouping_id=grouping_id)
 
 
 class FilterDelete(LoginRequiredMixin, TemplateView):
@@ -270,7 +283,7 @@ class FilterDelete(LoginRequiredMixin, TemplateView):
         """
         Creates the request context for rendering the page
         """
-        grouping = View.objects.as_admin(
+        grouping = Grouping.objects.as_admin(
             self.request.user, project_id, grouping_id)
         context = super(FilterDelete, self).get_context_data(**kwargs)
 
@@ -296,18 +309,18 @@ class FilterDelete(LoginRequiredMixin, TemplateView):
 #
 # ############################################################################
 
-class ViewUpdate(APIView):
+class GroupingUpdate(APIView):
     """
     API Endpoints for a view in the AJAX API.
-    /ajax/projects/:project_id/views/:view_id
+    /ajax/projects/:project_id/views/:grouping_id
     """
     @handle_exceptions_for_ajax
-    def put(self, request, project_id, view_id, format=None):
+    def put(self, request, project_id, grouping_id, format=None):
         """
         Updates a view
         """
-        view = View.objects.as_admin(request.user, project_id, view_id)
-        serializer = ViewSerializer(
+        view = Grouping.objects.as_admin(request.user, project_id, grouping_id)
+        serializer = GroupingSerializer(
             view, data=request.DATA, partial=True,
             fields=('id', 'name', 'description', 'status', 'isprivate')
         )

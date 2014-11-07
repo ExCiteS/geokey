@@ -4,8 +4,8 @@ from django.db.models import Q
 from rest_framework import serializers
 
 from core.serializers import FieldSelectorSerializer
-from dataviews.serializers import ViewSerializer
-from dataviews.models import View
+from datagroupings.serializers import GroupingSerializer
+from datagroupings.models import Grouping
 from observationtypes.serializer import ObservationTypeSerializer
 from contributions.models import Location
 
@@ -51,8 +51,8 @@ class ProjectSerializer(FieldSelectorSerializer):
         Method for SerializerMethodField `maps`
         """
         user = self.context.get('user')
-        maps = View.objects.get_list(user, project.id)
-        view_serializer = ViewSerializer(
+        maps = Grouping.objects.get_list(user, project.id)
+        view_serializer = GroupingSerializer(
             maps, many=True,
             fields=('id', 'name', 'description', 'num_contributions',
                     'created_at', 'symbol', 'colour'),

@@ -43,7 +43,7 @@
 
             itemToRemove.remove();
 
-            var numOfUsers = userList.children(':not(.message)').length
+            var numOfUsers = userList.children(':not(.message)').length;
 
             if (!groupId &&  numOfUsers === 1) {
                 userList.find('li a.remove').remove();
