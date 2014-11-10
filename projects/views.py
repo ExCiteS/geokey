@@ -79,7 +79,7 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
                 'role': project.get_role(self.request.user),
                 'contributions': project.observations.filter(
                     creator=self.request.user).count(),
-                'maps': project.views.filter(status='active').count()
+                'maps': project.groupings.filter(status='active').count()
             }
         else:
             raise PermissionDenied(

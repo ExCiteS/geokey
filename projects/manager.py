@@ -12,18 +12,19 @@ class ProjectQuerySet(models.query.QuerySet):
     """
     def for_user(self, user):
         if user.is_anonymous():
-            return self.annotate(public_views=Count(
-                'views', only=Q(views__isprivate=False))).filter(
+            return self.annotate(public_groupings=Count(
+                'groupings', only=Q(groupings__isprivate=False))).filter(
                 Q(status=STATUS.active) &
-                Q(isprivate=False, public_views__gte=1)
+                Q(isprivate=False, public_groupings__gte=1)
                 ).distinct()
         else:
-            projects = self.annotate(public_views=Count(
-                'views', only=Q(views__isprivate=False))).filter(
+            projects = self.annotate(public_groupings=Count(
+                'groupings', only=Q(groupings__isprivate=False))).filter(
                 Q(admins=user) |
                 (
                     Q(status=STATUS.active) &
-                    (Q(isprivate=False, public_views__gte=1) |
+                    (
+                        Q(isprivate=False, public_groupings__gte=1) |
                         Q(usergroups__can_contribute=True,
                             usergroups__users=user) |
                         Q(usergroups__can_moderate=True,

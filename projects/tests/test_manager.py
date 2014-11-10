@@ -1,8 +1,10 @@
 from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser
 
-from dataviews.tests.model_factories import ViewFactory
-from users.tests.model_factories import UserF, UserGroupF, ViewUserGroupFactory
+from datagroupings.tests.model_factories import GroupingFactory
+from users.tests.model_factories import (
+    UserF, UserGroupF, GroupingUserGroupFactory
+)
 
 from .model_factories import ProjectF
 from ..models import Project
@@ -27,7 +29,7 @@ class ProjectListTest(TestCase):
                 'everyone_contributes': False
             })
 
-        self.private_view = ViewFactory(
+        self.private_view = GroupingFactory(
             **{'project': self.private_project, 'isprivate': True}
         )
         self.private_moderators_view = UserGroupF(
@@ -50,12 +52,18 @@ class ProjectListTest(TestCase):
                 'can_moderate': False
             })
 
-        ViewUserGroupFactory.create(
-            **{'view': self.private_view, 'usergroup': self.private_moderators_view})
-        ViewUserGroupFactory.create(
-            **{'view': self.private_view, 'usergroup': self.private_contributors_view})
-        ViewUserGroupFactory.create(
-            **{'view': self.private_view, 'usergroup': self.private_viewers_view})
+        GroupingUserGroupFactory.create(**{
+            'grouping': self.private_view,
+            'usergroup': self.private_moderators_view}
+        )
+        GroupingUserGroupFactory.create(**{
+            'grouping': self.private_view,
+            'usergroup': self.private_contributors_view
+        })
+        GroupingUserGroupFactory.create(**{
+            'grouping': self.private_view,
+            'usergroup': self.private_viewers_view
+        })
 
         self.private_moderators = UserGroupF(
             add_users=[self.moderator],
@@ -85,7 +93,7 @@ class ProjectListTest(TestCase):
                 'everyone_contributes': False
             })
 
-        self.private_publicview_view = ViewFactory(
+        self.private_publicview_view = GroupingFactory(
             **{'project': self.private_publicview_project, 'isprivate': False}
         )
         self.private_publicview_moderators_view = UserGroupF(
@@ -108,12 +116,18 @@ class ProjectListTest(TestCase):
                 'can_moderate': False
             })
 
-        ViewUserGroupFactory.create(
-            **{'view': self.private_publicview_view, 'usergroup': self.private_publicview_moderators_view})
-        ViewUserGroupFactory.create(
-            **{'view': self.private_publicview_view, 'usergroup': self.private_publicview_contributors_view})
-        ViewUserGroupFactory.create(
-            **{'view': self.private_publicview_view, 'usergroup': self.private_publicview_viewers_view})
+        GroupingUserGroupFactory.create(**{
+            'grouping': self.private_publicview_view,
+            'usergroup': self.private_publicview_moderators_view
+        })
+        GroupingUserGroupFactory.create(**{
+            'grouping': self.private_publicview_view,
+            'usergroup': self.private_publicview_contributors_view
+        })
+        GroupingUserGroupFactory.create(**{
+            'grouping': self.private_publicview_view,
+            'usergroup': self.private_publicview_viewers_view
+        })
 
         self.private_publicview_moderators = UserGroupF(
             add_users=[self.moderator],
@@ -143,7 +157,7 @@ class ProjectListTest(TestCase):
                 'everyone_contributes': False
             })
 
-        self.private_publicviews_view = ViewFactory(
+        self.private_publicviews_view = GroupingFactory(
             **{'project': self.private_publicviews_project, 'isprivate': False}
         )
         self.private_publicviews_moderators_view = UserGroupF(
@@ -166,12 +180,18 @@ class ProjectListTest(TestCase):
                 'can_moderate': False
             })
 
-        ViewUserGroupFactory.create(
-            **{'view': self.private_publicviews_view, 'usergroup': self.private_publicviews_moderators_view})
-        ViewUserGroupFactory.create(
-            **{'view': self.private_publicviews_view, 'usergroup': self.private_publicviews_contributors_view})
-        ViewUserGroupFactory.create(
-            **{'view': self.private_publicviews_view, 'usergroup': self.private_publicviews_viewers_view})
+        GroupingUserGroupFactory.create(**{
+            'grouping': self.private_publicviews_view,
+            'usergroup': self.private_publicviews_moderators_view
+        })
+        GroupingUserGroupFactory.create(**{
+            'grouping': self.private_publicviews_view,
+            'usergroup': self.private_publicviews_contributors_view
+        })
+        GroupingUserGroupFactory.create(**{
+            'grouping': self.private_publicviews_view,
+            'usergroup': self.private_publicviews_viewers_view
+        })
 
         self.private_publicviews_moderators = UserGroupF(
             add_users=[self.moderator],
@@ -201,7 +221,7 @@ class ProjectListTest(TestCase):
                 'everyone_contributes': False
             })
 
-        self.public_view = ViewFactory(
+        self.public_view = GroupingFactory(
             **{'project': self.public_project, 'isprivate': True}
         )
         self.public_moderators_view = UserGroupF(
@@ -224,12 +244,18 @@ class ProjectListTest(TestCase):
                 'can_moderate': False
             })
 
-        ViewUserGroupFactory.create(
-            **{'view': self.public_view, 'usergroup': self.public_moderators_view})
-        ViewUserGroupFactory.create(
-            **{'view': self.public_view, 'usergroup': self.public_contributors_view})
-        ViewUserGroupFactory.create(
-            **{'view': self.public_view, 'usergroup': self.public_viewers_view})
+        GroupingUserGroupFactory.create(**{
+            'grouping': self.public_view,
+            'usergroup': self.public_moderators_view
+        })
+        GroupingUserGroupFactory.create(**{
+            'grouping': self.public_view,
+            'usergroup': self.public_contributors_view
+        })
+        GroupingUserGroupFactory.create(**{
+            'grouping': self.public_view,
+            'usergroup': self.public_viewers_view
+        })
 
         self.public_moderators = UserGroupF(
             add_users=[self.moderator],
@@ -259,7 +285,7 @@ class ProjectListTest(TestCase):
                 'everyone_contributes': False
             })
 
-        self.public_publicview_view = ViewFactory(
+        self.public_publicview_view = GroupingFactory(
             **{'project': self.public_publicview_project, 'isprivate': False}
         )
         self.public_publicview_moderators_view = UserGroupF(
@@ -282,12 +308,18 @@ class ProjectListTest(TestCase):
                 'can_moderate': False
             })
 
-        ViewUserGroupFactory.create(
-            **{'view': self.public_publicview_view, 'usergroup': self.public_publicview_moderators_view})
-        ViewUserGroupFactory.create(
-            **{'view': self.public_publicview_view, 'usergroup': self.public_publicview_contributors_view})
-        ViewUserGroupFactory.create(
-            **{'view': self.public_publicview_view, 'usergroup': self.public_publicview_viewers_view})
+        GroupingUserGroupFactory.create(**{
+            'grouping': self.public_publicview_view,
+            'usergroup': self.public_publicview_moderators_view
+        })
+        GroupingUserGroupFactory.create(**{
+            'grouping': self.public_publicview_view,
+            'usergroup': self.public_publicview_contributors_view
+        })
+        GroupingUserGroupFactory.create(**{
+            'grouping': self.public_publicview_view,
+            'usergroup': self.public_publicview_viewers_view
+        })
 
         self.public_publicview_moderators = UserGroupF(
             add_users=[self.moderator],
@@ -317,7 +349,7 @@ class ProjectListTest(TestCase):
                 'everyone_contributes': False
             })
 
-        self.public_publicviews_view = ViewFactory(
+        self.public_publicviews_view = GroupingFactory(
             **{'project': self.public_publicviews_project, 'isprivate': False}
         )
         self.public_publicviews_moderators_view = UserGroupF(
@@ -340,12 +372,18 @@ class ProjectListTest(TestCase):
                 'can_moderate': False
             })
 
-        ViewUserGroupFactory.create(
-            **{'view': self.public_publicviews_view, 'usergroup': self.public_publicviews_moderators_view})
-        ViewUserGroupFactory.create(
-            **{'view': self.public_publicviews_view, 'usergroup': self.public_publicviews_contributors_view})
-        ViewUserGroupFactory.create(
-            **{'view': self.public_publicviews_view, 'usergroup': self.public_publicviews_viewers_view})
+        GroupingUserGroupFactory.create(**{
+            'grouping': self.public_publicviews_view,
+            'usergroup': self.public_publicviews_moderators_view
+        })
+        GroupingUserGroupFactory.create(**{
+            'grouping': self.public_publicviews_view,
+            'usergroup': self.public_publicviews_contributors_view
+        })
+        GroupingUserGroupFactory.create(**{
+            'grouping': self.public_publicviews_view,
+            'usergroup': self.public_publicviews_viewers_view
+        })
 
         self.public_publicviews_moderators = UserGroupF(
             add_users=[self.moderator],

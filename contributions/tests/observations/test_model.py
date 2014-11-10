@@ -6,8 +6,8 @@ from nose.tools import raises
 from contributions.models import Observation, update_search_matches
 from projects.tests.model_factories import UserF
 
-from observationtypes.tests.model_factories import (
-    ObservationTypeFactory, LookupFieldFactory, LookupValueFactory,
+from categories.tests.model_factories import (
+    CategoryFactory, LookupFieldFactory, LookupValueFactory,
     TextFieldFactory, MultipleLookupFieldFactory, MultipleLookupValueFactory,
     NumericFieldFactory
 )
@@ -16,11 +16,11 @@ from ..model_factories import ObservationFactory, LocationFactory
 
 class TestContributionsPreSave(TestCase):
     def test_pre_save(self):
-        o_type = ObservationTypeFactory.create()
-        TextFieldFactory.create(**{'key': 'key', 'observationtype': o_type})
+        o_type = CategoryFactory.create()
+        TextFieldFactory.create(**{'key': 'key', 'category': o_type})
 
         lookup = LookupFieldFactory.create(
-            **{'observationtype': o_type, 'key': 'lookup'}
+            **{'category': o_type, 'key': 'lookup'}
         )
         kermit = LookupValueFactory.create(**{
             'field': lookup,
@@ -32,7 +32,7 @@ class TestContributionsPreSave(TestCase):
         })
 
         m_lookup = MultipleLookupFieldFactory.create(
-            **{'observationtype': o_type, 'key': 'm_lookup'}
+            **{'category': o_type, 'key': 'm_lookup'}
         )
         m_kermit = MultipleLookupValueFactory.create(**{
             'field': m_lookup,
@@ -53,7 +53,7 @@ class TestContributionsPreSave(TestCase):
                 'lookup': kermit.id,
                 'm_lookup': [m_kermit.id, m_piggy.id]
             },
-            'observationtype': o_type
+            'category': o_type
         })
 
         update_search_matches(Observation, instance=o)
@@ -72,19 +72,19 @@ class ObservationTest(TestCase):
     def test_create_observation(self):
         creator = UserF()
         location = LocationFactory()
-        observationtype = ObservationTypeFactory()
+        category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
-            'observationtype': observationtype
+            'category': category
         })
         NumericFieldFactory(**{
             'key': 'number',
-            'observationtype': observationtype
+            'category': category
         })
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
             attributes=data, creator=creator, location=location,
-            observationtype=observationtype, project=observationtype.project
+            category=category, project=category.project
         )
         self.assertEqual(observation.attributes, data)
         self.assertEqual(observation.status, 'pending')
@@ -92,21 +92,21 @@ class ObservationTest(TestCase):
     def test_create_observation_active_default(self):
         creator = UserF()
         location = LocationFactory()
-        observationtype = ObservationTypeFactory(**{
+        category = CategoryFactory(**{
             'default_status': 'active'
         })
         TextFieldFactory(**{
             'key': 'text',
-            'observationtype': observationtype
+            'category': category
         })
         NumericFieldFactory(**{
             'key': 'number',
-            'observationtype': observationtype
+            'category': category
         })
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
             attributes=data, creator=creator, location=location,
-            observationtype=observationtype, project=observationtype.project
+            category=category, project=category.project
         )
         self.assertEqual(observation.attributes, data)
         self.assertEqual(observation.status, 'active')
@@ -114,43 +114,43 @@ class ObservationTest(TestCase):
     def test_create_observation_with_inactive_field(self):
         creator = UserF()
         location = LocationFactory()
-        observationtype = ObservationTypeFactory()
+        category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
-            'observationtype': observationtype
+            'category': category
         })
         TextFieldFactory(**{
             'key': 'inactive_text',
-            'observationtype': observationtype,
+            'category': category,
             'status': 'inactive',
             'required': True
         })
         NumericFieldFactory(**{
             'key': 'number',
-            'observationtype': observationtype
+            'category': category
         })
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
             attributes=data, creator=creator, location=location,
-            observationtype=observationtype, project=observationtype.project
+            category=category, project=category.project
         )
         self.assertEqual(observation.attributes, data)
 
     def test_update_observation(self):
-        observationtype = ObservationTypeFactory()
+        category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
-            'observationtype': observationtype
+            'category': category
         })
         NumericFieldFactory(**{
             'key': 'number',
-            'observationtype': observationtype
+            'category': category
         })
 
         observation = ObservationFactory.create(**{
             'attributes': {'text': 'Text', 'number': 12},
-            'observationtype': observationtype,
-            'project': observationtype.project
+            'category': category,
+            'project': category.project
         })
 
         updater = UserF()
@@ -165,26 +165,26 @@ class ObservationTest(TestCase):
         self.assertEqual(observation.version, 2)
 
     def test_update_observation_with_inactive_field(self):
-        observationtype = ObservationTypeFactory()
+        category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
-            'observationtype': observationtype
+            'category': category
         })
         TextFieldFactory(**{
             'key': 'inactive_text',
-            'observationtype': observationtype,
+            'category': category,
             'status': 'inactive',
             'required': True
         })
         NumericFieldFactory(**{
             'key': 'number',
-            'observationtype': observationtype
+            'category': category
         })
 
         observation = ObservationFactory.create(**{
             'attributes': {'text': 'Text', 'number': 12},
-            'observationtype': observationtype,
-            'project': observationtype.project
+            'category': category,
+            'project': category.project
         })
 
         updater = UserF()
@@ -201,19 +201,19 @@ class ObservationTest(TestCase):
     def test_update_invalid_observation(self):
         creator = UserF()
         location = LocationFactory()
-        observationtype = ObservationTypeFactory()
+        category = CategoryFactory()
         TextFieldFactory.create(**{
             'key': 'text',
-            'observationtype': observationtype
+            'category': category
         })
         NumericFieldFactory.create(**{
             'key': 'number',
-            'observationtype': observationtype
+            'category': category
         })
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
             attributes=data, creator=creator, location=location,
-            observationtype=observationtype, project=observationtype.project
+            category=category, project=category.project
         )
 
         updater = UserF()
@@ -227,78 +227,78 @@ class ObservationTest(TestCase):
     def test_create_invalid_observation(self):
         creator = UserF()
         location = LocationFactory()
-        observationtype = ObservationTypeFactory()
+        category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
-            'observationtype': observationtype
+            'category': category
         })
         NumericFieldFactory(**{
             'key': 'number',
-            'observationtype': observationtype
+            'category': category
         })
         data = {'text': 'Text', 'number': 'abc'}
         Observation.create(
             attributes=data, creator=creator, location=location,
-            observationtype=observationtype, project=observationtype.project
+            category=category, project=category.project
         )
 
     @raises(ValidationError)
     def test_create_invalid_observation_with_empty_textfield(self):
         creator = UserF()
         location = LocationFactory()
-        observationtype = ObservationTypeFactory()
+        category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
             'required': True,
-            'observationtype': observationtype
+            'category': category
         })
         NumericFieldFactory(**{
             'key': 'number',
-            'observationtype': observationtype
+            'category': category
         })
         data = {'number': 1000}
         Observation.create(
             attributes=data, creator=creator, location=location,
-            observationtype=observationtype, project=observationtype.project
+            category=category, project=category.project
         )
 
     @raises(ValidationError)
     def test_create_invalid_observation_with_zero_textfield(self):
         creator = UserF()
         location = LocationFactory()
-        observationtype = ObservationTypeFactory()
+        category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
             'required': True,
-            'observationtype': observationtype
+            'category': category
         })
         NumericFieldFactory(**{
             'key': 'number',
-            'observationtype': observationtype
+            'category': category
         })
         data = {'text': '', 'number': 1000}
         Observation.create(
             attributes=data, creator=creator, location=location,
-            observationtype=observationtype, project=observationtype.project
+            category=category, project=category.project
         )
 
     def test_update_draft_observation(self):
         creator = UserF()
         location = LocationFactory()
-        observationtype = ObservationTypeFactory()
+        category = CategoryFactory()
         TextFieldFactory.create(**{
             'key': 'text',
-            'observationtype': observationtype,
+            'category': category,
             'required': True
         })
         NumericFieldFactory.create(**{
             'key': 'number',
-            'observationtype': observationtype
+            'category': category
         })
         data = {'number': 12}
         observation = Observation.create(
             attributes=data, creator=creator, location=location,
-            observationtype=observationtype, project=observationtype.project,
+            category=category, project=category.project,
             status='draft'
         )
 
@@ -313,18 +313,18 @@ class ObservationTest(TestCase):
     def test_create_invalid_observation_with_empty_number(self):
         creator = UserF()
         location = LocationFactory()
-        observationtype = ObservationTypeFactory()
+        category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
-            'observationtype': observationtype
+            'category': category
         })
         NumericFieldFactory(**{
             'key': 'number',
             'required': True,
-            'observationtype': observationtype
+            'category': category
         })
         data = {'text': 'bla'}
         Observation.create(
             attributes=data, creator=creator, location=location,
-            observationtype=observationtype, project=observationtype.project
+            category=category, project=category.project
         )

@@ -4,8 +4,8 @@ from django.test import TestCase
 from contributions.models import Observation
 
 from projects.tests.model_factories import ProjectF, UserF
-from observationtypes.tests.model_factories import (
-    ObservationTypeFactory, LookupFieldFactory, LookupValueFactory,
+from categories.tests.model_factories import (
+    CategoryFactory, LookupFieldFactory, LookupValueFactory,
     TextFieldFactory, MultipleLookupFieldFactory, MultipleLookupValueFactory
 )
 from ..model_factories import ObservationFactory
@@ -53,16 +53,16 @@ class ObservationTest(TestCase):
 
 class TestSearch(TestCase):
     def setUp(self):
-        o_type = ObservationTypeFactory.create()
-        TextFieldFactory.create(**{'key': 'key', 'observationtype': o_type})
+        o_type = CategoryFactory.create()
+        TextFieldFactory.create(**{'key': 'key', 'category': o_type})
 
         ObservationFactory.create_batch(5, **{
             'attributes': {'key': 'blah'},
-            'observationtype': o_type
+            'category': o_type
         })
         ObservationFactory.create_batch(5, **{
             'attributes': {'key': 'blub'},
-            'observationtype': o_type
+            'category': o_type
         })
 
     def test_bl(self):
@@ -85,9 +85,9 @@ class TestSearch(TestCase):
 
     def test_single_lookup(self):
         project = ProjectF.create()
-        category = ObservationTypeFactory.create(**{'project': project})
+        category = CategoryFactory.create(**{'project': project})
         lookup = LookupFieldFactory.create(
-            **{'observationtype': category, 'key': 'lookup'}
+            **{'category': category, 'key': 'lookup'}
         )
         kermit = LookupValueFactory.create(**{
             'field': lookup,
@@ -99,12 +99,12 @@ class TestSearch(TestCase):
         })
         ObservationFactory.create_batch(3, **{
             'project': project,
-            'observationtype': category,
+            'category': category,
             'attributes': {'lookup': kermit.id}
         })
         ObservationFactory.create_batch(3, **{
             'project': project,
-            'observationtype': category,
+            'category': category,
             'attributes': {'lookup': gonzo.id}
         })
 
@@ -116,9 +116,9 @@ class TestSearch(TestCase):
 
     def test_multiple_lookup(self):
         project = ProjectF.create()
-        category = ObservationTypeFactory.create(**{'project': project})
+        category = CategoryFactory.create(**{'project': project})
         lookup = MultipleLookupFieldFactory.create(
-            **{'observationtype': category, 'key': 'lookup'}
+            **{'category': category, 'key': 'lookup'}
         )
         kermit = MultipleLookupValueFactory.create(**{
             'field': lookup,
@@ -134,12 +134,12 @@ class TestSearch(TestCase):
         })
         ObservationFactory.create_batch(3, **{
             'project': project,
-            'observationtype': category,
+            'category': category,
             'attributes': {'lookup': [kermit.id, piggy.id]}
         })
         ObservationFactory.create_batch(3, **{
             'project': project,
-            'observationtype': category,
+            'category': category,
             'attributes': {'lookup': [gonzo.id]}
         })
 

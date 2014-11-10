@@ -1,6 +1,6 @@
 (function () {
     var projectId = $('body').attr('data-project-id');
-    var viewId = $('body').attr('data-view-id');
+    var groupingId = $('body').attr('data-grouping-id');
 
     function handleViewActivateChange(event) {
         var target = $(event.currentTarget);
@@ -8,7 +8,7 @@
 
         function handleError(response) {
             target.toggleClass('active');
-            var msg = 'An error occurred while updating map permissions. Error text was: ' + response.responseJSON.error;
+            var msg = 'An error occurred while updating data grouping permissions. Error text was: ' + response.responseJSON.error;
             var html = $('<div class="bg-danger text-danger message"><span class="glyphicon glyphicon-remove"></span> ' + msg + '</div>');
             target.before(html);
             setTimeout(function () { html.remove(); }, 5000);
@@ -30,9 +30,9 @@
         }
 
         if (target.hasClass('active')) {
-            Control.Ajax.del(url + 'views/' + viewId +'/', handleSuccess, handleError);
+            Control.Ajax.del(url + 'data-groupings/' + groupingId +'/', handleSuccess, handleError);
         } else {
-            Control.Ajax.post(url + 'views/', handleSuccess, handleError, {view: viewId});
+            Control.Ajax.post(url + 'data-groupings/', handleSuccess, handleError, {grouping: groupingId});
         }
     }
 
@@ -45,7 +45,7 @@
     }
 
     function changePrivate(event) {
-        var url = 'projects/' + projectId + '/views/' + viewId +'/';
+        var url = 'projects/' + projectId + '/data-groupings/' + groupingId +'/';
 
         function handleSuccess(response) {
             var msg = '';

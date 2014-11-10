@@ -6,7 +6,7 @@
 
     function handleViewActivateChange(event) {
         var target = $(event.currentTarget);
-        var viewId = target.attr('name');
+        var groupingId = target.attr('name');
 
         function handleError(response) {
             target.toggleClass('active');
@@ -18,23 +18,23 @@
 
         function handleSuccess(response) {
             var btnText = $('<span class="text-success">Grant access</span>');
-            var msg = 'Access revoked.'
+            var msg = 'Access revoked.';
             if (target.hasClass('active')) {
                 btnText = $('<span class="text-danger">Revoke access</span>');
-                msg = 'Access granted.'
+                msg = 'Access granted.';
             }
             target.children().remove();
             target.append(btnText);
-            
+
             var html = $('<div class="bg-success text-success message"><span class="glyphicon glyphicon-ok"></span> ' + msg + '</div>');
             target.before(html);
             setTimeout(function () { html.remove(); }, 5000);
         }
 
         if (target.hasClass('active')) {
-            Control.Ajax.del(url + 'views/' + viewId +'/', handleSuccess, handleError);
+            Control.Ajax.del(url + 'data-groupings/' + groupingId +'/', handleSuccess, handleError);
         } else {
-            Control.Ajax.post(url + 'views/', handleSuccess, handleError, {view: viewId});
+            Control.Ajax.post(url + 'data-groupings/', handleSuccess, handleError, {grouping: groupingId});
         }
     }
 
@@ -91,7 +91,7 @@
 
     function handlePermissionChange(event) {
         if ($(this).val() === 'read_only' && everyoneContributes === 'True') {
-            $('form#permissions').before('<div class="alert alert-warning hint"><strong>Note:</strong> Currently, all users, who have access to this project, can contribute to it. This setting overwrites permissions of individual user groups. If you plan to restrict contributing permissions to certain user groups, head to <a href="/admin/projects/' + projectId + '/settings/" class="alert-link">Project Settings</a> first and change the project permissions. </div>')
+            $('form#permissions').before('<div class="alert alert-warning hint"><strong>Note:</strong> Currently, all users, who have access to this project, can contribute to it. This setting overwrites permissions of individual user groups. If you plan to restrict contributing permissions to certain user groups, head to <a href="/admin/projects/' + projectId + '/settings/" class="alert-link">Project Settings</a> first and change the project permissions. </div>');
         } else {
             $('.hint').remove();
         }

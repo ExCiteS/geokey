@@ -18,8 +18,8 @@ from rest_framework.renderers import JSONRenderer
 
 from core.exceptions import MalformedRequestData
 from projects.tests.model_factories import UserF, ProjectF
-from dataviews.tests.model_factories import ViewFactory, RuleFactory
-from contributions.models import ImageFile, MediaFile
+from datagroupings.tests.model_factories import GroupingFactory, RuleFactory
+from contributions.models import MediaFile
 
 from contributions.views.media import (
     MediaFileListAbstractAPIView, AllContributionsMediaAPIView,
@@ -574,13 +574,13 @@ class GroupingContributionsMediaApiViewTest(TestCase):
         )
 
         self.viewer = UserF.create()
-        self.grouping = ViewFactory.create(
+        self.grouping = GroupingFactory.create(
             add_viewers=[self.viewer],
             **{'project': self.project}
         )
         RuleFactory.create(**{
-            'view': self.grouping,
-            'observation_type': self.contribution.observationtype
+            'grouping': self.grouping,
+            'category': self.contribution.category
         })
 
         ImageFileFactory.create_batch(5, **{'contribution': self.contribution})
@@ -776,13 +776,13 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
 
     def test_get_image_with_viewer(self):
         viewer = UserF.create()
-        dataview = ViewFactory.create(
+        dataview = GroupingFactory.create(
             add_viewers=[viewer],
             **{'project': self.project}
         )
         RuleFactory.create(**{
-            'view': dataview,
-            'observation_type': self.contribution.observationtype
+            'grouping': dataview,
+            'category': self.contribution.category
         })
         response = self.get(viewer)
         self.assertEqual(response.status_code, 200)
@@ -809,13 +809,13 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
 
     def test_delete_image_with_viewer(self):
         viewer = UserF.create()
-        dataview = ViewFactory.create(
+        dataview = GroupingFactory.create(
             add_viewers=[viewer],
             **{'project': self.project}
         )
         RuleFactory.create(**{
-            'view': dataview,
-            'observation_type': self.contribution.observationtype
+            'grouping': dataview,
+            'category': self.contribution.category
         })
         response = self.delete(viewer)
         self.assertEqual(response.status_code, 403)
@@ -906,13 +906,13 @@ class MyContributionsSingleMediaApiViewTest(TestCase):
 
     def test_get_image_with_viewer(self):
         viewer = UserF.create()
-        dataview = ViewFactory.create(
+        dataview = GroupingFactory.create(
             add_viewers=[viewer],
             **{'project': self.project}
         )
         RuleFactory.create(**{
-            'view': dataview,
-            'observation_type': self.contribution.observationtype
+            'grouping': dataview,
+            'category': self.contribution.category
         })
         response = self.get(viewer)
         self.assertEqual(response.status_code, 404)
@@ -935,13 +935,13 @@ class MyContributionsSingleMediaApiViewTest(TestCase):
 
     def test_delete_image_with_viewer(self):
         viewer = UserF.create()
-        dataview = ViewFactory.create(
+        dataview = GroupingFactory.create(
             add_viewers=[viewer],
             **{'project': self.project}
         )
         RuleFactory.create(**{
-            'view': dataview,
-            'observation_type': self.contribution.observationtype
+            'grouping': dataview,
+            'category': self.contribution.category
         })
         response = self.delete(viewer)
         self.assertEqual(response.status_code, 404)
@@ -971,13 +971,13 @@ class GroupingContributionsSingleMediaApiViewTest(TestCase):
         )
 
         self.viewer = UserF.create()
-        self.grouping = ViewFactory.create(
+        self.grouping = GroupingFactory.create(
             add_viewers=[self.viewer],
             **{'project': self.project}
         )
         RuleFactory.create(**{
-            'view': self.grouping,
-            'observation_type': self.contribution.observationtype
+            'grouping': self.grouping,
+            'category': self.contribution.category
         })
 
         self.image_file = ImageFileFactory.create(

@@ -43,14 +43,17 @@ def update_application_client(sender, **kwargs):
         group.can_contribute = True
 
 
-class ViewUserGroup(models.Model):
+class GroupingUserGroup(models.Model):
     """
     The relation between user groups and views. Used to grant permissions on
     the given view to users.
     """
-    usergroup = models.ForeignKey('UserGroup', related_name="viewgroups")
-    view = models.ForeignKey('dataviews.View', related_name="usergroups")
+    usergroup = models.ForeignKey('UserGroup', related_name='viewgroups')
+    grouping = models.ForeignKey(
+        'datagroupings.Grouping',
+        related_name='usergroups'
+    )
     can_read = models.BooleanField(default=True)
     can_view = models.BooleanField(default=True)
 
-    unique_together = ('usergroup', 'view')
+    unique_together = ('usergroup', 'grouping')

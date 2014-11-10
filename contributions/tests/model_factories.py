@@ -3,7 +3,7 @@ import factory
 
 from users.tests.model_factories import UserF
 from projects.tests.model_factories import ProjectF
-from observationtypes.tests.model_factories import ObservationTypeFactory
+from categories.tests.model_factories import CategoryFactory
 
 from ..models import Location, Observation, Comment
 
@@ -30,11 +30,7 @@ class ObservationFactory(factory.django.DjangoModelFactory):
     location = factory.SubFactory(LocationFactory)
     project = factory.SubFactory(ProjectF)
     status = 'active'
-    observationtype = factory.SubFactory(ObservationTypeFactory)
-    # attributes = factory.Dict({
-    #     'key': 'value',
-    #     'key-2': 'value-2'
-    # })
+    category = factory.SubFactory(CategoryFactory)
     created_at = datetime.date(2014, 11, 11)
     creator = factory.SubFactory(UserF)
     version = 1

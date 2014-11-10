@@ -10,16 +10,14 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 
 from projects.tests.model_factories import UserF, ProjectF
 from projects.models import Project
-from observationtypes.tests.model_factories import ObservationTypeFactory
-from dataviews.tests.model_factories import (
-    ViewFactory, RuleFactory
+from categories.tests.model_factories import (
+    CategoryFactory, TextFieldFactory, NumericFieldFactory
 )
-from dataviews.models import View
-from users.tests.model_factories import UserGroupF, ViewUserGroupFactory
-
-from observationtypes.tests.model_factories import (
-    TextFieldFactory, NumericFieldFactory
+from datagroupings.tests.model_factories import (
+    GroupingFactory, RuleFactory
 )
+from datagroupings.models import Grouping
+from users.tests.model_factories import UserGroupF, GroupingUserGroupFactory
 
 from ..model_factories import (
     ObservationFactory, CommentFactory, LocationFactory
@@ -43,18 +41,18 @@ class ContributionSearchTest(TestCase):
             add_admins=[self.admin],
             add_contributors=[self.creator]
         )
-        o_type = ObservationTypeFactory.create()
-        TextFieldFactory.create(**{'key': 'key', 'observationtype': o_type})
+        category = CategoryFactory.create()
+        TextFieldFactory.create(**{'key': 'key', 'category': category})
 
         ObservationFactory.create_batch(5, **{
             'attributes': {'key': 'blah'},
             'project': self.project,
-            'observationtype': o_type
+            'category': category
         })
         ObservationFactory.create_batch(5, **{
             'attributes': {'key': 'blub'},
             'project': self.project,
-            'observationtype': o_type
+            'category': category
         })
 
     def get(self, user, query):
@@ -429,25 +427,25 @@ class SingleGroupingContributionAPIViewTest(TestCase):
             add_contributors=[self.creator]
         )
 
-        observation_type = ObservationTypeFactory.create(**{
+        category = CategoryFactory.create(**{
             'project': self.project})
 
         self.observation = ObservationFactory.create(**{
             'project': self.project,
             'creator': self.creator,
-            'observationtype': observation_type
+            'category': category
         })
 
-        self.view = ViewFactory.create(
+        self.view = GroupingFactory.create(
             add_viewers=[self.non_moderator],
             **{'project': self.project}
         )
         RuleFactory(**{
-            'view': self.view,
-            'observation_type': observation_type}
+            'grouping': self.view,
+            'category': category}
         )
 
-    @raises(View.DoesNotExist)
+    @raises(Grouping.DoesNotExist)
     def test_get_object_with_creator_not_viewmember(self):
         view = SingleGroupingContributionAPIView()
         view.get_object(
@@ -460,8 +458,8 @@ class SingleGroupingContributionAPIViewTest(TestCase):
             add_users=[self.creator],
             **{'project': self.view.project}
         )
-        ViewUserGroupFactory.create(
-            **{'view': self.view, 'usergroup': group, 'can_read': True}
+        GroupingUserGroupFactory.create(
+            **{'grouping': self.view, 'usergroup': group, 'can_read': True}
         )
 
         view = SingleGroupingContributionAPIView()
@@ -537,20 +535,20 @@ class ProjectPublicApiTest(TestCase):
             add_contributors=[self.contributor],
             add_viewers=[self.view_member]
         )
-        ViewFactory.create(**{'project': self.project, 'isprivate': False})
-        self.observationtype = ObservationTypeFactory(**{
+        GroupingFactory.create(**{'project': self.project, 'isprivate': False})
+        self.category = CategoryFactory(**{
             'status': 'active',
             'project': self.project
         })
 
         TextFieldFactory.create(**{
             'key': 'key_1',
-            'observationtype': self.observationtype,
+            'category': self.category,
             'required': True
         })
         NumericFieldFactory.create(**{
             'key': 'key_2',
-            'observationtype': self.observationtype,
+            'category': self.category,
             'minval': 0,
             'maxval': 1000
         })
@@ -569,7 +567,7 @@ class ProjectPublicApiTest(TestCase):
                     "key_1": "value 1",
                     "key_2": 12
                 },
-                "category": self.observationtype.id,
+                "category": self.category.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -591,7 +589,7 @@ class ProjectPublicApiTest(TestCase):
         view = ProjectObservations.as_view()
         return view(request, project_id=self.project.id).render()
 
-    def test_contribute_with_wrong_observation_type(self):
+    def test_contribute_with_wrong_category(self):
         self.data['properties']['category'] = 3864
 
         response = self._post(self.data, self.admin)
@@ -612,7 +610,7 @@ class ProjectPublicApiTest(TestCase):
                     "key_1": 12,
                     "key_2": "jsdbdjhsb"
                 },
-                "category": self.observationtype.id,
+                "category": self.category.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -639,7 +637,7 @@ class ProjectPublicApiTest(TestCase):
                     "key_1": 12,
                     "key_2": 2000
                 },
-                "category": self.observationtype.id,
+                "category": self.category.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -663,7 +661,7 @@ class ProjectPublicApiTest(TestCase):
                     "description": location.description,
                     "private": location.private
                 },
-                "category": self.observationtype.id,
+                "category": self.category.id,
                 "attributes": {
                     "key_1": "value 1",
                     "key_2": 12
@@ -690,7 +688,7 @@ class ProjectPublicApiTest(TestCase):
                     "description": location.description,
                     "private": location.private
                 },
-                "category": self.observationtype.id,
+                "category": self.category.id,
                 "attributes": {
                     "key_1": "value 1",
                     "key_2": 12
@@ -717,7 +715,7 @@ class ProjectPublicApiTest(TestCase):
                     "description": location.description,
                     "private": location.private
                 },
-                "category": self.observationtype.id,
+                "category": self.category.id,
                 "attributes": {
                     "key_1": "value 1",
                     "key_2": 12
@@ -743,7 +741,7 @@ class ProjectPublicApiTest(TestCase):
                     "description": location.description,
                     "private": location.private
                 },
-                "category": self.observationtype.id,
+                "category": self.category.id,
                 "attributes": {
                     "key_1": "value 1",
                     "key_2": 12
@@ -769,7 +767,7 @@ class ProjectPublicApiTest(TestCase):
                     "key_1": "value 1",
                     "key_2": 12
                 },
-                "category": self.observationtype.id,
+                "category": self.category.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -797,7 +795,7 @@ class ProjectPublicApiTest(TestCase):
                     "key_1": None,
                     "key_2": 12
                 },
-                "category": self.observationtype.id,
+                "category": self.category.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -825,7 +823,7 @@ class ProjectPublicApiTest(TestCase):
                     "key_1": "value 1",
                     "key_2": 'Blah'
                 },
-                "category": self.observationtype.id,
+                "category": self.category.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -842,7 +840,7 @@ class ProjectPublicApiTest(TestCase):
         self.project.isprivate = False
         self.project.save()
 
-        ViewFactory.create(**{'project': self.project, 'isprivate': False})
+        GroupingFactory.create(**{'project': self.project, 'isprivate': False})
 
         response = self._post(self.data, AnonymousUser())
         self.assertEqual(response.status_code, 201)
@@ -1045,18 +1043,18 @@ class UpdateObservationInProject(TestCase):
             add_contributors=[self.contributor],
             add_viewers=[self.view_member]
         )
-        self.observationtype = ObservationTypeFactory(**{
+        self.category = CategoryFactory(**{
             'status': 'active',
             'project': self.project
         })
 
         TextFieldFactory.create(**{
             'key': 'key_1',
-            'observationtype': self.observationtype
+            'category': self.category
         })
         NumericFieldFactory.create(**{
             'key': 'key_2',
-            'observationtype': self.observationtype
+            'category': self.category
         })
 
         location = LocationFactory()
@@ -1066,7 +1064,7 @@ class UpdateObservationInProject(TestCase):
                 "key_1": "value 1",
                 "key_2": 12,
             },
-            'observationtype': self.observationtype,
+            'category': self.category,
             'project': self.project,
             'location': location,
             'creator': self.admin,
@@ -1242,22 +1240,22 @@ class GetObservationInView(TestCase):
             add_contributors=[self.contributor]
         )
 
-        self.view = ViewFactory(add_viewers=[self.view_member], **{
+        self.view = GroupingFactory(add_viewers=[self.view_member], **{
             'project': self.project,
         })
 
-        observationtype = ObservationTypeFactory(**{
+        category = CategoryFactory(**{
             'status': 'active',
             'project': self.project
         })
         RuleFactory.create(**{
-            'view': self.view,
-            'observation_type': observationtype
+            'grouping': self.view,
+            'category': category
         })
 
         self.observation = ObservationFactory.create(**{
             'project': self.project,
-            'observationtype': observationtype,
+            'category': category,
             'creator': self.contributor
         })
 
@@ -1308,27 +1306,27 @@ class UpdateObservationInView(TestCase):
             add_contributors=[self.contributor],
             add_viewers=[self.view_member]
         )
-        self.observationtype = ObservationTypeFactory(**{
+        self.category = CategoryFactory(**{
             'status': 'active',
             'project': self.project
         })
 
-        self.view = ViewFactory(**{
+        self.view = GroupingFactory(**{
             'project': self.project,
         })
 
         RuleFactory.create(**{
-            'view': self.view,
-            'observation_type': self.observationtype
+            'grouping': self.view,
+            'category': self.category
         })
 
         TextFieldFactory.create(**{
             'key': 'key_1',
-            'observationtype': self.observationtype
+            'category': self.category
         })
         NumericFieldFactory.create(**{
             'key': 'key_2',
-            'observationtype': self.observationtype
+            'category': self.category
         })
 
         location = LocationFactory()
@@ -1338,7 +1336,7 @@ class UpdateObservationInView(TestCase):
                 "key_1": "value 1",
                 "key_2": 12,
             },
-            observationtype=self.observationtype,
+            category=self.category,
             project=self.project,
             location=location,
             creator=self.admin
@@ -1519,19 +1517,19 @@ class UpdateMyObservation(TestCase):
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
-        self.observationtype = ObservationTypeFactory(**{
+        self.category = CategoryFactory(**{
             'status': 'active',
             'project': self.project
         })
 
         TextFieldFactory.create(**{
             'key': 'key_1',
-            'observationtype': self.observationtype,
+            'category': self.category,
             'required': True
         })
         NumericFieldFactory.create(**{
             'key': 'key_2',
-            'observationtype': self.observationtype
+            'category': self.category
         })
 
         location = LocationFactory()
@@ -1541,7 +1539,7 @@ class UpdateMyObservation(TestCase):
                 "key_1": "value 1",
                 "key_2": 12,
             },
-            observationtype=self.observationtype,
+            category=self.category,
             project=self.project,
             location=location,
             creator=self.contributor
@@ -1667,7 +1665,7 @@ class MyContributionsTest(TestCase):
 
     def test_my_contributions_with_non_contributor(self):
         view_user = UserF.create()
-        ViewFactory(add_viewers=[view_user], **{
+        GroupingFactory(add_viewers=[view_user], **{
             'project': self.project
         })
 
@@ -1706,13 +1704,13 @@ class TestDataViewsPublicApi(TestCase):
             view_id=view.id).render()
 
     def test_get_active_view_with_admin(self):
-        view = ViewFactory(**{'project': self.project})
+        view = GroupingFactory(**{'project': self.project})
         response = self.get(view, self.admin)
 
         self.assertEquals(response.status_code, 200)
 
     def test_get_inactive_view_with_admin(self):
-        view = ViewFactory(**{
+        view = GroupingFactory(**{
             'project': self.project,
             'status': 'deleted'
         })
@@ -1720,13 +1718,13 @@ class TestDataViewsPublicApi(TestCase):
         self.assertEquals(response.status_code, 404)
 
     def test_get_active_view_with_contributor(self):
-        view = ViewFactory(**{'project': self.project})
+        view = GroupingFactory(**{'project': self.project})
         response = self.get(view, self.contributor)
 
         self.assertEquals(response.status_code, 404)
 
     def test_get_inactive_view_with_contributor(self):
-        view = ViewFactory(**{
+        view = GroupingFactory(**{
             'project': self.project,
             'status': 'deleted'
         })
@@ -1734,7 +1732,7 @@ class TestDataViewsPublicApi(TestCase):
         self.assertEquals(response.status_code, 404)
 
     def test_get_active_view_with_view_member(self):
-        view = ViewFactory(
+        view = GroupingFactory(
             add_viewers=[self.view_member],
             **{'project': self.project}
         )
@@ -1743,7 +1741,7 @@ class TestDataViewsPublicApi(TestCase):
         self.assertEquals(response.status_code, 200)
 
     def test_get_inactive_view_with_view_member(self):
-        view = ViewFactory(
+        view = GroupingFactory(
             add_viewers=[self.view_member],
             **{'project': self.project, 'status': 'inactive'}
         )
@@ -1751,13 +1749,13 @@ class TestDataViewsPublicApi(TestCase):
         self.assertEquals(response.status_code, 404)
 
     def test_get_active_view_with_non_member(self):
-        view = ViewFactory(**{'project': self.project})
+        view = GroupingFactory(**{'project': self.project})
         response = self.get(view, self.some_dude)
 
         self.assertEquals(response.status_code, 404)
 
     def test_get_inactive_view_with_non_member(self):
-        view = ViewFactory(**{
+        view = GroupingFactory(**{
             'project': self.project,
             'status': 'deleted'
         })

@@ -94,7 +94,7 @@ class ObservationManager(hstore.HStoreManager):
         Returns all observations excluding those with status `deleted`
         """
         return ObservationQuerySet(self.model).prefetch_related(
-            'location', 'observationtype', 'creator', 'updator').exclude(
+            'location', 'category', 'creator', 'updator').exclude(
             status=OBSERVATION_STATUS.deleted)
 
     def for_moderator(self, user):
