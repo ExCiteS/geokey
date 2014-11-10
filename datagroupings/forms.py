@@ -14,7 +14,7 @@ class GroupingCreateForm(forms.ModelForm):
         fields = ('name', 'description', 'isprivate')
 
     def clean(self):
-        cleaned_data = super(ViewCreateForm, self).clean()
+        cleaned_data = super(GroupingCreateForm, self).clean()
         cleaned_data['name'] = strip_tags(cleaned_data['name'])
         cleaned_data['description'] = strip_tags(cleaned_data['description'])
 

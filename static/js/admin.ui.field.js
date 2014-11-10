@@ -11,9 +11,9 @@ $(function() {
 	'use strict';
 
 	var projectId = $('body').attr('data-project-id'),
-		observationtypeId = $('body').attr('data-observationtype-id'),
+		categoryId = $('body').attr('data-category-id'),
 		fieldId = $('body').attr('data-field-id'),
-		url = 'projects/' + projectId + '/observationtypes/' + observationtypeId + '/fields/' + fieldId;
+		url = 'projects/' + projectId + '/categories/' + categoryId + '/fields/' + fieldId;
 
 	// Initialize the lookup panel functionality if the field is a lookup
 	var lookupPanel = ($('#lookupValuesPanel').length !== 0 ? new Ui.LookupPanel('#lookupValuesPanel', url) : undefined);

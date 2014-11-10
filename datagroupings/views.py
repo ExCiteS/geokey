@@ -198,13 +198,13 @@ class RuleCreate(LoginRequiredMixin, CreateView):
         """
         Creates a new Rule with the POSTed data.
         """
-        view = Grouping.objects.as_admin(
+        grouping = Grouping.objects.as_admin(
             self.request.user,
             project_id,
             grouping_id
         )
         category = Category.objects.as_admin(
-            self.request.user, project_id, request.POST.get('observationtype'))
+            self.request.user, project_id, request.POST.get('category'))
 
         rules = None
         min_date = None
@@ -218,7 +218,7 @@ class RuleCreate(LoginRequiredMixin, CreateView):
             pass
 
         Rule.objects.create(
-            view=view,
+            grouping=grouping,
             category=category,
             min_date=min_date,
             max_date=max_date,

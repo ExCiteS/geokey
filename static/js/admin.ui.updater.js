@@ -12,9 +12,9 @@ $(function () {
 
 	// Read the IDs from the body's attributes
 	var projectId = $('body').attr('data-project-id');
-	var observationtypeId = $('body').attr('data-observationtype-id');
+	var categoryId = $('body').attr('data-category-id');
 	var fieldId = $('body').attr('data-field-id');
-	var viewId = $('body').attr('data-view-id');
+	var groupingId = $('body').attr('data-grouping-id');
 	var groupId = $('body').attr('data-group-id');
 	var appId = $('body').attr('data-app-id');
 
@@ -34,16 +34,16 @@ $(function () {
 	var name = 'project';
 
 	// Setting parameters
-	if (projectId && observationtypeId) {
-		url += '/observationtypes/' + observationtypeId;
+	if (projectId && categoryId) {
+		url += '/categories/' + categoryId;
 		name = 'category';
 	}
-	if (projectId && observationtypeId && fieldId) {
+	if (projectId && categoryId && fieldId) {
 		url += '/fields/' + fieldId;
 		name = 'field';
 	}
-	if (projectId && viewId) {
-		url += '/views/' + viewId;
+	if (projectId && groupingId) {
+		url += '/views/' + groupingId;
 		name = 'map';
 	}
 	if (projectId && groupId) {

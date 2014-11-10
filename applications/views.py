@@ -47,6 +47,7 @@ class ApplicationConnected(LoginRequiredMixin, TemplateView):
         tokens = AccessToken.objects.filter(
             user=self.request.user).distinct()
 
+        print tokens
         apps = [token.client.app.all()[0] for token in tokens]
 
         return super(ApplicationConnected, self).get_context_data(

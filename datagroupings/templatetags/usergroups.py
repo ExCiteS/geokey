@@ -3,12 +3,12 @@ from django import template
 register = template.Library()
 
 
-def get_user_group(group, view):
+def get_user_group(group, grouping):
     disabled = ''
-    if not view.project.isprivate and not view.isprivate:
+    if not grouping.project.isprivate and not grouping.isprivate:
         disabled = 'disabled="disabled"'
 
-    if view.usergroups.filter(usergroup=group).exists():
+    if grouping.usergroups.filter(usergroup=group).exists():
         html = '<div class="overview-list-item">\
                     <button type="button" name="%s" class="btn btn-default pull-right active grant-single" data-toggle="button" %s><span class="text-danger">Revoke access</span></button><strong>%s</strong><p>%s</p>\
                 </div>' % (
@@ -31,9 +31,9 @@ def get_user_group(group, view):
 
 
 @register.simple_tag
-def usergroups(view):
+def usergroups(grouping):
     html = ''
-    for group in view.project.usergroups.all():
-        html += get_user_group(group, view)
+    for group in grouping.project.usergroups.all():
+        html += get_user_group(group, grouping)
 
     return html

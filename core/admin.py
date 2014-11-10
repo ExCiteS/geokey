@@ -144,7 +144,7 @@ urlpatterns = patterns(
     url(
         r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/filter/new/$',
         dataviews.RuleCreate.as_view(),
-        name='view_rule_create'),
+        name='rule_create'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/filter/(?P<rule_id>[0-9]+)/$',
         dataviews.RuleSettings.as_view(),

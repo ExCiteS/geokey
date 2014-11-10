@@ -8,7 +8,7 @@
 
         function handleError(response) {
             target.toggleClass('active');
-            var msg = 'An error occurred while updating map permissions. Error text was: ' + response.responseJSON.error;
+            var msg = 'An error occurred while updating data grouping permissions. Error text was: ' + response.responseJSON.error;
             var html = $('<div class="bg-danger text-danger message"><span class="glyphicon glyphicon-remove"></span> ' + msg + '</div>');
             target.before(html);
             setTimeout(function () { html.remove(); }, 5000);
@@ -32,7 +32,7 @@
         if (target.hasClass('active')) {
             Control.Ajax.del(url + 'data-groupings/' + groupingId +'/', handleSuccess, handleError);
         } else {
-            Control.Ajax.post(url + 'data-groupings/', handleSuccess, handleError, {view: groupingId});
+            Control.Ajax.post(url + 'data-groupings/', handleSuccess, handleError, {grouping: groupingId});
         }
     }
 

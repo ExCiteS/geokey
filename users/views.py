@@ -521,39 +521,24 @@ class UserGroupViews(APIView):
         group = project.usergroups.get(pk=group_id)
 
         try:
-            if (request.DATA.get('grouping') == 'all-contributions'):
-                group.view_all_contrib = True
-                group.read_all_contrib = True
-                group.save()
-
-                response = {
-                    'grouping': 'all-contributions',
-                    'can_view': group.view_all_contrib,
-                    'can_read': group.read_all_contrib
-                }
-
-                return Response(response, status=status.HTTP_201_CREATED)
-            else:
-                grouping = project.groupings.get(
-                    pk=request.DATA.get('grouping')
-                )
-                view_group = GroupingUserGroup.objects.create(
-                    grouping=grouping,
-                    usergroup=group
-                )
-                serializer = GroupingUserGroupSerializer(
-                    view_group, data=request.DATA, partial=True)
-                if serializer.is_valid():
-                    serializer.save()
-                    return Response(
-                        serializer.data, status=status.HTTP_201_CREATED)
-
+            grouping = project.groupings.get(pk=request.DATA.get('grouping'))
+            view_group = GroupingUserGroup.objects.create(
+                grouping=grouping,
+                usergroup=group
+            )
+            serializer = GroupingUserGroupSerializer(
+                view_group, data=request.DATA, partial=True)
+            if serializer.is_valid():
+                serializer.save()
                 return Response(
-                    serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    serializer.data, status=status.HTTP_201_CREATED)
+
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Grouping.DoesNotExist:
             return Response(
-                'The view you are trying to add to the user group is not'
-                'assigned to this project.',
+                'The data grouping you are trying to add to the user group is'
+                'not assigned to this project.',
                 status=status.HTTP_400_BAD_REQUEST
             )
 

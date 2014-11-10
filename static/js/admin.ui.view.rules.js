@@ -1,7 +1,6 @@
 $(function() {
     'use strict';
-    var projectId = $('body').attr('data-project-id'),
-        viewId = $('body').attr('data-view-id');
+    var projectId = $('body').attr('data-project-id');
 
     function handleTypeSelection(event) {
         var target = $(event.currentTarget).parents('form');
@@ -25,7 +24,7 @@ $(function() {
         }
 
         Control.Ajax.get(
-            'projects/' + projectId + '/observationtypes/' + event.currentTarget.value,
+            'projects/' + projectId + '/categories/' + event.currentTarget.value,
             handleTypeSuccess,
             handleTypeError
         );
@@ -71,13 +70,13 @@ $(function() {
             }
             if (value) { rules[field.attr('data-key')] = value; }
         }
-        console.log(JSON.stringify(rules))
+
         $('input[name="rules"]').val(JSON.stringify(rules));
     }
 
     function handleRangeFieldEdit(event) {
         var target = $(event.target);
-        
+
         if (target.attr('id') === target.attr('data-key') + '-min') {
             $('input#' + target.attr('data-key') + '-max').attr('min', target.val());
         } else if (target.attr('id') === target.attr('data-key') + '-max') {
@@ -87,5 +86,5 @@ $(function() {
 
     $('#field-options :input').change(handleFieldChange);
     $('#field-options input[type="number"], #field-options input[type="datetime"]').change(handleRangeFieldEdit);
-    $('#observationtype').change(handleTypeSelection);
+    $('#category').change(handleTypeSelection);
 });

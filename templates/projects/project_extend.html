@@ -13,8 +13,8 @@
                         <a href="{% url 'admin:project_overview' project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
                     </div>
                     <ul class="header-nav">
-                    <li><a href="{% url 'admin:category_list' project.id %}">Categories <span class="badge">{{ project.observationtypes.count }}</span></a></li>
-                    <li><a href="{% url 'admin:grouping_list' project.id %}">Data groupings <span class="badge">{{ project.views.count }}</span></a></li>
+                    <li><a href="{% url 'admin:category_list' project.id %}">Categories <span class="badge">{{ project.categories.count }}</span></a></li>
+                    <li><a href="{% url 'admin:grouping_list' project.id %}">Data groupings <span class="badge">{{ project.groupings.count }}</span></a></li>
                     <li><a href="{% url 'admin:usergroup_list' project.id %}">User groups <span class="badge">{{ project.usergroups.count }}</span></a></li>
                 </ul>
                 </div>
@@ -31,8 +31,8 @@
                             <h3 class="panel-title">Manage Project</h3>
                         </div>
                         <div class="list-group">
-                            <a href="{% url 'admin:category_list' project.id %}" class="list-group-item"><span class="badge">{{ project.observationtypes.count }}</span>Categories</a>
-                            <a href="{% url 'admin:grouping_list' project.id %}" class="list-group-item"><span class="badge">{{ project.views.count }}</span>Data groupings</a>
+                            <a href="{% url 'admin:category_list' project.id %}" class="list-group-item"><span class="badge">{{ project.categories.count }}</span>Categories</a>
+                            <a href="{% url 'admin:grouping_list' project.id %}" class="list-group-item"><span class="badge">{{ project.groupings.count }}</span>Data groupings</a>
                             <a href="{% url 'admin:usergroup_list' project.id %}" class="list-group-item"><span class="badge">{{ project.usergroups.count }}</span>User groups</a>
                             <a href="{% url 'admin:project_extend' project.id %}" class="list-group-item active">Geographic extend</a>
                             <a href="{% url 'admin:project_settings' project.id %}" class="list-group-item">Settings</a>

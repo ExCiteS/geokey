@@ -3,7 +3,7 @@
 {% load key %}
 {% load is_in %}
 
-{% block bodydata %} data-project-id="{{rule.view.project.id}}" data-view-id="{{rule.view.id}}" data-view-id="{{rule.id}}"{% endblock %}
+{% block bodydata %} data-project-id="{{rule.grouping.project.id}}" data-grouping-id="{{rule.grouping.id}}" data-grouping-id="{{rule.id}}"{% endblock %}
 {% block title %} | Filter settings{% endblock %}
 
 {% block main %}
@@ -11,13 +11,13 @@
             <div class="container">
                 <div class="row">
                     <div class="col-sm-6">
-                        <h1 class="smaller"><a href="{% url 'admin:project_overview' rule.view.project.id %}">{{rule.view.project.name}}</a></h1>
-                        <a href="{% url 'admin:project_overview' rule.view.project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' rule.grouping.project.id %}">{{rule.grouping.project.name}}</a></h1>
+                        <a href="{% url 'admin:project_overview' rule.grouping.project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
                     </div>
                     <ul class="header-nav">
-                        <li><a href="{% url 'admin:category_list' rule.view.project.id %}">Categories <span class="badge">{{ rule.view.project.observationtypes.count }}</span></a></li>
-                        <li class="active"><a href="{% url 'admin:grouping_list' rule.view.project.id %}">Data groupings <span class="badge">{{ rule.view.project.views.count }}</span></a></li>
-                        <li><a href="{% url 'admin:usergroup_list' rule.view.project.id %}">User groups <span class="badge">{{ rule.view.project.usergroups.count }}</span></a></li>
+                        <li><a href="{% url 'admin:category_list' rule.grouping.project.id %}">Categories <span class="badge">{{ rule.grouping.project.observationtypes.count }}</span></a></li>
+                        <li class="active"><a href="{% url 'admin:grouping_list' rule.grouping.project.id %}">Data groupings <span class="badge">{{ rule.grouping.project.views.count }}</span></a></li>
+                        <li><a href="{% url 'admin:usergroup_list' rule.grouping.project.id %}">User groups <span class="badge">{{ rule.grouping.project.usergroups.count }}</span></a></li>
                     </ul>
                 </div>
             </div>
@@ -31,11 +31,11 @@
                             <h3>Filter</h3>
                         </div>
                         <div class="panel-body">
-                            <p><strong>Data grouping:</strong> <a href="{% url 'admin:grouping_overview' rule.view.project.id rule.view.id %}">{{ rule.view.name }}</a></p>
+                            <p><strong>Data grouping:</strong> <a href="{% url 'admin:grouping_overview' rule.grouping.project.id rule.grouping.id %}">{{ rule.grouping.name }}</a></p>
                         </div>
                     </div>
                 </div>
-                <form id="rule-form" role="form" class="col-sm-8" method="POST" action="{% url 'admin:rule_settings' rule.view.project.id rule.view.id rule.id %}" novalidate>
+                <form id="rule-form" role="form" class="col-sm-8" method="POST" action="{% url 'admin:rule_settings' rule.grouping.project.id rule.grouping.id rule.id %}" novalidate>
                     <h3 class="header">Filter settings</h3>
                     {% csrf_token %}
                     <input type="hidden" name="rules">
@@ -142,7 +142,7 @@
                             </div>
                         {% endfor %}
                     </div>
-                        
+
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">Save</button>
                         <button type="reset" class="btn btn-link">Reset</button>
@@ -182,7 +182,7 @@
                         <p>You are about to delete the filter. This can not be undone.</p>
                     </div>
                     <div class="modal-footer panel-footer">
-                        <a href="{% url 'admin:filter_delete' rule.view.project.id rule.view.id rule.id %}" class="btn btn-danger">I'm absolutely sure, delete the filter!</a>
+                        <a href="{% url 'admin:filter_delete' rule.grouping.project.id rule.grouping.id rule.id %}" class="btn btn-danger">I'm absolutely sure, delete the filter!</a>
                     </div>
                 </div>
             </div>
@@ -196,7 +196,7 @@
             <link rel="stylesheet" href="/static/lib/bootstrap-datetime/css/bootstrap-datetimepicker.min.css">
             <script src="/static/lib/bootstrap-datetime/js/bootstrap-datetimepicker.min.js"></script>
             <script src="/static/js/admin.ui.forms.validate.js"></script>
-            <script src="/static/js/admin.ui.view.rules.js"></script>
+            <script src="/static/js/admin.ui.grouping.rules.js"></script>
             <script src="/static/js/admin.control.ajax.js"></script>
             <script type="text/javascript">
                 $(function() {

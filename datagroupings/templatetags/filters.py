@@ -18,7 +18,7 @@ def filters(rule):
             s = s + 'before %s' % rule.max_date.strftime("%b %d %Y %H:%M")
         s = s + '</li>'
 
-    for field in rule.observation_type.fields.all():
+    for field in rule.category.fields.all():
         rule_filter = None
         if rule.filters is not None:
             rule_filter = rule.filters.get(field.key)

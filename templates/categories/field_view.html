@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block bodydata %} data-project-id="{{field.observationtype.project.id}}" data-observationtype-id="{{field.observationtype.id}}" data-field-id="{{field.id}}"{% endblock %}
+{% block bodydata %} data-project-id="{{field.category.project.id}}" data-category-id="{{field.category.id}}" data-field-id="{{field.id}}"{% endblock %}
 {% block title %} | Field: {{ field.name }}{% endblock %}
 
 {% block main %}
@@ -9,13 +9,13 @@
             <div class="container">
                 <div class="row">
                     <div class="col-sm-6">
-                        <h1 class="smaller"><a href="{% url 'admin:project_overview' field.observationtype.project.id %}">{{field.observationtype.project.name}}</a></h1>
-                        <a href="{% url 'admin:project_overview' field.observationtype.project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' field.category.project.id %}">{{field.category.project.name}}</a></h1>
+                        <a href="{% url 'admin:project_overview' field.category.project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
                     </div>
                     <ul class="header-nav">
-                        <li class="active"><a href="{% url 'admin:category_list' field.observationtype.project.id %}">Categories <span class="badge">{{ field.observationtype.project.observationtypes.count }}</span></a></li>
-                        <li><a href="{% url 'admin:grouping_list' field.observationtype.project.id %}">Data groupings <span class="badge">{{ field.observationtype.project.views.count }}</span></a></li>
-                        <li><a href="{% url 'admin:grouping_list' field.observationtype.project.id %}">User groups <span class="badge">{{ field.observationtype.project.usergroups.count }}</span></a></li>
+                        <li class="active"><a href="{% url 'admin:category_list' field.category.project.id %}">Categories <span class="badge">{{ field.category.project.categories.count }}</span></a></li>
+                        <li><a href="{% url 'admin:grouping_list' field.category.project.id %}">Data groupings <span class="badge">{{ field.category.project.groupings.count }}</span></a></li>
+                        <li><a href="{% url 'admin:grouping_list' field.category.project.id %}">User groups <span class="badge">{{ field.category.project.usergroups.count }}</span></a></li>
                     </ul>
                 </div>
 
@@ -35,13 +35,13 @@
                         <table class="table table-striped field-info">
                             <tr><td><strong>Key</strong></td><td><code>{{field.key}}</code></td></tr>
                             <tr><td><strong>Type</strong></td><td>{{field.type_name}}</td></tr>
-                            <tr><td><strong>Category</strong></td><td><a href="{% url 'admin:category_overview' field.observationtype.project.id field.observationtype.id %}">{{field.observationtype.name}}</a></td></tr>
+                            <tr><td><strong>Category</strong></td><td><a href="{% url 'admin:category_overview' field.category.project.id field.category.id %}">{{field.category.name}}</a></td></tr>
                         </table>
                     </div>
                 </div>
 
                 <div class="col-sm-8">
-                    <form  role="form" method="POST" action="{% url 'admin:observationtype_field_settings' field.observationtype.project.id field.observationtype.id field.id %}" novalidate>
+                    <form  role="form" method="POST" action="{% url 'admin:category_field_settings' field.category.project.id field.category.id field.id %}" novalidate>
                         <h3 class="header">Settings</h3>
                         {% csrf_token %}
                         <div class="form-group">
@@ -138,7 +138,7 @@
                         </ul>
                     </div>
                     <div class="modal-footer panel-footer">
-                        <a href="{% url 'admin:category_field_delete' field.observationtype.project.id field.observationtype.id field.id %}" class="btn btn-danger">I'm absolutely sure, delete the field!</a>
+                        <a href="{% url 'admin:category_field_delete' field.category.project.id field.category.id field.id %}" class="btn btn-danger">I'm absolutely sure, delete the field!</a>
                     </div>
                 </div>
             </div>
