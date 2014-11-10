@@ -6,17 +6,17 @@ from nose.tools import raises
 from projects.tests.model_factories import UserF, ProjectF
 from projects.models import Project
 
-from ..models import Field, ObservationType
+from ..models import Field, Category
 
 from .model_factories import (
-    TextFieldFactory, ObservationTypeFactory
+    TextFieldFactory, CategoryFactory
 )
 
 
 class ObservationTypeManagerTest(TestCase):
     def test_create(self):
         project = ProjectF.create()
-        ObservationType.objects.create(
+        Category.objects.create(
             name='Test',
             project=project,
             creator=project.creator,
@@ -28,7 +28,7 @@ class ObservationTypeManagerTest(TestCase):
 
     def test_create_with_view(self):
         project = ProjectF.create()
-        category = ObservationType.objects.create(
+        category = Category.objects.create(
             name='Test',
             project=project,
             creator=project.creator,
@@ -47,17 +47,17 @@ class ObservationTypeManagerTest(TestCase):
             **{'isprivate': True}
         )
 
-        ObservationTypeFactory(**{
+        CategoryFactory(**{
             'project': project,
             'status': 'active'
         })
-        ObservationTypeFactory(**{
+        CategoryFactory(**{
             'project': project,
             'status': 'inactive'
         })
 
         self.assertEqual(
-            len(ObservationType.objects.get_list(admin, project.id)), 2
+            len(Category.objects.get_list(admin, project.id)), 2
         )
 
     def test_access_with_projct_contributor(self):
@@ -68,16 +68,16 @@ class ObservationTypeManagerTest(TestCase):
             **{'isprivate': True}
         )
 
-        active = ObservationTypeFactory(**{
+        active = CategoryFactory(**{
             'project': project,
             'status': 'active'
         })
-        ObservationTypeFactory(**{
+        CategoryFactory(**{
             'project': project,
             'status': 'inactive'
         })
 
-        types = ObservationType.objects.get_list(contributor, project.id)
+        types = Category.objects.get_list(contributor, project.id)
         self.assertEqual(len(types), 1)
         self.assertIn(active, types)
 
@@ -87,15 +87,15 @@ class ObservationTypeManagerTest(TestCase):
 
         project = ProjectF.create()
 
-        ObservationTypeFactory(**{
+        CategoryFactory(**{
             'project': project,
             'status': 'active'
         })
-        ObservationTypeFactory(**{
+        CategoryFactory(**{
             'project': project,
             'status': 'inactive'
         })
-        ObservationType.objects.get_list(contributor, project.id)
+        Category.objects.get_list(contributor, project.id)
 
     def test_access_active_with_admin(self):
         admin = UserF.create()
@@ -105,12 +105,12 @@ class ObservationTypeManagerTest(TestCase):
             **{'isprivate': True}
         )
 
-        active_type = ObservationTypeFactory(**{
+        active_type = CategoryFactory(**{
             'project': project,
             'status': 'active'
         })
 
-        self.assertEqual(active_type, ObservationType.objects.get_single(
+        self.assertEqual(active_type, Category.objects.get_single(
             admin, project.id, active_type.id))
 
     def test_access_inactive_with_admin(self):
@@ -119,11 +119,11 @@ class ObservationTypeManagerTest(TestCase):
             add_admins=[admin],
             **{'isprivate': True}
         )
-        inactive_type = ObservationTypeFactory(**{
+        inactive_type = CategoryFactory(**{
             'project': project,
             'status': 'inactive'
         })
-        self.assertEqual(inactive_type, ObservationType.objects.get_single(
+        self.assertEqual(inactive_type, Category.objects.get_single(
             admin, project.id, inactive_type.id))
 
     def test_access_active_with_contributor(self):
@@ -134,12 +134,12 @@ class ObservationTypeManagerTest(TestCase):
             **{'isprivate': True}
         )
 
-        active_type = ObservationTypeFactory(**{
+        active_type = CategoryFactory(**{
             'project': project,
             'status': 'active'
         })
 
-        self.assertEqual(active_type, ObservationType.objects.get_single(
+        self.assertEqual(active_type, Category.objects.get_single(
             contributor, project.id, active_type.id))
 
     @raises(PermissionDenied)
@@ -150,11 +150,11 @@ class ObservationTypeManagerTest(TestCase):
             add_contributors=[contributor],
             **{'isprivate': True}
         )
-        inactive_type = ObservationTypeFactory(**{
+        inactive_type = CategoryFactory(**{
             'project': project,
             'status': 'inactive'
         })
-        ObservationType.objects.get_single(
+        Category.objects.get_single(
             contributor, project.id, inactive_type.id)
 
     @raises(Project.DoesNotExist)
@@ -165,12 +165,12 @@ class ObservationTypeManagerTest(TestCase):
             'isprivate': True,
         })
 
-        active_type = ObservationTypeFactory(**{
+        active_type = CategoryFactory(**{
             'project': project,
             'status': 'active'
         })
 
-        self.assertEqual(active_type, ObservationType.objects.get_single(
+        self.assertEqual(active_type, Category.objects.get_single(
             contributor, project.id, active_type.id))
 
     @raises(Project.DoesNotExist)
@@ -180,11 +180,11 @@ class ObservationTypeManagerTest(TestCase):
         project = ProjectF.create(**{
             'isprivate': True,
         })
-        inactive_type = ObservationTypeFactory(**{
+        inactive_type = CategoryFactory(**{
             'project': project,
             'status': 'inactive'
         })
-        ObservationType.objects.get_single(
+        Category.objects.get_single(
             contributor, project.id, inactive_type.id)
 
     def test_admin_access_with_admin(self):
@@ -195,11 +195,11 @@ class ObservationTypeManagerTest(TestCase):
             **{'isprivate': True}
         )
 
-        active_type = ObservationTypeFactory(**{
+        active_type = CategoryFactory(**{
             'project': project
         })
 
-        self.assertEqual(active_type, ObservationType.objects.as_admin(
+        self.assertEqual(active_type, Category.objects.as_admin(
             admin, project.id, active_type.id))
 
     @raises(PermissionDenied)
@@ -211,11 +211,11 @@ class ObservationTypeManagerTest(TestCase):
             **{'isprivate': True}
         )
 
-        active_type = ObservationTypeFactory(**{
+        active_type = CategoryFactory(**{
             'project': project
         })
 
-        ObservationType.objects.as_admin(user, project.id, active_type.id)
+        Category.objects.as_admin(user, project.id, active_type.id)
 
     @raises(Project.DoesNotExist)
     def test_admin_access_with_non_member(self):
@@ -225,11 +225,11 @@ class ObservationTypeManagerTest(TestCase):
             'isprivate': True
         })
 
-        active_type = ObservationTypeFactory(**{
+        active_type = CategoryFactory(**{
             'project': project
         })
 
-        ObservationType.objects.as_admin(user, project.id, active_type.id)
+        Category.objects.as_admin(user, project.id, active_type.id)
 
 
 class FieldManagerTest(TestCase):
@@ -239,21 +239,20 @@ class FieldManagerTest(TestCase):
             add_admins=[admin],
             **{'isprivate': True}
         )
-        observation_type = ObservationTypeFactory(**{
+        category = CategoryFactory(**{
             'project': project,
             'status': 'active'
         })
         TextFieldFactory.create(**{
             'status': 'active',
-            'observationtype': observation_type
+            'category': category
         })
         TextFieldFactory.create(**{
             'status': 'inactive',
-            'observationtype': observation_type
+            'category': category
         })
         self.assertEqual(
-            len(Field.objects.get_list(
-                admin, project.id, observation_type.id)),
+            len(Field.objects.get_list(admin, project.id, category.id)),
             2
         )
 
@@ -263,17 +262,17 @@ class FieldManagerTest(TestCase):
             add_admins=[user],
             **{'isprivate': True}
         )
-        observation_type = ObservationTypeFactory(**{
+        category = CategoryFactory(**{
             'project': project,
             'status': 'active'
         })
         field = TextFieldFactory.create(**{
             'status': 'active',
-            'observationtype': observation_type
+            'category': category
         })
         self.assertEqual(
             field, Field.objects.get_single(
-                user, project.id, observation_type.id, field.id))
+                user, project.id, category.id, field.id))
 
     def test_access_inactive_field_with_admin(self):
         user = UserF.create()
@@ -281,17 +280,17 @@ class FieldManagerTest(TestCase):
             add_admins=[user],
             **{'isprivate': True}
         )
-        observation_type = ObservationTypeFactory(**{
+        category = CategoryFactory(**{
             'project': project,
             'status': 'active'
         })
         field = TextFieldFactory.create(**{
             'status': 'inactive',
-            'observationtype': observation_type
+            'category': category
         })
         self.assertEqual(
             field, Field.objects.get_single(
-                user, project.id, observation_type.id, field.id))
+                user, project.id, category.id, field.id))
 
     def test_admin_access_active_field_with_admin(self):
         user = UserF.create()
@@ -299,17 +298,17 @@ class FieldManagerTest(TestCase):
             add_admins=[user],
             **{'isprivate': True}
         )
-        observation_type = ObservationTypeFactory(**{
+        category = CategoryFactory(**{
             'project': project,
             'status': 'active'
         })
         field = TextFieldFactory.create(**{
             'status': 'active',
-            'observationtype': observation_type
+            'category': category
         })
         self.assertEqual(
             field, Field.objects.as_admin(
-                user, project.id, observation_type.id, field.id))
+                user, project.id, category.id, field.id))
 
     def test_access_fields_with_contributor(self):
         user = UserF.create()
@@ -317,19 +316,19 @@ class FieldManagerTest(TestCase):
             add_contributors=[user],
             **{'isprivate': True}
         )
-        observation_type = ObservationTypeFactory(**{
+        category = CategoryFactory(**{
             'project': project,
             'status': 'active'
         })
         TextFieldFactory.create(**{
             'status': 'active',
-            'observationtype': observation_type
+            'category': category
         })
         inactive = TextFieldFactory.create(**{
             'status': 'inactive',
-            'observationtype': observation_type
+            'category': category
         })
-        fields = Field.objects.get_list(user, project.id, observation_type.id)
+        fields = Field.objects.get_list(user, project.id, category.id)
         self.assertEqual(len(fields), 1)
         self.assertNotIn(inactive, fields)
 
@@ -339,17 +338,17 @@ class FieldManagerTest(TestCase):
             add_contributors=[user],
             **{'isprivate': True}
         )
-        observation_type = ObservationTypeFactory(**{
+        category = CategoryFactory(**{
             'project': project,
             'status': 'active'
         })
         field = TextFieldFactory.create(**{
             'status': 'active',
-            'observationtype': observation_type
+            'category': category
         })
         self.assertEqual(
             field, Field.objects.get_single(
-                user, project.id, observation_type.id, field.id))
+                user, project.id, category.id, field.id))
 
     @raises(PermissionDenied)
     def test_access_inactive_field_with_contributor(self):
@@ -358,16 +357,16 @@ class FieldManagerTest(TestCase):
             add_contributors=[user],
             **{'isprivate': True}
         )
-        observation_type = ObservationTypeFactory(**{
+        category = CategoryFactory(**{
             'project': project,
             'status': 'active'
         })
         field = TextFieldFactory.create(**{
             'status': 'inactive',
-            'observationtype': observation_type
+            'category': category
         })
         Field.objects.get_single(
-            user, project.id, observation_type.id, field.id)
+            user, project.id, category.id, field.id)
 
     @raises(PermissionDenied)
     def test_admin_access_active_field_with_contributor(self):
@@ -376,76 +375,76 @@ class FieldManagerTest(TestCase):
             add_contributors=[user],
             **{'isprivate': True}
         )
-        observation_type = ObservationTypeFactory(**{
+        category = CategoryFactory(**{
             'project': project,
             'status': 'active'
         })
         field = TextFieldFactory.create(**{
             'status': 'active',
-            'observationtype': observation_type
+            'category': category
         })
         Field.objects.as_admin(
-            user, project.id, observation_type.id, field.id)
+            user, project.id, category.id, field.id)
 
     @raises(Project.DoesNotExist)
     def test_access_fields_with_non_member(self):
         user = UserF.create()
         project = ProjectF.create(**{'isprivate': True})
-        observation_type = ObservationTypeFactory(**{
+        category = CategoryFactory(**{
             'project': project,
             'status': 'active'
         })
         TextFieldFactory.create(**{
             'status': 'active',
-            'observationtype': observation_type
+            'category': category
         })
         TextFieldFactory.create(**{
             'status': 'inactive',
-            'observationtype': observation_type
+            'category': category
         })
-        Field.objects.get_list(user, project.id, observation_type.id)
+        Field.objects.get_list(user, project.id, category.id)
 
     @raises(Project.DoesNotExist)
     def test_access_active_field_with_non_member(self):
         user = UserF.create()
         project = ProjectF.create(**{'isprivate': True})
-        observation_type = ObservationTypeFactory(**{
+        category = CategoryFactory(**{
             'project': project,
             'status': 'active'
         })
         field = TextFieldFactory.create(**{
             'status': 'active',
-            'observationtype': observation_type
+            'category': category
         })
         Field.objects.get_single(
-            user, project.id, observation_type.id, field.id)
+            user, project.id, category.id, field.id)
 
     @raises(Project.DoesNotExist)
     def test_access_inactive_field_with_non_member(self):
         user = UserF.create()
         project = ProjectF.create(**{'isprivate': True})
-        observation_type = ObservationTypeFactory(**{
+        category = CategoryFactory(**{
             'project': project,
             'status': 'active'
         })
         field = TextFieldFactory.create(**{
             'status': 'inactive',
-            'observationtype': observation_type
+            'category': category
         })
         Field.objects.get_single(
-            user, project.id, observation_type.id, field.id)
+            user, project.id, category.id, field.id)
 
     @raises(Project.DoesNotExist)
     def test_admin_access_active_field_with_non_member(self):
         user = UserF.create()
         project = ProjectF.create(**{'isprivate': True})
-        observation_type = ObservationTypeFactory(**{
+        category = CategoryFactory(**{
             'project': project,
             'status': 'active'
         })
         field = TextFieldFactory.create(**{
             'status': 'active',
-            'observationtype': observation_type
+            'category': category
         })
         Field.objects.as_admin(
-            user, project.id, observation_type.id, field.id)
+            user, project.id, category.id, field.id)

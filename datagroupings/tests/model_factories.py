@@ -3,7 +3,7 @@ import factory
 
 from users.tests.model_factories import UserF
 from projects.tests.model_factories import ProjectF
-from observationtypes.tests.model_factories import ObservationTypeFactory
+from categories.tests.model_factories import CategoryFactory
 
 from ..models import Grouping, Rule
 
@@ -42,7 +42,7 @@ class GroupingFactory(factory.django.DjangoModelFactory):
 class RuleFactory(factory.django.DjangoModelFactory):
     FACTORY_FOR = Rule
 
-    observation_type = factory.SubFactory(ObservationTypeFactory)
+    category = factory.SubFactory(CategoryFactory)
     grouping = factory.SubFactory(GroupingFactory)
     filters = None
     status = 'active'

@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
 from projects import views as project_views
-from observationtypes import views as observationtype_views
+from categories import views as category_views
 from users import views as login_views
 from datagroupings import views as dataviews
 from applications import views as app_views
@@ -79,39 +79,39 @@ urlpatterns = patterns(
     # ###########################
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/$',
-        observationtype_views.CategoryList.as_view(),
+        category_views.CategoryList.as_view(),
         name='category_list'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/new/$',
-        observationtype_views.ObservationTypeCreate.as_view(),
-        name='observationtype_create'),
+        category_views.CategoryCreate.as_view(),
+        name='category_create'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/$',
-        observationtype_views.CategoryOverview.as_view(),
+        category_views.CategoryOverview.as_view(),
         name='category_overview'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/display/$',
-        observationtype_views.CategoryDisplay.as_view(),
+        category_views.CategoryDisplay.as_view(),
         name='category_display'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<observationtype_id>[0-9]+)/settings/$',
-        observationtype_views.ObservationTypeSettings.as_view(),
-        name='observationtype_settings'),
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/settings/$',
+        category_views.CategorySettings.as_view(),
+        name='category_settings'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/delete/$',
-        observationtype_views.CategoryDelete.as_view(),
+        category_views.CategoryDelete.as_view(),
         name='category_delete'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<observationtype_id>[0-9]+)/fields/new/$',
-        observationtype_views.FieldCreate.as_view(),
-        name='observationtype_field_create'),
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/new/$',
+        category_views.FieldCreate.as_view(),
+        name='category_field_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/$',
-        observationtype_views.FieldSettings.as_view(),
-        name='observationtype_field_settings'),
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/$',
+        category_views.FieldSettings.as_view(),
+        name='category_field_settings'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/delete/$',
-        observationtype_views.FieldDelete.as_view(),
+        category_views.FieldDelete.as_view(),
         name='category_field_delete'),
 
     # ###########################

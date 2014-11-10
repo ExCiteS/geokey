@@ -1,9 +1,9 @@
 from django import forms
 
-from .models import ObservationType, Field
+from .models import Category, Field
 
 
-class ObservationTypeCreateForm(forms.ModelForm):
+class CategoryCreateForm(forms.ModelForm):
     """
     Validates the inputs against the model definition.
     Used in .views.ObservationTypeAdminCreateView
@@ -11,7 +11,7 @@ class ObservationTypeCreateForm(forms.ModelForm):
     create_grouping = forms.CharField()
 
     class Meta:
-        model = ObservationType
+        model = Category
         fields = ('name', 'description', 'default_status')
 
 

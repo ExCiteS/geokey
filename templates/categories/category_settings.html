@@ -1,20 +1,20 @@
 {% extends "base.html" %}
 
-{% block bodydata %} data-project-id="{{observationtype.project.id}}" data-observationtype-id="{{observationtype.id}}"{% endblock %}
-{% block title %} | Observation type: {{ observationtype.name }}{% endblock %}
+{% block bodydata %} data-project-id="{{category.project.id}}" data-category-id="{{category.id}}"{% endblock %}
+{% block title %} | Observation type: {{ category.name }}{% endblock %}
 
 {% block main %}
         <div class="page-header">
             <div class="container">
                 <div class="row">
                     <div class="col-sm-6">
-                        <h1 class="smaller"><a href="{% url 'admin:project_overview' observationtype.project.id %}">{{observationtype.project.name}}</a></h1>
-                        <a href="{% url 'admin:project_overview' observationtype.project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' category.project.id %}">{{category.project.name}}</a></h1>
+                        <a href="{% url 'admin:project_overview' category.project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
                     </div>
                     <ul class="header-nav">
-                        <li class="active"><a href="{% url 'admin:category_list' observationtype.project.id %}">Categories <span class="badge">{{ observationtype.project.observationtypes.count }}</span></a></li>
-                        <li><a href="{% url 'admin:grouping_list' observationtype.project.id %}">Data groupings <span class="badge">{{ observationtype.project.views.count }}</span></a></li>
-                        <li><a href="{% url 'admin:grouping_list' observationtype.project.id %}">User groups <span class="badge">{{ observationtype.project.usergroups.count }}</span></a></li>
+                        <li class="active"><a href="{% url 'admin:category_list' category.project.id %}">Categories <span class="badge">{{ category.project.observationtypes.count }}</span></a></li>
+                        <li><a href="{% url 'admin:grouping_list' category.project.id %}">Data groupings <span class="badge">{{ category.project.views.count }}</span></a></li>
+                        <li><a href="{% url 'admin:grouping_list' category.project.id %}">User groups <span class="badge">{{ category.project.usergroups.count }}</span></a></li>
                     </ul>
                 </div>
 
@@ -29,40 +29,40 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h6 class="item-info">Category</h6>
-                            <h3>{{ observationtype.name }}</h3>
-                            {% if observationtype.description %}<p>{{ observationtype.description }}</p>{% endif %}
+                            <h3>{{ category.name }}</h3>
+                            {% if category.description %}<p>{{ category.description }}</p>{% endif %}
                         </div>
                         <div class="list-group">
-                            <a href="{% url 'admin:category_overview' observationtype.project.id observationtype.id %}" class="list-group-item">Fields</a>
-                            <a href="{% url 'admin:category_display' observationtype.project.id observationtype.id %}" class="list-group-item">Display</a>
-                            <a href="{% url 'admin:observationtype_settings' observationtype.project.id observationtype.id %}" class="list-group-item active">Settings</a>
+                            <a href="{% url 'admin:category_overview' category.project.id category.id %}" class="list-group-item">Fields</a>
+                            <a href="{% url 'admin:category_display' category.project.id category.id %}" class="list-group-item">Display</a>
+                            <a href="{% url 'admin:category_settings' category.project.id category.id %}" class="list-group-item active">Settings</a>
                         </div>
                     </div>
                 </div>
                 <div class="col-sm-8">
                     <h3 class="header">Settings</h3>
-                        <form role="form" method="POST" action="{% url 'admin:observationtype_settings' observationtype.project.id observationtype.id %}" novalidate> 
+                        <form role="form" method="POST" action="{% url 'admin:category_settings' category.project.id category.id %}" novalidate>
                             {% csrf_token %}
                             <div class="form-group">
                                 <label for="name" class="control-label">Name (required)</label>
-                                <input type="text" class="form-control input-lg" id="name" name="name" value="{{ observationtype.name }}" required>
+                                <input type="text" class="form-control input-lg" id="name" name="name" value="{{ category.name }}" required>
                             </div>
 
                             <div class="form-group">
                                 <label for="description" class="control-label">Description</label>
-                                <textarea class="form-control input-lg" rows="5" name="description" id="description">{{ observationtype.description }}</textarea>
+                                <textarea class="form-control input-lg" rows="5" name="description" id="description">{{ category.description }}</textarea>
                             </div>
 
                             <div class="form-group">
                                 <label for="description" class="control-label">Default status for new contributions</label>
                                 <div class="radio">
                                     <label>
-                                        <input type="radio" name="default_status" value="pending" {% if observationtype.default_status == 'pending' %}checked{% endif %}> <strong>Pending</strong><br>A new contribution of this category will not appear on the map immediately. A moderate has to approve new contributions first.
+                                        <input type="radio" name="default_status" value="pending" {% if category.default_status == 'pending' %}checked{% endif %}> <strong>Pending</strong><br>A new contribution of this category will not appear on the map immediately. A moderate has to approve new contributions first.
                                     </label>
                                 </div>
                                 <div class="radio">
                                     <label>
-                                        <input type="radio" name="default_status" value="active" {% if observationtype.default_status == 'active' %}checked{% endif %}> <strong>Active</strong><br>A new contribution will appear on the map immediately. 
+                                        <input type="radio" name="default_status" value="active" {% if category.default_status == 'active' %}checked{% endif %}> <strong>Active</strong><br>A new contribution will appear on the map immediately.
                                     </label>
                                 </div>
                             </div>
@@ -82,13 +82,13 @@
                             <h2 class="panel-title">Be careful!</h2>
                         </div>
                         <div class="panel-body becareful">
-                            <div class="toggle-active {% if observationtype.status == status_types.inactive %} hidden{% endif %}">
+                            <div class="toggle-active {% if category.status == status_types.inactive %} hidden{% endif %}">
                                 <strong>Make this category inactive</strong>
                                 <p>The category will no longer be available for data contribution.</p>
                                 <a href="#" class="text-danger" data-toggle="modal" data-target="#make-inactive-confirm">Make inactive</a>
                             </div>
 
-                            <div class="toggle-active {% if observationtype.status == status_types.active %} hidden{% endif %}">
+                            <div class="toggle-active {% if category.status == status_types.active %} hidden{% endif %}">
                                 <strong>Make this category active</strong>
                                 <p>The category will be available for data contribution again.</p>
                                 <a href="#" class="text-danger" data-toggle="modal" data-target="#make-active-confirm">Make active</a>
@@ -164,7 +164,7 @@
                         </ul>
                     </div>
                     <div class="modal-footer panel-footer">
-                        <a href="{% url 'admin:category_delete' observationtype.project.id observationtype.id %}" class="btn btn-danger">I'm absolutely sure, delete the category!</a>
+                        <a href="{% url 'admin:category_delete' category.project.id category.id %}" class="btn btn-danger">I'm absolutely sure, delete the category!</a>
                     </div>
                 </div>
             </div>

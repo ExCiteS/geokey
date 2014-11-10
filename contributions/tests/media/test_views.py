@@ -580,7 +580,7 @@ class GroupingContributionsMediaApiViewTest(TestCase):
         )
         RuleFactory.create(**{
             'grouping': self.grouping,
-            'observation_type': self.contribution.observationtype
+            'category': self.contribution.category
         })
 
         ImageFileFactory.create_batch(5, **{'contribution': self.contribution})
@@ -782,7 +782,7 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
         )
         RuleFactory.create(**{
             'grouping': dataview,
-            'observation_type': self.contribution.observationtype
+            'category': self.contribution.category
         })
         response = self.get(viewer)
         self.assertEqual(response.status_code, 200)
@@ -815,7 +815,7 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
         )
         RuleFactory.create(**{
             'grouping': dataview,
-            'observation_type': self.contribution.observationtype
+            'category': self.contribution.category
         })
         response = self.delete(viewer)
         self.assertEqual(response.status_code, 403)
@@ -912,7 +912,7 @@ class MyContributionsSingleMediaApiViewTest(TestCase):
         )
         RuleFactory.create(**{
             'grouping': dataview,
-            'observation_type': self.contribution.observationtype
+            'category': self.contribution.category
         })
         response = self.get(viewer)
         self.assertEqual(response.status_code, 404)
@@ -941,7 +941,7 @@ class MyContributionsSingleMediaApiViewTest(TestCase):
         )
         RuleFactory.create(**{
             'grouping': dataview,
-            'observation_type': self.contribution.observationtype
+            'category': self.contribution.category
         })
         response = self.delete(viewer)
         self.assertEqual(response.status_code, 404)
@@ -977,7 +977,7 @@ class GroupingContributionsSingleMediaApiViewTest(TestCase):
         )
         RuleFactory.create(**{
             'grouping': self.grouping,
-            'observation_type': self.contribution.observationtype
+            'category': self.contribution.category
         })
 
         self.image_file = ImageFileFactory.create(

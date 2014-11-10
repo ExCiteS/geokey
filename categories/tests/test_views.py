@@ -11,15 +11,15 @@ from projects.tests.model_factories import UserF, ProjectF
 from datagroupings.models import Grouping
 
 from .model_factories import (
-    ObservationTypeFactory, TextFieldFactory, NumericFieldFactory,
+    CategoryFactory, TextFieldFactory, NumericFieldFactory,
     LookupFieldFactory, LookupValueFactory, MultipleLookupFieldFactory,
     MultipleLookupValueFactory
 )
 
-from ..models import ObservationType, Field
+from ..models import Category, Field
 from ..views import (
-    ObservationTypeUpdate, FieldUpdate, FieldLookupsUpdate, FieldLookups,
-    SingleObservationType, ObservationTypeCreate, ObservationTypeSettings,
+    CategoryUpdate, FieldUpdate, FieldLookupsUpdate, FieldLookups,
+    SingleCategory, CategoryCreate, CategorySettings,
     FieldCreate, CategoryList, CategoryDisplay, FieldsReorderView
 )
 
@@ -91,8 +91,8 @@ class ObservationTypeCreateTest(TestCase):
         )
 
     def get(self, user):
-        view = ObservationTypeCreate.as_view()
-        url = reverse('admin:observationtype_create', kwargs={
+        view = CategoryCreate.as_view()
+        url = reverse('admin:category_create', kwargs={
             'project_id': self.project.id
         })
         request = self.factory.get(url)
@@ -100,8 +100,8 @@ class ObservationTypeCreateTest(TestCase):
         return view(request, project_id=self.project.id).render()
 
     def post(self, user, data):
-        view = ObservationTypeCreate.as_view()
-        url = reverse('admin:observationtype_create', kwargs={
+        view = CategoryCreate.as_view()
+        url = reverse('admin:category_create', kwargs={
             'project_id': self.project.id
         })
         request = self.factory.post(url, data, follow=True)
@@ -174,7 +174,7 @@ class CategoryDisplayTest(TestCase):
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
-        self.category = ObservationTypeFactory.create(
+        self.category = CategoryFactory.create(
             **{'project': self.project}
         )
 
@@ -229,21 +229,21 @@ class ObservationTypeSettingsTest(TestCase):
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
-        self.observationtype = ObservationTypeFactory.create(
+        self.category = CategoryFactory.create(
             **{'project': self.project})
 
     def get(self, user):
-        view = ObservationTypeSettings.as_view()
-        url = reverse('admin:observationtype_settings', kwargs={
+        view = CategorySettings.as_view()
+        url = reverse('admin:category_settings', kwargs={
             'project_id': self.project.id,
-            'observationtype_id': self.observationtype.id
+            'category_id': self.category.id
         })
         request = self.factory.get(url)
         request.user = user
         return view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.observationtype.id).render()
+            category_id=self.category.id).render()
 
     def test_get_settings_with_admin(self):
         response = self.get(self.admin)
@@ -283,21 +283,21 @@ class FieldCreateTest(TestCase):
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
-        self.observationtype = ObservationTypeFactory.create(
+        self.category = CategoryFactory.create(
             **{'project': self.project})
 
     def get(self, user):
         view = FieldCreate.as_view()
-        url = reverse('admin:observationtype_field_create', kwargs={
+        url = reverse('admin:category_field_create', kwargs={
             'project_id': self.project.id,
-            'observationtype_id': self.observationtype.id
+            'category_id': self.category.id
         })
         request = self.factory.get(url)
         request.user = user
         return view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.observationtype.id).render()
+            category_id=self.category.id).render()
 
     def test_get_create_with_admin(self):
         response = self.get(self.admin)
@@ -337,16 +337,16 @@ class FieldSettingsTest(TestCase):
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
-        self.observationtype = ObservationTypeFactory.create(
+        self.category = CategoryFactory.create(
             **{'project': self.project})
         self.field = TextFieldFactory.create(
-            **{'observationtype': self.observationtype})
+            **{'category': self.category})
 
     def get(self, user):
         view = FieldCreate.as_view()
-        url = reverse('admin:observationtype_field_settings', kwargs={
+        url = reverse('admin:category_field_settings', kwargs={
             'project_id': self.project.id,
-            'observationtype_id': self.observationtype.id,
+            'category_id': self.category.id,
             'field_id': self.field.id
         })
         request = self.factory.get(url)
@@ -354,7 +354,7 @@ class FieldSettingsTest(TestCase):
         return view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.observationtype.id,
+            category_id=self.category.id,
             field_id=self.field.id).render()
 
     def test_get_settings_with_admin(self):
@@ -402,43 +402,43 @@ class ObservationtypeAjaxTest(TestCase):
             add_contributors=[self.contributor]
         )
 
-        self.active_type = ObservationTypeFactory(**{
+        self.active_type = CategoryFactory(**{
             'project': self.project,
             'status': 'active'
         })
 
     def _put(self, data, user):
         url = reverse(
-            'ajax:observationtype',
+            'ajax:category',
             kwargs={
                 'project_id': self.project.id,
-                'observationtype_id': self.active_type.id
+                'category_id': self.active_type.id
             }
         )
         request = self.factory.put(url, data)
         force_authenticate(request, user=user)
-        view = ObservationTypeUpdate.as_view()
+        view = CategoryUpdate.as_view()
         return view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.active_type.id
+            category_id=self.active_type.id
         ).render()
 
     def test_update_not_existing_type(self):
         url = reverse(
-            'ajax:observationtype',
+            'ajax:category',
             kwargs={
                 'project_id': self.project.id,
-                'observationtype_id': 2376
+                'category_id': 2376
             }
         )
         request = self.factory.put(url, {'status': 'inactive'})
         force_authenticate(request, user=self.admin)
-        view = ObservationTypeUpdate.as_view()
+        view = CategoryUpdate.as_view()
         response = view(
             request,
             project_id=self.project.id,
-            observationtype_id=2376
+            category_id=2376
         ).render()
         self.assertEqual(response.status_code, 404)
 
@@ -446,7 +446,7 @@ class ObservationtypeAjaxTest(TestCase):
         response = self._put({'status': 'bockwurst'}, self.admin)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(
-            ObservationType.objects.get_single(
+            Category.objects.get_single(
                 self.admin, self.project.id, self.active_type.id).status,
             self.active_type.status
         )
@@ -455,7 +455,7 @@ class ObservationtypeAjaxTest(TestCase):
         response = self._put({'description': 'new description'}, self.admin)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            ObservationType.objects.get_single(
+            Category.objects.get_single(
                 self.admin, self.project.id, self.active_type.id).description,
             'new description'
         )
@@ -464,7 +464,7 @@ class ObservationtypeAjaxTest(TestCase):
         response = self._put({'status': 'inactive'}, self.admin)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            ObservationType.objects.get_single(
+            Category.objects.get_single(
                 self.admin, self.project.id, self.active_type.id).status,
             'inactive'
         )
@@ -475,7 +475,7 @@ class ObservationtypeAjaxTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
-            ObservationType.objects.get_single(
+            Category.objects.get_single(
                 self.admin, self.project.id, self.active_type.id).description,
             self.active_type.description
         )
@@ -487,7 +487,7 @@ class ObservationtypeAjaxTest(TestCase):
         )
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
-            ObservationType.objects.get_single(
+            Category.objects.get_single(
                 self.admin, self.project.id, self.active_type.id).status,
             self.active_type.status
         )
@@ -499,7 +499,7 @@ class ObservationtypeAjaxTest(TestCase):
         )
         self.assertEqual(response.status_code, 404)
         self.assertEqual(
-            ObservationType.objects.get_single(
+            Category.objects.get_single(
                 self.admin, self.project.id, self.active_type.id).description,
             self.active_type.description
         )
@@ -511,7 +511,7 @@ class ObservationtypeAjaxTest(TestCase):
         )
         self.assertEqual(response.status_code, 404)
         self.assertEqual(
-            ObservationType.objects.get_single(
+            Category.objects.get_single(
                 self.admin, self.project.id, self.active_type.id).status,
             self.active_type.status
         )
@@ -520,18 +520,18 @@ class ObservationtypeAjaxTest(TestCase):
 class ReorderFieldsTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.category = ObservationTypeFactory.create()
+        self.category = CategoryFactory.create()
 
         self.field_0 = TextFieldFactory.create(
-            **{'observationtype': self.category})
+            **{'category': self.category})
         self.field_1 = TextFieldFactory.create(
-            **{'observationtype': self.category})
+            **{'category': self.category})
         self.field_2 = TextFieldFactory.create(
-            **{'observationtype': self.category})
+            **{'category': self.category})
         self.field_3 = TextFieldFactory.create(
-            **{'observationtype': self.category})
+            **{'category': self.category})
         self.field_4 = TextFieldFactory.create(
-            **{'observationtype': self.category})
+            **{'category': self.category})
 
     def test_reorder(self):
         url = reverse(
@@ -616,13 +616,13 @@ class UpdateFieldTest(TestCase):
             add_contributors=[self.contributor]
         )
 
-        self.observationtype = ObservationTypeFactory(**{
+        self.category = CategoryFactory(**{
             'project': self.project,
             'status': 'active'
         })
 
         self.field = TextFieldFactory(**{
-            'observationtype': self.observationtype
+            'category': self.category
         })
 
     def _put(self, data, user):
@@ -630,7 +630,7 @@ class UpdateFieldTest(TestCase):
             'ajax:observationtype_field',
             kwargs={
                 'project_id': self.project.id,
-                'observationtype_id': self.observationtype.id,
+                'category_id': self.category.id,
                 'field_id': self.field.id
             }
         )
@@ -640,7 +640,7 @@ class UpdateFieldTest(TestCase):
         return view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.observationtype.id,
+            category_id=self.category.id,
             field_id=self.field.id
         ).render()
 
@@ -649,7 +649,7 @@ class UpdateFieldTest(TestCase):
             'ajax:observationtype_field',
             kwargs={
                 'project_id': self.project.id,
-                'observationtype_id': self.observationtype.id,
+                'category_id': self.category.id,
                 'field_id': 554454545
             }
         )
@@ -659,7 +659,7 @@ class UpdateFieldTest(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.observationtype.id,
+            category_id=self.category.id,
             field_id=554454545
         ).render()
         self.assertEqual(response.status_code, 404)
@@ -669,7 +669,7 @@ class UpdateFieldTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             Field.objects.get_single(
-                self.admin, self.project.id, self.observationtype.id,
+                self.admin, self.project.id, self.category.id,
                 self.field.id).description,
             'new description'
         )
@@ -679,7 +679,7 @@ class UpdateFieldTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(
             Field.objects.get_single(
-                self.admin, self.project.id, self.observationtype.id,
+                self.admin, self.project.id, self.category.id,
                 self.field.id).required
         )
 
@@ -688,7 +688,7 @@ class UpdateFieldTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             Field.objects.get_single(
-                self.admin, self.project.id, self.observationtype.id,
+                self.admin, self.project.id, self.category.id,
                 self.field.id).status,
             'inactive'
         )
@@ -698,7 +698,7 @@ class UpdateFieldTest(TestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
             Field.objects.get_single(
-                self.admin, self.project.id, self.observationtype.id,
+                self.admin, self.project.id, self.category.id,
                 self.field.id).status,
             'active'
         )
@@ -708,7 +708,7 @@ class UpdateFieldTest(TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(
             Field.objects.get_single(
-                self.admin, self.project.id, self.observationtype.id,
+                self.admin, self.project.id, self.category.id,
                 self.field.id).status,
             'active'
         )
@@ -718,7 +718,7 @@ class UpdateFieldTest(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(
             Field.objects.get_single(
-                self.admin, self.project.id, self.observationtype.id,
+                self.admin, self.project.id, self.category.id,
                 self.field.id).status,
             'active'
         )
@@ -736,13 +736,13 @@ class UpdateNumericField(TestCase):
             add_contributors=[self.contributor]
         )
 
-        self.observationtype = ObservationTypeFactory(**{
+        self.category = CategoryFactory(**{
             'project': self.project,
             'status': 'active'
         })
 
         self.field = NumericFieldFactory(**{
-            'observationtype': self.observationtype
+            'category': self.category
         })
 
     def _put(self, data, user):
@@ -750,7 +750,7 @@ class UpdateNumericField(TestCase):
             'ajax:observationtype_field',
             kwargs={
                 'project_id': self.project.id,
-                'observationtype_id': self.observationtype.id,
+                'category_id': self.category.id,
                 'field_id': self.field.id
             }
         )
@@ -760,7 +760,7 @@ class UpdateNumericField(TestCase):
         return view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.observationtype.id,
+            category_id=self.category.id,
             field_id=self.field.id
         ).render()
 
@@ -770,7 +770,7 @@ class UpdateNumericField(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             Field.objects.get_single(
-                self.admin, self.project.id, self.observationtype.id,
+                self.admin, self.project.id, self.category.id,
                 self.field.id).description, 'new description'
         )
 
@@ -784,21 +784,21 @@ class AddLookupValueTest(TestCase):
             add_admins=[self.admin]
         )
 
-        self.active_type = ObservationTypeFactory(**{
+        self.active_type = CategoryFactory(**{
             'project': self.project,
             'status': 'active'
         })
 
     def test_add_lookupvalue_with_admin(self):
         lookup_field = LookupFieldFactory(**{
-            'observationtype': self.active_type
+            'category': self.active_type
         })
 
         url = reverse(
             'ajax:observationtype_lookupvalues',
             kwargs={
                 'project_id': self.project.id,
-                'observationtype_id': self.active_type.id,
+                'category_id': self.active_type.id,
                 'field_id': lookup_field.id
             }
         )
@@ -809,7 +809,7 @@ class AddLookupValueTest(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.active_type.id,
+            category_id=self.active_type.id,
             field_id=lookup_field.id
         ).render()
 
@@ -821,7 +821,7 @@ class AddLookupValueTest(TestCase):
             'ajax:observationtype_lookupvalues',
             kwargs={
                 'project_id': self.project.id,
-                'observationtype_id': self.active_type.id,
+                'category_id': self.active_type.id,
                 'field_id': 32874893274
             }
         )
@@ -832,20 +832,20 @@ class AddLookupValueTest(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.active_type.id,
+            category_id=self.active_type.id,
             field_id=32874893274
         ).render()
         self.assertEqual(response.status_code, 404)
 
     def test_add_lookupvalue_to_non_lookup(self):
         num_field = NumericFieldFactory(**{
-            'observationtype': self.active_type
+            'category': self.active_type
         })
         url = reverse(
             'ajax:observationtype_lookupvalues',
             kwargs={
                 'project_id': self.project.id,
-                'observationtype_id': self.active_type.id,
+                'category_id': self.active_type.id,
                 'field_id': num_field.id
             }
         )
@@ -856,7 +856,7 @@ class AddLookupValueTest(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.active_type.id,
+            category_id=self.active_type.id,
             field_id=num_field.id
         ).render()
         self.assertEqual(response.status_code, 404)
@@ -871,14 +871,14 @@ class RemoveLookupValues(TestCase):
             add_admins=[self.admin]
         )
 
-        self.active_type = ObservationTypeFactory(**{
+        self.active_type = CategoryFactory(**{
             'project': self.project,
             'status': 'active'
         })
 
     def test_remove_lookupvalue_with_admin(self):
         lookup_field = LookupFieldFactory(**{
-            'observationtype': self.active_type
+            'category': self.active_type
         })
         lookup_value = LookupValueFactory(**{
             'field': lookup_field
@@ -888,7 +888,7 @@ class RemoveLookupValues(TestCase):
             'ajax:observationtype_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
-                'observationtype_id': self.active_type.id,
+                'category_id': self.active_type.id,
                 'field_id': lookup_field.id,
                 'value_id': lookup_value.id
             }
@@ -900,7 +900,7 @@ class RemoveLookupValues(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.active_type.id,
+            category_id=self.active_type.id,
             field_id=lookup_field.id,
             value_id=lookup_value.id
         ).render()
@@ -917,7 +917,7 @@ class RemoveLookupValues(TestCase):
             'ajax:observationtype_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
-                'observationtype_id': self.active_type.id,
+                'category_id': self.active_type.id,
                 'field_id': 45455,
                 'value_id': lookup_value.id
             }
@@ -929,7 +929,7 @@ class RemoveLookupValues(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.active_type.id,
+            category_id=self.active_type.id,
             field_id=45455,
             value_id=lookup_value.id
         ).render()
@@ -938,14 +938,14 @@ class RemoveLookupValues(TestCase):
 
     def test_remove_not_exisiting_lookupvalue(self):
         lookup_field = LookupFieldFactory(**{
-            'observationtype': self.active_type
+            'category': self.active_type
         })
 
         url = reverse(
             'ajax:observationtype_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
-                'observationtype_id': self.active_type.id,
+                'category_id': self.active_type.id,
                 'field_id': lookup_field.id,
                 'value_id': 65645445444
             }
@@ -957,7 +957,7 @@ class RemoveLookupValues(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.active_type.id,
+            category_id=self.active_type.id,
             field_id=lookup_field.id,
             value_id=65645445444
         ).render()
@@ -966,14 +966,14 @@ class RemoveLookupValues(TestCase):
 
     def test_remove_lookupvalue_from_non_lookup(self):
         num_field = NumericFieldFactory(**{
-            'observationtype': self.active_type
+            'category': self.active_type
         })
 
         url = reverse(
             'ajax:observationtype_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
-                'observationtype_id': self.active_type.id,
+                'category_id': self.active_type.id,
                 'field_id': num_field.id,
                 'value_id': 65645445444
             }
@@ -985,7 +985,7 @@ class RemoveLookupValues(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.active_type.id,
+            category_id=self.active_type.id,
             field_id=num_field.id,
             value_id=65645445444
         ).render()
@@ -1002,21 +1002,21 @@ class AddMutipleLookupValueTest(TestCase):
             add_admins=[self.admin]
         )
 
-        self.active_type = ObservationTypeFactory(**{
+        self.active_type = CategoryFactory(**{
             'project': self.project,
             'status': 'active'
         })
 
     def test_add_lookupvalue_with_admin(self):
         lookup_field = MultipleLookupFieldFactory(**{
-            'observationtype': self.active_type
+            'category': self.active_type
         })
 
         url = reverse(
             'ajax:observationtype_lookupvalues',
             kwargs={
                 'project_id': self.project.id,
-                'observationtype_id': self.active_type.id,
+                'category_id': self.active_type.id,
                 'field_id': lookup_field.id
             }
         )
@@ -1027,7 +1027,7 @@ class AddMutipleLookupValueTest(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.active_type.id,
+            category_id=self.active_type.id,
             field_id=lookup_field.id
         ).render()
 
@@ -1044,14 +1044,14 @@ class RemoveMultipleLookupValues(TestCase):
             add_admins=[self.admin]
         )
 
-        self.active_type = ObservationTypeFactory(**{
+        self.active_type = CategoryFactory(**{
             'project': self.project,
             'status': 'active'
         })
 
     def test_remove_lookupvalue_with_admin(self):
         lookup_field = MultipleLookupFieldFactory(**{
-            'observationtype': self.active_type
+            'category': self.active_type
         })
         lookup_value = MultipleLookupValueFactory(**{
             'field': lookup_field
@@ -1061,7 +1061,7 @@ class RemoveMultipleLookupValues(TestCase):
             'ajax:observationtype_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
-                'observationtype_id': self.active_type.id,
+                'category_id': self.active_type.id,
                 'field_id': lookup_field.id,
                 'value_id': lookup_value.id
             }
@@ -1073,7 +1073,7 @@ class RemoveMultipleLookupValues(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.active_type.id,
+            category_id=self.active_type.id,
             field_id=lookup_field.id,
             value_id=lookup_value.id
         ).render()
@@ -1090,7 +1090,7 @@ class RemoveMultipleLookupValues(TestCase):
             'ajax:observationtype_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
-                'observationtype_id': self.active_type.id,
+                'category_id': self.active_type.id,
                 'field_id': 45455,
                 'value_id': lookup_value.id
             }
@@ -1102,7 +1102,7 @@ class RemoveMultipleLookupValues(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.active_type.id,
+            category_id=self.active_type.id,
             field_id=45455,
             value_id=lookup_value.id
         ).render()
@@ -1111,14 +1111,14 @@ class RemoveMultipleLookupValues(TestCase):
 
     def test_remove_not_exisiting_lookupvalue(self):
         lookup_field = MultipleLookupFieldFactory(**{
-            'observationtype': self.active_type
+            'category': self.active_type
         })
 
         url = reverse(
             'ajax:observationtype_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
-                'observationtype_id': self.active_type.id,
+                'category_id': self.active_type.id,
                 'field_id': lookup_field.id,
                 'value_id': 65645445444
             }
@@ -1130,7 +1130,7 @@ class RemoveMultipleLookupValues(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.active_type.id,
+            category_id=self.active_type.id,
             field_id=lookup_field.id,
             value_id=65645445444
         ).render()
@@ -1139,14 +1139,14 @@ class RemoveMultipleLookupValues(TestCase):
 
     def test_remove_lookupvalue_from_non_lookup(self):
         num_field = NumericFieldFactory(**{
-            'observationtype': self.active_type
+            'category': self.active_type
         })
 
         url = reverse(
             'ajax:observationtype_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
-                'observationtype_id': self.active_type.id,
+                'category_id': self.active_type.id,
                 'field_id': num_field.id,
                 'value_id': 65645445444
             }
@@ -1158,7 +1158,7 @@ class RemoveMultipleLookupValues(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.active_type.id,
+            category_id=self.active_type.id,
             field_id=num_field.id,
             value_id=65645445444
         ).render()
@@ -1185,26 +1185,26 @@ class ObservationTypePublicApiTest(TestCase):
             add_contributors=[self.contributor],
             add_viewers=[self.view_member]
         )
-        self.observationtype = ObservationTypeFactory(**{
+        self.category = CategoryFactory(**{
             'status': 'active',
             'project': self.project
         })
         TextFieldFactory.create(**{
             'key': 'key_1',
-            'observationtype': self.observationtype
+            'category': self.category
         })
         NumericFieldFactory.create(**{
             'key': 'key_2',
-            'observationtype': self.observationtype
+            'category': self.category
         })
         self.inactive_field = TextFieldFactory.create(**{
             'key': 'key_3',
-            'observationtype': self.observationtype,
+            'category': self.category,
             'status': 'inactive'
         })
         lookup_field = LookupFieldFactory(**{
             'key': 'key_4',
-            'observationtype': self.observationtype
+            'category': self.category
         })
         LookupValueFactory(**{
             'name': 'Ms. Piggy',
@@ -1222,19 +1222,19 @@ class ObservationTypePublicApiTest(TestCase):
 
     def _get(self, user):
         url = reverse(
-            'api:observationtype',
+            'api:category',
             kwargs={
                 'project_id': self.project.id,
-                'observationtype_id': self.observationtype.id
+                'category_id': self.category.id
             }
         )
         request = self.factory.get(url)
         force_authenticate(request, user=user)
-        view = SingleObservationType.as_view()
+        view = SingleCategory.as_view()
         return view(
             request,
             project_id=self.project.id,
-            observationtype_id=self.observationtype.id
+            category_id=self.category.id
         ).render()
 
     def test_get_observationType_with_admin(self):

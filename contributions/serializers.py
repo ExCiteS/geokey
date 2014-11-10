@@ -13,8 +13,8 @@ from rest_framework import serializers
 from rest_framework_gis import serializers as geoserializers
 
 from core.exceptions import MalformedRequestData
-from observationtypes.serializer import ObservationTypeSerializer
-from observationtypes.models import ObservationType
+from categories.serializer import CategorySerializer
+from categories.models import Category
 from users.serializers import UserSerializer
 
 from .models import (
@@ -52,7 +52,7 @@ class ObservationSerializer(serializers.ModelSerializer):
         )
 
     def get_category(self, observation):
-        return observation.observationtype.id
+        return observation.category.id
 
 
 class ContributionSerializer(object):
@@ -156,9 +156,9 @@ class ContributionSerializer(object):
                 project = self.context.get('project')
 
                 try:
-                    category = project.observationtypes.get(
+                    category = project.categories.get(
                         pk=properties.pop('category'))
-                except ObservationType.DoesNotExist:
+                except Category.DoesNotExist:
                     raise MalformedRequestData('The category can not'
                                                'be used with the project or '
                                                'does not exist.')
@@ -173,7 +173,7 @@ class ContributionSerializer(object):
                     creator=user,
                     location=location,
                     project=category.project,
-                    observationtype=category,
+                    category=category,
                     status=status
                 )
         else:
@@ -231,12 +231,12 @@ class ContributionSerializer(object):
     def to_native_min(self, obj):
         json_object = self.to_native_base(obj)
         json_object['category'] = {
-            'id': obj.observationtype.id,
-            'name': obj.observationtype.name,
-            'description': obj.observationtype.description,
-            'symbol': (obj.observationtype.symbol.url
-                       if obj.observationtype.symbol else None),
-            'colour': obj.observationtype.colour
+            'id': obj.category.id,
+            'name': obj.category.name,
+            'description': obj.category.description,
+            'symbol': (obj.category.symbol.url
+                       if obj.category.symbol else None),
+            'colour': obj.category.colour
         }
 
         return json_object
@@ -244,8 +244,8 @@ class ContributionSerializer(object):
     def to_native(self, obj):
         json_object = self.to_native_base(obj)
 
-        category_serializer = ObservationTypeSerializer(
-            obj.observationtype, context=self.context)
+        category_serializer = CategorySerializer(
+            obj.category, context=self.context)
         json_object['category'] = category_serializer.data
 
         comment_serializer = CommentSerializer(
@@ -263,7 +263,7 @@ class ContributionSerializer(object):
         json_object['media'] = file_serializer.data
 
         attributes = {}
-        for field in obj.observationtype.fields.all():
+        for field in obj.category.fields.all():
             value = obj.attributes.get(field.key)
             if value is not None:
                 attributes[field.key] = field.convert_from_string(value)

@@ -3,7 +3,7 @@ from rest_framework import serializers
 from core.serializers import FieldSelectorSerializer
 
 from .models import (
-    ObservationType, Field, NumericField, LookupField, LookupValue,
+    Category, Field, NumericField, LookupField, LookupValue,
     MultipleLookupField, MultipleLookupValue
 )
 
@@ -132,7 +132,7 @@ class FieldObjectRelatedField(serializers.RelatedField):
         ]
 
 
-class ObservationTypeSerializer(FieldSelectorSerializer):
+class CategorySerializer(FieldSelectorSerializer):
     """
     Serializer for observation types. Used for AJAX API updates.
     Used in .views.ObservationTypeAdminDetailView
@@ -141,10 +141,10 @@ class ObservationTypeSerializer(FieldSelectorSerializer):
     symbol = serializers.SerializerMethodField('get_symbol_url')
 
     class Meta:
-        model = ObservationType
+        model = Category
         depth = 1
         fields = ('id', 'name', 'description', 'status', 'fields', 'colour',
-            'created_at', 'symbol')
+                  'created_at', 'symbol')
         read_only_fields = ('id', 'name', 'created_at')
 
     def get_symbol_url(self, category):

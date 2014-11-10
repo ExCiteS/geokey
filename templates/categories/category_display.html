@@ -25,7 +25,7 @@
 
         <div class="container">
             {% include 'snippets/messages.html' %}
-            
+
             <div class="row">
                 <div class="col-sm-4">
                     <div class="panel panel-default">
@@ -37,7 +37,7 @@
                         <div class="list-group">
                             <a href="{% url 'admin:category_overview' category.project.id category.id %}" class="list-group-item">Fields</a>
                             <a href="{% url 'admin:category_display' category.project.id category.id %}" class="list-group-item active">Display</a>
-                            <a href="{% url 'admin:observationtype_settings' category.project.id category.id %}" class="list-group-item">Settings</a>
+                            <a href="{% url 'admin:category_settings' category.project.id category.id %}" class="list-group-item">Settings</a>
                         </div>
                     </div>
                 </div>
@@ -67,7 +67,7 @@
         </div>
 {% endblock %}
 
-{% block libraries %} 
+{% block libraries %}
             <script src="/static/js/admin.ui.forms.validate.js"></script>
 
             <!-- Colour picker -->

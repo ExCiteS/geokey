@@ -22,7 +22,7 @@
 
 		<div class="container">
 			<div class="row">
-				<form  role="form" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url 'admin:observationtype_create' project.id %}" novalidate> 
+				<form  role="form" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url 'admin:category_create' project.id %}" novalidate>
 					<h3 class="header">Create a new category</h3>
 					{% csrf_token %}
 					<div class="form-group">
@@ -44,7 +44,7 @@
                         </div>
                         <div class="radio">
                             <label>
-                                <input type="radio" name="default_status" value="active"> <strong>Active</strong><br>A new contribution will appear on the map immediately. 
+                                <input type="radio" name="default_status" value="active"> <strong>Active</strong><br>A new contribution will appear on the map immediately.
                             </label>
                         </div>
                     </div>
@@ -72,6 +72,6 @@
 		</div>
 {% endblock %}
 
-{% block libraries %} 
+{% block libraries %}
 			<script src="/static/js/admin.ui.forms.validate.js"></script>
 {% endblock %}

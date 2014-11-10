@@ -21,28 +21,28 @@ class ActiveMixin(object):
         return self.get_query_set().filter(status=STATUS.active)
 
 
-class ObservationTypeManager(ActiveMixin, models.Manager):
+class CategoryManager(ActiveMixin, models.Manager):
     def get_list(self, user, project_id):
         """
         Returns all observationtype objects the user is allowed to access
         """
         project = Project.objects.get_single(user, project_id)
         if (project.is_admin(user)):
-            return project.observationtypes.all()
+            return project.categories.all()
         else:
-            return project.observationtypes.active()
+            return project.categories.active()
 
     def get_single(self, user, project_id, observationtype_id):
         """
         Returns all a single observationtype. Raises PermissionDenied if user
         is not eligable to access the observationtype.
         """
-        observation_type = Project.objects.get_single(
-            user, project_id).observationtypes.get(pk=observationtype_id)
+        category = Project.objects.get_single(
+            user, project_id).categories.get(pk=observationtype_id)
 
-        if (observation_type.status == STATUS.active or
-                observation_type.project.is_admin(user)):
-            return observation_type
+        if (category.status == STATUS.active or
+                category.project.is_admin(user)):
+            return category
         else:
             raise PermissionDenied('You are not allowed to access this '
                                    'observationtype')
@@ -53,10 +53,10 @@ class ObservationTypeManager(ActiveMixin, models.Manager):
         """
         return Project.objects.as_admin(
             user, project_id
-            ).observationtypes.get(pk=observationtype_id)
+            ).categories.get(pk=observationtype_id)
 
     def create(self, create_grouping=False, *args, **kwargs):
-        category = super(ObservationTypeManager, self).create(*args, **kwargs)
+        category = super(CategoryManager, self).create(*args, **kwargs)
 
         if create_grouping:
             grouping = Grouping.objects.create(
@@ -69,7 +69,7 @@ class ObservationTypeManager(ActiveMixin, models.Manager):
 
             Rule.objects.create(
                 grouping=grouping,
-                observation_type=category
+                category=category
             )
 
         return category
@@ -89,10 +89,10 @@ class FieldManager(ActiveMixin, InheritanceManager):
         project = Project.objects.get_single(user, project_id)
 
         if project.is_admin(user):
-            return project.observationtypes.get(
+            return project.categories.get(
                 pk=observationtype_id).fields.all().select_subclasses()
         else:
-            observationtype = project.observationtypes.get(
+            observationtype = project.categories.get(
                 pk=observationtype_id)
             if observationtype.status == STATUS.active:
                 return observationtype.fields.active().select_subclasses()
@@ -102,7 +102,7 @@ class FieldManager(ActiveMixin, InheritanceManager):
         Returns a single field
         """
         project = Project.objects.get_single(user, project_id)
-        observationtype = project.observationtypes.get(pk=observationtype_id)
+        observationtype = project.categories.get(pk=observationtype_id)
         field = observationtype.fields.get_subclass(pk=field_id)
 
         if project.is_admin(user):
@@ -123,7 +123,7 @@ class FieldManager(ActiveMixin, InheritanceManager):
         Returns all a single field for an project admin.
         """
         return Project.objects.as_admin(
-            user, project_id).observationtypes.get(
+            user, project_id).categories.get(
             pk=observationtype_id).fields.get_subclass(pk=field_id)
 
 

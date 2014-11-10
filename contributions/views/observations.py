@@ -169,7 +169,7 @@ class SingleContributionAPIView(APIView):
 
         if ((new_status == 'active' and observation.status == 'draft') and
                 not observation.project.can_moderate(user)):
-            default_status = observation.observationtype.default_status
+            default_status = observation.category.default_status
             data['properties']['status'] = default_status
 
         serializer = ContributionSerializer(

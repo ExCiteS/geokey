@@ -90,7 +90,7 @@ class Grouping(models.Model):
 
 class Rule(models.Model):
     grouping = models.ForeignKey('Grouping', related_name='rules')
-    observation_type = models.ForeignKey('observationtypes.ObservationType')
+    category = models.ForeignKey('categories.Category')
     min_date = models.DateTimeField(null=True)
     max_date = models.DateTimeField(null=True)
     filters = hstore.DictionaryField(db_index=True, null=True, default=None)
@@ -106,7 +106,7 @@ class Rule(models.Model):
         """
         Returns the queryset filter for the Rule
         """
-        queries = ['(observationtype_id = %s)' % self.observation_type.id]
+        queries = ['(category_id = %s)' % self.category.id]
 
         if self.min_date is not None:
             queries.append('(created_at >= to_date(\'' +
@@ -125,7 +125,7 @@ class Rule(models.Model):
                 except ValueError:
                     rule_filter = self.filters[key]
 
-                field = self.observation_type.fields.get_subclass(key=key)
+                field = self.category.fields.get_subclass(key=key)
                 queries.append(field.get_filter(rule_filter))
 
         return '(%s)' % ' AND '.join(queries)

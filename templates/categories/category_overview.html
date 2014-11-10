@@ -23,7 +23,7 @@
 
         <div class="container">
             {% include 'snippets/messages.html' %}
-            
+
             <div class="row">
                 <div class="col-sm-4">
                     <div class="panel panel-default">
@@ -35,7 +35,7 @@
                         <div class="list-group">
                             <a href="{% url 'admin:category_overview' category.project.id category.id %}" class="list-group-item active">Fields</a>
                             <a href="{% url 'admin:category_display' category.project.id category.id %}" class="list-group-item">Display</a>
-                            <a href="{% url 'admin:observationtype_settings' category.project.id category.id %}" class="list-group-item">Settings</a>
+                            <a href="{% url 'admin:category_settings' category.project.id category.id %}" class="list-group-item">Settings</a>
                         </div>
                     </div>
                 </div>
@@ -43,7 +43,7 @@
                     <h3>
                         Fields
                         {% if category.fields.all %}
-                            <a href="{% url 'admin:observationtype_field_create' category.project.id category.id %}" class="btn btn-success btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create new field</a>
+                            <a href="{% url 'admin:category_field_create' category.project.id category.id %}" class="btn btn-success btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create new field</a>
                         {% endif %}
                     </h3>
                     {% if category.fields.all %}
@@ -60,7 +60,7 @@
                         <div class="well empty-list">
                             <p class="lead">We couldn't find any fields for this category.</p>
                             <p>You can use fields to define what data should be collected for the category. For example, if your category is Restaurants, you might want to store a name, an address, the number of seats and which couisine they serve. </p>
-                            <a href="{% url 'admin:observationtype_field_create' category.project.id category.id %}" class="btn btn-success btn-lg">Create new field</a>
+                            <a href="{% url 'admin:category_field_create' category.project.id category.id %}" class="btn btn-success btn-lg">Create new field</a>
                         </div>
                     {% endif %}
                 </div>
@@ -68,7 +68,7 @@
         </div>
 {% endblock %}
 
-{% block libraries %} 
+{% block libraries %}
             <script src="/static/lib/jquery/jquery-ui.min.js"></script>
             <script src="/static/js/admin.control.ajax.js"></script>
             <script src="/static/js/admin.ui.category.sort.js"></script>

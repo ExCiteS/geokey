@@ -27,7 +27,7 @@ DATABASES = {
 
 INSTALLED_APPS += (
     'projects',
-    'observationtypes',
+    'categories',
     'contributions',
     'datagroupings',
     'users',

@@ -19,12 +19,12 @@ from core.decorators import (
 
 from .base import STATUS
 from .models import (
-    ObservationType, Field, NumericField, LookupField, LookupValue,
+    Category, Field, NumericField, LookupField, LookupValue,
     MultipleLookupField, MultipleLookupValue
 )
-from .forms import ObservationTypeCreateForm, FieldCreateForm
+from .forms import CategoryCreateForm, FieldCreateForm
 from .serializer import (
-    ObservationTypeSerializer, FieldSerializer, LookupFieldSerializer
+    CategorySerializer, FieldSerializer, LookupFieldSerializer
 )
 
 
@@ -35,7 +35,7 @@ from .serializer import (
 # ############################################################################
 
 class CategoryList(LoginRequiredMixin, TemplateView):
-    template_name = 'observationtypes/category_list.html'
+    template_name = 'categories/category_list.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id):
@@ -51,7 +51,7 @@ class CategoryList(LoginRequiredMixin, TemplateView):
 
 
 class CategoryOverview(LoginRequiredMixin, TemplateView):
-    template_name = 'observationtypes/category_overview.html'
+    template_name = 'categories/category_overview.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, category_id):
@@ -59,7 +59,7 @@ class CategoryOverview(LoginRequiredMixin, TemplateView):
         Creates the request context for rendering the page
         """
         user = self.request.user
-        category = ObservationType.objects.as_admin(
+        category = Category.objects.as_admin(
             user, project_id, category_id)
 
         context = super(CategoryOverview, self).get_context_data()
@@ -68,13 +68,13 @@ class CategoryOverview(LoginRequiredMixin, TemplateView):
         return context
 
 
-class ObservationTypeCreate(LoginRequiredMixin, CreateView):
+class CategoryCreate(LoginRequiredMixin, CreateView):
     """
-    Displays the create ObservationType page and creates the ObservationType
+    Displays the create Category page and creates the Category
     when POST is requested
     """
-    form_class = ObservationTypeCreateForm
-    template_name = 'observationtypes/observationtype_create.html'
+    form_class = CategoryCreateForm
+    template_name = 'categories/category_create.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, form, **kwargs):
@@ -84,7 +84,7 @@ class ObservationTypeCreate(LoginRequiredMixin, CreateView):
         project_id = self.kwargs['project_id']
 
         context = super(
-            ObservationTypeCreate, self).get_context_data(**kwargs)
+            CategoryCreate, self).get_context_data(**kwargs)
 
         context['project'] = Project.objects.as_admin(
             self.request.user, project_id
@@ -114,7 +114,7 @@ class ObservationTypeCreate(LoginRequiredMixin, CreateView):
         project_id = self.kwargs['project_id']
         project = Project.objects.as_admin(self.request.user, project_id)
 
-        category = ObservationType.objects.create(
+        category = Category.objects.create(
             project=project,
             creator=self.request.user,
             name=strip_tags(data.get('name')),
@@ -131,29 +131,29 @@ class ObservationTypeCreate(LoginRequiredMixin, CreateView):
         )
 
 
-class ObservationTypeSettings(LoginRequiredMixin, TemplateView):
+class CategorySettings(LoginRequiredMixin, TemplateView):
     """
     Displays the observation type detail page
     """
-    template_name = 'observationtypes/observationtype_view.html'
+    template_name = 'categories/category_settings.html'
 
     @handle_exceptions_for_admin
-    def get_context_data(self, project_id, observationtype_id):
+    def get_context_data(self, project_id, category_id):
         """
         Creates the request context for rendering the page
         """
         user = self.request.user
-        observation_type = ObservationType.objects.as_admin(
-            user, project_id, observationtype_id)
+        category = Category.objects.as_admin(
+            user, project_id, category_id)
         return {
-            'observationtype': observation_type,
-            'admin': observation_type.project.is_admin(user),
+            'category': category,
+            'admin': category.project.is_admin(user),
             'status_types': STATUS
         }
 
-    def post(self, request, project_id, observationtype_id):
-        context = self.get_context_data(project_id, observationtype_id)
-        category = context.pop('observationtype')
+    def post(self, request, project_id, category_id):
+        context = self.get_context_data(project_id, category_id)
+        category = context.pop('category')
         data = request.POST
 
         category.name = strip_tags(data.get('name'))
@@ -162,17 +162,17 @@ class ObservationTypeSettings(LoginRequiredMixin, TemplateView):
         category.save()
 
         messages.success(self.request, "The category has been updated.")
-        context['observationtype'] = category
+        context['category'] = category
         return self.render_to_response(context)
 
 
 class CategoryDisplay(LoginRequiredMixin, TemplateView):
-    template_name = 'observationtypes/category_display.html'
+    template_name = 'categories/category_display.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, category_id, **kwargs):
         user = self.request.user
-        category = ObservationType.objects.as_admin(
+        category = Category.objects.as_admin(
             user, project_id, category_id)
         return super(CategoryDisplay, self).get_context_data(
             category=category, **kwargs)
@@ -205,7 +205,7 @@ class CategoryDelete(LoginRequiredMixin, TemplateView):
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, category_id, **kwargs):
         user = self.request.user
-        category = ObservationType.objects.as_admin(
+        category = Category.objects.as_admin(
             user, project_id, category_id)
         return super(CategoryDelete, self).get_context_data(
             category=category, **kwargs)
@@ -228,17 +228,17 @@ class FieldCreate(LoginRequiredMixin, CreateView):
     Displays the create field page
     """
     form_class = FieldCreateForm
-    template_name = 'observationtypes/field_create.html'
+    template_name = 'categories/field_create.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, form, data=None, key_error=False, **kwargs):
         project_id = self.kwargs['project_id']
-        observationtype_id = self.kwargs['observationtype_id']
+        category_id = self.kwargs['category_id']
 
         context = super(FieldCreate, self).get_context_data(**kwargs)
 
-        context['category'] = ObservationType.objects.as_admin(
-            self.request.user, project_id, observationtype_id
+        context['category'] = Category.objects.as_admin(
+            self.request.user, project_id, category_id
         )
         context['fieldtypes'] = Field.get_field_types()
         context['key_error'] = key_error
@@ -248,16 +248,16 @@ class FieldCreate(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         project_id = self.kwargs['project_id']
-        observationtype_id = self.kwargs['observationtype_id']
+        category_id = self.kwargs['category_id']
         data = form.cleaned_data
-        observation_type = ObservationType.objects.as_admin(
-            self.request.user, project_id, observationtype_id)
+        category = Category.objects.as_admin(
+            self.request.user, project_id, category_id)
 
         proposed_key = slugify(strip_tags(data.get('name')))
         suggested_key = proposed_key
 
         count = 1
-        while observation_type.fields.filter(key=suggested_key).exists():
+        while category.fields.filter(key=suggested_key).exists():
             suggested_key = '%s-%s' % (proposed_key, count)
             count = count + 1
 
@@ -266,7 +266,7 @@ class FieldCreate(LoginRequiredMixin, CreateView):
             suggested_key,
             strip_tags(data.get('description')),
             data.get('required'),
-            observation_type,
+            category,
             self.request.POST.get('type')
         )
 
@@ -276,10 +276,10 @@ class FieldCreate(LoginRequiredMixin, CreateView):
         field.save()
 
         field_create_url = reverse(
-            'admin:observationtype_field_create',
+            'admin:category_field_create',
             kwargs={
                 'project_id': project_id,
-                'observationtype_id': observationtype_id
+                'category_id': category_id
             }
         )
 
@@ -290,9 +290,9 @@ class FieldCreate(LoginRequiredMixin, CreateView):
         )
 
         return redirect(
-            'admin:observationtype_field_settings',
-            project_id=observation_type.project.id,
-            observationtype_id=observation_type.id,
+            'admin:category_field_settings',
+            project_id=category.project.id,
+            category_id=category.id,
             field_id=field.id
         )
 
@@ -301,14 +301,14 @@ class FieldSettings(LoginRequiredMixin, TemplateView):
     """
     Displays the field detail page
     """
-    template_name = 'observationtypes/field_view.html'
+    template_name = 'categories/field_view.html'
 
     @handle_exceptions_for_admin
-    def get_context_data(self, project_id, observationtype_id, field_id,
+    def get_context_data(self, project_id, category_id, field_id,
                          **kwargs):
         user = self.request.user
         field = Field.objects.as_admin(
-            user, project_id, observationtype_id, field_id)
+            user, project_id, category_id, field_id)
         context = super(FieldSettings, self).get_context_data(**kwargs)
         context['field'] = field
         context['status_types'] = STATUS
@@ -316,10 +316,10 @@ class FieldSettings(LoginRequiredMixin, TemplateView):
 
         return context
 
-    def post(self, request, project_id, observationtype_id, field_id):
+    def post(self, request, project_id, category_id, field_id):
         context = self.get_context_data(
             project_id,
-            observationtype_id,
+            category_id,
             field_id
         )
         field = context.pop('field')
@@ -373,30 +373,30 @@ class FieldDelete(LoginRequiredMixin, TemplateView):
 #
 # ############################################################################
 
-class ObservationTypeUpdate(APIView):
+class CategoryUpdate(APIView):
     """
-    API Endpoints for a observationtype in the AJAX API.
-    /ajax/projects/:project_id/observationtypes/:observationtype_id
+    API Endpoints for a category in the AJAX API.
+    /ajax/projects/:project_id/categories/:category_id
     """
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, observationtype_id, format=None):
-        observation_type = ObservationType.objects.as_admin(
-            request.user, project_id, observationtype_id)
+    def get(self, request, project_id, category_id, format=None):
+        category = Category.objects.as_admin(
+            request.user, project_id, category_id)
 
-        serializer = ObservationTypeSerializer(observation_type)
+        serializer = CategorySerializer(category)
         return Response(serializer.data)
 
     @handle_exceptions_for_ajax
-    def put(self, request, project_id, observationtype_id, format=None):
+    def put(self, request, project_id, category_id, format=None):
         """
-        Updates an observationtype
+        Updates an category
         """
 
-        observation_type = ObservationType.objects.as_admin(
-            request.user, project_id, observationtype_id)
+        category = Category.objects.as_admin(
+            request.user, project_id, category_id)
 
-        serializer = ObservationTypeSerializer(
-            observation_type, data=request.DATA, partial=True,
+        serializer = CategorySerializer(
+            category, data=request.DATA, partial=True,
             fields=('id', 'name', 'description', 'status'))
 
         if serializer.is_valid():
@@ -409,17 +409,17 @@ class ObservationTypeUpdate(APIView):
 class FieldUpdate(APIView):
     """
     API endpoints for fields
-    /ajax/projects/:project_id/observationtypes/:observationtype_id/fields/
+    /ajax/projects/:project_id/categories/:category_id/fields/
     :field_id
     """
     @handle_exceptions_for_ajax
-    def put(self, request, project_id, observationtype_id, field_id,
+    def put(self, request, project_id, category_id, field_id,
             format=None):
         """
         Updates a field
         """
         field = Field.objects.as_admin(
-            request.user, project_id, observationtype_id, field_id)
+            request.user, project_id, category_id, field_id)
 
         serializer = FieldSerializer(
             field, data=request.DATA, partial=True
@@ -435,17 +435,17 @@ class FieldUpdate(APIView):
 class FieldLookups(APIView):
     """
     API endpoint for lookupvalues
-    /ajax/projects/:project_id/observationtypes/:observationtype_id/fields/
+    /ajax/projects/:project_id/categories/:category_id/fields/
     :field_id/lookupvalues
     """
     @handle_exceptions_for_ajax
-    def post(self, request, project_id, observationtype_id, field_id,
+    def post(self, request, project_id, category_id, field_id,
              format=None):
         """
         Adds a lookup value to the lookup field
         """
         field = Field.objects.as_admin(
-            request.user, project_id, observationtype_id, field_id)
+            request.user, project_id, category_id, field_id)
         name = strip_tags(request.DATA.get('name'))
 
         if isinstance(field, LookupField):
@@ -470,17 +470,17 @@ class FieldLookups(APIView):
 class FieldLookupsUpdate(APIView):
     """
     API endpoint for lookupvalues
-    /ajax/projects/:project_id/observationtypes/:observationtype_id/fields/
+    /ajax/projects/:project_id/categories/:category_id/fields/
     :field_id/lookupvalues/:value_id
     """
     @handle_exceptions_for_ajax
-    def delete(self, request, project_id, observationtype_id, field_id,
+    def delete(self, request, project_id, category_id, field_id,
                value_id, format=None):
         """
         Removes a LookupValue
         """
         field = Field.objects.as_admin(
-            request.user, project_id, observationtype_id, field_id)
+            request.user, project_id, category_id, field_id)
 
         if (isinstance(field, LookupField) or
                 isinstance(field, MultipleLookupField)):
@@ -496,12 +496,12 @@ class FieldLookupsUpdate(APIView):
 class FieldsReorderView(APIView):
     @handle_exceptions_for_ajax
     def post(self, request, project_id, category_id, format=None):
-        category = ObservationType.objects.as_admin(
+        category = Category.objects.as_admin(
             request.user, project_id, category_id)
         try:
             category.re_order_fields(request.DATA.get('order'))
 
-            serializer = ObservationTypeSerializer(category)
+            serializer = CategorySerializer(category)
             return Response(serializer.data)
         except Field.DoesNotExist:
             return Response(
@@ -516,18 +516,18 @@ class FieldsReorderView(APIView):
 #
 # ############################################################################
 
-class SingleObservationType(APIView):
+class SingleCategory(APIView):
     """
-    API endpoint for a single observationtype
-    /api/projects/:project_id/observationtypes/:observationtype_id
+    API endpoint for a single category
+    /api/projects/:project_id/categories/:category_id
     """
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, observationtype_id, format=None):
+    def get(self, request, project_id, category_id, format=None):
         """
-        Returns the observationtype and all fields
+        Returns the category and all fields
         """
-        observationtype = ObservationType.objects.get_single(
-            request.user, project_id, observationtype_id)
+        category = Category.objects.get_single(
+            request.user, project_id, category_id)
 
-        serializer = ObservationTypeSerializer(observationtype)
+        serializer = CategorySerializer(category)
         return Response(serializer.data)

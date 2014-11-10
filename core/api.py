@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
 from projects import views as project_views
-from observationtypes import views as observationtype_views
+from categories import views as category_views
 from contributions import views as contribution_views
 
 urlpatterns = patterns(
@@ -133,7 +133,7 @@ urlpatterns = patterns(
     # OBSERVATION TYPES
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<observationtype_id>[0-9]+)/$',
-        observationtype_views.SingleObservationType.as_view(),
-        name='observationtype'),
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/$',
+        category_views.SingleCategory.as_view(),
+        name='category'),
 )

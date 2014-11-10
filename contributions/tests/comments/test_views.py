@@ -12,7 +12,7 @@ from rest_framework import status
 
 from projects.tests.model_factories import UserF, ProjectF
 from projects.models import Project
-from observationtypes.tests.model_factories import ObservationTypeFactory
+from categories.tests.model_factories import CategoryFactory
 from datagroupings.tests.model_factories import (
     GroupingFactory, RuleFactory
 )
@@ -69,18 +69,18 @@ class GroupingContributionsSingleCommentAPIViewTest(TestCase):
             add_contributors=[self.creator]
         )
 
-        observation_type = ObservationTypeFactory(**{'project': self.project})
+        category = CategoryFactory(**{'project': self.project})
 
         self.observation = ObservationFactory.create(**{
             'project': self.project,
             'creator': self.creator,
-            'observationtype': observation_type
+            'category': category
         })
 
         self.view = GroupingFactory(**{'project': self.project})
         RuleFactory(**{
             'grouping': self.view,
-            'observation_type': observation_type}
+            'category': category}
         )
 
     def test_get_object_with_admin(self):
@@ -836,16 +836,16 @@ class GetCommentsView(APITestCase):
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
-        observation_type = ObservationTypeFactory(**{'project': self.project})
+        category = CategoryFactory(**{'project': self.project})
         self.view = GroupingFactory(**{'project': self.project})
         RuleFactory(**{
             'grouping': self.view,
-            'observation_type': observation_type}
+            'category': category}
         )
 
         self.observation = ObservationFactory.create(**{
             'project': self.project,
-            'observationtype': observation_type
+            'category': category
         })
         comment = CommentFactory.create(**{
             'commentto': self.observation
@@ -918,16 +918,16 @@ class AddCommentToViewTest(APITestCase):
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
-        observation_type = ObservationTypeFactory(**{'project': self.project})
+        category = CategoryFactory(**{'project': self.project})
         self.view = GroupingFactory(**{'project': self.project})
         RuleFactory(**{
             'grouping': self.view,
-            'observation_type': observation_type
+            'category': category
         })
 
         self.observation = ObservationFactory.create(**{
             'project': self.project,
-            'observationtype': observation_type
+            'category': category
         })
 
     def get_response(self, user):
@@ -982,9 +982,9 @@ class AddCommentToWrongGroupingObservation(APITestCase):
             add_admins=[admin]
         )
         observation = ObservationFactory.create()
-        observation_type = ObservationTypeFactory(**{'project': project})
+        category = CategoryFactory(**{'project': project})
         view = GroupingFactory(**{'project': project})
-        RuleFactory(**{'grouping': view, 'observation_type': observation_type})
+        RuleFactory(**{'grouping': view, 'category': category})
 
         url = reverse(
             'api:view_comments',
@@ -1014,13 +1014,13 @@ class AddResponseToGroupingCommentTest(APITestCase):
         project = ProjectF(
             add_admins=[admin]
         )
-        observation_type = ObservationTypeFactory(**{'project': project})
+        category = CategoryFactory(**{'project': project})
         view = GroupingFactory(**{'project': project})
-        RuleFactory(**{'grouping': view, 'observation_type': observation_type})
+        RuleFactory(**{'grouping': view, 'category': category})
 
         observation = ObservationFactory.create(**{
             'project': project,
-            'observationtype': observation_type
+            'category': category
         })
         comment = CommentFactory.create(**{
             'commentto': observation
@@ -1064,13 +1064,13 @@ class AddResponseToWrongGroupingCommentTest(APITestCase):
         project = ProjectF(
             add_admins=[admin]
         )
-        observation_type = ObservationTypeFactory(**{'project': project})
+        category = CategoryFactory(**{'project': project})
         view = GroupingFactory(**{'project': project})
-        RuleFactory(**{'grouping': view, 'observation_type': observation_type})
+        RuleFactory(**{'grouping': view, 'category': category})
 
         observation = ObservationFactory.create(**{
             'project': project,
-            'observationtype': observation_type
+            'category': category
         })
         comment = CommentFactory.create()
 
@@ -1118,7 +1118,7 @@ class DeleteGroupingCommentTest(APITestCase):
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
-        observation_type = ObservationTypeFactory(**{'project': self.project})
+        category = CategoryFactory(**{'project': self.project})
         self.view = GroupingFactory(**{'project': self.project})
         group = UserGroupF.create(
             add_users=[self.view_member, self.commentor],
@@ -1128,12 +1128,12 @@ class DeleteGroupingCommentTest(APITestCase):
             **{'grouping': self.view, 'usergroup': group}
         )
         RuleFactory(
-            **{'grouping': self.view, 'observation_type': observation_type}
+            **{'grouping': self.view, 'category': category}
         )
 
         self.observation = ObservationFactory.create(**{
             'project': self.project,
-            'observationtype': observation_type
+            'category': category
         })
 
         self.comment = CommentFactory.create(**{
@@ -1209,13 +1209,13 @@ class DeleteWrongGroupingComment(APITestCase):
     def test(self):
         admin = UserF.create()
         project = ProjectF(add_admins=[admin])
-        observation_type = ObservationTypeFactory(**{'project': project})
+        category = CategoryFactory(**{'project': project})
         view = GroupingFactory(**{'project': project})
-        RuleFactory(**{'grouping': view, 'observation_type': observation_type})
+        RuleFactory(**{'grouping': view, 'category': category})
 
         observation = ObservationFactory.create(**{
             'project': project,
-            'observationtype': observation_type
+            'category': category
         })
         comment = CommentFactory.create()
 

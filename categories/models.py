@@ -9,19 +9,17 @@ from django.db.models.loading import get_model
 
 from core.exceptions import InputError
 
-from .manager import ObservationTypeManager, FieldManager, LookupValueManager
+from .manager import CategoryManager, FieldManager, LookupValueManager
 from .base import STATUS, DEFAULT_STATUS
 
 
-class ObservationType(models.Model):
+class Category(models.Model):
     """
     Defines the data structure of a certain type of features.
     """
     name = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    project = models.ForeignKey(
-        'projects.Project', related_name='observationtypes'
-    )
+    project = models.ForeignKey('projects.Project', related_name='categories')
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     status = models.CharField(
@@ -37,7 +35,7 @@ class ObservationType(models.Model):
     colour = models.TextField(default='#0033ff')
     symbol = models.ImageField(upload_to='symbols', null=True)
 
-    objects = ObservationTypeManager()
+    objects = CategoryManager()
 
     def re_order_fields(self, order):
         """
@@ -62,9 +60,7 @@ class Field(models.Model):
     key = models.CharField(max_length=30)
     description = models.TextField(null=True, blank=True)
     required = models.BooleanField(default=False)
-    observationtype = models.ForeignKey(
-        'ObservationType', related_name='fields'
-    )
+    category = models.ForeignKey('Category', related_name='fields')
     order = models.IntegerField(default=0)
     status = models.CharField(
         choices=STATUS,
@@ -75,23 +71,23 @@ class Field(models.Model):
     objects = FieldManager()
 
     class Meta:
-        unique_together = ('key', 'observationtype')
+        unique_together = ('key', 'category')
 
     @classmethod
-    def create(self, name, key, description, required, observation_type,
+    def create(self, name, key, description, required, category,
                field_type):
         """
         Creates a new field based on the field type provided.
         """
-        model_class = get_model('observationtypes', field_type)
-        order = observation_type.fields.count()
+        model_class = get_model('categories', field_type)
+        order = category.fields.count()
 
         field = model_class.objects.create(
             name=name,
             key=key,
             description=description,
             required=required,
-            observationtype=observation_type,
+            category=category,
             order=order
         )
         field.save()

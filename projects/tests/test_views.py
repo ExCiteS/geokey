@@ -12,8 +12,8 @@ from nose.tools import raises
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from datagroupings.tests.model_factories import GroupingFactory
-from observationtypes.tests.model_factories import (
-    TextFieldFactory, ObservationTypeFactory
+from categories.tests.model_factories import (
+    TextFieldFactory, CategoryFactory
 )
 
 from .model_factories import UserF, ProjectF
@@ -713,14 +713,14 @@ class SingleProjectTest(TestCase):
         project = ProjectF.create(
             add_admins=[user]
         )
-        ObservationTypeFactory.create(**{'project': project})
-        ObservationTypeFactory.create(
+        CategoryFactory.create(**{'project': project})
+        CategoryFactory.create(
             **{'project': project, 'status': 'inactive'}
         )
-        o1 = ObservationTypeFactory.create(**{'project': project})
-        TextFieldFactory.create(**{'observationtype': o1})
-        o2 = ObservationTypeFactory.create(**{'project': project})
-        TextFieldFactory.create(**{'observationtype': o2})
+        o1 = CategoryFactory.create(**{'project': project})
+        TextFieldFactory.create(**{'category': o1})
+        o2 = CategoryFactory.create(**{'project': project})
+        TextFieldFactory.create(**{'category': o2})
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)

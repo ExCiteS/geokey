@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
 from projects import views as project_views
-from observationtypes import views as observationtypes_views
+from categories import views as category_views
 from datagroupings import views as view_views
 from users import views as user_views
 
@@ -47,24 +47,24 @@ urlpatterns = patterns(
     # OBSERVATION TYPES & FIELDS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/$',
-        observationtypes_views.ObservationTypeUpdate.as_view(),
-        name='observationtype'),
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/$',
+        category_views.CategoryUpdate.as_view(),
+        name='category'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/$',
-        observationtypes_views.FieldUpdate.as_view(),
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/$',
+        category_views.FieldUpdate.as_view(),
         name='observationtype_field'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/lookupvalues/$',
-        observationtypes_views.FieldLookups.as_view(),
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/lookupvalues/$',
+        category_views.FieldLookups.as_view(),
         name='observationtype_lookupvalues'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/observationtypes/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/lookupvalues/(?P<value_id>[0-9]+)/$',
-        observationtypes_views.FieldLookupsUpdate.as_view(),
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/lookupvalues/(?P<value_id>[0-9]+)/$',
+        category_views.FieldLookupsUpdate.as_view(),
         name='observationtype_lookupvalues_detail'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/re-order/$',
-        observationtypes_views.FieldsReorderView.as_view(),
+        category_views.FieldsReorderView.as_view(),
         name='category_fields_reorder'),
 
     # ###########################

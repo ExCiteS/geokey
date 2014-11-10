@@ -17,7 +17,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from projects.models import Project
-from observationtypes.models import ObservationType
+from categories.models import Category
 
 from .base import STATUS
 from .forms import GroupingCreateForm
@@ -203,7 +203,7 @@ class RuleCreate(LoginRequiredMixin, CreateView):
             project_id,
             grouping_id
         )
-        observation_type = ObservationType.objects.as_admin(
+        category = Category.objects.as_admin(
             self.request.user, project_id, request.POST.get('observationtype'))
 
         rules = None
@@ -219,7 +219,7 @@ class RuleCreate(LoginRequiredMixin, CreateView):
 
         Rule.objects.create(
             view=view,
-            observation_type=observation_type,
+            category=category,
             min_date=min_date,
             max_date=max_date,
             filters=rules

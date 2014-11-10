@@ -6,8 +6,8 @@ from django.test import TestCase
 from nose.tools import raises
 
 from projects.tests.model_factories import ProjectF
-from observationtypes.tests.model_factories import (
-    ObservationTypeFactory, TextFieldFactory, NumericFieldFactory,
+from categories.tests.model_factories import (
+    CategoryFactory, TextFieldFactory, NumericFieldFactory,
     TrueFalseFieldFactory, LookupFieldFactory, LookupValueFactory,
     DateTimeFieldFactory, MultipleLookupFieldFactory,
     MultipleLookupValueFactory,
@@ -152,59 +152,59 @@ class ViewTest(TestCase):
 
     def test_get_data(self):
         project = ProjectF()
-        observation_type_1 = ObservationTypeFactory(**{'project': project})
-        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        category_1 = CategoryFactory(**{'project': project})
+        category_2 = CategoryFactory(**{'project': project})
         view = GroupingFactory(**{'project': project})
         for x in range(0, 5):
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1}
+                'category': category_1}
             )
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_2}
+                'category': category_2}
             )
 
         RuleFactory(**{
             'grouping': view,
-            'observation_type': observation_type_1
+            'category': category_1
         })
 
         self.assertEqual(len(view.data), 5)
         for observation in view.data:
-            self.assertEqual(observation.observationtype, observation_type_1)
+            self.assertEqual(observation.category, category_1)
 
     def test_get_updated_data(self):
         project = ProjectF()
-        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        category_1 = CategoryFactory(**{'project': project})
         TextFieldFactory(**{
             'key': 'text',
-            'observationtype': observation_type_1
+            'category': category_1
         })
 
         observation = ObservationFactory(**{
             'project': project,
-            'observationtype': observation_type_1,
+            'category': category_1,
             'attributes': {'text': 'yes to update'}
         })
 
         for x in range(0, 5):
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1,
+                'category': category_1,
                 'attributes': {'text': 'yes ' + str(x)}
             })
 
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1,
+                'category': category_1,
                 'attributes': {'text': 'no ' + str(x)}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
-            'observation_type': observation_type_1,
+            'category': category_1,
             'filters': {'text': 'yes'}
         })
 
@@ -215,114 +215,114 @@ class ViewTest(TestCase):
 
     def test_get_data_combined(self):
         project = ProjectF()
-        observation_type_1 = ObservationTypeFactory(**{'project': project})
-        observation_type_2 = ObservationTypeFactory(**{'project': project})
-        observation_type_3 = ObservationTypeFactory(**{'project': project})
+        category_1 = CategoryFactory(**{'project': project})
+        category_2 = CategoryFactory(**{'project': project})
+        category_3 = CategoryFactory(**{'project': project})
         view = GroupingFactory(**{'project': project})
         for x in range(0, 5):
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1}
+                'category': category_1}
             )
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_2}
+                'category': category_2}
             )
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_3}
+                'category': category_3}
             )
 
         RuleFactory(**{
             'grouping': view,
-            'observation_type': observation_type_1
+            'category': category_1
         })
         RuleFactory(**{
             'grouping': view,
-            'observation_type': observation_type_2
+            'category': category_2
         })
 
         self.assertEqual(len(view.data), 10)
         for observation in view.data:
             self.assertNotEqual(
-                observation.observationtype, observation_type_3)
+                observation.category, category_3)
 
     def test_get_data_text_filter(self):
         project = ProjectF()
-        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        category_1 = CategoryFactory(**{'project': project})
         TextFieldFactory(**{
             'key': 'text',
-            'observationtype': observation_type_1
+            'category': category_1
         })
-        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        category_2 = CategoryFactory(**{'project': project})
         TextFieldFactory(**{
             'key': 'bla',
-            'observationtype': observation_type_2
+            'category': category_2
         })
 
         for x in range(0, 5):
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1,
+                'category': category_1,
                 'attributes': {'text': 'yes ' + str(x)}}
             )
 
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1,
+                'category': category_1,
                 'attributes': {'text': 'no ' + str(x)}}
             )
 
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_2,
+                'category': category_2,
                 'attributes': {'bla': 'yes ' + str(x)}}
             )
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
-            'observation_type': observation_type_1,
+            'category': category_1,
             'filters': {'text': 'yes'}
         })
         self.assertEqual(len(view.data), 5)
 
     def test_get_data_min_number_filter(self):
         project = ProjectF()
-        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        category_1 = CategoryFactory(**{'project': project})
         NumericFieldFactory(**{
             'key': 'number',
-            'observationtype': observation_type_1
+            'category': category_1
         })
-        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        category_2 = CategoryFactory(**{'project': project})
         NumericFieldFactory(**{
             'key': 'bla',
-            'observationtype': observation_type_2
+            'category': category_2
         })
 
         for x in range(0, 5):
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1,
+                'category': category_1,
                 'attributes': {'number': 12}}
             )
 
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1,
+                'category': category_1,
                 'attributes': {'number': 20}}
             )
 
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_2,
+                'category': category_2,
                 'attributes': {'number': 12}}
             )
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
-            'observation_type': observation_type_1,
+            'category': category_1,
             'filters': {'number': {'minval': '15'}}
         })
 
@@ -330,40 +330,40 @@ class ViewTest(TestCase):
 
     def test_get_data_max_number_filter(self):
         project = ProjectF()
-        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        category_1 = CategoryFactory(**{'project': project})
         NumericFieldFactory(**{
             'key': 'number',
-            'observationtype': observation_type_1
+            'category': category_1
         })
-        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        category_2 = CategoryFactory(**{'project': project})
         NumericFieldFactory(**{
             'key': 'bla',
-            'observationtype': observation_type_2
+            'category': category_2
         })
 
         for x in range(0, 5):
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1,
+                'category': category_1,
                 'attributes': {'number': 12}
             })
 
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1,
+                'category': category_1,
                 'attributes': {'number': 20}
             })
 
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_2,
+                'category': category_2,
                 'attributes': {'number': 12}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
-            'observation_type': observation_type_1,
+            'category': category_1,
             'filters': {'number': {'maxval': 15}}
         })
 
@@ -371,40 +371,40 @@ class ViewTest(TestCase):
 
     def test_get_data_min_max_number_filter(self):
         project = ProjectF()
-        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        category_1 = CategoryFactory(**{'project': project})
         NumericFieldFactory(**{
             'key': 'rating',
-            'observationtype': observation_type_1
+            'category': category_1
         })
-        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        category_2 = CategoryFactory(**{'project': project})
         NumericFieldFactory(**{
             'key': 'bla',
-            'observationtype': observation_type_2
+            'category': category_2
         })
 
         for x in range(5, 11):
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1,
+                'category': category_1,
                 'attributes': {'rating': x}
             })
 
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1,
+                'category': category_1,
                 'attributes': {'rating': x}
             })
 
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_2,
+                'category': category_2,
                 'attributes': {'rating': x}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
-            'observation_type': observation_type_1,
+            'category': category_1,
             'filters': {'rating': {'minval': 8, 'maxval': 10}}
         })
 
@@ -412,40 +412,40 @@ class ViewTest(TestCase):
 
     def test_get_data_true_false_filter(self):
         project = ProjectF()
-        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        category_1 = CategoryFactory(**{'project': project})
         TrueFalseFieldFactory(**{
             'key': 'true',
-            'observationtype': observation_type_1
+            'category': category_1
         })
-        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        category_2 = CategoryFactory(**{'project': project})
         TrueFalseFieldFactory(**{
             'key': 'bla',
-            'observationtype': observation_type_2
+            'category': category_2
         })
 
         for x in range(0, 5):
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1,
+                'category': category_1,
                 'attributes': {'true': True, 'bla': 'bla'}
             })
 
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1,
+                'category': category_1,
                 'attributes': {'true': False}
             })
 
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_2,
+                'category': category_2,
                 'attributes': {'true': True}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
-            'observation_type': observation_type_1,
+            'category': category_1,
             'filters': {'true': True}
         })
 
@@ -453,10 +453,10 @@ class ViewTest(TestCase):
 
     def test_get_data_lookup_filter(self):
         project = ProjectF()
-        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        category_1 = CategoryFactory(**{'project': project})
         lookup_field = LookupFieldFactory(**{
             'key': 'lookup',
-            'observationtype': observation_type_1
+            'category': category_1
         })
         lookup_1 = LookupValueFactory(**{
             'name': 'Ms. Piggy',
@@ -466,10 +466,10 @@ class ViewTest(TestCase):
             'name': 'Kermit',
             'field': lookup_field
         })
-        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        category_2 = CategoryFactory(**{'project': project})
         lookup_field_2 = LookupFieldFactory(**{
             'key': 'bla',
-            'observationtype': observation_type_2
+            'category': category_2
         })
         lookup_3 = LookupValueFactory(**{
             'name': 'Gonzo',
@@ -479,26 +479,26 @@ class ViewTest(TestCase):
         for x in range(0, 5):
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1,
+                'category': category_1,
                 'attributes': {'lookup': lookup_1.id}
             })
 
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1,
+                'category': category_1,
                 'attributes': {'lookup': lookup_2.id}
             })
 
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_2,
+                'category': category_2,
                 'attributes': {'bla': lookup_3.id}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
-            'observation_type': observation_type_1,
+            'category': category_1,
             'filters': {'lookup': [lookup_1.id, lookup_2.id]}
         })
 
@@ -506,40 +506,40 @@ class ViewTest(TestCase):
 
     def test_get_data_min_max_date_filter(self):
         project = ProjectF()
-        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        category_1 = CategoryFactory(**{'project': project})
         DateTimeFieldFactory(**{
             'key': 'date',
-            'observationtype': observation_type_1
+            'category': category_1
         })
-        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        category_2 = CategoryFactory(**{'project': project})
         DateTimeFieldFactory(**{
             'key': 'bla',
-            'observationtype': observation_type_2
+            'category': category_2
         })
 
         for x in range(0, 5):
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1,
+                'category': category_1,
                 'attributes': {'date': '2014-04-09'}
             })
 
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1,
+                'category': category_1,
                 'attributes': {'date': '2013-04-09'}
             })
 
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_2,
+                'category': category_2,
                 'attributes': {'bla': '2014-04-09'}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
-            'observation_type': observation_type_1,
+            'category': category_1,
             'filters': {'date': {
                 'minval': '2014-01-01', 'maxval': '2014-06-09 00:00'}
             }
@@ -549,11 +549,11 @@ class ViewTest(TestCase):
 
     def test_get_created_after(self):
         project = ProjectF()
-        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        category_1 = CategoryFactory(**{'project': project})
 
         obs = ObservationFactory.create_batch(5, **{
             'project': project,
-            'observationtype': observation_type_1
+            'category': category_1
         })
 
         for o in obs:
@@ -562,7 +562,7 @@ class ViewTest(TestCase):
 
         obs = ObservationFactory.create_batch(5, **{
             'project': project,
-            'observationtype': observation_type_1
+            'category': category_1
         })
 
         for o in obs:
@@ -571,7 +571,7 @@ class ViewTest(TestCase):
 
         obs = ObservationFactory.create_batch(5, **{
             'project': project,
-            'observationtype': observation_type_1
+            'category': category_1
         })
 
         for o in obs:
@@ -581,7 +581,7 @@ class ViewTest(TestCase):
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
-            'observation_type': observation_type_1,
+            'category': category_1,
             'min_date': datetime(2013, 5, 1, 0, 0, 0, tzinfo=pytz.utc)
         })
 
@@ -589,11 +589,11 @@ class ViewTest(TestCase):
 
     def test_get_created_before(self):
         project = ProjectF()
-        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        category_1 = CategoryFactory(**{'project': project})
 
         obs = ObservationFactory.create_batch(5, **{
             'project': project,
-            'observationtype': observation_type_1
+            'category': category_1
         })
 
         for o in obs:
@@ -602,7 +602,7 @@ class ViewTest(TestCase):
 
         obs = ObservationFactory.create_batch(5, **{
             'project': project,
-            'observationtype': observation_type_1
+            'category': category_1
         })
 
         for o in obs:
@@ -611,7 +611,7 @@ class ViewTest(TestCase):
 
         obs = ObservationFactory.create_batch(5, **{
             'project': project,
-            'observationtype': observation_type_1
+            'category': category_1
         })
 
         for o in obs:
@@ -621,7 +621,7 @@ class ViewTest(TestCase):
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
-            'observation_type': observation_type_1,
+            'category': category_1,
             'max_date': datetime(2013, 5, 1, 0, 0, 0, tzinfo=pytz.utc)
         })
 
@@ -629,11 +629,11 @@ class ViewTest(TestCase):
 
     def test_get_created_before_and_after(self):
         project = ProjectF()
-        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        category_1 = CategoryFactory(**{'project': project})
 
         obs = ObservationFactory.create_batch(5, **{
             'project': project,
-            'observationtype': observation_type_1
+            'category': category_1
         })
 
         for o in obs:
@@ -642,7 +642,7 @@ class ViewTest(TestCase):
 
         obs = ObservationFactory.create_batch(5, **{
             'project': project,
-            'observationtype': observation_type_1
+            'category': category_1
         })
 
         for o in obs:
@@ -651,7 +651,7 @@ class ViewTest(TestCase):
 
         obs = ObservationFactory.create_batch(5, **{
             'project': project,
-            'observationtype': observation_type_1
+            'category': category_1
         })
 
         for o in obs:
@@ -661,7 +661,7 @@ class ViewTest(TestCase):
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
-            'observation_type': observation_type_1,
+            'category': category_1,
             'min_date': datetime(2013, 1, 1, 0, 0, 0, tzinfo=pytz.utc),
             'max_date': datetime(2013, 10, 1, 0, 0, 0, tzinfo=pytz.utc)
         })
@@ -670,10 +670,10 @@ class ViewTest(TestCase):
 
     def test_get_data_multiple_lookup_filter(self):
         project = ProjectF()
-        observation_type_1 = ObservationTypeFactory(**{'project': project})
+        category_1 = CategoryFactory(**{'project': project})
         lookup_field = MultipleLookupFieldFactory(**{
             'key': 'lookup',
-            'observationtype': observation_type_1
+            'category': category_1
         })
         lookup_1 = MultipleLookupValueFactory(**{
             'name': 'Ms. Piggy',
@@ -687,10 +687,10 @@ class ViewTest(TestCase):
             'name': 'Gonzo',
             'field': lookup_field
         })
-        observation_type_2 = ObservationTypeFactory(**{'project': project})
+        category_2 = CategoryFactory(**{'project': project})
         lookup_field_2 = MultipleLookupFieldFactory(**{
             'key': 'bla',
-            'observationtype': observation_type_2
+            'category': category_2
         })
         lookup_4 = MultipleLookupValueFactory(**{
             'name': 'Gonzo',
@@ -700,26 +700,26 @@ class ViewTest(TestCase):
         for x in range(0, 5):
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1,
+                'category': category_1,
                 'attributes': {'lookup': [lookup_1.id, lookup_3.id]}
             })
 
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_1,
+                'category': category_1,
                 'attributes': {'lookup': [lookup_2.id, lookup_3.id]}
             })
 
             ObservationFactory(**{
                 'project': project,
-                'observationtype': observation_type_2,
+                'category': category_2,
                 'attributes': {'bla': [lookup_4.id]}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
-            'observation_type': observation_type_1,
+            'category': category_1,
             'filters': {'lookup': [lookup_1.id, lookup_2.id]}
         })
 

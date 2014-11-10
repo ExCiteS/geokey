@@ -6,7 +6,7 @@ from rest_framework import serializers
 from core.serializers import FieldSelectorSerializer
 from datagroupings.serializers import GroupingSerializer
 from datagroupings.models import Grouping
-from observationtypes.serializer import ObservationTypeSerializer
+from categories.serializer import CategorySerializer
 from contributions.models import Location
 
 from .models import Project
@@ -42,8 +42,8 @@ class ProjectSerializer(FieldSelectorSerializer):
         read_only_fields = ('id', 'name')
 
     def get_categories(self, project):
-        serializer = ObservationTypeSerializer(
-            project.observationtypes.active().exclude(fields=None), many=True)
+        serializer = CategorySerializer(
+            project.categories.active().exclude(fields=None), many=True)
         return serializer.data
 
     def get_data_groupings(self, project):

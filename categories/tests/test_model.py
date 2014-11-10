@@ -10,20 +10,20 @@ from ..models import Field
 from .model_factories import (
     TextFieldFactory, NumericFieldFactory, DateTimeFieldFactory,
     TrueFalseFieldFactory, LookupFieldFactory, LookupValueFactory,
-    FieldFactory, ObservationTypeFactory, MultipleLookupFieldFactory,
+    FieldFactory, CategoryFactory, MultipleLookupFieldFactory,
     MultipleLookupValueFactory
 )
 
 
 class CategoryTest(TestCase):
     def test_re_order_fields(self):
-        category = ObservationTypeFactory.create()
+        category = CategoryFactory.create()
 
-        field_0 = TextFieldFactory.create(**{'observationtype': category})
-        field_1 = TextFieldFactory.create(**{'observationtype': category})
-        field_2 = TextFieldFactory.create(**{'observationtype': category})
-        field_3 = TextFieldFactory.create(**{'observationtype': category})
-        field_4 = TextFieldFactory.create(**{'observationtype': category})
+        field_0 = TextFieldFactory.create(**{'category': category})
+        field_1 = TextFieldFactory.create(**{'category': category})
+        field_2 = TextFieldFactory.create(**{'category': category})
+        field_3 = TextFieldFactory.create(**{'category': category})
+        field_4 = TextFieldFactory.create(**{'category': category})
 
         category.re_order_fields(
             [field_4.id, field_0.id, field_2.id, field_1.id,  field_3.id]
@@ -39,13 +39,13 @@ class CategoryTest(TestCase):
         self.assertEqual(fields[4], field_3)
 
     def test_re_order_fields_with_false_field(self):
-        category = ObservationTypeFactory.create()
+        category = CategoryFactory.create()
 
-        field_0 = TextFieldFactory.create(**{'observationtype': category})
-        field_1 = TextFieldFactory.create(**{'observationtype': category})
-        field_2 = TextFieldFactory.create(**{'observationtype': category})
-        field_3 = TextFieldFactory.create(**{'observationtype': category})
-        field_4 = TextFieldFactory.create(**{'observationtype': category})
+        field_0 = TextFieldFactory.create(**{'category': category})
+        field_1 = TextFieldFactory.create(**{'category': category})
+        field_2 = TextFieldFactory.create(**{'category': category})
+        field_3 = TextFieldFactory.create(**{'category': category})
+        field_4 = TextFieldFactory.create(**{'category': category})
 
         try:
             category.re_order_fields(
@@ -73,7 +73,7 @@ class FieldTest(TestCase):
         self.assertEqual(len(field_types), 6)
 
     def test_order(self):
-        observation_type = ObservationTypeFactory()
+        observation_type = CategoryFactory()
         field = Field.create(
             'name', 'key', 'description', False, observation_type,
             'TextField'
@@ -89,7 +89,7 @@ class FieldTest(TestCase):
 
 class TextFieldTest(TestCase):
     def test_create_textfield(self):
-        observation_type = ObservationTypeFactory()
+        observation_type = CategoryFactory()
         field = Field.create(
             'name', 'key', 'description', False, observation_type,
             'TextField'
@@ -145,7 +145,7 @@ class TextFieldTest(TestCase):
 
 class NumericFieldTest(TestCase):
     def test_create_numericfield(self):
-        observation_type = ObservationTypeFactory()
+        observation_type = CategoryFactory()
         field = Field.create(
             'name', 'key', 'description', False, observation_type,
             'NumericField'
@@ -283,7 +283,7 @@ class NumericFieldTest(TestCase):
 
 class TrueFalseFieldTest(TestCase):
     def test_create_truefalsefield(self):
-        observation_type = ObservationTypeFactory()
+        observation_type = CategoryFactory()
         field = Field.create(
             'name', 'key', 'description', False, observation_type,
             'TrueFalseField'
@@ -342,7 +342,7 @@ class TrueFalseFieldTest(TestCase):
 
 class SingleLookupFieldTest(TestCase):
     def test_create_lookupfield(self):
-        observation_type = ObservationTypeFactory()
+        observation_type = CategoryFactory()
         field = Field.create(
             'name', 'key', 'description', False, observation_type,
             'LookupField'
@@ -421,7 +421,7 @@ class SingleLookupFieldTest(TestCase):
 
 class DateTimeFieldTest(TestCase):
     def test_create_datetimefield(self):
-        observation_type = ObservationTypeFactory()
+        observation_type = CategoryFactory()
         field = Field.create(
             'name', 'key', 'description', False, observation_type,
             'DateTimeField'
@@ -481,7 +481,7 @@ class DateTimeFieldTest(TestCase):
 
 class MultipleLookupTest(TestCase):
     def test_create(self):
-        observation_type = ObservationTypeFactory()
+        observation_type = CategoryFactory()
         field = Field.create(
             'name', 'key', 'description', False, observation_type,
             'MultipleLookupField'
