@@ -43,7 +43,7 @@ class CommentAbstractAPIView(APIView):
             creator=user
         )
 
-        serializer = CommentSerializer(comment, context={'user': user})
+        serializer = CommentSerializer(comment, context={'user': request.user})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete_and_respond(self, request, comment):

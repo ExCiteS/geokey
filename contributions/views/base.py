@@ -1,5 +1,5 @@
 from projects.models import Project
-from dataviews.models import View
+from datagroupings.models import Grouping
 from contributions.models import Observation
 
 
@@ -17,7 +17,7 @@ class SingleAllContribution(object):
 
 class SingleGroupingContribution(object):
     def get_object(self, user, project_id, view_id, observation_id):
-        view = View.objects.get_single(user, project_id, view_id)
+        view = Grouping.objects.get_single(user, project_id, view_id)
 
         if view.project.can_moderate(user):
             return view.data.for_moderator(user).get(pk=observation_id)

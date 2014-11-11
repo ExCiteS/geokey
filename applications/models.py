@@ -25,7 +25,7 @@ class Application(models.Model):
         default=STATUS.active,
         max_length=20
     )
-    client = models.ForeignKey(Client, null=True)
+    client = models.ForeignKey(Client, null=True, related_name='app')
 
     objects = ApplicationManager()
 

@@ -14,10 +14,10 @@ from rest_framework import status
 
 from projects.tests.model_factories import ProjectF
 from projects.models import Admins
-from dataviews.tests.model_factories import ViewFactory
+from datagroupings.tests.model_factories import GroupingFactory
 from applications.tests.model_factories import ClientFactory
 
-from .model_factories import UserF, UserGroupF, ViewUserGroupFactory
+from .model_factories import UserF, UserGroupF, GroupingUserGroupFactory
 from ..views import (
     UserGroup, UserGroupUsers, UserGroupSingleUser, UserGroupViews,
     UserGroupSingleView, UserGroupCreate, UserGroupSettings, UserProfile,
@@ -734,7 +734,7 @@ class UserGroupViewsTest(TestCase):
             **{'project': self.project}
         )
 
-        self.view = ViewFactory(**{
+        self.view = GroupingFactory(**{
             'project': self.project
         })
 
@@ -745,7 +745,7 @@ class UserGroupViewsTest(TestCase):
         })
         request = self.factory.post(
             url,
-            json.dumps({"view": view_id or self.view.id}),
+            json.dumps({"grouping": view_id or self.view.id}),
             content_type='application/json'
         )
         force_authenticate(request, user=user)
@@ -757,7 +757,7 @@ class UserGroupViewsTest(TestCase):
             group_id=self.contributors.id).render()
 
     def test_add_not_existing_view(self):
-        view = ViewFactory.create()
+        view = GroupingFactory.create()
         response = self.post(self.admin, view_id=view.id)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -766,21 +766,21 @@ class UserGroupViewsTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
             self.contributors.viewgroups.filter(
-                usergroup=self.contributors, view=self.view).count(), 1)
+                usergroup=self.contributors, grouping=self.view).count(), 1)
 
     def test_add_view_with_contributor(self):
         response = self.post(self.contributor)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(
             self.contributors.viewgroups.filter(
-                usergroup=self.contributors, view=self.view).count(), 0)
+                usergroup=self.contributors, grouping=self.view).count(), 0)
 
     def test_add_view_with_non_member(self):
         response = self.post(self.non_member)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(
             self.contributors.viewgroups.filter(
-                usergroup=self.contributors, view=self.view).count(), 0)
+                usergroup=self.contributors, grouping=self.view).count(), 0)
 
 
 class UserGroupSingleViewTest(TestCase):
@@ -799,20 +799,20 @@ class UserGroupSingleViewTest(TestCase):
             **{'project': self.project}
         )
 
-        self.view = ViewFactory(**{
+        self.view = GroupingFactory(**{
             'project': self.project
         })
 
-        ViewUserGroupFactory(**{
+        GroupingUserGroupFactory(**{
             'usergroup': self.contributors,
-            'view': self.view
+            'grouping': self.view
         })
 
     def put(self, user, data):
         url = reverse('ajax:usergroup_single_view', kwargs={
             'project_id': self.project.id,
             'group_id': self.contributors.id,
-            'view_id': self.view.id
+            'grouping_id': self.view.id
         })
         request = self.factory.put(
             url, json.dumps(data), content_type='application/json')
@@ -823,14 +823,14 @@ class UserGroupSingleViewTest(TestCase):
             request,
             project_id=self.project.id,
             group_id=self.contributors.id,
-            view_id=self.view.id).render()
+            grouping_id=self.view.id).render()
 
     def delete(self, user, view_to_delete=None):
         the_view = view_to_delete or self.view
         url = reverse('ajax:usergroup_single_view', kwargs={
             'project_id': self.project.id,
             'group_id': self.contributors.id,
-            'view_id': the_view.id
+            'grouping_id': the_view.id
         })
         request = self.factory.delete(url)
         force_authenticate(request, user=user)
@@ -840,10 +840,13 @@ class UserGroupSingleViewTest(TestCase):
             request,
             project_id=self.project.id,
             group_id=self.contributors.id,
-            view_id=the_view.id).render()
+            grouping_id=the_view.id).render()
 
     def test_delete_not_existing_viewgroup(self):
-        response = self.delete(self.admin, view_to_delete=ViewFactory.create())
+        response = self.delete(
+            self.admin,
+            view_to_delete=GroupingFactory.create()
+        )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_with_admin(self):
@@ -851,28 +854,28 @@ class UserGroupSingleViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(
             self.contributors.viewgroups.filter(
-                usergroup=self.contributors, view=self.view).count(), 0)
+                usergroup=self.contributors, grouping=self.view).count(), 0)
 
     def test_delete_with_contributor(self):
         response = self.delete(self.contributor)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(
             self.contributors.viewgroups.filter(
-                usergroup=self.contributors, view=self.view).count(), 1)
+                usergroup=self.contributors, grouping=self.view).count(), 1)
 
     def test_delete_with_non_member(self):
         response = self.delete(self.non_member)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(
             self.contributors.viewgroups.filter(
-                usergroup=self.contributors, view=self.view).count(), 1)
+                usergroup=self.contributors, grouping=self.view).count(), 1)
 
     def test_update_partial_with_admin(self):
         response = self.put(self.admin, {'can_moderate': True})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         view_group = self.contributors.viewgroups.get(
-            usergroup=self.contributors, view=self.view)
+            usergroup=self.contributors, grouping=self.view)
         self.assertTrue(view_group.can_read)
         self.assertTrue(view_group.can_view)
 
@@ -884,7 +887,7 @@ class UserGroupSingleViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         view_group = self.contributors.viewgroups.get(
-            usergroup=self.contributors, view=self.view)
+            usergroup=self.contributors, grouping=self.view)
         self.assertTrue(view_group.can_read)
         self.assertFalse(view_group.can_view)
 
@@ -893,7 +896,7 @@ class UserGroupSingleViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         view_group = self.contributors.viewgroups.get(
-            usergroup=self.contributors, view=self.view)
+            usergroup=self.contributors, grouping=self.view)
         self.assertTrue(view_group.can_read)
         self.assertTrue(view_group.can_view)
 
@@ -902,6 +905,6 @@ class UserGroupSingleViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         view_group = self.contributors.viewgroups.get(
-            usergroup=self.contributors, view=self.view)
+            usergroup=self.contributors, grouping=self.view)
         self.assertTrue(view_group.can_read)
         self.assertTrue(view_group.can_view)

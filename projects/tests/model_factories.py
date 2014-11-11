@@ -52,8 +52,8 @@ class ProjectF(factory.django.DjangoModelFactory):
             return
 
         if extracted:
-            from dataviews.tests.model_factories import ViewFactory
+            from datagroupings.tests.model_factories import GroupingFactory
 
-            ViewFactory(add_viewers=extracted, **{
+            GroupingFactory(add_viewers=extracted, **{
                 'project': self
             })

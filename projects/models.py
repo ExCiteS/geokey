@@ -34,6 +34,9 @@ class Project(models.Model):
 
     objects = ProjectManager()
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return '%s status: %s private: %s' % (
             self.name, self.status, self.isprivate)
@@ -92,7 +95,8 @@ class Project(models.Model):
         """
 
         return self.status == STATUS.active and (self.is_admin(user) or (
-            not self.isprivate and self.views.filter(isprivate=False).exists()
+            not self.isprivate and
+            self.groupings.filter(isprivate=False).exists()
             ) or (
             not user.is_anonymous() and (
                 self.usergroups.filter(
@@ -149,7 +153,7 @@ class Project(models.Model):
 
         grouping_queries = [
             grouping.get_where_clause()
-            for grouping in self.views.get_list(user, self.id)
+            for grouping in self.groupings.get_list(user, self.id)
         ]
         grouping_queries = [x for x in grouping_queries if x is not None]
 

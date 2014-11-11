@@ -1,24 +1,17 @@
-from django.views.generic import CreateView, TemplateView, UpdateView, RedirectView
+from django.views.generic import CreateView, TemplateView
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.utils.html import strip_tags
 
 from braces.views import LoginRequiredMixin
-from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.response import Response
 
 from provider.oauth2.models import Client, AccessToken
 
-from core.decorators import (
-    handle_exceptions_for_ajax, handle_exceptions_for_admin
-)
+from core.decorators import handle_exceptions_for_admin
 
 from .forms import AppCreateForm
 from .models import Application
-from .serializer import AppSerializer
 
 
 # ############################################################################
@@ -40,6 +33,45 @@ class ApplicationOverview(LoginRequiredMixin, TemplateView):
         context = super(ApplicationOverview, self).get_context_data(**kwargs)
         context['apps'] = Application.objects.get_list(self.request.user)
         return context
+
+
+class ApplicationConnected(LoginRequiredMixin, TemplateView):
+    """
+    Displays an overview of all apps a user has connected
+    `/admin/apps/connected`
+    """
+    template_name = 'applications/application_connected.html'
+
+    @handle_exceptions_for_admin
+    def get_context_data(self, **kwargs):
+        tokens = AccessToken.objects.filter(
+            user=self.request.user).distinct()
+
+        print tokens
+        apps = [token.client.app.all()[0] for token in tokens]
+
+        return super(ApplicationConnected, self).get_context_data(
+            connected_apps=apps,
+            **kwargs
+        )
+
+
+class ApplicationDisconnect(LoginRequiredMixin, TemplateView):
+    template_name = 'base.html'
+
+    def get(self, request, app_id):
+        app = Application.objects.get(pk=app_id)
+
+        tokens = AccessToken.objects.filter(
+            user=self.request.user,
+            client=app.client
+        )
+        if tokens:
+            tokens.delete()
+            messages.success(self.request, "The connection has been deleted.")
+
+        url = reverse('admin:app_connected')
+        return HttpResponseRedirect(url)
 
 
 class ApplicationCreate(LoginRequiredMixin, CreateView):
@@ -115,7 +147,7 @@ class ApplicationDelete(LoginRequiredMixin, TemplateView):
         app = Application.objects.as_owner(self.request.user, app_id)
         return super(ApplicationDelete, self).get_context_data(
             application=app, **kwargs)
-    
+
     def get(self, request, app_id):
         context = self.get_context_data(app_id)
         app = context.pop('application', None)
@@ -127,4 +159,4 @@ class ApplicationDelete(LoginRequiredMixin, TemplateView):
             url = reverse('admin:app_overview')
             return HttpResponseRedirect(url)
 
-        return self.render_to_response(context)        
+        return self.render_to_response(context)

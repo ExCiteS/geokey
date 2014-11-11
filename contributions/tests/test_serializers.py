@@ -6,8 +6,8 @@ from django.test import TestCase
 from nose.tools import raises
 
 from projects.tests.model_factories import UserF, ProjectF
-from observationtypes.tests.model_factories import (
-    ObservationTypeFactory, TextFieldFactory, NumericFieldFactory
+from categories.tests.model_factories import (
+    CategoryFactory, TextFieldFactory, NumericFieldFactory
 )
 
 from ..serializers import ContributionSerializer
@@ -22,18 +22,18 @@ class RestoreLocationTest(TestCase):
         self.project = ProjectF(
             add_admins=[self.admin]
         )
-        self.observationtype = ObservationTypeFactory(**{
+        self.category = CategoryFactory(**{
             'status': 'active',
             'project': self.project
         })
 
         TextFieldFactory.create(**{
             'key': 'key_1',
-            'observationtype': self.observationtype
+            'category': self.category
         })
         NumericFieldFactory.create(**{
             'key': 'key_2',
-            'observationtype': self.observationtype
+            'category': self.category
         })
 
         self.data = {
@@ -50,7 +50,7 @@ class RestoreLocationTest(TestCase):
                     "key_1": "value 1",
                     "key_2": 12
                 },
-                "category": self.observationtype.id,
+                "category": self.category.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -138,18 +138,18 @@ class ContributionSerializerIntegrationTests(TestCase):
             add_contributors=[self.contributor],
             add_viewers=[self.view_member]
         )
-        self.observationtype = ObservationTypeFactory(**{
+        self.category = CategoryFactory(**{
             'status': 'active',
             'project': self.project
         })
 
         TextFieldFactory.create(**{
             'key': 'key_1',
-            'observationtype': self.observationtype
+            'category': self.category
         })
         NumericFieldFactory.create(**{
             'key': 'key_2',
-            'observationtype': self.observationtype
+            'category': self.category
         })
 
     def test_create_observation(self):
@@ -167,7 +167,7 @@ class ContributionSerializerIntegrationTests(TestCase):
                     "key_1": "value 1",
                     "key_2": 12
                 },
-                "category": self.observationtype.id,
+                "category": self.category.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -194,7 +194,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         )
         self.assertEqual(
             result.get('category').get('id'),
-            self.observationtype.id)
+            self.category.id)
         self.assertEqual(
             result.get('properties').get('location').get('name'), 'UCL')
         self.assertEqual(
@@ -216,7 +216,7 @@ class ContributionSerializerIntegrationTests(TestCase):
                     "key_1": "value 1",
                     "key_2": 12
                 },
-                "category": self.observationtype.id
+                "category": self.category.id
             }
         }
 
@@ -238,7 +238,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         )
         self.assertEqual(
             result.get('category').get('id'),
-            self.observationtype.id)
+            self.category.id)
         self.assertEqual(
             result.get('properties').get('location').get('name'), None)
         self.assertEqual(
@@ -262,7 +262,7 @@ class ContributionSerializerIntegrationTests(TestCase):
                     "key_1": "value 1",
                     "key_2": 12
                 },
-                "category": self.observationtype.id,
+                "category": self.category.id,
                 "location": {"id": location.id}
             }
         }
@@ -285,7 +285,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         )
         self.assertEqual(
             result.get('category').get('id'),
-            self.observationtype.id)
+            self.category.id)
         self.assertEqual(
             result.get('properties').get('location').get('name'),
             location.name)
@@ -306,7 +306,7 @@ class ContributionSerializerIntegrationTests(TestCase):
             "geometry": location.geometry.geojson,
             "properties": {
                 "location": {"id": location.id},
-                "category": self.observationtype.id,
+                "category": self.category.id,
                 "attributes": {
                     "key_1": "value 1",
                     "key_2": 12
@@ -326,7 +326,7 @@ class ContributionSerializerIntegrationTests(TestCase):
             "geometry": location.geometry.geojson,
             "properties": {
                 "location": {"id": location.id},
-                "category": self.observationtype.id,
+                "category": self.category.id,
                 "attributes": {
                     "key_1": "value 1",
                     "key_2": 12
@@ -354,7 +354,7 @@ class ContributionSerializerIntegrationTests(TestCase):
                     "key_1": "value 1",
                     "key_2": "blah"
                 },
-                "category": self.observationtype.id,
+                "category": self.category.id,
                 "location": {
                     "name": "UCL",
                     "description": "UCL's main quad",
@@ -373,7 +373,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         )
         TextFieldFactory.create(**{
             'key': 'key',
-            'observationtype': observation.observationtype})
+            'category': observation.category})
         serializer = ContributionSerializer(
             observation,
             context={'user': self.contributor, 'project': self.project}
@@ -390,7 +390,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         )
         self.assertEqual(
             result.get('category').get('id'),
-            observation.observationtype.id)
+            observation.category.id)
         self.assertEqual(
             result.get('properties').get('location').get('name'),
             observation.location.name)
@@ -403,7 +403,7 @@ class ContributionSerializerIntegrationTests(TestCase):
 
         ObservationFactory.create_batch(number)
         observations = Observation.objects.prefetch_related(
-            'location', 'observationtype', 'creator', 'updator')
+            'location', 'category', 'creator', 'updator')
 
         serializer = ContributionSerializer(
             observations,
@@ -421,17 +421,17 @@ class ContributionSerializerIntegrationTests(TestCase):
     def test_serialize_bulk_search(self):
         number = 20
 
-        o_type = ObservationTypeFactory.create()
+        o_type = CategoryFactory.create()
         TextFieldFactory.create(**{
-            'observationtype': o_type,
+            'category': o_type,
             'key': 'field-1'
         })
         TextFieldFactory.create(**{
-            'observationtype': o_type,
+            'category': o_type,
             'key': 'field-2'
         })
         TextFieldFactory.create(**{
-            'observationtype': o_type,
+            'category': o_type,
             'key': 'field-3'
         })
 
@@ -443,11 +443,11 @@ class ContributionSerializerIntegrationTests(TestCase):
                     'field-2': 'blabla',
                     'field-3': 'sddsdsfdsf'
                 },
-                'observationtype': o_type
+                'category': o_type
             }
         )
         observations = Observation.objects.prefetch_related(
-            'location', 'observationtype', 'creator', 'updator')
+            'location', 'category', 'creator', 'updator')
 
         serializer = ContributionSerializer(
             observations,
@@ -472,7 +472,7 @@ class ContributionSerializerIntegrationTests(TestCase):
             **{'attributes': {'number': 12}})
         NumericFieldFactory.create(**{
             'key': 'number',
-            'observationtype': observation.observationtype})
+            'category': observation.category})
         serializer = ContributionSerializer(
             observation,
             data={
@@ -497,7 +497,7 @@ class ContributionSerializerIntegrationTests(TestCase):
             **{'attributes': {'number': 12}})
         NumericFieldFactory.create(**{
             'key': 'number',
-            'observationtype': observation.observationtype})
+            'category': observation.category})
         ContributionSerializer(
             observation,
             data={

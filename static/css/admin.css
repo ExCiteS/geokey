@@ -284,9 +284,13 @@ div.overview-list-item {
 	border-top: 1px solid #ddd;
 	padding: 1.5em 0;
 }
-	
+
 	div.overview-list-item h3:last-child {
 		margin-bottom: 0;
+	}
+
+	div.overview-list-item a + h3 {
+		margin-top: 0;
 	}
 
 	div.overview-list-item h3 a {

@@ -11,9 +11,9 @@ from nose.tools import raises
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from dataviews.tests.model_factories import ViewFactory
-from observationtypes.tests.model_factories import (
-    TextFieldFactory, ObservationTypeFactory
+from datagroupings.tests.model_factories import GroupingFactory
+from categories.tests.model_factories import (
+    TextFieldFactory, CategoryFactory
 )
 
 from .model_factories import UserF, ProjectF
@@ -614,7 +614,7 @@ class ProjectsTest(TestCase):
             }
         )
 
-        ViewFactory(
+        GroupingFactory(
             add_viewers=[self.view_member],
             **{'project': self.public_project, 'isprivate': False}
         )
@@ -713,14 +713,14 @@ class SingleProjectTest(TestCase):
         project = ProjectF.create(
             add_admins=[user]
         )
-        ObservationTypeFactory.create(**{'project': project})
-        ObservationTypeFactory.create(
+        CategoryFactory.create(**{'project': project})
+        CategoryFactory.create(
             **{'project': project, 'status': 'inactive'}
         )
-        o1 = ObservationTypeFactory.create(**{'project': project})
-        TextFieldFactory.create(**{'observationtype': o1})
-        o2 = ObservationTypeFactory.create(**{'project': project})
-        TextFieldFactory.create(**{'observationtype': o2})
+        o1 = CategoryFactory.create(**{'project': project})
+        TextFieldFactory.create(**{'category': o1})
+        o2 = CategoryFactory.create(**{'project': project})
+        TextFieldFactory.create(**{'category': o2})
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
@@ -986,7 +986,7 @@ class SingleProjectTest(TestCase):
         project = ProjectF.create(**{
             'isprivate': False
         })
-        ViewFactory(**{'project': project, 'isprivate': False})
+        GroupingFactory(**{'project': project, 'isprivate': False})
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
@@ -1004,7 +1004,7 @@ class SingleProjectTest(TestCase):
         project = ProjectF.create(**{
             'isprivate': False
         })
-        ViewFactory(**{'project': project, 'isprivate': False})
+        GroupingFactory(**{'project': project, 'isprivate': False})
 
         request = self.factory.get('/api/projects/%s/' % project.id)
         force_authenticate(request, user=user)
@@ -1080,7 +1080,7 @@ class ProjectContactAdminsTest(TestCase):
             add_admins=[admin],
             **{'isprivate': False}
         )
-        ViewFactory.create(**{
+        GroupingFactory.create(**{
             'isprivate': False,
             'project': project
         })

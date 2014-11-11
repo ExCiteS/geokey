@@ -3,23 +3,22 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpResponseRedirect
 
-from rest_framework.test import APIRequestFactory, force_authenticate
-
 from nose.tools import raises
+
+from provider.oauth2.models import AccessToken
+from rest_framework.test import APIRequestFactory
 
 from projects.tests.model_factories import UserF
 
-from ..models import Application
 from ..views import (
     ApplicationOverview, ApplicationCreate, ApplicationSettings,
-    ApplicationDelete
+    ApplicationDelete, ApplicationConnected, ApplicationDisconnect
 )
 
 from .model_factories import ApplicationFactory
 
 
 class ApplicationOverviewTest(TestCase):
-
     def test_get_with_user(self):
         view = ApplicationOverview.as_view()
         url = reverse('admin:app_overview')
@@ -34,6 +33,70 @@ class ApplicationOverviewTest(TestCase):
         request = APIRequestFactory().get(url)
         request.user = AnonymousUser()
         response = view(request)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+
+class ApplicationConnectedTest(TestCase):
+    def test_get_with_user(self):
+        view = ApplicationConnected.as_view()
+        url = reverse('admin:app_connected')
+        request = APIRequestFactory().get(url)
+
+        request.user = UserF.create()
+        response = view(request).render()
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_anonymous(self):
+        view = ApplicationConnected.as_view()
+        url = reverse('admin:app_connected')
+        request = APIRequestFactory().get(url)
+        request.user = AnonymousUser()
+        response = view(request)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+
+class ApplicationDisconnectTest(TestCase):
+    def setUp(self):
+        self.user = UserF.create()
+        self.app = ApplicationFactory.create()
+        self.token = AccessToken.objects.create(
+            user=self.user,
+            client=self.app.client,
+            token='df0af6a395b4cd072445b3832e9379bfee257da0',
+            scope=1
+        )
+
+    @raises(AccessToken.DoesNotExist)
+    def test_get_with_user(self):
+        view = ApplicationDisconnect.as_view()
+        url = reverse('admin:app_disconnect', kwargs={'app_id': self.app.id})
+        request = APIRequestFactory().get(url)
+
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        request.user = self.user
+        response = view(request, app_id=self.app.id)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+        AccessToken.objects.get(pk=self.token.id)
+
+    def test_get_with_anonymous(self):
+        view = ApplicationDisconnect.as_view()
+        url = reverse('admin:app_disconnect', kwargs={'app_id': self.app.id})
+        request = APIRequestFactory().get(url)
+        request.user = AnonymousUser()
+        response = view(request, app_id=self.app.id)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+        self.assertIsNotNone(AccessToken.objects.get(pk=self.token.id))
+
+    def test_get_with_unconnected_user(self):
+        view = ApplicationDisconnect.as_view()
+        url = reverse('admin:app_disconnect', kwargs={'app_id': self.app.id})
+        request = APIRequestFactory().get(url)
+        request.user = UserF.create()
+        response = view(request, app_id=self.app.id)
         self.assertTrue(isinstance(response, HttpResponseRedirect))
 
 

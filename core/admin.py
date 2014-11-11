@@ -1,9 +1,9 @@
 from django.conf.urls import patterns, url
 
 from projects import views as project_views
-from observationtypes import views as observationtype_views
+from categories import views as category_views
 from users import views as login_views
-from dataviews import views as dataviews
+from datagroupings import views as dataviews
 from applications import views as app_views
 
 from django.contrib.auth.views import login, logout
@@ -79,43 +79,43 @@ urlpatterns = patterns(
     # ###########################
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/$',
-        observationtype_views.CategoryList.as_view(),
+        category_views.CategoryList.as_view(),
         name='category_list'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/new/$',
-        observationtype_views.ObservationTypeCreate.as_view(),
-        name='observationtype_create'),
+        category_views.CategoryCreate.as_view(),
+        name='category_create'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/$',
-        observationtype_views.CategoryOverview.as_view(),
+        category_views.CategoryOverview.as_view(),
         name='category_overview'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/display/$',
-        observationtype_views.CategoryDisplay.as_view(),
+        category_views.CategoryDisplay.as_view(),
         name='category_display'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<observationtype_id>[0-9]+)/settings/$',
-        observationtype_views.ObservationTypeSettings.as_view(),
-        name='observationtype_settings'),
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/settings/$',
+        category_views.CategorySettings.as_view(),
+        name='category_settings'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/delete/$',
-        observationtype_views.CategoryDelete.as_view(),
+        category_views.CategoryDelete.as_view(),
         name='category_delete'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<observationtype_id>[0-9]+)/fields/new/$',
-        observationtype_views.FieldCreate.as_view(),
-        name='observationtype_field_create'),
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/new/$',
+        category_views.FieldCreate.as_view(),
+        name='category_field_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<observationtype_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/$',
-        observationtype_views.FieldSettings.as_view(),
-        name='observationtype_field_settings'),
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/$',
+        category_views.FieldSettings.as_view(),
+        name='category_field_settings'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/delete/$',
-        observationtype_views.FieldDelete.as_view(),
+        category_views.FieldDelete.as_view(),
         name='category_field_delete'),
 
     # ###########################
-    # VIEWS
+    # DATA GROUPINGS
     # ###########################
     url(
         r'^projects/(?P<project_id>[0-9]+)/data-groupings/$',
@@ -123,8 +123,8 @@ urlpatterns = patterns(
         name='grouping_list'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/data-groupings/new/$',
-        dataviews.ViewCreate.as_view(),
-        name='view_create'),
+        dataviews.GroupingCreate.as_view(),
+        name='grouping_create'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/$',
         dataviews.GroupingOverview.as_view(),
@@ -134,19 +134,19 @@ urlpatterns = patterns(
         dataviews.GroupingPermissions.as_view(),
         name='grouping_permissions'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<view_id>[0-9]+)/settings/$',
-        dataviews.ViewSettings.as_view(),
-        name='view_settings'),
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/settings/$',
+        dataviews.GroupingSettings.as_view(),
+        name='grouping_settings'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/delete/$',
         dataviews.GroupingDelete.as_view(),
         name='grouping_delete'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<view_id>[0-9]+)/filter/new/$',
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/filter/new/$',
         dataviews.RuleCreate.as_view(),
-        name='view_rule_create'),
+        name='rule_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<view_id>[0-9]+)/filter/(?P<rule_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/filter/(?P<rule_id>[0-9]+)/$',
         dataviews.RuleSettings.as_view(),
         name='rule_settings'),
     url(
@@ -163,6 +163,10 @@ urlpatterns = patterns(
         app_views.ApplicationOverview.as_view(),
         name='app_overview'),
     url(
+        r'^apps/connected/$',
+        app_views.ApplicationConnected.as_view(),
+        name='app_connected'),
+    url(
         r'^apps/register/$',
         app_views.ApplicationCreate.as_view(),
         name='app_register'),
@@ -174,6 +178,10 @@ urlpatterns = patterns(
         r'^apps/(?P<app_id>[0-9]+)/delete/$',
         app_views.ApplicationDelete.as_view(),
         name='app_delete'),
+    url(
+        r'^apps/(?P<app_id>[0-9]+)/disconnect/$',
+        app_views.ApplicationDisconnect.as_view(),
+        name='app_disconnect'),
 
     # ###########################
     # USERS

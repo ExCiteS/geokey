@@ -27,7 +27,7 @@ class Observation(models.Model):
     project = models.ForeignKey(
         'projects.Project', related_name='observations'
     )
-    observationtype = models.ForeignKey('observationtypes.ObservationType')
+    category = models.ForeignKey('categories.Category')
     status = models.CharField(
         choices=OBSERVATION_STATUS,
         default=OBSERVATION_STATUS.active,
@@ -53,17 +53,18 @@ class Observation(models.Model):
     objects = ObservationManager()
 
     class Meta:
+        ordering = ['updated_at', 'id']
         app_label = 'contributions'
 
     @classmethod
-    def validate_partial(self, observationtype, data):
+    def validate_partial(self, category, data):
         """
         Validates the update data of the observation
         """
         is_valid = True
         error_messages = []
 
-        for field in observationtype.fields.all().filter(status='active'):
+        for field in category.fields.all().filter(status='active'):
             if field.key in data and data.get(field.key) is not None:
                 try:
                     field.validate_input(data.get(field.key))
@@ -75,11 +76,11 @@ class Observation(models.Model):
             raise ValidationError(error_messages)
 
     @classmethod
-    def validate_full(self, observationtype, data):
+    def validate_full(self, category, data):
         is_valid = True
         error_messages = []
 
-        for field in observationtype.fields.all().filter(status='active'):
+        for field in category.fields.all().filter(status='active'):
             try:
                 field.validate_input(data.get(field.key))
             except InputError, error:
@@ -99,7 +100,7 @@ class Observation(models.Model):
 
     @classmethod
     def create(cls, attributes=None, creator=None, location=None,
-               observationtype=None, project=None, status=None):
+               category=None, project=None, status=None):
         """
         Creates a new observation. Validates all fields first and raises a
         ValidationError if at least one field did not validate.
@@ -108,17 +109,17 @@ class Observation(models.Model):
         attributes = cls.replace_null(attributes)
 
         if status is None:
-            status = observationtype.default_status
+            status = category.default_status
 
         if status == 'draft':
-            cls.validate_partial(observationtype, attributes)
+            cls.validate_partial(category, attributes)
         else:
-            cls.validate_full(observationtype, attributes)
+            cls.validate_full(category, attributes)
 
         location.save()
         observation = cls.objects.create(
             location=location,
-            observationtype=observationtype,
+            category=category,
             project=project,
             attributes=attributes,
             creator=creator,
@@ -137,9 +138,9 @@ class Observation(models.Model):
             update.update(attributes)
 
         if status == 'draft' or (status is None and self.status == 'draft'):
-            self.validate_partial(self.observationtype, update)
+            self.validate_partial(self.category, update)
         else:
-            self.validate_full(self.observationtype, update)
+            self.validate_full(self.category, update)
             self.version = self.version + 1
 
         if status == 'pending':
@@ -169,7 +170,7 @@ def update_search_matches(sender, **kwargs):
     observation = kwargs.get('instance')
     search_matches = []
 
-    for field in observation.observationtype.fields.all():
+    for field in observation.category.fields.all():
         if field.key in observation.attributes.keys():
 
             if field.fieldtype == 'TextField':
@@ -179,15 +180,20 @@ def update_search_matches(sender, **kwargs):
 
             elif field.fieldtype == 'LookupField':
                 l_id = observation.attributes.get(field.key)
-                lookup = field.lookupvalues.get(pk=l_id)
-                search_matches.append('%s:%s' % (field.key, lookup.name))
-
-            elif field.fieldtype == 'MultipleLookupField':
-                l_ids = json.loads(observation.attributes.get(field.key))
-
-                for l_id in l_ids:
+                if l_id is not None:
                     lookup = field.lookupvalues.get(pk=l_id)
                     search_matches.append('%s:%s' % (field.key, lookup.name))
+
+            elif field.fieldtype == 'MultipleLookupField':
+                values = observation.attributes.get(field.key)
+                if values is not None:
+                    l_ids = json.loads(values)
+
+                    for l_id in l_ids:
+                        lookup = field.lookupvalues.get(pk=l_id)
+                        search_matches.append('%s:%s' % (
+                            field.key, lookup.name
+                        ))
 
     observation.search_matches = '#####'.join(search_matches)
 
@@ -208,6 +214,7 @@ class Comment(models.Model):
     objects = CommentManager()
 
     class Meta:
+        ordering = ['id']
         app_label = 'contributions'
 
     def delete(self):

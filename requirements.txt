@@ -5,7 +5,7 @@ iso8601==0.1.10
 django-oauth2-provider==0.2.6.1
 South==1.0
 django-model-utils==2.0.1
-djangorestframework==2.4.3
+djangorestframework==2.4.4
 djangorestframework-gis==0.7
 moment==0.2.2
 django-simple-history==1.5.0
