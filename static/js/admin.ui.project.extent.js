@@ -3,8 +3,10 @@ $(function () {
 
     var geometryField = $('#geometry');
 
-    L.mapbox.accessToken = 'pk.eyJ1Ijoib3JvaWNrIiwiYSI6ImFIZ2M5Q2cifQ.pNyTbEYSPe4ggcx1LeFlBg';
-    var map = L.mapbox.map('map', 'examples.map-i86nkdio').setView([51.51173391474148, -0.116729736328125], 10);
+    var map = L.map('map').setView([51.51173391474148, -0.116729736328125], 10);
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
     var featureGroup;
 
     var geom = geometryField.val();
