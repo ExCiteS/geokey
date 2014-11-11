@@ -64,7 +64,7 @@
                         {% if not grouping.project.categories.all %}
                         <div class="alert alert-info">
                             <p>However, before you can add a filter to the data grouping, you need to create at least one category.</p>
-                            <p><a href="{% url 'admin:observationtype_create' grouping.project.id %}" class="btn btn-success">Create new category</a></p>
+                            <p><a href="{% url 'admin:category_create' grouping.project.id %}" class="btn btn-success">Create new category</a></p>
                         </div>
                         {% endif %}
                     {% endfor %}
