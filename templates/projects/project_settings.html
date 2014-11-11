@@ -46,7 +46,7 @@
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="name" class="control-label">Name (required)</label>
-                            <input type="text" class="form-control input-lg" id="name" name="name" value="{{ project.name }}" required>
+                            <input type="text" class="form-control input-lg" id="name" name="name" maxlength="100" value="{{ project.name }}" required>
                         </div>
 
                         <div class="form-group">
