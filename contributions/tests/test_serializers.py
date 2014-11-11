@@ -464,8 +464,10 @@ class ContributionSerializerIntegrationTests(TestCase):
         self.assertEqual(len(result.get('features')), number)
 
         for f in result.get('features'):
-            self.assertIsNotNone(f.get('search_matches'))
-            self.assertIsNone(f.get('search_matches').get('field-3'))
+            self.assertIsNotNone(f.get('search'))
+            self.assertIsNone(
+                f.get('search').get('search_matches').get('field-3')
+            )
 
     def test_serialize_update(self):
         observation = ObservationFactory.create(

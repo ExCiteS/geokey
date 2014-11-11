@@ -179,6 +179,26 @@ class ContributionSerializer(object):
         else:
             return instance
 
+    def get_search_result(self, obj, q):
+        first_field = obj.category.fields.all()[0]
+
+        search = {
+            'display_field': {
+                'key': first_field.key,
+                'value': obj.attributes.get(first_field.key)
+            },
+            'search_matches': {}
+        }
+
+        matcher = obj.search_matches.split('#####')
+
+        for field in matcher:
+            if q.lower() in field.lower():
+                match = field.split(':', 1)
+                search['search_matches'][match[0]] = match[1]
+
+        return search
+
     def to_native_base(self, obj):
         location = obj.location
 
@@ -218,13 +238,7 @@ class ContributionSerializer(object):
 
         q = self.context.get('search')
         if q is not None:
-            json_object['search_matches'] = {}
-            matcher = obj.search_matches.split('#####')
-
-            for field in matcher:
-                if q.lower() in field.lower():
-                    match = field.split(':', 1)
-                    json_object['search_matches'][match[0]] = match[1]
+            json_object['search'] = self.get_search_result(obj, q)
 
         return json_object
 
