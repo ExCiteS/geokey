@@ -28,7 +28,7 @@
                         <div class="panel-heading">
                             <h6 class="item-info">Data grouping</h6>
                             <h3>{{ grouping.name }}</h3>
-                            {% if grouping.description %}<p>{{ grouping.description }}</p>{% endif %}
+                            {% if grouping.description %}<p>{{ grouping.description|linebreaksbr }}</p>{% endif %}
                         </div>
                         <div class="list-group">
                             <a href="{% url 'admin:grouping_overview' grouping.project.id grouping.id %}" class="list-group-item active">Filters</a>

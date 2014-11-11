@@ -30,7 +30,7 @@
                         <div class="panel-heading">
                             <h6 class="item-info">Field</h6>
                             <h3>{{ field.name }}</h3>
-                            {% if field.description %}<p>{{ field.description }}</p>{% endif %}
+                            {% if field.description %}<p>{{ field.description|linebreaksbr }}</p>{% endif %}
                         </div>
                         <table class="table table-striped field-info">
                             <tr><td><strong>Key</strong></td><td><code>{{field.key}}</code></td></tr>

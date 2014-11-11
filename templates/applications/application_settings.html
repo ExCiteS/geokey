@@ -22,7 +22,7 @@
                         <div class="panel-heading">
                             <h6 class="item-info">Application</h6>
                             <h3>{{ application.name }}</h3>
-                            {% if application.description %}<p>{{ application.description }}</p>{% endif %}
+                            {% if application.description %}<p>{{ application.description|linebreaksbr }}</p>{% endif %}
                         </div>
                         <div class="list-group">
                             <div class="list-group-item" id="stats">

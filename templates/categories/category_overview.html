@@ -30,7 +30,7 @@
                         <div class="panel-heading">
                             <h6 class="item-info">Category</h6>
                             <h3>{{ category.name }}</h3>
-                            {% if category.description %}<p>{{ category.description }}</p>{% endif %}
+                            {% if category.description %}<p>{{ category.description|linebreaksbr }}</p>{% endif %}
                         </div>
                         <div class="list-group">
                             <a href="{% url 'admin:category_overview' category.project.id category.id %}" class="list-group-item active">Fields</a>

@@ -29,7 +29,7 @@
                         <div class="panel-heading">
                             <h6 class="item-info">User group</h6>
                             <h3>{{ group.name }}</h3>
-                            {% if group.description %}<p>{{ group.description }}</p>{% endif %}
+                            {% if group.description %}<p>{{ group.description|linebreaksbr }}</p>{% endif %}
                         </div>
                         <div class="list-group">
                             <a href="{% url 'admin:usergroup_overview' group.project.id group.id %}" class="list-group-item">Members</a>
