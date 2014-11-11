@@ -53,15 +53,15 @@ urlpatterns = patterns(
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/$',
         category_views.FieldUpdate.as_view(),
-        name='observationtype_field'),
+        name='category_field'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/lookupvalues/$',
         category_views.FieldLookups.as_view(),
-        name='observationtype_lookupvalues'),
+        name='category_lookupvalues'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/lookupvalues/(?P<value_id>[0-9]+)/$',
         category_views.FieldLookupsUpdate.as_view(),
-        name='observationtype_lookupvalues_detail'),
+        name='category_lookupvalues_detail'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/re-order/$',
         category_views.FieldsReorderView.as_view(),

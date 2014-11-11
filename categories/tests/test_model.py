@@ -73,15 +73,15 @@ class FieldTest(TestCase):
         self.assertEqual(len(field_types), 6)
 
     def test_order(self):
-        observation_type = CategoryFactory()
+        category = CategoryFactory()
         field = Field.create(
-            'name', 'key', 'description', False, observation_type,
+            'name', 'key', 'description', False, category,
             'TextField'
         )
         self.assertEqual(field.order, 0)
 
         another_field = field = Field.create(
-            'name-2', 'key-2', 'description', False, observation_type,
+            'name-2', 'key-2', 'description', False, category,
             'TextField'
         )
         self.assertEqual(another_field.order, 1)
@@ -89,9 +89,9 @@ class FieldTest(TestCase):
 
 class TextFieldTest(TestCase):
     def test_create_textfield(self):
-        observation_type = CategoryFactory()
+        category = CategoryFactory()
         field = Field.create(
-            'name', 'key', 'description', False, observation_type,
+            'name', 'key', 'description', False, category,
             'TextField'
         )
         self.assertEqual(field.__class__.__name__, 'TextField')
@@ -145,9 +145,9 @@ class TextFieldTest(TestCase):
 
 class NumericFieldTest(TestCase):
     def test_create_numericfield(self):
-        observation_type = CategoryFactory()
+        category = CategoryFactory()
         field = Field.create(
-            'name', 'key', 'description', False, observation_type,
+            'name', 'key', 'description', False, category,
             'NumericField'
         )
         self.assertEqual(field.__class__.__name__, 'NumericField')
@@ -283,9 +283,9 @@ class NumericFieldTest(TestCase):
 
 class TrueFalseFieldTest(TestCase):
     def test_create_truefalsefield(self):
-        observation_type = CategoryFactory()
+        category = CategoryFactory()
         field = Field.create(
-            'name', 'key', 'description', False, observation_type,
+            'name', 'key', 'description', False, category,
             'TrueFalseField'
         )
         self.assertEqual(field.__class__.__name__, 'TrueFalseField')
@@ -342,9 +342,9 @@ class TrueFalseFieldTest(TestCase):
 
 class SingleLookupFieldTest(TestCase):
     def test_create_lookupfield(self):
-        observation_type = CategoryFactory()
+        category = CategoryFactory()
         field = Field.create(
-            'name', 'key', 'description', False, observation_type,
+            'name', 'key', 'description', False, category,
             'LookupField'
         )
         self.assertEqual(field.__class__.__name__, 'LookupField')
@@ -421,9 +421,9 @@ class SingleLookupFieldTest(TestCase):
 
 class DateTimeFieldTest(TestCase):
     def test_create_datetimefield(self):
-        observation_type = CategoryFactory()
+        category = CategoryFactory()
         field = Field.create(
-            'name', 'key', 'description', False, observation_type,
+            'name', 'key', 'description', False, category,
             'DateTimeField'
         )
         self.assertEqual(field.__class__.__name__, 'DateTimeField')
@@ -481,9 +481,9 @@ class DateTimeFieldTest(TestCase):
 
 class MultipleLookupTest(TestCase):
     def test_create(self):
-        observation_type = CategoryFactory()
+        category = CategoryFactory()
         field = Field.create(
-            'name', 'key', 'description', False, observation_type,
+            'name', 'key', 'description', False, category,
             'MultipleLookupField'
         )
         self.assertEqual(field.__class__.__name__, 'MultipleLookupField')

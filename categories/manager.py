@@ -33,7 +33,7 @@ class CategoryManager(ActiveMixin, models.Manager):
 
     def get_list(self, user, project_id):
         """
-        Returns all observationtype objects the user is allowed to access
+        Returns all category objects the user is allowed to access
         """
         project = Project.objects.get_single(user, project_id)
         if (project.is_admin(user)):
@@ -41,28 +41,28 @@ class CategoryManager(ActiveMixin, models.Manager):
         else:
             return project.categories.active()
 
-    def get_single(self, user, project_id, observationtype_id):
+    def get_single(self, user, project_id, category_id):
         """
-        Returns all a single observationtype. Raises PermissionDenied if user
-        is not eligable to access the observationtype.
+        Returns all a single category. Raises PermissionDenied if user
+        is not eligable to access the category.
         """
         category = Project.objects.get_single(
-            user, project_id).categories.get(pk=observationtype_id)
+            user, project_id).categories.get(pk=category_id)
 
         if (category.status == STATUS.active or
                 category.project.is_admin(user)):
             return category
         else:
             raise PermissionDenied('You are not allowed to access this '
-                                   'observationtype')
+                                   'category')
 
-    def as_admin(self, user, project_id, observationtype_id):
+    def as_admin(self, user, project_id, category_id):
         """
-        Returns all a single observationtype for an project admin.
+        Returns all a single category for an project admin.
         """
         return Project.objects.as_admin(
             user, project_id
-            ).categories.get(pk=observationtype_id)
+            ).categories.get(pk=category_id)
 
     def create(self, create_grouping=False, *args, **kwargs):
         category = super(CategoryManager, self).create(*args, **kwargs)
@@ -91,7 +91,7 @@ class FieldManager(ActiveMixin, InheritanceManager):
         return super(FieldManager, self).get_query_set().order_by(
             'order').select_subclasses()
 
-    def get_list(self, user, project_id, observationtype_id):
+    def get_list(self, user, project_id, category_id):
         """
         Returns all fields the user is allowed to access.
         """
@@ -99,25 +99,25 @@ class FieldManager(ActiveMixin, InheritanceManager):
 
         if project.is_admin(user):
             return project.categories.get(
-                pk=observationtype_id).fields.all().select_subclasses()
+                pk=category_id).fields.all().select_subclasses()
         else:
-            observationtype = project.categories.get(
-                pk=observationtype_id)
-            if observationtype.status == STATUS.active:
-                return observationtype.fields.active().select_subclasses()
+            category = project.categories.get(
+                pk=category_id)
+            if category.status == STATUS.active:
+                return category.fields.active().select_subclasses()
 
-    def get_single(self, user, project_id, observationtype_id, field_id):
+    def get_single(self, user, project_id, category_id, field_id):
         """
         Returns a single field
         """
         project = Project.objects.get_single(user, project_id)
-        observationtype = project.categories.get(pk=observationtype_id)
-        field = observationtype.fields.get_subclass(pk=field_id)
+        category = project.categories.get(pk=category_id)
+        field = category.fields.get_subclass(pk=field_id)
 
         if project.is_admin(user):
             return field
         else:
-            if observationtype.status == STATUS.active:
+            if category.status == STATUS.active:
                 if field.status == STATUS.active:
                     return field
                 else:
@@ -125,15 +125,15 @@ class FieldManager(ActiveMixin, InheritanceManager):
                                            'this field')
             else:
                 raise PermissionDenied('You are not allowed to access this '
-                                       'observationtype')
+                                       'category')
 
-    def as_admin(self, user, project_id, observationtype_id, field_id):
+    def as_admin(self, user, project_id, category_id, field_id):
         """
         Returns all a single field for an project admin.
         """
         return Project.objects.as_admin(
             user, project_id).categories.get(
-            pk=observationtype_id).fields.get_subclass(pk=field_id)
+            pk=category_id).fields.get_subclass(pk=field_id)
 
 
 class LookupQuerySet(models.query.QuerySet):

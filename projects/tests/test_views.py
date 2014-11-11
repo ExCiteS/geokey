@@ -707,7 +707,7 @@ class SingleProjectTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
 
-    def test_observationtype_serialization(self):
+    def test_category_serialization(self):
         user = UserF.create()
 
         project = ProjectF.create(

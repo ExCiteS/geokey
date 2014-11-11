@@ -58,7 +58,7 @@
                             </div>
                         </div>
 
-                        {% for field in rule.observation_type.fields.all %}
+                        {% for field in rule.category.fields.all %}
                             <div class="field-filter form-horizontal" data-key="{{field.key}}" data-type="{{field.fieldtype}}">
                                 <h5>{{field.name}} ({{field.key}})</h5>
                                 {% if field.fieldtype == 'TextField' %}

@@ -429,65 +429,6 @@ function program1(depth0,data) {
   else { return ''; }
   });
 
-this["Templates"]["observation"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, helper, functionType="function", escapeExpression=this.escapeExpression, self=this;
-
-function program1(depth0,data) {
-  
-  var stack1;
-  return escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.location)),stack1 == null || stack1 === false ? stack1 : stack1.name)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1));
-  }
-
-function program3(depth0,data) {
-  
-  var stack1;
-  return escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.observationtype)),stack1 == null || stack1 === false ? stack1 : stack1.name)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1));
-  }
-
-  buffer += "<h4>";
-  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 && depth0.location)),stack1 == null || stack1 === false ? stack1 : stack1.name), {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),data:data});
-  if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "</h4>\n<p>Created by "
-    + escapeExpression(((stack1 = ((stack1 = ((stack1 = (depth0 && depth0.properties)),stack1 == null || stack1 === false ? stack1 : stack1.creator)),stack1 == null || stack1 === false ? stack1 : stack1.display_name)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</p>\n<a class=\"btn btn-sm btn-block btn-primary\" href=\"";
-  if (helper = helpers.id) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-  else { helper = (depth0 && depth0.id); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-  buffer += escapeExpression(stack1)
-    + "\">View observation</a>";
-  return buffer;
-  });
-
-this["Templates"]["observationinfo"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
-
-function program1(depth0,data,depth1) {
-  
-  var buffer = "", stack1, helper, options;
-  buffer += "\n            <tr><td>";
-  if (helper = helpers.name) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-  else { helper = (depth0 && depth0.name); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-  buffer += escapeExpression(stack1)
-    + "</td><td>"
-    + escapeExpression((helper = helpers.value || (depth1 && depth1.value),options={hash:{},data:data},helper ? helper.call(depth0, (depth1 && depth1.feature), depth0, options) : helperMissing.call(depth0, "value", (depth1 && depth1.feature), depth0, options)))
-    + "</td></tr>\n        ";
-  return buffer;
-  }
-
-  buffer += "<div class=\"col-sm-8\" id=\"info\">\n    <h4>"
-    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.observationtype)),stack1 == null || stack1 === false ? stack1 : stack1.name)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</h4>\n    <p>"
-    + escapeExpression(((stack1 = ((stack1 = (depth0 && depth0.observationtype)),stack1 == null || stack1 === false ? stack1 : stack1.description)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</p>\n    <table class=\"table table-striped\">\n        <tr><th>Field name</th><th>Value</th></tr>\n        ";
-  stack1 = helpers.each.call(depth0, ((stack1 = (depth0 && depth0.observationtype)),stack1 == null || stack1 === false ? stack1 : stack1.fields), {hash:{},inverse:self.noop,fn:self.programWithDepth(1, program1, data, depth0),data:data});
-  if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\n    </table>\n</div>";
-  return buffer;
-  });
-
 this["Templates"]["usergroupusers"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};

@@ -78,7 +78,7 @@ class CategoryOverviewTest(TestCase):
         )
 
 
-class ObservationTypeCreateTest(TestCase):
+class CategoryCreateTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.admin = UserF.create()
@@ -390,7 +390,7 @@ class FieldSettingsTest(TestCase):
 # ############################################################################
 
 
-class ObservationtypeAjaxTest(TestCase):
+class CategoryAjaxTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserF.create()
@@ -627,7 +627,7 @@ class UpdateFieldTest(TestCase):
 
     def _put(self, data, user):
         url = reverse(
-            'ajax:observationtype_field',
+            'ajax:category_field',
             kwargs={
                 'project_id': self.project.id,
                 'category_id': self.category.id,
@@ -646,7 +646,7 @@ class UpdateFieldTest(TestCase):
 
     def test_update_non_existing_field(self):
         url = reverse(
-            'ajax:observationtype_field',
+            'ajax:category_field',
             kwargs={
                 'project_id': self.project.id,
                 'category_id': self.category.id,
@@ -747,7 +747,7 @@ class UpdateNumericField(TestCase):
 
     def _put(self, data, user):
         url = reverse(
-            'ajax:observationtype_field',
+            'ajax:category_field',
             kwargs={
                 'project_id': self.project.id,
                 'category_id': self.category.id,
@@ -795,7 +795,7 @@ class AddLookupValueTest(TestCase):
         })
 
         url = reverse(
-            'ajax:observationtype_lookupvalues',
+            'ajax:category_lookupvalues',
             kwargs={
                 'project_id': self.project.id,
                 'category_id': self.active_type.id,
@@ -818,7 +818,7 @@ class AddLookupValueTest(TestCase):
 
     def test_add_lookupvalue_to_not_existing_field(self):
         url = reverse(
-            'ajax:observationtype_lookupvalues',
+            'ajax:category_lookupvalues',
             kwargs={
                 'project_id': self.project.id,
                 'category_id': self.active_type.id,
@@ -842,7 +842,7 @@ class AddLookupValueTest(TestCase):
             'category': self.active_type
         })
         url = reverse(
-            'ajax:observationtype_lookupvalues',
+            'ajax:category_lookupvalues',
             kwargs={
                 'project_id': self.project.id,
                 'category_id': self.active_type.id,
@@ -885,7 +885,7 @@ class RemoveLookupValues(TestCase):
         })
 
         url = reverse(
-            'ajax:observationtype_lookupvalues_detail',
+            'ajax:category_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
                 'category_id': self.active_type.id,
@@ -914,7 +914,7 @@ class RemoveLookupValues(TestCase):
         lookup_value = LookupValueFactory()
 
         url = reverse(
-            'ajax:observationtype_lookupvalues_detail',
+            'ajax:category_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
                 'category_id': self.active_type.id,
@@ -942,7 +942,7 @@ class RemoveLookupValues(TestCase):
         })
 
         url = reverse(
-            'ajax:observationtype_lookupvalues_detail',
+            'ajax:category_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
                 'category_id': self.active_type.id,
@@ -970,7 +970,7 @@ class RemoveLookupValues(TestCase):
         })
 
         url = reverse(
-            'ajax:observationtype_lookupvalues_detail',
+            'ajax:category_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
                 'category_id': self.active_type.id,
@@ -1013,7 +1013,7 @@ class AddMutipleLookupValueTest(TestCase):
         })
 
         url = reverse(
-            'ajax:observationtype_lookupvalues',
+            'ajax:category_lookupvalues',
             kwargs={
                 'project_id': self.project.id,
                 'category_id': self.active_type.id,
@@ -1058,7 +1058,7 @@ class RemoveMultipleLookupValues(TestCase):
         })
 
         url = reverse(
-            'ajax:observationtype_lookupvalues_detail',
+            'ajax:category_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
                 'category_id': self.active_type.id,
@@ -1087,7 +1087,7 @@ class RemoveMultipleLookupValues(TestCase):
         lookup_value = MultipleLookupValueFactory.create()
 
         url = reverse(
-            'ajax:observationtype_lookupvalues_detail',
+            'ajax:category_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
                 'category_id': self.active_type.id,
@@ -1115,7 +1115,7 @@ class RemoveMultipleLookupValues(TestCase):
         })
 
         url = reverse(
-            'ajax:observationtype_lookupvalues_detail',
+            'ajax:category_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
                 'category_id': self.active_type.id,
@@ -1143,7 +1143,7 @@ class RemoveMultipleLookupValues(TestCase):
         })
 
         url = reverse(
-            'ajax:observationtype_lookupvalues_detail',
+            'ajax:category_lookupvalues_detail',
             kwargs={
                 'project_id': self.project.id,
                 'category_id': self.active_type.id,
