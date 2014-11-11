@@ -61,7 +61,7 @@ class Field(models.Model):
     create forms of user interfaces and to validate user inputs.
     """
     name = models.CharField(max_length=100)
-    key = models.CharField(max_length=30)
+    key = models.CharField(max_length=103)
     description = models.TextField(null=True, blank=True)
     required = models.BooleanField(default=False)
     category = models.ForeignKey('Category', related_name='fields')

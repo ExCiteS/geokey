@@ -299,6 +299,25 @@ class FieldCreateTest(TestCase):
             project_id=self.project.id,
             category_id=self.category.id).render()
 
+    def post(self, user, data):
+        view = FieldCreate.as_view()
+        url = reverse('admin:category_field_create', kwargs={
+            'project_id': self.project.id,
+            'category_id': self.category.id
+        })
+        request = self.factory.post(url, data)
+        request.user = user
+
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        return view(
+            request,
+            project_id=self.project.id,
+            category_id=self.category.id)
+
     def test_get_create_with_admin(self):
         response = self.get(self.admin)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -307,6 +326,26 @@ class FieldCreateTest(TestCase):
             'You are not member of the administrators group of this project '
             'and therefore not allowed to alter the settings of the project'
         )
+
+    def test_post_create_with_admin(self):
+        data = {
+            'name': 'Test name',
+            'description': 'Test description',
+            'required': False,
+            'type': 'TextField'
+        }
+        response = self.post(self.admin, data)
+        self.assertEquals(type(response), HttpResponseRedirect)
+
+    def test_post_create_with_admin_and_long_name(self):
+        data = {
+            'name': 'Test name that is really long more than 30 chars',
+            'description': 'Test description',
+            'required': False,
+            'type': 'TextField'
+        }
+        response = self.post(self.admin, data)
+        self.assertEquals(type(response), HttpResponseRedirect)
 
     def test_get_create_with_contributor(self):
         response = self.get(self.contributor)
