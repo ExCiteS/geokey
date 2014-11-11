@@ -50,6 +50,10 @@ class Category(models.Model):
         for field in fields_to_save:
             field.save()
 
+    def delete(self):
+        self.status = STATUS.deleted
+        self.save()
+
 
 class Field(models.Model):
     """

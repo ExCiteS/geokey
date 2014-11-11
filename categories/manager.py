@@ -22,6 +22,15 @@ class ActiveMixin(object):
 
 
 class CategoryManager(ActiveMixin, models.Manager):
+    def get_query_set(self):
+        """
+        Returns the QuerySet
+        """
+        return super(
+            CategoryManager,
+            self
+        ).get_query_set().exclude(status=STATUS.deleted)
+
     def get_list(self, user, project_id):
         """
         Returns all observationtype objects the user is allowed to access

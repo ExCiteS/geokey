@@ -46,7 +46,7 @@
                         {% if not project.categories.all %}
                         <div class="alert alert-info">
                             <p>However, before you can add a grouping to the project, you need to create at least one category.</p>
-                            <p><a href="{% url 'admin:grouping_create' project.id %}" class="btn btn-success">Create new category</a></p>
+                            <p><a href="{% url 'admin:category_create' project.id %}" class="btn btn-success">Create new category</a></p>
                         </div>
                         {% endif %}
                     {% endfor %}
