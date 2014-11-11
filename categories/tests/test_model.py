@@ -9,7 +9,7 @@ from ..models import Field
 
 from .model_factories import (
     TextFieldFactory, NumericFieldFactory, DateTimeFieldFactory,
-    TrueFalseFieldFactory, LookupFieldFactory, LookupValueFactory,
+    LookupFieldFactory, LookupValueFactory,
     FieldFactory, CategoryFactory, MultipleLookupFieldFactory,
     MultipleLookupValueFactory
 )
@@ -70,7 +70,7 @@ class FieldTest(TestCase):
 
     def test_get_field_types(self):
         field_types = Field.get_field_types()
-        self.assertEqual(len(field_types), 6)
+        self.assertEqual(len(field_types), 5)
 
     def test_order(self):
         category = CategoryFactory()
@@ -279,65 +279,6 @@ class NumericFieldTest(TestCase):
     def test_numericfield_convert_from_empty_string(self):
         numeric_field = NumericFieldFactory()
         self.assertEqual(None, numeric_field.convert_from_string(''))
-
-
-class TrueFalseFieldTest(TestCase):
-    def test_create_truefalsefield(self):
-        category = CategoryFactory()
-        field = Field.create(
-            'name', 'key', 'description', False, category,
-            'TrueFalseField'
-        )
-        self.assertEqual(field.__class__.__name__, 'TrueFalseField')
-
-    def test_get_name(self):
-        field = TrueFalseFieldFactory()
-        self.assertEqual(field.type_name, 'True/False')
-        self.assertEqual(field.fieldtype, 'TrueFalseField')
-
-    def test_truefalsefield_validate_required(self):
-        true_false_field = TrueFalseFieldFactory.create(**{'required': True})
-        true_false_field.validate_input(True)
-
-    @raises(InputError)
-    def test_truefalsefield_validate_required_none_type(self):
-        true_false_field = TrueFalseFieldFactory.create(**{'required': True})
-        true_false_field.validate_input(None)
-
-    def test_truefalsefield_validate_inactive_required_empty_string(self):
-        true_false_field = TrueFalseFieldFactory.create(**{
-            'required': True,
-            'status': 'inactive'}
-        )
-        try:
-            true_false_field.validate_input(None)
-        except InputError:
-            self.fail('TrueFalseField.validate_input() raised InputError '
-                      'unexpectedly!')
-
-    def test_truefalsefield_validate_input(self):
-        true_false_field = TrueFalseFieldFactory()
-        try:
-            true_false_field.validate_input(True)
-            true_false_field.validate_input(False)
-        except InputError:
-            self.fail('TrueFalseField.validate_input() raised InputError '
-                      'unexpectedly!')
-
-    @raises(InputError)
-    def test_truefalsefield_validate_input_string(self):
-        true_false_field = TrueFalseFieldFactory()
-        true_false_field.validate_input('bla')
-
-    @raises(InputError)
-    def test_truefalsefield_validate_input_number(self):
-        true_false_field = TrueFalseFieldFactory()
-        true_false_field.validate_input(12)
-
-    def test_truefalsefield_convert_from_string(self):
-        true_false_field = TrueFalseFieldFactory()
-        self.assertTrue(true_false_field.convert_from_string('True'))
-        self.assertFalse(true_false_field.convert_from_string('False'))
 
 
 class SingleLookupFieldTest(TestCase):

@@ -8,7 +8,7 @@ from nose.tools import raises
 from projects.tests.model_factories import ProjectF
 from categories.tests.model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory,
-    TrueFalseFieldFactory, LookupFieldFactory, LookupValueFactory,
+    LookupFieldFactory, LookupValueFactory,
     DateTimeFieldFactory, MultipleLookupFieldFactory,
     MultipleLookupValueFactory,
 )
@@ -409,47 +409,6 @@ class ViewTest(TestCase):
         })
 
         self.assertEqual(len(view.data), 6)
-
-    def test_get_data_true_false_filter(self):
-        project = ProjectF()
-        category_1 = CategoryFactory(**{'project': project})
-        TrueFalseFieldFactory(**{
-            'key': 'true',
-            'category': category_1
-        })
-        category_2 = CategoryFactory(**{'project': project})
-        TrueFalseFieldFactory(**{
-            'key': 'bla',
-            'category': category_2
-        })
-
-        for x in range(0, 5):
-            ObservationFactory(**{
-                'project': project,
-                'category': category_1,
-                'attributes': {'true': True, 'bla': 'bla'}
-            })
-
-            ObservationFactory(**{
-                'project': project,
-                'category': category_1,
-                'attributes': {'true': False}
-            })
-
-            ObservationFactory(**{
-                'project': project,
-                'category': category_2,
-                'attributes': {'true': True}
-            })
-
-        view = GroupingFactory(**{'project': project})
-        RuleFactory(**{
-            'grouping': view,
-            'category': category_1,
-            'filters': {'true': True}
-        })
-
-        self.assertEqual(len(view.data), 5)
 
     def test_get_data_lookup_filter(self):
         project = ProjectF()

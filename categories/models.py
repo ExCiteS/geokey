@@ -286,44 +286,6 @@ class NumericField(Field):
                     precision) <= ' + str(maxval) + ')'
 
 
-class TrueFalseField(Field):
-    """
-    A field that can only have two states True and False.
-    """
-
-    def validate_input(self, value):
-        """
-        Checks if the provided value is one of `True` or `False`
-        Returns `True` or `False`.
-        """
-        self.validate_required(value)
-
-        if value is not None and value not in [True, False]:
-            raise InputError('The value for TrueFalseField %s must be one of '
-                             'True or False' % self.name)
-
-    def convert_from_string(self, value):
-        """
-        Returns the `value` of the field in `Bool` format.
-        """
-        return value == 'True'
-
-    @property
-    def type_name(self):
-        """
-        Returns a human readable name of the field.
-        """
-        return 'True/False'
-
-    def get_filter(self, rule):
-        """
-        Returns the filter object for the given field based on the rule. Used
-        to filter data for a view.
-        """
-        return '(attributes -> \'' + self.key + '\' \
-            = \'' + str(rule).lower() + '\')'
-
-
 class DateTimeField(Field):
     """
     A field for storing dates and times.

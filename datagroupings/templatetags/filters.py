@@ -56,9 +56,6 @@ def filters(rule):
                     s = s + 'before %s' % maxval
                 s = s + '</li>'
 
-            if field.fieldtype == 'TrueFalseField':
-                s = s + '<li> %s is %s</li>' % (field.name, rule_filter)
-
             if field.fieldtype == 'LookupField':
                 values = []
                 for lookup in json.loads(rule_filter):

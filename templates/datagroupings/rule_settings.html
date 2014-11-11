@@ -101,19 +101,6 @@
                                     </div>
                                 {% endif %}
 
-                                {% if field.fieldtype == 'TrueFalseField' %}
-                                    <div class="form-group">
-                                        <label for="{{field.key}}-ref" class="col-sm-3 col-sm-offset-1 control-label">is</label>
-                                        <div class="col-sm-7">
-                                            <select name="{{field.key}}-ref" id="reference-value" class="form-control">
-                                                <option></option>
-                                                <option value="true" {% if rule.filters|value:field.key == 'true' %}selected{% endif %}>True</option>
-                                                <option value="false" {% if rule.filters|value:field.key == 'false' %}selected{% endif %}>False</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                {% endif %}
-
                                 {% if field.fieldtype == 'LookupField' %}
                                     <div class="form-group">
                                         <label for="{{field.key}}-ref" class="col-sm-3 col-sm-offset-1 control-label">is one of</label>

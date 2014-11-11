@@ -4,7 +4,7 @@ from projects.tests.model_factories import ProjectF
 from users.tests.model_factories import UserF
 
 from ..models import (
-    Category, TextField, NumericField, TrueFalseField, DateTimeField,
+    Category, TextField, NumericField, DateTimeField,
     LookupField, LookupValue, Field, MultipleLookupField, MultipleLookupValue
 )
 
@@ -46,17 +46,6 @@ class NumericFieldFactory(factory.django.DjangoModelFactory):
 
     name = factory.Sequence(lambda n: "numericfield %s" % n)
     key = factory.Sequence(lambda n: "numericfield_%s" % n)
-    description = factory.LazyAttribute(lambda o: '%s description' % o.name)
-    category = factory.SubFactory(CategoryFactory)
-    status = 'active'
-    required = False
-
-
-class TrueFalseFieldFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = TrueFalseField
-
-    name = factory.Sequence(lambda n: "truefalsefield %s" % n)
-    key = factory.Sequence(lambda n: "truefalsefield_%s" % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     category = factory.SubFactory(CategoryFactory)
     status = 'active'
