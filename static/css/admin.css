@@ -136,6 +136,11 @@ div.page-header {
 	background-color: #fafafa;
 }
 
+	div.page-header p.lead {
+		max-height: 4em;
+		overflow: auto;
+	}
+
 	div.page-header div.row {
 		margin-bottom: 0;
 	}
