@@ -6,4 +6,5 @@ INSTALLED_APPS += (
     'provider.oauth2',
     'south',
     'easy_thumbnails',
+    'cm-epicollect',
 )
