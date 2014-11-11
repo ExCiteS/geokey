@@ -191,34 +191,6 @@ div.page-header .breadcrumb > li + li:before {
 			margin: 5px 0 0 0;
 		}
 
-	div.page-header div.field-info {
-		display: inline-block;
-		font-size: 14px;
-		font-weight: normal;
-		margin-left: 14px;
-	}
-
-		div.page-header div.field-info > div {
-			margin-left: 14px;
-			display: inline-block;
-			border-left: 1px solid #e7e7e7;
-			padding-left: 7px;
-		}
-
-			div.page-header div.field-info > div > span {
-				display: block;
-				line-height: 1.3;
-			}
-
-			div.page-header div.field-info > div > span.info-label {
-				font-style: italic;
-				font-size: 0.9em;
-			}
-
-			div.page-header div.field-info > div > span.info-value {
-				font-weight: bold;
-			}
-
 .panel-title + p {
 	margin-top: 0.5em;
 }
@@ -460,12 +432,25 @@ h6.item-info + h3 {
 	margin-top: 0;
 }
 
+.field-info {
+	table-layout: fixed;
+}
+
 .field-info td:first-child {
 	padding-left: 15px;
+	width: 80px;
 }
 
 .field-info td:last-child {
 	padding-right: 15px;
+
+}
+
+.field-info td code {
+	width: 100%;
+	display: block;
+    overflow: auto;
+    white-space: nowrap;
 }
 
 #help-block h4 {
