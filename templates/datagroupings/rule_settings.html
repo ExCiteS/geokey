@@ -15,8 +15,8 @@
                         <a href="{% url 'admin:project_overview' rule.grouping.project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
                     </div>
                     <ul class="header-nav">
-                        <li><a href="{% url 'admin:category_list' rule.grouping.project.id %}">Categories <span class="badge">{{ rule.grouping.project.observationtypes.count }}</span></a></li>
-                        <li class="active"><a href="{% url 'admin:grouping_list' rule.grouping.project.id %}">Data groupings <span class="badge">{{ rule.grouping.project.views.count }}</span></a></li>
+                        <li><a href="{% url 'admin:category_list' rule.grouping.project.id %}">Categories <span class="badge">{{ rule.grouping.project.categories.count }}</span></a></li>
+                        <li class="active"><a href="{% url 'admin:grouping_list' rule.grouping.project.id %}">Data groupings <span class="badge">{{ rule.grouping.project.groupings.count }}</span></a></li>
                         <li><a href="{% url 'admin:usergroup_list' rule.grouping.project.id %}">User groups <span class="badge">{{ rule.grouping.project.usergroups.count }}</span></a></li>
                     </ul>
                 </div>

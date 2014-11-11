@@ -12,8 +12,8 @@
                         <a href="{% url 'admin:project_overview' group.project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
                     </div>
                     <ul class="header-nav">
-                        <li><a href="{% url 'admin:category_list' group.project.id %}">Categories <span class="badge">{{ group.project.observationtypes.count }}</span></a></li>
-                        <li><a href="{% url 'admin:grouping_list' group.project.id %}">Data groupings <span class="badge">{{ group.project.views.count }}</span></a></li>
+                        <li><a href="{% url 'admin:category_list' group.project.id %}">Categories <span class="badge">{{ group.project.categories.count }}</span></a></li>
+                        <li><a href="{% url 'admin:grouping_list' group.project.id %}">Data groupings <span class="badge">{{ group.project.groupings.count }}</span></a></li>
                         <li class="active"><a href="{% url 'admin:usergroup_list' group.project.id %}">User groups <span class="badge">{{ group.project.usergroups.count }}</span></a></li>
                     </ul>
                 </div>
@@ -22,7 +22,7 @@
 
         <div class="container">
             {% include 'snippets/messages.html' %}
-            
+
             <div class="row">
                 <div class="col-sm-4">
                 <div class="panel panel-default">
