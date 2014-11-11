@@ -24,8 +24,8 @@
                     </div>
                     {% empty %}
                         <div class="well empty-list">
-                            <p class="lead">We couldn't find any projects, your are eligable in manange.</p>
-                            <p>You can create a new project, if you want to start your own community map.</p>
+                            <p class="lead">We couldn't find any projects you are eligible to manage.</p>
+                            <p>You can create a new project if you want to start your own community map.</p>
                             <a href="{% url 'admin:project_create' %}" class="btn btn-success btn-lg">Create a new project</a>
                         </div>
                     {% endfor %}
