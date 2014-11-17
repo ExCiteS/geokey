@@ -4,7 +4,7 @@
 
 GeoKey is a platform for participatory mapping that is currently developed at [Extreme Citizen Science Research Group](http://ucl.ac.uk/excites) at University College London. 
 
-## Open Source
+## We use open-source technologies
 
 GeoKey was built using some amazing open-source technology. We would like to thank all contributors to these projects:
 
