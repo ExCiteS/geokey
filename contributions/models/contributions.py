@@ -33,7 +33,6 @@ class Observation(models.Model):
         default=OBSERVATION_STATUS.active,
         max_length=20
     )
-    review_comment = models.TextField(blank=True, null=True)
     attributes = hstore.DictionaryField(db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(

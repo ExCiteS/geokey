@@ -47,8 +47,7 @@ class ObservationSerializer(serializers.ModelSerializer):
         model = Observation
         depth = 0
         fields = (
-            'status', 'category', 'review_comment',
-            'creator', 'updator', 'created_at', 'version'
+            'status', 'category', 'creator', 'updator', 'created_at', 'version'
         )
 
     def get_category(self, observation):
@@ -137,7 +136,6 @@ class ContributionSerializer(object):
             user = self.context.get('user')
 
             status = properties.pop('status', None)
-            review_comment = properties.pop('review_comment', None)
 
             if instance is not None:
                 self.restore_location(
@@ -149,8 +147,7 @@ class ContributionSerializer(object):
                 return instance.update(
                     attributes=attributes,
                     updator=user,
-                    status=status,
-                    review_comment=review_comment
+                    status=status
                 )
             else:
                 project = self.context.get('project')
@@ -226,7 +223,6 @@ class ContributionSerializer(object):
                 'updator': updator,
                 'created_at': obj.created_at,
                 'version': obj.version,
-                'review_comment': obj.review_comment,
                 'location': {
                     'id': location.id,
                     'name': location.name,

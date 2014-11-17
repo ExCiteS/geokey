@@ -217,15 +217,14 @@ class SingleContributionAPIViewTest(TestCase):
         request = self.factory.patch(url)
         request.DATA = {'properties': {
             'status': 'pending',
-            'key': 'updated',
-            'review_comment': 'check das'}}
+            'key': 'updated'
+        }}
         request.user = self.moderator
 
         view = SingleContributionAPIView()
         view.update_and_respond(request, self.observation)
         ref = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(ref.status, 'pending')
-        self.assertEqual(ref.review_comment, 'check das')
         self.assertNotEqual(ref.attributes.get('key'), 'updated')
 
     def test_flag_with_contributor(self):
