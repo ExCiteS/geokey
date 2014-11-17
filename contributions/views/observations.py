@@ -109,12 +109,12 @@ class MyObservations(APIView):
 
 class ViewObservations(APIView):
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, view_id, format=None):
+    def get(self, request, project_id, grouping_id, format=None):
         """
         Returns a single view and its data
-        /api/projects/:project_id/data-groupings/:view_id/
+        /api/projects/:project_id/data-groupings/:grouping_id/
         """
-        view = Grouping.objects.get_single(request.user, project_id, view_id)
+        view = Grouping.objects.get_single(request.user, project_id, grouping_id)
         serializer = GroupingSerializer(view, context={'user': request.user})
         return Response(serializer.data)
 
@@ -219,25 +219,25 @@ class SingleGroupingContributionAPIView(
         SingleGroupingContribution, SingleContributionAPIView):
     """
     Public API endpoint for updating a single observation in a project
-    /api/projects/:project_id/views/:view_id/observations/:observation_id
+    /api/projects/:project_id/views/:grouping_id/observations/:observation_id
     """
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, view_id, observation_id, format=None):
+    def get(self, request, project_id, grouping_id, observation_id, format=None):
         observation = self.get_object(
-            request.user, project_id, view_id, observation_id)
+            request.user, project_id, grouping_id, observation_id)
         return self.get_and_respond(request, observation, format=format)
 
     @handle_exceptions_for_ajax
-    def patch(self, request, project_id, view_id, observation_id, format=None):
+    def patch(self, request, project_id, grouping_id, observation_id, format=None):
         observation = self.get_object(
-            request.user, project_id, view_id, observation_id)
+            request.user, project_id, grouping_id, observation_id)
         return self.update_and_respond(request, observation, format=format)
 
     @handle_exceptions_for_ajax
-    def delete(self, request, project_id, view_id, observation_id,
+    def delete(self, request, project_id, grouping_id, observation_id,
                format=None):
         observation = self.get_object(
-            request.user, project_id, view_id, observation_id)
+            request.user, project_id, grouping_id, observation_id)
         return self.delete_and_respond(request, observation, format=format)
 
 

@@ -3,12 +3,14 @@ import json
 from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser
 from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 
 from nose.tools import raises
 
 from rest_framework.test import APITestCase
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
+from rest_framework.renderers import JSONRenderer
 
 from projects.tests.model_factories import UserF, ProjectF
 from projects.models import Project
@@ -16,6 +18,7 @@ from categories.tests.model_factories import CategoryFactory
 from datagroupings.tests.model_factories import (
     GroupingFactory, RuleFactory
 )
+from contributions.models import Comment
 from datagroupings.models import Grouping
 from contributions.models import Observation
 
@@ -26,8 +29,125 @@ from contributions.views.comments import (
     AllContributionsSingleCommentAPIView,
     GroupingContributionsSingleCommentAPIView,
     AllContributionsCommentsAPIView, MyContributionsCommentsAPIView,
-    MyContributionsSingleCommentAPIView, GroupingContributionsCommentsAPIView
+    MyContributionsSingleCommentAPIView, GroupingContributionsCommentsAPIView,
+    CommentAbstractAPIView
 )
+
+
+class CommentAbstractAPIViewTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.creator = UserF.create()
+        self.moderator = UserF.create()
+        self.commenter = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.creator, self.commenter]
+        )
+        self.moderators = UserGroupF(add_users=[self.moderator], **{
+            'project': self.project,
+            'can_moderate': True
+        })
+        self.observation = ObservationFactory.create(**{
+            'project': self.project,
+            'creator': self.creator,
+            'status': 'active'
+        })
+        self.comment = CommentFactory.create(**{
+            'commentto': self.observation,
+            'creator': self.commenter
+        })
+
+    def render(self, response):
+        response.accepted_renderer = JSONRenderer()
+        response.accepted_media_type = 'application/json'
+        response.renderer_context = {'blah': 'blubb'}
+        return response.render()
+
+    def test_update_comment_with_admin(self):
+        url = reverse('api:project_single_comment', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id,
+            'comment_id': self.comment.id
+        })
+        request = self.factory.patch(url, {'text': 'Updated'})
+        request.user = self.admin
+        request.DATA = {'text': 'Updated'}
+
+        view = CommentAbstractAPIView()
+        response = self.render(
+            view.update_and_respond(request, self.comment)
+        )
+        self.assertEqual(json.loads(response.content).get('text'), 'Updated')
+        self.assertEqual(
+            Comment.objects.get(pk=self.comment.id).text,
+            'Updated'
+        )
+
+    def test_update_comment_with_commenter(self):
+        url = reverse('api:project_single_comment', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id,
+            'comment_id': self.comment.id
+        })
+        request = self.factory.patch(url, {'text': 'Updated'})
+        request.user = self.commenter
+        request.DATA = {'text': 'Updated'}
+
+        view = CommentAbstractAPIView()
+        response = self.render(
+            view.update_and_respond(request, self.comment)
+        )
+        self.assertEqual(json.loads(response.content).get('text'), 'Updated')
+        self.assertEqual(
+            Comment.objects.get(pk=self.comment.id).text,
+            'Updated'
+        )
+
+    def test_update_comment_with_moderator(self):
+        url = reverse('api:project_single_comment', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id,
+            'comment_id': self.comment.id
+        })
+        request = self.factory.patch(url, {'text': 'Updated'})
+        request.user = self.moderator
+        request.DATA = {'text': 'Updated'}
+
+        view = CommentAbstractAPIView()
+        response = self.render(
+            view.update_and_respond(request, self.comment)
+        )
+        self.assertEqual(json.loads(response.content).get('text'), 'Updated')
+        self.assertEqual(
+            Comment.objects.get(pk=self.comment.id).text,
+            'Updated'
+        )
+
+    @raises(PermissionDenied)
+    def test_update_comment_with_creator(self):
+        url = reverse('api:project_single_comment', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id,
+            'comment_id': self.comment.id
+        })
+        request = self.factory.patch(url, {'text': 'Updated'})
+        request.user = self.creator
+        request.DATA = {'text': 'Updated'}
+
+        view = CommentAbstractAPIView()
+        response = self.render(
+            view.update_and_respond(request, self.comment)
+        )
+        self.assertEqual(
+            json.loads(response.content).get('text'),
+            self.comment.text
+        )
+        self.assertEqual(
+            Comment.objects.get(pk=self.comment.id).text,
+            self.comment.text
+        )
 
 
 class AllContributionsSingleCommentAPIViewTest(TestCase):
@@ -872,7 +992,7 @@ class GetCommentsView(APITestCase):
             'api:view_comments',
             kwargs={
                 'project_id': self.project.id,
-                'view_id': self.view.id,
+                'grouping_id': self.view.id,
                 'observation_id': self.observation.id
             }
         )
@@ -882,7 +1002,7 @@ class GetCommentsView(APITestCase):
         return view(
             request,
             project_id=self.project.id,
-            view_id=self.view.id,
+            grouping_id=self.view.id,
             observation_id=self.observation.id
         ).render()
 
@@ -936,7 +1056,7 @@ class AddCommentToViewTest(APITestCase):
             'api:view_comments',
             kwargs={
                 'project_id': self.project.id,
-                'view_id': self.view.id,
+                'grouping_id': self.view.id,
                 'observation_id': self.observation.id
             }
         )
@@ -946,7 +1066,7 @@ class AddCommentToViewTest(APITestCase):
         return view(
             request,
             project_id=self.project.id,
-            view_id=self.view.id,
+            grouping_id=self.view.id,
             observation_id=self.observation.id
         ).render()
 
@@ -990,7 +1110,7 @@ class AddCommentToWrongGroupingObservation(APITestCase):
             'api:view_comments',
             kwargs={
                 'project_id': project.id,
-                'view_id': view.id,
+                'grouping_id': view.id,
                 'observation_id': observation.id
             }
         )
@@ -1001,7 +1121,7 @@ class AddCommentToWrongGroupingObservation(APITestCase):
         response = dataview(
             request,
             project_id=project.id,
-            view_id=view.id,
+            grouping_id=view.id,
             observation_id=observation.id
         ).render()
 
@@ -1030,7 +1150,7 @@ class AddResponseToGroupingCommentTest(APITestCase):
             'api:view_comments',
             kwargs={
                 'project_id': project.id,
-                'view_id': view.id,
+                'grouping_id': view.id,
                 'observation_id': observation.id
             }
         )
@@ -1047,7 +1167,7 @@ class AddResponseToGroupingCommentTest(APITestCase):
         response = dataview(
             request,
             project_id=project.id,
-            view_id=view.id,
+            grouping_id=view.id,
             observation_id=observation.id
         ).render()
 
@@ -1078,7 +1198,7 @@ class AddResponseToWrongGroupingCommentTest(APITestCase):
             'api:view_comments',
             kwargs={
                 'project_id': project.id,
-                'view_id': view.id,
+                'grouping_id': view.id,
                 'observation_id': observation.id
             }
         )
@@ -1095,7 +1215,7 @@ class AddResponseToWrongGroupingCommentTest(APITestCase):
         response = dataview(
             request,
             project_id=project.id,
-            view_id=view.id,
+            grouping_id=view.id,
             observation_id=observation.id
         ).render()
 
@@ -1150,7 +1270,7 @@ class DeleteGroupingCommentTest(APITestCase):
             'api:view_single_comment',
             kwargs={
                 'project_id': self.project.id,
-                'view_id': self.view.id,
+                'grouping_id': self.view.id,
                 'observation_id': self.observation.id,
                 'comment_id': self.comment_to_remove.id
             }
@@ -1161,7 +1281,7 @@ class DeleteGroupingCommentTest(APITestCase):
         return view(
             request,
             project_id=self.project.id,
-            view_id=self.view.id,
+            grouping_id=self.view.id,
             observation_id=self.observation.id,
             comment_id=self.comment_to_remove.id
         ).render()
@@ -1188,7 +1308,7 @@ class DeleteGroupingCommentTest(APITestCase):
         self.assertEqual(
             json.loads(response.content).get('error'),
             'You are neither the author if this comment nor a project '
-            'administrator and therefore not eligable to delete this comment.'
+            'moderator and therefore not eligable to delete this comment.'
         )
 
         observation = Observation.objects.get(pk=self.observation.id)
@@ -1225,7 +1345,7 @@ class DeleteWrongGroupingComment(APITestCase):
             'api:view_single_comment',
             kwargs={
                 'project_id': project.id,
-                'view_id': view.id,
+                'grouping_id': view.id,
                 'observation_id': observation.id,
                 'comment_id': comment.id
             }
@@ -1236,7 +1356,7 @@ class DeleteWrongGroupingComment(APITestCase):
         response = dataview(
             request,
             project_id=project.id,
-            view_id=view.id,
+            grouping_id=view.id,
             observation_id=observation.id,
             comment_id=comment.id
         ).render()

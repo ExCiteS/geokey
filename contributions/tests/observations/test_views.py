@@ -1264,7 +1264,7 @@ class GetObservationInView(TestCase):
             'api:view_single_observation',
             kwargs={
                 'project_id': self.project.id,
-                'view_id': self.view.id,
+                'grouping_id': self.view.id,
                 'observation_id': self.observation.id
             }
         )
@@ -1272,7 +1272,7 @@ class GetObservationInView(TestCase):
         force_authenticate(request, user=user)
         view = SingleGroupingContributionAPIView.as_view()
         return view(
-            request, project_id=self.project.id, view_id=self.view.id,
+            request, project_id=self.project.id, grouping_id=self.view.id,
             observation_id=self.observation.id).render()
 
     def test_get_with_admin(self):
@@ -1356,7 +1356,7 @@ class UpdateObservationInView(TestCase):
             'api:view_single_observation',
             kwargs={
                 'project_id': self.project.id,
-                'view_id': self.view.id,
+                'grouping_id': self.view.id,
                 'observation_id': self.observation.id
             }
         )
@@ -1365,7 +1365,7 @@ class UpdateObservationInView(TestCase):
         force_authenticate(request, user=user)
         view = SingleGroupingContributionAPIView.as_view()
         return view(
-            request, project_id=self.project.id, view_id=self.view.id,
+            request, project_id=self.project.id, grouping_id=self.view.id,
             observation_id=self.observation.id).render()
 
     def _delete(self, user):
@@ -1373,7 +1373,7 @@ class UpdateObservationInView(TestCase):
             'api:view_single_observation',
             kwargs={
                 'project_id': self.project.id,
-                'view_id': self.view.id,
+                'grouping_id': self.view.id,
                 'observation_id': self.observation.id
             }
         )
@@ -1381,7 +1381,7 @@ class UpdateObservationInView(TestCase):
         force_authenticate(request, user=user)
         view = SingleGroupingContributionAPIView.as_view()
         return view(
-            request, project_id=self.project.id, view_id=self.view.id,
+            request, project_id=self.project.id, grouping_id=self.view.id,
             observation_id=self.observation.id).render()
 
     def test_update_conflict(self):
@@ -1693,7 +1693,7 @@ class TestDataViewsPublicApi(TestCase):
     def get(self, view, user):
         url = reverse('api:single_view', kwargs={
             'project_id': view.project.id,
-            'view_id': view.id
+            'grouping_id': view.id
         })
         request = self.factory.get(url)
         force_authenticate(request, user=user)
@@ -1701,7 +1701,7 @@ class TestDataViewsPublicApi(TestCase):
         return theview(
             request,
             project_id=view.project.id,
-            view_id=view.id).render()
+            grouping_id=view.id).render()
 
     def test_get_active_view_with_admin(self):
         view = GroupingFactory(**{'project': self.project})

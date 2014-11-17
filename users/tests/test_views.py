@@ -738,14 +738,14 @@ class UserGroupViewsTest(TestCase):
             'project': self.project
         })
 
-    def post(self, user, view_id=None):
+    def post(self, user, grouping_id=None):
         url = reverse('ajax:usergroup_views', kwargs={
             'project_id': self.project.id,
             'group_id': self.contributors.id
         })
         request = self.factory.post(
             url,
-            json.dumps({"grouping": view_id or self.view.id}),
+            json.dumps({"grouping": grouping_id or self.view.id}),
             content_type='application/json'
         )
         force_authenticate(request, user=user)
@@ -758,7 +758,7 @@ class UserGroupViewsTest(TestCase):
 
     def test_add_not_existing_view(self):
         view = GroupingFactory.create()
-        response = self.post(self.admin, view_id=view.id)
+        response = self.post(self.admin, grouping_id=view.id)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_add_view_with_admin(self):

@@ -51,11 +51,11 @@ urlpatterns = patterns(
         contribution_views.SingleMyContributionAPIView.as_view(),
         name='project_my_single_observation'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<view_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/$',
         contribution_views.ViewObservations.as_view(),
         name='single_view'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<view_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/$',
         contribution_views.SingleGroupingContributionAPIView.as_view(),
         name='view_single_observation'),
 
@@ -84,11 +84,11 @@ urlpatterns = patterns(
         contribution_views.AllContributionsSingleCommentAPIView.as_view(),
         name='project_single_comment'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<view_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/comments/$',
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/comments/$',
         contribution_views.GroupingContributionsCommentsAPIView.as_view(),
         name='view_comments'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<view_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
         contribution_views.GroupingContributionsSingleCommentAPIView.as_view(),
         name='view_single_comment'),
     url(

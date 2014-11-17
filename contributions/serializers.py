@@ -289,8 +289,9 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('id', 'text', 'creator', 'respondsto', 'created_at',
-                  'isowner')
+        fields = ('id', 'respondsto', 'created_at', 'text', 'isowner',
+                  'creator')
+        read_only = ('id', 'respondsto', 'created_at')
 
     def to_native(self, obj):
         native = super(CommentSerializer, self).to_native(obj)

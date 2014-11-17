@@ -546,7 +546,7 @@ class UserGroupViews(APIView):
 class UserGroupSingleView(APIView):
     """
     AJAX API endpoint for views assigned to the user group
-    `/ajax/project/:project_id/usergroups/:group_id/views/:view_id/`
+    `/ajax/project/:project_id/usergroups/:group_id/views/:grouping_id/`
     """
     def get_object(self, user, project_id, group_id, grouping_id):
         project = Project.objects.as_admin(user, project_id)
