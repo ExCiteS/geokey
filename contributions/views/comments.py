@@ -77,7 +77,14 @@ class CommentAbstractAPIView(APIView):
     def delete_and_respond(self, request, comment):
         if (comment.creator == request.user or
                 comment.commentto.project.can_moderate(request.user)):
+
             comment.delete()
+
+            if (comment.review_status == 'open' and
+                    not comment.commentto.comments.filter(
+                        review_status='open').exists()):
+                comment.commentto.update(None, request.user, status='active')
+
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             raise PermissionDenied('You are neither the author if this comment'
