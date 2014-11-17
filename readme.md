@@ -28,7 +28,6 @@ GeoKey was built using some amazing open-source technology. We would like to tha
 - [gdata](https://code.google.com/p/gdata-python-client/)
 - [easy-thumbnails](https://github.com/SmileyChris/easy-thumbnails)
 - [requests](http://docs.python-requests.org/en/latest/)
- 
 - [Leaflet](http://leafletjs.com/)
 - [Leaflet Draw](https://github.com/Leaflet/Leaflet.draw)
 - [jQuery](http://jquery.com/)
