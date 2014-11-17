@@ -48,8 +48,6 @@ class CommentAbstractAPIView(APIView):
 
     def update_and_respond(self, request, comment):
         user = request.user
-        if user.is_anonymous():
-            user = User.objects.get(display_name='AnonymousUser')
 
         if (comment.creator == request.user or
                 comment.commentto.project.can_moderate(request.user)):
