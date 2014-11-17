@@ -352,6 +352,54 @@ class AddCommentToPrivateProjectTest(APITestCase):
         response = self.get_response(self.contributor)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_add_review_comment_to_observation_with_contributor(self):
+        factory = APIRequestFactory()
+        request = factory.post(
+            '/api/projects/%s/observations/%s/comments/' %
+            (self.project.id, self.observation.id),
+            {
+                'text': 'A review comment to the observation',
+                'review_status': 'open'
+            }
+        )
+        force_authenticate(request, user=self.contributor)
+        view = AllContributionsCommentsAPIView.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            observation_id=self.observation.id
+        ).render()
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'review'
+        )
+
+    def test_add_closed_review_comment_to_observation_with_contributor(self):
+        factory = APIRequestFactory()
+        request = factory.post(
+            '/api/projects/%s/observations/%s/comments/' %
+            (self.project.id, self.observation.id),
+            {
+                'text': 'A review comment to the observation',
+                'review_status': 'closed'
+            }
+        )
+        force_authenticate(request, user=self.contributor)
+        view = AllContributionsCommentsAPIView.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            observation_id=self.observation.id
+        ).render()
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'active'
+        )
+
     def test_add_comment_to_observation_with_non_member(self):
         response = self.get_response(self.non_member)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

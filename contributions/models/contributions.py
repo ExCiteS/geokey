@@ -13,7 +13,7 @@ from simple_history.models import HistoricalRecords
 
 from core.exceptions import InputError
 
-from ..base import OBSERVATION_STATUS, COMMENT_STATUS
+from ..base import OBSERVATION_STATUS, COMMENT_STATUS, COMMENT_REVIEW
 from ..manager import ObservationManager, CommentManager
 
 
@@ -126,7 +126,7 @@ class Observation(models.Model):
         )
         return observation
 
-    def update(self, attributes, updator, review_comment=None, status=None):
+    def update(self, attributes, updator, status=None):
         """
         Updates data of the observation
         """
@@ -141,12 +141,6 @@ class Observation(models.Model):
         else:
             self.validate_full(self.category, update)
             self.version = self.version + 1
-
-        if status == 'pending':
-            self.review_comment = review_comment
-
-        if status == 'active':
-            self.review_comment = None
 
         self.attributes = update
         self.updator = updator
@@ -202,12 +196,22 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     commentto = models.ForeignKey('Observation', related_name='comments')
-    respondsto = models.ForeignKey('Comment', null=True, blank=True,
-                                   related_name='responses')
+    respondsto = models.ForeignKey(
+        'Comment',
+        null=True,
+        blank=True,
+        related_name='responses'
+    )
     status = models.CharField(
         choices=COMMENT_STATUS,
         default=COMMENT_STATUS.active,
         max_length=20
+    )
+    review_status = models.CharField(
+        choices=COMMENT_REVIEW,
+        null=True,
+        blank=True,
+        max_length=10
     )
 
     objects = CommentManager()

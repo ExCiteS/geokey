@@ -26,21 +26,25 @@ class CommentAbstractAPIView(APIView):
         if user.is_anonymous():
             user = User.objects.get(display_name='AnonymousUser')
 
-        respondsto = None
-        if request.DATA.get('respondsto') is not None:
+        respondsto = request.DATA.get('respondsto') or None
+        if respondsto is not None:
             try:
-                respondsto = observation.comments.get(
-                    pk=request.DATA.get('respondsto'))
+                respondsto = observation.comments.get(pk=respondsto)
             except Comment.DoesNotExist:
                 raise MalformedRequestData('The comment you try to respond to'
                                            ' is not a comment to the '
                                            'observation.')
 
+        review_status = request.DATA.get('review_status') or None
+        if review_status == 'open' and observation.status != 'review':
+            observation.update(None, user, status='review')
+
         comment = Comment.objects.create(
             text=request.DATA.get('text'),
             respondsto=respondsto,
             commentto=observation,
-            creator=user
+            creator=user,
+            review_status=review_status
         )
 
         serializer = CommentSerializer(comment, context={'user': request.user})

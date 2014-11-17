@@ -5,6 +5,7 @@ OBSERVATION_STATUS = Choices(
     'active', 'draft', 'review', 'pending', 'deleted'
 )
 COMMENT_STATUS = Choices('active', 'deleted')
+COMMENT_REVIEW = Choices('open', 'resolved')
 MEDIA_STATUS = Choices('active', 'deleted')
 
 ACCEPTED_IMAGE_FORMATS = ('png', 'jpeg', 'gif')
