@@ -142,28 +142,25 @@ class SingleContributionAPIView(APIView):
 
         new_status = data.get('properties').get('status')
 
-        if (new_status is not None and new_status != observation.status):
-            if new_status == 'pending':
-                review_comment = data.get('properties').get('review_comment')
-                data = {
-                    'properties': {
-                        'status': new_status,
-                        'review_comment': review_comment
-                    }
-                }
-            elif not (
-                (new_status == 'active' and
-                    observation.status == 'draft' and
-                    observation.creator == user) or
-                (new_status == 'active' and
-                    observation.status == 'pending' and
-                    observation.project.can_moderate(user))):
-                raise PermissionDenied('You are not allowed to update the '
-                                       'status of the observation to "%s"' %
-                                       new_status)
+        user_can_moderate = observation.project.can_moderate(user)
+        user_is_owner = (observation.creator == user)
 
-        elif not (user == observation.creator or
-                  observation.project.can_moderate(user)):
+        if (new_status is not None and new_status != observation.status):
+            if not (
+                (new_status == 'pending' and
+                    (user_is_owner or user_can_moderate)) or
+                (new_status == 'active' and
+                    observation.status == 'draft' and user_is_owner) or
+                (new_status == 'active' and
+                    observation.status == 'pending' and user_can_moderate)):
+                raise PermissionDenied('You are not allowed to update the '
+                                       'status of the contribution from "%s" '
+                                       'to "%s"' % (
+                                           observation.status,
+                                           new_status
+                                       ))
+
+        elif not (user_is_owner or user_can_moderate):
             raise PermissionDenied('You are not allowed to update the'
                                    'contribution')
 

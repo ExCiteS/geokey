@@ -242,6 +242,7 @@ class SingleContributionAPIViewTest(TestCase):
             'pending'
         )
 
+    @raises(PermissionDenied)
     def test_flag_with_anonymous(self):
         url = reverse('api:project_all_observations', kwargs={
             'project_id': self.project.id
@@ -254,7 +255,7 @@ class SingleContributionAPIViewTest(TestCase):
         view.update_and_respond(request, self.observation)
         self.assertEqual(
             Observation.objects.get(pk=self.observation.id).status,
-            'pending'
+            'active'
         )
 
     @raises(PermissionDenied)
