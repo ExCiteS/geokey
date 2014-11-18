@@ -64,7 +64,7 @@ $(function() {
 				showHelp($(emailFields[i]), 'You forgot to add a top level domain to the address. Please check your input.');
 			}
 		}
-		
+
 		return valid;
 	}
 

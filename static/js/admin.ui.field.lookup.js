@@ -38,15 +38,15 @@
 		target.siblings('.message').remove();
 		target.after(html);
 		setTimeout(function () { html.remove(); }, 5000);
-	}
+	};
 
 	LookupPanel.prototype.displaySuccess = function displaySuccess(msg) {
 		this.displayMessage(msg, 'success', 'ok');
-	}
+	};
 
 	LookupPanel.prototype.displayError = function displayError(msg) {
 		this.displayMessage(msg, 'danger', 'remove');
-	}
+	};
 
 	/**
 	 * Handles the removal of a lookup value from the lookup field. Is called
@@ -64,7 +64,7 @@
 		function handleRemoveValueSucces() {
 			itemToRemove.remove();
 			this.displaySuccess('The value has been deleted.');
-		} 
+		}
 
 		/**
 		 * Handles the response after the removal of a lookup value failed.

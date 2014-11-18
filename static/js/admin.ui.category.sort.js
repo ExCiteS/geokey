@@ -29,7 +29,7 @@ $(function () {
         for (var i = 0, len = fields.length; i < len; i++) {
             sort.push($(fields[i]).attr('data-field-id'));
         }
-        
+
         Control.Ajax.post(url, handleSuccess, handleError, {'order': sort});
     }
 

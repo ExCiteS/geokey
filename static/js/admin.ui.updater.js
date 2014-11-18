@@ -71,7 +71,7 @@ $(function () {
 	}
 
 	function displayMessage(elementClass, msg, type, glyphicon) {
-		var target = $('.toggle-' + elementClass).first()
+		var target = $('.toggle-' + elementClass).first();
 		var html = $('<div class="message bg-' + type + ' text-' + type + '"><span class="glyphicon glyphicon-' + glyphicon + '"></span> ' + msg + '</div>');
 		target.siblings('.message').remove();
 		target.before(html);
