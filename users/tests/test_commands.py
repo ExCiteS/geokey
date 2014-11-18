@@ -47,7 +47,7 @@ class CommandTest(TestCase):
             add_contributors=[contributor]
         )
 
-        reported = ObservationFactory.create(
+        suspended = ObservationFactory.create(
             created_at=(datetime.utcnow() - timedelta(2)).replace(tzinfo=utc),
             project=project,
             creator=contributor,
@@ -67,7 +67,7 @@ class CommandTest(TestCase):
 
         yesterday = datetime.utcnow().replace(tzinfo=utc)
 
-        reported.update(
+        suspended.update(
             attributes=None,
             status='pending',
             updator=UserF.create()
@@ -87,7 +87,7 @@ class CommandTest(TestCase):
         report = command.get_updated_items(project, moderator, yesterday)
         to_moderate = report.get('to_moderate')
         self.assertEqual(len(to_moderate.get('new')), 2)
-        self.assertEqual(len(to_moderate.get('reported')), 1)
+        self.assertEqual(len(to_moderate.get('suspended')), 1)
         self.assertIsNone(report.get('yours'))
 
         report = command.get_updated_items(project, contributor, yesterday)
@@ -95,7 +95,7 @@ class CommandTest(TestCase):
         yours = report.get('yours')
         self.assertEqual(len(yours.get('changed')), 3)
         self.assertEqual(len(yours.get('approved')), 1)
-        self.assertEqual(len(yours.get('reported')), 1)
+        self.assertEqual(len(yours.get('suspended')), 1)
 
         report = command.get_updated_items(project, some_dude, yesterday)
         self.assertEqual(report, None)
@@ -110,7 +110,7 @@ class CommandTest(TestCase):
             add_contributors=[contributor]
         )
 
-        reported = ObservationFactory.create(
+        suspended = ObservationFactory.create(
             created_at=(datetime.utcnow() - timedelta(2)).replace(tzinfo=utc),
             project=project,
             creator=contributor,
@@ -128,7 +128,7 @@ class CommandTest(TestCase):
             status='pending'
         )
 
-        reported.update(
+        suspended.update(
             attributes=None,
             status='pending',
             updator=UserF.create()

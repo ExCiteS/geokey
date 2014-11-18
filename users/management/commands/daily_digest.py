@@ -57,17 +57,22 @@ class Command(NoArgsCommand):
             if project.can_moderate(user):
                 items['to_moderate'] = {
                     'new': new_items,
-                    'reported': updated_items.filter(status='pending')
+                    'reported': updated_items.filter(status='review'),
+                    'suspended': updated_items.filter(status='pending')
                 }
             if project.can_contribute(user):
                 approved = []
                 reported = []
+                suspended = []
 
                 for item in updated_items.filter(creator=user):
                     try:
                         historical = item.history.as_of(yesterday)
 
                         if (item.status == 'pending' and
+                                historical.status == 'active'):
+                            suspended.append(item)
+                        if (item.status == 'review' and
                                 historical.status == 'active'):
                             reported.append(item)
                         if (item.status == 'active' and
@@ -79,7 +84,8 @@ class Command(NoArgsCommand):
                     items['yours'] = {
                         'changed': updated_items.filter(creator=user),
                         'approved': approved,
-                        'reported': reported
+                        'reported': reported,
+                        'suspended': suspended
                     }
                 return items
 

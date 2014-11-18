@@ -5,8 +5,8 @@ here is an overview of what happened in your projects on {{ yesterday }}:
 {% for report in reports %}
 -- {{ report.project }}
 
-{% if report.to_moderate %}   Please moderate {{ report.to_moderate.new|length }} new contributions and {{ report.to_moderate.reported|length }} reported contributions.
-{% endif %}{% if report.yours %}   {{ report.yours.changed|length}} of your contributions have been changed. {{ report.yours.approved|length}} where approved, {{ report.yours.reported|length}} where reported.{% endif %}
+{% if report.to_moderate %}   Please moderate {{ report.to_moderate.new|length }} new contributions and {{ report.to_moderate.suspended|length }} suspended contributions. {{ report.to_moderate.reported|length }} have been reported for review.
+{% endif %}{% if report.yours %}   {{ report.yours.changed|length}} of your contributions have been changed. {{ report.yours.approved|length}} where approved, {{ report.yours.suspended|length}} where suspended. {{ report.yours.reported|length }} have been reported for review.{% endif %}
 
 {% endfor %}
 
