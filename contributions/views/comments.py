@@ -52,23 +52,37 @@ class CommentAbstractAPIView(APIView):
 
     def update_and_respond(self, request, comment):
         user = request.user
+        data = request.DATA
 
-        if (comment.creator == request.user or
-                comment.commentto.project.can_moderate(request.user)):
+        can_moderate = comment.commentto.project.can_moderate(request.user)
+        is_owner = comment.creator == request.user
+
+        if (is_owner or can_moderate):
+            if data.get('review_status') == 'resolved' and not can_moderate:
+                raise PermissionDenied('You are not a project moderator and '
+                                       'therefore not eligable to resolve this'
+                                       ' comment.')
             serializer = CommentSerializer(
                 comment,
-                data=request.DATA,
+                data=data,
                 partial=True,
                 context={'user': user}
             )
+
             if serializer.is_valid():
                 serializer.save()
+
+                if (not comment.commentto.comments.filter(
+                        review_status='open').exists()):
+                    comment.commentto.update(None, user, status='active')
+
                 return Response(serializer.data)
             else:
                 return Response(
                     serializer.errors,
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
         else:
             raise PermissionDenied('You are neither the author if this comment'
                                    ' nor a project moderator and therefore'

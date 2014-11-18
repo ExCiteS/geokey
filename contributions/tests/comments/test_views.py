@@ -150,6 +150,156 @@ class CommentAbstractAPIViewTest(TestCase):
         )
 
 
+class CommentAbstractAPIViewResolveTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserF.create()
+        self.creator = UserF.create()
+        self.moderator = UserF.create()
+        self.commenter = UserF.create()
+        self.project = ProjectF(
+            add_admins=[self.admin],
+            add_contributors=[self.creator, self.commenter]
+        )
+        self.moderators = UserGroupF(add_users=[self.moderator], **{
+            'project': self.project,
+            'can_moderate': True
+        })
+        self.observation = ObservationFactory.create(**{
+            'project': self.project,
+            'creator': self.creator,
+            'status': 'review'
+        })
+        self.comment = CommentFactory.create(**{
+            'commentto': self.observation,
+            'creator': self.commenter,
+            'review_status': 'open'
+        })
+
+    def render(self, response):
+        response.accepted_renderer = JSONRenderer()
+        response.accepted_media_type = 'application/json'
+        response.renderer_context = {'blah': 'blubb'}
+        return response.render()
+
+    def test_resolve_comment_with_admin(self):
+        url = reverse('api:project_single_comment', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id,
+            'comment_id': self.comment.id
+        })
+        request = self.factory.patch(url, {'text': 'Updated'})
+        request.user = self.admin
+        request.DATA = {'review_status': 'resolved'}
+
+        view = CommentAbstractAPIView()
+        response = self.render(
+            view.update_and_respond(request, self.comment)
+        )
+        self.assertEqual(
+            json.loads(response.content).get('review_status'),
+            'resolved'
+        )
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'active'
+        )
+
+    def test_resolve_one_of_two_comment_with_admin(self):
+        CommentFactory.create(**{
+            'commentto': self.observation,
+            'creator': self.creator,
+            'review_status': 'open'
+        })
+
+        url = reverse('api:project_single_comment', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id,
+            'comment_id': self.comment.id
+        })
+        request = self.factory.patch(url, {'text': 'Updated'})
+        request.user = self.admin
+        request.DATA = {'review_status': 'resolved'}
+
+        view = CommentAbstractAPIView()
+        response = self.render(
+            view.update_and_respond(request, self.comment)
+        )
+        self.assertEqual(
+            json.loads(response.content).get('review_status'),
+            'resolved'
+        )
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'active'
+        )
+
+    def test_resolve_comment_with_moderator(self):
+        url = reverse('api:project_single_comment', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id,
+            'comment_id': self.comment.id
+        })
+        request = self.factory.patch(url, {'text': 'Updated'})
+        request.user = self.moderator
+        request.DATA = {'review_status': 'resolved'}
+
+        view = CommentAbstractAPIView()
+        response = self.render(
+            view.update_and_respond(request, self.comment)
+        )
+        self.assertEqual(
+            json.loads(response.content).get('review_status'),
+            'resolved'
+        )
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'active'
+        )
+
+    @raises(PermissionDenied)
+    def test_resolve_comment_with_creator(self):
+        url = reverse('api:project_single_comment', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id,
+            'comment_id': self.comment.id
+        })
+        request = self.factory.patch(url, {'text': 'Updated'})
+        request.user = self.creator
+        request.DATA = {'review_status': 'resolved'}
+
+        view = CommentAbstractAPIView()
+        view.update_and_respond(request, self.comment)
+
+    @raises(PermissionDenied)
+    def test_resolve_comment_with_commenter(self):
+        url = reverse('api:project_single_comment', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id,
+            'comment_id': self.comment.id
+        })
+        request = self.factory.patch(url, {'text': 'Updated'})
+        request.user = self.commenter
+        request.DATA = {'review_status': 'resolved'}
+
+        view = CommentAbstractAPIView()
+        view.update_and_respond(request, self.comment)
+
+    @raises(PermissionDenied)
+    def test_resolve_comment_with_anonymous(self):
+        url = reverse('api:project_single_comment', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id,
+            'comment_id': self.comment.id
+        })
+        request = self.factory.patch(url, {'text': 'Updated'})
+        request.user = AnonymousUser()
+        request.DATA = {'review_status': 'resolved'}
+
+        view = CommentAbstractAPIView()
+        view.update_and_respond(request, self.comment)
+
+
 class AllContributionsSingleCommentAPIViewTest(TestCase):
     def setUp(self):
         self.admin = UserF.create()
@@ -624,6 +774,23 @@ class DeleteProjectCommentTest(APITestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(observation.status, 'active')
+
+        self.assertIn(self.comment, observation.comments.all())
+        self.assertNotIn(self.comment_to_remove, observation.comments.all())
+
+    def test_delete_one_review_comment_with_comment_creator(self):
+        self.comment.review_status = 'open'
+        self.comment.save()
+        self.comment_to_remove.review_status = 'open'
+        self.comment_to_remove.save()
+        self.observation.status = 'review'
+        self.observation.save()
+
+        response = self.get_response(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(observation.status, 'review')
 
         self.assertIn(self.comment, observation.comments.all())
         self.assertNotIn(self.comment_to_remove, observation.comments.all())
