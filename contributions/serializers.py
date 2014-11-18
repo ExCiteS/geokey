@@ -265,6 +265,13 @@ class ContributionSerializer(object):
         )
         json_object['comments'] = comment_serializer.data
 
+        review_serializer = CommentSerializer(
+            obj.comments.filter(review_status='open'),
+            many=True,
+            context=self.context
+        )
+        json_object['review_comments'] = review_serializer.data
+
         file_serializer = FileSerializer(
             obj.files_attached.all(),
             many=True,
