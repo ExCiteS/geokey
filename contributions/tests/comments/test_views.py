@@ -231,7 +231,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         )
         self.assertEqual(
             Observation.objects.get(pk=self.observation.id).status,
-            'active'
+            'review'
         )
 
     def test_resolve_comment_with_moderator(self):
