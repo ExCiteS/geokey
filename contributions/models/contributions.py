@@ -39,7 +39,7 @@ class Observation(models.Model):
         settings.AUTH_USER_MODEL,
         related_name='creator'
     )
-    updated_at = models.DateTimeField(null=True)
+    updated_at = models.DateTimeField(null=True, auto_now_add=True)
     updator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='updator',
