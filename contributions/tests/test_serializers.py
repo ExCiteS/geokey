@@ -424,15 +424,18 @@ class ContributionSerializerIntegrationTests(TestCase):
         o_type = CategoryFactory.create()
         TextFieldFactory.create(**{
             'category': o_type,
-            'key': 'field-1'
+            'key': 'field-1',
+            'order': 0
         })
         TextFieldFactory.create(**{
             'category': o_type,
-            'key': 'field-2'
+            'key': 'field-2',
+            'order': 1
         })
         TextFieldFactory.create(**{
             'category': o_type,
-            'key': 'field-3'
+            'key': 'field-3',
+            'order': 2
         })
 
         ObservationFactory.create_batch(
@@ -464,9 +467,9 @@ class ContributionSerializerIntegrationTests(TestCase):
         self.assertEqual(len(result.get('features')), number)
 
         for f in result.get('features'):
-            self.assertIsNotNone(f.get('search'))
+            self.assertIsNotNone(f.get('search_matches'))
             self.assertIsNone(
-                f.get('search').get('search_matches').get('field-3')
+                f.get('search_matches').get('field-3')
             )
 
     def test_serialize_update(self):

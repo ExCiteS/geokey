@@ -14,7 +14,7 @@ from rest_framework_gis import serializers as geoserializers
 
 from core.exceptions import MalformedRequestData
 from categories.serializer import CategorySerializer
-from categories.models import Category
+from categories.models import Category, Field
 from users.serializers import UserSerializer
 
 from .models import (
@@ -176,25 +176,27 @@ class ContributionSerializer(object):
         else:
             return instance
 
-    def get_search_result(self, obj, q):
-        first_field = obj.category.fields.all()[0]
-
-        search = {
-            'display_field': {
+    def get_display_field(self, obj):
+        try:
+            first_field = obj.category.fields.get(order=0)
+            return {
                 'key': first_field.key,
                 'value': obj.attributes.get(first_field.key)
-            },
-            'search_matches': {}
-        }
+            }
+        except Field.DoesNotExist:
+            return None
+
+    def get_search_result(self, obj, q):
+        search_matches = {}
 
         matcher = obj.search_matches.split('#####')
 
         for field in matcher:
             if q.lower() in field.lower():
                 match = field.split(':', 1)
-                search['search_matches'][match[0]] = match[1]
+                search_matches[match[0]] = match[1]
 
-        return search
+        return search_matches
 
     def to_native_base(self, obj):
         location = obj.location
@@ -232,10 +234,6 @@ class ContributionSerializer(object):
             'isowner': isowner
         }
 
-        q = self.context.get('search')
-        if q is not None:
-            json_object['search'] = self.get_search_result(obj, q)
-
         return json_object
 
     def to_native_min(self, obj):
@@ -248,6 +246,12 @@ class ContributionSerializer(object):
                        if obj.category.symbol else None),
             'colour': obj.category.colour
         }
+
+        json_object['display_field'] = self.get_display_field(obj)
+
+        q = self.context.get('search')
+        if q is not None:
+            json_object['search_matches'] = self.get_search_result(obj, q)
 
         return json_object
 
