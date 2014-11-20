@@ -224,5 +224,6 @@ class Comment(models.Model):
         """
         Deletes the comment by setting it's `status` to `DELETED`
         """
+        self.responses.all().delete()
         self.status = COMMENT_STATUS.deleted
         self.save()
