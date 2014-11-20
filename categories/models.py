@@ -407,6 +407,9 @@ class LookupValue(models.Model):
 
     objects = LookupValueManager()
 
+    class Meta:
+        ordering = ['id']
+
     def delete(self):
         """
         Deletes the value by settings its status to `deleted`
@@ -469,6 +472,9 @@ class MultipleLookupValue(models.Model):
     )
 
     objects = LookupValueManager()
+
+    class Meta:
+        ordering = ['id']
 
     def delete(self):
         """
