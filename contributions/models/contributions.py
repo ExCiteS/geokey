@@ -180,7 +180,7 @@ def update_search_matches(sender, **kwargs):
             elif field.fieldtype == 'MultipleLookupField':
                 values = observation.attributes.get(field.key)
                 if values is not None:
-                    l_ids = json.loads(values)
+                    l_ids = sorted(json.loads(values))
                     lookups = []
 
                     for l_id in l_ids:
