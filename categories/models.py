@@ -375,6 +375,9 @@ class LookupField(Field):
         """
         Returns the `value` of the field in `int` format.
         """
+        if value is None or len(value) == 0:
+            return None
+
         return int(value)
 
     @property
@@ -441,7 +444,7 @@ class MultipleLookupField(Field):
                              'field.' % self.name)
 
     def convert_from_string(self, value):
-        if len(value) == 0:
+        if value is None or len(value) == 0:
             return None
 
         return json.loads(value)
