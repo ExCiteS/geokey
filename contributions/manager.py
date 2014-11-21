@@ -82,7 +82,7 @@ class ObservationQuerySet(query.HStoreQuerySet):
         """
         Returns a subset of the query set filtered by query provided
         """
-        regex = r':[\w, ]*%s' % query
+        regex = r':[^#{5}]*%s' % query
         return self.filter(search_matches__iregex=regex)
 
 

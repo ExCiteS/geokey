@@ -135,7 +135,7 @@ class TestSearch(TestCase):
         ObservationFactory.create_batch(3, **{
             'project': project,
             'category': category,
-            'attributes': {'lookup': [kermit.id, piggy.id]}
+            'attributes': {'lookup': [piggy.id, kermit.id]}
         })
         ObservationFactory.create_batch(3, **{
             'project': project,
