@@ -193,8 +193,8 @@ class ContributionSerializer(object):
         matcher = obj.search_matches.split('#####')
 
         for field in matcher:
-            if q.lower() in field.lower():
-                match = field.split(':', 1)
+            match = field.split(':', 1)
+            if q.lower() in match[1].lower():
                 search_matches[match[0]] = match[1]
 
         return search_matches
