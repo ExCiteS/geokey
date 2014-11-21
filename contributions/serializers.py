@@ -179,9 +179,10 @@ class ContributionSerializer(object):
     def get_display_field(self, obj):
         try:
             first_field = obj.category.fields.get(order=0)
+            value = obj.attributes.get(first_field.key)
             return {
                 'key': first_field.key,
-                'value': obj.attributes.get(first_field.key)
+                'value': first_field.convert_from_string(value)
             }
         except Field.DoesNotExist:
             return None

@@ -52,7 +52,7 @@ class Observation(models.Model):
     objects = ObservationManager()
 
     class Meta:
-        ordering = ['updated_at', 'id']
+        ordering = ['-updated_at', 'id']
         app_label = 'contributions'
 
     @classmethod
