@@ -146,5 +146,5 @@ class CommandTest(TestCase):
             )
 
         command = Command()
-        command.daily_digest(yesterday)
+        command.send_daily_digest(yesterday)
         self.assertEquals(len(mail.outbox), 3)

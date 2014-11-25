@@ -94,7 +94,7 @@ class Command(NoArgsCommand):
 
         return None
 
-    def daily_digest(self, yesterday):
+    def send_daily_digest(self, yesterday):
         """
         Creates a daily digest for all users registered in the system and sends
         the digest to theses users. Digests will only be sent if there are
@@ -151,9 +151,9 @@ class Command(NoArgsCommand):
             connection.send_messages(messages)
             connection.close()
 
-    def send_daily_digest(self):
+    def handle(self, *args, **options):
         now = datetime.utcnow() - timedelta(1)
         yesterday = datetime(
             now.year, now.month, now.day, 0, 0, 0).replace(tzinfo=utc)
 
-        self.daily_digest(yesterday)
+        self.send_daily_digest(yesterday)
