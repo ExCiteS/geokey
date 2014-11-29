@@ -43,6 +43,7 @@ $(function () {
     });
 
     map.on('draw:deleted', function() {
-        geometryField.val();
+        console.log('deleted');
+        geometryField.val('');
     });
 }());

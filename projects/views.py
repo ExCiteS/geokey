@@ -109,9 +109,14 @@ class ProjectExtend(LoginRequiredMixin, TemplateView):
         data = request.POST
         context = self.get_context_data(project_id)
         project = context.pop('project', None)
+        geometry = data.get('geometry')
 
         if project is not None:
-            project.geographic_extend = GEOSGeometry(data.get('geometry'))
+            if geometry is not None and len(geometry) > 0:
+                project.geographic_extend = GEOSGeometry(data.get('geometry'))
+            else:
+                project.geographic_extend = None
+
             project.save()
 
             messages.success(
