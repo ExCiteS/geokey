@@ -8,7 +8,7 @@ body {
 }
 
 body#home {
-	background: url(../img/people.jpg) no-repeat 50% 50%;
+	background: #373f45 url(../img/people.jpg) no-repeat 50% 50%;
 	background-size: cover;
 	height: 100%;
 }
