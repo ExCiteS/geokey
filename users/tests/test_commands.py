@@ -128,6 +128,8 @@ class CommandTest(TestCase):
             status='pending'
         )
 
+        yesterday = datetime.utcnow().replace(tzinfo=utc)
+
         suspended.update(
             attributes=None,
             status='pending',
@@ -144,5 +146,5 @@ class CommandTest(TestCase):
             )
 
         command = Command()
-        command.daily_digest()
+        command.send_daily_digest(yesterday)
         self.assertEquals(len(mail.outbox), 3)

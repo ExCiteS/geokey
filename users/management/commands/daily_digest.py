@@ -50,7 +50,10 @@ class Command(NoArgsCommand):
 
         new_items = project.observations.filter(
             created_at__gte=yesterday, status='pending')
-        updated_items = project.observations.filter(updated_at__gte=yesterday)
+        updated_items = project.observations.filter(
+            updated_at__gte=yesterday,
+            created_at__lt=yesterday
+        )
 
         if updated_items.count() > 0 and new_items > 0:
 
@@ -91,16 +94,13 @@ class Command(NoArgsCommand):
 
         return None
 
-    def daily_digest(self):
+    def send_daily_digest(self, yesterday):
         """
         Creates a daily digest for all users registered in the system and sends
         the digest to theses users. Digests will only be sent if there are
         relevant updates in at least one project.
         """
         messages = []
-        now = datetime.utcnow() - timedelta(1)
-        yesterday = datetime(
-            now.year, now.month, now.day, 0, 0, 0).replace(tzinfo=utc)
 
         updated_projects = self.get_updated_projects(yesterday)
 
@@ -150,3 +150,10 @@ class Command(NoArgsCommand):
             connection.open()
             connection.send_messages(messages)
             connection.close()
+
+    def handle(self, *args, **options):
+        now = datetime.utcnow() - timedelta(1)
+        yesterday = datetime(
+            now.year, now.month, now.day, 0, 0, 0).replace(tzinfo=utc)
+
+        self.send_daily_digest(yesterday)

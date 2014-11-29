@@ -114,7 +114,11 @@ class ViewObservations(APIView):
         Returns a single view and its data
         /api/projects/:project_id/data-groupings/:grouping_id/
         """
-        view = Grouping.objects.get_single(request.user, project_id, grouping_id)
+        view = Grouping.objects.get_single(
+            request.user,
+            project_id,
+            grouping_id
+        )
         serializer = GroupingSerializer(view, context={'user': request.user})
         return Response(serializer.data)
 
@@ -144,6 +148,8 @@ class SingleContributionAPIView(APIView):
 
         user_can_moderate = observation.project.can_moderate(user)
         user_is_owner = (observation.creator == user)
+        under_review = observation.comments.filter(
+            review_status='open').exists()
 
         if (new_status is not None and new_status != observation.status):
             if not (
@@ -153,6 +159,7 @@ class SingleContributionAPIView(APIView):
                     observation.status == 'draft' and user_is_owner) or
                 (new_status == 'active' and
                     observation.status == 'pending' and user_can_moderate)):
+
                 raise PermissionDenied('You are not allowed to update the '
                                        'status of the contribution from "%s" '
                                        'to "%s"' % (
@@ -164,8 +171,11 @@ class SingleContributionAPIView(APIView):
             raise PermissionDenied('You are not allowed to update the'
                                    'contribution')
 
+        if new_status == 'active' and under_review:
+            data['properties']['status'] = 'review'
+
         if ((new_status == 'active' and observation.status == 'draft') and
-                not observation.project.can_moderate(user)):
+                not user_can_moderate):
             default_status = observation.category.default_status
             data['properties']['status'] = default_status
 
@@ -222,13 +232,15 @@ class SingleGroupingContributionAPIView(
     /api/projects/:project_id/views/:grouping_id/observations/:observation_id
     """
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, grouping_id, observation_id, format=None):
+    def get(self, request, project_id, grouping_id, observation_id,
+            format=None):
         observation = self.get_object(
             request.user, project_id, grouping_id, observation_id)
         return self.get_and_respond(request, observation, format=format)
 
     @handle_exceptions_for_ajax
-    def patch(self, request, project_id, grouping_id, observation_id, format=None):
+    def patch(self, request, project_id, grouping_id, observation_id,
+              format=None):
         observation = self.get_object(
             request.user, project_id, grouping_id, observation_id)
         return self.update_and_respond(request, observation, format=format)

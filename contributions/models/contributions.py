@@ -39,7 +39,7 @@ class Observation(models.Model):
         settings.AUTH_USER_MODEL,
         related_name='creator'
     )
-    updated_at = models.DateTimeField(null=True)
+    updated_at = models.DateTimeField(null=True, auto_now_add=True)
     updator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='updator',
@@ -52,7 +52,7 @@ class Observation(models.Model):
     objects = ObservationManager()
 
     class Meta:
-        ordering = ['updated_at', 'id']
+        ordering = ['-updated_at', 'id']
         app_label = 'contributions'
 
     @classmethod
@@ -180,13 +180,16 @@ def update_search_matches(sender, **kwargs):
             elif field.fieldtype == 'MultipleLookupField':
                 values = observation.attributes.get(field.key)
                 if values is not None:
-                    l_ids = json.loads(values)
+                    l_ids = sorted(json.loads(values))
+                    lookups = []
 
                     for l_id in l_ids:
-                        lookup = field.lookupvalues.get(pk=l_id)
-                        search_matches.append('%s:%s' % (
-                            field.key, lookup.name
-                        ))
+                        lookups.append(field.lookupvalues.get(pk=l_id).name)
+
+                    search_matches.append('%s:%s' % (
+                        field.key,
+                        ', '.join(lookups))
+                    )
 
     observation.search_matches = '#####'.join(search_matches)
 
@@ -224,5 +227,6 @@ class Comment(models.Model):
         """
         Deletes the comment by setting it's `status` to `DELETED`
         """
+        self.responses.all().delete()
         self.status = COMMENT_STATUS.deleted
         self.save()

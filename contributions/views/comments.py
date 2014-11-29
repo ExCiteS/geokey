@@ -22,6 +22,11 @@ class CommentAbstractAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create_and_respond(self, request, observation):
+        if observation.status == 'draft':
+            raise MalformedRequestData(
+                'This contribution is a draft. You may not comment on drafts.'
+            )
+
         user = request.user
         if user.is_anonymous():
             user = User.objects.get(display_name='AnonymousUser')

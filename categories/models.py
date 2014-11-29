@@ -375,6 +375,9 @@ class LookupField(Field):
         """
         Returns the `value` of the field in `int` format.
         """
+        if value is None or len(value) == 0:
+            return None
+
         return int(value)
 
     @property
@@ -407,6 +410,9 @@ class LookupValue(models.Model):
 
     objects = LookupValueManager()
 
+    class Meta:
+        ordering = ['id']
+
     def delete(self):
         """
         Deletes the value by settings its status to `deleted`
@@ -438,7 +444,7 @@ class MultipleLookupField(Field):
                              'field.' % self.name)
 
     def convert_from_string(self, value):
-        if len(value) == 0:
+        if value is None or len(value) == 0:
             return None
 
         return json.loads(value)
@@ -469,6 +475,9 @@ class MultipleLookupValue(models.Model):
     )
 
     objects = LookupValueManager()
+
+    class Meta:
+        ordering = ['id']
 
     def delete(self):
         """
