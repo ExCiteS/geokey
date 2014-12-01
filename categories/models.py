@@ -9,6 +9,8 @@ from django.db.models.loading import get_model
 
 from core.exceptions import InputError
 
+from datagroupings.models import Rule
+
 from .manager import CategoryManager, FieldManager, LookupValueManager
 from .base import STATUS, DEFAULT_STATUS
 
@@ -151,6 +153,11 @@ class Field(models.Model):
             'The method `filter` has not been implemented for this '
             'subclass of Field.'
         )
+
+    def delete(self):
+        Rule.objects.filter(
+            category=self.category).hremove('filters', self.key)
+        super(Field, self).delete()
 
 
 class TextField(Field):

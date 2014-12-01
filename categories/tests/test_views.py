@@ -422,6 +422,7 @@ class FieldSettingsTest(TestCase):
             'Project matching query does not exist.'
         )
 
+
 # ############################################################################
 #
 # AJAX API

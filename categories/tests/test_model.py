@@ -14,6 +14,9 @@ from .model_factories import (
     MultipleLookupValueFactory
 )
 
+from datagroupings.models import Rule
+from datagroupings.tests.model_factories import GroupingFactory, RuleFactory
+
 
 class CategoryTest(TestCase):
     def test_re_order_fields(self):
@@ -80,11 +83,43 @@ class FieldTest(TestCase):
         )
         self.assertEqual(field.order, 0)
 
-        another_field = field = Field.create(
+        another_field = Field.create(
             'name-2', 'key-2', 'description', False, category,
             'TextField'
         )
         self.assertEqual(another_field.order, 1)
+
+    @raises(Field.DoesNotExist)
+    def test_delete(self):
+        category = CategoryFactory()
+        field = Field.create(
+            'name', 'key', 'description', False, category,
+            'TextField'
+        )
+
+        f = Field.objects.get(pk=field.id)
+        f.delete()
+
+        Field.objects.get(pk=f.id)
+
+    def test_delete_with_rule(self):
+        category = CategoryFactory()
+        field = Field.create(
+            'name', 'key', 'description', False, category, 'TextField'
+        )
+        grouping = GroupingFactory.create()
+        rule = RuleFactory(**{
+            'grouping': grouping,
+            'status': 'active',
+            'category': category,
+            'filters': {
+                field.key: 'Blah',
+                'other-key': 'blubb'
+            }
+        })
+        field.delete()
+        reference_rule = Rule.objects.get(pk=rule.id)
+        self.assertEquals(reference_rule.filters.get('key'), None)
 
 
 class TextFieldTest(TestCase):
