@@ -414,6 +414,21 @@ class AllContributionsMediaAPIViewTest(TestCase):
         response = self.post(AnonymousUser())
         self.assertEqual(response.status_code, 404)
 
+    def test_post_images_with_anonymous_to_public(self):
+        self.project.isprivate = False
+        self.project.everyone_contributes = True
+        self.project.save()
+
+        grouping = GroupingFactory.create(
+            **{'project': self.project, 'isprivate': False}
+        )
+        RuleFactory.create(**{
+            'grouping': grouping,
+            'category': self.contribution.category
+        })
+        response = self.post(AnonymousUser())
+        self.assertEqual(response.status_code, 201)
+
     def test_upload_unsupported_file_format(self):
         xyz_file = StringIO()
         xyz = Image.new('RGBA', size=(50, 50), color=(256, 0, 0))
