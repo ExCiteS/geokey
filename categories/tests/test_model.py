@@ -5,7 +5,7 @@ from nose.tools import raises
 
 from core.exceptions import InputError
 
-from ..models import Field
+from ..models import Field, Category
 
 from .model_factories import (
     TextFieldFactory, NumericFieldFactory, DateTimeFieldFactory,
@@ -63,6 +63,27 @@ class CategoryTest(TestCase):
             self.assertEqual(fields[2].order, 0)
             self.assertEqual(fields[3].order, 0)
             self.assertEqual(fields[4].order, 0)
+
+    @raises(Category.DoesNotExist)
+    def test_delete(self):
+        category = CategoryFactory.create()
+        category.delete()
+        Category.objects.get(pk=category.id)
+
+    @raises(Category.DoesNotExist, Rule.DoesNotExist)
+    def test_delete_with_grouping(self):
+        category = CategoryFactory.create()
+
+        grouping = GroupingFactory.create()
+        rule = RuleFactory(**{
+            'grouping': grouping,
+            'status': 'active',
+            'category': category
+        })
+        category.delete()
+
+        Category.objects.get(pk=category.id)
+        Rule.objects.get(pk=rule.id)
 
 
 class FieldTest(TestCase):

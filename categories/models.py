@@ -53,6 +53,7 @@ class Category(models.Model):
             field.save()
 
     def delete(self):
+        Rule.objects.filter(category=self).delete()
         self.status = STATUS.deleted
         self.save()
 
