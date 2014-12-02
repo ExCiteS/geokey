@@ -9,7 +9,6 @@ from django.core import mail
 from django.template.loader import get_template
 from django.template import Context
 
-
 from projects.models import Project
 from users.models import User
 from contributions.models import Observation
