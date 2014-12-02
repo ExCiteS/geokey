@@ -285,6 +285,10 @@ div.overview-list-item {
 		font-size: 12px;
 	}
 
+	div.overview-list-item p.meta span.lower-case {
+		text-transform: none;
+	}
+
 	div.overview-list-item .message {
 		margin-top: -15px;
 		margin-bottom: 15px;
