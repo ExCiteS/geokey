@@ -55,7 +55,7 @@ class Command(NoArgsCommand):
             created_at__lt=yesterday
         )
 
-        if updated_items.count() > 0 and new_items > 0:
+        if updated_items.count() > 0 or new_items.count() > 0:
 
             if project.can_moderate(user):
                 items['to_moderate'] = {
