@@ -9,6 +9,7 @@ from django.db.models.loading import get_model
 
 from core.exceptions import InputError
 
+from contributions.models import Observation
 from datagroupings.models import Rule
 
 from .manager import CategoryManager, FieldManager, LookupValueManager
@@ -53,6 +54,7 @@ class Category(models.Model):
             field.save()
 
     def delete(self):
+        Observation.objects.filter(category=self).delete()
         Rule.objects.filter(category=self).delete()
         self.status = STATUS.deleted
         self.save()

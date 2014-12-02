@@ -26,6 +26,7 @@ from .forms import CategoryCreateForm, FieldCreateForm
 from .serializer import (
     CategorySerializer, FieldSerializer, LookupFieldSerializer
 )
+from contributions.models import Observation
 
 
 # ############################################################################
@@ -145,10 +146,14 @@ class CategorySettings(LoginRequiredMixin, TemplateView):
         user = self.request.user
         category = Category.objects.as_admin(
             user, project_id, category_id)
+        num_contributions = Observation.objects.filter(
+            category=category).count()
+
         return {
             'category': category,
             'admin': category.project.is_admin(user),
-            'status_types': STATUS
+            'status_types': STATUS,
+            'num_contributions': num_contributions
         }
 
     def post(self, request, project_id, category_id):

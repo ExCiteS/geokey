@@ -16,6 +16,8 @@ from .model_factories import (
 
 from datagroupings.models import Rule
 from datagroupings.tests.model_factories import GroupingFactory, RuleFactory
+from contributions.tests.model_factories import ObservationFactory
+from contributions.models import Observation
 
 
 class CategoryTest(TestCase):
@@ -84,6 +86,17 @@ class CategoryTest(TestCase):
 
         Category.objects.get(pk=category.id)
         Rule.objects.get(pk=rule.id)
+
+    @raises(Category.DoesNotExist, Observation.DoesNotExist)
+    def test_delete_with_observation(self):
+        category = CategoryFactory.create()
+        observation = ObservationFactory.create(**{
+            'category': category
+        })
+        category.delete()
+
+        Category.objects.get(pk=category.id)
+        Observation.objects.get(pk=observation.id)
 
 
 class FieldTest(TestCase):

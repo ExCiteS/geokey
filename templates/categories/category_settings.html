@@ -158,6 +158,10 @@
                     </div>
                     <div class="modal-body panel-body">
                         <p><strong>Before you delete the category, please read through the consequences of this action.</strong></p>
+
+                        {% if num_contributions > 0%}
+                        <p class="text-danger">There are {{ num_contributions }} of this category. Deleting the category will delete all of the contributions. We suggest to make this categpory inactive instead to keep the contributions. </p>
+                        {% endif %}
                         <ul>
                             <li>Deleting a category can not be undone.</li>
                             <li>All data contributed using this category will be deleted as well.</li>
