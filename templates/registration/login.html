@@ -43,12 +43,12 @@
 						{% csrf_token %}
 						<input type="hidden" name="next" value="{{ next|escape }}" />
 						<div class="form-group">
-							<label for="username" class="sr-only">E-mail</label>
-							<input type="text" class="form-control input-lg" id="username" name="username" placeholder="E-mail">
+							<label for="username">E-mail</label>
+							<input type="text" class="form-control input-lg" id="username" name="username">
 						</div>
 						<div class="form-group">
-							<label for="inputPassword" class="sr-only">Password</label>
-							<input type="password" class="form-control input-lg" id="password" name="password" placeholder="Password">
+							<label for="inputPassword">Password</label>
+							<input type="password" class="form-control input-lg" id="password" name="password">
 						</div>
 						<div class="form-group">
 								<button type="submit" class="btn btn-primary">Sign in</button>
