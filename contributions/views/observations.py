@@ -91,6 +91,13 @@ class MyObservations(APIView):
     @handle_exceptions_for_ajax
     def get(self, request, project_id, format=None):
         project = Project.objects.get_single(request.user, project_id)
+
+        if request.user.is_anonymous():
+            return Response(
+                {"error": "You need to login to view your contributions."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
         if project.can_contribute(request.user):
             observations = project.observations.filter(creator=request.user)
 
