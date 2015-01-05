@@ -29,6 +29,7 @@
                     <h3 class="header">Notifications</h3>
                     <form method="POST" action="{% url 'admin:notifications' %}" novalidate>
                         {% csrf_token %}
+                        {% if admins %}
                         <table class="table table-hover">
                             <thead>
                                 <tr>
@@ -49,6 +50,12 @@
                             <button type="submit" class="btn btn-primary">Save</button>
                             <button type="reset" class="btn btn-link">Reset</button>
                         </div>
+                        {% else %}
+                        <div class="well empty-list">
+                            <p class="lead">We couldn't find any projects that you're involved with.</p>
+                            <p>You will therefore not receive any notifications.</p>
+                        </div>
+                        {% endif %}
                     </form>
                 </div>
             </div>
