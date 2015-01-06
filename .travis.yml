@@ -14,14 +14,13 @@ before_script:
   - psql -c 'create database geokey;' -U postgres
   - psql -U postgres -d geokey -c "create extension postgis;"
   - cp core/settings/project.sample.py core/settings/project.py
-  - python manage.py syncdb --all --noinput
-  - python manage.py migrate --fake
+  - python manage.py migrate
 
 install:
   - pip install -r requirements.txt
   - pip install coveralls
 
-script: 
+script:
   - python manage.py test
   - coverage run --source=applications,projects,categories,contributions,datagroupings,users manage.py test
 
