@@ -20,16 +20,16 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-					<h3>Sign in</h3>
+					<h3 class="header">Sign in</h3>
 					<form role="form" action="/admin/accounts/login/" method="POST">
 						{% csrf_token %}
 						<div class="form-group">
-							<label for="username" class="sr-only">E-mail</label>
-							<input type="text" class="form-control input-lg" id="username" name="username" placeholder="E-mail">
+							<label for="username">E-mail</label>
+							<input type="text" class="form-control input-lg" id="username" name="username">
 						</div>
 						<div class="form-group">
-							<label for="inputPassword" class="sr-only">Password</label>
-							<input type="password" class="form-control input-lg" id="password" name="password" placeholder="Password">
+							<label for="inputPassword">Password</label>
+							<input type="password" class="form-control input-lg" id="password" name="password">
 						</div>
 						<div class="form-group">
 								<button type="submit" class="btn btn-primary">Sign in</button>
@@ -37,7 +37,7 @@
 					</form>
 					<div class="well text-center">Not a member yet? Please <a href="{% url 'admin:signup'%}">sign up here</a> &bull; <a href="{% url 'admin:password_reset' %}">Forgot password?</a></div>
 				</div>
-				
+
 			</div>
 		</div>
 {% endblock %}

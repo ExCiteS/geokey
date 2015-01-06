@@ -31,16 +31,16 @@
 						<form role="form" action="{% url 'admin:signup'%}" method="POST" novalidate>
 							{% csrf_token %}
 							<div class="form-group">
-								<label for="email" class="sr-only">Email</label>
-								<input type="email" class="form-control input-lg" id="email" name="email" placeholder="Your email address" required>
+								<label for="email">Email</label>
+								<input type="email" class="form-control input-lg" id="email" name="email" required>
 							</div>
 							<div class="form-group">
-								<label for="inputPassword" class="sr-only">Password</label>
-								<input type="password" class="form-control input-lg" id="password" name="password" placeholder="Password" required>
+								<label for="inputPassword">Password</label>
+								<input type="password" class="form-control input-lg" id="password" name="password" required>
 							</div>
 							<div class="form-group">
-								<label for="display_name" class="sr-only">Display name</label>
-								<input type="text" class="form-control input-lg" id="display_name" name="display_name" maxlength="50" placeholder="Choose a display name" required>
+								<label for="display_name">Choose a display name</label>
+								<input type="text" class="form-control input-lg" id="display_name" name="display_name" maxlength="50" required>
 							</div>
 							<div class="form-group">
 								<button type="submit" class="btn btn-primary">Sign up</button>

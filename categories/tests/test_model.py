@@ -5,7 +5,7 @@ from nose.tools import raises
 
 from core.exceptions import InputError
 
-from ..models import Field
+from ..models import Field, Category
 
 from .model_factories import (
     TextFieldFactory, NumericFieldFactory, DateTimeFieldFactory,
@@ -13,6 +13,11 @@ from .model_factories import (
     FieldFactory, CategoryFactory, MultipleLookupFieldFactory,
     MultipleLookupValueFactory
 )
+
+from datagroupings.models import Rule
+from datagroupings.tests.model_factories import GroupingFactory, RuleFactory
+from contributions.tests.model_factories import ObservationFactory
+from contributions.models import Observation
 
 
 class CategoryTest(TestCase):
@@ -61,6 +66,38 @@ class CategoryTest(TestCase):
             self.assertEqual(fields[3].order, 0)
             self.assertEqual(fields[4].order, 0)
 
+    @raises(Category.DoesNotExist)
+    def test_delete(self):
+        category = CategoryFactory.create()
+        category.delete()
+        Category.objects.get(pk=category.id)
+
+    @raises(Category.DoesNotExist, Rule.DoesNotExist)
+    def test_delete_with_grouping(self):
+        category = CategoryFactory.create()
+
+        grouping = GroupingFactory.create()
+        rule = RuleFactory(**{
+            'grouping': grouping,
+            'status': 'active',
+            'category': category
+        })
+        category.delete()
+
+        Category.objects.get(pk=category.id)
+        Rule.objects.get(pk=rule.id)
+
+    @raises(Category.DoesNotExist, Observation.DoesNotExist)
+    def test_delete_with_observation(self):
+        category = CategoryFactory.create()
+        observation = ObservationFactory.create(**{
+            'category': category
+        })
+        category.delete()
+
+        Category.objects.get(pk=category.id)
+        Observation.objects.get(pk=observation.id)
+
 
 class FieldTest(TestCase):
     @raises(NotImplementedError)
@@ -80,11 +117,43 @@ class FieldTest(TestCase):
         )
         self.assertEqual(field.order, 0)
 
-        another_field = field = Field.create(
+        another_field = Field.create(
             'name-2', 'key-2', 'description', False, category,
             'TextField'
         )
         self.assertEqual(another_field.order, 1)
+
+    @raises(Field.DoesNotExist)
+    def test_delete(self):
+        category = CategoryFactory()
+        field = Field.create(
+            'name', 'key', 'description', False, category,
+            'TextField'
+        )
+
+        f = Field.objects.get(pk=field.id)
+        f.delete()
+
+        Field.objects.get(pk=f.id)
+
+    def test_delete_with_rule(self):
+        category = CategoryFactory()
+        field = Field.create(
+            'name', 'key', 'description', False, category, 'TextField'
+        )
+        grouping = GroupingFactory.create()
+        rule = RuleFactory(**{
+            'grouping': grouping,
+            'status': 'active',
+            'category': category,
+            'filters': {
+                field.key: 'Blah',
+                'other-key': 'blubb'
+            }
+        })
+        field.delete()
+        reference_rule = Rule.objects.get(pk=rule.id)
+        self.assertEquals(reference_rule.filters.get('key'), None)
 
 
 class TextFieldTest(TestCase):

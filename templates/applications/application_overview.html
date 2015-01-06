@@ -24,8 +24,8 @@
                     <div class="alert alert-info">
                         <h5><strong>Learn more about:</strong></h5>
                         <ul>
-                            <li><a href="https://github.com/ExCiteS/opencommunitymaps/wiki/OAuth2-Authentication">How to use OAuth to authenticate users with your application.</a></li>
-                            <li><a href="https://github.com/ExCiteS/opencommunitymaps/wiki#public-api">The Community Maps API.</a></li>
+                            <li><a href="http://geokey.org.uk/help/getting-started-with-oauth.html">How to use OAuth to authenticate users with your application.</a></li>
+                            <li><a href="http://geokey.org.uk/docs/">The GeoKey API.</a></li>
                         </ul>
                     </div>
                 </div>
@@ -39,8 +39,8 @@
                     <div class="overview-list-item">
                         <h3><a href="{% url 'admin:app_settings' app.id %}">{{app.name}}</a></h3>
                         {% if app.description %}<p>{{app.description}}</p>{% endif %}
-                        <p class="meta">Client ID: {{ app.client.client_id }}</p>
-                        <p class="meta">Client secret: {{ app.client.client_secret }}</p>
+                        <p class="meta">Client ID: <span class="lower-case">{{ app.client.client_id }}</span></p>
+                        <p class="meta">Client secret: <span class="lower-case">{{ app.client.client_secret }}</span></p>
                     </div>
                     {% empty %}
                         <div class="well empty-list">

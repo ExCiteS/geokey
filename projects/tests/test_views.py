@@ -152,6 +152,50 @@ class ProjectExtendTest(TestCase):
             GEOSGeometry(data.get('geometry')).json
         )
 
+    def test_update_with_none(self):
+        data = None
+        view = ProjectExtend.as_view()
+        url = reverse('admin:project_extend',
+                      kwargs={'project_id': self.project.id})
+        request = APIRequestFactory().post(url, data)
+        request.user = self.admin
+
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = view(request, project_id=self.project.id).render()
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, 'The geographic extend has been updated successfully.')
+
+        updated = Project.objects.get(pk=self.project.id)
+
+        self.assertEqual(updated.geographic_extend, None)
+
+    def test_update_with_empty_string(self):
+        data = {'geometry': ''}
+        view = ProjectExtend.as_view()
+        url = reverse('admin:project_extend',
+                      kwargs={'project_id': self.project.id})
+        request = APIRequestFactory().post(url, data)
+        request.user = self.admin
+
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = view(request, project_id=self.project.id).render()
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, 'The geographic extend has been updated successfully.')
+
+        updated = Project.objects.get(pk=self.project.id)
+
+        self.assertEqual(updated.geographic_extend, None)
+
 
 class ProjectSettingsTest(TestCase):
     def setUp(self):

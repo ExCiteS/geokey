@@ -1676,6 +1676,26 @@ class MyContributionsTest(TestCase):
             json.loads(response.content).get('error')
         )
 
+    def test_my_contributions_with_anonymous(self):
+        self.project.everyone_contributes = True
+        self.project.isprivate = False
+        self.project.save()
+
+        GroupingFactory(**{'project': self.project, 'isprivate': False})
+
+        url = reverse('api:project_my_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.get(url)
+
+        theview = MyObservations.as_view()
+        response = theview(request, project_id=self.project.id).render()
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            'You need to login to view your contributions.',
+            json.loads(response.content).get('error')
+        )
+
 
 class TestDataViewsPublicApi(TestCase):
     def setUp(self):

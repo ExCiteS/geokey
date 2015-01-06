@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Q
+from django_hstore import hstore
 
 from projects.models import Project
 
@@ -61,7 +62,7 @@ class GroupingManager(models.Manager):
         return project.groupings.get(pk=grouping_id)
 
 
-class RuleManager(models.Manager):
+class RuleManager(hstore.HStoreManager):
     """
     Queryset Manager for Rule model
     """
