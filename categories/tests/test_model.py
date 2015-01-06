@@ -503,37 +503,50 @@ class DateFieldTest(TestCase):
         self.assertEqual(field.type_name, 'Date')
         self.assertEqual(field.fieldtype, 'DateField')
 
-    def test_datetimefield_validate_required(self):
-        datetimefield = DateFieldFactory.create(**{'required': True})
+    def test_datefield_validate_required(self):
+        datefield = DateFieldFactory.create(**{'required': True})
         try:
-            datetimefield.validate_input('2014-01-01')
+            datefield.validate_input('2014-01-01')
         except InputError:
             self.fail('datefield.validate_input() raised InputError '
                       'unexpectedly!')
 
-    def test_datetimefield_validate_inactive_required_empty_string(self):
-        datetimefield = DateFieldFactory.create(**{
+    def test_datefield_validate_inactive_required_empty_string(self):
+        datefield = DateFieldFactory.create(**{
             'required': True,
             'status': 'inactive'}
         )
         try:
-            datetimefield.validate_input(None)
+            datefield.validate_input(None)
         except InputError:
             self.fail('DateField.validate_input() raised InputError '
                       'unexpectedly!')
 
-    def test_datetimefield_validate_not_required(self):
-        datetimefield = DateFieldFactory.create(**{'required': False})
+    def test_datefield_validate_not_required(self):
+        datefield = DateFieldFactory.create(**{'required': False})
         try:
-            datetimefield.validate_input(None)
+            datefield.validate_input(None)
         except InputError:
             self.fail('datefield.validate_input() raised InputError '
                       'unexpectedly!')
 
     @raises(InputError)
-    def test_datetimefield_validate_required_none_type(self):
+    def test_datefield_validate_required_none_type(self):
         datetimefield = DateFieldFactory.create(**{'required': True})
         datetimefield.validate_input(None)
+
+    def test_datefield_validate_input(self):
+        date_time_field = DateFieldFactory()
+        try:
+            date_time_field.validate_input('2014-12-01')
+        except InputError:
+            self.fail('DateTimeField.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    @raises(InputError)
+    def test_datefield_validate_false_input(self):
+        date_time_field = DateFieldFactory()
+        date_time_field.validate_input('2014-15-01')
 
 
 class MultipleLookupTest(TestCase):
