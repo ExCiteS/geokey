@@ -13,7 +13,7 @@ class ApplcationQuerySet(models.query.QuerySet):
 
 
 class ApplicationManager(models.Manager):
-    def get_query_set(self):
+    def get_queryset(self):
         """
         Returns all applications excluding the ones the are deleted.
         """
@@ -23,7 +23,7 @@ class ApplicationManager(models.Manager):
         """
         Returns a list of all applications that the user has created.
         """
-        return self.get_query_set().for_user(user)
+        return self.get_queryset().for_user(user)
 
     def as_owner(self, user, app_id):
         """

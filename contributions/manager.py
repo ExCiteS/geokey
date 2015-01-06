@@ -37,7 +37,7 @@ class LocationManager(models.GeoManager):
     """
     Manager for Location Model
     """
-    def get_query_set(self):
+    def get_queryset(self):
         """
         Returns the QuerySet
         """
@@ -50,7 +50,7 @@ class LocationManager(models.GeoManager):
         private_for_project property
         """
         project = Project.objects.as_contributor(user, project_id)
-        return self.get_query_set().get_list(project)
+        return self.get_queryset().get_list(project)
 
     def get_single(self, user, project_id, location_id):
         """
@@ -90,7 +90,7 @@ class ObservationManager(hstore.HStoreManager):
     """
     Manager for Observation Model
     """
-    def get_query_set(self):
+    def get_queryset(self):
         """
         Returns all observations excluding those with status `deleted`
         """
@@ -99,21 +99,21 @@ class ObservationManager(hstore.HStoreManager):
             status=OBSERVATION_STATUS.deleted)
 
     def for_moderator(self, user):
-        return self.get_query_set().for_moderator(user)
+        return self.get_queryset().for_moderator(user)
 
     def for_viewer(self, user):
-        return self.get_query_set().for_viewer(user)
+        return self.get_queryset().for_viewer(user)
 
 
 class CommentManager(models.Manager):
     """
     Manager for Comment model
     """
-    def get_query_set(self):
+    def get_queryset(self):
         """
         Returns all comments excluding those with status `deleted`
         """
-        return super(CommentManager, self).get_query_set().exclude(
+        return super(CommentManager, self).get_queryset().exclude(
             status=COMMENT_STATUS.deleted)
 
 
@@ -121,12 +121,12 @@ class MediaFileManager(InheritanceManager):
     """
     Manger for `MediaFile` model
     """
-    def get_query_set(self):
+    def get_queryset(self):
         """
         Returns the subclasses of the MediaFiles. Needed to get access to the
         actual instances when searching all files of a contribution.
         """
-        query_set = super(MediaFileManager, self).get_query_set().exclude(
+        query_set = super(MediaFileManager, self).get_queryset().exclude(
             status=MEDIA_STATUS.deleted
         )
         return query_set.select_subclasses()

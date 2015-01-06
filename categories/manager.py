@@ -18,18 +18,18 @@ class ActiveMixin(object):
         """
         Returns a queryset of all active instances
         """
-        return self.get_query_set().filter(status=STATUS.active)
+        return self.get_queryset().filter(status=STATUS.active)
 
 
 class CategoryManager(ActiveMixin, models.Manager):
-    def get_query_set(self):
+    def get_queryset(self):
         """
         Returns the QuerySet
         """
         return super(
             CategoryManager,
             self
-        ).get_query_set().exclude(status=STATUS.deleted)
+        ).get_queryset().exclude(status=STATUS.deleted)
 
     def get_list(self, user, project_id):
         """
@@ -87,8 +87,8 @@ class CategoryManager(ActiveMixin, models.Manager):
 class FieldManager(ActiveMixin, InheritanceManager):
     use_for_related_fields = True
 
-    def get_query_set(self):
-        return super(FieldManager, self).get_query_set().order_by(
+    def get_queryset(self):
+        return super(FieldManager, self).get_queryset().order_by(
             'order').select_subclasses()
 
     def get_list(self, user, project_id, category_id):
@@ -151,8 +151,8 @@ class LookupValueManager(models.Manager):
     """
     use_for_related_fields = True
 
-    def get_query_set(self):
+    def get_queryset(self):
         return LookupQuerySet(self.model)
 
     def active(self, *args, **kwargs):
-        return self.get_query_set().active(*args, **kwargs)
+        return self.get_queryset().active(*args, **kwargs)

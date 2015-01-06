@@ -40,7 +40,7 @@ class ProjectQuerySet(models.query.QuerySet):
 class ProjectManager(models.Manager):
     use_for_related_fields = True
 
-    def get_query_set(self):
+    def get_queryset(self):
         """
         Returns the QuerySet
         """
@@ -50,7 +50,7 @@ class ProjectManager(models.Manager):
         """
         Returns a list of all projects the user is allowed to access
         """
-        return self.get_query_set().for_user(user)
+        return self.get_queryset().for_user(user)
 
     def get_single(self, user, project_id):
         """

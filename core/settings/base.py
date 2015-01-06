@@ -52,11 +52,11 @@ MIDDLEWARE_CLASSES = (
     # 'core.middleware.TerminalLogging',
 )
 
-SOUTH_DATABASE_ADAPTERS = {'default': 'south.db.postgresql_psycopg2'}
-
-SOUTH_MIGRATION_MODULES = {
-    'easy_thumbnails': 'easy_thumbnails.south_migrations',
-}
+# SOUTH_DATABASE_ADAPTERS = {'default': 'south.db.postgresql_psycopg2'}
+#
+# SOUTH_MIGRATION_MODULES = {
+#     'easy_thumbnails': 'easy_thumbnails.south_migrations',
+# }
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

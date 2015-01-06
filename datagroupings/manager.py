@@ -27,7 +27,7 @@ class GroupingQuerySet(models.query.QuerySet):
 
 
 class GroupingManager(models.Manager):
-    def get_query_set(self):
+    def get_queryset(self):
         """
         Returns all groupings excluding those with status deleted.
         """
@@ -37,7 +37,7 @@ class GroupingManager(models.Manager):
         """
         Returns all groupings accessable by the user.
         """
-        return self.get_query_set().for_user(user)
+        return self.get_queryset().for_user(user)
 
     def get_list(self, user, project_id):
         """
@@ -66,9 +66,9 @@ class RuleManager(hstore.HStoreManager):
     """
     Queryset Manager for Rule model
     """
-    def get_query_set(self):
+    def get_queryset(self):
         """
         Returns all rules excluding deleted ones.
         """
-        return super(RuleManager, self).get_query_set().exclude(
+        return super(RuleManager, self).get_queryset().exclude(
             status=STATUS.deleted)
