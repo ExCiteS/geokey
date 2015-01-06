@@ -11,7 +11,7 @@ from .model_factories import (
     TextFieldFactory, NumericFieldFactory, DateTimeFieldFactory,
     LookupFieldFactory, LookupValueFactory,
     FieldFactory, CategoryFactory, MultipleLookupFieldFactory,
-    MultipleLookupValueFactory
+    MultipleLookupValueFactory, DateFieldFactory
 )
 
 from datagroupings.models import Rule
@@ -107,7 +107,7 @@ class FieldTest(TestCase):
 
     def test_get_field_types(self):
         field_types = Field.get_field_types()
-        self.assertEqual(len(field_types), 5)
+        self.assertEqual(len(field_types), 6)
 
     def test_order(self):
         category = CategoryFactory()
@@ -451,15 +451,15 @@ class DateTimeFieldTest(TestCase):
             self.fail('datetimefield.validate_input() raised InputError '
                       'unexpectedly!')
 
-    def test_lookupfield_validate_inactive_required_empty_string(self):
-        lookup_field = LookupFieldFactory.create(**{
+    def test_datetimefield_validate_inactive_required_empty_string(self):
+        datetimefield = DateTimeFieldFactory.create(**{
             'required': True,
             'status': 'inactive'}
         )
         try:
-            lookup_field.validate_input(None)
+            datetimefield.validate_input(None)
         except InputError:
-            self.fail('LookupField.validate_input() raised InputError '
+            self.fail('datetimefield.validate_input() raised InputError '
                       'unexpectedly!')
 
     def test_datetimefield_validate_not_required(self):
@@ -487,6 +487,53 @@ class DateTimeFieldTest(TestCase):
     def test_datetimefield_validate_false_input(self):
         date_time_field = DateTimeFieldFactory()
         date_time_field.validate_input('2014-15-01')
+
+
+class DateFieldTest(TestCase):
+    def test_create_datefield(self):
+        category = CategoryFactory()
+        field = Field.create(
+            'name', 'key', 'description', False, category,
+            'DateField'
+        )
+        self.assertEqual(field.__class__.__name__, 'DateField')
+
+    def test_get_name(self):
+        field = DateFieldFactory()
+        self.assertEqual(field.type_name, 'Date')
+        self.assertEqual(field.fieldtype, 'DateField')
+
+    def test_datetimefield_validate_required(self):
+        datetimefield = DateFieldFactory.create(**{'required': True})
+        try:
+            datetimefield.validate_input('2014-01-01')
+        except InputError:
+            self.fail('datefield.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    def test_datetimefield_validate_inactive_required_empty_string(self):
+        datetimefield = DateFieldFactory.create(**{
+            'required': True,
+            'status': 'inactive'}
+        )
+        try:
+            datetimefield.validate_input(None)
+        except InputError:
+            self.fail('DateField.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    def test_datetimefield_validate_not_required(self):
+        datetimefield = DateFieldFactory.create(**{'required': False})
+        try:
+            datetimefield.validate_input(None)
+        except InputError:
+            self.fail('datefield.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    @raises(InputError)
+    def test_datetimefield_validate_required_none_type(self):
+        datetimefield = DateFieldFactory.create(**{'required': True})
+        datetimefield.validate_input(None)
 
 
 class MultipleLookupTest(TestCase):

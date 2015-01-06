@@ -302,7 +302,8 @@ class DateTimeField(Field):
     """
 
     def validate_required(self, value):
-        if self.required and (value is None or len(value) == 0):
+        if (self.status == STATUS.active and
+                self.required and (value is None or len(value) == 0)):
             raise InputError('The field %s is required.' % self.name)
 
     def validate_input(self, value):
@@ -315,7 +316,7 @@ class DateTimeField(Field):
             try:
                 parse_date(value)
             except ParseError:
-                raise InputError('The value for DateTimeField %s is not a '
+                raise InputError('The value for DateField %s is not a '
                                  'valid date.' % self.name)
 
     @property
@@ -349,6 +350,62 @@ class DateTimeField(Field):
                 return '(to_date(attributes -> \'' + self.key + '\', \'\
                     YYYY-MM-DD HH24:MI\') <= to_date(\'' + maxval + '\', \'\
                     YYYY-MM-DD HH24:MI\'))'
+
+
+class DateField(Field):
+    """
+    A field for storing dates.
+    """
+    def validate_required(self, value):
+        if (self.status == STATUS.active and self.required and
+                (value is None or len(value) == 0)):
+            raise InputError('The field %s is required.' % self.name)
+
+    def validate_input(self, value):
+        """
+        Checks if the provided value is a valid and ISO8601 compliant date
+        string.
+        """
+        self.validate_required(value)
+        if value is not None:
+            try:
+                parse_date(value)
+            except ParseError:
+                raise InputError('The value for DateTimeField %s is not a '
+                                 'valid date.' % self.name)
+
+    @property
+    def type_name(self):
+        """
+        Returns a human readable name of the field.
+        """
+        return 'Date'
+
+    def get_filter(self, rule):
+        """
+        Returns the filter object for the given field based on the rule. Used
+        to filter data for a view.
+        """
+        return '(FALSE)'
+        # minval = rule.get('minval')
+        # maxval = rule.get('maxval')
+        #
+        # if minval is not None and maxval is not None:
+        #     return '(to_date(attributes -> \'' + self.key + '\', \'YYYY-MM-DD \
+        #         HH24:MI\') >= to_date(\'' + minval + '\', \'YYYY-MM-DD \
+        #         HH24:MI\')) AND (to_date(attributes -> \'' + self.key + '\', \'\
+        #         YYYY-MM-DD HH24:MI\') <= to_date(\'' + maxval + '\', \'\
+        #         YYYY-MM-DD HH24:MI\'))'
+        # else:
+        #     if minval is not None:
+        #         return '(to_date(attributes -> \'' + self.key + '\', \'\
+        #             YYYY-MM-DD HH24:MI\') >= to_date(\'' + minval + '\', \'\
+        #             YYYY-MM-DD HH24:MI\'))'
+        #
+        #     if maxval is not None:
+        #         return '(to_date(attributes -> \'' + self.key + '\', \'\
+        #             YYYY-MM-DD HH24:MI\') <= to_date(\'' + maxval + '\', \'\
+        #             YYYY-MM-DD HH24:MI\'))'
 
 
 class LookupField(Field):

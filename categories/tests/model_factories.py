@@ -4,7 +4,7 @@ from projects.tests.model_factories import ProjectF
 from users.tests.model_factories import UserF
 
 from ..models import (
-    Category, TextField, NumericField, DateTimeField,
+    Category, TextField, NumericField, DateTimeField, DateField,
     LookupField, LookupValue, Field, MultipleLookupField, MultipleLookupValue
 )
 
@@ -57,6 +57,17 @@ class DateTimeFieldFactory(factory.django.DjangoModelFactory):
 
     name = factory.Sequence(lambda n: "datetimefield %s" % n)
     key = factory.Sequence(lambda n: "datetimefield_%s" % n)
+    description = factory.LazyAttribute(lambda o: '%s description' % o.name)
+    category = factory.SubFactory(CategoryFactory)
+    status = 'active'
+    required = False
+
+
+class DateFieldFactory(factory.django.DjangoModelFactory):
+    FACTORY_FOR = DateField
+
+    name = factory.Sequence(lambda n: "datefield %s" % n)
+    key = factory.Sequence(lambda n: "datefield_%s" % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     category = factory.SubFactory(CategoryFactory)
     status = 'active'
