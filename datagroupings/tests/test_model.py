@@ -8,7 +8,7 @@ from nose.tools import raises
 from projects.tests.model_factories import ProjectF
 from categories.tests.model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory,
-    LookupFieldFactory, LookupValueFactory,
+    LookupFieldFactory, LookupValueFactory, DateFieldFactory,
     DateTimeFieldFactory, MultipleLookupFieldFactory,
     MultipleLookupValueFactory,
 )
@@ -463,7 +463,7 @@ class ViewTest(TestCase):
 
         self.assertEqual(len(view.data), 10)
 
-    def test_get_data_min_max_date_filter(self):
+    def test_get_data_min_max_datetime_filter(self):
         project = ProjectF()
         category_1 = CategoryFactory(**{'project': project})
         DateTimeFieldFactory(**{
@@ -501,6 +501,135 @@ class ViewTest(TestCase):
             'category': category_1,
             'filters': {'date': {
                 'minval': '2014-01-01', 'maxval': '2014-06-09 00:00'}
+            }
+        })
+
+        self.assertEqual(len(view.data), 5)
+
+    def test_get_data_min_max_date_filter(self):
+        project = ProjectF()
+        category_1 = CategoryFactory(**{'project': project})
+        DateFieldFactory(**{
+            'key': 'date',
+            'category': category_1
+        })
+        category_2 = CategoryFactory(**{'project': project})
+        DateFieldFactory(**{
+            'key': 'bla',
+            'category': category_2
+        })
+
+        for x in range(0, 5):
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'date': '2014-04-09'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'date': '2013-04-09'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_2,
+                'attributes': {'bla': '2014-04-09'}
+            })
+
+        view = GroupingFactory(**{'project': project})
+        RuleFactory(**{
+            'grouping': view,
+            'category': category_1,
+            'filters': {'date': {
+                'minval': '2014-01-01', 'maxval': '2014-06-09'}
+            }
+        })
+
+        self.assertEqual(len(view.data), 5)
+
+    def test_get_data_min_date_filter(self):
+        project = ProjectF()
+        category_1 = CategoryFactory(**{'project': project})
+        DateFieldFactory(**{
+            'key': 'date',
+            'category': category_1
+        })
+        category_2 = CategoryFactory(**{'project': project})
+        DateFieldFactory(**{
+            'key': 'bla',
+            'category': category_2
+        })
+
+        for x in range(0, 5):
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'date': '2014-04-09'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'date': '2013-04-09'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_2,
+                'attributes': {'bla': '2014-04-09'}
+            })
+
+        view = GroupingFactory(**{'project': project})
+        RuleFactory(**{
+            'grouping': view,
+            'category': category_1,
+            'filters': {'date': {
+                'minval': '2014-01-01'}
+            }
+        })
+
+        self.assertEqual(len(view.data), 5)
+
+    def test_get_data_max_date_filter(self):
+        project = ProjectF()
+        category_1 = CategoryFactory(**{'project': project})
+        DateFieldFactory(**{
+            'key': 'date',
+            'category': category_1
+        })
+        category_2 = CategoryFactory(**{'project': project})
+        DateFieldFactory(**{
+            'key': 'bla',
+            'category': category_2
+        })
+
+        for x in range(0, 5):
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'date': '2014-04-09'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'date': '2013-04-09'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_2,
+                'attributes': {'bla': '2014-04-09'}
+            })
+
+        view = GroupingFactory(**{'project': project})
+        RuleFactory(**{
+            'grouping': view,
+            'category': category_1,
+            'filters': {'date': {
+                'maxval': '2014-01-01'}
             }
         })
 

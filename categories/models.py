@@ -386,26 +386,18 @@ class DateField(Field):
         Returns the filter object for the given field based on the rule. Used
         to filter data for a view.
         """
-        return '(FALSE)'
-        # minval = rule.get('minval')
-        # maxval = rule.get('maxval')
-        #
-        # if minval is not None and maxval is not None:
-        #     return '(to_date(attributes -> \'' + self.key + '\', \'YYYY-MM-DD \
-        #         HH24:MI\') >= to_date(\'' + minval + '\', \'YYYY-MM-DD \
-        #         HH24:MI\')) AND (to_date(attributes -> \'' + self.key + '\', \'\
-        #         YYYY-MM-DD HH24:MI\') <= to_date(\'' + maxval + '\', \'\
-        #         YYYY-MM-DD HH24:MI\'))'
-        # else:
-        #     if minval is not None:
-        #         return '(to_date(attributes -> \'' + self.key + '\', \'\
-        #             YYYY-MM-DD HH24:MI\') >= to_date(\'' + minval + '\', \'\
-        #             YYYY-MM-DD HH24:MI\'))'
-        #
-        #     if maxval is not None:
-        #         return '(to_date(attributes -> \'' + self.key + '\', \'\
-        #             YYYY-MM-DD HH24:MI\') <= to_date(\'' + maxval + '\', \'\
-        #             YYYY-MM-DD HH24:MI\'))'
+        minval = rule.get('minval')
+        maxval = rule.get('maxval')
+
+        if minval is not None and maxval is not None:
+            return '(to_date(attributes -> \'' + self.key + '\', \'YYYY-MM-DD\') >= to_date(\'' + minval + '\', \'YYYY-MM-DD\')) AND (to_date(attributes -> \'' + self.key + '\', \'\
+                YYYY-MM-DD\') <= to_date(\'' + maxval + '\', \'YYYY-MM-DD\'))'
+        else:
+            if minval is not None:
+                return '(to_date(attributes -> \'' + self.key + '\', \'YYYY-MM-DD\') >= to_date(\'' + minval + '\', \'YYYY-MM-DD\'))'
+
+            if maxval is not None:
+                return '(to_date(attributes -> \'' + self.key + '\', \'YYYY-MM-DD\') <= to_date(\'' + maxval + '\', \'YYYY-MM-DD\'))'
 
 
 class LookupField(Field):
