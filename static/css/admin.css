@@ -486,6 +486,16 @@ h6.item-info + h3 {
 	padding-left: 40px;
 }
 
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-inner-spin-button {
+	display: none;
+	-webkit-appearance: none;
+}
+
+input[type="date"]::-webkit-input-placeholder{
+	visibility: hidden !important;
+}
+
 .message {
 	padding: 15px;
 }

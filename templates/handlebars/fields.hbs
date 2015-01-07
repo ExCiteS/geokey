@@ -9,7 +9,10 @@
             {{> numericfield}}
         {{/ifCond}}
         {{#ifCond fieldtype 'DateTimeField'}}
-            {{> datefield}}
+            {{> datetimefield}}
+        {{/ifCond}}
+        {{#ifCond fieldtype 'DateField'}}
+        {{> datefield}}
         {{/ifCond}}
         {{#ifCond fieldtype 'LookupField'}}
             {{> lookupfield}}

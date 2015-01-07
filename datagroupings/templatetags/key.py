@@ -28,8 +28,8 @@ def minval(d, key_name):
             if minval is not None:
                 return minval
 
-            return ''
-        return ''
+            # return ''
+    return ''
 
 
 @register.filter(name='maxval')
@@ -40,5 +40,5 @@ def maxval(d, key_name):
             if maxval is not None:
                 return maxval
 
-            return ''
-        return ''
+            # return ''
+    return ''

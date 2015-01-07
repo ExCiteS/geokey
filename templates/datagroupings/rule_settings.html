@@ -101,6 +101,21 @@
                                     </div>
                                 {% endif %}
 
+                                {% if field.fieldtype == 'DateField' %}
+                                <div class="form-group">
+                                    <label for="{{field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is after</label>
+                                    <div class="col-sm-7">
+                                        <input data-date-format="YYYY-MM-DD" type="date" class="form-control" data-key="{{field.key}}" name="{{field.key}}-min" id="{{field.key}}-min" value="{{ rule.filters|minval:field.key }}" max="{{ rule.filters|maxval:field.key }}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">and before</label>
+                                    <div class="col-sm-7">
+                                        <input data-date-format="YYYY-MM-DD" type="date" class="form-control" data-key="{{field.key}}" name="{{field.key}}-max" id="{{field.key}}-max" value="{{ rule.filters|maxval:field.key }}" min="{{ rule.filters|minval:field.key }}">
+                                    </div>
+                                </div>
+                                {% endif %}
+
                                 {% if field.fieldtype == 'LookupField' %}
                                     <div class="form-group">
                                         <label for="{{field.key}}-ref" class="col-sm-3 col-sm-offset-1 control-label">is one of</label>
@@ -189,6 +204,9 @@
                 $(function() {
                     if (!Modernizr.inputtypes.datetime) {
                         $('input[type="datetime"]').datetimepicker();
+                        $('input[type="date"]').datetimepicker({
+                            pickTime: false
+                        });
                     }
                 }());
             </script>
