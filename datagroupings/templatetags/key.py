@@ -7,7 +7,7 @@ register = template.Library()
 @register.filter(name='key')
 def key(d, key_name):
     if key_name in d:
-        return 'value=%s' % d[key_name]
+        return d[key_name]
 
     return ''
 

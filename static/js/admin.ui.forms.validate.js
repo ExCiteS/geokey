@@ -27,9 +27,14 @@ $(function() {
 
 		for (var i = 0, len = dateTimeFields.length; i < len; i++) {
 			var field = $(dateTimeFields[i]);
-			var min = Date.parse(field.attr('min'));
-			var max = Date.parse(field.attr('max'));
-			var val = Date.parse(field.val());
+
+			var min = field.attr('min');
+			var max = field.attr('max');
+
+			if (min) { min = Date.parse(min.replace(' ', 'T')); }
+			if (max) { max = Date.parse(max.replace(' ', 'T')); }
+
+			var val = Date.parse(field.val().replace(' ', 'T'));
 
 			if (field.val().length && !val) {
 				valid = false;
