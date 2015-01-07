@@ -10,7 +10,7 @@ from categories.tests.model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory,
     LookupFieldFactory, LookupValueFactory, DateFieldFactory,
     DateTimeFieldFactory, MultipleLookupFieldFactory,
-    MultipleLookupValueFactory,
+    MultipleLookupValueFactory, TimeFieldFactory
 )
 from contributions.tests.model_factories import ObservationFactory
 from users.tests.model_factories import (
@@ -630,6 +630,178 @@ class ViewTest(TestCase):
             'category': category_1,
             'filters': {'date': {
                 'maxval': '2014-01-01'}
+            }
+        })
+
+        self.assertEqual(len(view.data), 5)
+
+    def test_get_data_min_max_time_filter(self):
+        project = ProjectF()
+        category_1 = CategoryFactory(**{'project': project})
+        TimeFieldFactory(**{
+            'key': 'time',
+            'category': category_1
+        })
+        category_2 = CategoryFactory(**{'project': project})
+        TimeFieldFactory(**{
+            'key': 'bla',
+            'category': category_2
+        })
+
+        for x in range(0, 5):
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'time': '11:00'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'time': '18:00'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_2,
+                'attributes': {'bla': '11:00'}
+            })
+
+        view = GroupingFactory(**{'project': project})
+        RuleFactory(**{
+            'grouping': view,
+            'category': category_1,
+            'filters': {'time': {
+                'minval': '10:00', 'maxval': '12:00'}
+            }
+        })
+
+        self.assertEqual(len(view.data), 5)
+
+    def test_get_data_min_max_inverse_time_filter(self):
+        project = ProjectF()
+        category_1 = CategoryFactory(**{'project': project})
+        TimeFieldFactory(**{
+            'key': 'time',
+            'category': category_1
+        })
+        category_2 = CategoryFactory(**{'project': project})
+        TimeFieldFactory(**{
+            'key': 'bla',
+            'category': category_2
+        })
+
+        for x in range(0, 5):
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'time': '2:00'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'time': '18:00'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_2,
+                'attributes': {'bla': '2:00'}
+            })
+
+        view = GroupingFactory(**{'project': project})
+        RuleFactory(**{
+            'grouping': view,
+            'category': category_1,
+            'filters': {'time': {
+                'minval': '22:00', 'maxval': '8:00'}
+            }
+        })
+
+        self.assertEqual(len(view.data), 5)
+
+    def test_get_data_min_time_filter(self):
+        project = ProjectF()
+        category_1 = CategoryFactory(**{'project': project})
+        TimeFieldFactory(**{
+            'key': 'time',
+            'category': category_1
+        })
+        category_2 = CategoryFactory(**{'project': project})
+        TimeFieldFactory(**{
+            'key': 'bla',
+            'category': category_2
+        })
+
+        for x in range(0, 5):
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'time': '11:00'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'time': '18:00'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_2,
+                'attributes': {'bla': '11:00'}
+            })
+
+        view = GroupingFactory(**{'project': project})
+        RuleFactory(**{
+            'grouping': view,
+            'category': category_1,
+            'filters': {'time': {
+                'minval': '12:00'}
+            }
+        })
+
+        self.assertEqual(len(view.data), 5)
+
+    def test_get_data_max_time_filter(self):
+        project = ProjectF()
+        category_1 = CategoryFactory(**{'project': project})
+        TimeFieldFactory(**{
+            'key': 'time',
+            'category': category_1
+        })
+        category_2 = CategoryFactory(**{'project': project})
+        TimeFieldFactory(**{
+            'key': 'bla',
+            'category': category_2
+        })
+
+        for x in range(0, 5):
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'time': '11:00'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'time': '18:00'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_2,
+                'attributes': {'bla': '11:00'}
+            })
+
+        view = GroupingFactory(**{'project': project})
+        RuleFactory(**{
+            'grouping': view,
+            'category': category_1,
+            'filters': {'time': {
+                'maxval': '12:00'}
             }
         })
 

@@ -433,6 +433,32 @@ class TimeField(Field):
                 raise InputError('The value for TimeField %s is not a '
                                  'valid time.' % self.name)
 
+    def get_filter(self, rule):
+        """
+        Returns the filter object for the given field based on the rule. Used
+        to filter data for a view.
+        """
+        minval = rule.get('minval')
+        maxval = rule.get('maxval')
+
+        if minval is not None and maxval is not None:
+            if time.strptime(minval, '%H:%M') > time.strptime(maxval, '%H:%M'):
+                return '((attributes -> \'' + self.key + '\')::\
+                    time >= \'' + minval + '\'::time) OR ((attributes -> \
+                    \'' + self.key + '\')::time <= \'' + maxval + '\'::time)'
+            else:
+                return '((attributes -> \'' + self.key + '\')::\
+                    time >= \'' + minval + '\'::time) AND ((attributes -> \
+                    \'' + self.key + '\')::time <= \'' + maxval + '\'::time)'
+        else:
+            if minval is not None:
+                return '((attributes -> \'' + self.key + '\')::\
+                    time >= \'' + minval + '\'::time)'
+
+            if maxval is not None:
+                return '((attributes -> \'' + self.key + '\')::\
+                    time <= \'' + maxval + '\'::time)'
+
 
 class LookupField(Field):
     """
