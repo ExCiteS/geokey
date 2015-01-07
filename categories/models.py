@@ -1,5 +1,6 @@
 import json
 
+import time
 from iso8601 import parse_date
 from iso8601.iso8601 import ParseError
 
@@ -390,14 +391,47 @@ class DateField(Field):
         maxval = rule.get('maxval')
 
         if minval is not None and maxval is not None:
-            return '(to_date(attributes -> \'' + self.key + '\', \'YYYY-MM-DD\') >= to_date(\'' + minval + '\', \'YYYY-MM-DD\')) AND (to_date(attributes -> \'' + self.key + '\', \'\
+            return '(to_date(attributes -> \'' + self.key + '\',\
+                \'YYYY-MM-DD\') >= to_date(\'' + minval + '\', \'YYYY-MM-DD\')\
+                ) AND (to_date(attributes -> \'' + self.key + '\', \'\
                 YYYY-MM-DD\') <= to_date(\'' + maxval + '\', \'YYYY-MM-DD\'))'
         else:
             if minval is not None:
-                return '(to_date(attributes -> \'' + self.key + '\', \'YYYY-MM-DD\') >= to_date(\'' + minval + '\', \'YYYY-MM-DD\'))'
+                return '(to_date(attributes -> \'' + self.key + '\', \
+                \'YYYY-MM-DD\') >= to_date(\'' + minval + '\', \
+                \'YYYY-MM-DD\'))'
 
             if maxval is not None:
-                return '(to_date(attributes -> \'' + self.key + '\', \'YYYY-MM-DD\') <= to_date(\'' + maxval + '\', \'YYYY-MM-DD\'))'
+                return '(to_date(attributes -> \'' + self.key + '\', \
+                \'YYYY-MM-DD\') <= to_date(\'' + maxval + '\', \
+                \'YYYY-MM-DD\'))'
+
+
+class TimeField(Field):
+    @property
+    def type_name(self):
+        """
+        Returns a human readable name of the field.
+        """
+        return 'Time'
+
+    def validate_required(self, value):
+        if (self.status == STATUS.active and self.required and
+                (value is None or len(value) == 0)):
+            raise InputError('The field %s is required.' % self.name)
+
+    def validate_input(self, value):
+        """
+        Checks if the provided value is a valid and ISO8601 compliant date
+        string.
+        """
+        self.validate_required(value)
+        if value is not None:
+            try:
+                time.strptime(value, '%H:%M')
+            except ValueError:
+                raise InputError('The value for TimeField %s is not a '
+                                 'valid time.' % self.name)
 
 
 class LookupField(Field):

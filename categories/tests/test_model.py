@@ -9,7 +9,7 @@ from ..models import Field, Category
 
 from .model_factories import (
     TextFieldFactory, NumericFieldFactory, DateTimeFieldFactory,
-    LookupFieldFactory, LookupValueFactory,
+    LookupFieldFactory, LookupValueFactory, TimeFieldFactory,
     FieldFactory, CategoryFactory, MultipleLookupFieldFactory,
     MultipleLookupValueFactory, DateFieldFactory
 )
@@ -107,7 +107,7 @@ class FieldTest(TestCase):
 
     def test_get_field_types(self):
         field_types = Field.get_field_types()
-        self.assertEqual(len(field_types), 6)
+        self.assertEqual(len(field_types), 7)
 
     def test_order(self):
         category = CategoryFactory()
@@ -487,6 +487,66 @@ class DateTimeFieldTest(TestCase):
     def test_datetimefield_validate_false_input(self):
         date_time_field = DateTimeFieldFactory()
         date_time_field.validate_input('2014-15-01')
+
+
+class TimeFieldTest(TestCase):
+    def test_create_datefield(self):
+        category = CategoryFactory()
+        field = Field.create(
+            'name', 'key', 'description', False, category,
+            'TimeField'
+        )
+        self.assertEqual(field.__class__.__name__, 'TimeField')
+
+    def test_get_name(self):
+        field = TimeFieldFactory()
+        self.assertEqual(field.type_name, 'Time')
+        self.assertEqual(field.fieldtype, 'TimeField')
+
+    def test_timefield_validate_required(self):
+        timefield = TimeFieldFactory.create(**{'required': True})
+        try:
+            timefield.validate_input('12:45')
+        except InputError:
+            self.fail('timefield.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    def test_timefield_validate_inactive_required_empty_string(self):
+        timefield = TimeFieldFactory.create(**{
+            'required': True,
+            'status': 'inactive'}
+        )
+        try:
+            timefield.validate_input(None)
+        except InputError:
+            self.fail('DateField.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    def test_timefield_validate_not_required(self):
+        timefield = TimeFieldFactory.create(**{'required': False})
+        try:
+            timefield.validate_input(None)
+        except InputError:
+            self.fail('timefield.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    @raises(InputError)
+    def test_timefield_validate_required_none_type(self):
+        timefield = TimeFieldFactory.create(**{'required': True})
+        timefield.validate_input(None)
+
+    def test_timefield_validate_input(self):
+        time_field = TimeFieldFactory()
+        try:
+            time_field.validate_input('12:45')
+        except InputError:
+            self.fail('DateTimeField.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    @raises(InputError)
+    def test_timefield_validate_false_input(self):
+        time_field = TimeFieldFactory()
+        time_field.validate_input('25:54')
 
 
 class DateFieldTest(TestCase):
