@@ -12,7 +12,10 @@
             {{> datetimefield}}
         {{/ifCond}}
         {{#ifCond fieldtype 'DateField'}}
-        {{> datefield}}
+            {{> datefield}}
+        {{/ifCond}}
+        {{#ifCond fieldtype 'TimeField'}}
+            {{> timefield}}
         {{/ifCond}}
         {{#ifCond fieldtype 'LookupField'}}
             {{> lookupfield}}

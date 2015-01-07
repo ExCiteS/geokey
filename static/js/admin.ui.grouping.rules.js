@@ -12,12 +12,17 @@ $(function() {
 
             $('#field-options').empty();
             $('#field-options').append(Templates.fields(response));
+
             if (!Modernizr.inputtypes.datetime) {
                 $('input[type="datetime"]').datetimepicker();
             }
-            $('input[type="date"]').datetimepicker({
-                pickTime: false
-            });
+            if (!Modernizr.inputtypes.date) {
+                $('input[type="date"]').datetimepicker({ pickTime: false });
+            }
+            if (!Modernizr.inputtypes.time) {
+                $('input[type="time"]').datetimepicker({ pickDate: false });
+            }
+
             $('#field-options input[type="number"], #field-options input[type="datetime"], #field-options input[type="date"]').change(handleRangeFieldEdit);
             $('#field-options :input').change(handleFieldChange);
         }
@@ -65,6 +70,7 @@ $(function() {
             switch (field.attr('data-type')) {
                 case 'DateTimeField':
                 case 'DateField':
+                case 'TimeField':
                 case 'NumericField':
                     value = getRangeValue(field);
                     break;
@@ -80,7 +86,6 @@ $(function() {
 
     function handleRangeFieldEdit(event) {
         var target = $(event.target);
-        console.log(target.val());
 
         if (target.attr('id') === target.attr('data-key') + '-min') {
             $('input#' + target.attr('data-key') + '-max').attr('min', target.val());

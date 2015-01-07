@@ -485,7 +485,7 @@ h6.item-info + h3 {
 #help-block p {
 	padding-left: 40px;
 }
-
+/*
 input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="date"]::-webkit-inner-spin-button {
 	display: none;
@@ -494,7 +494,7 @@ input[type="date"]::-webkit-inner-spin-button {
 
 input[type="date"]::-webkit-input-placeholder{
 	visibility: hidden !important;
-}
+}*/
 
 .message {
 	padding: 15px;
