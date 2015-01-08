@@ -1,7 +1,14 @@
+import sys
+import os
+
+sys.path.append('/vagrant/geokey/')
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings.prod")
+from django.conf import settings
+
 from datetime import datetime, timedelta
 from pytz import utc
 
-from django.conf import settings
 from django.core.management.base import NoArgsCommand
 from django.db.models import Q
 from django.core import mail
@@ -103,7 +110,7 @@ class Command(NoArgsCommand):
 
         updated_projects = self.get_updated_projects(yesterday)
 
-        for user in User.objects.all():
+        for user in User.objects.exclude(display_name='AnonymousUser'):
             reports = []
             for project in updated_projects:
                 updated_items = self.get_updated_items(
