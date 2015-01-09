@@ -61,10 +61,18 @@ class Dashboard(LoginRequiredMixin, TemplateView):
     def get_context_data(self):
         projects = Project.objects.get_list(self.request.user)
 
+        from extensions.base import extensions
+        ext = []
+        for ext_id in extensions.keys():
+            extension = extensions.get(ext_id)
+            if extension.get('display_admin'):
+                ext.append(extension)
+
         return {
             'admin_projects': projects.filter(admins=self.request.user),
             'involved_projects': projects.exclude(admins=self.request.user),
-            'status_types': STATUS
+            'status_types': STATUS,
+            'extensions': ext
         }
 
 

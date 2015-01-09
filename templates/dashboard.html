@@ -31,10 +31,21 @@
                     {% endfor %}
                 </div>
                 <div class="col-md-4">
-                    <div class="alert alert-info">
-                        <h5><strong>Are you an application developer?</strong></h5>
-                        <p>Plese go the the <a href="{% url 'admin:app_overview' %}">developer section</a> to register and manage your application.</p>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Extensions</h3>
+                        </div>
+                        <div class="list-group">
+                            {% for extension in extensions %}
+                            <a href="{% url extension.index_url %}" class="list-group-item">{{ extension.name }}</a>
+                            {% empty %}
+                            <div class="list-group-item">
+                                No extions have been installed.
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
+
                     {% if involved_projects %}
                     <div class="panel panel-default">
                         <div class="panel-heading">
