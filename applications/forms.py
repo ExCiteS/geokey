@@ -11,7 +11,7 @@ class AppCreateForm(forms.ModelForm):
     """
     class Meta:
         model = Application
-        fields = ('name', 'description', 'download_url', 'redirect_url')
+        fields = ('name', 'description', 'download_url', 'redirect_uris')
 
     def clean(self):
         cleaned_data = super(AppCreateForm, self).clean()

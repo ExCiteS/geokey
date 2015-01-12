@@ -323,6 +323,9 @@ span.number {
 
 .app-meta code {
 	display: block;
+	word-break: break-all;
+	overflow-wrap: break-word;     /* Renamed property in CSS3 draft spec */
+	width: 100%;
 }
 
 .becareful {

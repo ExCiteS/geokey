@@ -12,7 +12,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from provider.oauth2.models import Client, AccessToken
+from oauth2_provider.models import AccessToken
+from applications.models import Application
 
 from core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
@@ -126,7 +127,7 @@ class SignupAPIView(CreateUserMixin, APIView):
         client_id = data.pop('client_id', None)
 
         try:
-            Client.objects.get(client_id=client_id)
+            Application.objects.get(client_id=client_id)
             if form.is_valid():
                 user = self.create_user(data)
                 serializer = UserSerializer(user)
@@ -139,7 +140,7 @@ class SignupAPIView(CreateUserMixin, APIView):
                     {'errors': form.errors},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-        except Client.DoesNotExist:
+        except Application.DoesNotExist:
             return Response(
                 {'errors': {'client': 'Client ID not provided or incorrect.'}},
                 status=status.HTTP_400_BAD_REQUEST

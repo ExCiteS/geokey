@@ -9,7 +9,7 @@ class ApplcationQuerySet(models.query.QuerySet):
         """
         Returns all applications the given user has created.
         """
-        return self.filter(creator=user)
+        return self.filter(user=user)
 
 
 class ApplicationManager(models.Manager):
@@ -31,7 +31,7 @@ class ApplicationManager(models.Manager):
         `PermissionDenied` id not.
         """
         app = self.get(pk=app_id)
-        if app.creator == user:
+        if app.user == user:
             return app
         else:
             raise PermissionDenied('You are not the owner of this '

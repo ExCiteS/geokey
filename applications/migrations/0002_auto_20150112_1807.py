@@ -8,15 +8,20 @@ from django.conf import settings
 class Migration(migrations.Migration):
 
     dependencies = [
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('applications', '0001_initial'),
     ]
 
     operations = [
         migrations.AddField(
             model_name='application',
-            name='creator',
-            field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
+            name='skip_authorization',
+            field=models.BooleanField(default=False),
+            preserve_default=True,
+        ),
+        migrations.AlterField(
+            model_name='application',
+            name='user',
+            field=models.ForeignKey(related_name='applications_application', to=settings.AUTH_USER_MODEL),
             preserve_default=True,
         ),
     ]

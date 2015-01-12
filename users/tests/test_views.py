@@ -12,10 +12,10 @@ from nose.tools import raises
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 
+from applications.tests.model_factories import ApplicationFactory
 from projects.tests.model_factories import ProjectF
 from projects.models import Admins
 from datagroupings.tests.model_factories import GroupingFactory
-from applications.tests.model_factories import ClientFactory
 
 from .model_factories import UserF, UserGroupF, GroupingUserGroupFactory
 from ..views import (
@@ -104,7 +104,7 @@ class SignupAPIViewTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.url = reverse('sign_up_api')
-        self.client = ClientFactory.create()
+        self.client = ApplicationFactory.create()
         self.user_data = {
             'display_name': 'user-1',
             'email': 'user-1@example.com',

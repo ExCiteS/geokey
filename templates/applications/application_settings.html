@@ -29,8 +29,8 @@
                                 <span class="number">{{ users }}</span><br> users currently use this app
                             </div>
                             <div class="list-group-item">
-                                <p>Client ID: <code>{{ application.client.client_id }}</code></p>
-                                <p>Client secret: <code>{{ application.client.client_secret }}</code></p>
+                                <p>Client ID: <code>{{ application.client_id }}</code></p>
+                                <p>Client secret: <code>{{ application.client_secret }}</code></p>
                             </div>
                         </div>
                     </div>
@@ -57,7 +57,7 @@
 
                     <div class="form-group">
                         <label for="description" class="control-label">Redirect URL (required)</label>
-                        <input type="url" class="form-control input-lg" id="redirect_url" value="{{ application.redirect_url }}" name="redirect_url" required>
+                        <input type="url" class="form-control input-lg" id="redirect_uris" value="{{ application.redirect_uris }}" name="redirect_uris" required>
                     </div>
 
                     <div class="form-group">

@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 
 from nose.tools import raises
 
-from provider.oauth2.models import AccessToken
+from oauth2_provider.models import AccessToken
 from rest_framework.test import APIRequestFactory
 
 from projects.tests.model_factories import UserF
@@ -61,9 +61,10 @@ class ApplicationDisconnectTest(TestCase):
         self.app = ApplicationFactory.create()
         self.token = AccessToken.objects.create(
             user=self.user,
-            client=self.app.client,
+            application=self.app,
             token='df0af6a395b4cd072445b3832e9379bfee257da0',
-            scope=1
+            scope=1,
+            expires='2030-12-31 23:59'
         )
 
     @raises(AccessToken.DoesNotExist)
@@ -121,7 +122,7 @@ class ApplicationCreateTest(TestCase):
 class ApplicationSettingsTest(TestCase):
     def setUp(self):
         self.creator = UserF.create()
-        self.app = ApplicationFactory.create(**{'creator': self.creator})
+        self.app = ApplicationFactory.create(**{'user': self.creator})
 
     def test_get_with_creator(self):
         view = ApplicationSettings.as_view()
@@ -161,7 +162,7 @@ class ApplicationSettingsTest(TestCase):
 class ApplicationDeleteTest(TestCase):
     def setUp(self):
         self.creator = UserF.create()
-        self.app = ApplicationFactory.create(**{'creator': self.creator})
+        self.app = ApplicationFactory.create(**{'user': self.creator})
 
     def test_get_with_creator(self):
         view = ApplicationDelete.as_view()

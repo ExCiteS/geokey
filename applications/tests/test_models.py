@@ -13,11 +13,3 @@ class ApplicationModelTest(TestCase):
         app = ApplicationFactory()
         app.delete()
         Application.objects.get(pk=app.id)
-
-    def test_update(self):
-        app = ApplicationFactory()
-        app.download_url = 'http://example.com'
-        app.save()
-
-        self.assertEqual(app.download_url, 'http://example.com')
-        self.assertEqual(app.client.url, 'http://example.com')
