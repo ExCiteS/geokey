@@ -2,7 +2,7 @@ from django import forms
 from django.utils.html import strip_tags
 from django.contrib.auth.forms import SetPasswordForm
 
-from provider.oauth2.models import AccessToken
+from oauth2_provider.models import AccessToken
 
 from .models import User, UserGroup
 
