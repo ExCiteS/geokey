@@ -97,7 +97,6 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         """
         form.instance.user = self.request.user
         form.instance.client_type = 'public'
-        form.instance.authorization_grant_type = 'implicit'
         messages.success(self.request, "The application has been created.")
         return super(ApplicationCreate, self).form_valid(form)
 
@@ -126,6 +125,7 @@ class ApplicationSettings(LoginRequiredMixin, TemplateView):
         app.description = strip_tags(data.get('description'))
         app.download_url = data.get('download_url')
         app.redirect_uris = data.get('redirect_uris')
+        app.authorization_grant_type = data.get('authorization_grant_type')
         app.save()
 
         messages.success(self.request, "The application has been updated.")
