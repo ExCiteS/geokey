@@ -46,10 +46,9 @@ class ApplicationConnected(LoginRequiredMixin, TemplateView):
     @handle_exceptions_for_admin
     def get_context_data(self, **kwargs):
         tokens = AccessToken.objects.filter(
-            user=self.request.user).distinct()
+            user=self.request.user).distinct('application')
 
-        apps = [token.client.app.all()[0] for token in tokens]
-
+        apps = [token.application for token in tokens]
         return super(ApplicationConnected, self).get_context_data(
             connected_apps=apps,
             **kwargs
