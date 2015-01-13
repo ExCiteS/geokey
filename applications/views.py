@@ -6,7 +6,6 @@ from django.utils.html import strip_tags
 
 from braces.views import LoginRequiredMixin
 
-# from provider.oauth2.models import Client, AccessToken
 from oauth2_provider.models import AccessToken
 
 from core.decorators import handle_exceptions_for_admin
