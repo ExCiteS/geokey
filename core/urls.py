@@ -10,7 +10,6 @@ urlpatterns = patterns(
     url(r'^admin/', include('core.admin', namespace="admin")),
     url(r'^api/', include('core.api', namespace="api")),
     url(r'^oauth2/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-    # url(r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),
     url(r'^oauth2/signup/$', SignupAPIView.as_view(), name='sign_up_api'),
     url(r'^$', RedirectView.as_view(url='/admin/', permanent=True)),
 )

@@ -7,52 +7,57 @@
  * @version 0.1
  * ***********************************************/
 
-$(function () {
+$(function (global) {
 	'use strict';
+	// Read the globals; from extensions
+	var url = global.url;
+	var name = global.updatename;
 
-	// Read the IDs from the body's attributes
-	var projectId = $('body').attr('data-project-id');
-	var categoryId = $('body').attr('data-category-id');
-	var fieldId = $('body').attr('data-field-id');
-	var groupingId = $('body').attr('data-grouping-id');
-	var groupId = $('body').attr('data-group-id');
-	var appId = $('body').attr('data-app-id');
+	if (!url && !name) {
+		// Read the IDs from the body's attributes
+		var projectId = $('body').attr('data-project-id');
+		var categoryId = $('body').attr('data-category-id');
+		var fieldId = $('body').attr('data-field-id');
+		var groupingId = $('body').attr('data-grouping-id');
+		var groupId = $('body').attr('data-group-id');
+		var appId = $('body').attr('data-app-id');
 
-	/*
-	The url to send the requests to update the object
-	*/
-	var url = 'projects/' + projectId;
+		/*
+		The url to send the requests to update the object
+		*/
+		var url = 'projects/' + projectId;
 
-	/*
-	The key to access the result object in the response
-	*/
-	var resultAccessor = 'project';
+		/*
+		The key to access the result object in the response
+		*/
+		var resultAccessor = 'project';
 
-	/*
-	Human readable name, to be used in message displays
-	*/
-	var name = 'project';
+		/*
+		Human readable name, to be used in message displays
+		*/
+		var name = 'project';
 
-	// Setting parameters
-	if (projectId && categoryId) {
-		url += '/categories/' + categoryId;
-		name = 'category';
-	}
-	if (projectId && categoryId && fieldId) {
-		url += '/fields/' + fieldId;
-		name = 'field';
-	}
-	if (projectId && groupingId) {
-		url += '/views/' + groupingId;
-		name = 'map';
-	}
-	if (projectId && groupId) {
-		url += '/usergroups/' + groupId;
-		name = 'user group';
-	}
-	if (appId) {
-		url = 'apps/' + appId;
-		name = 'application';
+		// Setting parameters
+		if (projectId && categoryId) {
+			url += '/categories/' + categoryId;
+			name = 'category';
+		}
+		if (projectId && categoryId && fieldId) {
+			url += '/fields/' + fieldId;
+			name = 'field';
+		}
+		if (projectId && groupingId) {
+			url += '/views/' + groupingId;
+			name = 'map';
+		}
+		if (projectId && groupId) {
+			url += '/usergroups/' + groupId;
+			name = 'user group';
+		}
+		if (appId) {
+			url = 'apps/' + appId;
+			name = 'application';
+		}
 	}
 
 	/**
@@ -97,6 +102,7 @@ $(function () {
 		 */
 		function handleSuccess(response) {
 			updateUi('active');
+			console.log(response);
 			displaySuccess('active', 'The ' + name + ' is now ' + response.status + '.');
 		}
 
@@ -144,4 +150,4 @@ $(function () {
 	$('#make-active-confirm button[name="confirm"]').click(updateActive);
 	$('#make-public-confirm button[name="confirm"]').click(updatePrivate);
 	$('#make-private-confirm button[name="confirm"]').click(updatePrivate);
-});
+}(this));

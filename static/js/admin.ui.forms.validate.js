@@ -117,6 +117,7 @@ $(function() {
 			for (var i = 0, len = invalidFields.length; i < len; i++) {
 				var field = $(invalidFields[i]);
 				var validity = invalidFields[i].validity;
+				console.log(validity)
 				field.parents('.form-group').addClass('has-error');
 
 				if (validity.valueMissing) {
@@ -139,8 +140,8 @@ $(function() {
 							if (validity.rangeUnderflow) { showHelp(field, 'The entered value must be greater than ' + field.attr('min') + '.'); }
 							break;
 						case 'text':
-							if (validity.patternMismatch && field.attr('name') === 'key') {
-								showHelp(field, 'Your input contains special characters. A field key must only contain characters, numbers or underscores.');
+							if (validity.patternMismatch && field.attr('name') === 'subdomain') {
+								showHelp(field, 'Your input contains special characters. A field key must only contain characters, numbers, dashes or underscores.');
 							}
 							break;
 					}
