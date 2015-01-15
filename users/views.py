@@ -66,7 +66,10 @@ class Dashboard(LoginRequiredMixin, TemplateView):
         ext = []
         for ext_id in extensions.keys():
             extension = extensions.get(ext_id)
-            if extension.get('display_admin'):
+
+            if extension.get('display_admin') and (
+                    not extension.get('superuser') or
+                    self.request.user.is_superuser):
                 ext.append(extension)
 
         return {

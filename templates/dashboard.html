@@ -37,7 +37,7 @@
                         </div>
                         <div class="list-group">
                             {% for extension in extensions %}
-                            <a href="{% url extension.index_url %}" class="list-group-item">{{ extension.name }}</a>
+                                <a href="{% url extension.index_url %}" class="list-group-item">{{ extension.name }}</a>
                             {% empty %}
                             <div class="list-group-item">
                                 No extensions have been installed.
