@@ -261,7 +261,7 @@ class NumericField(Field):
         """
         Returns the `value` of the field in `Float` format.
         """
-        if len(value) == 0:
+        if value is None or len(value) == 0:
             return None
 
         try:
