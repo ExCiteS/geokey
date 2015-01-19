@@ -169,7 +169,9 @@ def update_search_matches(sender, **kwargs):
             if field.fieldtype == 'TextField':
                 term = observation.attributes.get(field.key)
                 if term is not None:
-                    search_matches.append('%s:%s' % (field.key, term))
+                    search_matches.append(
+                        '%s:%s' % (field.key, term.decode('utf-8'))
+                    )
 
             elif field.fieldtype == 'LookupField':
                 l_id = observation.attributes.get(field.key)

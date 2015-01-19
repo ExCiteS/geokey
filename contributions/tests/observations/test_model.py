@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 
@@ -82,6 +84,27 @@ class ObservationTest(TestCase):
             'category': category
         })
         data = {'text': 'Text', 'number': 12}
+        observation = Observation.create(
+            attributes=data, creator=creator, location=location,
+            category=category, project=category.project
+        )
+        self.assertEqual(observation.attributes, data)
+        self.assertEqual(observation.status, 'pending')
+
+    def test_create_observation_with_polish_chars(self):
+        creator = UserF()
+        location = LocationFactory()
+        category = CategoryFactory()
+        TextFieldFactory(**{
+            'key': 'text',
+            'category': category,
+            'required': True
+        })
+        NumericFieldFactory(**{
+            'key': 'number',
+            'category': category
+        })
+        data = {'text': 'śmietnik', 'number': 12}
         observation = Observation.create(
             attributes=data, creator=creator, location=location,
             category=category, project=category.project
