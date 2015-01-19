@@ -177,6 +177,9 @@ class TextField(Field):
         Validate teh given value agaist required status. Checks if value is
         not None and has at least one character.
         """
+        if isinstance(value, str) or isinstance(value, unicode):
+            value = value.encode('utf-8')
+
         if self.status == STATUS.active and self.required and (
                 value is None or len(str(value)) == 0):
             raise InputError('The field %s is required.' % self.name)

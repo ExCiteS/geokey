@@ -104,7 +104,7 @@ class ObservationTest(TestCase):
             'key': 'number',
             'category': category
         })
-        data = {'text': 'śmietnik', 'number': 12}
+        data = {'text': u'śmietnik', 'number': 12}
         observation = Observation.create(
             attributes=data, creator=creator, location=location,
             category=category, project=category.project
