@@ -29,11 +29,13 @@ class RestoreLocationTest(TestCase):
 
         TextFieldFactory.create(**{
             'key': 'key_1',
-            'category': self.category
+            'category': self.category,
+            'order': 0
         })
         NumericFieldFactory.create(**{
             'key': 'key_2',
-            'category': self.category
+            'category': self.category,
+            'order': 1
         })
 
         self.data = {
@@ -145,11 +147,13 @@ class ContributionSerializerIntegrationTests(TestCase):
 
         TextFieldFactory.create(**{
             'key': 'key_1',
-            'category': self.category
+            'category': self.category,
+            'order': 0
         })
         NumericFieldFactory.create(**{
             'key': 'key_2',
-            'category': self.category
+            'category': self.category,
+            'order': 1
         })
 
     def test_create_observation(self):

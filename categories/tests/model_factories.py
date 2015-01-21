@@ -28,6 +28,7 @@ class FieldFactory(factory.django.DjangoModelFactory):
     category = factory.SubFactory(CategoryFactory)
     status = 'active'
     required = False
+    order = 0
 
 
 class TextFieldFactory(factory.django.DjangoModelFactory):

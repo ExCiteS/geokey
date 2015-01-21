@@ -1,5 +1,5 @@
 from core.serializers import FieldSelectorSerializer
-from rest_framework import serializers
+from rest_framework.serializers import SerializerMethodField
 
 from contributions.serializers import ContributionSerializer
 
@@ -10,8 +10,8 @@ class GroupingSerializer(FieldSelectorSerializer):
     """
     Serializer for Views.
     """
-    contributions = serializers.SerializerMethodField('get_data')
-    num_contributions = serializers.SerializerMethodField(
+    contributions = SerializerMethodField('get_data')
+    num_contributions = SerializerMethodField(
         'get_number_contributions')
 
     class Meta:

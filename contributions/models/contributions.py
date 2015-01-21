@@ -47,6 +47,7 @@ class Observation(models.Model):
     )
     version = models.IntegerField(default=1)
     search_matches = models.TextField()
+    display_field = models.TextField(null=True, blank=True)
 
     history = HistoricalRecords()
     objects = ObservationManager()
@@ -161,8 +162,16 @@ class Observation(models.Model):
 @receiver(pre_save, sender=Observation)
 def update_search_matches(sender, **kwargs):
     observation = kwargs.get('instance')
-    search_matches = []
 
+    from categories.models import Field
+    try:
+        first_field = observation.category.fields.get(order=0)
+        value = observation.attributes.get(first_field.key)
+        observation.display_field = '%s:%s' % (first_field.key, value)
+    except Field.DoesNotExist:
+        observation.display_field = None
+
+    search_matches = []
     for field in observation.category.fields.all():
         if field.key in observation.attributes.keys():
 
