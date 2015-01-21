@@ -56,6 +56,7 @@ def handle_exceptions_for_ajax(func):
                 status=status.HTTP_400_BAD_REQUEST
             )
         except (MalformedRequestData, TypeError), error:
+        # except (MalformedRequestData), error:
             return Response(
                 {"error": str(error)},
                 status=status.HTTP_400_BAD_REQUEST

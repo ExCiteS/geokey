@@ -28,13 +28,8 @@ class GroupingSerializer(FieldSelectorSerializer):
         """
         user = self.context.get('user')
 
-        if (obj.project.can_moderate(user)):
-            data = obj.data.for_moderator(user)
-        else:
-            data = obj.data.for_viewer(user)
-
         serializer = ContributionSerializer(
-            data,
+            obj.data(user),
             many=True,
             context={'project': obj.project, 'user': user}
         )
@@ -45,7 +40,4 @@ class GroupingSerializer(FieldSelectorSerializer):
         Returns the number of contributions accessable through the view.
         """
         user = self.context.get('user')
-        if (obj.project.can_moderate(user)):
-            return len(obj.data.for_moderator(user))
-        else:
-            return len(obj.data.for_viewer(user))
+        return obj.data(user).count()
