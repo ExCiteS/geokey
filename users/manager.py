@@ -1,5 +1,6 @@
 from django.contrib.auth.models import BaseUserManager
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 
 class UserManager(BaseUserManager):
@@ -7,11 +8,6 @@ class UserManager(BaseUserManager):
         """
         Creates a new user in the data base
         """
-        if not email:
-            raise ValueError('The given email must be set')
-        if not display_name:
-            raise ValueError('The given display name must be set')
-
         now = timezone.now()
         email = UserManager.normalize_email(email)
 

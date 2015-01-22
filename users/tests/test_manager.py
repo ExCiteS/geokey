@@ -1,10 +1,14 @@
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from nose.tools import raises
 
 from ..models import User
+from .model_factories import UserF
 
 
 class TestCreateSuperUser(TestCase):
+    def tearDown(self):
+        User.objects.all().delete()
+
     def test(self):
         email = 'bla@example.com'
         display_name = 'superuser'
@@ -24,7 +28,10 @@ class TestCreateSuperUser(TestCase):
         self.assertTrue(True)
 
 
-class TestCreateUser(TestCase):
+class TestCreateUser(TransactionTestCase):
+    def tearDown(self):
+        User.objects.all().delete()
+
     def test(self):
         email = 'bla@example.com'
         display_name = 'user'
@@ -43,12 +50,6 @@ class TestCreateUser(TestCase):
         self.assertFalse(user.is_superuser)
         self.assertEqual(user.email, email)
         self.assertEqual(user.display_name, display_name)
-
-    @raises(TypeError)
-    def test_without_display_name(self):
-        email = 'bla@example.com'
-        password = 'password'
-        User.objects.create_user(email, password=password)
 
 
 class TestGetUser(TestCase):

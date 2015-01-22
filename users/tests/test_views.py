@@ -1,6 +1,6 @@
 import json
 
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.contrib.auth.models import AnonymousUser
@@ -73,13 +73,16 @@ class DashboardTest(TestCase):
         self.assertEqual(len(context.get('involved_projects')), 1)
 
 
-class CreateUserMixinTest(TestCase):
+class CreateUserMixinTest(TransactionTestCase):
     def setUp(self):
         self.data = {
             'display_name': 'user-1',
             'email': 'user-1@example.com',
             'password': '123'
         }
+
+    def tearDown(self):
+        User.objects.all().delete()
 
     def test_create_user(self):
         create_mixin = CreateUserMixin()
@@ -92,7 +95,7 @@ class CreateUserMixinTest(TestCase):
     @raises(IntegrityError)
     def test_create_user_with_taken_email(self):
         create_mixin = CreateUserMixin()
-        create_mixin.create_user(self.data)
+        UserF.create(**{'email': 'user-1@example.com'})
 
         user = create_mixin.create_user(self.data)
         self.assertTrue(isinstance(user, User))
@@ -128,11 +131,30 @@ class SignupAPIViewTest(TestCase):
         )
 
     def test_sign_with_existing_email(self):
-        UserF.create(**self.user_data)
+        UserF.create(**{
+            'display_name': 'USer-3',
+            'email': 'user-1@example.com'}
+        )
 
         data = {
             'client_id': self.client.client_id,
             'display_name': 'user-3',
+            'email': 'user-3@example.com',
+            'password': '123'
+        }
+
+        request = self.factory.post(
+            self.url, json.dumps(data), content_type='application/json')
+        view = SignupAPIView.as_view()
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 400)
+        errors = json.loads(response.content)
+        self.assertEqual(len(errors.get('errors')), 1)
+
+    def test_sign_with_empty_display(self):
+        data = {
+            'client_id': self.client.client_id,
             'email': 'user-1@example.com',
             'password': '123'
         }

@@ -4,8 +4,14 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.utils import timezone
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
+from django.core.exceptions import ValidationError
 
 from .manager import UserManager
+
+
+def validate_display_name(value):
+    if User.objects.filter(display_name__iexact=value).exists():
+        raise ValidationError('The given display name exists.')
 
 
 class User(AbstractBaseUser):
@@ -13,7 +19,11 @@ class User(AbstractBaseUser):
     A user registered in the platform.
     """
     email = models.EmailField(unique=True)
-    display_name = models.CharField(max_length=50, unique=True)
+    display_name = models.CharField(
+        max_length=50,
+        unique=True,
+        validators=[validate_display_name]
+    )
     date_joined = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
