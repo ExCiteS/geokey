@@ -9,6 +9,7 @@ from model_utils.managers import InheritanceManager
 from django_hstore import hstore, query
 from django_youtube.api import Api as Youtube, AccessControl
 
+from core.exceptions import FileTypeError
 from projects.models import Project
 
 from .base import (
@@ -230,5 +231,5 @@ class MediaFileManager(InheritanceManager):
                 the_file
             )
         else:
-            raise TypeError('Files of type %s are currently not supported.'
-                            % the_file.content_type)
+            raise FileTypeError('Files of type %s are currently not supported.'
+                                % the_file.content_type)

@@ -10,6 +10,7 @@ from django.conf import settings
 
 from nose.tools import raises
 
+from core.exceptions import FileTypeError
 from contributions.models import MediaFile
 
 from contributions.tests.model_factories import ObservationFactory
@@ -46,7 +47,7 @@ class ModelManagerTest(TestCase):
         self.assertIsNotNone(image_file.image)
         self.assertEqual(image_file.type_name, 'ImageFile')
 
-    @raises(TypeError)
+    @raises(FileTypeError)
     def test_create_not_supported(self):
         xyz_file = StringIO()
         xyz = Image.new('RGBA', size=(50, 50), color=(256, 0, 0))
