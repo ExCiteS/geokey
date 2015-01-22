@@ -3,9 +3,15 @@ from django.conf.urls import patterns, url
 from projects import views as project_views
 from categories import views as category_views
 from contributions import views as contribution_views
+from users.views import UserAPIView
 
 urlpatterns = patterns(
     '',
+    # ###########################
+    # USER
+    # ###########################
+    url(r'^user/$', UserAPIView.as_view(), name='user_api'),
+
     # ###########################
     # PROJECTS
     # ###########################

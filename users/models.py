@@ -4,14 +4,11 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.utils import timezone
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-from django.core.exceptions import ValidationError
+# from django.core.exceptions import ValidationError
+
+from oauth2_provider.models import AccessToken
 
 from .manager import UserManager
-
-
-def validate_display_name(value):
-    if User.objects.filter(display_name__iexact=value).exists():
-        raise ValidationError('The given display name exists.')
 
 
 class User(AbstractBaseUser):
@@ -21,8 +18,7 @@ class User(AbstractBaseUser):
     email = models.EmailField(unique=True)
     display_name = models.CharField(
         max_length=50,
-        unique=True,
-        validators=[validate_display_name]
+        unique=True
     )
     date_joined = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
@@ -31,6 +27,11 @@ class User(AbstractBaseUser):
     USERNAME_FIELD = 'email'
 
     objects = UserManager()
+
+    def set_password(self, password):
+        super(User, self).set_password(password)
+        self.save()
+        AccessToken.objects.filter(user=self).delete()
 
 
 class UserGroup(models.Model):

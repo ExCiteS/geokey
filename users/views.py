@@ -12,7 +12,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from oauth2_provider.models import AccessToken
 from applications.models import Application
 
 from core.decorators import (
@@ -123,7 +122,48 @@ class SignupAdminView(CreateUserMixin, CreateView):
         return self.render_to_response(context)
 
 
-class SignupAPIView(CreateUserMixin, APIView):
+class UserAPIView(CreateUserMixin, APIView):
+    def get(self, request):
+        user = request.user
+        if not user.is_anonymous():
+            serializer = UserSerializer(user)
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {'error': 'You have to be signed in to get user information'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+    def patch(self, request):
+        user = request.user
+
+        if not user.is_anonymous():
+            data = request.DATA
+            serializer = UserSerializer(user, data=data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+
+                if data.get('password') is not None:
+                    user.set_password(data.get('password'))
+
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_200_OK
+                )
+            else:
+                return Response(
+                    {'error': serializer.errors},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            return Response(
+                {'error': 'You have to be signed in to get user information'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
     def post(self, request):
         data = request.DATA
         form = UserRegistrationForm(data)
@@ -406,9 +446,6 @@ class ChangePassword(LoginRequiredMixin, TemplateView):
 
         if user is not None:
             user.set_password(request.POST.get('new_password1'))
-            user.save()
-
-            AccessToken.objects.filter(user=user).delete()
 
             messages.success(request, 'The password has been changed.')
             return redirect('admin:userprofile')
@@ -435,7 +472,9 @@ class QueryUsers(APIView):
         users = User.objects.filter(
             display_name__icontains=q).exclude(pk=1)[:10]
 
-        serializer = UserSerializer(users, many=True)
+        serializer = UserSerializer(
+            users, many=True, fields=('id', 'display_name')
+        )
         return Response(serializer.data)
 
 

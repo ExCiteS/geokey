@@ -21,7 +21,7 @@ from .model_factories import UserF, UserGroupF, GroupingUserGroupFactory
 from ..views import (
     UserGroup, UserGroupUsers, UserGroupSingleUser, UserGroupViews,
     UserGroupSingleView, UserGroupCreate, UserGroupSettings, UserProfile,
-    ChangePassword, CreateUserMixin, SignupAPIView, Dashboard,
+    ChangePassword, CreateUserMixin, UserAPIView, Dashboard,
     UserNotifications
 )
 from ..models import User, UserGroup as Group
@@ -103,10 +103,10 @@ class CreateUserMixinTest(TransactionTestCase):
         self.assertEqual(user.email, self.data.get('email'))
 
 
-class SignupAPIViewTest(TestCase):
+class UserAPIViewTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.url = reverse('sign_up_api')
+        self.url = reverse('api:user_api')
         self.client = ApplicationFactory.create()
         self.user_data = {
             'display_name': 'user-1',
@@ -116,12 +116,84 @@ class SignupAPIViewTest(TestCase):
         self.data = self.user_data.copy()
         self.data['client_id'] = self.client.client_id
 
+    def test_get_user(self):
+        user = UserF.create()
+        view = UserAPIView.as_view()
+        request = self.factory.get(self.url)
+        request.user = user
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 200)
+
+        request = self.factory.get(self.url)
+        request.user = AnonymousUser()
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 401)
+
+    def test_update_user(self):
+        user = UserF.create()
+        view = UserAPIView.as_view()
+        data = {
+            'display_name': 'user-1',
+            'email': 'user-1@example.com'
+        }
+
+        request = self.factory.patch(
+            self.url,
+            json.dumps(data),
+            content_type='application/json'
+        )
+        request.user = AnonymousUser()
+        response = view(request).render()
+        self.assertEqual(response.status_code, 401)
+
+        request = self.factory.patch(
+            self.url,
+            json.dumps(data),
+            content_type='application/json'
+        )
+        request.user = user
+        response = view(request).render()
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_password(self):
+        user = UserF.create()
+        request = self.factory.patch(
+            self.url,
+            json.dumps({'password': 'sdufhdsjkfkdnsj'}),
+            content_type='application/json'
+        )
+        request.user = user
+        ref_pw = user.password
+        view = UserAPIView.as_view()
+        response = view(request).render()
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(ref_pw, User.objects.get(pk=user.id).password)
+
+    def test_update_user_existing(self):
+        data = {
+            'display_name': 'user-1',
+            'email': 'user-1@example.com'
+        }
+        UserF.create(**data)
+        user = UserF.create()
+        view = UserAPIView.as_view()
+
+        request = self.factory.patch(
+            self.url,
+            json.dumps(data),
+            content_type='application/json'
+        )
+        request.user = user
+        response = view(request).render()
+        self.assertEqual(response.status_code, 400)
+
     def test_sign_up(self):
         request = self.factory.post(
             self.url, json.dumps(self.data), content_type='application/json')
-        view = SignupAPIView.as_view()
+        view = UserAPIView.as_view()
         response = view(request).render()
-
         self.assertEqual(response.status_code, 201)
 
         user_json = json.loads(response.content)
@@ -145,7 +217,7 @@ class SignupAPIViewTest(TestCase):
 
         request = self.factory.post(
             self.url, json.dumps(data), content_type='application/json')
-        view = SignupAPIView.as_view()
+        view = UserAPIView.as_view()
         response = view(request).render()
 
         self.assertEqual(response.status_code, 400)
@@ -161,7 +233,7 @@ class SignupAPIViewTest(TestCase):
 
         request = self.factory.post(
             self.url, json.dumps(data), content_type='application/json')
-        view = SignupAPIView.as_view()
+        view = UserAPIView.as_view()
         response = view(request).render()
 
         self.assertEqual(response.status_code, 400)
@@ -173,7 +245,7 @@ class SignupAPIViewTest(TestCase):
 
         request = self.factory.post(
             self.url, json.dumps(self.data), content_type='application/json')
-        view = SignupAPIView.as_view()
+        view = UserAPIView.as_view()
         response = view(request).render()
 
         self.assertEqual(response.status_code, 400)
@@ -186,7 +258,7 @@ class SignupAPIViewTest(TestCase):
             json.dumps(self.user_data),
             content_type='application/json'
         )
-        view = SignupAPIView.as_view()
+        view = UserAPIView.as_view()
         response = view(request).render()
 
         self.assertEqual(response.status_code, 400)

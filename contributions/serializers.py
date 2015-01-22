@@ -39,8 +39,8 @@ class LocationContributionSerializer(serializers.ModelSerializer):
 
 
 class ObservationSerializer(serializers.ModelSerializer):
-    creator = UserSerializer()
-    updator = UserSerializer()
+    creator = UserSerializer(fields=('id', 'display_name'))
+    updator = UserSerializer(fields=('id', 'display_name'))
     category = serializers.SerializerMethodField('get_category')
 
     class Meta:
@@ -295,7 +295,7 @@ class ContributionSerializer(object):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    creator = UserSerializer()
+    creator = UserSerializer(fields=('id', 'display_name'))
     isowner = serializers.SerializerMethodField('get_is_owner')
 
     class Meta:
@@ -322,7 +322,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class FileSerializer(serializers.ModelSerializer):
-    creator = UserSerializer()
+    creator = UserSerializer(fields=('id', 'display_name'))
     isowner = serializers.SerializerMethodField('get_is_owner')
     url = serializers.SerializerMethodField('get_url')
     file_type = serializers.SerializerMethodField('get_type')
