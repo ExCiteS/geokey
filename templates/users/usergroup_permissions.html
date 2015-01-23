@@ -83,8 +83,7 @@
                             <button type="button" id="revoke-all" class="btn btn-default btn-sm"><span class="text-danger">Revoke from all groups</span></button>
                         </div>
                     </h3>
-                    {{ group.project.groupings|length }}
-                    {% if group.project.groupings|length > 0 %}
+                    {% if group.project.groupings.all %}
                         {% viewgroups group %}
                     {% else %}
                         <div class="well empty-list">

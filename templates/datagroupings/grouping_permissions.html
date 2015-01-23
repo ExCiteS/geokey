@@ -64,7 +64,7 @@
                     </div>
                     {% endif %}
 
-                    {% if grouping.project.usergroups.all %}
+                    {% if grouping.project.usergroups.all|length > 0 %}
                         {% usergroups grouping %}
                     {% else %}
                         <div class="well empty-list">
