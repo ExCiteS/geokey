@@ -10,7 +10,6 @@ urlpatterns = patterns(
     url(r'^api/', include('core.api', namespace="api")),
     url(r'^oauth2/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^$', RedirectView.as_view(url='/admin/', permanent=True)),
-    url(r'^', include('geokey_communitymaps.urls', namespace='community_maps')),
 )
 
 urlpatterns += patterns('',
