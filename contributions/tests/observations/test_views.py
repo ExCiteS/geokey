@@ -838,7 +838,7 @@ class ProjectPublicApiTest(TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_contribute_to_public_everyone_with_Anonymous(self):
-        self.project.everyone_contributes = True
+        self.project.everyone_contributes = 'true'
         self.project.isprivate = False
         self.project.save()
 
@@ -1685,7 +1685,7 @@ class MyContributionsTest(TestCase):
         )
 
     def test_my_contributions_with_anonymous(self):
-        self.project.everyone_contributes = True
+        self.project.everyone_contributes = 'true'
         self.project.isprivate = False
         self.project.save()
 

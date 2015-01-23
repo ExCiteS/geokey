@@ -99,6 +99,10 @@ body.login div.page-header {
 	padding-right: 35px;
 }
 
+.hidden.radio+.radio {
+	margin-top: 10px;
+}
+
 h1:first-child,
 h2:first-child,
 h3:first-child,

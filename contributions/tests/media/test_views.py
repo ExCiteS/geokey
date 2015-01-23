@@ -416,7 +416,7 @@ class AllContributionsMediaAPIViewTest(TestCase):
 
     def test_post_images_with_anonymous_to_public(self):
         self.project.isprivate = False
-        self.project.everyone_contributes = True
+        self.project.everyone_contributes = 'true'
         self.project.save()
 
         grouping = GroupingFactory.create(

@@ -54,7 +54,7 @@ class PrivateProjectTest(TestCase):
 
         self.project = ProjectF.create(**{
             'isprivate': True,
-            'everyone_contributes': False
+            'everyone_contributes': 'false'
         })
 
         self.view = GroupingFactory(
@@ -196,7 +196,7 @@ class PrivateProjectTest_PublicView(TestCase):
 
         self.project = ProjectF.create(**{
             'isprivate': True,
-            'everyone_contributes': False
+            'everyone_contributes': 'false'
         })
 
         self.view = GroupingFactory(
@@ -325,6 +325,25 @@ class PrivateProjectTest_PublicView(TestCase):
         self.assertFalse(self.project.is_involved(AnonymousUser()))
 
 
+class EveryoneContributesTest(TestCase):
+    def test(self):
+        project = ProjectF.create(**{
+            'isprivate': False,
+            'everyone_contributes': 'auth'
+        })
+
+        self.assertTrue(project.can_contribute(UserF.create()))
+        self.assertFalse(project.can_contribute(AnonymousUser()))
+
+        project = ProjectF.create(**{
+            'isprivate': False,
+            'everyone_contributes': 'true'
+        })
+
+        self.assertTrue(project.can_contribute(UserF.create()))
+        self.assertTrue(project.can_contribute(AnonymousUser()))
+
+
 class PublicProjectTest(TestCase):
     def setUp(self):
         self.moderator_view = UserF.create()
@@ -337,7 +356,7 @@ class PublicProjectTest(TestCase):
 
         self.project = ProjectF.create(**{
             'isprivate': False,
-            'everyone_contributes': False
+            'everyone_contributes': 'false'
         })
 
         self.view = GroupingFactory(
@@ -478,7 +497,7 @@ class PublicProjectTest_PublicView(TestCase):
 
         self.project = ProjectF.create(**{
             'isprivate': False,
-            'everyone_contributes': False
+            'everyone_contributes': 'false'
         })
 
         self.view = GroupingFactory(

@@ -157,9 +157,7 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
 
         project.name = strip_tags(data.get('name'))
         project.description = strip_tags(data.get('description'))
-        project.everyone_contributes = (
-            data.get('everyone_contributes') == 'true'
-        )
+        project.everyone_contributes = data.get('everyone_contributes')
         project.save()
 
         messages.success(self.request, "The project has been updated.")

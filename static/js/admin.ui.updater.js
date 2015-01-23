@@ -67,11 +67,22 @@ $(function (global) {
 	 * been successful.
 	 * @param  {String} toToggle Css class part to toogle the display after update
 	 */
-	function updateUi(toToggle) {
+	function updateUi(toToggle, result) {
 		$('button[name="confirm"]').button('reset');
 		$('.modal').modal('hide');
 		if (toToggle) {
 			$('.toggle-' + toToggle).toggleClass('hidden');
+		}
+
+		if (toToggle === 'private') {
+			if (result === 'public') {
+				$('.public').removeClass('hidden');
+				$('.private').addClass('hidden');
+			}
+			else if (result === 'private') {
+				$('.public').addClass('hidden');
+				$('.private').removeClass('hidden');
+			}
 		}
 	}
 
@@ -102,7 +113,6 @@ $(function (global) {
 		 */
 		function handleSuccess(response) {
 			updateUi('active');
-			console.log(response);
 			displaySuccess('active', 'The ' + name + ' is now ' + response.status + '.');
 		}
 
@@ -130,8 +140,9 @@ $(function (global) {
 		 * @param  {Object} response JSON object of the response
 		 */
 		function handleSuccess(response) {
-			updateUi('private');
-			displaySuccess('private', 'The ' + name + ' is now ' + (response.isprivate ? 'private' : 'public') + '.');
+			var result = (response.isprivate ? 'private' : 'public');
+			updateUi('private', result);
+			displaySuccess('private', 'The ' + name + ' is now ' + result + '.');
 		}
 
 		/**
