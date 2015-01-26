@@ -148,7 +148,7 @@ class UserAPIView(CreateUserMixin, APIView):
                 serializer.save()
 
                 if data.get('password') is not None:
-                    user.set_password(data.get('password'))
+                    user.reset_password(data.get('password'))
 
                 return Response(
                     serializer.data,
@@ -446,7 +446,7 @@ class ChangePassword(LoginRequiredMixin, TemplateView):
         )
 
         if user is not None:
-            user.set_password(request.POST.get('new_password1'))
+            user.reset_password(request.POST.get('new_password1'))
 
             messages.success(request, 'The password has been changed.')
             return redirect('admin:userprofile')

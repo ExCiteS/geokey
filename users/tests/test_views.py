@@ -58,7 +58,7 @@ class DashboardTest(TestCase):
         context = dashboard_view.get_context_data()
 
         self.assertEqual(len(context.get('admin_projects')), 2)
-        self.assertEqual(len(context.get('involved_projects')), 0)
+        self.assertFalse(context.get('involved_projects'))
 
     def test_get_context_data_with_contributor(self):
         dashboard_view = Dashboard()
@@ -70,7 +70,7 @@ class DashboardTest(TestCase):
         context = dashboard_view.get_context_data()
 
         self.assertEqual(len(context.get('admin_projects')), 1)
-        self.assertEqual(len(context.get('involved_projects')), 1)
+        self.assertTrue(context.get('involved_projects'))
 
 
 class CreateUserMixinTest(TransactionTestCase):

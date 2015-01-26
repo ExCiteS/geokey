@@ -28,8 +28,8 @@ class User(AbstractBaseUser):
 
     objects = UserManager()
 
-    def set_password(self, password):
-        super(User, self).set_password(password)
+    def reset_password(self, password):
+        self.set_password(password)
         self.save()
         AccessToken.objects.filter(user=self).delete()
 
