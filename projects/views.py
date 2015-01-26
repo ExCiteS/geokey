@@ -54,6 +54,27 @@ class ProjectCreate(LoginRequiredMixin, CreateView):
         return redirect('admin:project_overview', project_id=project.id)
 
 
+class ProjectsInvolved(LoginRequiredMixin, TemplateView):
+    template_name = 'projects/projects_involved.html'
+
+    def get_context_data(self):
+        projects = Project.objects.get_list(self.request.user).exclude(
+            admins=self.request.user)
+        project_list = []
+
+        for project in projects:
+            project_list.append({
+                'name': project.name,
+                'role': project.get_role(self.request.user),
+                'contributions': project.observations.filter(
+                    creator=self.request.user).count(),
+            })
+
+        return {
+            'projects': project_list
+        }
+
+
 class ProjectOverview(LoginRequiredMixin, TemplateView):
     """
     Displays the project overview page

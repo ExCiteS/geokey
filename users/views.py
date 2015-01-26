@@ -73,7 +73,8 @@ class Dashboard(LoginRequiredMixin, TemplateView):
 
         return {
             'admin_projects': projects.filter(admins=self.request.user),
-            'involved_projects': projects.exclude(admins=self.request.user),
+            'involved_projects': projects.exclude(
+                admins=self.request.user).exists(),
             'status_types': STATUS,
             'extensions': ext
         }

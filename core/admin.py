@@ -25,6 +25,10 @@ urlpatterns = patterns(
         project_views.ProjectCreate.as_view(),
         name='project_create'),
     url(
+        r'^projects/involved/$',
+        project_views.ProjectsInvolved.as_view(),
+        name='projects_involved'),
+    url(
         r'^projects/(?P<project_id>[0-9]+)/$',
         project_views.ProjectOverview.as_view(),
         name='project_overview'),
