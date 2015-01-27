@@ -92,20 +92,15 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
         message is displayed.
         """
         user = self.request.user
-        project = Project.objects.get(pk=project_id)
-        if (not project.isprivate or project.is_admin(user) or
-                project.usergroups.filter(users=user).exists()):
-            return {
-                'project': project,
-                'role': project.get_role(self.request.user),
-                'contributions': project.observations.filter(
-                    creator=self.request.user).count(),
-                'maps': project.groupings.filter(status='active').count()
-            }
-        else:
-            raise PermissionDenied(
-                'You are not allowed to access this project'
-            )
+        project = Project.objects.as_admin(user, project_id)
+        contributions = project.observations.all()
+
+        return {
+            'project': project,
+            'allcontributions': contributions.count(),
+            'contributions': contributions.filter(
+                creator=self.request.user).count()
+        }
 
 
 class ProjectExtend(LoginRequiredMixin, TemplateView):

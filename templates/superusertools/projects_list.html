@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %} | Superuser tools{% endblock %}
+
+{% block main %}
+<div class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <h1>Superuser tools</h1>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+    <div class="row">
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="list-group">
+                    <a href="{% url 'admin:superuser_index' %}" class="list-group-item active">Manage all projects</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <h3>Manage all projects</h3>
+            {% for project in projects %}
+            <div class="overview-list-item">
+                <h4><a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a></h4>
+                {% if project.description %}<p>{{ project.description }}</p>{% endif %}
+            </div>
+            {% empty %}
+            <div class="well empty-list">
+                <p class="lead">We couldn't find any projects.</p>
+                <p>You can create a new project if you want to start your own community map.</p>
+                <a href="{% url 'admin:project_create' %}" class="btn btn-success btn-lg">Create a new project</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
