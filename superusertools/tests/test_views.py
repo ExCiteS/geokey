@@ -16,7 +16,7 @@ class ProjectsListTest(TestCase):
         user = UserF.create(**{'is_superuser': True})
         ProjectF.create_batch(5, add_admins=[user])
         ProjectF.create_batch(5)
-        view = ProjectsList.as_view()
+        view = ProjectsList()
         context = view.get_context_data()
         self.assertEqual(len(context.get('projects')), 10)
 
