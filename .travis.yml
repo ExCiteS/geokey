@@ -14,6 +14,7 @@ before_script:
   - psql -c 'create database geokey;' -U postgres
   - psql -U postgres -d geokey -c "create extension postgis;"
   - cp core/settings/project.sample.py core/settings/project.py
+  - cp core/url/extensions.sample.py core/url/extensions.py
   - python manage.py migrate
 
 install:
