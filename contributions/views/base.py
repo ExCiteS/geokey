@@ -18,11 +18,7 @@ class SingleAllContribution(object):
 class SingleGroupingContribution(object):
     def get_object(self, user, project_id, grouping_id, observation_id):
         view = Grouping.objects.get_single(user, project_id, grouping_id)
-
-        if view.project.can_moderate(user):
-            return view.data.for_moderator(user).get(pk=observation_id)
-        else:
-            return view.data.for_viewer(user).get(pk=observation_id)
+        return view.data(user).get(pk=observation_id)
 
 
 class SingleMyContribution(object):

@@ -50,18 +50,19 @@ MIDDLEWARE_CLASSES = (
     # 'core.middleware.TerminalLogging',
 )
 
-SOUTH_DATABASE_ADAPTERS = {'default': 'south.db.postgresql_psycopg2'}
-
-SOUTH_MIGRATION_MODULES = {
-    'easy_thumbnails': 'easy_thumbnails.south_migrations',
+OAUTH2_PROVIDER = {
+    # this is the list of available scopes
+    'SCOPES': {'read': 'Read scope', 'write': 'Write scope'},
+    'CLIENT_SECRET_GENERATOR_LENGTH': 40
 }
+OAUTH2_PROVIDER_APPLICATION_MODEL = 'applications.Application'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.OAuth2Authentication',
-    )
+        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+    ),
 }
 
 MESSAGE_TAGS = {

@@ -1,5 +1,7 @@
 $(function () {
-    var symbolPath = $('body').attr('data-symbol')
+    'use strict';
+
+    var symbolPath = $('body').attr('data-symbol');
     $("#colour").colorpicker();
 
     var fileinputConfig = {

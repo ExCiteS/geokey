@@ -99,6 +99,10 @@ body.login div.page-header {
 	padding-right: 35px;
 }
 
+.hidden.radio+.radio {
+	margin-top: 10px;
+}
+
 h1:first-child,
 h2:first-child,
 h3:first-child,
@@ -262,6 +266,14 @@ div.overview-list-item {
 	padding: 1.5em 0;
 }
 
+div.overview-list-item.checkbox {
+	padding-left: 20px;
+	margin-bottom: 0;
+	margin-top: 0;
+	padding-top: 15px;
+	padding-bottom: 15px;
+}
+
 	div.overview-list-item h3:last-child {
 		margin-bottom: 0;
 	}
@@ -314,15 +326,11 @@ div.overview-list-item.field-item p {
 	padding-left: 22px;
 }
 
-span.number {
-	font-size: 4em;
-	font-weight: bold;
-	line-height: 1;
-	display: block;
-}
-
 .app-meta code {
 	display: block;
+	word-break: break-all;
+	overflow-wrap: break-word;     /* Renamed property in CSS3 draft spec */
+	width: 100%;
 }
 
 .becareful {
@@ -407,22 +415,45 @@ form#permissions .message {
 	padding: 15px;
 }
 
-#stats {
+#stats, .contributions {
 	color: #428bca;
 	text-transform: uppercase;
 	font-weight: bold;
 	text-align: center;
 }
 
-		#stats .number {
-			display: inline-block;
-			min-width: 86px;
-			color: #fff;
-			background-color: #428bca;
-			padding: 15px;
-			border-radius: 43px;
-			margin-bottom: 15px;
-		}
+/*.contributions {
+	line-height: 42px;
+	vertical-align: middle;
+}*/
+
+.number {
+	font-weight: bold;
+	line-height: 1;
+	display: inline-block;
+	color: #fff;
+	background-color: #428bca;
+}
+
+.contributions {
+	text-align: left;
+}
+
+	#stats .number {
+		font-size: 4em;
+		min-width: 86px;
+		padding: 15px;
+		border-radius: 43px;
+		margin-bottom: 15px;
+	}
+
+	.contributions .number {
+		text-align: center;
+		font-size: 1em;
+		min-width: 28px;
+		padding: 7px;
+		border-radius: 14px;
+	}
 
 .panel-heading h3:last-child,
 .panel-heading p,

@@ -6,7 +6,7 @@ from django.utils.html import strip_tags
 
 from braces.views import LoginRequiredMixin
 
-from provider.oauth2.models import Client, AccessToken
+from oauth2_provider.models import AccessToken
 
 from core.decorators import handle_exceptions_for_admin
 
@@ -45,10 +45,9 @@ class ApplicationConnected(LoginRequiredMixin, TemplateView):
     @handle_exceptions_for_admin
     def get_context_data(self, **kwargs):
         tokens = AccessToken.objects.filter(
-            user=self.request.user).distinct()
+            user=self.request.user).distinct('application')
 
-        apps = [token.client.app.all()[0] for token in tokens]
-
+        apps = [token.application for token in tokens]
         return super(ApplicationConnected, self).get_context_data(
             connected_apps=apps,
             **kwargs
@@ -63,7 +62,7 @@ class ApplicationDisconnect(LoginRequiredMixin, TemplateView):
 
         tokens = AccessToken.objects.filter(
             user=self.request.user,
-            client=app.client
+            application=app
         )
         if tokens:
             tokens.delete()
@@ -94,15 +93,8 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         """
         Is called if the form is valid.
         """
-        client = Client.objects.create(
-            user=self.request.user,
-            name=form.instance.name,
-            client_type=1,
-            url=form.instance.download_url,
-            redirect_uri=form.instance.redirect_url
-        )
-        form.instance.client = client
-        form.instance.creator = self.request.user
+        form.instance.user = self.request.user
+        form.instance.client_type = 'public'
         messages.success(self.request, "The application has been created.")
         return super(ApplicationCreate, self).form_valid(form)
 
@@ -118,7 +110,7 @@ class ApplicationSettings(LoginRequiredMixin, TemplateView):
     def get_context_data(self, app_id, **kwargs):
         app = Application.objects.as_owner(self.request.user, app_id)
         users = AccessToken.objects.values('user').filter(
-            client=app.client).distinct().count()
+            application=app).distinct().count()
         return super(ApplicationSettings, self).get_context_data(
             application=app, users=users, **kwargs)
 
@@ -130,7 +122,8 @@ class ApplicationSettings(LoginRequiredMixin, TemplateView):
         app.name = strip_tags(data.get('name'))
         app.description = strip_tags(data.get('description'))
         app.download_url = data.get('download_url')
-        app.redirect_url = data.get('redirect_url')
+        app.redirect_uris = data.get('redirect_uris')
+        app.authorization_grant_type = data.get('authorization_grant_type')
         app.save()
 
         messages.success(self.request, "The application has been updated.")

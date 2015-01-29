@@ -19,10 +19,12 @@ from ..model_factories import ObservationFactory, LocationFactory
 class TestContributionsPreSave(TestCase):
     def test_pre_save(self):
         o_type = CategoryFactory.create()
-        TextFieldFactory.create(**{'key': 'key', 'category': o_type})
+        TextFieldFactory.create(
+            **{'key': 'key', 'category': o_type, 'order': 0}
+        )
 
         lookup = LookupFieldFactory.create(
-            **{'category': o_type, 'key': 'lookup'}
+            **{'category': o_type, 'key': 'lookup', 'order': 1}
         )
         kermit = LookupValueFactory.create(**{
             'field': lookup,
@@ -34,7 +36,7 @@ class TestContributionsPreSave(TestCase):
         })
 
         m_lookup = MultipleLookupFieldFactory.create(
-            **{'category': o_type, 'key': 'm_lookup'}
+            **{'category': o_type, 'key': 'm_lookup', 'order': 2}
         )
         m_kermit = MultipleLookupValueFactory.create(**{
             'field': m_lookup,
@@ -77,11 +79,13 @@ class ObservationTest(TestCase):
         category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
-            'category': category
+            'category': category,
+            'order': 0
         })
         NumericFieldFactory(**{
             'key': 'number',
-            'category': category
+            'category': category,
+            'order': 1
         })
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
@@ -98,11 +102,13 @@ class ObservationTest(TestCase):
         TextFieldFactory(**{
             'key': 'text',
             'category': category,
-            'required': True
+            'required': True,
+            'order': 0
         })
         NumericFieldFactory(**{
             'key': 'number',
-            'category': category
+            'category': category,
+            'order': 1
         })
         data = {'text': u'śmietnik', 'number': 12}
         observation = Observation.create(
@@ -120,11 +126,13 @@ class ObservationTest(TestCase):
         })
         TextFieldFactory(**{
             'key': 'text',
-            'category': category
+            'category': category,
+            'order': 0
         })
         NumericFieldFactory(**{
             'key': 'number',
-            'category': category
+            'category': category,
+            'order': 1
         })
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
@@ -140,17 +148,20 @@ class ObservationTest(TestCase):
         category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
-            'category': category
+            'category': category,
+            'order': 2
         })
         TextFieldFactory(**{
             'key': 'inactive_text',
             'category': category,
             'status': 'inactive',
-            'required': True
+            'required': True,
+            'order': 0
         })
         NumericFieldFactory(**{
             'key': 'number',
-            'category': category
+            'category': category,
+            'order': 1
         })
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
@@ -163,11 +174,13 @@ class ObservationTest(TestCase):
         category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
-            'category': category
+            'category': category,
+            'order': 0
         })
         NumericFieldFactory(**{
             'key': 'number',
-            'category': category
+            'category': category,
+            'order': 1
         })
 
         observation = ObservationFactory.create(**{
@@ -191,17 +204,20 @@ class ObservationTest(TestCase):
         category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
-            'category': category
+            'category': category,
+            'order': 0
         })
         TextFieldFactory(**{
             'key': 'inactive_text',
             'category': category,
             'status': 'inactive',
-            'required': True
+            'required': True,
+            'order': 1
         })
         NumericFieldFactory(**{
             'key': 'number',
-            'category': category
+            'category': category,
+            'order': 2
         })
 
         observation = ObservationFactory.create(**{
@@ -227,11 +243,13 @@ class ObservationTest(TestCase):
         category = CategoryFactory()
         TextFieldFactory.create(**{
             'key': 'text',
-            'category': category
+            'category': category,
+            'order': 0
         })
         NumericFieldFactory.create(**{
             'key': 'number',
-            'category': category
+            'category': category,
+            'order': 1
         })
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
@@ -253,11 +271,13 @@ class ObservationTest(TestCase):
         category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
-            'category': category
+            'category': category,
+            'order': 0
         })
         NumericFieldFactory(**{
             'key': 'number',
-            'category': category
+            'category': category,
+            'order': 1
         })
         data = {'text': 'Text', 'number': 'abc'}
         Observation.create(
@@ -273,11 +293,13 @@ class ObservationTest(TestCase):
         TextFieldFactory(**{
             'key': 'text',
             'required': True,
-            'category': category
+            'category': category,
+            'order': 0
         })
         NumericFieldFactory(**{
             'key': 'number',
-            'category': category
+            'category': category,
+            'order': 1
         })
         data = {'number': 1000}
         Observation.create(
@@ -293,11 +315,13 @@ class ObservationTest(TestCase):
         TextFieldFactory(**{
             'key': 'text',
             'required': True,
-            'category': category
+            'category': category,
+            'order': 0
         })
         NumericFieldFactory(**{
             'key': 'number',
-            'category': category
+            'category': category,
+            'order': 1
         })
         data = {'text': '', 'number': 1000}
         Observation.create(
@@ -312,11 +336,13 @@ class ObservationTest(TestCase):
         TextFieldFactory.create(**{
             'key': 'text',
             'category': category,
-            'required': True
+            'required': True,
+            'order': 0
         })
         NumericFieldFactory.create(**{
             'key': 'number',
-            'category': category
+            'category': category,
+            'order': 1
         })
         data = {'number': 12}
         observation = Observation.create(
@@ -339,12 +365,14 @@ class ObservationTest(TestCase):
         category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
-            'category': category
+            'category': category,
+            'order': 0
         })
         NumericFieldFactory(**{
             'key': 'number',
             'required': True,
-            'category': category
+            'category': category,
+            'order': 1
         })
         data = {'text': 'bla'}
         Observation.create(

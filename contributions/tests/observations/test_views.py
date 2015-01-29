@@ -544,13 +544,15 @@ class ProjectPublicApiTest(TestCase):
         TextFieldFactory.create(**{
             'key': 'key_1',
             'category': self.category,
-            'required': True
+            'required': True,
+            'order': 1
         })
         NumericFieldFactory.create(**{
             'key': 'key_2',
             'category': self.category,
             'minval': 0,
-            'maxval': 1000
+            'maxval': 1000,
+            'order': 2
         })
 
         self.data = {
@@ -836,7 +838,7 @@ class ProjectPublicApiTest(TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_contribute_to_public_everyone_with_Anonymous(self):
-        self.project.everyone_contributes = True
+        self.project.everyone_contributes = 'true'
         self.project.isprivate = False
         self.project.save()
 
@@ -1050,11 +1052,13 @@ class UpdateObservationInProject(TestCase):
 
         TextFieldFactory.create(**{
             'key': 'key_1',
-            'category': self.category
+            'category': self.category,
+            'order': 0
         })
         NumericFieldFactory.create(**{
             'key': 'key_2',
-            'category': self.category
+            'category': self.category,
+            'order': 1
         })
 
         location = LocationFactory()
@@ -1322,11 +1326,13 @@ class UpdateObservationInView(TestCase):
 
         TextFieldFactory.create(**{
             'key': 'key_1',
-            'category': self.category
+            'category': self.category,
+            'order': 0
         })
         NumericFieldFactory.create(**{
             'key': 'key_2',
-            'category': self.category
+            'category': self.category,
+            'order': 1
         })
 
         location = LocationFactory()
@@ -1525,11 +1531,13 @@ class UpdateMyObservation(TestCase):
         TextFieldFactory.create(**{
             'key': 'key_1',
             'category': self.category,
-            'required': True
+            'required': True,
+            'order': 0
         })
         NumericFieldFactory.create(**{
             'key': 'key_2',
-            'category': self.category
+            'category': self.category,
+            'order': 1
         })
 
         location = LocationFactory()
@@ -1677,7 +1685,7 @@ class MyContributionsTest(TestCase):
         )
 
     def test_my_contributions_with_anonymous(self):
-        self.project.everyone_contributes = True
+        self.project.everyone_contributes = 'true'
         self.project.isprivate = False
         self.project.save()
 

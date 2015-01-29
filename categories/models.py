@@ -1,5 +1,6 @@
 import json
 
+import time
 from iso8601 import parse_date
 from iso8601.iso8601 import ParseError
 
@@ -38,6 +39,9 @@ class Category(models.Model):
     symbol = models.ImageField(upload_to='symbols', null=True)
 
     objects = CategoryManager()
+
+    class Meta:
+        ordering = ['id']
 
     def re_order_fields(self, order):
         """
@@ -260,7 +264,7 @@ class NumericField(Field):
         """
         Returns the `value` of the field in `Float` format.
         """
-        if len(value) == 0:
+        if value is None or len(value) == 0:
             return None
 
         try:
@@ -305,7 +309,8 @@ class DateTimeField(Field):
     """
 
     def validate_required(self, value):
-        if self.required and (value is None or len(value) == 0):
+        if (self.status == STATUS.active and
+                self.required and (value is None or len(value) == 0)):
             raise InputError('The field %s is required.' % self.name)
 
     def validate_input(self, value):
@@ -318,7 +323,7 @@ class DateTimeField(Field):
             try:
                 parse_date(value)
             except ParseError:
-                raise InputError('The value for DateTimeField %s is not a '
+                raise InputError('The value for DateField %s is not a '
                                  'valid date.' % self.name)
 
     @property
@@ -352,6 +357,113 @@ class DateTimeField(Field):
                 return '(to_date(attributes -> \'' + self.key + '\', \'\
                     YYYY-MM-DD HH24:MI\') <= to_date(\'' + maxval + '\', \'\
                     YYYY-MM-DD HH24:MI\'))'
+
+
+class DateField(Field):
+    """
+    A field for storing dates.
+    """
+    def validate_required(self, value):
+        if (self.status == STATUS.active and self.required and
+                (value is None or len(value) == 0)):
+            raise InputError('The field %s is required.' % self.name)
+
+    def validate_input(self, value):
+        """
+        Checks if the provided value is a valid and ISO8601 compliant date
+        string.
+        """
+        self.validate_required(value)
+        if value is not None:
+            try:
+                parse_date(value)
+            except ParseError:
+                raise InputError('The value for DateTimeField %s is not a '
+                                 'valid date.' % self.name)
+
+    @property
+    def type_name(self):
+        """
+        Returns a human readable name of the field.
+        """
+        return 'Date'
+
+    def get_filter(self, rule):
+        """
+        Returns the filter object for the given field based on the rule. Used
+        to filter data for a view.
+        """
+        minval = rule.get('minval')
+        maxval = rule.get('maxval')
+
+        if minval is not None and maxval is not None:
+            return '(to_date(attributes -> \'' + self.key + '\',\
+                \'YYYY-MM-DD\') >= to_date(\'' + minval + '\', \'YYYY-MM-DD\')\
+                ) AND (to_date(attributes -> \'' + self.key + '\', \'\
+                YYYY-MM-DD\') <= to_date(\'' + maxval + '\', \'YYYY-MM-DD\'))'
+        else:
+            if minval is not None:
+                return '(to_date(attributes -> \'' + self.key + '\', \
+                \'YYYY-MM-DD\') >= to_date(\'' + minval + '\', \
+                \'YYYY-MM-DD\'))'
+
+            if maxval is not None:
+                return '(to_date(attributes -> \'' + self.key + '\', \
+                \'YYYY-MM-DD\') <= to_date(\'' + maxval + '\', \
+                \'YYYY-MM-DD\'))'
+
+
+class TimeField(Field):
+    @property
+    def type_name(self):
+        """
+        Returns a human readable name of the field.
+        """
+        return 'Time'
+
+    def validate_required(self, value):
+        if (self.status == STATUS.active and self.required and
+                (value is None or len(value) == 0)):
+            raise InputError('The field %s is required.' % self.name)
+
+    def validate_input(self, value):
+        """
+        Checks if the provided value is a valid and ISO8601 compliant date
+        string.
+        """
+        self.validate_required(value)
+        if value is not None:
+            try:
+                time.strptime(value, '%H:%M')
+            except ValueError:
+                raise InputError('The value for TimeField %s is not a '
+                                 'valid time.' % self.name)
+
+    def get_filter(self, rule):
+        """
+        Returns the filter object for the given field based on the rule. Used
+        to filter data for a view.
+        """
+        minval = rule.get('minval')
+        maxval = rule.get('maxval')
+
+        if minval is not None and maxval is not None:
+            if time.strptime(minval, '%H:%M') > time.strptime(maxval, '%H:%M'):
+                return '((attributes -> \'' + self.key + '\')::\
+                    time >= \'' + minval + '\'::time) OR ((attributes -> \
+                    \'' + self.key + '\')::time <= \'' + maxval + '\'::time)'
+            else:
+                return '((attributes -> \'' + self.key + '\')::\
+                    time >= \'' + minval + '\'::time) AND ((attributes -> \
+                    \'' + self.key + '\')::time <= \'' + maxval + '\'::time)'
+        else:
+            if minval is not None:
+                return '((attributes -> \'' + self.key + '\')::\
+                    time >= \'' + minval + '\'::time)'
+
+            if maxval is not None:
+                return '((attributes -> \'' + self.key + '\')::\
+                    time <= \'' + maxval + '\'::time)'
 
 
 class LookupField(Field):

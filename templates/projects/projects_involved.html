@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <h1>Other projects</h1>
+                <p class="lead">Here's a list of project you can access through your client only because you're not an administrator.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+
+    {% for project in projects %}
+    <div class="row">
+        <div class="col-sm-8">
+            <h3>{{ project.name }}</h3>
+            <p>{{ project.role }}</p>
+        </div>
+        <div class="col-sm-4 contributions">
+            <span class="number">{{ project.contributions }}</span> contributions
+        </div>
+    </div>
+    {% empty %}
+    <div class="row">
+        <div class="col-sm-12">
+            No projects found.
+        </div>
+    </div>
+    {% endfor %}
+
+
+
+</div>
+{% endblock %}

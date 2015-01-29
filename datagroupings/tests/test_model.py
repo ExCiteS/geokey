@@ -8,9 +8,9 @@ from nose.tools import raises
 from projects.tests.model_factories import ProjectF
 from categories.tests.model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory,
-    LookupFieldFactory, LookupValueFactory,
+    LookupFieldFactory, LookupValueFactory, DateFieldFactory,
     DateTimeFieldFactory, MultipleLookupFieldFactory,
-    MultipleLookupValueFactory,
+    MultipleLookupValueFactory, TimeFieldFactory
 )
 from contributions.tests.model_factories import ObservationFactory
 from users.tests.model_factories import (
@@ -151,7 +151,8 @@ class ViewTest(TestCase):
         Grouping.objects.get(pk=self.view1.id)
 
     def test_get_data(self):
-        project = ProjectF()
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
         category_1 = CategoryFactory(**{'project': project})
         category_2 = CategoryFactory(**{'project': project})
         view = GroupingFactory(**{'project': project})
@@ -170,12 +171,13 @@ class ViewTest(TestCase):
             'category': category_1
         })
 
-        self.assertEqual(len(view.data), 5)
-        for observation in view.data:
+        self.assertEqual(view.data(user).count(), 5)
+        for observation in view.data(user):
             self.assertEqual(observation.category, category_1)
 
     def test_get_updated_data(self):
-        project = ProjectF()
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
         category_1 = CategoryFactory(**{'project': project})
         TextFieldFactory(**{
             'key': 'text',
@@ -211,10 +213,11 @@ class ViewTest(TestCase):
         updater = UserF()
         update = {'text': 'yes, this has been updated', 'version': 1}
         observation.update(attributes=update, updator=updater)
-        self.assertEqual(len(view.data), 6)
+        self.assertEqual(view.data(user).count(), 6)
 
     def test_get_data_combined(self):
-        project = ProjectF()
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
         category_1 = CategoryFactory(**{'project': project})
         category_2 = CategoryFactory(**{'project': project})
         category_3 = CategoryFactory(**{'project': project})
@@ -242,13 +245,14 @@ class ViewTest(TestCase):
             'category': category_2
         })
 
-        self.assertEqual(len(view.data), 10)
-        for observation in view.data:
+        self.assertEqual(view.data(user).count(), 10)
+        for observation in view.data(user):
             self.assertNotEqual(
                 observation.category, category_3)
 
     def test_get_data_text_filter(self):
-        project = ProjectF()
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
         category_1 = CategoryFactory(**{'project': project})
         TextFieldFactory(**{
             'key': 'text',
@@ -285,10 +289,11 @@ class ViewTest(TestCase):
             'category': category_1,
             'filters': {'text': 'yes'}
         })
-        self.assertEqual(len(view.data), 5)
+        self.assertEqual(view.data(user).count(), 5)
 
     def test_get_data_min_number_filter(self):
-        project = ProjectF()
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
         category_1 = CategoryFactory(**{'project': project})
         NumericFieldFactory(**{
             'key': 'number',
@@ -326,10 +331,11 @@ class ViewTest(TestCase):
             'filters': {'number': {'minval': '15'}}
         })
 
-        self.assertEqual(len(view.data), 5)
+        self.assertEqual(view.data(user).count(), 5)
 
     def test_get_data_max_number_filter(self):
-        project = ProjectF()
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
         category_1 = CategoryFactory(**{'project': project})
         NumericFieldFactory(**{
             'key': 'number',
@@ -367,10 +373,11 @@ class ViewTest(TestCase):
             'filters': {'number': {'maxval': 15}}
         })
 
-        self.assertEqual(len(view.data), 5)
+        self.assertEqual(view.data(user).count(), 5)
 
     def test_get_data_min_max_number_filter(self):
-        project = ProjectF()
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
         category_1 = CategoryFactory(**{'project': project})
         NumericFieldFactory(**{
             'key': 'rating',
@@ -408,10 +415,11 @@ class ViewTest(TestCase):
             'filters': {'rating': {'minval': 8, 'maxval': 10}}
         })
 
-        self.assertEqual(len(view.data), 6)
+        self.assertEqual(view.data(user).count(), 6)
 
     def test_get_data_lookup_filter(self):
-        project = ProjectF()
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
         category_1 = CategoryFactory(**{'project': project})
         lookup_field = LookupFieldFactory(**{
             'key': 'lookup',
@@ -461,10 +469,11 @@ class ViewTest(TestCase):
             'filters': {'lookup': [lookup_1.id, lookup_2.id]}
         })
 
-        self.assertEqual(len(view.data), 10)
+        self.assertEqual(view.data(user).count(), 10)
 
-    def test_get_data_min_max_date_filter(self):
-        project = ProjectF()
+    def test_get_data_min_max_datetime_filter(self):
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
         category_1 = CategoryFactory(**{'project': project})
         DateTimeFieldFactory(**{
             'key': 'date',
@@ -504,10 +513,319 @@ class ViewTest(TestCase):
             }
         })
 
-        self.assertEqual(len(view.data), 5)
+        self.assertEqual(view.data(user).count(), 5)
+
+    def test_get_data_min_max_date_filter(self):
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
+        category_1 = CategoryFactory(**{'project': project})
+        DateFieldFactory(**{
+            'key': 'date',
+            'category': category_1
+        })
+        category_2 = CategoryFactory(**{'project': project})
+        DateFieldFactory(**{
+            'key': 'bla',
+            'category': category_2
+        })
+
+        for x in range(0, 5):
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'date': '2014-04-09'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'date': '2013-04-09'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_2,
+                'attributes': {'bla': '2014-04-09'}
+            })
+
+        view = GroupingFactory(**{'project': project})
+        RuleFactory(**{
+            'grouping': view,
+            'category': category_1,
+            'filters': {'date': {
+                'minval': '2014-01-01', 'maxval': '2014-06-09'}
+            }
+        })
+
+        self.assertEqual(view.data(user).count(), 5)
+
+    def test_get_data_min_date_filter(self):
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
+        category_1 = CategoryFactory(**{'project': project})
+        DateFieldFactory(**{
+            'key': 'date',
+            'category': category_1
+        })
+        category_2 = CategoryFactory(**{'project': project})
+        DateFieldFactory(**{
+            'key': 'bla',
+            'category': category_2
+        })
+
+        for x in range(0, 5):
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'date': '2014-04-09'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'date': '2013-04-09'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_2,
+                'attributes': {'bla': '2014-04-09'}
+            })
+
+        view = GroupingFactory(**{'project': project})
+        RuleFactory(**{
+            'grouping': view,
+            'category': category_1,
+            'filters': {'date': {
+                'minval': '2014-01-01'}
+            }
+        })
+
+        self.assertEqual(view.data(user).count(), 5)
+
+    def test_get_data_max_date_filter(self):
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
+        category_1 = CategoryFactory(**{'project': project})
+        DateFieldFactory(**{
+            'key': 'date',
+            'category': category_1
+        })
+        category_2 = CategoryFactory(**{'project': project})
+        DateFieldFactory(**{
+            'key': 'bla',
+            'category': category_2
+        })
+
+        for x in range(0, 5):
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'date': '2014-04-09'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'date': '2013-04-09'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_2,
+                'attributes': {'bla': '2014-04-09'}
+            })
+
+        view = GroupingFactory(**{'project': project})
+        RuleFactory(**{
+            'grouping': view,
+            'category': category_1,
+            'filters': {'date': {
+                'maxval': '2014-01-01'}
+            }
+        })
+
+        self.assertEqual(view.data(user).count(), 5)
+
+    def test_get_data_min_max_time_filter(self):
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
+        category_1 = CategoryFactory(**{'project': project})
+        TimeFieldFactory(**{
+            'key': 'time',
+            'category': category_1
+        })
+        category_2 = CategoryFactory(**{'project': project})
+        TimeFieldFactory(**{
+            'key': 'bla',
+            'category': category_2
+        })
+
+        for x in range(0, 5):
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'time': '11:00'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'time': '18:00'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_2,
+                'attributes': {'bla': '11:00'}
+            })
+
+        view = GroupingFactory(**{'project': project})
+        RuleFactory(**{
+            'grouping': view,
+            'category': category_1,
+            'filters': {'time': {
+                'minval': '10:00', 'maxval': '12:00'}
+            }
+        })
+
+        self.assertEqual(view.data(user).count(), 5)
+
+    def test_get_data_min_max_inverse_time_filter(self):
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
+        category_1 = CategoryFactory(**{'project': project})
+        TimeFieldFactory(**{
+            'key': 'time',
+            'category': category_1
+        })
+        category_2 = CategoryFactory(**{'project': project})
+        TimeFieldFactory(**{
+            'key': 'bla',
+            'category': category_2
+        })
+
+        for x in range(0, 5):
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'time': '2:00'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'time': '18:00'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_2,
+                'attributes': {'bla': '2:00'}
+            })
+
+        view = GroupingFactory(**{'project': project})
+        RuleFactory(**{
+            'grouping': view,
+            'category': category_1,
+            'filters': {'time': {
+                'minval': '22:00', 'maxval': '8:00'}
+            }
+        })
+
+        self.assertEqual(view.data(user).count(), 5)
+
+    def test_get_data_min_time_filter(self):
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
+        category_1 = CategoryFactory(**{'project': project})
+        TimeFieldFactory(**{
+            'key': 'time',
+            'category': category_1
+        })
+        category_2 = CategoryFactory(**{'project': project})
+        TimeFieldFactory(**{
+            'key': 'bla',
+            'category': category_2
+        })
+
+        for x in range(0, 5):
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'time': '11:00'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'time': '18:00'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_2,
+                'attributes': {'bla': '11:00'}
+            })
+
+        view = GroupingFactory(**{'project': project})
+        RuleFactory(**{
+            'grouping': view,
+            'category': category_1,
+            'filters': {'time': {
+                'minval': '12:00'}
+            }
+        })
+
+        self.assertEqual(view.data(user).count(), 5)
+
+    def test_get_data_max_time_filter(self):
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
+        category_1 = CategoryFactory(**{'project': project})
+        TimeFieldFactory(**{
+            'key': 'time',
+            'category': category_1
+        })
+        category_2 = CategoryFactory(**{'project': project})
+        TimeFieldFactory(**{
+            'key': 'bla',
+            'category': category_2
+        })
+
+        for x in range(0, 5):
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'time': '11:00'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_1,
+                'attributes': {'time': '18:00'}
+            })
+
+            ObservationFactory(**{
+                'project': project,
+                'category': category_2,
+                'attributes': {'bla': '11:00'}
+            })
+
+        view = GroupingFactory(**{'project': project})
+        RuleFactory(**{
+            'grouping': view,
+            'category': category_1,
+            'filters': {'time': {
+                'maxval': '12:00'}
+            }
+        })
+
+        self.assertEqual(view.data(user).count(), 5)
 
     def test_get_created_after(self):
-        project = ProjectF()
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
         category_1 = CategoryFactory(**{'project': project})
 
         obs = ObservationFactory.create_batch(5, **{
@@ -544,10 +862,11 @@ class ViewTest(TestCase):
             'min_date': datetime(2013, 5, 1, 0, 0, 0, tzinfo=pytz.utc)
         })
 
-        self.assertEqual(len(view.data), 10)
+        self.assertEqual(view.data(user).count(), 10)
 
     def test_get_created_before(self):
-        project = ProjectF()
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
         category_1 = CategoryFactory(**{'project': project})
 
         obs = ObservationFactory.create_batch(5, **{
@@ -584,10 +903,11 @@ class ViewTest(TestCase):
             'max_date': datetime(2013, 5, 1, 0, 0, 0, tzinfo=pytz.utc)
         })
 
-        self.assertEqual(len(view.data), 5)
+        self.assertEqual(view.data(user).count(), 5)
 
     def test_get_created_before_and_after(self):
-        project = ProjectF()
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
         category_1 = CategoryFactory(**{'project': project})
 
         obs = ObservationFactory.create_batch(5, **{
@@ -625,10 +945,11 @@ class ViewTest(TestCase):
             'max_date': datetime(2013, 10, 1, 0, 0, 0, tzinfo=pytz.utc)
         })
 
-        self.assertEqual(len(view.data), 5)
+        self.assertEqual(view.data(user).count(), 5)
 
     def test_get_data_multiple_lookup_filter(self):
-        project = ProjectF()
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
         category_1 = CategoryFactory(**{'project': project})
         lookup_field = MultipleLookupFieldFactory(**{
             'key': 'lookup',
@@ -682,4 +1003,4 @@ class ViewTest(TestCase):
             'filters': {'lookup': [lookup_1.id, lookup_2.id]}
         })
 
-        self.assertEqual(len(view.data), 10)
+        self.assertEqual(view.data(user).count(), 10)

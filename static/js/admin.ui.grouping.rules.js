@@ -12,10 +12,18 @@ $(function() {
 
             $('#field-options').empty();
             $('#field-options').append(Templates.fields(response));
+
             if (!Modernizr.inputtypes.datetime) {
                 $('input[type="datetime"]').datetimepicker();
             }
-            $('#field-options input[type="number"], #field-options input[type="datetime"]').change(handleRangeFieldEdit);
+            if (!Modernizr.inputtypes.date) {
+                $('input[type="date"]').datetimepicker({ pickTime: false });
+            }
+            if (!Modernizr.inputtypes.time) {
+                $('input[type="time"]').datetimepicker({ pickDate: false });
+            }
+
+            $('#field-options input[type="number"], #field-options input[type="datetime"], #field-options input[type="date"]').change(handleRangeFieldEdit);
             $('#field-options :input').change(handleFieldChange);
         }
 
@@ -61,6 +69,8 @@ $(function() {
             var value;
             switch (field.attr('data-type')) {
                 case 'DateTimeField':
+                case 'DateField':
+                case 'TimeField':
                 case 'NumericField':
                     value = getRangeValue(field);
                     break;
@@ -85,6 +95,6 @@ $(function() {
     }
 
     $('#field-options :input').change(handleFieldChange);
-    $('#field-options input[type="number"], #field-options input[type="datetime"]').change(handleRangeFieldEdit);
+    $('#field-options input[type="number"], #field-options input[type="datetime"], #field-options input[type="date"]').change(handleRangeFieldEdit);
     $('#category').change(handleTypeSelection);
 });

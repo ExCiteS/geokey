@@ -54,6 +54,27 @@ class ProjectCreate(LoginRequiredMixin, CreateView):
         return redirect('admin:project_overview', project_id=project.id)
 
 
+class ProjectsInvolved(LoginRequiredMixin, TemplateView):
+    template_name = 'projects/projects_involved.html'
+
+    def get_context_data(self):
+        projects = Project.objects.get_list(self.request.user).exclude(
+            admins=self.request.user)
+        project_list = []
+
+        for project in projects:
+            project_list.append({
+                'name': project.name,
+                'role': project.get_role(self.request.user),
+                'contributions': project.observations.filter(
+                    creator=self.request.user).count(),
+            })
+
+        return {
+            'projects': project_list
+        }
+
+
 class ProjectOverview(LoginRequiredMixin, TemplateView):
     """
     Displays the project overview page
@@ -71,20 +92,15 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
         message is displayed.
         """
         user = self.request.user
-        project = Project.objects.get(pk=project_id)
-        if (not project.isprivate or project.is_admin(user) or
-                project.usergroups.filter(users=user).exists()):
-            return {
-                'project': project,
-                'role': project.get_role(self.request.user),
-                'contributions': project.observations.filter(
-                    creator=self.request.user).count(),
-                'maps': project.groupings.filter(status='active').count()
-            }
-        else:
-            raise PermissionDenied(
-                'You are not allowed to access this project'
-            )
+        project = Project.objects.as_admin(user, project_id)
+        contributions = project.observations.all()
+
+        return {
+            'project': project,
+            'allcontributions': contributions.count(),
+            'contributions': contributions.filter(
+                creator=self.request.user).count()
+        }
 
 
 class ProjectExtend(LoginRequiredMixin, TemplateView):
@@ -157,9 +173,7 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
 
         project.name = strip_tags(data.get('name'))
         project.description = strip_tags(data.get('description'))
-        project.everyone_contributes = (
-            data.get('everyone_contributes') == 'true'
-        )
+        project.everyone_contributes = data.get('everyone_contributes')
         project.save()
 
         messages.success(self.request, "The project has been updated.")

@@ -12,6 +12,7 @@ class UserF(factory.django.DjangoModelFactory):
     email = factory.Sequence(lambda n: "email%s@example.com" % n)
     password = ''
     is_active = True
+    is_superuser = False
 
     last_login = timezone.datetime(2000, 1, 1).replace(tzinfo=timezone.utc)
     date_joined = timezone.datetime(1999, 1, 1).replace(

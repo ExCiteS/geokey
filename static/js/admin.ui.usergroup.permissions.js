@@ -1,6 +1,7 @@
 (function () {
     var projectId = $('body').attr('data-project-id');
     var groupId = $('body').attr('data-group-id');
+    var projectPrivate = $('body').attr('z`');
     var everyoneContributes = $('body').attr('data-everyone-contributes');
     var url = 'projects/' + projectId + '/usergroups/' + groupId + '/';
 
@@ -90,8 +91,12 @@
     }
 
     function handlePermissionChange(event) {
-        if ($(this).val() === 'read_only' && everyoneContributes === 'True') {
-            $('form#permissions').before('<div class="alert alert-warning hint"><strong>Note:</strong> Currently, all users, who have access to this project, can contribute to it. This setting overwrites permissions of individual user groups. If you plan to restrict contributing permissions to certain user groups, head to <a href="/admin/projects/' + projectId + '/settings/" class="alert-link">Project Settings</a> first and change the project permissions. </div>');
+        if ($(this).val() === 'read_only' && everyoneContributes !== 'false') {
+            var add = '';
+            if (projectPrivate !== 'True' && everyoneContributes === 'auth') {
+                add = ', who have access to this project,';
+            }
+            $('form#permissions').before('<div class="alert alert-warning hint"><strong>Note:</strong> Currently, all users' + add + ' can contribute to the project. This setting overwrites permissions of individual user groups. If you plan to restrict contributing permissions to certain user groups, head to <a href="/admin/projects/' + projectId + '/settings/" class="alert-link">Project Settings</a> first and change the project permissions. </div>');
         } else {
             $('.hint').remove();
         }

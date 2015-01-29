@@ -42,7 +42,9 @@ def filters(rule):
                     s = s + 'lower than %s' % maxval
                 s = s + '</li>'
 
-            if field.fieldtype == 'DateTimeField':
+            if (field.fieldtype == 'DateTimeField' or
+                    field.fieldtype == 'DateField' or
+                    field.fieldtype == 'TimeField'):
                 minval = json.loads(rule_filter).get('minval')
                 maxval = json.loads(rule_filter).get('maxval')
 

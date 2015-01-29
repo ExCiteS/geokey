@@ -84,9 +84,7 @@ class CategoryCreate(LoginRequiredMixin, CreateView):
         """
         project_id = self.kwargs['project_id']
 
-        context = super(
-            CategoryCreate, self).get_context_data(**kwargs)
-
+        context = super(CategoryCreate, self).get_context_data(**kwargs)
         context['project'] = Project.objects.as_admin(
             self.request.user, project_id
         )
@@ -199,7 +197,7 @@ class CategoryDisplay(LoginRequiredMixin, TemplateView):
             category.save()
 
         messages.success(
-            self.request, 'This display settings have been updated')
+            self.request, 'The display settings have been updated')
         context['category'] = category
         return self.render_to_response(context)
 

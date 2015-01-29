@@ -13,13 +13,17 @@ class ProjectQuerySet(models.query.QuerySet):
     def for_user(self, user):
         if user.is_anonymous():
             return self.annotate(public_groupings=Count(
-                'groupings', only=Q(groupings__isprivate=False))).filter(
+                'groupings',
+                only=Q(groupings__isprivate=False, groupings__status='active')
+                )).filter(
                 Q(status=STATUS.active) &
                 Q(isprivate=False, public_groupings__gte=1)
                 ).distinct()
         else:
             projects = self.annotate(public_groupings=Count(
-                'groupings', only=Q(groupings__isprivate=False))).filter(
+                'groupings',
+                only=Q(groupings__isprivate=False, groupings__status='active')
+                )).filter(
                 Q(admins=user) |
                 (
                     Q(status=STATUS.active) &
@@ -40,7 +44,7 @@ class ProjectQuerySet(models.query.QuerySet):
 class ProjectManager(models.Manager):
     use_for_related_fields = True
 
-    def get_query_set(self):
+    def get_queryset(self):
         """
         Returns the QuerySet
         """
@@ -50,7 +54,7 @@ class ProjectManager(models.Manager):
         """
         Returns a list of all projects the user is allowed to access
         """
-        return self.get_query_set().for_user(user)
+        return self.get_queryset().for_user(user)
 
     def get_single(self, user, project_id):
         """
@@ -64,6 +68,9 @@ class ProjectManager(models.Manager):
         Returns the project if the user is member of the administrators group
         of raises PermissionDenied if not.
         """
+        if user.is_superuser:
+            return self.get(pk=project_id)
+
         project = self.get_single(user, project_id)
         if project.is_admin(user):
             return project

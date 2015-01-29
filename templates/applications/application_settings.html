@@ -29,8 +29,8 @@
                                 <span class="number">{{ users }}</span><br> users currently use this app
                             </div>
                             <div class="list-group-item">
-                                <p>Client ID: <code>{{ application.client.client_id }}</code></p>
-                                <p>Client secret: <code>{{ application.client.client_secret }}</code></p>
+                                <p>Client ID: <code>{{ application.client_id }}</code></p>
+                                <p>Client secret: <code>{{ application.client_secret }}</code></p>
                             </div>
                         </div>
                     </div>
@@ -57,7 +57,26 @@
 
                     <div class="form-group">
                         <label for="description" class="control-label">Redirect URL (required)</label>
-                        <input type="url" class="form-control input-lg" id="redirect_url" value="{{ application.redirect_url }}" name="redirect_url" required>
+                        <input type="url" class="form-control input-lg" id="redirect_uris" value="{{ application.redirect_uris }}" name="redirect_uris" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description" class="control-label">Authorisation type</label>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="authorization_grant_type" value="implicit" {% if application.authorization_grant_type == 'implicit' %}checked{% endif %}> <strong>Implicit</strong><br>Use this authorisation type if your app is a mobile app or running in a browser.
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="authorization_grant_type" value="authorization-code" {% if application.authorization_grant_type == 'authorization-code' %}checked{% endif %}> <strong>Authorization Code</strong><br>Use this authorisation type if your app is running on a server.
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="authorization_grant_type" value="password"  {% if application.authorization_grant_type == 'password' %}checked{% endif %}> <strong>Password</strong><br>Use this authorisation type if you want to obtain the access token simply by exchanging username and password. This should only be used by apps created by the service itself.
+                            </label>
+                        </div>
                     </div>
 
                     <div class="form-group">

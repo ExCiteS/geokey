@@ -2,8 +2,6 @@ from .base import *
 
 INSTALLED_APPS += (
     'django_hstore',
-    'provider',
-    'provider.oauth2',
-    'south',
+    'oauth2_provider',
     'easy_thumbnails',
 )

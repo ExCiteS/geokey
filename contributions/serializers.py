@@ -39,8 +39,8 @@ class LocationContributionSerializer(serializers.ModelSerializer):
 
 
 class ObservationSerializer(serializers.ModelSerializer):
-    creator = UserSerializer()
-    updator = UserSerializer()
+    creator = UserSerializer(fields=('id', 'display_name'))
+    updator = UserSerializer(fields=('id', 'display_name'))
     category = serializers.SerializerMethodField('get_category')
 
     class Meta:
@@ -177,14 +177,13 @@ class ContributionSerializer(object):
             return instance
 
     def get_display_field(self, obj):
-        try:
-            first_field = obj.category.fields.get(order=0)
-            value = obj.attributes.get(first_field.key)
+        if obj.display_field is not None:
+            display_field = obj.display_field.split(':', 1)
             return {
-                'key': first_field.key,
-                'value': first_field.convert_from_string(value)
+                'key': display_field[0],
+                'value': display_field[1]
             }
-        except Field.DoesNotExist:
+        else:
             return None
 
     def get_search_result(self, obj, q):
@@ -296,7 +295,7 @@ class ContributionSerializer(object):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    creator = UserSerializer()
+    creator = UserSerializer(fields=('id', 'display_name'))
     isowner = serializers.SerializerMethodField('get_is_owner')
 
     class Meta:
@@ -323,7 +322,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class FileSerializer(serializers.ModelSerializer):
-    creator = UserSerializer()
+    creator = UserSerializer(fields=('id', 'display_name'))
     isowner = serializers.SerializerMethodField('get_is_owner')
     url = serializers.SerializerMethodField('get_url')
     file_type = serializers.SerializerMethodField('get_type')

@@ -5,6 +5,7 @@ from categories import views as category_views
 from users import views as login_views
 from datagroupings import views as dataviews
 from applications import views as app_views
+from superusertools import views as superuser
 
 from django.contrib.auth.views import login, logout
 
@@ -24,6 +25,10 @@ urlpatterns = patterns(
         r'^projects/new/$',
         project_views.ProjectCreate.as_view(),
         name='project_create'),
+    url(
+        r'^projects/involved/$',
+        project_views.ProjectsInvolved.as_view(),
+        name='projects_involved'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/$',
         project_views.ProjectOverview.as_view(),
@@ -207,4 +212,14 @@ urlpatterns = patterns(
         name="password_reset_confirm"),
     url(r'^accounts/password/done/$',
         'django.contrib.auth.views.password_reset_complete'),
+
+    # ###########################
+    # SUPER-USER TOOLS
+    # ###########################
+    url(r'^superuser-tools/$',
+        superuser.ProjectsList.as_view(),
+        name="superuser_index"),
+    url(r'^superuser-tools/manage-users/$',
+        superuser.ManageSuperUsers.as_view(),
+        name="superuser_manage_users"),
 )

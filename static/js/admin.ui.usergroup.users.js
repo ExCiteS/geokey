@@ -5,22 +5,25 @@
  * @version 0.1
  * ***********************************************/
 
-(function () {
+(function (global) {
     'use strict';
 
-    var projectId = $('body').attr('data-project-id');
-    var groupId = $('body').attr('data-group-id');
+    var url = global.url;
 
     // Get the elements
     var typeAwayResults = $('.type-away');
     var formField = $('#find-users');
     var userList = $('.user-list');
 
-    var url;
-    if (groupId) {
-        url = 'projects/' + projectId + '/usergroups/' + groupId + '/users/';
-    } else {
-        url = 'projects/' + projectId + '/admins/';
+    if (!url) {
+        var projectId = $('body').attr('data-project-id');
+        var groupId = $('body').attr('data-group-id');
+
+        if (groupId) {
+            url = 'projects/' + projectId + '/usergroups/' + groupId + '/users/';
+        } else {
+            url = 'projects/' + projectId + '/admins/';
+        }
     }
 
     var numberOfRequests = 0;
@@ -194,4 +197,4 @@
 
     // Register the keyup event on the text field.
     formField.keydown(handleFormType);
-}());
+}(this));

@@ -26,7 +26,7 @@ class ProjectListTest(TestCase):
             **{
                 'name': 'Private',
                 'isprivate': True,
-                'everyone_contributes': False
+                'everyone_contributes': 'false'
             })
 
         self.private_view = GroupingFactory(
@@ -90,7 +90,7 @@ class ProjectListTest(TestCase):
             **{
                 'name': 'Private with public view',
                 'isprivate': True,
-                'everyone_contributes': False
+                'everyone_contributes': 'false'
             })
 
         self.private_publicview_view = GroupingFactory(
@@ -154,7 +154,7 @@ class ProjectListTest(TestCase):
             **{
                 'name': 'Private with public views',
                 'isprivate': True,
-                'everyone_contributes': False
+                'everyone_contributes': 'false'
             })
 
         self.private_publicviews_view = GroupingFactory(
@@ -218,7 +218,7 @@ class ProjectListTest(TestCase):
             **{
                 'name': 'Public',
                 'isprivate': False,
-                'everyone_contributes': False
+                'everyone_contributes': 'false'
             })
 
         self.public_view = GroupingFactory(
@@ -282,7 +282,7 @@ class ProjectListTest(TestCase):
             **{
                 'name': 'Public with public view',
                 'isprivate': False,
-                'everyone_contributes': False
+                'everyone_contributes': 'false'
             })
 
         self.public_publicview_view = GroupingFactory(
@@ -346,7 +346,7 @@ class ProjectListTest(TestCase):
             **{
                 'name': 'public with all public views',
                 'isprivate': False,
-                'everyone_contributes': False
+                'everyone_contributes': 'false'
             })
 
         self.public_publicviews_view = GroupingFactory(

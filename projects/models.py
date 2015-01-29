@@ -6,7 +6,7 @@ from django.template.loader import get_template
 from django.template import Context
 
 from .manager import ProjectManager
-from .base import STATUS
+from .base import STATUS, EVERYONE_CONTRIB
 
 
 class Project(models.Model):
@@ -19,7 +19,13 @@ class Project(models.Model):
     isprivate = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
-    everyone_contributes = models.BooleanField(default=True)
+    everyone_contributes = models.CharField(
+        choices=EVERYONE_CONTRIB,
+        default=EVERYONE_CONTRIB.auth,
+        max_length=20
+    )
+    # everyone_contributes = models.BooleanField(default=True)
+    # everyone_contributes_auth = models.BooleanField(default=True)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
@@ -116,7 +122,7 @@ class Project(models.Model):
         - everyone_contributes is True
         """
         return self.status == STATUS.active and (
-            self.everyone_contributes or self.is_admin(user) or (
+            (self.everyone_contributes != 'false' and (not user.is_anonymous() or not self.everyone_contributes == 'auth')) or self.is_admin(user) or (
                 not user.is_anonymous() and (
                     self.usergroups.filter(
                         can_contribute=True, users=user).exists())))

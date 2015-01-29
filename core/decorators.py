@@ -3,7 +3,11 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from rest_framework import status
 from rest_framework.response import Response
 
-from core.exceptions import MalformedRequestData, Unauthenticated
+from core.exceptions import (
+    MalformedRequestData,
+    Unauthenticated,
+    FileTypeError
+)
 from projects.models import Project
 from users.models import User, UserGroup, GroupingUserGroup
 from categories.models import (
@@ -55,7 +59,7 @@ def handle_exceptions_for_ajax(func):
                 {"error": error.messages},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        except (MalformedRequestData, TypeError), error:
+        except (MalformedRequestData, FileTypeError), error:
             return Response(
                 {"error": str(error)},
                 status=status.HTTP_400_BAD_REQUEST

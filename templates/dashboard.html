@@ -18,7 +18,11 @@
                     </h3>
                     {% for project in admin_projects %}
                     <div class="overview-list-item">
-                        <h3><a href="{% url 'admin:project_overview' project.id %}">{{project.name}}</a> {% if project.status == status_types.inactive %}<span class="label label-default">INACTIVE</span>{% endif %}</h3>
+                        <h3>
+                            <a href="{% url 'admin:project_overview' project.id %}">{{project.name}}</a>
+                            {% if project.isprivate %}<span class="label label-info">Private</span>{% else %}<span class="label label-info">Public</span>{% endif %}
+                            {% if project.status == status_types.inactive %}<span class="label label-default">Inactive</span>{% endif %}
+                        </h3>
                         {% if project.description %}<p>{{project.description}}</p>{% endif %}
                         <p class="meta">Created by {{ project.creator.display_name }}</p>
                     </div>
@@ -31,25 +35,28 @@
                     {% endfor %}
                 </div>
                 <div class="col-md-4">
-                    <div class="alert alert-info">
-                        <h5><strong>Are you an application developer?</strong></h5>
-                        <p>Plese go the the <a href="{% url 'admin:app_overview' %}">developer section</a> to register and manage your application.</p>
+                    <div class="panel panel-default">
+                        <div class="list-group">
+                            <a class="list-group-item" href="{% url 'admin:app_overview' %}">Your applications</a>
+                            {% if user.is_superuser %}<a class="list-group-item" href="{% url 'admin:superuser_index' %}">Super-user tools</a>{% endif %}
+                            {% if involved_projects %}<a class="list-group-item" href="{% url 'admin:projects_involved' %}">Other projects</a>{% endif %}
+                        </div>
                     </div>
-                    {% if involved_projects %}
+
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            Here other projects, you are not an administrator of. In order to view, contribute or moderate data please use your client application of choice.
+                            <h3 class="panel-title">Extensions</h3>
                         </div>
                         <div class="list-group">
-                            {% for project in involved_projects %}
-                            <a href="{% url 'admin:project_overview' project.id %}" class="list-group-item">
-                                <h4 class="list-group-item-heading">{{project.name}}{% if project.status == status_types.inactive %} <small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
-                                {% if project.description %}<p class="list-group-item-text">{{project.description}}</p>{% endif %}
-                            </a>
+                            {% for extension in extensions %}
+                                <a href="{% url extension.index_url %}" class="list-group-item">{{ extension.name }}</a>
+                            {% empty %}
+                            <div class="list-group-item">
+                                No extensions have been installed.
+                            </div>
                             {% endfor %}
                         </div>
                     </div>
-                    {% endif %}
                 </div>
             </div>
         </div>

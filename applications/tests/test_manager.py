@@ -15,16 +15,16 @@ class ApplicationManagerTest(TestCase):
         self.user1 = UserF.create()
         self.user2 = UserF.create()
         self.app1 = ApplicationFactory(**{
-            'creator': self.user1
+            'user': self.user1
         })
         self.app2 = ApplicationFactory(**{
-            'creator': self.user1
+            'user': self.user1
         })
         self.app3 = ApplicationFactory(**{
-            'creator': self.user2
+            'user': self.user2
         })
         self.deleted_app = ApplicationFactory(**{
-            'creator': self.user1,
+            'user': self.user1,
             'status': 'deleted'
         })
 

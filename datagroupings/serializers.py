@@ -1,5 +1,5 @@
 from core.serializers import FieldSelectorSerializer
-from rest_framework import serializers
+from rest_framework.serializers import SerializerMethodField
 
 from contributions.serializers import ContributionSerializer
 
@@ -10,8 +10,8 @@ class GroupingSerializer(FieldSelectorSerializer):
     """
     Serializer for Views.
     """
-    contributions = serializers.SerializerMethodField('get_data')
-    num_contributions = serializers.SerializerMethodField(
+    contributions = SerializerMethodField('get_data')
+    num_contributions = SerializerMethodField(
         'get_number_contributions')
 
     class Meta:
@@ -28,13 +28,8 @@ class GroupingSerializer(FieldSelectorSerializer):
         """
         user = self.context.get('user')
 
-        if (obj.project.can_moderate(user)):
-            data = obj.data.for_moderator(user)
-        else:
-            data = obj.data.for_viewer(user)
-
         serializer = ContributionSerializer(
-            data,
+            obj.data(user),
             many=True,
             context={'project': obj.project, 'user': user}
         )
@@ -45,7 +40,4 @@ class GroupingSerializer(FieldSelectorSerializer):
         Returns the number of contributions accessable through the view.
         """
         user = self.context.get('user')
-        if (obj.project.can_moderate(user)):
-            return len(obj.data.for_moderator(user))
-        else:
-            return len(obj.data.for_viewer(user))
+        return obj.data(user).count()

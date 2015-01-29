@@ -43,7 +43,7 @@ class ProjectSerializer(FieldSelectorSerializer):
 
     def get_categories(self, project):
         serializer = CategorySerializer(
-            project.categories.active().exclude(fields=None), many=True)
+            project.categories.all().exclude(fields=None), many=True)
         return serializer.data
 
     def get_data_groupings(self, project):

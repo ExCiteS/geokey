@@ -4,6 +4,7 @@ from projects import views as project_views
 from categories import views as category_views
 from datagroupings import views as view_views
 from users import views as user_views
+from superusertools import views as superuser_views
 
 urlpatterns = patterns(
     '',
@@ -79,4 +80,10 @@ urlpatterns = patterns(
     # USER
     # ###########################
     url(r'^users/$', user_views.QueryUsers.as_view(), name='users_users'),
+
+    # ###########################
+    # SUPER USER
+    # ###########################
+    url(r'^superusers/$', superuser_views.AddSuperUsersAjaxView.as_view(), name='superusers_adduser'),
+    url(r'^superusers/(?P<user_id>[0-9]+)/$', superuser_views.DeleteSuperUsersAjaxView.as_view(), name='superusers_deleteuser'),
 )

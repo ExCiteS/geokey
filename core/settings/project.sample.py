@@ -31,7 +31,9 @@ INSTALLED_APPS += (
     'contributions',
     'datagroupings',
     'users',
-    'applications'
+    'applications',
+    'superusertools',
+    'extensions'
 )
 
 AUTH_USER_MODEL = 'users.User'

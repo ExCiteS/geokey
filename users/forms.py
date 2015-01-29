@@ -1,8 +1,9 @@
 from django import forms
 from django.utils.html import strip_tags
 from django.contrib.auth.forms import SetPasswordForm
+from django.core.exceptions import ValidationError
 
-from provider.oauth2.models import AccessToken
+from oauth2_provider.models import AccessToken
 
 from .models import User, UserGroup
 
@@ -15,6 +16,14 @@ class UserRegistrationForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('email', 'password', 'display_name')
+
+    def clean_display_name(self):
+        cleaned = self.cleaned_data.get('display_name')
+        if self.instance is None or self.instance.display_name != cleaned:
+            if User.objects.filter(display_name__iexact=cleaned).exists():
+                raise ValidationError('The given display name exists.')
+
+        return cleaned
 
 
 class UsergroupCreateForm(forms.ModelForm):

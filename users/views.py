@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from provider.oauth2.models import Client, AccessToken
+from applications.models import Application
 
 from core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
@@ -61,10 +61,22 @@ class Dashboard(LoginRequiredMixin, TemplateView):
     def get_context_data(self):
         projects = Project.objects.get_list(self.request.user)
 
+        from extensions.base import extensions
+        ext = []
+        for ext_id in extensions.keys():
+            extension = extensions.get(ext_id)
+
+            if extension.get('display_admin') and (
+                    not extension.get('superuser') or
+                    self.request.user.is_superuser):
+                ext.append(extension)
+
         return {
             'admin_projects': projects.filter(admins=self.request.user),
-            'involved_projects': projects.exclude(admins=self.request.user),
-            'status_types': STATUS
+            'involved_projects': projects.exclude(
+                admins=self.request.user).exists(),
+            'status_types': STATUS,
+            'extensions': ext
         }
 
 
@@ -111,14 +123,55 @@ class SignupAdminView(CreateUserMixin, CreateView):
         return self.render_to_response(context)
 
 
-class SignupAPIView(CreateUserMixin, APIView):
+class UserAPIView(CreateUserMixin, APIView):
+    def get(self, request):
+        user = request.user
+        if not user.is_anonymous():
+            serializer = UserSerializer(user)
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {'error': 'You have to be signed in to get user information'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+    def patch(self, request):
+        user = request.user
+
+        if not user.is_anonymous():
+            data = request.DATA
+            serializer = UserSerializer(user, data=data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+
+                if data.get('password') is not None:
+                    user.reset_password(data.get('password'))
+
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_200_OK
+                )
+            else:
+                return Response(
+                    {'error': serializer.errors},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            return Response(
+                {'error': 'You have to be signed in to get user information'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
     def post(self, request):
         data = request.DATA
         form = UserRegistrationForm(data)
         client_id = data.pop('client_id', None)
 
         try:
-            Client.objects.get(client_id=client_id)
+            Application.objects.get(client_id=client_id)
             if form.is_valid():
                 user = self.create_user(data)
                 serializer = UserSerializer(user)
@@ -131,7 +184,7 @@ class SignupAPIView(CreateUserMixin, APIView):
                     {'errors': form.errors},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-        except Client.DoesNotExist:
+        except Application.DoesNotExist:
             return Response(
                 {'errors': {'client': 'Client ID not provided or incorrect.'}},
                 status=status.HTTP_400_BAD_REQUEST
@@ -393,10 +446,7 @@ class ChangePassword(LoginRequiredMixin, TemplateView):
         )
 
         if user is not None:
-            user.set_password(request.POST.get('new_password1'))
-            user.save()
-
-            AccessToken.objects.filter(user=user).delete()
+            user.reset_password(request.POST.get('new_password1'))
 
             messages.success(request, 'The password has been changed.')
             return redirect('admin:userprofile')
@@ -423,7 +473,9 @@ class QueryUsers(APIView):
         users = User.objects.filter(
             display_name__icontains=q).exclude(pk=1)[:10]
 
-        serializer = UserSerializer(users, many=True)
+        serializer = UserSerializer(
+            users, many=True, fields=('id', 'display_name')
+        )
         return Response(serializer.data)
 
 

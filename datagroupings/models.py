@@ -33,8 +33,7 @@ class Grouping(models.Model):
         else:
             return None
 
-    @property
-    def data(self):
+    def data(self, user):
         """
         Provides access to all data accessable through the view. Uses the
         rules of the view to filter the data.
@@ -42,7 +41,12 @@ class Grouping(models.Model):
         where_clause = self.get_where_clause()
 
         if where_clause is not None:
-            return self.project.observations.extra(where=[where_clause])
+            if (self.project.can_moderate(user)):
+                data = self.project.observations.for_moderator(user)
+            else:
+                data = self.project.observations.for_viewer(user)
+
+            return data.extra(where=[where_clause])
         else:
             return self.project.observations.none()
 

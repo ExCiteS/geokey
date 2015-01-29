@@ -1,23 +1,35 @@
-from rest_framework import serializers
+from rest_framework.serializers import ModelSerializer, ValidationError
 
+from core.serializers import FieldSelectorSerializer
 from .models import User, UserGroup, GroupingUserGroup
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(FieldSelectorSerializer):
     """
     Serializer for User model.
     """
     class Meta:
         model = User
         fields = ('id', 'email', 'display_name')
-        write_only_fields = ('email',)
+
+    def validate_display_name(self, attrs, source):
+        if User.objects.filter(display_name__iexact=attrs[source]).exists():
+            raise ValidationError('Display name sdf already exists')
+
+        return attrs
+
+    def validate_email(self, attrs, source):
+        if User.objects.filter(email__iexact=attrs[source]).exists():
+            raise ValidationError('Email already exists')
+
+        return attrs
 
 
-class UserGroupSerializer(serializers.ModelSerializer):
+class UserGroupSerializer(ModelSerializer):
     """
     Serializer for UserGroup model.
     """
-    users = UserSerializer(many=True)
+    users = UserSerializer(many=True, fields=('id', 'display_name'))
 
     class Meta:
         model = UserGroup
@@ -28,7 +40,7 @@ class UserGroupSerializer(serializers.ModelSerializer):
         )
 
 
-class GroupingUserGroupSerializer(serializers.ModelSerializer):
+class GroupingUserGroupSerializer(ModelSerializer):
     """
     Serializer for ViewGroup model.
     """

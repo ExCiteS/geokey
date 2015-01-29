@@ -55,6 +55,8 @@ Thumbs.db
 htmlcov
 local_settings.py
 core/settings/project.py
+uploads
+core/url/extensions.py
 
 # Grunt #
 ##########

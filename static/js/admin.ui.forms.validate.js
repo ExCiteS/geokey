@@ -23,7 +23,7 @@ $(function() {
 
 	function dateTimeValid(form) {
 		var valid = true;
-		var dateTimeFields = $(form).find('input[type="datetime"]');
+		var dateTimeFields = $(form).find('input[type="datetime"], input[type="date"]');
 
 		for (var i = 0, len = dateTimeFields.length; i < len; i++) {
 			var field = $(dateTimeFields[i]);
@@ -122,6 +122,7 @@ $(function() {
 			for (var i = 0, len = invalidFields.length; i < len; i++) {
 				var field = $(invalidFields[i]);
 				var validity = invalidFields[i].validity;
+
 				field.parents('.form-group').addClass('has-error');
 
 				if (validity.valueMissing) {
@@ -144,8 +145,8 @@ $(function() {
 							if (validity.rangeUnderflow) { showHelp(field, 'The entered value must be greater than ' + field.attr('min') + '.'); }
 							break;
 						case 'text':
-							if (validity.patternMismatch && field.attr('name') === 'key') {
-								showHelp(field, 'Your input contains special characters. A field key must only contain characters, numbers or underscores.');
+							if (validity.patternMismatch && ['subdomain', 'key'].indexOf(field.attr('name')) !== -1) {
+								showHelp(field, 'Your input contains special characters. The field must only contain characters, numbers, dashes or underscores.');
 							}
 							break;
 					}

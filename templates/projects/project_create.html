@@ -39,9 +39,16 @@
 
 					<div class="form-group">
 						<label for="everyone_contributes" class="control-label">Project permissions</label>
+						<div class="radio public hidden">
+							<label>
+								<input type="radio" name="everyone_contributes" value="true"> <strong>All users</strong><br>All users can contribute. This includes anonymous contributions from users, who are not logged in.
+							</label>
+						</div>
 						<div class="radio">
 							<label>
-								<input type="radio" name="everyone_contributes" value="true" checked> <strong>Every user can contribute</strong><br>All users, who have access to the project, can contribute.
+								<input type="radio" name="everyone_contributes" value="auth" checked>
+								<span class="private"><strong>All users</strong><br>All users that have access to the project can contribute.</span>
+								<span class="public hidden"><strong>All authenticated users</strong><br>Users have to be logged in to contribute.</span>
 							</label>
 						</div>
 						<div class="radio">
@@ -61,5 +68,6 @@
 {% endblock %}
 
 {% block libraries %}
+			<script src="/static/js/admin.ui.project.js"></script>
 			<script src="/static/js/admin.ui.forms.validate.js"></script>
 {% endblock %}
