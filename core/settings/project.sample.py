@@ -32,6 +32,7 @@ INSTALLED_APPS += (
     'datagroupings',
     'users',
     'applications',
+    'superusertools',
     'extensions'
 )
 
