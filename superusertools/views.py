@@ -4,11 +4,19 @@ from braces.views import LoginRequiredMixin
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import BasePermission
 from rest_framework import status
 
 from projects.models import Project
 from users.models import User
 from users.serializers import UserSerializer
+
+
+# #############################################################################
+#
+# ADMIN VIEWS
+#
+# #############################################################################
 
 
 class SuperuserMixin(object):
@@ -37,55 +45,55 @@ class ManageSuperUsers(LoginRequiredMixin, SuperuserMixin, TemplateView):
         return {'superusers': User.objects.filter(is_superuser=True)}
 
 
+# #############################################################################
+#
+# ADMIN AJAX VIEWS
+#
+# #############################################################################
+
+
+class IsSuperUser(BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_superuser
+
+
 class AddSuperUsersAjaxView(APIView):
+    permission_classes = (IsSuperUser,)
+
     def post(self, request, format=None):
-        if request.user.is_superuser:
-            try:
-                user = User.objects.get(pk=request.DATA.get('userId'))
-                user.is_superuser = True
-                user.save()
+        try:
+            user = User.objects.get(pk=request.DATA.get('userId'))
+            user.is_superuser = True
+            user.save()
 
-                superusers = User.objects.filter(is_superuser=True)
-                serializer = UserSerializer(superusers, many=True)
-                return Response(
-                    {'users': serializer.data},
-                    status=status.HTTP_201_CREATED
-                )
+            superusers = User.objects.filter(is_superuser=True)
+            serializer = UserSerializer(superusers, many=True)
+            return Response(
+                {'users': serializer.data},
+                status=status.HTTP_201_CREATED
+            )
 
-            except User.DoesNotExist:
-                return Response(
-                    'The user you are trying to add to the user group does ' +
-                    'not exist',
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        else:
-            return Response({
-                'error': 'Superuser tools are for superusers only.'
-                         ' You are not a superuser.'
-                },
-                status=status.HTTP_403_FORBIDDEN
+        except User.DoesNotExist:
+            return Response(
+                'The user you are trying to add to the user group does ' +
+                'not exist',
+                status=status.HTTP_400_BAD_REQUEST
             )
 
 
 class DeleteSuperUsersAjaxView(APIView):
+    permission_classes = (IsSuperUser,)
+
     def delete(self, request, user_id, format=None):
-        if request.user.is_superuser:
-            try:
-                user = User.objects.filter(is_superuser=True).get(pk=user_id)
-                user.is_superuser = False
-                user.save()
+        try:
+            user = User.objects.filter(is_superuser=True).get(pk=user_id)
+            user.is_superuser = False
+            user.save()
 
-                return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
-            except User.DoesNotExist:
-                return Response(
-                    'Superuser does not exist.',
-                    status=status.HTTP_404_NOT_FOUND
-                )
-        else:
-            return Response({
-                'error': 'Superuser tools are for superusers only.'
-                         ' You are not a superuser.'
-                },
-                status=status.HTTP_403_FORBIDDEN
+        except User.DoesNotExist:
+            return Response(
+                'Superuser does not exist.',
+                status=status.HTTP_404_NOT_FOUND
             )
