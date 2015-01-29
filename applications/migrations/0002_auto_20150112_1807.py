@@ -8,7 +8,7 @@ from django.conf import settings
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('applications', '0001_initial'),
+        ('applications', '0002_auto_20150112_1700'),
     ]
 
     operations = [

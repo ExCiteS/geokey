@@ -10,7 +10,8 @@ import oauth2_provider.generators
 class Migration(migrations.Migration):
 
     dependencies = [
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ('applications', '0001_initial'),
+
     ]
 
     operations = [
