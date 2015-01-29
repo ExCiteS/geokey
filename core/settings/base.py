@@ -16,9 +16,7 @@ from django.contrib import messages
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
-
 SITE_ROOT = dirname(DJANGO_ROOT)
-
 TEMPLATE_DIRS = (
     normpath(join(SITE_ROOT, 'templates')),
 )

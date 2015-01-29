@@ -6,16 +6,18 @@ register = template.Library()
 
 @register.filter(name='key')
 def key(d, key_name):
-    if key_name in d:
-        return 'value=%s' % d[key_name]
+    if d is not None:
+        if key_name in d:
+            return d[key_name]
 
     return ''
 
 
 @register.filter(name='value')
 def value(d, key_name):
-    if key_name in d:
-        return d[key_name]
+    if d is not None:
+        if key_name in d:
+            return d[key_name]
 
     return ''
 
