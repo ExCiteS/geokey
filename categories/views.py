@@ -158,10 +158,17 @@ class CategorySettings(LoginRequiredMixin, TemplateView):
         context = self.get_context_data(project_id, category_id)
         category = context.pop('category')
         data = request.POST
+        display_field = Field.objects.get(pk=data.get('display_field'))
 
         category.name = strip_tags(data.get('name'))
         category.description = strip_tags(data.get('description'))
         category.default_status = data.get('default_status')
+
+        if category.display_field != display_field:
+            category.display_field = display_field
+            for obs in category.observation_set.all():
+                obs.update_display_field()
+
         category.save()
 
         messages.success(self.request, "The category has been updated.")
@@ -316,6 +323,7 @@ class FieldSettings(LoginRequiredMixin, TemplateView):
         context['field'] = field
         context['status_types'] = STATUS
         context['fieldtypes'] = Field.get_field_types()
+        context['is_display_field'] = (field == field.category.display_field)
 
         return context
 

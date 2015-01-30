@@ -151,6 +151,13 @@ class Observation(models.Model):
         self.save()
         return self
 
+    def update_display_field(self):
+        display_field = self.category.display_field
+        if display_field is not None:
+            value = self.attributes.get(display_field.key)
+            self.display_field = '%s:%s' % (display_field.key, value)
+            self.save()
+
     def delete(self):
         """
         Deletes the comment by setting it's `status` to `DELETED`
@@ -163,13 +170,7 @@ class Observation(models.Model):
 def update_search_matches(sender, **kwargs):
     observation = kwargs.get('instance')
 
-    from categories.models import Field
-    try:
-        first_field = observation.category.fields.get(order=0)
-        value = observation.attributes.get(first_field.key)
-        observation.display_field = '%s:%s' % (first_field.key, value)
-    except Field.DoesNotExist:
-        observation.display_field = None
+    observation.update_display_field()
 
     search_matches = []
     for field in observation.category.fields.all():

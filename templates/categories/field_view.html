@@ -96,6 +96,13 @@
                         <div class="panel-heading">
                             <h2 class="panel-title">Be careful!</h2>
                         </div>
+                        {% if is_display_field %}
+                        <div class="panel-body becareful">
+                            <div>
+                                <p><strong>The field {{ field.name }} is set as display field for category {{ field.category.name }}.</strong> If you wish to deactivate or delete the field, you have to select another display field in the <a href="{% url 'admin:category_settings' field.category.project.id field.category.id %}">category settings</a> first.</p>
+                            </div>
+                        </div>
+                        {% else %}
                         <div class="panel-body becareful">
                             <div class="toggle-active {% if field.status == status_types.inactive %} hidden{% endif %}">
                                 <strong>Make the field inactive</strong>
@@ -115,6 +122,7 @@
                                 <a href="#" class="text-danger" data-toggle="modal" data-target="#delete-confirm">Delete this field</a>
                             </div>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

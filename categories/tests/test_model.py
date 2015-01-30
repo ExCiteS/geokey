@@ -138,6 +138,9 @@ class FieldTest(TestCase):
 
     def test_delete_with_rule(self):
         category = CategoryFactory()
+        Field.create(
+            'n', 'n', 'n', False, category, 'TextField'
+        )
         field = Field.create(
             'name', 'key', 'description', False, category, 'TextField'
         )

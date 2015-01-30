@@ -30,6 +30,11 @@ class Category(models.Model):
         default=STATUS.active,
         max_length=20
     )
+    display_field = models.ForeignKey(
+        'categories.Field',
+        null=True,
+        related_name='display_field_of'
+    )
     default_status = models.CharField(
         choices=DEFAULT_STATUS,
         default=DEFAULT_STATUS.pending,
@@ -104,6 +109,10 @@ class Field(models.Model):
             order=order
         )
         field.save()
+
+        if order == 0:
+            category.display_field = field
+            category.save()
         return field
 
     @classmethod
