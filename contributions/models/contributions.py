@@ -156,7 +156,6 @@ class Observation(models.Model):
         if display_field is not None:
             value = self.attributes.get(display_field.key)
             self.display_field = '%s:%s' % (display_field.key, value)
-            self.save()
 
     def delete(self):
         """

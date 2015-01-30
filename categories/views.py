@@ -168,6 +168,7 @@ class CategorySettings(LoginRequiredMixin, TemplateView):
             category.display_field = display_field
             for obs in category.observation_set.all():
                 obs.update_display_field()
+                obs.save()
 
         category.save()
 
