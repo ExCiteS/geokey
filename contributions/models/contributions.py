@@ -157,6 +157,44 @@ class Observation(models.Model):
             value = self.attributes.get(display_field.key)
             self.display_field = '%s:%s' % (display_field.key, value)
 
+    def update_search_matches(self):
+        search_matches = []
+        for field in self.category.fields.all():
+            if field.key in self.attributes.keys():
+
+                if field.fieldtype == 'LookupField':
+                    l_id = self.attributes.get(field.key)
+                    if l_id is not None:
+                        lookup = field.lookupvalues.get(pk=l_id)
+                        search_matches.append('%s:%s' % (
+                            field.key, lookup.name
+                        ))
+
+                elif field.fieldtype == 'MultipleLookupField':
+                    values = self.attributes.get(field.key)
+                    if values is not None:
+                        l_ids = sorted(json.loads(values))
+                        lookups = []
+
+                        for l_id in l_ids:
+                            lookups.append(
+                                field.lookupvalues.get(pk=l_id).name
+                            )
+
+                        search_matches.append('%s:%s' % (
+                            field.key,
+                            ', '.join(lookups))
+                        )
+
+                else:
+                    term = self.attributes.get(field.key)
+                    if term is not None:
+                        search_matches.append(
+                            '%s:%s' % (field.key, term)
+                        )
+
+        self.search_matches = '#####'.join(search_matches)
+
     def delete(self):
         """
         Deletes the comment by setting it's `status` to `DELETED`
@@ -170,39 +208,7 @@ def update_search_matches(sender, **kwargs):
     observation = kwargs.get('instance')
 
     observation.update_display_field()
-
-    search_matches = []
-    for field in observation.category.fields.all():
-        if field.key in observation.attributes.keys():
-
-            if field.fieldtype == 'TextField':
-                term = observation.attributes.get(field.key)
-                if term is not None:
-                    search_matches.append(
-                        '%s:%s' % (field.key, term)
-                    )
-
-            elif field.fieldtype == 'LookupField':
-                l_id = observation.attributes.get(field.key)
-                if l_id is not None:
-                    lookup = field.lookupvalues.get(pk=l_id)
-                    search_matches.append('%s:%s' % (field.key, lookup.name))
-
-            elif field.fieldtype == 'MultipleLookupField':
-                values = observation.attributes.get(field.key)
-                if values is not None:
-                    l_ids = sorted(json.loads(values))
-                    lookups = []
-
-                    for l_id in l_ids:
-                        lookups.append(field.lookupvalues.get(pk=l_id).name)
-
-                    search_matches.append('%s:%s' % (
-                        field.key,
-                        ', '.join(lookups))
-                    )
-
-    observation.search_matches = '#####'.join(search_matches)
+    observation.update_search_matches()
 
 
 class Comment(models.Model):
