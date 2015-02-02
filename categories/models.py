@@ -46,7 +46,7 @@ class Category(models.Model):
     objects = CategoryManager()
 
     class Meta:
-        ordering = ['id']
+        ordering = ['name']
 
     def re_order_fields(self, order):
         """

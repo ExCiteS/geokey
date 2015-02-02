@@ -24,6 +24,9 @@ class Grouping(models.Model):
 
     objects = GroupingManager()
 
+    class Meta:
+        ordering = ['name']
+
     def get_where_clause(self):
         queries = [rule.get_query() for rule in self.rules.all()]
 
