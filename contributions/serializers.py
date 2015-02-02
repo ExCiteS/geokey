@@ -14,7 +14,7 @@ from rest_framework_gis import serializers as geoserializers
 
 from core.exceptions import MalformedRequestData
 from categories.serializer import CategorySerializer
-from categories.models import Category, Field
+from categories.models import Category
 from users.serializers import UserSerializer
 
 from .models import (
@@ -179,9 +179,10 @@ class ContributionSerializer(object):
     def get_display_field(self, obj):
         if obj.display_field is not None:
             display_field = obj.display_field.split(':', 1)
+            value = display_field[1] if display_field[1] != 'None' else None
             return {
                 'key': display_field[0],
-                'value': display_field[1]
+                'value': value
             }
         else:
             return None
