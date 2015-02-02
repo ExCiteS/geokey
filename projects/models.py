@@ -72,6 +72,7 @@ class Project(models.Model):
         Removes the project from the listing of all projects by setting its
         status to `DELETED`.
         """
+        Admins.objects.filter(project=self).delete()
         self.status = STATUS.deleted
         self.save()
 
