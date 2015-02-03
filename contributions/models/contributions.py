@@ -204,7 +204,7 @@ class Observation(models.Model):
 
 
 @receiver(pre_save, sender=Observation)
-def update_search_matches(sender, **kwargs):
+def pre_save_update(sender, **kwargs):
     observation = kwargs.get('instance')
 
     observation.update_display_field()

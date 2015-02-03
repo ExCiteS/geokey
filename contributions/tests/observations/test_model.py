@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 
 from nose.tools import raises
 
-from contributions.models import Observation, update_search_matches
+from contributions.models import Observation, pre_save_update
 from projects.tests.model_factories import UserF
 
 from categories.tests.model_factories import (
@@ -60,7 +60,7 @@ class TestContributionsPreSave(TestCase):
             'category': o_type
         })
 
-        update_search_matches(Observation, instance=o)
+        pre_save_update(Observation, instance=o)
         self.assertIn('Ms Piggy', o.search_matches)
         self.assertIn('Kermit', o.search_matches)
         self.assertIn('blah', o.search_matches)
