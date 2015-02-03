@@ -3,9 +3,10 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 
+from contributions.models.contributions import Observation
+
 
 def update_search_matches(apps, schema_editor):
-    Observation = apps.get_model("contributions", "Observation")
     for observation in Observation.objects.all():
         observation.update_search_matches()
         observation.save()
