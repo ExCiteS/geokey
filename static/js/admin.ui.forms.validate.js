@@ -23,7 +23,7 @@ $(function() {
 
 	function dateTimeValid(form) {
 		var valid = true;
-		var dateTimeFields = $(form).find('input[type="datetime"], input[type="date"]');
+		var dateTimeFields = $(form).find('input.datetime, input.date');
 
 		for (var i = 0, len = dateTimeFields.length; i < len; i++) {
 			var field = $(dateTimeFields[i]);

@@ -13,17 +13,12 @@ $(function() {
             $('#field-options').empty();
             $('#field-options').append(Templates.fields(response));
 
-            if (!Modernizr.inputtypes.datetime) {
-                $('input[type="datetime"]').datetimepicker();
-            }
-            if (!Modernizr.inputtypes.date) {
-                $('input[type="date"]').datetimepicker({ pickTime: false });
-            }
-            if (!Modernizr.inputtypes.time) {
-                $('input[type="time"]').datetimepicker({ pickDate: false });
-            }
+            $('input.datetime').datetimepicker();
+            $('input.date').datetimepicker({ pickTime: false });
 
-            $('#field-options input[type="number"], #field-options input[type="datetime"], #field-options input[type="date"]').change(handleRangeFieldEdit);
+            $('input.time').datetimepicker({ pickDate: false });
+
+            $('#field-options input[type="number"], #field-options input.datetime, #field-options input.date').change(handleRangeFieldEdit);
             $('#field-options :input').change(handleFieldChange);
         }
 
@@ -95,6 +90,6 @@ $(function() {
     }
 
     $('#field-options :input').change(handleFieldChange);
-    $('#field-options input[type="number"], #field-options input[type="datetime"], #field-options input[type="date"]').change(handleRangeFieldEdit);
+    $('#field-options input[type="number"], #field-options input.datetime, #field-options input.date').change(handleRangeFieldEdit);
     $('#category').change(handleTypeSelection);
 });

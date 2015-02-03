@@ -30,7 +30,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   
 
 
-  return "<div class=\"field-filter form-horizontal\">\n    <h5>The contribution has been created</h5>\n\n    <div class=\"form-group\">\n        <label for=\"created_at-min\" class=\"col-sm-3 col-sm-offset-1 control-label\">after</label>\n        <div class=\"col-sm-7\">\n            <input data-date-format=\"YYYY-MM-DD H:mm\" type=\"datetime\" data-key=\"created_at\" class=\"form-control\" name=\"created_at-min\" id=\"created_at-min\">\n        </div>\n    </div>\n    <div class=\"form-group\">\n        <label for=\"created_at-max\" class=\"col-sm-3 col-sm-offset-1 control-label\">and before</label>\n        <div class=\"col-sm-7\">\n            <input data-date-format=\"YYYY-MM-DD H:mm\" type=\"datetime\" data-key=\"created_at\" class=\"form-control\" name=\"created_at-max\" id=\"created_at-max\">\n        </div>\n    </div>\n</div>";
+  return "<div class=\"field-filter form-horizontal\">\n    <h5>The contribution has been created</h5>\n\n    <div class=\"form-group\">\n        <label for=\"created_at-min\" class=\"col-sm-3 col-sm-offset-1 control-label\">after</label>\n        <div class=\"col-sm-7\">\n            <input data-date-format=\"YYYY-MM-DD H:mm\" type=\"text\" data-key=\"created_at\" class=\"form-control datetime\" name=\"created_at-min\" id=\"created_at-min\">\n        </div>\n    </div>\n    <div class=\"form-group\">\n        <label for=\"created_at-max\" class=\"col-sm-3 col-sm-offset-1 control-label\">and before</label>\n        <div class=\"col-sm-7\">\n            <input data-date-format=\"YYYY-MM-DD H:mm\" type=\"text\" data-key=\"created_at\" class=\"form-control datetime\" name=\"created_at-max\" id=\"created_at-max\">\n        </div>\n    </div>\n</div>\n";
   }));
 
 Handlebars.registerPartial("datefield", Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -51,7 +51,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "-min\" class=\"col-sm-3 col-sm-offset-1 control-label\">is after</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"YYYY-MM-DD\" type=\"date\" class=\"form-control\" data-key=\"";
+    + "-min\" class=\"col-sm-3 col-sm-offset-1 control-label\">is after</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"YYYY-MM-DD\" type=\"text\" class=\"form-control date\" data-key=\"";
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
@@ -67,7 +67,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "-max\" class=\"col-sm-3 col-sm-offset-1 control-label\">and before</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"YYYY-MM-DD\" type=\"date\" class=\"form-control\" data-key=\"";
+    + "-max\" class=\"col-sm-3 col-sm-offset-1 control-label\">and before</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"YYYY-MM-DD\" type=\"text\" class=\"form-control date\" data-key=\"";
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
@@ -101,7 +101,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "-min\" class=\"col-sm-3 col-sm-offset-1 control-label\">is after</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"YYYY-MM-DD H:mm\" type=\"datetime\" class=\"form-control\" data-key=\"";
+    + "-min\" class=\"col-sm-3 col-sm-offset-1 control-label\">is after</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"YYYY-MM-DD H:mm\" type=\"text\" class=\"form-control datetime\" data-key=\"";
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
@@ -117,7 +117,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "-max\" class=\"col-sm-3 col-sm-offset-1 control-label\">and before</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"YYYY-MM-DD H:mm\" type=\"datetime\" class=\"form-control\" data-key=\"";
+    + "-max\" class=\"col-sm-3 col-sm-offset-1 control-label\">and before</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"YYYY-MM-DD H:mm\" type=\"text\" class=\"form-control datetime\" data-key=\"";
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
@@ -129,7 +129,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "-max\">\n    </div>\n</div>";
+    + "-max\">\n    </div>\n</div>\n";
   return buffer;
   }));
 
@@ -340,7 +340,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "-min\" class=\"col-sm-3 col-sm-offset-1 control-label\">is after</label>\n    <div class=\"col-sm-7\">\n        <input type=\"time\" class=\"form-control\" data-key=\"";
+    + "-min\" class=\"col-sm-3 col-sm-offset-1 control-label\">is after</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"HH:mm\" type=\"text\" class=\"form-control time\" data-key=\"";
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
@@ -356,7 +356,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "-max\" class=\"col-sm-3 col-sm-offset-1 control-label\">and before</label>\n    <div class=\"col-sm-7\">\n        <input type=\"time\" class=\"form-control\" data-key=\"";
+    + "-max\" class=\"col-sm-3 col-sm-offset-1 control-label\">and before</label>\n    <div class=\"col-sm-7\">\n        <input data-date-format=\"HH:mm\" type=\"text\" class=\"form-control time\" data-key=\"";
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
