@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/ExCiteS/geokey.svg?branch=master)](https://travis-ci.org/ExCiteS/geokey) [![Coverage Status](https://coveralls.io/repos/ExCiteS/geokey/badge.png)](https://coveralls.io/r/ExCiteS/geokey) [![Requirements Status](https://requires.io/github/ExCiteS/geokey/requirements.svg?branch=master)](https://requires.io/github/ExCiteS/geokey/requirements/?branch=master)
 
-GeoKey is a platform for participatory mapping that is currently developed at [Extreme Citizen Science Research Group](http://ucl.ac.uk/excites) at University College London. 
+GeoKey is a platform for participatory mapping that is currently developed at [Extreme Citizen Science Research Group](http://ucl.ac.uk/excites) at University College London.
 
 ## We use open-source technologies
 
@@ -12,8 +12,7 @@ GeoKey was built using some amazing open-source technology. We would like to tha
 - [django-hstore](https://github.com/djangonauts/django-hstore)
 - [psycopg2](http://initd.org/psycopg/)
 - [iso8601](https://bitbucket.org/micktwomey/pyiso8601)
-- [django-oauth2-provider](https://github.com/caffeinehit/django-oauth2-provider)
-- [South](http://south.aeracode.org/)
+- [django-oauth-toolkit](https://github.com/evonove/django-oauth-toolkit)
 - [django-model-utils](https://github.com/carljm/django-model-utils)
 - [djangorestframework](http://www.django-rest-framework.org/)
 - [djangorestframework-gis](https://github.com/djangonauts/django-rest-framework-gis)
