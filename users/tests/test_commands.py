@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from django.test import TestCase
 from django.core import mail
 
-from projects.tests.model_factories import ProjectF
+from projects.tests.model_factories import ProjectF, AdminsFactory
 from contributions.tests.model_factories import ObservationFactory
 
 from ..management.commands.daily_digest import Command
@@ -101,6 +101,7 @@ class CommandTest(TestCase):
         self.assertEqual(report, None)
 
     def test_daily_digest(self):
+        do_not_notify = UserF.create()
         moderator = UserF.create()
         contributor = UserF.create()
         UserF.create()
@@ -109,6 +110,11 @@ class CommandTest(TestCase):
             add_admins=[moderator],
             add_contributors=[contributor]
         )
+        AdminsFactory.create(**{
+            'project': project,
+            'user': do_not_notify,
+            'contact': False
+        })
 
         suspended = ObservationFactory.create(
             created_at=(datetime.utcnow() - timedelta(2)).replace(tzinfo=utc),

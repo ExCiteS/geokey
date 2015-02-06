@@ -24,8 +24,6 @@ class Project(models.Model):
         default=EVERYONE_CONTRIB.auth,
         max_length=20
     )
-    # everyone_contributes = models.BooleanField(default=True)
-    # everyone_contributes_auth = models.BooleanField(default=True)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,

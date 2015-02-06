@@ -18,7 +18,7 @@ from django.core import mail
 from django.template.loader import get_template
 from django.template import Context
 
-from projects.models import Project
+from projects.models import Project, Admins
 from users.models import User
 from contributions.models import Observation
 
@@ -56,49 +56,55 @@ class Command(NoArgsCommand):
         """
         items = {}
 
-        new_items = project.observations.filter(
-            created_at__gte=yesterday, status='pending')
-        updated_items = project.observations.filter(
-            updated_at__gte=yesterday,
-            created_at__lt=yesterday
-        )
+        try:
+            notify = Admins.objects.get(user=user, project=project).contact
+        except Admins.DoesNotExist:
+            notify = True
 
-        if updated_items.count() > 0 or new_items.count() > 0:
+        if notify:
+            new_items = project.observations.filter(
+                created_at__gte=yesterday, status='pending')
+            updated_items = project.observations.filter(
+                updated_at__gte=yesterday,
+                created_at__lt=yesterday
+            )
 
-            if project.can_moderate(user):
-                items['to_moderate'] = {
-                    'new': new_items,
-                    'reported': updated_items.filter(status='review'),
-                    'suspended': updated_items.filter(status='pending')
-                }
-            if project.can_contribute(user):
-                approved = []
-                reported = []
-                suspended = []
+            if updated_items.count() > 0 or new_items.count() > 0:
 
-                for item in updated_items.filter(creator=user):
-                    try:
-                        historical = item.history.as_of(yesterday)
-
-                        if (item.status == 'pending' and
-                                historical.status == 'active'):
-                            suspended.append(item)
-                        if (item.status == 'review' and
-                                historical.status == 'active'):
-                            reported.append(item)
-                        if (item.status == 'active' and
-                                historical.status == 'pending'):
-                            approved.append(item)
-                    except Observation.DoesNotExist:
-                        pass
-
-                    items['yours'] = {
-                        'changed': updated_items.filter(creator=user),
-                        'approved': approved,
-                        'reported': reported,
-                        'suspended': suspended
+                if project.can_moderate(user):
+                    items['to_moderate'] = {
+                        'new': new_items,
+                        'reported': updated_items.filter(status='review'),
+                        'suspended': updated_items.filter(status='pending')
                     }
-                return items
+                if project.can_contribute(user):
+                    approved = []
+                    reported = []
+                    suspended = []
+
+                    for item in updated_items.filter(creator=user):
+                        try:
+                            historical = item.history.as_of(yesterday)
+
+                            if (item.status == 'pending' and
+                                    historical.status == 'active'):
+                                suspended.append(item)
+                            if (item.status == 'review' and
+                                    historical.status == 'active'):
+                                reported.append(item)
+                            if (item.status == 'active' and
+                                    historical.status == 'pending'):
+                                approved.append(item)
+                        except Observation.DoesNotExist:
+                            pass
+
+                        items['yours'] = {
+                            'changed': updated_items.filter(creator=user),
+                            'approved': approved,
+                            'reported': reported,
+                            'suspended': suspended
+                        }
+                    return items
 
         return None
 

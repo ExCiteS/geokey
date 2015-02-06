@@ -57,3 +57,12 @@ class ProjectF(factory.django.DjangoModelFactory):
             GroupingFactory(add_viewers=extracted, **{
                 'project': self
             })
+
+
+class AdminsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Admins
+
+    project = factory.SubFactory(ProjectF)
+    user = factory.SubFactory(UserF)
+    contact = True
