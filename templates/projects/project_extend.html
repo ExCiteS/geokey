@@ -34,14 +34,14 @@
                             <a href="{% url 'admin:category_list' project.id %}" class="list-group-item"><span class="badge">{{ project.categories.count }}</span>Categories</a>
                             <a href="{% url 'admin:grouping_list' project.id %}" class="list-group-item"><span class="badge">{{ project.groupings.count }}</span>Data groupings</a>
                             <a href="{% url 'admin:usergroup_list' project.id %}" class="list-group-item"><span class="badge">{{ project.usergroups.count }}</span>User groups</a>
-                            <a href="{% url 'admin:project_extend' project.id %}" class="list-group-item active">Geographic extend</a>
+                            <a href="{% url 'admin:project_extend' project.id %}" class="list-group-item active">Geographic extent</a>
                             <a href="{% url 'admin:project_settings' project.id %}" class="list-group-item">Settings</a>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-sm-8">
-                    <h3 class="header">Geographic Extend</h3>
+                    <h3 class="header">Geographic Extent</h3>
                     <div id="map"></div>
                     <form method="POST" action="{% url 'admin:project_extend' project.id %}" novalidate>
                         {% csrf_token %}

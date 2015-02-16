@@ -4,7 +4,6 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.utils import timezone
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-# from django.core.exceptions import ValidationError
 
 from oauth2_provider.models import AccessToken
 

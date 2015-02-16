@@ -142,7 +142,7 @@ class ProjectExtendTest(TestCase):
         response = view(request, project_id=self.project.id).render()
         self.assertEqual(response.status_code, 200)
         self.assertContains(
-            response, 'The geographic extend has been updated successfully.')
+            response, 'The geographic extent has been updated successfully.')
 
         updated = Project.objects.get(pk=self.project.id)
 
@@ -168,7 +168,7 @@ class ProjectExtendTest(TestCase):
         response = view(request, project_id=self.project.id).render()
         self.assertEqual(response.status_code, 200)
         self.assertContains(
-            response, 'The geographic extend has been updated successfully.')
+            response, 'The geographic extent has been updated successfully.')
 
         updated = Project.objects.get(pk=self.project.id)
 
@@ -190,7 +190,7 @@ class ProjectExtendTest(TestCase):
         response = view(request, project_id=self.project.id).render()
         self.assertEqual(response.status_code, 200)
         self.assertContains(
-            response, 'The geographic extend has been updated successfully.')
+            response, 'The geographic extent has been updated successfully.')
 
         updated = Project.objects.get(pk=self.project.id)
 

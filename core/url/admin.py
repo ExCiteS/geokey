@@ -34,7 +34,7 @@ urlpatterns = patterns(
         project_views.ProjectOverview.as_view(),
         name='project_overview'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/geographic-extend/$',
+        r'^projects/(?P<project_id>[0-9]+)/geographic-extent/$',
         project_views.ProjectExtend.as_view(),
         name='project_extend'),
     url(

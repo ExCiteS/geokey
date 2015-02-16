@@ -1,6 +1,5 @@
 from django.contrib.auth.models import BaseUserManager
 from django.utils import timezone
-from django.core.exceptions import ValidationError
 
 
 class UserManager(BaseUserManager):
@@ -17,6 +16,7 @@ class UserManager(BaseUserManager):
 
         user.set_password(password)
         user.save(using=self._db)
+
         return user
 
     def create_superuser(self, email, display_name, password, **extra_fields):
