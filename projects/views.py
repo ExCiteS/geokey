@@ -137,7 +137,7 @@ class ProjectExtend(LoginRequiredMixin, TemplateView):
 
             messages.success(
                 self.request,
-                'The geographic extend has been updated successfully.'
+                'The geographic extent has been updated successfully.'
             )
 
             context['project'] = project
