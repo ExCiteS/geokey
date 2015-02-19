@@ -3,7 +3,8 @@ from django.utils import timezone
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, display_name, password=None, **extra_fields):
+    def create_user(self, email, display_name, password=None, is_active=True,
+                    **extra_fields):
         """
         Creates a new user in the data base
         """
@@ -11,7 +12,7 @@ class UserManager(BaseUserManager):
         email = UserManager.normalize_email(email)
 
         user = self.model(email=email, display_name=display_name,
-                          is_active=True, last_login=now, date_joined=now,
+                          is_active=is_active, last_login=now, date_joined=now,
                           **extra_fields)
 
         user.set_password(password)
