@@ -181,6 +181,19 @@ class TextFieldTest(TestCase):
             self.fail('TextField.validate_input() raised InputError '
                       'unexpectedly!')
 
+    def test_textfield_validate_input_maxlength(self):
+        textfield = TextFieldFactory(**{'maxlength': 10})
+        try:
+            textfield.validate_input('BlaBlaBlaB')
+        except InputError:
+            self.fail('TextField.validate_input() raised InputError '
+                      'unexpectedly!')
+
+    @raises(InputError)
+    def test_textfield_validate_input_maxlength_too_long(self):
+        textfield = TextFieldFactory(**{'maxlength': 10})
+        textfield.validate_input('BlaBlaBlaBla')
+
     def test_textfield_validate_required(self):
         textfield = TextFieldFactory.create(**{'required': True})
         try:

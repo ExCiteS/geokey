@@ -180,6 +180,8 @@ class TextField(Field):
     """
     A field for character strings.
     """
+    textarea = models.BooleanField(default=False)
+    maxlength = models.IntegerField(blank=True, null=True)
 
     def validate_required(self, value):
         """
@@ -200,6 +202,10 @@ class TextField(Field):
         Returns `True` or `False`.
         """
         self.validate_required(value)
+
+        if self.maxlength is not None and len(value) > self.maxlength:
+            raise InputError('The input provided for text field %s contains '
+                             'too many characters.' % self.name)
 
     @property
     def type_name(self):

@@ -704,27 +704,23 @@ class UpdateFieldTest(TestCase):
         ).render()
         self.assertEqual(response.status_code, 404)
 
-    def test_update_description_with_admin(self):
-        response = self._put({'description': 'new description'}, self.admin)
+    def test_update_status_with_admin(self):
+        response = self._put({'status': 'inactive'}, self.admin)
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             Field.objects.get_single(
                 self.admin, self.project.id, self.category.id,
-                self.field.id).description,
-            'new description'
+                self.field.id).status,
+            'inactive'
         )
 
-    def test_update_required_with_admin(self):
-        response = self._put({'required': True}, self.admin)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(
-            Field.objects.get_single(
-                self.admin, self.project.id, self.category.id,
-                self.field.id).required
-        )
-
-    def test_update_status_with_admin(self):
+    def test_update_numeric_status_with_admin(self):
+        self.field = NumericFieldFactory(**{
+            'category': self.category
+        })
         response = self._put({'status': 'inactive'}, self.admin)
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             Field.objects.get_single(

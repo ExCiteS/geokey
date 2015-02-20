@@ -3,7 +3,7 @@ from rest_framework import serializers
 from core.serializers import FieldSelectorSerializer
 
 from .models import (
-    Category, Field, NumericField, LookupField, LookupValue,
+    Category, Field, TextField, NumericField, LookupField, LookupValue,
     MultipleLookupField, MultipleLookupValue
 )
 
@@ -21,6 +21,23 @@ class FieldSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'key', 'fieldtype', 'description', 'status',
             'required', 'status'
+        )
+        read_only_fields = ('id', 'name', 'key')
+
+
+class TextFieldSerializer(serializers.ModelSerializer):
+    """
+    Serializer for fields.
+    Used in .views.FieldApiDetail
+    """
+    fieldtype = serializers.Field()
+
+    class Meta:
+        model = TextField
+        depth = 1
+        fields = (
+            'id', 'name', 'key', 'fieldtype', 'description', 'status',
+            'required', 'status', 'maxlength', 'textarea'
         )
         read_only_fields = ('id', 'name', 'key')
 
@@ -114,6 +131,8 @@ class MultipleLookupFieldSerializer(serializers.ModelSerializer):
 
 class FieldObjectRelatedField(serializers.RelatedField):
     def to_native(self, value):
+        if isinstance(value, TextField):
+            serializer = TextFieldSerializer(value)
         if isinstance(value, NumericField):
             serializer = NumericFieldSerializer(value)
         elif isinstance(value, LookupField):
