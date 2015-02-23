@@ -163,7 +163,7 @@ class CategorySerializer(FieldSelectorSerializer):
         model = Category
         depth = 1
         fields = ('id', 'name', 'description', 'status', 'fields', 'colour',
-                  'created_at', 'symbol')
+                  'created_at', 'symbol', 'order')
         read_only_fields = ('id', 'name', 'created_at')
 
     def get_symbol_url(self, category):
