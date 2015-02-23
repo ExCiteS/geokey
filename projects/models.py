@@ -74,6 +74,19 @@ class Project(models.Model):
         self.status = STATUS.deleted
         self.save()
 
+    def re_order_categories(self, order):
+        """
+        Reorders the categories according to the order given in `order`
+        """
+        categories_to_save = []
+        for idx, category_id in enumerate(order):
+            category = self.categories.get(pk=category_id)
+            category.order = idx
+            categories_to_save.append(category)
+
+        for category in categories_to_save:
+            category.save()
+
     def get_role(self, user):
         if self.is_admin(user):
             return 'administrator'
@@ -121,7 +134,10 @@ class Project(models.Model):
         - everyone_contributes is True
         """
         return self.status == STATUS.active and (
-            (self.everyone_contributes != 'false' and (not user.is_anonymous() or not self.everyone_contributes == 'auth')) or self.is_admin(user) or (
+            (self.everyone_contributes != 'false' and (
+                not user.is_anonymous() or
+                not self.everyone_contributes == 'auth')
+             ) or self.is_admin(user) or (
                 not user.is_anonymous() and (
                     self.usergroups.filter(
                         can_contribute=True, users=user).exists())))

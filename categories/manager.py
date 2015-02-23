@@ -67,6 +67,9 @@ class CategoryManager(ActiveMixin, models.Manager):
     def create(self, create_grouping=False, *args, **kwargs):
         category = super(CategoryManager, self).create(*args, **kwargs)
 
+        category.order = category.project.categories.count() - 1
+        category.save()
+
         if create_grouping:
             grouping = Grouping.objects.create(
                 name=category.name,

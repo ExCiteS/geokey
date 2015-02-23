@@ -17,6 +17,7 @@ from core.decorators import (
 from core.exceptions import Unauthenticated
 from users.serializers import UserSerializer
 from users.models import User
+from categories.models import Category
 
 from .base import STATUS
 from .models import Project, Admins
@@ -296,6 +297,33 @@ class ProjectAdminsUser(APIView):
         user = project.admins.get(pk=user_id)
         Admins.objects.get(project=project, user=user).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CategoriesReorderView(APIView):
+    """
+    AJAX Endpoint to re-order categories in a project.
+    /ajax/projects/:project_id/cotegories/re-order
+    """
+    @handle_exceptions_for_ajax
+    def post(self, request, project_id, format=None):
+        project = Project.objects.as_admin(request.user, project_id)
+
+        try:
+            project.re_order_categories(request.DATA.get('order'))
+
+            serializer = ProjectSerializer(
+                project,
+                fields=(
+                    'id', 'name', 'description', 'status', 'isprivate',
+                    'everyone_contributes'
+                )
+            )
+            return Response(serializer.data)
+        except Category.DoesNotExist:
+            return Response(
+                {'error': 'One or more categories ids where not found.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 # ############################################################################

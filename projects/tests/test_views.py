@@ -21,7 +21,7 @@ from ..models import Project
 from ..views import (
     ProjectCreate, ProjectSettings, ProjectUpdate, ProjectAdmins,
     ProjectAdminsUser, Projects, SingleProject, ProjectOverview, ProjectExtend,
-    ProjectContactAdmins
+    ProjectContactAdmins, CategoriesReorderView
 )
 
 # ############################################################################
@@ -634,6 +634,83 @@ class ProjectAdminsUserTest(TestCase):
             self.admin_to_remove,
             Project.objects.get(pk=self.project.id).admins.all()
         )
+
+
+class ReorderCategoriesTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.project = ProjectF.create()
+
+        self.category_0 = CategoryFactory.create(**{'project': self.project})
+        self.category_1 = CategoryFactory.create(**{'project': self.project})
+        self.category_2 = CategoryFactory.create(**{'project': self.project})
+        self.category_3 = CategoryFactory.create(**{'project': self.project})
+        self.category_4 = CategoryFactory.create(**{'project': self.project})
+
+    def test_reorder(self):
+        url = reverse(
+            'ajax:categories_reorder',
+            kwargs={
+                'project_id': self.project.id
+            }
+        )
+
+        data = [
+            self.category_4.id, self.category_0.id, self.category_2.id,
+            self.category_1.id, self.category_3.id
+        ]
+
+        request = self.factory.post(
+            url, json.dumps({'order': data}), content_type='application/json')
+        force_authenticate(request, user=self.project.creator)
+        view = CategoriesReorderView.as_view()
+        response = view(
+            request,
+            project_id=self.project.id
+        ).render()
+
+        self.assertEqual(response.status_code, 200)
+
+        categories = self.project.categories.all()
+
+        self.assertTrue(categories.ordered)
+        self.assertEqual(categories[0], self.category_4)
+        self.assertEqual(categories[1], self.category_0)
+        self.assertEqual(categories[2], self.category_2)
+        self.assertEqual(categories[3], self.category_1)
+        self.assertEqual(categories[4], self.category_3)
+
+    def test_reorder_with_false_category(self):
+        url = reverse(
+            'ajax:categories_reorder',
+            kwargs={
+                'project_id': self.project.id
+            }
+        )
+
+        data = [
+            self.category_4.id, self.category_0.id, self.category_2.id,
+            self.category_1.id, 655123135135
+        ]
+
+        request = self.factory.post(
+            url, json.dumps({'order': data}), content_type='application/json')
+        force_authenticate(request, user=self.project.creator)
+        view = CategoriesReorderView.as_view()
+        response = view(
+            request,
+            project_id=self.project.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
+
+        categories = self.project.categories.all()
+        self.assertTrue(categories.ordered)
+        self.assertEqual(categories[0].order, 0)
+        self.assertEqual(categories[1].order, 1)
+        self.assertEqual(categories[2].order, 2)
+        self.assertEqual(categories[3].order, 3)
+        self.assertEqual(categories[4].order, 4)
 
 
 # ############################################################################

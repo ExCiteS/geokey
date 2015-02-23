@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %} | Categories{% endblock %}
+{% block bodydata %} data-project-id="{{project.id}}"{% endblock %}
 
 {% block main %}
         <div class="page-header">
@@ -32,10 +33,20 @@
                         {% endif %}
                     </h3>
                     {% for category in project.categories.all %}
-                    <div class="overview-list-item">
-                        <h4><a href="{% url 'admin:category_overview' project.id category.id %}">{{category.name}}</a> {% if category.status == 'inactive' %}<small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
-                        {% if category.description %}<p>{{category.description}}</p>{% endif %}
+
+                    {% if forloop.first %}
+                    <div id="sortable">
+                    {% endif %}
+
+                        <div class="overview-list-item sort-item" data-item-id="{{ category.id }}">
+                            <h4><small><span class="glyphicon glyphicon-sort"></span></small> <a href="{% url 'admin:category_overview' project.id category.id %}">{{category.name}}</a> {% if category.status == 'inactive' %}<small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
+                            {% if category.description %}<p>{{category.description}}</p>{% endif %}
+                        </div>
+
+                    {% if forloop.last %}
                     </div>
+                    {% endif %}
+
                     {% empty %}
                         <div class="well empty-list">
                             <p class="lead">We couldn't find any categories for this project.</p>
@@ -54,4 +65,10 @@
                 </div>
             </div>
         </div>
+{% endblock %}
+
+{% block libraries %}
+            <script src="/static/lib/jquery/jquery-ui.min.js"></script>
+            <script src="/static/js/admin.control.ajax.js"></script>
+            <script src="/static/js/admin.ui.sort.js"></script>
 {% endblock %}

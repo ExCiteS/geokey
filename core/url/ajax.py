@@ -45,12 +45,16 @@ urlpatterns = patterns(
         name='usergroup_single_view'),
 
     # ###########################
-    # OBSERVATION TYPES & FIELDS
+    # CATEGORIES & FIELDS
     # ###########################
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/$',
         category_views.CategoryUpdate.as_view(),
         name='category'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/categories/re-order/$',
+        project_views.CategoriesReorderView.as_view(),
+        name='categories_reorder'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/$',
         category_views.FieldUpdate.as_view(),

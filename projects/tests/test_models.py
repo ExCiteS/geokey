@@ -5,9 +5,11 @@ from django.core import mail
 from nose.tools import raises
 
 from datagroupings.tests.model_factories import GroupingFactory
+from categories.tests.model_factories import CategoryFactory
 from users.tests.model_factories import (
     UserF, UserGroupF, GroupingUserGroupFactory
 )
+from categories.models import Category
 
 from .model_factories import ProjectF
 from ..models import Project, Admins
@@ -40,6 +42,53 @@ class ProjectTest(TestCase):
             str(project),
             'Name status: inactive private: False'
         )
+
+    def test_re_order_categories(self):
+        project = ProjectF.create()
+
+        category_0 = CategoryFactory.create(**{'project': project})
+        category_1 = CategoryFactory.create(**{'project': project})
+        category_2 = CategoryFactory.create(**{'project': project})
+        category_3 = CategoryFactory.create(**{'project': project})
+        category_4 = CategoryFactory.create(**{'project': project})
+
+        project.re_order_categories(
+            [category_4.id, category_0.id, category_2.id,
+             category_1.id,  category_3.id]
+        )
+
+        categories = project.categories.all()
+
+        self.assertTrue(categories.ordered)
+        self.assertEqual(categories[0], category_4)
+        self.assertEqual(categories[1], category_0)
+        self.assertEqual(categories[2], category_2)
+        self.assertEqual(categories[3], category_1)
+        self.assertEqual(categories[4], category_3)
+
+    def test_re_order_categories_with_false_category(self):
+        project = ProjectF.create()
+
+        category_0 = CategoryFactory.create(**{'project': project})
+        category_1 = CategoryFactory.create(**{'project': project})
+        category_2 = CategoryFactory.create(**{'project': project})
+        category_3 = CategoryFactory.create(**{'project': project})
+        category_4 = CategoryFactory.create(**{'project': project})
+
+        try:
+            project.re_order_categories(
+                [category_4.id, category_0.id, category_2.id,
+                 category_1.id,  5854]
+            )
+        except Category.DoesNotExist:
+            categories = project.categories.all()
+
+            self.assertTrue(categories.ordered)
+            self.assertEqual(categories[0].order, 0)
+            self.assertEqual(categories[1].order, 1)
+            self.assertEqual(categories[2].order, 2)
+            self.assertEqual(categories[3].order, 3)
+            self.assertEqual(categories[4].order, 4)
 
 
 class PrivateProjectTest(TestCase):

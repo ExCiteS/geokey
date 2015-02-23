@@ -318,11 +318,11 @@ div.ui-state-highlight {
 	margin: 15px 0;
 }
 
-div.overview-list-item.field-item span.glyphicon:hover {
+div.overview-list-item.sort-item span.glyphicon:hover {
 	cursor: move;
 }
 
-div.overview-list-item.field-item p {
+div.overview-list-item.sort-item p {
 	padding-left: 22px;
 }
 

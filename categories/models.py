@@ -25,6 +25,7 @@ class Category(models.Model):
     project = models.ForeignKey('projects.Project', related_name='categories')
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
+    order = models.IntegerField(default=0)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
@@ -46,7 +47,7 @@ class Category(models.Model):
     objects = CategoryManager()
 
     class Meta:
-        ordering = ['name']
+        ordering = ['order']
 
     def re_order_fields(self, order):
         """
