@@ -44,10 +44,6 @@ AUTH_USER_MODEL = 'users.User'
 
 STATIC_URL = '/static/'
 
-LOGIN_URL = '/admin/accounts/login/'
-LOGOUT_URL = '/admin/accounts/logout/'
-LOGIN_REDIRECT_URL = '/admin/dashboard/'
-
 DEFAULT_FROM_EMAIL = ''
 
 MEDIA_ROOT = normpath(join(SITE_ROOT, 'media'))

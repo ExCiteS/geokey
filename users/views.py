@@ -91,38 +91,6 @@ class CreateUserMixin(object):
         return user
 
 
-class SignupAdminView(CreateUserMixin, CreateView):
-    """
-    Displays the sign-up page
-    """
-    template_name = 'users/signup.html'
-    form_class = UserRegistrationForm
-
-    def form_valid(self, form):
-        """
-        Registers the user if the form is valid and no other has been
-        regstered with the username.
-        """
-        data = form.cleaned_data
-        self.create_user(data)
-
-        user = auth.authenticate(
-            username=data.get('email'),
-            password=data.get('password')
-        )
-
-        auth.login(self.request, user)
-        return redirect('admin:dashboard')
-
-    def form_invalid(self, form):
-        """
-        The form is invalid or another user has already been registerd worth
-        that username. Displays the error message.
-        """
-        context = self.get_context_data(form=form, user_exists=True)
-        return self.render_to_response(context)
-
-
 class UserAPIView(CreateUserMixin, APIView):
     def get(self, request):
         user = request.user
@@ -426,35 +394,6 @@ def password_reset_confirm(request, *args, **kwargs):
         *args,
         **kwargs
     )
-
-
-class ChangePassword(LoginRequiredMixin, TemplateView):
-    """
-    Displays the change password page
-    `/admin/profile/password/change`
-    """
-    template_name = 'users/changepassword.html'
-
-    def post(self, request):
-        """
-        Changes the password.
-        """
-        user = request.user
-        user = auth.authenticate(
-            username=user.email,
-            password=request.POST.get('old_password')
-        )
-
-        if user is not None:
-            user.reset_password(request.POST.get('new_password1'))
-
-            messages.success(request, 'The password has been changed.')
-            return redirect('admin:userprofile')
-        else:
-            messages.error(request, 'We were not able to athorise you with '
-                                    'your old password. The password has not '
-                                    'been changed.')
-            return self.render_to_response(self.get_context_data())
 
 
 # ############################################################################

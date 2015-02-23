@@ -21,8 +21,7 @@ from .model_factories import UserF, UserGroupF, GroupingUserGroupFactory
 from ..views import (
     UserGroup, UserGroupUsers, UserGroupSingleUser, UserGroupViews,
     UserGroupSingleView, UserGroupCreate, UserGroupSettings, UserProfile,
-    ChangePassword, CreateUserMixin, UserAPIView, Dashboard,
-    UserNotifications
+    CreateUserMixin, UserAPIView, Dashboard, UserNotifications
 )
 from ..models import User, UserGroup as Group
 
@@ -379,26 +378,6 @@ class UserProfileTest(TestCase):
         user = AnonymousUser()
         view = UserProfile.as_view()
         url = reverse('admin:userprofile')
-        request = APIRequestFactory().get(url)
-        request.user = user
-        response = view(request)
-        self.assertTrue(isinstance(response, HttpResponseRedirect))
-
-
-class ChangePasswordTest(TestCase):
-    def test_with_user(self):
-        user = UserF.create()
-        view = ChangePassword.as_view()
-        url = reverse('admin:changepassword')
-        request = APIRequestFactory().get(url)
-        request.user = user
-        response = view(request).render()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_with_anonymous(self):
-        user = AnonymousUser()
-        view = ChangePassword.as_view()
-        url = reverse('admin:changepassword')
         request = APIRequestFactory().get(url)
         request.user = user
         response = view(request)

@@ -39,12 +39,14 @@
 				<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
 					<h3 class="header">Sign in</h3>
 
-					<form role="form" action="/admin/accounts/login/" method="POST">
+					{% include 'snippets/messages.html' %}
+
+					<form role="form" action="/admin/account/login/" method="POST">
 						{% csrf_token %}
 						<input type="hidden" name="next" value="{{ next|escape }}" />
 						<div class="form-group">
-							<label for="username">E-mail</label>
-							<input type="text" class="form-control input-lg" id="username" name="username">
+							<label for="login">E-mail</label>
+							<input type="text" class="form-control input-lg" id="login" name="login">
 						</div>
 						<div class="form-group">
 							<label for="inputPassword">Password</label>
@@ -55,7 +57,7 @@
 						</div>
 					</form>
 					<div class="well text-center">
-						Not a member yet? Please <a href="{% url 'admin:signup'%}">sign up here</a> &bull; <a href="{% url 'admin:password_reset' %}">Forgot password?</a>
+						Not a member yet? Please <a href="{% url 'account_signup' %}">sign up here</a> &bull; <a href="{% url 'account_reset_password' %}">Forgot password?</a>
 					</div>
 				</div>
 			</div>

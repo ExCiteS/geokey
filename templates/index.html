@@ -35,7 +35,7 @@
                                 <div class="panel panel-default">
                                     <div class="panel-body">
                                         <h3>Sign in</h3>
-                                        <form method="POST" action="/admin/accounts/login/">
+                                        <form method="POST" action="/admin/account/login/">
                                             {% csrf_token %}
                                             <div class="form-group">
                                                 <input type="text" placeholder="E-mail" name="username" class="form-control">
@@ -52,7 +52,7 @@
                                 <div class="panel panel-default">
                                     <div class="panel-body">
                                         <h3>New to {{ PLATFORM_NAME }}?</h3>
-                                        <a href="{% url 'admin:signup' %}" class="btn btn-primary">Sign up here</a>
+                                        <a href="/admin/account/signup/" class="btn btn-primary">Sign up here</a>
                                     </div>
                                 </div>
                             </div>
