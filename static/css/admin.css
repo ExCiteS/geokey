@@ -260,6 +260,23 @@ div.well.empty-list {
 	margin-top: 2em;
 }
 
+ul.overview-list > li:not(:first-child):not(:last-child),
+ol.overview-list > li:not(:first-child):not(:last-child) {
+    padding: 1.5em 0;
+    border-top: 1px solid #ddd;
+}
+
+ul.overview-list > li:first-child,
+ol.overview-list > li:first-child {
+    padding-bottom: 1.5em;
+}
+
+ul.overview-list > li:last-child,
+ol.overview-list > li:last-child {
+    padding-top: 1.5em;
+    border-top: 1px solid #ddd;
+}
+
 div.overview-list-item {
 	display: block;
 	border-top: 1px solid #ddd;
