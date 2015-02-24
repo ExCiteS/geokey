@@ -35,19 +35,19 @@
 							{% csrf_token %}
 							<div class="form-group">
 								<label for="email">Email</label>
-								<input type="email" class="form-control input-lg" id="email" name="email" required>
+								<input type="email" class="form-control input-lg" id="email" name="email" value="{{ form.data.email }}" required>
 							</div>
 							<div class="form-group">
 								<label for="password1">Password</label>
-								<input type="password" class="form-control input-lg" id="password1" name="password1" required>
+								<input type="password" class="form-control input-lg" id="password1" name="password1" value="{{ form.data.password1 }}" required>
 							</div>
 							<div class="form-group">
 								<label for="password2">Password (again)</label>
-								<input type="password" class="form-control input-lg" id="password2" name="password2" required>
+								<input type="password" class="form-control input-lg" id="password2" name="password2" value="{{ form.data.password2 }}" required>
 							</div>
 							<div class="form-group">
 								<label for="username">Choose a display name</label>
-								<input type="text" class="form-control input-lg" id="username" name="username" maxlength="50" required>
+								<input type="text" class="form-control input-lg" id="username" name="username" maxlength="50"  value="{{ form.data.username }}" required>
 							</div>
 							<div class="form-group">
 								<button type="submit" class="btn btn-primary">Sign up</button>

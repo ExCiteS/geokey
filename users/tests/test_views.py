@@ -158,20 +158,6 @@ class UserAPIViewTest(TestCase):
         response = view(request).render()
         self.assertEqual(response.status_code, 200)
 
-    def test_update_password(self):
-        user = UserF.create()
-        request = self.factory.patch(
-            self.url,
-            json.dumps({'password': 'sdufhdsjkfkdnsj'}),
-            content_type='application/json'
-        )
-        request.user = user
-        ref_pw = user.password
-        view = UserAPIView.as_view()
-        response = view(request).render()
-        self.assertEqual(response.status_code, 200)
-        self.assertNotEqual(ref_pw, User.objects.get(pk=user.id).password)
-
     def test_update_user_existing(self):
         data = {
             'display_name': 'user-1',

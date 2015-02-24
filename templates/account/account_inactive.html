@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %} | Account inactive{% endblock %}
+{% block bodydata %} class="login" {% endblock %}
+
+{% block main %}
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+                    {% include 'snippets/messages.html' %}
+                    <h3 class="header">Account is inactive</h3>
+                    <div class="alert alert-danger">
+                        <p>Your account is inactive; likely because you have not confirmed your email address yet.</p>
+                        <p>Please check your inbox and follow the link to confirm your email address.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}
