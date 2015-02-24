@@ -6,6 +6,7 @@ from django.test import RequestFactory
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpResponseRedirect
 from django.db import IntegrityError
+from django.core import mail
 
 from nose.tools import raises
 
@@ -75,7 +76,7 @@ class DashboardTest(TestCase):
 class CreateUserMixinTest(TransactionTestCase):
     def setUp(self):
         self.data = {
-            'display_name': 'user-1',
+            'username': 'user-1',
             'email': 'user-1@example.com',
             'password': '123'
         }
@@ -88,7 +89,7 @@ class CreateUserMixinTest(TransactionTestCase):
         user = create_mixin.create_user(self.data)
 
         self.assertTrue(isinstance(user, User))
-        self.assertEqual(user.display_name, self.data.get('display_name'))
+        self.assertEqual(user.display_name, self.data.get('username'))
         self.assertEqual(user.email, self.data.get('email'))
 
     @raises(IntegrityError)
@@ -98,7 +99,7 @@ class CreateUserMixinTest(TransactionTestCase):
 
         user = create_mixin.create_user(self.data)
         self.assertTrue(isinstance(user, User))
-        self.assertEqual(user.display_name, self.data.get('display_name'))
+        self.assertEqual(user.display_name, self.data.get('username'))
         self.assertEqual(user.email, self.data.get('email'))
 
 
@@ -108,9 +109,10 @@ class UserAPIViewTest(TestCase):
         self.url = reverse('api:user_api')
         self.client = ApplicationFactory.create()
         self.user_data = {
-            'display_name': 'user-1',
+            'username': 'user-1',
             'email': 'user-1@example.com',
-            'password': '123'
+            'password1': '123456',
+            'password2': '123456'
         }
         self.data = self.user_data.copy()
         self.data['client_id'] = self.client.client_id
@@ -191,6 +193,7 @@ class UserAPIViewTest(TestCase):
     def test_sign_up(self):
         request = self.factory.post(
             self.url, json.dumps(self.data), content_type='application/json')
+
         view = UserAPIView.as_view()
         response = view(request).render()
         self.assertEqual(response.status_code, 201)
@@ -198,8 +201,9 @@ class UserAPIViewTest(TestCase):
         user_json = json.loads(response.content)
         self.assertEqual(
             user_json.get('display_name'),
-            self.data.get('display_name')
+            self.data.get('username')
         )
+        self.assertEquals(len(mail.outbox), 1)
 
     def test_sign_with_existing_email(self):
         UserF.create(**{
@@ -209,9 +213,10 @@ class UserAPIViewTest(TestCase):
 
         data = {
             'client_id': self.client.client_id,
-            'display_name': 'user-3',
+            'username': 'user-3',
             'email': 'user-3@example.com',
-            'password': '123'
+            'password1': '123456',
+            'password2': '123456'
         }
 
         request = self.factory.post(
@@ -227,7 +232,8 @@ class UserAPIViewTest(TestCase):
         data = {
             'client_id': self.client.client_id,
             'email': 'user-1@example.com',
-            'password': '123'
+            'password1': '123456',
+            'password2': '123456'
         }
 
         request = self.factory.post(
@@ -237,10 +243,14 @@ class UserAPIViewTest(TestCase):
 
         self.assertEqual(response.status_code, 400)
         errors = json.loads(response.content)
+
         self.assertEqual(len(errors.get('errors')), 1)
 
     def test_sign_with_existing_email_and_name(self):
-        UserF.create(**self.user_data)
+        UserF.create(**{
+            'display_name': 'user-1',
+            'email': 'user-1@example.com'
+        })
 
         request = self.factory.post(
             self.url, json.dumps(self.data), content_type='application/json')

@@ -1,5 +1,4 @@
 from django.views.generic import TemplateView, CreateView
-from django.contrib import auth
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
@@ -7,6 +6,10 @@ from django.utils.html import strip_tags
 from django.contrib.auth.views import password_reset_confirm as reset_view
 
 from braces.views import LoginRequiredMixin
+
+from allauth.account.models import EmailAddress
+from allauth.account.forms import SignupForm
+from allauth.account.utils import send_email_confirmation
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -26,7 +29,6 @@ from .serializers import (
 )
 from .models import User, GroupingUserGroup
 from .forms import (
-    UserRegistrationForm,
     UsergroupCreateForm,
     CustomPasswordChangeForm
 )
@@ -84,8 +86,8 @@ class CreateUserMixin(object):
     def create_user(self, data):
         user = User.objects.create_user(
             data.get('email'),
-            data.get('display_name'),
-            password=data.get('password')
+            data.get('username'),
+            password=data.get('password1')
         )
         user.save()
         return user
@@ -135,13 +137,22 @@ class UserAPIView(CreateUserMixin, APIView):
 
     def post(self, request):
         data = request.DATA
-        form = UserRegistrationForm(data)
+        form = SignupForm(data)
         client_id = data.pop('client_id', None)
 
         try:
             Application.objects.get(client_id=client_id)
             if form.is_valid():
                 user = self.create_user(data)
+
+                EmailAddress.objects.add_email(
+                    request._request,
+                    user,
+                    user.email,
+                    signup=True,
+                    confirm=True
+                )
+
                 serializer = UserSerializer(user)
                 return Response(
                     serializer.data,
