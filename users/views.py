@@ -117,9 +117,6 @@ class UserAPIView(CreateUserMixin, APIView):
             if serializer.is_valid():
                 serializer.save()
 
-                if data.get('password') is not None:
-                    user.reset_password(data.get('password'))
-
                 return Response(
                     serializer.data,
                     status=status.HTTP_200_OK
