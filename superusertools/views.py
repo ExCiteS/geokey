@@ -1,4 +1,6 @@
 from django.views.generic import TemplateView
+from django.contrib.sites.shortcuts import get_current_site
+from django.contrib import messages
 
 from braces.views import LoginRequiredMixin
 
@@ -29,6 +31,30 @@ class SuperuserMixin(object):
             })
 
         return super(SuperuserMixin, self).dispatch(request, *args, **kwargs)
+
+
+class PlatformSettings(LoginRequiredMixin, SuperuserMixin, TemplateView):
+    template_name = 'superusertools/platform_settings.html'
+
+    def get_context_data(self):
+        return {'site': get_current_site(self.request)}
+
+    def post(self, request):
+        data = request.POST
+        context = self.get_context_data()
+        site = context.pop('site', None)
+
+        if site is not None:
+            site.name = data.get('name')
+            site.domain = data.get('domain')
+            site.save()
+            messages.success(
+                self.request,
+                "The platform settings have been updated."
+            )
+
+        context['site'] = site
+        return self.render_to_response(context)
 
 
 class ProjectsList(LoginRequiredMixin, SuperuserMixin, TemplateView):

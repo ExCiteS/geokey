@@ -2,7 +2,6 @@ from .contrib import *
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-PLATFORM_NAME = 'GeoKey'
 DEFAULT_FROM_EMAIL = 'sender@example.com'
 
 YOUTUBE_AUTH_EMAIL = 'your-email@example.com'

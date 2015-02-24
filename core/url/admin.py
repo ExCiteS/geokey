@@ -199,8 +199,11 @@ urlpatterns = patterns(
     # SUPER-USER TOOLS
     # ###########################
     url(r'^superuser-tools/$',
-        superuser.ProjectsList.as_view(),
+        superuser.PlatformSettings.as_view(),
         name="superuser_index"),
+    url(r'^superuser-tools/projects/$',
+        superuser.ProjectsList.as_view(),
+        name="superuser_projects"),
     url(r'^superuser-tools/manage-users/$',
         superuser.ManageSuperUsers.as_view(),
         name="superuser_manage_users"),

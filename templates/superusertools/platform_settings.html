@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %} | Superuser tools{% endblock %}
+
+{% block main %}
+<div class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <h1>Superuser tools</h1>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+    <div class="row">
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="list-group">
+                    <a href="{% url 'admin:superuser_index' %}" class="list-group-item active">Platform settings</a>
+                    <a href="{% url 'admin:superuser_projects' %}" class="list-group-item">Manage all projects</a>
+                    <a href="{% url 'admin:superuser_manage_users' %}" class="list-group-item">Add + remove super users</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <h3>Platform Settings</h3>
+
+            <form method="POST" action="{% url 'admin:superuser_index' %}" novalidate>
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" class="form-control input-lg" id="name" name="name" maxlength="50" value="{{ site.name }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="name">Domain</label>
+                    <input type="url" class="form-control input-lg" id="domain" name="domain" maxlength="100" value="{{ site.domain }}" required>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="reset" class="btn btn-link">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block libraries %}
+            <script src="/static/js/admin.ui.forms.validate.js"></script>
+{% endblock %}
