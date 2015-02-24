@@ -44,7 +44,5 @@ AUTH_USER_MODEL = 'users.User'
 
 STATIC_URL = '/static/'
 
-DEFAULT_FROM_EMAIL = ''
-
 MEDIA_ROOT = normpath(join(SITE_ROOT, 'media'))
 MEDIA_URL = '/media/'
