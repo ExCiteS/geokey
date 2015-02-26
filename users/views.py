@@ -9,7 +9,7 @@ from braces.views import LoginRequiredMixin
 
 from allauth.account.models import EmailAddress
 from allauth.account.forms import SignupForm
-from allauth.account.utils import send_email_confirmation
+from allauth.account.views import PasswordChangeView
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -80,91 +80,6 @@ class Dashboard(LoginRequiredMixin, TemplateView):
             'status_types': STATUS,
             'extensions': ext
         }
-
-
-class CreateUserMixin(object):
-    def create_user(self, data):
-        user = User.objects.create_user(
-            data.get('email'),
-            data.get('username'),
-            password=data.get('password1')
-        )
-        user.save()
-        return user
-
-
-class UserAPIView(CreateUserMixin, APIView):
-    def get(self, request):
-        user = request.user
-        if not user.is_anonymous():
-            serializer = UserSerializer(user)
-            return Response(
-                serializer.data,
-                status=status.HTTP_200_OK
-            )
-        else:
-            return Response(
-                {'error': 'You have to be signed in to get user information'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-    def patch(self, request):
-        user = request.user
-
-        if not user.is_anonymous():
-            data = request.DATA
-            serializer = UserSerializer(user, data=data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-
-                return Response(
-                    serializer.data,
-                    status=status.HTTP_200_OK
-                )
-            else:
-                return Response(
-                    {'error': serializer.errors},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        else:
-            return Response(
-                {'error': 'You have to be signed in to get user information'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-    def post(self, request):
-        data = request.DATA
-        form = SignupForm(data)
-        client_id = data.pop('client_id', None)
-
-        try:
-            Application.objects.get(client_id=client_id)
-            if form.is_valid():
-                user = self.create_user(data)
-
-                EmailAddress.objects.add_email(
-                    request._request,
-                    user,
-                    user.email,
-                    signup=True,
-                    confirm=True
-                )
-
-                serializer = UserSerializer(user)
-                return Response(
-                    serializer.data,
-                    status=status.HTTP_201_CREATED
-                )
-            else:
-                return Response(
-                    {'errors': form.errors},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        except Application.DoesNotExist:
-            return Response(
-                {'errors': {'client': 'Client ID not provided or incorrect.'}},
-                status=status.HTTP_400_BAD_REQUEST
-            )
 
 
 class UserGroupList(LoginRequiredMixin, TemplateView):
@@ -395,13 +310,8 @@ class UserNotifications(LoginRequiredMixin, TemplateView):
         return self.render_to_response(context)
 
 
-def password_reset_confirm(request, *args, **kwargs):
-    return reset_view(
-        request,
-        set_password_form=CustomPasswordChangeForm,
-        *args,
-        **kwargs
-    )
+class ChangePassword(LoginRequiredMixin, PasswordChangeView):
+    form_class = CustomPasswordChangeForm
 
 
 # ############################################################################
@@ -586,4 +496,109 @@ class UserGroupSingleView(APIView):
 #
 # ############################################################################
 
-# N/A
+
+class CreateUserMixin(object):
+    def create_user(self, data):
+        user = User.objects.create_user(
+            data.get('email'),
+            data.get('username'),
+            password=data.get('password1')
+        )
+        user.save()
+        return user
+
+
+class UserAPIView(CreateUserMixin, APIView):
+    def get(self, request):
+        user = request.user
+        if not user.is_anonymous():
+            serializer = UserSerializer(user)
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {'error': 'You have to be signed in to get user information'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+    def patch(self, request):
+        user = request.user
+
+        if not user.is_anonymous():
+            data = request.DATA
+            serializer = UserSerializer(user, data=data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_200_OK
+                )
+            else:
+                return Response(
+                    {'error': serializer.errors},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            return Response(
+                {'error': 'You have to be signed in to get user information'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+    def post(self, request):
+        data = request.DATA
+        form = SignupForm(data)
+        client_id = data.pop('client_id', None)
+
+        try:
+            Application.objects.get(client_id=client_id)
+            if form.is_valid():
+                user = self.create_user(data)
+
+                EmailAddress.objects.add_email(
+                    request._request,
+                    user,
+                    user.email,
+                    signup=True,
+                    confirm=True
+                )
+
+                serializer = UserSerializer(user)
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_201_CREATED
+                )
+            else:
+                return Response(
+                    {'errors': form.errors},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        except Application.DoesNotExist:
+            return Response(
+                {'errors': {'client': 'Client ID not provided or incorrect.'}},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class ChangePasswordView(APIView):
+    def post(self, request):
+        user = request.user
+        data = request.DATA
+
+        if not user.is_anonymous():
+            form = CustomPasswordChangeForm(user, data)
+            if form.is_valid():
+                form.save()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response(
+                    {'errors': form.errors},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            return Response(
+                {'error': 'You have to be signed in to change the password.'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )

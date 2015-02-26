@@ -22,7 +22,8 @@ from .model_factories import UserF, UserGroupF, GroupingUserGroupFactory
 from ..views import (
     UserGroup, UserGroupUsers, UserGroupSingleUser, UserGroupViews,
     UserGroupSingleView, UserGroupCreate, UserGroupSettings, UserProfile,
-    CreateUserMixin, UserAPIView, Dashboard, UserNotifications
+    CreateUserMixin, UserAPIView, Dashboard, UserNotifications,
+    ChangePasswordView
 )
 from ..models import User, UserGroup as Group
 
@@ -977,3 +978,61 @@ class UserGroupSingleViewTest(TestCase):
             usergroup=self.contributors, grouping=self.view)
         self.assertTrue(view_group.can_read)
         self.assertTrue(view_group.can_view)
+
+
+class ChangePasswordTest(TestCase):
+    def test_changepassword(self):
+        user = UserF.create(**{'password': '123456'})
+        factory = APIRequestFactory()
+        url = reverse('api:changepassword')
+        data = {
+            'oldpassword': '123456',
+            'password1': '1234567',
+            'password2': '1234567',
+        }
+        request = factory.post(
+            url, json.dumps(data), content_type='application/json')
+        force_authenticate(request, user=user)
+        view = ChangePasswordView.as_view()
+        response = view(request).render()
+        self.assertEqual(response.status_code, 204)
+
+    def test_changepassword_wrong_oldpassword(self):
+        user = UserF.create(**{'password': '123456'})
+        factory = APIRequestFactory()
+        url = reverse('api:changepassword')
+        data = {
+            'oldpassword': '12345',
+            'password1': '1234567',
+            'password2': '1234567',
+        }
+        request = factory.post(
+            url, json.dumps(data), content_type='application/json')
+        force_authenticate(request, user=user)
+        view = ChangePasswordView.as_view()
+        response = view(request).render()
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            json.loads(response.content).get('errors').get('oldpassword')[0],
+            'Please type your current password.'
+        )
+
+    def test_changepassword_password_dont_match(self):
+        user = UserF.create(**{'password': '123456'})
+        factory = APIRequestFactory()
+        url = reverse('api:changepassword')
+        data = {
+            'oldpassword': '123456',
+            'password1': '12345687',
+            'password2': '12345678',
+        }
+        request = factory.post(
+            url, json.dumps(data), content_type='application/json')
+        force_authenticate(request, user=user)
+        view = ChangePasswordView.as_view()
+        response = view(request).render()
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            json.loads(response.content).get('errors').get('password2')[0],
+            'You must type the same password each time.'
+        )

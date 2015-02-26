@@ -3,7 +3,7 @@ from django.conf.urls import patterns, url
 from projects import views as project_views
 from categories import views as category_views
 from contributions import views as contribution_views
-from users.views import UserAPIView
+from users.views import UserAPIView, ChangePasswordView
 
 urlpatterns = patterns(
     '',
@@ -11,6 +11,7 @@ urlpatterns = patterns(
     # USER
     # ###########################
     url(r'^user/$', UserAPIView.as_view(), name='user_api'),
+    url(r'^user/password/change/$', ChangePasswordView.as_view(), name='changepassword'),
 
     # ###########################
     # PROJECTS
