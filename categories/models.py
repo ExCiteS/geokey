@@ -204,9 +204,10 @@ class TextField(Field):
         """
         self.validate_required(value)
 
-        if self.maxlength is not None and len(value) > self.maxlength:
-            raise InputError('The input provided for text field %s contains '
-                             'too many characters.' % self.name)
+        if value is not None:
+            if self.maxlength is not None and len(value) > self.maxlength:
+                raise InputError('The input provided for text field %s '
+                                 'contains too many characters.' % self.name)
 
     @property
     def type_name(self):
