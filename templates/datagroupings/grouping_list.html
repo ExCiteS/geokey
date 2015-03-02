@@ -24,16 +24,26 @@
 
             <div class="row">
                 <div class="col-sm-8">
-                    <h3>Data groupings
+                    <h3 class="header">Data groupings
                         {% if project.groupings.all %}
                             <a href="{% url 'admin:grouping_create' project.id %}" class="btn btn-sm btn-success pull-right"><span class="glyphicon glyphicon-plus"></span> Create new data grouping</a>
                         {% endif %}
                     </h3>
                     {% for grouping in project.groupings.all %}
-                    <div class="overview-list-item">
+
+                    {% if forloop.first %}
+                    <ul class="list-unstyled overview-list">
+                    {% endif %}
+
+                    <li>
                         <h4><a href="{% url 'admin:grouping_overview' grouping.project.id grouping.id %}">{{grouping.name}}</a></h4>
                         {% if grouping.description %}<p>{{grouping.description}}</p>{% endif %}
-                    </div>
+                    </li>
+
+                    {% if forloop.last %}
+                    </ul>
+                    {% endif %}
+
                     {% empty %}
                         <div class="well empty-list">
                             <p class="lead">We couldn't find any data groupings for this project.</p>

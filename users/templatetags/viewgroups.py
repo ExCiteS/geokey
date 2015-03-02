@@ -9,12 +9,23 @@ def get_view_group(grouping, group):
     message = ''
     if not grouping.project.isprivate and not grouping.isprivate:
         disabled = 'disabled="disabled"'
-        message = '<p class="text-danger">This data grouping is public. To restrict access, navigate to the <a href="%s">data grouping settings</a> and revoke access from the public.</p>' % reverse('admin:grouping_permissions', kwargs={'project_id' :grouping.project.id, 'grouping_id' : grouping.id, })
+        message = '<p class="text-danger">This data grouping is public. To \
+            restrict access, navigate to the <a href="%s">data grouping \
+            settings</a> and revoke access from the public.</p>' % reverse(
+                'admin:grouping_permissions',
+                kwargs={
+                    'project_id': grouping.project.id,
+                    'grouping_id': grouping.id
+                }
+            )
 
     if group.viewgroups.filter(grouping=grouping).exists():
-        return '<div class="overview-list-item">\
-                    %s<button type="button" name="%s" class="btn btn-default pull-right active grant-single" data-toggle="button" %s><span class="text-danger">Revoke access</span></button><strong>%s</strong><p>%s</p>\
-                </div>' % (
+        return '<li>\
+                    %s<button type="button" name="%s" class="btn btn-default \
+                    pull-right active grant-single" data-toggle="button" %s>\
+                    <span class="text-danger">Revoke access</span></button>\
+                    <strong>%s</strong><p>%s</p>\
+                </li>' % (
             message,
             grouping.id,
             disabled,
@@ -22,9 +33,12 @@ def get_view_group(grouping, group):
             grouping.description
         )
     else:
-        return '<div class="overview-list-item">\
-                    %s<button type="button" name="%s" class="btn btn-default pull-right grant-single" data-toggle="button" %s><span class="text-success">Grant access</span></button><strong>%s</strong><p>%s</p>\
-                </div>' % (
+        return '<li>\
+                    %s<button type="button" name="%s" class="btn btn-default \
+                    pull-right grant-single" data-toggle="button" %s><span \
+                    class="text-success">Grant access</span></button>\
+                    <strong>%s</strong><p>%s</p>\
+                </li>' % (
             message,
             grouping.id,
             disabled,
@@ -35,8 +49,10 @@ def get_view_group(grouping, group):
 
 @register.simple_tag
 def viewgroups(group):
-    html = ''
+    html = '<ul class="list-unstyled overview-list">'
     for grouping in group.project.groupings.all():
         html += get_view_group(grouping, group)
+
+    html += '</ul>'
 
     return html

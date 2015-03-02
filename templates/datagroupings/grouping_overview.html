@@ -38,20 +38,28 @@
                     </div>
                 </div>
                 <div class="col-sm-8">
-                    <h3>
+                    <h3 class="header">
                         Filters
                         {% if grouping.rules.all %}
                             <a href="{% url 'admin:rule_create' grouping.project.id grouping.id %}" class="btn btn-success btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create new filter</a>
                         {% endif %}
                     </h3>
                     {% for filter in grouping.rules.all %}
-                    <div class="overview-list-item">
+                    {% if forloop.first %}
+                    <ul class="list-unstyled overview-list">
+                    {% endif %}
+
+                    <li>
 
                         <h4><a href="{% url 'admin:rule_settings' grouping.project.id grouping.id filter.id %}">Contributions of type <strong>{{ filter.category.name }}</strong></a>{% if filter.filters or filter.min_date or filter.max_date %} where {% endif %}</h4>
                         <ul>
                             {% filters filter %}
                         </ul>
-                    </div>
+                    </li>
+
+                    {% if forloop.last %}
+                    </ul>
+                    {% endif %}
                     {% empty %}
                         <div class="well empty-list">
                             <p class="lead">We couldn't find any filters for this data grouping.</p>

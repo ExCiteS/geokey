@@ -40,20 +40,27 @@
                     </div>
                 </div>
                 <div class="col-sm-8">
-                    <h3>
+                    <h3 class="header">
                         Fields
                         {% if category.fields.all %}
                             <a href="{% url 'admin:category_field_create' category.project.id category.id %}" class="btn btn-success btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create new field</a>
                         {% endif %}
                     </h3>
                     {% if category.fields.all %}
-                        <div id="sortable">
                         {% for field in category.fields.all %}
-                            <div class="overview-list-item sort-item" data-item-id="{{ field.id }}">
+                            {% if forloop.first %}
+                            <ul class="list-unstyled overview-list" id="sortable">
+                            {% endif %}
+
+                            <li class="sort-item" data-item-id="{{ field.id }}">
                                 <h4><small><span class="glyphicon glyphicon-sort"></span></small> <a href="{% url 'admin:category_field_settings' category.project.id category.id field.id %}">{{field.name}}</a> {% if field.status == 'inactive' %}<small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
                                 {% if field.description %}<p>{{field.description}}</p>{% endif %}
                                 <p class="meta"><strong>Key:</strong> {{ field.key }} &mdash; <strong>Type:</strong> {{ field.type_name }}</p>
-                            </div>
+                            </li>
+
+                            {% if forloop.last %}
+                            </ul>
+                            {% endif %}
                         {% endfor %}
                         </div>
                     {% else %}
