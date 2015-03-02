@@ -27,11 +27,20 @@
                         Your connected applications
                     </h3>
                     {% for app in connected_apps %}
-                    <div class="overview-list-item">
+
+                    {% if forloop.first %}
+                    <ul class="list-unstyled overview-list">
+                    {% endif %}
+
+                    <li>
                         <a href="{% url 'admin:app_disconnect' app.id %}" class="btn btn-default pull-right">Disconnect</a>
                         <h3>{{ app.name }}</h3>
                         {% if app.description %}<p>{{app.description}}</p>{% endif %}
-                    </div>
+                    </li>
+
+                    {% if forloop.last %}
+                    </ul>
+                    {% endif %}
                     {% empty %}
                         <div class="well empty-list">
                             <p class="lead">You haven't connected any applications yet.</p>

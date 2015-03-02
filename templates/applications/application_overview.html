@@ -31,17 +31,26 @@
                 </div>
 
                 <div class="col-md-8">
-                    <h3>
+                    <h3 class="header">
                         Your registered applications
                         {% if apps %}<a href="{% url 'admin:app_register' %}" class="pull-right btn btn-sm btn-success"><span class="glyphicon glyphicon-plus"></span> Create new application</a>{% endif %}
                     </h3>
+
                     {% for app in apps %}
-                    <div class="overview-list-item">
+                    {% if forloop.first %}
+                    <ul class="list-unstyled overview-list">
+                    {% endif %}
+
+                    <li>
                         <h3><a href="{% url 'admin:app_settings' app.id %}">{{app.name}}</a></h3>
                         {% if app.description %}<p>{{app.description}}</p>{% endif %}
                         <p class="meta">Client ID: <span class="lower-case">{{ app.client_id }}</span></p>
                         <p class="meta">Client secret: <span class="lower-case">{{ app.client_secret }}</span></p>
-                    </div>
+                    </li>
+
+                    {% if forloop.last %}
+                    </ul>
+                    {% endif %}
                     {% empty %}
                         <div class="well empty-list">
                             <p class="lead">You haven't registered an application yet.</p>
