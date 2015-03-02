@@ -61,4 +61,4 @@ core/url/extensions.py
 # Grunt #
 ##########
 node_modules
-assets
+media
