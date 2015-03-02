@@ -323,6 +323,33 @@ class ContributionSerializerIntegrationTests(TestCase):
         )
 
     @raises(MalformedRequestData)
+    def test_create_with_inactive_category(self):
+        self.category.status = 'inactive'
+        self.category.save()
+
+        data = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -0.134046077728271,
+                    51.52439200896907
+                ]
+            },
+            "properties": {
+                "category": self.category.id,
+                "attributes": {
+                    "key_1": "value 1",
+                    "key_2": 12
+                }
+            }
+        }
+        ContributionSerializer(
+            data=data,
+            context={'user': self.contributor, 'project': self.project}
+        )
+
+    @raises(MalformedRequestData)
     def test_create_with_private_location(self):
         location = LocationFactory(**{'private': True})
         data = {

@@ -129,52 +129,56 @@ class ContributionSerializer(object):
                 )
 
     def restore_object(self, instance=None, data=None):
-        if data is not None:
-            properties = data.get('properties')
-            location = properties.get('location')
-            attributes = properties.get('attributes')
-            user = self.context.get('user')
-
-            status = properties.pop('status', None)
-
-            if instance is not None:
-                self.restore_location(
-                    instance.location,
-                    data=data.get('properties').pop('location', None),
-                    geometry=data.pop('geometry', None)
-                )
-
-                return instance.update(
-                    attributes=attributes,
-                    updator=user,
-                    status=status
-                )
-            else:
-                project = self.context.get('project')
-
-                try:
-                    category = project.categories.get(
-                        pk=properties.pop('category'))
-                except Category.DoesNotExist:
-                    raise MalformedRequestData('The category can not'
-                                               'be used with the project or '
-                                               'does not exist.')
-
-                location = self.restore_location(
-                    data=data.get('properties').pop('location', None),
-                    geometry=data.get('geometry')
-                )
-
-                return Observation.create(
-                    attributes=attributes,
-                    creator=user,
-                    location=location,
-                    project=category.project,
-                    category=category,
-                    status=status
-                )
-        else:
+        if data is None:
             return instance
+
+        properties = data.get('properties')
+        location = properties.get('location')
+        attributes = properties.get('attributes')
+        user = self.context.get('user')
+
+        status = properties.pop('status', None)
+
+        if instance is not None:
+            self.restore_location(
+                instance.location,
+                data=data.get('properties').pop('location', None),
+                geometry=data.pop('geometry', None)
+            )
+
+            return instance.update(
+                attributes=attributes,
+                updator=user,
+                status=status
+            )
+        else:
+            project = self.context.get('project')
+
+            try:
+                category = project.categories.get(
+                    pk=properties.pop('category'))
+
+                if category.status == 'inactive':
+                    raise MalformedRequestData('The category can not be used '
+                                               'because it is inactive.')
+            except Category.DoesNotExist:
+                raise MalformedRequestData('The category can not'
+                                           'be used with the project or '
+                                           'does not exist.')
+
+            location = self.restore_location(
+                data=data.get('properties').pop('location', None),
+                geometry=data.get('geometry')
+            )
+
+            return Observation.create(
+                attributes=attributes,
+                creator=user,
+                location=location,
+                project=category.project,
+                category=category,
+                status=status
+            )
 
     def get_display_field(self, obj):
         if obj.display_field is not None:
