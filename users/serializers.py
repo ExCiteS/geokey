@@ -12,17 +12,17 @@ class UserSerializer(FieldSelectorSerializer):
         model = User
         fields = ('id', 'email', 'display_name')
 
-    def validate_display_name(self, attrs, source):
-        if User.objects.filter(display_name__iexact=attrs[source]).exists():
+    def validate_display_name(self, value):
+        if User.objects.filter(display_name__iexact=value).exists():
             raise ValidationError('Display name sdf already exists')
 
-        return attrs
+        return value
 
-    def validate_email(self, attrs, source):
-        if User.objects.filter(email__iexact=attrs[source]).exists():
+    def validate_email(self, value):
+        if User.objects.filter(email__iexact=value).exists():
             raise ValidationError('Email already exists')
 
-        return attrs
+        return value
 
 
 class UserGroupSerializer(ModelSerializer):
