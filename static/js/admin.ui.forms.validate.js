@@ -78,15 +78,17 @@ $(function() {
         var urlFields = $(form).find('input[type="url"]');
 
         for (var i = 0, len = urlFields.length; i < len; i++) {
-            var url = urlFields[i].value.replace(/\s+/g, '');
-            urlFields[i].value = url;
-            var host = url.replace('http://','').replace('https://','').split(/[/?#]/)[0];
-            if (host.indexOf('.') === -1 && host.indexOf('localhost') === -1) {
-                valid = false;
-                $(urlFields[i]).parents('.form-group').addClass('has-error');
-                $(urlFields[i]).siblings('.help-block').remove();
-                $(urlFields[i]).after('<span class="help-block">The URL you entered is not valid. Did you mean http://localhost/ ?</span>');
-            }
+        	if (urlFields[i].value) {
+	            var url = urlFields[i].value.replace(/\s+/g, '');
+	            urlFields[i].value = url;
+	            var host = url.replace('http://','').replace('https://','').split(/[/?#]/)[0];
+	            if (host.indexOf('.') === -1 && host.indexOf('localhost') === -1) {
+	                valid = false;
+	                $(urlFields[i]).parents('.form-group').addClass('has-error');
+	                $(urlFields[i]).siblings('.help-block').remove();
+	                $(urlFields[i]).after('<span class="help-block">The URL you entered is not valid. Did you mean http://localhost/ ?</span>');
+	            }
+        	}
         }
         return valid;
     }
