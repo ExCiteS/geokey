@@ -16,21 +16,13 @@ class ProjectSerializer(FieldSelectorSerializer):
     """
     Serializer for projects.
     """
-    data_groupings = serializers.SerializerMethodField(
-        'get_data_groupings')
-    num_contributions = serializers.SerializerMethodField(
-        'get_number_contrbutions')
-    num_locations = serializers.SerializerMethodField(
-        'get_number_locations')
+    data_groupings = serializers.SerializerMethodField()
+    num_locations = serializers.SerializerMethodField()
 
-    categories = serializers.SerializerMethodField(
-        'get_categories')
-    contribution_info = serializers.SerializerMethodField(
-        'get_contribution_info')
-    user_info = serializers.SerializerMethodField(
-        'get_user_info')
-    geographic_extent = serializers.SerializerMethodField(
-        'get_extent')
+    categories = serializers.SerializerMethodField()
+    contribution_info = serializers.SerializerMethodField()
+    user_info = serializers.SerializerMethodField()
+    geographic_extent = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
@@ -59,7 +51,7 @@ class ProjectSerializer(FieldSelectorSerializer):
             context={'user': user})
         return view_serializer.data
 
-    def get_extent(self, project):
+    def get_geographic_extent(self, project):
         """
         Returns the geographic extent of the project as geojson.
         """
@@ -68,7 +60,7 @@ class ProjectSerializer(FieldSelectorSerializer):
         else:
             return None
 
-    def get_number_locations(self, project):
+    def get_num_locations(self, project):
         """
         Method for SerializerMethodField `num_locations`. Returns the number
         available for the project.

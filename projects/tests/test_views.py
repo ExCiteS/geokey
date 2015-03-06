@@ -886,8 +886,8 @@ class SingleProjectTest(TestCase):
         response = view(request, project_id=project.id).render()
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, project.name)
-        self.assertContains(response, '"can_contribute": true')
-        self.assertContains(response, '"is_involved": true')
+        self.assertContains(response, '"can_contribute":true')
+        self.assertContains(response, '"is_involved":true')
         self.assertContains(response, '"num_contributions"')
         self.assertContains(response, '"geographic_extent"')
 
@@ -923,7 +923,7 @@ class SingleProjectTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, project.name)
-        self.assertContains(response, '"can_contribute": true')
+        self.assertContains(response, '"can_contribute":true')
 
     def test_get_deleted_project_with_contributor(self):
         user = UserF.create()
@@ -956,7 +956,7 @@ class SingleProjectTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, project.name)
-        self.assertContains(response, '"can_contribute": true')
+        self.assertContains(response, '"can_contribute":true')
 
     def test_get_inactive_project_with_contributor(self):
         user = UserF.create()
@@ -990,7 +990,7 @@ class SingleProjectTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, project.name)
-        self.assertContains(response, '"can_contribute": true')
+        self.assertContains(response, '"can_contribute":true')
 
     def test_get_deleted_project_with_view_member(self):
         user = UserF.create()
@@ -1023,7 +1023,7 @@ class SingleProjectTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, project.name)
-        self.assertContains(response, '"can_contribute": false')
+        self.assertContains(response, '"can_contribute":false')
 
     def test_get_inactive_project_with_view_member(self):
         user = UserF.create()
@@ -1057,7 +1057,7 @@ class SingleProjectTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, project.name)
-        self.assertContains(response, '"can_contribute": false')
+        self.assertContains(response, '"can_contribute":false')
 
     def test_get_deleted_project_with_non_member(self):
         user = UserF.create()
@@ -1117,7 +1117,7 @@ class SingleProjectTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, project.name)
-        self.assertContains(response, '"can_contribute": false')
+        self.assertContains(response, '"can_contribute":false')
 
     def test_get_public_project_with_anonymous(self):
         user = AnonymousUser()
@@ -1134,7 +1134,7 @@ class SingleProjectTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, project.name)
-        self.assertContains(response, '"can_contribute": false')
+        self.assertContains(response, '"can_contribute":false')
 
 
 class ProjectContactAdminsTest(TestCase):

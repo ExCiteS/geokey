@@ -532,7 +532,7 @@ class AddCommentToPrivateProjectTest(APITestCase):
             (self.project.id, self.observation.id),
             {
                 'text': 'A review comment to the observation',
-                'review_status': 'closed'
+                'review_status': 'resolved'
             }
         )
         force_authenticate(request, user=self.contributor)

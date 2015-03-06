@@ -1,4 +1,6 @@
-from rest_framework import serializers
+from rest_framework.serializers import (
+    ModelSerializer, ReadOnlyField, SerializerMethodField
+)
 
 from core.serializers import FieldSelectorSerializer
 
@@ -8,12 +10,12 @@ from .models import (
 )
 
 
-class FieldSerializer(serializers.ModelSerializer):
+class FieldSerializer(ModelSerializer):
     """
     Serializer for fields.
     Used in .views.FieldApiDetail
     """
-    fieldtype = serializers.Field()
+    fieldtype = ReadOnlyField()
 
     class Meta:
         model = Field
@@ -25,12 +27,12 @@ class FieldSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'name', 'key')
 
 
-class TextFieldSerializer(serializers.ModelSerializer):
+class TextFieldSerializer(ModelSerializer):
     """
     Serializer for fields.
     Used in .views.FieldApiDetail
     """
-    fieldtype = serializers.Field()
+    fieldtype = ReadOnlyField()
 
     class Meta:
         model = TextField
@@ -42,12 +44,12 @@ class TextFieldSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'name', 'key')
 
 
-class NumericFieldSerializer(serializers.ModelSerializer):
+class NumericFieldSerializer(ModelSerializer):
     """
     Serializer for numeric fields.
     Used in .views.FieldApiDetail
     """
-    fieldtype = serializers.Field()
+    fieldtype = ReadOnlyField()
 
     class Meta:
         model = NumericField
@@ -59,7 +61,7 @@ class NumericFieldSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'name', 'key')
 
 
-class LookupValueSerializer(serializers.ModelSerializer):
+class LookupValueSerializer(ModelSerializer):
     """
     Serializer for lookup value.
     Used in .views.FieldApiLookups
@@ -68,33 +70,20 @@ class LookupValueSerializer(serializers.ModelSerializer):
         model = LookupValue
         fields = ('id', 'name')
 
-    def field_to_native(self, obj, field_name):
-        return [
-            self.to_native(item)
-            for item in obj.lookupvalues.filter(status='active')
-        ]
+
+class BaseLookupSerializer(object):
+    def get_lookupvalues(self, field):
+        values = field.lookupvalues.filter(status='active')
+
+        if isinstance(field, LookupField):
+            serializer = LookupValueSerializer(values, many=True)
+        elif isinstance(field, MultipleLookupField):
+            serializer = MultipleLookupValueSerializer(values, many=True)
+
+        return serializer.data
 
 
-class LookupFieldSerializer(serializers.ModelSerializer):
-    """
-    Serializer for lookup fields.
-    Used in .views.FieldApiLookups
-    """
-    lookupvalues = LookupValueSerializer(many=True, read_only=True)
-    fieldtype = serializers.Field()
-
-    class Meta:
-        model = LookupField
-        depth = 1
-        fields = (
-            'id', 'name', 'key', 'fieldtype', 'description', 'status',
-            'required', 'lookupvalues'
-        )
-        read_only_fields = ('id', 'name', 'key')
-        write_only_fields = ('status',)
-
-
-class MultipleLookupValueSerializer(serializers.ModelSerializer):
+class MultipleLookupValueSerializer(ModelSerializer):
     """
     Serializer for lookup value.
     Used in .views.FieldApiLookups
@@ -103,20 +92,14 @@ class MultipleLookupValueSerializer(serializers.ModelSerializer):
         model = MultipleLookupValue
         fields = ('id', 'name')
 
-    def field_to_native(self, obj, field_name):
-        return [
-            self.to_native(item)
-            for item in obj.lookupvalues.filter(status='active')
-        ]
 
-
-class MultipleLookupFieldSerializer(serializers.ModelSerializer):
+class LookupFieldSerializer(ModelSerializer, BaseLookupSerializer):
     """
     Serializer for lookup fields.
     Used in .views.FieldApiLookups
     """
-    lookupvalues = MultipleLookupValueSerializer(many=True, read_only=True)
-    fieldtype = serializers.Field()
+    lookupvalues = SerializerMethodField()
+    fieldtype = ReadOnlyField()
 
     class Meta:
         model = LookupField
@@ -129,26 +112,23 @@ class MultipleLookupFieldSerializer(serializers.ModelSerializer):
         write_only_fields = ('status',)
 
 
-class FieldObjectRelatedField(serializers.RelatedField):
-    def to_native(self, value):
-        if isinstance(value, TextField):
-            serializer = TextFieldSerializer(value)
-        if isinstance(value, NumericField):
-            serializer = NumericFieldSerializer(value)
-        elif isinstance(value, LookupField):
-            serializer = LookupFieldSerializer(value)
-        elif isinstance(value, MultipleLookupField):
-            serializer = MultipleLookupFieldSerializer(value)
-        else:
-            serializer = FieldSerializer(value)
+class MultipleLookupFieldSerializer(ModelSerializer, BaseLookupSerializer):
+    """
+    Serializer for lookup fields.
+    Used in .views.FieldApiLookups
+    """
+    lookupvalues = MultipleLookupValueSerializer(many=True, read_only=True)
+    fieldtype = ReadOnlyField()
 
-        return serializer.data
-
-    def field_to_native(self, obj, field_name):
-        return [
-            self.to_native(item)
-            for item in obj.fields.filter(status='active')
-        ]
+    class Meta:
+        model = LookupField
+        depth = 1
+        fields = (
+            'id', 'name', 'key', 'fieldtype', 'description', 'status',
+            'required', 'lookupvalues'
+        )
+        read_only_fields = ('id', 'name', 'key')
+        write_only_fields = ('status',)
 
 
 class CategorySerializer(FieldSelectorSerializer):
@@ -156,8 +136,7 @@ class CategorySerializer(FieldSelectorSerializer):
     Serializer for observation types. Used for AJAX API updates.
     Used in .views.ObservationTypeAdminDetailView
     """
-    fields = FieldObjectRelatedField(many=True, read_only=False)
-    symbol = serializers.SerializerMethodField('get_symbol_url')
+    fields = SerializerMethodField('get_fields_serialized')
 
     class Meta:
         model = Category
@@ -166,11 +145,21 @@ class CategorySerializer(FieldSelectorSerializer):
                   'created_at', 'symbol', 'order')
         read_only_fields = ('id', 'name', 'created_at')
 
-    def get_symbol_url(self, category):
-        """
-        Returns the symbol URL. None if no image has been uploaded
-        """
-        if category.symbol:
-            return category.symbol.url
+    def get_fields_serialized(self, category):
+        fields = []
 
-        return None
+        for field in category.fields.filter(status='active'):
+            if isinstance(field, TextField):
+                serializer = TextFieldSerializer(field)
+            if isinstance(field, NumericField):
+                serializer = NumericFieldSerializer(field)
+            elif isinstance(field, LookupField):
+                serializer = LookupFieldSerializer(field)
+            elif isinstance(field, MultipleLookupField):
+                serializer = MultipleLookupFieldSerializer(field)
+            else:
+                serializer = FieldSerializer(field)
+
+            fields.append(serializer.data)
+
+        return fields
