@@ -6,7 +6,7 @@ from django.core.files.base import ContentFile
 
 from users.tests.model_factories import UserF
 from contributions.tests.model_factories import ObservationFactory
-from contributions.models import ImageFile, VideoFile
+from contributions.models.media import ImageFile, VideoFile
 
 
 def get_image(file_name='test.png', width=200, height=200):

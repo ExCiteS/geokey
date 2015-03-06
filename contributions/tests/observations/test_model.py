@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 
 from nose.tools import raises
 
-from contributions.models import Observation, pre_save_update
+from contributions.models.contributions import Observation, pre_save_update
 from projects.tests.model_factories import UserF
 
 from categories.tests.model_factories import (

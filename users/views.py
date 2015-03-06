@@ -468,7 +468,7 @@ class QueryUsers(APIView):
     AJAX endpoint for querying a list of users
     `/ajax/users/?query={username}
     """
-    def get(self, request, format=None):
+    def get(self, request):
         q = request.GET.get('query').lower()
         users = User.objects.filter(
             display_name__icontains=q).exclude(pk=1)[:10]
@@ -485,7 +485,7 @@ class UserGroup(APIView):
     /ajax/projects/:project_id/usergroups/:usergroup_id/
     """
     @handle_exceptions_for_ajax
-    def put(self, request, project_id, group_id, format=None):
+    def put(self, request, project_id, group_id):
         """
         Updates user group information
         """
@@ -501,7 +501,7 @@ class UserGroup(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @handle_exceptions_for_ajax
-    def delete(self, request, project_id, group_id, format=None):
+    def delete(self, request, project_id, group_id):
         """
         Deletes a user group
         """
@@ -519,7 +519,7 @@ class UserGroupUsers(APIView):
     """
 
     @handle_exceptions_for_ajax
-    def post(self, request, project_id, group_id, format=None):
+    def post(self, request, project_id, group_id):
         """
         Adds a user to the usergroup
         """
@@ -547,7 +547,7 @@ class UserGroupSingleUser(APIView):
     """
 
     @handle_exceptions_for_ajax
-    def delete(self, request, project_id, group_id, user_id, format=None):
+    def delete(self, request, project_id, group_id, user_id):
         """
         Removes a user from the user group
         """
@@ -565,7 +565,7 @@ class UserGroupViews(APIView):
     `/ajax/project/:project_id/usergroups/:group_id/views/`
     """
     @handle_exceptions_for_ajax
-    def post(self, request, project_id, group_id, format=None):
+    def post(self, request, project_id, group_id):
         """
         Assigns a new view to the user group
         """
@@ -606,7 +606,7 @@ class UserGroupSingleView(APIView):
         return group.viewgroups.get(grouping_id=grouping_id)
 
     @handle_exceptions_for_ajax
-    def put(self, request, project_id, group_id, grouping_id, format=None):
+    def put(self, request, project_id, group_id, grouping_id):
         """
         Updates the relation between user group and view, e.g. granting
         permissions on the view to the user group members.
@@ -624,7 +624,7 @@ class UserGroupSingleView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @handle_exceptions_for_ajax
-    def delete(self, request, project_id, group_id, grouping_id, format=None):
+    def delete(self, request, project_id, group_id, grouping_id):
         """
         Removes the relation between usergroup and view.
         """

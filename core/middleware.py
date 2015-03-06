@@ -45,7 +45,7 @@ class XsSharing(object):
         return response
 
 
-class TerminalLogging:
+class TerminalLogging(object):
     def process_response(self, request, response):
         from sys import stdout
         if stdout.isatty():

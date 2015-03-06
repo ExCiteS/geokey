@@ -68,7 +68,7 @@ class AllContributionsMediaAPIView(
         MediaFileListAbstractAPIView, SingleAllContribution):
 
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, contribution_id, format=None):
+    def get(self, request, project_id, contribution_id):
         """
         Returns a list of all files attached to the observation
         """
@@ -80,7 +80,7 @@ class AllContributionsMediaAPIView(
         return self.get_list_and_respond(request.user, contribution)
 
     @handle_exceptions_for_ajax
-    def post(self, request, project_id, contribution_id, format=None):
+    def post(self, request, project_id, contribution_id):
         contribution = self.get_object(
             request.user,
             project_id,
@@ -93,7 +93,7 @@ class MyContributionsMediaApiView(
         MediaFileListAbstractAPIView, SingleMyContribution):
 
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, contribution_id, format=None):
+    def get(self, request, project_id, contribution_id):
         """
         Returns a list of all files attached to the observation
         """
@@ -105,7 +105,7 @@ class MyContributionsMediaApiView(
         return self.get_list_and_respond(request.user, contribution)
 
     @handle_exceptions_for_ajax
-    def post(self, request, project_id, contribution_id, format=None):
+    def post(self, request, project_id, contribution_id):
         contribution = self.get_object(
             request.user,
             project_id,
@@ -167,7 +167,7 @@ class AllContributionsSingleMediaApiView(
         return contribution.files_attached.get(pk=file_id)
 
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, contribution_id, file_id, format=None):
+    def get(self, request, project_id, contribution_id, file_id):
         media_file = self.get_file(
             request.user,
             project_id,
@@ -196,7 +196,7 @@ class MyContributionsSingleMediaApiView(
         return contribution.files_attached.get(pk=file_id)
 
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, contribution_id, file_id, format=None):
+    def get(self, request, project_id, contribution_id, file_id):
         media_file = self.get_file(
             request.user,
             project_id,
@@ -244,7 +244,7 @@ class GroupingContributionsSingleMediaApiView(
 
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, grouping_id, contribution_id,
-               file_id, format=None):
+               file_id):
         media_file = self.get_file(
             request.user,
             project_id,

@@ -62,7 +62,7 @@ class GroupingCreate(LoginRequiredMixin, CreateView):
         )
 
     @handle_exceptions_for_admin
-    def get_context_data(self, form, **kwargs):
+    def get_context_data(self, **kwargs):
         """
         Creates the request context for rendering the page
         """
@@ -178,7 +178,7 @@ class RuleCreate(LoginRequiredMixin, CreateView):
     model = Rule
 
     @handle_exceptions_for_admin
-    def get_context_data(self, form, **kwargs):
+    def get_context_data(self, **kwargs):
         """
         Returns the context data for creating the view.
         """
@@ -315,7 +315,7 @@ class GroupingUpdate(APIView):
     /ajax/projects/:project_id/views/:grouping_id
     """
     @handle_exceptions_for_ajax
-    def put(self, request, project_id, grouping_id, format=None):
+    def put(self, request, project_id, grouping_id):
         """
         Updates a view
         """

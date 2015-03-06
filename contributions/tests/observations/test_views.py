@@ -29,7 +29,7 @@ from contributions.views.observations import (
     ContributionSearchAPIView, MyObservations, ProjectObservationsView,
     ViewObservations, ProjectObservations
 )
-from contributions.models import Observation
+from contributions.models.contributions import Observation
 
 
 class ContributionSearchTest(TestCase):

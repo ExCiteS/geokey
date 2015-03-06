@@ -60,7 +60,7 @@ class IsSuperUser(BasePermission):
 class AddSuperUsersAjaxView(APIView):
     permission_classes = (IsSuperUser,)
 
-    def post(self, request, format=None):
+    def post(self, request):
         try:
             user = User.objects.get(pk=request.DATA.get('userId'))
             user.is_superuser = True
@@ -84,7 +84,7 @@ class AddSuperUsersAjaxView(APIView):
 class DeleteSuperUsersAjaxView(APIView):
     permission_classes = (IsSuperUser,)
 
-    def delete(self, request, user_id, format=None):
+    def delete(self, request, user_id):
         try:
             user = User.objects.filter(is_superuser=True).get(pk=user_id)
             user.is_superuser = False

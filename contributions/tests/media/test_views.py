@@ -19,7 +19,7 @@ from rest_framework.renderers import JSONRenderer
 from core.exceptions import MalformedRequestData
 from projects.tests.model_factories import UserF, ProjectF
 from datagroupings.tests.model_factories import GroupingFactory, RuleFactory
-from contributions.models import MediaFile
+from contributions.models.media import MediaFile
 
 from contributions.views.media import (
     MediaFileListAbstractAPIView, AllContributionsMediaAPIView,

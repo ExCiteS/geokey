@@ -11,7 +11,7 @@ from django.conf import settings
 from nose.tools import raises
 
 from core.exceptions import FileTypeError
-from contributions.models import MediaFile
+from contributions.models.media import MediaFile
 
 from contributions.tests.model_factories import ObservationFactory
 from users.tests.model_factories import UserF

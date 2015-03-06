@@ -20,7 +20,7 @@ from django.template import Context
 
 from projects.models import Project, Admins
 from users.models import User
-from contributions.models import Observation
+from contributions.models.contributions import Observation
 
 
 class Command(NoArgsCommand):

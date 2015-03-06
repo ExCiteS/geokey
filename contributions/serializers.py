@@ -17,9 +17,9 @@ from categories.serializer import CategorySerializer
 from categories.models import Category
 from users.serializers import UserSerializer
 
-from .models import (
-    Location, Observation, Comment, MediaFile, ImageFile, VideoFile
-)
+from .models.contributions import Observation, Comment
+from .models.locations import Location
+from .models.media import MediaFile, ImageFile, VideoFile
 
 
 class LocationSerializer(geoserializers.GeoFeatureModelSerializer):

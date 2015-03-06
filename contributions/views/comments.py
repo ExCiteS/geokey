@@ -10,7 +10,7 @@ from users.models import User
 from .base import (
     SingleAllContribution, SingleGroupingContribution, SingleMyContribution
 )
-from ..models import Comment
+from ..models.contributions import Comment
 from ..serializers import CommentSerializer
 
 
@@ -115,7 +115,7 @@ class AllContributionsCommentsAPIView(
         CommentAbstractAPIView, SingleAllContribution):
 
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, observation_id, format=None):
+    def get(self, request, project_id, observation_id):
         """
         Returns a list of all comments of the observation
         """
@@ -123,7 +123,7 @@ class AllContributionsCommentsAPIView(
         return self.get_list_and_respond(request.user, observation)
 
     @handle_exceptions_for_ajax
-    def post(self, request, project_id, observation_id, format=None):
+    def post(self, request, project_id, observation_id):
         """
         Adds a new comment to the observation
         """
@@ -178,7 +178,7 @@ class GroupingContributionsSingleCommentAPIView(
 
     @handle_exceptions_for_ajax
     def patch(self, request, project_id, grouping_id, observation_id,
-              comment_id, format=None):
+              comment_id):
         observation = self.get_object(
             request.user, project_id, grouping_id, observation_id)
         comment = observation.comments.get(pk=comment_id)
@@ -186,7 +186,7 @@ class GroupingContributionsSingleCommentAPIView(
 
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, grouping_id, observation_id,
-               comment_id, format=None):
+               comment_id):
         observation = self.get_object(
             request.user, project_id, grouping_id, observation_id)
         comment = observation.comments.get(pk=comment_id)
@@ -197,12 +197,12 @@ class MyContributionsCommentsAPIView(
         CommentAbstractAPIView, SingleMyContribution):
 
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, observation_id, format=None):
+    def get(self, request, project_id, observation_id):
         observation = self.get_object(request.user, project_id, observation_id)
         return self.get_list_and_respond(request.user, observation)
 
     @handle_exceptions_for_ajax
-    def post(self, request, project_id, observation_id, format=None):
+    def post(self, request, project_id, observation_id):
         """
         Adds a new comment to the observation
         """

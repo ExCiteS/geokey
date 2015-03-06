@@ -18,9 +18,8 @@ from categories.tests.model_factories import CategoryFactory
 from datagroupings.tests.model_factories import (
     GroupingFactory, RuleFactory
 )
-from contributions.models import Comment
+from contributions.models.contributions import Comment, Observation
 from datagroupings.models import Grouping
-from contributions.models import Observation
 
 from users.tests.model_factories import UserGroupF, GroupingUserGroupFactory
 from ..model_factories import ObservationFactory, CommentFactory

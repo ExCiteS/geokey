@@ -7,7 +7,7 @@ from core.serializers import FieldSelectorSerializer
 from datagroupings.serializers import GroupingSerializer
 from datagroupings.models import Grouping
 from categories.serializer import CategorySerializer
-from contributions.models import Location
+from contributions.models.locations import Location
 
 from .models import Project
 

@@ -26,7 +26,7 @@ from .forms import CategoryCreateForm, FieldCreateForm
 from .serializer import (
     CategorySerializer, FieldSerializer, LookupFieldSerializer
 )
-from contributions.models import Observation
+from contributions.models.contributions import Observation
 
 
 # ############################################################################
@@ -78,7 +78,7 @@ class CategoryCreate(LoginRequiredMixin, CreateView):
     template_name = 'categories/category_create.html'
 
     @handle_exceptions_for_admin
-    def get_context_data(self, form, **kwargs):
+    def get_context_data(self, **kwargs):
         """
         Creates the request context for rendering the page
         """
@@ -244,7 +244,7 @@ class FieldCreate(LoginRequiredMixin, CreateView):
     template_name = 'categories/field_create.html'
 
     @handle_exceptions_for_admin
-    def get_context_data(self, form, data=None, key_error=False, **kwargs):
+    def get_context_data(self, data=None, key_error=False, **kwargs):
         project_id = self.kwargs['project_id']
         category_id = self.kwargs['category_id']
 
@@ -393,7 +393,7 @@ class CategoryUpdate(APIView):
     /ajax/projects/:project_id/categories/:category_id
     """
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, category_id, format=None):
+    def get(self, request, project_id, category_id):
         category = Category.objects.as_admin(
             request.user, project_id, category_id)
 
@@ -401,7 +401,7 @@ class CategoryUpdate(APIView):
         return Response(serializer.data)
 
     @handle_exceptions_for_ajax
-    def put(self, request, project_id, category_id, format=None):
+    def put(self, request, project_id, category_id):
         """
         Updates an category
         """
@@ -489,7 +489,7 @@ class FieldLookupsUpdate(APIView):
     """
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, category_id, field_id,
-               value_id, format=None):
+               value_id):
         """
         Removes a LookupValue
         """
@@ -509,7 +509,7 @@ class FieldLookupsUpdate(APIView):
 
 class FieldsReorderView(APIView):
     @handle_exceptions_for_ajax
-    def post(self, request, project_id, category_id, format=None):
+    def post(self, request, project_id, category_id):
         category = Category.objects.as_admin(
             request.user, project_id, category_id)
         try:
@@ -536,7 +536,7 @@ class SingleCategory(APIView):
     /api/projects/:project_id/categories/:category_id
     """
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, category_id, format=None):
+    def get(self, request, project_id, category_id):
         """
         Returns the category and all fields
         """

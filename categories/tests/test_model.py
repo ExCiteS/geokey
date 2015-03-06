@@ -17,7 +17,7 @@ from .model_factories import (
 from datagroupings.models import Rule
 from datagroupings.tests.model_factories import GroupingFactory, RuleFactory
 from contributions.tests.model_factories import ObservationFactory
-from contributions.models import Observation
+from contributions.models.contributions import Observation
 
 
 class CategoryTest(TestCase):

@@ -1,7 +1,7 @@
 import json
 from django.test import TestCase
 
-from contributions.models import Observation
+from contributions.models.contributions import Observation
 
 from projects.tests.model_factories import ProjectF, UserF
 from categories.tests.model_factories import (
