@@ -328,9 +328,9 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class FileSerializer(serializers.ModelSerializer):
     creator = UserSerializer(fields=('id', 'display_name'))
-    isowner = serializers.SerializerMethodField('get_is_owner')
+    isowner = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
-    file_type = serializers.SerializerMethodField('get_type')
+    file_type = serializers.SerializerMethodField()
     thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
@@ -340,13 +340,13 @@ class FileSerializer(serializers.ModelSerializer):
             'url', 'thumbnail_url', 'file_type'
         )
 
-    def get_type(self, obj):
+    def get_file_type(self, obj):
         """
         Returns the type of the MediaFile
         """
         return obj.type_name
 
-    def get_is_owner(self, obj):
+    def get_isowner(self, obj):
         """
         Returns `True` if the user provided in the serializer context is the
         creator of this file
