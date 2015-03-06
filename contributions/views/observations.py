@@ -236,22 +236,19 @@ class SingleGroupingContributionAPIView(
     /api/projects/:project_id/views/:grouping_id/observations/:observation_id
     """
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, grouping_id, observation_id,
-            format=None):
+    def get(self, request, project_id, grouping_id, observation_id):
         observation = self.get_object(
             request.user, project_id, grouping_id, observation_id)
         return self.get_and_respond(request, observation)
 
     @handle_exceptions_for_ajax
-    def patch(self, request, project_id, grouping_id, observation_id,
-              format=None):
+    def patch(self, request, project_id, grouping_id, observation_id):
         observation = self.get_object(
             request.user, project_id, grouping_id, observation_id)
         return self.update_and_respond(request, observation)
 
     @handle_exceptions_for_ajax
-    def delete(self, request, project_id, grouping_id, observation_id,
-               format=None):
+    def delete(self, request, project_id, grouping_id, observation_id):
         observation = self.get_object(
             request.user, project_id, grouping_id, observation_id)
         return self.delete_and_respond(request, observation)
