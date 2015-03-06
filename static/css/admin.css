@@ -338,6 +338,10 @@ ul.overview-list > li.sort-item p {
 	padding-left: 22px;
 }
 
+ul.overview-list > li > div:last-child {
+	margin-bottom: 0;
+}
+
 .app-meta code {
 	display: block;
 	word-break: break-all;
