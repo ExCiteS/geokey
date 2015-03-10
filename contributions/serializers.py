@@ -309,7 +309,7 @@ class CommentSerializer(serializers.ModelSerializer):
                   'creator', 'review_status')
         read_only = ('id', 'respondsto', 'created_at')
 
-    def to_native(self, obj):
+    def to_represenation(self, obj):
         native = super(CommentSerializer, self).to_native(obj)
         native['responses'] = CommentSerializer(
             obj.responses.all(),
