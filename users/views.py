@@ -8,7 +8,7 @@ from braces.views import LoginRequiredMixin
 
 from allauth.account.models import EmailAddress
 from allauth.account.forms import SignupForm
-from allauth.account.views import PasswordChangeView
+from allauth.account.views import PasswordChangeView, PasswordResetFromKeyView
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -29,7 +29,8 @@ from .serializers import (
 from .models import User, GroupingUserGroup
 from .forms import (
     UsergroupCreateForm,
-    CustomPasswordChangeForm
+    CustomPasswordChangeForm,
+    CustomResetPasswordKeyForm
 )
 
 
@@ -298,6 +299,10 @@ class UserNotifications(LoginRequiredMixin, TemplateView):
 
 class ChangePassword(LoginRequiredMixin, PasswordChangeView):
     form_class = CustomPasswordChangeForm
+
+
+class ResetPassword(PasswordResetFromKeyView):
+    form_class = CustomResetPasswordKeyForm
 
 
 # ############################################################################
