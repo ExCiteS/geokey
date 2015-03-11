@@ -8,25 +8,25 @@
  * ***********************************************/
 
 $(function() {
-	'use strict';
+    'use strict';
 
-	var projectId = $('body').attr('data-project-id'),
-		categoryId = $('body').attr('data-category-id'),
-		fieldId = $('body').attr('data-field-id'),
-		url = 'projects/' + projectId + '/categories/' + categoryId + '/fields/' + fieldId;
+    var projectId = $('body').attr('data-project-id'),
+        categoryId = $('body').attr('data-category-id'),
+        fieldId = $('body').attr('data-field-id'),
+        url = 'projects/' + projectId + '/categories/' + categoryId + '/fields/' + fieldId;
 
-	// Initialize the lookup panel functionality if the field is a lookup
-	var lookupPanel = ($('#lookupValuesPanel').length !== 0 ? new Ui.LookupPanel('#lookupValuesPanel', url) : undefined);
+    // Initialize the lookup panel functionality if the field is a lookup
+    var lookupPanel = ($('#lookupValuesPanel').length !== 0 ? new Ui.LookupPanel('#lookupValuesPanel', url) : undefined);
 
-	function handleNumericFieldEdit(event) {
-		var target = $(event.target);
+    function handleNumericFieldEdit(event) {
+        var target = $(event.target);
 
-		if (target.attr('id') === 'minval') {
-			$('form input#maxval').attr('min', target.val());
-		} else if (target.attr('id') === 'maxval') {
-			$('form input#minval').attr('max', target.val());
-		}
-	}
+        if (target.attr('id') === 'minval') {
+            $('form input#maxval').attr('min', target.val());
+        } else if (target.attr('id') === 'maxval') {
+            $('form input#minval').attr('max', target.val());
+        }
+    }
 
-	$('form input[type="number"]').change(handleNumericFieldEdit);
+    $('form input[type="number"]').change(handleNumericFieldEdit);
 });
