@@ -255,8 +255,14 @@ class UserProfile(LoginRequiredMixin, TemplateView):
         """
         user = request.user
 
-        user.email = request.POST.get('email')
         user.display_name = request.POST.get('display_name')
+        new_email = request.POST.get('email')
+
+        if user.email != new_email:
+            email = EmailAddress.objects.get(user=user, email=user.email)
+            email.change(request, new_email, confirm=True)
+
+            user.email = new_email
 
         user.save()
 
@@ -519,9 +525,17 @@ class UserAPIView(CreateUserMixin, APIView):
 
         if not user.is_anonymous():
             data = request.DATA
+
             serializer = UserSerializer(user, data=data, partial=True)
             if serializer.is_valid():
                 serializer.save()
+
+                if user.email != data.get('email'):
+                    print 'change email'
+                    email = EmailAddress.objects.get(
+                        user=user, email=user.email
+                    )
+                    email.change(request, data.get('email'), confirm=True)
 
                 return Response(
                     serializer.data,

@@ -12,6 +12,7 @@ from nose.tools import raises
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
+from allauth.account.models import EmailAddress
 
 from applications.tests.model_factories import ApplicationFactory
 from projects.tests.model_factories import ProjectF
@@ -135,6 +136,8 @@ class UserAPIViewTest(TestCase):
 
     def test_update_user(self):
         user = UserF.create()
+        EmailAddress.objects.create(user=user, email=user.email)
+
         view = UserAPIView.as_view()
         data = {
             'display_name': 'user-1',
