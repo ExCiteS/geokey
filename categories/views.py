@@ -19,7 +19,7 @@ from core.decorators import (
 
 from .base import STATUS
 from .models import (
-    Category, Field, NumericField, LookupField, LookupValue,
+    Category, Field, TextField, NumericField, LookupField, LookupValue,
     MultipleLookupField, MultipleLookupValue
 )
 from .forms import CategoryCreateForm, FieldCreateForm
@@ -283,9 +283,14 @@ class FieldCreate(LoginRequiredMixin, CreateView):
             self.request.POST.get('type')
         )
 
-        if isinstance(field, NumericField):
+        if isinstance(field, TextField):
+            field.textarea = self.request.POST.get('textarea') or False
+            field.maxlength = self.request.POST.get('maxlength') or None
+
+        elif isinstance(field, NumericField):
             field.minval = self.request.POST.get('minval') or None
             field.maxval = self.request.POST.get('maxval') or None
+
         field.save()
 
         field_create_url = reverse(
@@ -343,9 +348,14 @@ class FieldSettings(LoginRequiredMixin, TemplateView):
         field.description = strip_tags(data.get('description'))
         field.required = data.get('required') or False
 
-        if isinstance(field, NumericField):
+        if isinstance(field, TextField):
+            field.textarea = data.get('textarea') or False
+            field.maxlength = data.get('maxlength') or None
+
+        elif isinstance(field, NumericField):
             field.minval = data.get('minval') or None
             field.maxval = data.get('maxval') or None
+
         field.save()
 
         messages.success(self.request, "The field has been updated.")

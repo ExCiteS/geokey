@@ -139,10 +139,23 @@ $(function() {
 							if (validity.typeMismatch) { showHelp(field, 'Please enter a valid email address; e.g., name@example.com.'); }
 							break;
 						case 'number':
-							if (validity.badInput) { showHelp(field, 'Your input contains non-numeric characters. Maybe you used a comma (,) as decimal point?'); }
-							if (validity.stepMismatch) { showHelp(field, 'You entered more than three digits after the decimal point.'); }
-							if (validity.rangeOverflow) { showHelp(field, 'The entered value must be lower than ' + field.attr('max') + '.'); }
-							if (validity.rangeUnderflow) { showHelp(field, 'The entered value must be greater than ' + field.attr('min') + '.'); }
+							if (validity.badInput) {
+								showHelp(field, 'Your input contains non-numeric characters. Maybe you used a comma (,) as decimal point?');
+							}
+							if (validity.stepMismatch) {
+								var digits = field.attr('step').split('.')[1];
+								if (digits) {
+									showHelp(field, 'You entered more than ' + digits.length + ' digits after the decimal point.');
+								} else {
+									showHelp(field, 'You entered a none integer value.');
+								}
+							}
+							if (validity.rangeOverflow) {
+								showHelp(field, 'The entered value must be lower than ' + field.attr('max') + '.');
+							}
+							if (validity.rangeUnderflow) {
+								showHelp(field, 'The entered value must be greater than ' + field.attr('min') + '.');
+							}
 							break;
 						case 'text':
 							if (validity.patternMismatch && ['subdomain', 'key'].indexOf(field.attr('name')) !== -1) {

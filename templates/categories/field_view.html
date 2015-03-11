@@ -60,6 +60,21 @@
                             </div>
                         </div>
 
+                        {% if field.textfield %}
+                        <div class="row">
+                            <div class="form-group col-sm-12">
+                                <div class="checkbox">
+                                    <label><input type="checkbox" name="textarea" {% if field.textarea %}checked{% endif %}> <strong>Display this field as textarea.</strong><br>Tick this box, if you expect long inputs for this text field.</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-sm-12">
+                                <label for="maxlength" class="control-label">Maximum length</label>
+                                <input type="number" class="form-control" id="maxlength" name="maxlength" min="0" step="1" {% if not field.textfield.maxlength == None %} value="{{ field.textfield.maxlength }}" {% endif %}>
+                            </div>
+                        </div>
+                        {% endif %}
+
                         {% if field.numericfield %}
                         <div class="row">
                             <div class="form-group col-sm-6">

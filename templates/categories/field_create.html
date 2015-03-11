@@ -66,6 +66,19 @@
 						</select>
 					</div>
 
+                    <div class="row hidden field-special" id="text">
+                        <div class="form-group col-sm-12">
+                            <div class="checkbox">
+                                <label><input type="checkbox" name="textarea"> <strong>Display this field as textarea.</strong><br>Tick this box, if you expect long inputs for this text field.</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-12">
+                            <label for="maxlength" class="control-label">Maximum length</label>
+                            <input type="number" class="form-control" id="maxlength" name="maxlength" min="0" step="1">
+                        </div>
+                    </div>
+
 					<div class="row hidden field-special" id="minmax">
                         <div class="form-group col-sm-6">
                             <label for="minval" class="control-label">Minimum value</label>
