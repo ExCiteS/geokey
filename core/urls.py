@@ -13,7 +13,9 @@ urlpatterns = patterns(
     url(r'^$', RedirectView.as_view(url='/admin/', permanent=True)),
 )
 
-urlpatterns += patterns('',
-    (r'^media/(?P<path>.*)$', 'django.views.static.serve',
+urlpatterns += patterns(
+    '',
+    (r'^media/(?P<path>.*)$',
+        'django.views.static.serve',
         {'document_root': settings.MEDIA_ROOT}),
 )
