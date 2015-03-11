@@ -151,7 +151,7 @@ class CategorySerializer(FieldSelectorSerializer):
         for field in category.fields.filter(status='active'):
             if isinstance(field, TextField):
                 serializer = TextFieldSerializer(field)
-            if isinstance(field, NumericField):
+            elif isinstance(field, NumericField):
                 serializer = NumericFieldSerializer(field)
             elif isinstance(field, LookupField):
                 serializer = LookupFieldSerializer(field)
