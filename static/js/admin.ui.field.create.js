@@ -10,7 +10,7 @@
             case 'LookupField':
             case 'MultipleLookupField':
                 $('#lookup').removeClass('hidden');
-                break;    
+                break;
         }
     }
 

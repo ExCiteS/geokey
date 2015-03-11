@@ -27,7 +27,7 @@ Handlebars.registerHelper('ifCond', function(v1, v2, options) {
 Handlebars.registerPartial("created-field", Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  
+
 
 
   return "<div class=\"field-filter form-horizontal\">\n    <h5>The contribution has been created</h5>\n\n    <div class=\"form-group\">\n        <label for=\"created_at-min\" class=\"col-sm-3 col-sm-offset-1 control-label\">after</label>\n        <div class=\"col-sm-7\">\n            <input data-date-format=\"YYYY-MM-DD H:mm\" type=\"text\" data-key=\"created_at\" class=\"form-control datetime\" name=\"created_at-min\" id=\"created_at-min\">\n        </div>\n    </div>\n    <div class=\"form-group\">\n        <label for=\"created_at-max\" class=\"col-sm-3 col-sm-offset-1 control-label\">and before</label>\n        <div class=\"col-sm-7\">\n            <input data-date-format=\"YYYY-MM-DD H:mm\" type=\"text\" data-key=\"created_at\" class=\"form-control datetime\" name=\"created_at-max\" id=\"created_at-max\">\n        </div>\n    </div>\n</div>\n";
@@ -139,7 +139,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, helper, functionType="function", escapeExpression=this.escapeExpression, self=this;
 
 function program1(depth0,data) {
-  
+
   var buffer = "", stack1, helper;
   buffer += "\n                <option value=\"";
   if (helper = helpers.id) { stack1 = helper.call(depth0, {hash:{},data:data}); }
@@ -182,7 +182,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, helper, functionType="function", escapeExpression=this.escapeExpression, self=this;
 
 function program1(depth0,data) {
-  
+
   var buffer = "", stack1, helper;
   buffer += "\n                <option value=\"";
   if (helper = helpers.id) { stack1 = helper.call(depth0, {hash:{},data:data}); }
@@ -225,7 +225,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, helper, functionType="function", escapeExpression=this.escapeExpression, self=this;
 
 function program1(depth0,data) {
-  
+
   var buffer = "", stack1, helper;
   buffer += "placeholder=\"";
   if (helper = helpers.minval) { stack1 = helper.call(depth0, {hash:{},data:data}); }
@@ -236,7 +236,7 @@ function program1(depth0,data) {
   }
 
 function program3(depth0,data) {
-  
+
   var buffer = "", stack1, helper;
   buffer += "placeholder=\"";
   if (helper = helpers.maxval) { stack1 = helper.call(depth0, {hash:{},data:data}); }
@@ -378,7 +378,7 @@ helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partial
   var buffer = "", stack1, self=this, functionType="function", escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
 
 function program1(depth0,data) {
-  
+
   var buffer = "", stack1, helper, options;
   buffer += "\n    <div class=\"field-filter form-horizontal\" data-key=\"";
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
@@ -413,7 +413,7 @@ function program1(depth0,data) {
   return buffer;
   }
 function program2(depth0,data) {
-  
+
   var buffer = "", stack1;
   buffer += "\n            ";
   stack1 = self.invokePartial(partials.textfield, 'textfield', depth0, helpers, partials, data);
@@ -423,7 +423,7 @@ function program2(depth0,data) {
   }
 
 function program4(depth0,data) {
-  
+
   var buffer = "", stack1;
   buffer += "\n            ";
   stack1 = self.invokePartial(partials.numericfield, 'numericfield', depth0, helpers, partials, data);
@@ -433,7 +433,7 @@ function program4(depth0,data) {
   }
 
 function program6(depth0,data) {
-  
+
   var buffer = "", stack1;
   buffer += "\n            ";
   stack1 = self.invokePartial(partials.datetimefield, 'datetimefield', depth0, helpers, partials, data);
@@ -443,7 +443,7 @@ function program6(depth0,data) {
   }
 
 function program8(depth0,data) {
-  
+
   var buffer = "", stack1;
   buffer += "\n            ";
   stack1 = self.invokePartial(partials.datefield, 'datefield', depth0, helpers, partials, data);
@@ -453,7 +453,7 @@ function program8(depth0,data) {
   }
 
 function program10(depth0,data) {
-  
+
   var buffer = "", stack1;
   buffer += "\n            ";
   stack1 = self.invokePartial(partials.timefield, 'timefield', depth0, helpers, partials, data);
@@ -463,7 +463,7 @@ function program10(depth0,data) {
   }
 
 function program12(depth0,data) {
-  
+
   var buffer = "", stack1;
   buffer += "\n            ";
   stack1 = self.invokePartial(partials.lookupfield, 'lookupfield', depth0, helpers, partials, data);
@@ -473,7 +473,7 @@ function program12(depth0,data) {
   }
 
 function program14(depth0,data) {
-  
+
   var buffer = "", stack1;
   buffer += "\n            ";
   stack1 = self.invokePartial(partials.multiplelookupfield, 'multiplelookupfield', depth0, helpers, partials, data);
@@ -498,7 +498,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
 
 function program1(depth0,data) {
-  
+
   var buffer = "", stack1, helper;
   buffer += "\n    <li class=\"list-group-item\">";
   if (helper = helpers.name) { stack1 = helper.call(depth0, {hash:{},data:data}); }
@@ -523,7 +523,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
 
 function program1(depth0,data) {
-  
+
   var buffer = "", stack1, helper;
   buffer += "\n    <li>";
   if (helper = helpers.display_name) { stack1 = helper.call(depth0, {hash:{},data:data}); }
@@ -548,7 +548,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
 
 function program1(depth0,data) {
-  
+
   var buffer = "", stack1, helper;
   buffer += "\n    <li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"#\" data-user-id=\"";
   if (helper = helpers.id) { stack1 = helper.call(depth0, {hash:{},data:data}); }
