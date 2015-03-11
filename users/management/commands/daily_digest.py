@@ -34,7 +34,6 @@ class Command(NoArgsCommand):
             Q(observations__created_at__gte=yesterday) |
             Q(observations__updated_at__gte=yesterday)).distinct()
 
-
     def get_updated_items(self, project, user, yesterday):
         """
         Returns all updated contributions of a project for the given users.
