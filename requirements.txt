@@ -17,9 +17,5 @@ pytz==2014.10
 django-youtube==0.2
 gdata==2.0.18
 easy-thumbnails==2.2
-<<<<<<< HEAD
-requests==2.5.1
-django-allauth==0.19.1
-=======
 requests==2.5.3
->>>>>>> master
+django-allauth==0.19.1
