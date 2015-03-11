@@ -63,7 +63,7 @@ class Category(models.Model):
             field.save()
 
     def delete(self):
-        from contributions.models import Observation
+        from contributions.models.contributions import Observation
         Observation.objects.filter(category=self).delete()
         Rule.objects.filter(category=self).delete()
         self.status = STATUS.deleted
@@ -165,7 +165,7 @@ class Field(models.Model):
             'subclass of Field.'
         )
 
-    def get_filter(self, item, reference):
+    def get_filter(self, rule):
         raise NotImplementedError(
             'The method `filter` has not been implemented for this '
             'subclass of Field.'
@@ -204,9 +204,10 @@ class TextField(Field):
         """
         self.validate_required(value)
 
-        if self.maxlength is not None and len(value) > self.maxlength:
-            raise InputError('The input provided for text field %s contains '
-                             'too many characters.' % self.name)
+        if value is not None:
+            if self.maxlength is not None and len(value) > self.maxlength:
+                raise InputError('The input provided for text field %s '
+                                 'contains too many characters.' % self.name)
 
     @property
     def type_name(self):

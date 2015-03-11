@@ -15,6 +15,7 @@ from core.exceptions import InputError
 
 from ..base import OBSERVATION_STATUS, COMMENT_STATUS, COMMENT_REVIEW
 from ..manager import ObservationManager, CommentManager
+from .locations import Location
 
 
 class Observation(models.Model):
@@ -22,7 +23,7 @@ class Observation(models.Model):
     Stores a single observation.
     """
     location = models.ForeignKey(
-        'contributions.Location', related_name='locations'
+        Location, related_name='locations'
     )
     project = models.ForeignKey(
         'projects.Project', related_name='observations'

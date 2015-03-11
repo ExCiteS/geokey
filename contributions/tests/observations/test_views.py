@@ -29,7 +29,7 @@ from contributions.views.observations import (
     ContributionSearchAPIView, MyObservations, ProjectObservationsView,
     ViewObservations, ProjectObservations
 )
-from contributions.models import Observation
+from contributions.models.contributions import Observation
 
 
 class ContributionSearchTest(TestCase):
@@ -780,7 +780,7 @@ class ProjectPublicApiTest(TestCase):
         }
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 201)
-        self.assertIn('"status": "draft"', response.content)
+        self.assertIn('"status":"draft"', response.content)
 
     def test_contribute_valid_draft_with_empty_required(self):
         self.data = {
@@ -808,7 +808,7 @@ class ProjectPublicApiTest(TestCase):
         }
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 201)
-        self.assertIn('"status": "draft"', response.content)
+        self.assertIn('"status":"draft"', response.content)
 
     def test_contribute_invalid_draft(self):
         self.data = {
@@ -852,7 +852,7 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 201)
-        self.assertIn('"status": "active"', response.content)
+        self.assertIn('"status":"active"', response.content)
 
     def test_contribute_to_public_with_contributor(self):
         self.project.isprivate = False
@@ -860,7 +860,7 @@ class ProjectPublicApiTest(TestCase):
 
         response = self._post(self.data, self.contributor)
         self.assertEqual(response.status_code, 201)
-        self.assertIn('"status": "pending"', response.content)
+        self.assertIn('"status":"pending"', response.content)
 
     def test_contribute_to_public_with_view_member(self):
         self.project.isprivate = False

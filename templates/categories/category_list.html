@@ -26,7 +26,7 @@
 
             <div class="row">
                 <div class="col-sm-8">
-                    <h3>
+                    <h3 class="header">
                         Categories
                         {% if project.categories.all %}
                             <a href="{% url 'admin:category_create' project.id %}" class="btn btn-success btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create new category</a>
@@ -35,16 +35,16 @@
                     {% for category in project.categories.all %}
 
                     {% if forloop.first %}
-                    <div id="sortable">
+                    <ul class="list-unstyled overview-list" id="sortable">
                     {% endif %}
 
-                        <div class="overview-list-item sort-item" data-item-id="{{ category.id }}">
+                        <li class="sort-item" data-item-id="{{ category.id }}">
                             <h4><small><span class="glyphicon glyphicon-sort"></span></small> <a href="{% url 'admin:category_overview' project.id category.id %}">{{category.name}}</a> {% if category.status == 'inactive' %}<small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
                             {% if category.description %}<p>{{category.description}}</p>{% endif %}
-                        </div>
+                        </li>
 
                     {% if forloop.last %}
-                    </div>
+                    </ul>
                     {% endif %}
 
                     {% empty %}

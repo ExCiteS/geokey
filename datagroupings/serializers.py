@@ -11,8 +11,7 @@ class GroupingSerializer(FieldSelectorSerializer):
     Serializer for Views.
     """
     contributions = SerializerMethodField('get_data')
-    num_contributions = SerializerMethodField(
-        'get_number_contributions')
+    num_contributions = SerializerMethodField()
 
     class Meta:
         model = Grouping
@@ -35,7 +34,7 @@ class GroupingSerializer(FieldSelectorSerializer):
         )
         return serializer.data
 
-    def get_number_contributions(self, obj):
+    def get_num_contributions(self, obj):
         """
         Returns the number of contributions accessable through the view.
         """

@@ -260,13 +260,24 @@ div.well.empty-list {
 	margin-top: 2em;
 }
 
-div.overview-list-item {
-	display: block;
-	border-top: 1px solid #ddd;
-	padding: 1.5em 0;
+ul.overview-list > li,
+ol.overview-list > li {
+  padding: 1.5em 0;
+  border-top: 1px solid #ddd;
 }
 
-div.overview-list-item.checkbox {
+ul.overview-list > li:first-child,
+ol.overview-list > li:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+ul.overview-list > li:last-child,
+ol.overview-list > li:last-child {
+  padding-bottom: 0;
+}
+
+ul.overview-list > li .checkbox {
 	padding-left: 20px;
 	margin-bottom: 0;
 	margin-top: 0;
@@ -274,56 +285,61 @@ div.overview-list-item.checkbox {
 	padding-bottom: 15px;
 }
 
-	div.overview-list-item h3:last-child {
+	ul.overview-list > li h3:last-child,
+	ul.overview-list > li p:last-child {
 		margin-bottom: 0;
 	}
 
-	div.overview-list-item a + h3 {
+	ul.overview-list > li a + h3 {
 		margin-top: 0;
 	}
 
-	div.overview-list-item h3 a {
+	ul.overview-list > li h3 a {
 		text-decoration: none;
 	}
 
-	div.overview-list-item h3 span.label {
+	ul.overview-list > li h3 span.label {
 		font-size: 0.5em;
 	}
 
-	div.overview-list-item p.meta {
+	ul.overview-list > li p.meta {
 		color: #999;
 		margin-bottom: 0;
 		text-transform: uppercase;
 		font-size: 12px;
 	}
 
-	div.overview-list-item p.meta span.lower-case {
+	ul.overview-list > li p.meta span.lower-case {
 		text-transform: none;
 	}
 
-	div.overview-list-item .message {
+	ul.overview-list > li.message {
 		margin-top: -15px;
 		margin-bottom: 15px;
 		padding: 15px;
 	}
 
-div.overview-list-item.ui-sortable-helper {
-	border-bottom: 1px solid #ddd;
-}
+	ul.overview-list > li.ui-sortable-helper {
+		border-bottom: 1px solid #ddd;
+	}
 
-div.ui-state-highlight {
+li.ui-state-highlight {
 	background-color: #fcf8e3;
 	border: 1px dashed #ddd;
 	height: 50px;
 	margin: 15px 0;
 }
 
-div.overview-list-item.sort-item span.glyphicon:hover {
+ul.overview-list > li.sort-item span.glyphicon:hover {
 	cursor: move;
 }
 
-div.overview-list-item.sort-item p {
+ul.overview-list > li.sort-item p {
 	padding-left: 22px;
+}
+
+ul.overview-list > li > div:last-child {
+	margin-bottom: 0;
 }
 
 .app-meta code {
@@ -519,6 +535,7 @@ h6.item-info + h3 {
 
 .message {
 	padding: 15px;
+	margin-bottom: 15px;
 }
 
 #map {

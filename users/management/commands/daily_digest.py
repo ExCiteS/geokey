@@ -18,7 +18,7 @@ from django.template import Context
 
 from projects.models import Project, Admins
 from users.models import User
-from contributions.models import Observation
+from contributions.models.contributions import Observation
 
 sys.path.append('/vagrant/geokey/')
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings.prod")

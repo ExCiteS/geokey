@@ -17,7 +17,7 @@ class Locations(APIView):
     """
 
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, format=None):
+    def get(self, request, project_id):
         """
         Returns a list of locations that can be used for contributions to the
         given project.
@@ -41,7 +41,7 @@ class SingleLocation(APIView):
     /api/projects/:project_id/locations/:location_id/
     """
     @handle_exceptions_for_ajax
-    def patch(self, request, project_id, location_id, format=None):
+    def patch(self, request, project_id, location_id):
         location = Location.objects.get_single(
             request.user, project_id, location_id)
         serializer = LocationSerializer(

@@ -1,6 +1,6 @@
 from projects.models import Project
 from datagroupings.models import Grouping
-from contributions.models import Observation
+from contributions.models.contributions import Observation
 
 
 class SingleAllContribution(object):

@@ -17,9 +17,9 @@ from categories.serializer import CategorySerializer
 from categories.models import Category
 from users.serializers import UserSerializer
 
-from .models import (
-    Location, Observation, Comment, MediaFile, ImageFile, VideoFile
-)
+from .models.contributions import Observation, Comment
+from .models.locations import Location
+from .models.media import MediaFile, ImageFile, VideoFile
 
 
 class LocationSerializer(geoserializers.GeoFeatureModelSerializer):
@@ -129,52 +129,56 @@ class ContributionSerializer(object):
                 )
 
     def restore_object(self, instance=None, data=None):
-        if data is not None:
-            properties = data.get('properties')
-            location = properties.get('location')
-            attributes = properties.get('attributes')
-            user = self.context.get('user')
-
-            status = properties.pop('status', None)
-
-            if instance is not None:
-                self.restore_location(
-                    instance.location,
-                    data=data.get('properties').pop('location', None),
-                    geometry=data.pop('geometry', None)
-                )
-
-                return instance.update(
-                    attributes=attributes,
-                    updator=user,
-                    status=status
-                )
-            else:
-                project = self.context.get('project')
-
-                try:
-                    category = project.categories.get(
-                        pk=properties.pop('category'))
-                except Category.DoesNotExist:
-                    raise MalformedRequestData('The category can not'
-                                               'be used with the project or '
-                                               'does not exist.')
-
-                location = self.restore_location(
-                    data=data.get('properties').pop('location', None),
-                    geometry=data.get('geometry')
-                )
-
-                return Observation.create(
-                    attributes=attributes,
-                    creator=user,
-                    location=location,
-                    project=category.project,
-                    category=category,
-                    status=status
-                )
-        else:
+        if data is None:
             return instance
+
+        properties = data.get('properties')
+        location = properties.get('location')
+        attributes = properties.get('attributes')
+        user = self.context.get('user')
+
+        status = properties.pop('status', None)
+
+        if instance is not None:
+            self.restore_location(
+                instance.location,
+                data=data.get('properties').pop('location', None),
+                geometry=data.pop('geometry', None)
+            )
+
+            return instance.update(
+                attributes=attributes,
+                updator=user,
+                status=status
+            )
+        else:
+            project = self.context.get('project')
+
+            try:
+                category = project.categories.get(
+                    pk=properties.pop('category'))
+
+                if category.status == 'inactive':
+                    raise MalformedRequestData('The category can not be used '
+                                               'because it is inactive.')
+            except Category.DoesNotExist:
+                raise MalformedRequestData('The category can not'
+                                           'be used with the project or '
+                                           'does not exist.')
+
+            location = self.restore_location(
+                data=data.get('properties').pop('location', None),
+                geometry=data.get('geometry')
+            )
+
+            return Observation.create(
+                attributes=attributes,
+                creator=user,
+                location=location,
+                project=category.project,
+                category=category,
+                status=status
+            )
 
     def get_display_field(self, obj):
         if obj.display_field is not None:
@@ -297,7 +301,7 @@ class ContributionSerializer(object):
 
 class CommentSerializer(serializers.ModelSerializer):
     creator = UserSerializer(fields=('id', 'display_name'))
-    isowner = serializers.SerializerMethodField('get_is_owner')
+    isowner = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
@@ -305,8 +309,8 @@ class CommentSerializer(serializers.ModelSerializer):
                   'creator', 'review_status')
         read_only = ('id', 'respondsto', 'created_at')
 
-    def to_native(self, obj):
-        native = super(CommentSerializer, self).to_native(obj)
+    def to_representation(self, obj):
+        native = super(CommentSerializer, self).to_representation(obj)
         native['responses'] = CommentSerializer(
             obj.responses.all(),
             many=True,
@@ -315,7 +319,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
         return native
 
-    def get_is_owner(self, comment):
+    def get_isowner(self, comment):
         if not self.context.get('user').is_anonymous():
             return comment.creator == self.context.get('user')
         else:
@@ -324,10 +328,10 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class FileSerializer(serializers.ModelSerializer):
     creator = UserSerializer(fields=('id', 'display_name'))
-    isowner = serializers.SerializerMethodField('get_is_owner')
-    url = serializers.SerializerMethodField('get_url')
-    file_type = serializers.SerializerMethodField('get_type')
-    thumbnail_url = serializers.SerializerMethodField('get_thumbnail_url')
+    isowner = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField()
+    file_type = serializers.SerializerMethodField()
+    thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
         model = MediaFile
@@ -336,13 +340,13 @@ class FileSerializer(serializers.ModelSerializer):
             'url', 'thumbnail_url', 'file_type'
         )
 
-    def get_type(self, obj):
+    def get_file_type(self, obj):
         """
         Returns the type of the MediaFile
         """
         return obj.type_name
 
-    def get_is_owner(self, obj):
+    def get_isowner(self, obj):
         """
         Returns `True` if the user provided in the serializer context is the
         creator of this file

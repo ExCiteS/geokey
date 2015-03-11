@@ -15,7 +15,9 @@ from categories.models import (
 )
 from datagroupings.models import Grouping, Rule
 from applications.models import Application
-from contributions.models import Observation, Location, Comment, MediaFile
+from contributions.models.contributions import Observation, Comment
+from contributions.models.locations import Location
+from contributions.models.media import MediaFile
 
 
 def handle_exceptions_for_admin(func):

@@ -22,7 +22,7 @@ class ProjectObservations(APIView):
     /api/projects/:project_id/contributions
     """
     @handle_exceptions_for_ajax
-    def post(self, request, project_id, format=None):
+    def post(self, request, project_id):
         """
         Adds a new contribution to a project
         """
@@ -49,7 +49,7 @@ class ContributionSearchAPIView(APIView):
     /api/projects/:project_id/contributions/search/?query={query}
     """
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, format=None):
+    def get(self, request, project_id):
         q = request.GET.get('query')
 
         project = Project.objects.get_single(request.user, project_id)
@@ -69,7 +69,7 @@ class ProjectObservationsView(APIView):
     /api/projects/:project_id/data-groupings/all-contributions/
     """
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, format=None):
+    def get(self, request, project_id):
         project = Project.objects.get_single(request.user, project_id)
         contributions = project.get_all_contributions(request.user)
 
@@ -89,7 +89,7 @@ class MyObservations(APIView):
     """
 
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, format=None):
+    def get(self, request, project_id):
         project = Project.objects.get_single(request.user, project_id)
 
         if request.user.is_anonymous():
@@ -116,7 +116,7 @@ class MyObservations(APIView):
 
 class ViewObservations(APIView):
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, grouping_id, format=None):
+    def get(self, request, project_id, grouping_id):
         """
         Returns a single view and its data
         /api/projects/:project_id/data-groupings/:grouping_id/
@@ -138,14 +138,14 @@ class ViewObservations(APIView):
 
 
 class SingleContributionAPIView(APIView):
-    def get_and_respond(self, request, observation, format=None):
+    def get_and_respond(self, request, observation):
         serializer = ContributionSerializer(
             observation,
             context={'user': request.user, 'project': observation.project}
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def update_and_respond(self, request, observation, format=None):
+    def update_and_respond(self, request, observation):
         data = request.DATA
         user = request.user
         if user.is_anonymous():
@@ -193,7 +193,7 @@ class SingleContributionAPIView(APIView):
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def delete_and_respond(self, request, observation, format=None):
+    def delete_and_respond(self, request, observation):
         """
         Deletes a single observation
         """
@@ -214,22 +214,19 @@ class SingleAllContributionAPIView(
     """
 
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, observation_id, format=None):
+    def get(self, request, project_id, observation_id):
         observation = self.get_object(request.user, project_id, observation_id)
-        return self.get_and_respond(request, observation, format=format)
+        return self.get_and_respond(request, observation)
 
     @handle_exceptions_for_ajax
-    def patch(self, request, project_id, observation_id, format=None):
+    def patch(self, request, project_id, observation_id):
         observation = self.get_object(request.user, project_id, observation_id)
-        return self.update_and_respond(request, observation, format=format)
+        return self.update_and_respond(request, observation)
 
     @handle_exceptions_for_ajax
-    def delete(self, request, project_id, observation_id, format=None):
+    def delete(self, request, project_id, observation_id):
         observation = self.get_object(request.user, project_id, observation_id)
-        return self.delete_and_respond(request, observation, format=format)
-
-        raise PermissionDenied('You are not eligable to delete this '
-                               'contribution')
+        return self.delete_and_respond(request, observation)
 
 
 class SingleGroupingContributionAPIView(
@@ -239,41 +236,38 @@ class SingleGroupingContributionAPIView(
     /api/projects/:project_id/views/:grouping_id/observations/:observation_id
     """
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, grouping_id, observation_id,
-            format=None):
+    def get(self, request, project_id, grouping_id, observation_id):
         observation = self.get_object(
             request.user, project_id, grouping_id, observation_id)
-        return self.get_and_respond(request, observation, format=format)
+        return self.get_and_respond(request, observation)
 
     @handle_exceptions_for_ajax
-    def patch(self, request, project_id, grouping_id, observation_id,
-              format=None):
+    def patch(self, request, project_id, grouping_id, observation_id):
         observation = self.get_object(
             request.user, project_id, grouping_id, observation_id)
-        return self.update_and_respond(request, observation, format=format)
+        return self.update_and_respond(request, observation)
 
     @handle_exceptions_for_ajax
-    def delete(self, request, project_id, grouping_id, observation_id,
-               format=None):
+    def delete(self, request, project_id, grouping_id, observation_id):
         observation = self.get_object(
             request.user, project_id, grouping_id, observation_id)
-        return self.delete_and_respond(request, observation, format=format)
+        return self.delete_and_respond(request, observation)
 
 
 class SingleMyContributionAPIView(
         SingleMyContribution, SingleContributionAPIView):
 
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, observation_id, format=None):
+    def get(self, request, project_id, observation_id):
         observation = self.get_object(request.user, project_id, observation_id)
-        return self.get_and_respond(request, observation, format=format)
+        return self.get_and_respond(request, observation)
 
     @handle_exceptions_for_ajax
-    def patch(self, request, project_id, observation_id, format=None):
+    def patch(self, request, project_id, observation_id):
         observation = self.get_object(request.user, project_id, observation_id)
-        return self.update_and_respond(request, observation, format=format)
+        return self.update_and_respond(request, observation)
 
     @handle_exceptions_for_ajax
-    def delete(self, request, project_id, observation_id, format=None):
+    def delete(self, request, project_id, observation_id):
         observation = self.get_object(request.user, project_id, observation_id)
-        return self.delete_and_respond(request, observation, format=format)
+        return self.delete_and_respond(request, observation)

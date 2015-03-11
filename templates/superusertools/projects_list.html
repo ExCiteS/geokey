@@ -31,10 +31,20 @@
         <div class="col-md-8">
             <h3>Manage all projects</h3>
             {% for project in projects %}
-            <div class="overview-list-item">
+
+            {% if forloop.first %}
+            <ul class="list-unstyled overview-list">
+            {% endif %}
+
+            <li>
                 <h4><a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a></h4>
                 {% if project.description %}<p>{{ project.description }}</p>{% endif %}
-            </div>
+            </li>
+
+            {% if forloop.last %}
+            </ul>
+            {% endif %}
+
             {% empty %}
             <div class="well empty-list">
                 <p class="lead">We couldn't find any projects.</p>

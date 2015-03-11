@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from contributions.models import ImageFile, VideoFile
+from contributions.models.media import ImageFile, VideoFile
 
 from contributions.tests.model_factories import ObservationFactory
 from users.tests.model_factories import UserF

@@ -19,14 +19,14 @@ from core.decorators import (
 
 from .base import STATUS
 from .models import (
-    Category, Field, NumericField, LookupField, LookupValue,
+    Category, Field, TextField, NumericField, LookupField, LookupValue,
     MultipleLookupField, MultipleLookupValue
 )
 from .forms import CategoryCreateForm, FieldCreateForm
 from .serializer import (
     CategorySerializer, FieldSerializer, LookupFieldSerializer
 )
-from contributions.models import Observation
+from contributions.models.contributions import Observation
 
 
 # ############################################################################
@@ -78,7 +78,7 @@ class CategoryCreate(LoginRequiredMixin, CreateView):
     template_name = 'categories/category_create.html'
 
     @handle_exceptions_for_admin
-    def get_context_data(self, form, **kwargs):
+    def get_context_data(self, **kwargs):
         """
         Creates the request context for rendering the page
         """
@@ -244,7 +244,7 @@ class FieldCreate(LoginRequiredMixin, CreateView):
     template_name = 'categories/field_create.html'
 
     @handle_exceptions_for_admin
-    def get_context_data(self, form, data=None, key_error=False, **kwargs):
+    def get_context_data(self, data=None, key_error=False, **kwargs):
         project_id = self.kwargs['project_id']
         category_id = self.kwargs['category_id']
 
@@ -283,9 +283,14 @@ class FieldCreate(LoginRequiredMixin, CreateView):
             self.request.POST.get('type')
         )
 
-        if isinstance(field, NumericField):
+        if isinstance(field, TextField):
+            field.textarea = self.request.POST.get('textarea') or False
+            field.maxlength = self.request.POST.get('maxlength') or None
+
+        elif isinstance(field, NumericField):
             field.minval = self.request.POST.get('minval') or None
             field.maxval = self.request.POST.get('maxval') or None
+
         field.save()
 
         field_create_url = reverse(
@@ -343,9 +348,14 @@ class FieldSettings(LoginRequiredMixin, TemplateView):
         field.description = strip_tags(data.get('description'))
         field.required = data.get('required') or False
 
-        if isinstance(field, NumericField):
+        if isinstance(field, TextField):
+            field.textarea = data.get('textarea') or False
+            field.maxlength = data.get('maxlength') or None
+
+        elif isinstance(field, NumericField):
             field.minval = data.get('minval') or None
             field.maxval = data.get('maxval') or None
+
         field.save()
 
         messages.success(self.request, "The field has been updated.")
@@ -393,7 +403,7 @@ class CategoryUpdate(APIView):
     /ajax/projects/:project_id/categories/:category_id
     """
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, category_id, format=None):
+    def get(self, request, project_id, category_id):
         category = Category.objects.as_admin(
             request.user, project_id, category_id)
 
@@ -401,7 +411,7 @@ class CategoryUpdate(APIView):
         return Response(serializer.data)
 
     @handle_exceptions_for_ajax
-    def put(self, request, project_id, category_id, format=None):
+    def put(self, request, project_id, category_id):
         """
         Updates an category
         """
@@ -489,7 +499,7 @@ class FieldLookupsUpdate(APIView):
     """
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, category_id, field_id,
-               value_id, format=None):
+               value_id):
         """
         Removes a LookupValue
         """
@@ -509,7 +519,7 @@ class FieldLookupsUpdate(APIView):
 
 class FieldsReorderView(APIView):
     @handle_exceptions_for_ajax
-    def post(self, request, project_id, category_id, format=None):
+    def post(self, request, project_id, category_id):
         category = Category.objects.as_admin(
             request.user, project_id, category_id)
         try:
@@ -536,7 +546,7 @@ class SingleCategory(APIView):
     /api/projects/:project_id/categories/:category_id
     """
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, category_id, format=None):
+    def get(self, request, project_id, category_id):
         """
         Returns the category and all fields
         """

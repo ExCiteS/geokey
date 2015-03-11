@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from ..model_factories import ObservationFactory, CommentFactory
-from contributions.models import Comment
+from contributions.models.contributions import Comment
 
 
 class CommentTest(TestCase):

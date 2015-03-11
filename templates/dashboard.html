@@ -12,12 +12,17 @@
             {% include 'snippets/messages.html' %}
             <div class="row">
                 <div class="col-md-8">
-                    <h3>
+                    <h3 class="header">
                         Manage your projects
                         {% if admin_projects %} <a href="{% url 'admin:project_create' %}" class="pull-right btn btn-sm btn-success"><span class="glyphicon glyphicon-plus"></span> Create new Project</a>{% endif %}
                     </h3>
                     {% for project in admin_projects %}
-                    <div class="overview-list-item">
+
+                    {% if forloop.first %}
+                    <ul class="list-unstyled overview-list">
+                    {% endif %}
+
+                    <li>
                         <h3>
                             <a href="{% url 'admin:project_overview' project.id %}">{{project.name}}</a>
                             {% if project.isprivate %}<span class="label label-info">Private</span>{% else %}<span class="label label-info">Public</span>{% endif %}
@@ -25,7 +30,12 @@
                         </h3>
                         {% if project.description %}<p>{{project.description}}</p>{% endif %}
                         <p class="meta">Created by {{ project.creator.display_name }}</p>
-                    </div>
+                    </li>
+
+                    {% if forloop.last %}
+                    </ul>
+                    {% endif %}
+
                     {% empty %}
                         <div class="well empty-list">
                             <p class="lead">We couldn't find any projects you are eligible to manage.</p>

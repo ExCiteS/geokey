@@ -6,7 +6,7 @@ from nose.tools import raises
 from projects.tests.model_factories import ProjectF, UserF
 
 from ..model_factories import LocationFactory
-from contributions.models import Location
+from contributions.models.locations import Location
 
 
 class LocationTest(TestCase):

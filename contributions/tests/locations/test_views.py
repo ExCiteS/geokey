@@ -8,8 +8,8 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from projects.tests.model_factories import UserF, ProjectF
 
 from ..model_factories import LocationFactory
-from contributions.views import Locations, SingleLocation
-from contributions.models import Location
+from contributions.views.locations import Locations, SingleLocation
+from contributions.models.locations import Location
 
 
 class LocationApiTest(TestCase):

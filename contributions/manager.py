@@ -137,7 +137,7 @@ class MediaFileManager(InheritanceManager):
         """
         Creates an ImageFile and returns the instance.
         """
-        from contributions.models import ImageFile
+        from contributions.models.media import ImageFile
 
         filename, extension = os.path.splitext(the_file.name)
         the_file.name = filename[:FILE_NAME_TRUNC] + extension
@@ -170,7 +170,7 @@ class MediaFileManager(InheritanceManager):
         Creates a new video file. Uploads the video to Youtube and returns the
         VideoFile instance.
         """
-        from contributions.models import VideoFile
+        from contributions.models.media import VideoFile
         from django.core.files.storage import default_storage
         from django.core.files.base import ContentFile
 
@@ -199,7 +199,7 @@ class MediaFileManager(InheritanceManager):
             swf_link=swf_link
         )
 
-    def create(self, the_file=None, *args, **kwargs):
+    def create(self, the_file=None, **kwargs):
         """
         Create a new file. Selects the class by examining the file name
         extension.

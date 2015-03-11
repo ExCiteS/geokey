@@ -14,7 +14,7 @@ class ActiveMixin(object):
     Mixin to provide a queryset method filtering for all instances of the
     model that have status active.
     """
-    def active(self, *args, **kwargs):
+    def active(self):
         """
         Returns a queryset of all active instances
         """

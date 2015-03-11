@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
-from contributions.models import Observation
+from django.db import migrations
+from contributions.models.contributions import Observation
 
 
 def populate_display_field(apps, schema_editor):

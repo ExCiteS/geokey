@@ -1,9 +1,6 @@
 from django.db import models
-from django.conf import settings
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
-from oauth2_provider.models import AbstractApplication, Application as Client
+from oauth2_provider.models import AbstractApplication
 
 from .base import STATUS
 from .manager import ApplicationManager

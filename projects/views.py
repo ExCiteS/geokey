@@ -217,7 +217,7 @@ class ProjectUpdate(APIView):
     """
 
     @handle_exceptions_for_ajax
-    def put(self, request, project_id, format=None):
+    def put(self, request, project_id):
         """
         Updates a project. If the user is not an administrator of the project,
         `PermissionDenied` is caught and handled in the
@@ -238,7 +238,7 @@ class ProjectUpdate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @handle_exceptions_for_ajax
-    def delete(self, request, project_id, format=None):
+    def delete(self, request, project_id):
         """
         Deletes a project. If the user is not an administrator of the project,
         `PermissionDenied` is caught and handled in the
@@ -256,7 +256,7 @@ class ProjectAdmins(APIView):
     """
 
     @handle_exceptions_for_ajax
-    def post(self, request, project_id, format=None):
+    def post(self, request, project_id):
         """
         Adds a user to the admin group. . If the user is not an administrator
         of the project, `PermissionDenied` is caught and handled in the
@@ -286,7 +286,7 @@ class ProjectAdminsUser(APIView):
     """
 
     @handle_exceptions_for_ajax
-    def delete(self, request, project_id, user_id, format=None):
+    def delete(self, request, project_id, user_id):
         """
         Removes a user from the user group. . If the user is not an
         administrator of the project, `PermissionDenied` is caught and handled
@@ -305,7 +305,7 @@ class CategoriesReorderView(APIView):
     /ajax/projects/:project_id/cotegories/re-order
     """
     @handle_exceptions_for_ajax
-    def post(self, request, project_id, format=None):
+    def post(self, request, project_id):
         project = Project.objects.as_admin(request.user, project_id)
 
         try:
@@ -338,7 +338,7 @@ class Projects(APIView):
     /api/projects/
     """
     @handle_exceptions_for_ajax
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Returns a list a all projects accessable to the user.
         """
@@ -357,7 +357,7 @@ class SingleProject(APIView):
     /api/projects/:project_id/
     """
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, format=None):
+    def get(self, request, project_id):
         """
         Returns a single project. If the user is not eligable to access the
         project, `PermissionDenied` is caught and handled in the
@@ -380,7 +380,7 @@ class ProjectContactAdmins(APIView):
     /api/projects/:project_id/get-in-touch/
     """
     @handle_exceptions_for_ajax
-    def post(self, request, project_id, format=None):
+    def post(self, request, project_id):
         """
         Sends an email to all admins that are contact persons for the given
         project.

@@ -24,13 +24,13 @@ class FileSerializerTest(TestCase):
         image = ImageFileFactory.create()
 
         serializer = FileSerializer(image, context={'user': image.creator})
-        self.assertTrue(serializer.get_is_owner(image))
+        self.assertTrue(serializer.get_isowner(image))
 
         serializer = FileSerializer(image, context={'user': UserF.create()})
-        self.assertFalse(serializer.get_is_owner(image))
+        self.assertFalse(serializer.get_isowner(image))
 
         serializer = FileSerializer(image, context={'user': AnonymousUser()})
-        self.assertFalse(serializer.get_is_owner(image))
+        self.assertFalse(serializer.get_isowner(image))
 
     def test_get_image_url(self):
         image = ImageFileFactory.create()
@@ -76,4 +76,4 @@ class FileSerializerTest(TestCase):
         video = VideoFileFactory.create()
 
         serializer = FileSerializer(video, context={'user': video.creator})
-        self.assertEqual(serializer.get_type(video), 'VideoFile')
+        self.assertEqual(serializer.get_file_type(video), 'VideoFile')
