@@ -2,13 +2,10 @@ from django.conf.urls import patterns, url
 
 from projects import views as project_views
 from categories import views as category_views
-<<<<<<< HEAD
-from contributions import views as contribution_views
-from users.views import UserAPIView, ChangePasswordView
-=======
+
 from contributions.views import observations, comments, locations, media
-from users.views import UserAPIView
->>>>>>> master
+from users.views import UserAPIView, ChangePasswordView
+
 
 urlpatterns = patterns(
     '',

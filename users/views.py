@@ -3,7 +3,6 @@ from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.utils.html import strip_tags
-from django.contrib.auth.views import password_reset_confirm as reset_view
 
 from braces.views import LoginRequiredMixin
 
@@ -248,19 +247,6 @@ class UserProfile(LoginRequiredMixin, TemplateView):
     `/admin/profile`
     """
     template_name = 'users/profile.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, **kwargs):
-        """
-        Creates the request context for rendering the page
-        """
-        context = super(UserProfile, self).get_context_data(**kwargs)
-
-        referer = self.request.META.get('HTTP_REFERER')
-        if referer is not None and 'profile/password/change' in referer:
-            context['password_reset'] = True
-
-        return context
 
     def post(self, request):
         """
