@@ -187,20 +187,20 @@ class ViewTest(TestCase):
         observation = ObservationFactory(**{
             'project': project,
             'category': category_1,
-            'attributes': {'text': 'yes to update'}
+            'properties': {'text': 'yes to update'}
         })
 
         for x in range(0, 5):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'text': 'yes ' + str(x)}
+                'properties': {'text': 'yes ' + str(x)}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'text': 'no ' + str(x)}
+                'properties': {'text': 'no ' + str(x)}
             })
 
         view = GroupingFactory(**{'project': project})
@@ -212,7 +212,7 @@ class ViewTest(TestCase):
 
         updater = UserF()
         update = {'text': 'yes, this has been updated', 'version': 1}
-        observation.update(attributes=update, updator=updater)
+        observation.update(properties=update, updator=updater)
         self.assertEqual(view.data(user).count(), 6)
 
     def test_get_data_combined(self):
@@ -268,19 +268,19 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'text': 'yes ' + str(x)}}
+                'properties': {'text': 'yes ' + str(x)}}
             )
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'text': 'no ' + str(x)}}
+                'properties': {'text': 'no ' + str(x)}}
             )
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': 'yes ' + str(x)}}
+                'properties': {'bla': 'yes ' + str(x)}}
             )
 
         view = GroupingFactory(**{'project': project})
@@ -309,19 +309,19 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'number': 12}}
+                'properties': {'number': 12}}
             )
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'number': 20}}
+                'properties': {'number': 20}}
             )
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'number': 12}}
+                'properties': {'number': 12}}
             )
 
         view = GroupingFactory(**{'project': project})
@@ -351,19 +351,19 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'number': 12}
+                'properties': {'number': 12}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'number': 20}
+                'properties': {'number': 20}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'number': 12}
+                'properties': {'number': 12}
             })
 
         view = GroupingFactory(**{'project': project})
@@ -393,19 +393,19 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'rating': x}
+                'properties': {'rating': x}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'rating': x}
+                'properties': {'rating': x}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'rating': x}
+                'properties': {'rating': x}
             })
 
         view = GroupingFactory(**{'project': project})
@@ -447,19 +447,19 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'lookup': lookup_1.id}
+                'properties': {'lookup': lookup_1.id}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'lookup': lookup_2.id}
+                'properties': {'lookup': lookup_2.id}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': lookup_3.id}
+                'properties': {'bla': lookup_3.id}
             })
 
         view = GroupingFactory(**{'project': project})
@@ -489,19 +489,19 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'date': '2014-04-09'}
+                'properties': {'date': '2014-04-09'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'date': '2013-04-09'}
+                'properties': {'date': '2013-04-09'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': '2014-04-09'}
+                'properties': {'bla': '2014-04-09'}
             })
 
         view = GroupingFactory(**{'project': project})
@@ -533,19 +533,19 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'date': '2014-04-09'}
+                'properties': {'date': '2014-04-09'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'date': '2013-04-09'}
+                'properties': {'date': '2013-04-09'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': '2014-04-09'}
+                'properties': {'bla': '2014-04-09'}
             })
 
         view = GroupingFactory(**{'project': project})
@@ -577,19 +577,19 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'date': '2014-04-09'}
+                'properties': {'date': '2014-04-09'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'date': '2013-04-09'}
+                'properties': {'date': '2013-04-09'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': '2014-04-09'}
+                'properties': {'bla': '2014-04-09'}
             })
 
         view = GroupingFactory(**{'project': project})
@@ -621,19 +621,19 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'date': '2014-04-09'}
+                'properties': {'date': '2014-04-09'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'date': '2013-04-09'}
+                'properties': {'date': '2013-04-09'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': '2014-04-09'}
+                'properties': {'bla': '2014-04-09'}
             })
 
         view = GroupingFactory(**{'project': project})
@@ -665,19 +665,19 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'time': '11:00'}
+                'properties': {'time': '11:00'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'time': '18:00'}
+                'properties': {'time': '18:00'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': '11:00'}
+                'properties': {'bla': '11:00'}
             })
 
         view = GroupingFactory(**{'project': project})
@@ -709,19 +709,19 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'time': '2:00'}
+                'properties': {'time': '2:00'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'time': '18:00'}
+                'properties': {'time': '18:00'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': '2:00'}
+                'properties': {'bla': '2:00'}
             })
 
         view = GroupingFactory(**{'project': project})
@@ -753,19 +753,19 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'time': '11:00'}
+                'properties': {'time': '11:00'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'time': '18:00'}
+                'properties': {'time': '18:00'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': '11:00'}
+                'properties': {'bla': '11:00'}
             })
 
         view = GroupingFactory(**{'project': project})
@@ -797,19 +797,19 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'time': '11:00'}
+                'properties': {'time': '11:00'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'time': '18:00'}
+                'properties': {'time': '18:00'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': '11:00'}
+                'properties': {'bla': '11:00'}
             })
 
         view = GroupingFactory(**{'project': project})
@@ -981,19 +981,19 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'lookup': [lookup_1.id, lookup_3.id]}
+                'properties': {'lookup': [lookup_1.id, lookup_3.id]}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'lookup': [lookup_2.id, lookup_3.id]}
+                'properties': {'lookup': [lookup_2.id, lookup_3.id]}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': [lookup_4.id]}
+                'properties': {'bla': [lookup_4.id]}
             })
 
         view = GroupingFactory(**{'project': project})

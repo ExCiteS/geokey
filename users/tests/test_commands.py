@@ -28,7 +28,7 @@ class CommandTest(TestCase):
         yesterday = datetime.utcnow().replace(tzinfo=utc)
 
         ObservationFactory.create(project=updated_project_1)
-        updated.update(attributes={'key': 'value'}, updator=UserF.create())
+        updated.update(properties={'key': 'value'}, updator=UserF.create())
 
         # the tests
         command = Command()
@@ -68,12 +68,12 @@ class CommandTest(TestCase):
         yesterday = datetime.utcnow().replace(tzinfo=utc)
 
         suspended.update(
-            attributes=None,
+            properties=None,
             status='pending',
             updator=UserF.create()
         )
-        updated.update(attributes={'key': 'value'}, updator=UserF.create())
-        approved.update(attributes=None, status='active', updator=moderator)
+        updated.update(properties={'key': 'value'}, updator=UserF.create())
+        approved.update(properties=None, status='active', updator=moderator)
 
         for user in [moderator, contributor]:
             ObservationFactory.create(
@@ -137,12 +137,12 @@ class CommandTest(TestCase):
         yesterday = datetime.utcnow().replace(tzinfo=utc)
 
         suspended.update(
-            attributes=None,
+            properties=None,
             status='pending',
             updator=UserF.create()
         )
-        updated.update(attributes={'key': 'value'}, updator=UserF.create())
-        approved.update(attributes=None, status='active', updator=moderator)
+        updated.update(properties={'key': 'value'}, updator=UserF.create())
+        approved.update(properties=None, status='active', updator=moderator)
 
         for user in [moderator, contributor]:
             ObservationFactory.create(

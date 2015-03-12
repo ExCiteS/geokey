@@ -52,7 +52,7 @@ class TestContributionsPreSave(TestCase):
         })
 
         o = ObservationFactory.create(**{
-            'attributes': {
+            'properties': {
                 'key': 'blah',
                 'lookup': kermit.id,
                 'm_lookup': [m_kermit.id, m_piggy.id]
@@ -89,10 +89,10 @@ class ObservationTest(TestCase):
         })
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
-            attributes=data, creator=creator, location=location,
+            properties=data, creator=creator, location=location,
             category=category, project=category.project
         )
-        self.assertEqual(observation.attributes, data)
+        self.assertEqual(observation.properties, data)
         self.assertEqual(observation.status, 'pending')
 
     def test_create_observation_with_polish_chars(self):
@@ -112,10 +112,10 @@ class ObservationTest(TestCase):
         })
         data = {'text': u'śmietnik', 'number': 12}
         observation = Observation.create(
-            attributes=data, creator=creator, location=location,
+            properties=data, creator=creator, location=location,
             category=category, project=category.project
         )
-        self.assertEqual(observation.attributes, data)
+        self.assertEqual(observation.properties, data)
         self.assertEqual(observation.status, 'pending')
 
     def test_create_observation_active_default(self):
@@ -136,10 +136,10 @@ class ObservationTest(TestCase):
         })
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
-            attributes=data, creator=creator, location=location,
+            properties=data, creator=creator, location=location,
             category=category, project=category.project
         )
-        self.assertEqual(observation.attributes, data)
+        self.assertEqual(observation.properties, data)
         self.assertEqual(observation.status, 'active')
 
     def test_create_observation_with_inactive_field(self):
@@ -165,10 +165,10 @@ class ObservationTest(TestCase):
         })
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
-            attributes=data, creator=creator, location=location,
+            properties=data, creator=creator, location=location,
             category=category, project=category.project
         )
-        self.assertEqual(observation.attributes, data)
+        self.assertEqual(observation.properties, data)
 
     def test_update_observation(self):
         category = CategoryFactory()
@@ -184,19 +184,19 @@ class ObservationTest(TestCase):
         })
 
         observation = ObservationFactory.create(**{
-            'attributes': {'text': 'Text', 'number': 12},
+            'properties': {'text': 'Text', 'number': 12},
             'category': category,
             'project': category.project
         })
 
         updater = UserF()
         update = {'text': 'Udpated Text', 'number': 13}
-        observation.update(attributes=update, updator=updater)
+        observation.update(properties=update, updator=updater)
 
         # ref_observation = Observation.objects.get(pk=observation.id)
         self.assertEqual(
-            observation.attributes,
-            {'text': 'Udpated Text', 'number': '13'}
+            observation.properties,
+            {'text': 'Udpated Text', 'number': 13}
         )
         self.assertEqual(observation.version, 2)
 
@@ -221,18 +221,18 @@ class ObservationTest(TestCase):
         })
 
         observation = ObservationFactory.create(**{
-            'attributes': {'text': 'Text', 'number': 12},
+            'properties': {'text': 'Text', 'number': 12},
             'category': category,
             'project': category.project
         })
 
         updater = UserF()
         update = {'text': 'Udpated Text', 'number': 13}
-        observation.update(attributes=update, updator=updater)
+        observation.update(properties=update, updator=updater)
 
         self.assertEqual(
-            observation.attributes,
-            {'text': 'Udpated Text', 'number': '13'}
+            observation.properties,
+            {'text': 'Udpated Text', 'number': 13}
         )
         self.assertEqual(observation.version, 2)
 
@@ -253,15 +253,15 @@ class ObservationTest(TestCase):
         })
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
-            attributes=data, creator=creator, location=location,
+            properties=data, creator=creator, location=location,
             category=category, project=category.project
         )
 
         updater = UserF()
         update = {'text': 'Udpated Text', 'number': 'abc', 'version': 1}
-        observation.update(attributes=update, updator=updater)
+        observation.update(properties=update, updator=updater)
 
-        self.assertEqual(observation.attributes, data)
+        self.assertEqual(observation.properties, data)
         self.assertEqual(observation.version, 1)
 
     @raises(ValidationError)
@@ -281,7 +281,7 @@ class ObservationTest(TestCase):
         })
         data = {'text': 'Text', 'number': 'abc'}
         Observation.create(
-            attributes=data, creator=creator, location=location,
+            properties=data, creator=creator, location=location,
             category=category, project=category.project
         )
 
@@ -303,7 +303,7 @@ class ObservationTest(TestCase):
         })
         data = {'number': 1000}
         Observation.create(
-            attributes=data, creator=creator, location=location,
+            properties=data, creator=creator, location=location,
             category=category, project=category.project
         )
 
@@ -325,7 +325,7 @@ class ObservationTest(TestCase):
         })
         data = {'text': '', 'number': 1000}
         Observation.create(
-            attributes=data, creator=creator, location=location,
+            properties=data, creator=creator, location=location,
             category=category, project=category.project
         )
 
@@ -346,16 +346,16 @@ class ObservationTest(TestCase):
         })
         data = {'number': 12}
         observation = Observation.create(
-            attributes=data, creator=creator, location=location,
+            properties=data, creator=creator, location=location,
             category=category, project=category.project,
             status='draft'
         )
 
         updater = UserF()
         update = {'number': 13}
-        observation.update(attributes=update, updator=updater)
+        observation.update(properties=update, updator=updater)
 
-        self.assertEqual(observation.attributes.get('number'), '13')
+        self.assertEqual(observation.properties.get('number'), 13)
         self.assertEqual(observation.version, 1)
 
     @raises(ValidationError)
@@ -376,6 +376,6 @@ class ObservationTest(TestCase):
         })
         data = {'text': 'bla'}
         Observation.create(
-            attributes=data, creator=creator, location=location,
+            properties=data, creator=creator, location=location,
             category=category, project=category.project
         )

@@ -147,7 +147,7 @@ class ContributionSerializer(object):
             )
 
             return instance.update(
-                attributes=attributes,
+                properties=attributes,
                 updator=user,
                 status=status
             )
@@ -172,7 +172,7 @@ class ContributionSerializer(object):
             )
 
             return Observation.create(
-                attributes=attributes,
+                properties=attributes,
                 creator=user,
                 location=location,
                 project=category.project,
@@ -287,14 +287,7 @@ class ContributionSerializer(object):
             context=self.context
         )
         json_object['media'] = file_serializer.data
-
-        attributes = {}
-        for field in obj.category.fields.all():
-            value = obj.attributes.get(field.key)
-            if value is not None:
-                attributes[field.key] = field.convert_from_string(value)
-
-        json_object['properties']['attributes'] = attributes
+        json_object['properties']['attributes'] = obj.properties
 
         return json_object
 

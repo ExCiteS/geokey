@@ -57,11 +57,11 @@ class TestSearch(TestCase):
         TextFieldFactory.create(**{'key': 'key', 'category': o_type})
 
         ObservationFactory.create_batch(5, **{
-            'attributes': {'key': 'blah'},
+            'properties': {'key': 'blah'},
             'category': o_type
         })
         ObservationFactory.create_batch(5, **{
-            'attributes': {'key': 'blub'},
+            'properties': {'key': 'blub'},
             'category': o_type
         })
 
@@ -74,14 +74,14 @@ class TestSearch(TestCase):
         self.assertEqual(len(result), 5)
 
         for o in result:
-            self.assertEqual(o.attributes.get('key'), 'blah')
+            self.assertEqual(o.properties.get('key'), 'blah')
 
     def test_blub(self):
         result = Observation.objects.all().search('blub')
         self.assertEqual(len(result), 5)
 
         for o in result:
-            self.assertEqual(o.attributes.get('key'), 'blub')
+            self.assertEqual(o.properties.get('key'), 'blub')
 
     def test_single_lookup(self):
         project = ProjectF.create()
@@ -100,19 +100,19 @@ class TestSearch(TestCase):
         ObservationFactory.create_batch(3, **{
             'project': project,
             'category': category,
-            'attributes': {'lookup': kermit.id}
+            'properties': {'lookup': kermit.id}
         })
         ObservationFactory.create_batch(3, **{
             'project': project,
             'category': category,
-            'attributes': {'lookup': gonzo.id}
+            'properties': {'lookup': gonzo.id}
         })
 
         result = project.observations.all().search('kermit')
         self.assertEqual(len(result), 3)
 
         for o in result:
-            self.assertEqual(o.attributes.get('lookup'), str(kermit.id))
+            self.assertEqual(o.properties.get('lookup'), kermit.id)
 
     def test_multiple_lookup(self):
         project = ProjectF.create()
@@ -135,22 +135,22 @@ class TestSearch(TestCase):
         ObservationFactory.create_batch(3, **{
             'project': project,
             'category': category,
-            'attributes': {'lookup': [piggy.id, kermit.id]}
+            'properties': {'lookup': [piggy.id, kermit.id]}
         })
         ObservationFactory.create_batch(3, **{
             'project': project,
             'category': category,
-            'attributes': {'lookup': [gonzo.id]}
+            'properties': {'lookup': [gonzo.id]}
         })
 
         result = project.observations.all().search('kermit')
         self.assertEqual(len(result), 3)
 
         for o in result:
-            self.assertIn(kermit.id, json.loads(o.attributes.get('lookup')))
+            self.assertIn(kermit.id, json.loads(o.properties.get('lookup')))
 
         result = project.observations.all().search('piggy')
         self.assertEqual(len(result), 3)
 
         for o in result:
-            self.assertIn(kermit.id, json.loads(o.attributes.get('lookup')))
+            self.assertIn(kermit.id, json.loads(o.properties.get('lookup')))

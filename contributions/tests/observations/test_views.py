@@ -45,12 +45,12 @@ class ContributionSearchTest(TestCase):
         TextFieldFactory.create(**{'key': 'key', 'category': category})
 
         ObservationFactory.create_batch(5, **{
-            'attributes': {'key': 'blah'},
+            'properties': {'key': 'blah'},
             'project': self.project,
             'category': category
         })
         ObservationFactory.create_batch(5, **{
-            'attributes': {'key': 'blub'},
+            'properties': {'key': 'blub'},
             'project': self.project,
             'category': category
         })
@@ -225,7 +225,7 @@ class SingleContributionAPIViewTest(TestCase):
         view.update_and_respond(request, self.observation)
         ref = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(ref.status, 'pending')
-        self.assertNotEqual(ref.attributes.get('key'), 'updated')
+        self.assertNotEqual(ref.properties.get('key'), 'updated')
 
     def test_flag_with_contributor(self):
         url = reverse('api:project_all_observations', kwargs={
@@ -356,7 +356,7 @@ class SingleContributionAPIViewTest(TestCase):
         view.update_and_respond(request, self.observation)
         ref = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(ref.status, 'pending')
-        self.assertEqual(ref.attributes.get('key'), 'updated')
+        self.assertEqual(ref.properties.get('key'), 'updated')
 
 
 class SingleAllContributionAPIViewTest(TestCase):
@@ -1064,7 +1064,7 @@ class UpdateObservationInProject(TestCase):
         location = LocationFactory()
 
         self.observation = ObservationFactory.create(**{
-            'attributes': {
+            'properties': {
                 "key_1": "value 1",
                 "key_2": 12,
             },
@@ -1148,7 +1148,7 @@ class UpdateObservationInProject(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.attributes.get('key_2'), '15')
+            observation.properties.get('key_2'), 15)
 
         self.assertContains(response, 'New name')
         self.assertContains(response, '-0.144415')
@@ -1162,7 +1162,7 @@ class UpdateObservationInProject(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.attributes.get('key_2'), '15')
+            observation.properties.get('key_2'), 15)
 
     @raises(Observation.DoesNotExist)
     def test_delete_with_admin(self):
@@ -1182,7 +1182,7 @@ class UpdateObservationInProject(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.attributes.get('key_2'), '12')
+            observation.properties.get('key_2'), 12)
 
     def test_delete_with_contributor(self):
         response = self._delete(
@@ -1199,7 +1199,7 @@ class UpdateObservationInProject(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.attributes.get('key_2'), '12')
+            observation.properties.get('key_2'), 12)
 
     def test_delete_with_view_member(self):
         response = self._delete(
@@ -1219,7 +1219,7 @@ class UpdateObservationInProject(TestCase):
         self.assertEqual(response.status_code, 404)
 
         self.assertEqual(
-            self.observation.attributes.get('key_2'), '12')
+            self.observation.properties.get('key_2'), 12)
 
     def test_delete_with_non_member(self):
         response = self._delete(
@@ -1338,7 +1338,7 @@ class UpdateObservationInView(TestCase):
         location = LocationFactory()
 
         self.observation = Observation.create(
-            attributes={
+            properties={
                 "key_1": "value 1",
                 "key_2": 12,
             },
@@ -1407,7 +1407,7 @@ class UpdateObservationInView(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.attributes.get('key_2'), '15')
+            observation.properties.get('key_2'), 15)
 
     @raises(Observation.DoesNotExist)
     def test_delete_with_admin(self):
@@ -1451,7 +1451,7 @@ class UpdateObservationInView(TestCase):
         self.assertEqual(response.status_code, 404)
 
         self.assertEqual(
-            self.observation.attributes.get('key_2'), '12')
+            self.observation.properties.get('key_2'), 12)
 
     def test_delete_with_non_member(self):
         response = self._delete(
@@ -1543,7 +1543,7 @@ class UpdateMyObservation(TestCase):
         location = LocationFactory()
 
         self.observation = Observation.create(
-            attributes={
+            properties={
                 "key_1": "value 1",
                 "key_2": 12,
             },
@@ -1599,7 +1599,7 @@ class UpdateMyObservation(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.attributes.get('key_2'), '15')
+            observation.properties.get('key_2'), 15)
 
     def test_delete_with_admin(self):
         response = self._delete(self.admin)
@@ -1612,7 +1612,7 @@ class UpdateMyObservation(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.attributes.get('key_2'), '12')
+            observation.properties.get('key_2'), 12)
 
     @raises(Observation.DoesNotExist)
     def test_delete_with_contributor(self):

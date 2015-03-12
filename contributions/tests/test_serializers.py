@@ -400,7 +400,7 @@ class ContributionSerializerIntegrationTests(TestCase):
 
     def test_serialize_instance(self):
         observation = ObservationFactory.create(
-            **{'attributes': {'key': 'value'}}
+            **{'properties': {'key': 'value'}}
         )
         TextFieldFactory.create(**{
             'key': 'key',
@@ -472,7 +472,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         ObservationFactory.create_batch(
             number,
             **{
-                'attributes': {
+                'properties': {
                     'field-1': 'blah',
                     'field-2': 'blabla',
                     'field-3': 'sddsdsfdsf'
@@ -505,7 +505,7 @@ class ContributionSerializerIntegrationTests(TestCase):
 
     def test_serialize_update(self):
         observation = ObservationFactory.create(
-            **{'attributes': {'number': 12}})
+            **{'properties': {'number': 12}})
         NumericFieldFactory.create(**{
             'key': 'number',
             'category': observation.category})
@@ -530,7 +530,7 @@ class ContributionSerializerIntegrationTests(TestCase):
     @raises(ValidationError)
     def test_serialize_invalid_update(self):
         observation = ObservationFactory.create(
-            **{'attributes': {'number': 12}})
+            **{'properties': {'number': 12}})
         NumericFieldFactory.create(**{
             'key': 'number',
             'category': observation.category})

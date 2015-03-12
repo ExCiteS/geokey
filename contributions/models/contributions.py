@@ -94,51 +94,51 @@ class Observation(models.Model):
             raise ValidationError(error_messages)
 
     @classmethod
-    def replace_null(self, attributes):
-        for key, value in attributes.iteritems():
+    def replace_null(self, properties):
+        for key, value in properties.iteritems():
             if isinstance(value, (str, unicode)) and len(value) == 0:
-                attributes[key] = None
+                properties[key] = None
 
-        return attributes
+        return properties
 
     @classmethod
-    def create(cls, attributes=None, creator=None, location=None,
+    def create(cls, properties=None, creator=None, location=None,
                category=None, project=None, status=None):
         """
         Creates a new observation. Validates all fields first and raises a
         ValidationError if at least one field did not validate.
         Creates the object if all fields are valid.
         """
-        attributes = cls.replace_null(attributes)
+        properties = cls.replace_null(properties)
 
         if status is None:
             status = category.default_status
 
         if status == 'draft':
-            cls.validate_partial(category, attributes)
+            cls.validate_partial(category, properties)
         else:
-            cls.validate_full(category, attributes)
+            cls.validate_full(category, properties)
 
         location.save()
         observation = cls.objects.create(
             location=location,
             category=category,
             project=project,
-            attributes=attributes,
+            properties=properties,
             creator=creator,
             status=status
         )
         return observation
 
-    def update(self, attributes, updator, status=None):
+    def update(self, properties, updator, status=None):
         """
         Updates data of the observation
         """
-        update = self.attributes.copy()
+        update = self.properties.copy()
 
-        if attributes is not None:
-            attributes = self.replace_null(attributes)
-            update.update(attributes)
+        if properties is not None:
+            properties = self.replace_null(properties)
+            update.update(properties)
 
         if status == 'draft' or (status is None and self.status == 'draft'):
             self.validate_partial(self.category, update)
@@ -146,7 +146,7 @@ class Observation(models.Model):
             self.validate_full(self.category, update)
             self.version = self.version + 1
 
-        self.attributes = update
+        self.properties = update
         self.updator = updator
         self.status = status or self.status
         self.updated_at = datetime.utcnow().replace(tzinfo=utc)
@@ -157,16 +157,16 @@ class Observation(models.Model):
     def update_display_field(self):
         display_field = self.category.display_field
         if display_field is not None:
-            value = self.attributes.get(display_field.key)
+            value = self.properties.get(display_field.key)
             self.display_field = '%s:%s' % (display_field.key, value)
 
     def update_search_matches(self):
         search_matches = []
         for field in self.category.fields.all():
-            if field.key in self.attributes.keys():
+            if field.key in self.properties.keys():
 
                 if field.fieldtype == 'LookupField':
-                    l_id = self.attributes.get(field.key)
+                    l_id = self.properties.get(field.key)
                     if l_id is not None:
                         lookup = field.lookupvalues.get(pk=l_id)
                         search_matches.append('%s:%s' % (
@@ -174,7 +174,7 @@ class Observation(models.Model):
                         ))
 
                 elif field.fieldtype == 'MultipleLookupField':
-                    values = self.attributes.get(field.key)
+                    values = self.properties.get(field.key)
                     if values is not None:
                         l_ids = sorted(json.loads(values))
                         lookups = []
@@ -190,7 +190,7 @@ class Observation(models.Model):
                         )
 
                 else:
-                    term = self.attributes.get(field.key)
+                    term = self.properties.get(field.key)
                     if term is not None:
                         search_matches.append(
                             '%s:%s' % (field.key, term)
