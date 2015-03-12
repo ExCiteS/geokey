@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='rule',
-            name='contraints',
+            name='constraints',
             field=django_pgjson.fields.JsonBField(default=None, null=True),
             preserve_default=True,
         ),

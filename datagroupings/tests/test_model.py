@@ -207,7 +207,7 @@ class ViewTest(TestCase):
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'text': 'yes'}
+            'constraints': {'text': 'yes'}
         })
 
         updater = UserF()
@@ -287,7 +287,7 @@ class ViewTest(TestCase):
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'text': 'yes'}
+            'constraints': {'text': 'yes'}
         })
         self.assertEqual(view.data(user).count(), 5)
 
@@ -328,7 +328,7 @@ class ViewTest(TestCase):
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'number': {'minval': '15'}}
+            'constraints': {'number': {'minval': '15'}}
         })
 
         self.assertEqual(view.data(user).count(), 5)
@@ -370,7 +370,7 @@ class ViewTest(TestCase):
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'number': {'maxval': 15}}
+            'constraints': {'number': {'maxval': 15}}
         })
 
         self.assertEqual(view.data(user).count(), 5)
@@ -412,7 +412,7 @@ class ViewTest(TestCase):
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'rating': {'minval': 8, 'maxval': 10}}
+            'constraints': {'rating': {'minval': 8, 'maxval': 10}}
         })
 
         self.assertEqual(view.data(user).count(), 6)
@@ -466,7 +466,7 @@ class ViewTest(TestCase):
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'lookup': [lookup_1.id, lookup_2.id]}
+            'constraints': {'lookup': [lookup_1.id, lookup_2.id]}
         })
 
         self.assertEqual(view.data(user).count(), 10)
@@ -508,7 +508,7 @@ class ViewTest(TestCase):
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'date': {
+            'constraints': {'date': {
                 'minval': '2014-01-01', 'maxval': '2014-06-09 00:00'}
             }
         })
@@ -552,7 +552,7 @@ class ViewTest(TestCase):
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'date': {
+            'constraints': {'date': {
                 'minval': '2014-01-01', 'maxval': '2014-06-09'}
             }
         })
@@ -596,7 +596,7 @@ class ViewTest(TestCase):
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'date': {
+            'constraints': {'date': {
                 'minval': '2014-01-01'}
             }
         })
@@ -640,7 +640,7 @@ class ViewTest(TestCase):
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'date': {
+            'constraints': {'date': {
                 'maxval': '2014-01-01'}
             }
         })
@@ -684,7 +684,7 @@ class ViewTest(TestCase):
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'time': {
+            'constraints': {'time': {
                 'minval': '10:00', 'maxval': '12:00'}
             }
         })
@@ -728,7 +728,7 @@ class ViewTest(TestCase):
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'time': {
+            'constraints': {'time': {
                 'minval': '22:00', 'maxval': '8:00'}
             }
         })
@@ -772,7 +772,7 @@ class ViewTest(TestCase):
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'time': {
+            'constraints': {'time': {
                 'minval': '12:00'}
             }
         })
@@ -816,7 +816,7 @@ class ViewTest(TestCase):
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'time': {
+            'constraints': {'time': {
                 'maxval': '12:00'}
             }
         })
@@ -1000,7 +1000,7 @@ class ViewTest(TestCase):
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'lookup': [lookup_1.id, lookup_2.id]}
+            'constraints': {'lookup': [lookup_1.id, lookup_2.id]}
         })
 
         self.assertEqual(view.data(user).count(), 10)

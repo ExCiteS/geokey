@@ -149,14 +149,14 @@ class FieldTest(TestCase):
             'grouping': grouping,
             'status': 'active',
             'category': category,
-            'filters': {
+            'constraints': {
                 field.key: 'Blah',
                 'other-key': 'blubb'
             }
         })
         field.delete()
         reference_rule = Rule.objects.get(pk=rule.id)
-        self.assertEquals(reference_rule.filters.get('key'), None)
+        self.assertEquals(reference_rule.constraints.get('key'), None)
 
 
 class TextFieldTest(TestCase):
