@@ -15,13 +15,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='historicalobservation',
             name='properties',
-            field=django_pgjson.fields.JsonField(default={}),
+            field=django_pgjson.fields.JsonBField(default={}),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='observation',
             name='properties',
-            field=django_pgjson.fields.JsonField(default={}),
+            field=django_pgjson.fields.JsonBField(default={}),
             preserve_default=True,
         ),
     ]

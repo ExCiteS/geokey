@@ -1,4 +1,3 @@
-import json
 from pytz import utc
 from datetime import datetime
 
@@ -8,8 +7,7 @@ from django.core.exceptions import ValidationError
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
 
-from django_hstore import hstore
-from django_pgjson.fields import JsonField
+from django_pgjson.fields import JsonBField
 from simple_history.models import HistoricalRecords
 
 from core.exceptions import InputError
@@ -35,8 +33,7 @@ class Observation(models.Model):
         default=OBSERVATION_STATUS.active,
         max_length=20
     )
-    # attributes = hstore.DictionaryField(db_index=True)
-    properties = JsonField(default={})
+    properties = JsonBField(default={})
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -176,10 +173,9 @@ class Observation(models.Model):
                 elif field.fieldtype == 'MultipleLookupField':
                     values = self.properties.get(field.key)
                     if values is not None:
-                        l_ids = sorted(json.loads(values))
                         lookups = []
 
-                        for l_id in l_ids:
+                        for l_id in values:
                             lookups.append(
                                 field.lookupvalues.get(pk=l_id).name
                             )

@@ -1,4 +1,3 @@
-import json
 from django.test import TestCase
 
 from contributions.models.contributions import Observation
@@ -147,10 +146,10 @@ class TestSearch(TestCase):
         self.assertEqual(len(result), 3)
 
         for o in result:
-            self.assertIn(kermit.id, json.loads(o.properties.get('lookup')))
+            self.assertIn(kermit.id, o.properties.get('lookup'))
 
         result = project.observations.all().search('piggy')
         self.assertEqual(len(result), 3)
 
         for o in result:
-            self.assertIn(kermit.id, json.loads(o.properties.get('lookup')))
+            self.assertIn(kermit.id, o.properties.get('lookup'))
