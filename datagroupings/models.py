@@ -3,7 +3,7 @@ import json
 from django.db import models
 from django.conf import settings
 
-from django_hstore import hstore
+from django_pgjson.fields import JsonBField
 
 from .base import STATUS
 from .manager import GroupingManager, RuleManager
@@ -100,7 +100,7 @@ class Rule(models.Model):
     category = models.ForeignKey('categories.Category')
     min_date = models.DateTimeField(null=True)
     max_date = models.DateTimeField(null=True)
-    filters = hstore.DictionaryField(db_index=True, null=True, default=None)
+    contraints = JsonBField(null=True, default=None)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
