@@ -6,11 +6,13 @@ from django.test import RequestFactory
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpResponseRedirect
 from django.db import IntegrityError
+from django.core import mail
 
 from nose.tools import raises
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
+from allauth.account.models import EmailAddress
 
 from applications.tests.model_factories import ApplicationFactory
 from projects.tests.model_factories import ProjectF
@@ -21,8 +23,8 @@ from .model_factories import UserF, UserGroupF, GroupingUserGroupFactory
 from ..views import (
     UserGroup, UserGroupUsers, UserGroupSingleUser, UserGroupViews,
     UserGroupSingleView, UserGroupCreate, UserGroupSettings, UserProfile,
-    ChangePassword, CreateUserMixin, UserAPIView, Dashboard,
-    UserNotifications
+    CreateUserMixin, UserAPIView, Dashboard, UserNotifications,
+    ChangePasswordView
 )
 from ..models import User, UserGroup as Group
 
@@ -76,7 +78,7 @@ class DashboardTest(TestCase):
 class CreateUserMixinTest(TransactionTestCase):
     def setUp(self):
         self.data = {
-            'display_name': 'user-1',
+            'username': 'user-1',
             'email': 'user-1@example.com',
             'password': '123'
         }
@@ -89,7 +91,7 @@ class CreateUserMixinTest(TransactionTestCase):
         user = create_mixin.create_user(self.data)
 
         self.assertTrue(isinstance(user, User))
-        self.assertEqual(user.display_name, self.data.get('display_name'))
+        self.assertEqual(user.display_name, self.data.get('username'))
         self.assertEqual(user.email, self.data.get('email'))
 
     @raises(IntegrityError)
@@ -99,7 +101,7 @@ class CreateUserMixinTest(TransactionTestCase):
 
         user = create_mixin.create_user(self.data)
         self.assertTrue(isinstance(user, User))
-        self.assertEqual(user.display_name, self.data.get('display_name'))
+        self.assertEqual(user.display_name, self.data.get('username'))
         self.assertEqual(user.email, self.data.get('email'))
 
 
@@ -109,9 +111,10 @@ class UserAPIViewTest(TestCase):
         self.url = reverse('api:user_api')
         self.client = ApplicationFactory.create()
         self.user_data = {
-            'display_name': 'user-1',
+            'username': 'user-1',
             'email': 'user-1@example.com',
-            'password': '123'
+            'password1': '123456',
+            'password2': '123456'
         }
         self.data = self.user_data.copy()
         self.data['client_id'] = self.client.client_id
@@ -133,6 +136,8 @@ class UserAPIViewTest(TestCase):
 
     def test_update_user(self):
         user = UserF.create()
+        EmailAddress.objects.create(user=user, email=user.email)
+
         view = UserAPIView.as_view()
         data = {
             'display_name': 'user-1',
@@ -156,20 +161,6 @@ class UserAPIViewTest(TestCase):
         request.user = user
         response = view(request).render()
         self.assertEqual(response.status_code, 200)
-
-    def test_update_password(self):
-        user = UserF.create()
-        request = self.factory.patch(
-            self.url,
-            json.dumps({'password': 'sdufhdsjkfkdnsj'}),
-            content_type='application/json'
-        )
-        request.user = user
-        ref_pw = user.password
-        view = UserAPIView.as_view()
-        response = view(request).render()
-        self.assertEqual(response.status_code, 200)
-        self.assertNotEqual(ref_pw, User.objects.get(pk=user.id).password)
 
     def test_update_user_existing(self):
         data = {
@@ -192,6 +183,7 @@ class UserAPIViewTest(TestCase):
     def test_sign_up(self):
         request = self.factory.post(
             self.url, json.dumps(self.data), content_type='application/json')
+
         view = UserAPIView.as_view()
         response = view(request).render()
         self.assertEqual(response.status_code, 201)
@@ -199,8 +191,9 @@ class UserAPIViewTest(TestCase):
         user_json = json.loads(response.content)
         self.assertEqual(
             user_json.get('display_name'),
-            self.data.get('display_name')
+            self.data.get('username')
         )
+        self.assertEquals(len(mail.outbox), 1)
 
     def test_sign_with_existing_email(self):
         UserF.create(**{
@@ -210,9 +203,10 @@ class UserAPIViewTest(TestCase):
 
         data = {
             'client_id': self.client.client_id,
-            'display_name': 'user-3',
+            'username': 'user-3',
             'email': 'user-3@example.com',
-            'password': '123'
+            'password1': '123456',
+            'password2': '123456'
         }
 
         request = self.factory.post(
@@ -228,7 +222,8 @@ class UserAPIViewTest(TestCase):
         data = {
             'client_id': self.client.client_id,
             'email': 'user-1@example.com',
-            'password': '123'
+            'password1': '123456',
+            'password2': '123456'
         }
 
         request = self.factory.post(
@@ -238,10 +233,14 @@ class UserAPIViewTest(TestCase):
 
         self.assertEqual(response.status_code, 400)
         errors = json.loads(response.content)
+
         self.assertEqual(len(errors.get('errors')), 1)
 
     def test_sign_with_existing_email_and_name(self):
-        UserF.create(**self.user_data)
+        UserF.create(**{
+            'display_name': 'user-1',
+            'email': 'user-1@example.com'
+        })
 
         request = self.factory.post(
             self.url, json.dumps(self.data), content_type='application/json')
@@ -379,26 +378,6 @@ class UserProfileTest(TestCase):
         user = AnonymousUser()
         view = UserProfile.as_view()
         url = reverse('admin:userprofile')
-        request = APIRequestFactory().get(url)
-        request.user = user
-        response = view(request)
-        self.assertTrue(isinstance(response, HttpResponseRedirect))
-
-
-class ChangePasswordTest(TestCase):
-    def test_with_user(self):
-        user = UserF.create()
-        view = ChangePassword.as_view()
-        url = reverse('admin:changepassword')
-        request = APIRequestFactory().get(url)
-        request.user = user
-        response = view(request).render()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_with_anonymous(self):
-        user = AnonymousUser()
-        view = ChangePassword.as_view()
-        url = reverse('admin:changepassword')
         request = APIRequestFactory().get(url)
         request.user = user
         response = view(request)
@@ -1002,3 +981,61 @@ class UserGroupSingleViewTest(TestCase):
             usergroup=self.contributors, grouping=self.view)
         self.assertTrue(view_group.can_read)
         self.assertTrue(view_group.can_view)
+
+
+class ChangePasswordTest(TestCase):
+    def test_changepassword(self):
+        user = UserF.create(**{'password': '123456'})
+        factory = APIRequestFactory()
+        url = reverse('api:changepassword')
+        data = {
+            'oldpassword': '123456',
+            'password1': '1234567',
+            'password2': '1234567',
+        }
+        request = factory.post(
+            url, json.dumps(data), content_type='application/json')
+        force_authenticate(request, user=user)
+        view = ChangePasswordView.as_view()
+        response = view(request).render()
+        self.assertEqual(response.status_code, 204)
+
+    def test_changepassword_wrong_oldpassword(self):
+        user = UserF.create(**{'password': '123456'})
+        factory = APIRequestFactory()
+        url = reverse('api:changepassword')
+        data = {
+            'oldpassword': '12345',
+            'password1': '1234567',
+            'password2': '1234567',
+        }
+        request = factory.post(
+            url, json.dumps(data), content_type='application/json')
+        force_authenticate(request, user=user)
+        view = ChangePasswordView.as_view()
+        response = view(request).render()
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            json.loads(response.content).get('errors').get('oldpassword')[0],
+            'Please type your current password.'
+        )
+
+    def test_changepassword_password_dont_match(self):
+        user = UserF.create(**{'password': '123456'})
+        factory = APIRequestFactory()
+        url = reverse('api:changepassword')
+        data = {
+            'oldpassword': '123456',
+            'password1': '12345687',
+            'password2': '12345678',
+        }
+        request = factory.post(
+            url, json.dumps(data), content_type='application/json')
+        force_authenticate(request, user=user)
+        view = ChangePasswordView.as_view()
+        response = view(request).render()
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            json.loads(response.content).get('errors').get('password2')[0],
+            'You must type the same password each time.'
+        )

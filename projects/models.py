@@ -4,6 +4,7 @@ from django.contrib.gis.db import models as gis
 from django.core import mail
 from django.template.loader import get_template
 from django.template import Context
+from django.contrib.sites.models import Site
 
 from .manager import ProjectManager
 from .base import STATUS, EVERYONE_CONTRIB
@@ -202,13 +203,15 @@ class Project(models.Model):
         messages = []
         email_text = get_template('contact_admins_email.txt')
 
+        platform = Site.objects.get(pk=settings.SITE_ID).name
+
         for contact_admin in Admins.objects.filter(project=self, contact=True):
             context = Context({
                 'sender': sender,
                 'admin': contact_admin.user,
                 'email_text': mail_content,
                 'project_name': self.name,
-                'platform': settings.PLATFORM_NAME
+                'platform': platform
             })
             text = email_text.render(context)
 

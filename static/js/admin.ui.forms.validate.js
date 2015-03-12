@@ -93,6 +93,105 @@ $(function() {
         return valid;
     }
 
+<<<<<<< HEAD
+	function passwordsValid(form) {
+		var valid = true;
+		var password1 = $('input#password1');
+		var password2 = $('input#password2');
+
+		if (!(password1.val().length >= 6)) {
+			valid = false;
+			password1.parent().addClass('has-error');
+			password1.after('<span class="help-block">The password must be at least 6 characters long.</span>');
+		}
+
+		if (password1.val() !== password2.val()) {
+			valid = false;
+			password1.parent().addClass('has-error');
+			password2.parent().addClass('has-error');
+			password2.after('<span class="help-block">The passwords do not match.</span>');
+		}
+
+		return valid;
+	}
+
+	function allValid(form) {
+		return emailsValid(form) && dateTimeValid(form) && urlsValid(form) && passwordsValid(form);
+	}
+
+	/**
+	 * Validates a frorm using standard form.checkValidity(). If valid, the form is submitted.
+	 * If not, invalid fields are marked and a help text is provided.
+	 * @param  {Event} event The form submission event.
+	 */
+	function validate(event) {
+		var formSubmitted = event.target;
+		// remove all error messages
+		var errorFields = $(formSubmitted).find('.has-error');
+		errorFields.find('.help-block').remove();
+		errorFields.removeClass('has-error');
+
+		if (allValid(formSubmitted) && formSubmitted.checkValidity()) {
+			// The form is valid, submit the thing
+			if (form.attr('method') && form.attr('action')) {
+				$(formSubmitted).off('submit');
+				$(formSubmitted).submit();
+			}
+		} else {
+			// The form is invalid
+			var validFields = $(formSubmitted).find(':valid');
+			var invalidFields = $(formSubmitted).find(':invalid');
+
+			// Iterate through all invlaid fields and display an error message
+			for (var i = 0, len = invalidFields.length; i < len; i++) {
+				var field = $(invalidFields[i]);
+				var validity = invalidFields[i].validity;
+
+				field.parents('.form-group').addClass('has-error');
+
+				if (validity.valueMissing) {
+					if (field.prop('tagName') === 'SELECT') { showHelp(field, 'Please select a value.'); }
+					else { showHelp(field, 'This field is required.'); }
+				}
+
+				if (!validity.valueMissing) {
+					switch (field.attr('type')) {
+						case 'url':
+							if (validity.typeMismatch) { showHelp(field, 'Please enter a valid URL; e.g., http://example.com.'); }
+							break;
+						case 'email':
+							if (validity.typeMismatch) { showHelp(field, 'Please enter a valid email address; e.g., name@example.com.'); }
+							break;
+						case 'number':
+							if (validity.badInput) { showHelp(field, 'Your input contains non-numeric characters. Maybe you used a comma (,) as decimal point?'); }
+							if (validity.stepMismatch) { showHelp(field, 'You entered more than three digits after the decimal point.'); }
+							if (validity.rangeOverflow) { showHelp(field, 'The entered value must be lower than ' + field.attr('max') + '.'); }
+							if (validity.rangeUnderflow) { showHelp(field, 'The entered value must be greater than ' + field.attr('min') + '.'); }
+							break;
+						case 'text':
+							if (validity.patternMismatch && ['subdomain', 'key'].indexOf(field.attr('name')) !== -1) {
+								showHelp(field, 'Your input contains special characters. The field must only contain characters, numbers, dashes or underscores.');
+							}
+							break;
+					}
+				}
+			}
+		}
+
+		event.preventDefault();
+	}
+
+	/**
+	 * Resets the form to its initial state. Removes all error messages.
+	 */
+	function reset() {
+		form.find('.form-group').removeClass('has-error');
+		form.find('.help-block').remove();
+	}
+
+	form.submit(validate);
+	$('button[type="reset"]').click(reset);
+=======
     function allValid(form) {
         return emailsValid(form) && dateTimeValid(form) && urlsValid(form);
     }
@@ -182,4 +281,5 @@ $(function() {
 
     form.submit(validate);
     $('button[type="reset"]').click(reset);
+>>>>>>> master
 }());

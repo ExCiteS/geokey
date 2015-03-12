@@ -14,9 +14,6 @@ urlpatterns = patterns(
     '',
     url(r'^$', login_views.Index.as_view(), name='index'),
     url(r'^dashboard/$', login_views.Dashboard.as_view(), name='dashboard'),
-    url(r'^accounts/signup/$', login_views.SignupAdminView.as_view(), name='signup'),
-    url(r'^accounts/login/$',  login),
-    url(r'^accounts/logout/$', logout),
 
     # ###########################
     # PROJECTS
@@ -197,28 +194,16 @@ urlpatterns = patterns(
     url(r'^profile/notifications/$',
         login_views.UserNotifications.as_view(),
         name="notifications"),
-    url(r'^accounts/password/change/$',
-        login_views.ChangePassword.as_view(),
-        name="changepassword"),
-    url(r'^accounts/password/reset/$',
-        'django.contrib.auth.views.password_reset',
-        {'post_reset_redirect': '/admin/accounts/password/reset/done/'},
-        name="password_reset"),
-    url(r'^accounts/password/reset/done/$',
-        'django.contrib.auth.views.password_reset_done'),
-    url(r'^accounts/password/reset/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/$',
-        'users.views.password_reset_confirm',
-        {'post_reset_redirect': '/admin/accounts/password/done/'},
-        name="password_reset_confirm"),
-    url(r'^accounts/password/done/$',
-        'django.contrib.auth.views.password_reset_complete'),
 
     # ###########################
     # SUPER-USER TOOLS
     # ###########################
     url(r'^superuser-tools/$',
-        superuser.ProjectsList.as_view(),
+        superuser.PlatformSettings.as_view(),
         name="superuser_index"),
+    url(r'^superuser-tools/projects/$',
+        superuser.ProjectsList.as_view(),
+        name="superuser_projects"),
     url(r'^superuser-tools/manage-users/$',
         superuser.ManageSuperUsers.as_view(),
         name="superuser_manage_users"),

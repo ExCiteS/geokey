@@ -14,7 +14,7 @@ class UserSerializer(FieldSelectorSerializer):
 
     def validate_display_name(self, value):
         if User.objects.filter(display_name__iexact=value).exists():
-            raise ValidationError('Display name sdf already exists')
+            raise ValidationError('Display name already exists')
 
         return value
 

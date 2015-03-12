@@ -2,7 +2,6 @@ from .contrib import *
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-PLATFORM_NAME = 'GeoKey'
 DEFAULT_FROM_EMAIL = 'sender@example.com'
 
 YOUTUBE_AUTH_EMAIL = 'your-email@example.com'
@@ -33,7 +32,10 @@ INSTALLED_APPS += (
     'users',
     'applications',
     'superusertools',
-    'extensions'
+    'extensions',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 )
 
 AUTH_USER_MODEL = 'users.User'
@@ -43,12 +45,6 @@ AUTH_USER_MODEL = 'users.User'
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
-
-LOGIN_URL = '/admin/accounts/login/'
-LOGOUT_URL = '/admin/accounts/logout/'
-LOGIN_REDIRECT_URL = '/admin/dashboard/'
-
-DEFAULT_FROM_EMAIL = ''
 
 MEDIA_ROOT = normpath(join(SITE_ROOT, 'media'))
 MEDIA_URL = '/media/'

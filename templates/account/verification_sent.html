@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %} | Verify Your E-mail Address{% endblock %}
+{% block bodydata %} class="login" {% endblock %}
+
+{% block main %}
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+                    {% include 'snippets/messages.html' %}
+                    <h3 class="header">Verify Your E-mail Address</h3>
+                    <p>We have sent an e-mail to you for verification. Follow the link provided to finalize the signup process. Please contact us if you do not receive it within a few minutes.</p>
+                </div>
+            </div>
+        </div>
+{% endblock %}

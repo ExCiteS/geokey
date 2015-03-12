@@ -3,10 +3,8 @@
 import sys
 import os
 
-sys.path.append('/vagrant/geokey/')
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings.prod")
 from django.conf import settings
+from django.contrib.sites.models import Site
 
 from datetime import datetime, timedelta
 from pytz import utc
@@ -21,6 +19,9 @@ from django.template import Context
 from projects.models import Project, Admins
 from users.models import User
 from contributions.models.contributions import Observation
+
+sys.path.append('/vagrant/geokey/')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings.prod")
 
 
 class Command(NoArgsCommand):
@@ -117,6 +118,7 @@ class Command(NoArgsCommand):
         messages = []
 
         updated_projects = self.get_updated_projects(yesterday)
+        platform = Site.objects.get(pk=settings.SITE_ID).name
 
         for user in User.objects.exclude(display_name='AnonymousUser'):
             reports = []
@@ -144,13 +146,13 @@ class Command(NoArgsCommand):
                     'user': user.display_name,
                     'yesterday': yesterday.strftime('%d %B %Y'),
                     'reports': reports,
-                    'platform': settings.PLATFORM_NAME
+                    'platform': platform
                 })
                 text = email_text.render(context)
 
                 email = mail.EmailMessage(
                     '%s daily digest for %s' % (
-                        settings.PLATFORM_NAME,
+                        platform,
                         yesterday.strftime('%d %B %Y')
                     ),
                     text,

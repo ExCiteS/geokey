@@ -1,7 +1,8 @@
 from django import forms
 from django.utils.html import strip_tags
-from django.contrib.auth.forms import SetPasswordForm
 from django.core.exceptions import ValidationError
+
+from allauth.account.forms import ChangePasswordForm, ResetPasswordKeyForm
 
 from oauth2_provider.models import AccessToken
 
@@ -43,8 +44,14 @@ class UsergroupCreateForm(forms.ModelForm):
         return cleaned_data
 
 
-class CustomPasswordChangeForm(SetPasswordForm):
+class CustomPasswordChangeForm(ChangePasswordForm):
     def save(self, *args, **kwargs):
         user = super(CustomPasswordChangeForm, self).save(*args, **kwargs)
         AccessToken.objects.filter(user=user).delete()
         return user
+
+
+class CustomResetPasswordKeyForm(ResetPasswordKeyForm):
+    def save(self, *args, **kwargs):
+        AccessToken.objects.filter(user=self.user).delete()
+        super(CustomResetPasswordKeyForm, self).save(*args, **kwargs)

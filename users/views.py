@@ -1,12 +1,14 @@
 from django.views.generic import TemplateView, CreateView
-from django.contrib import auth
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.utils.html import strip_tags
-from django.contrib.auth.views import password_reset_confirm as reset_view
 
 from braces.views import LoginRequiredMixin
+
+from allauth.account.models import EmailAddress
+from allauth.account.forms import SignupForm
+from allauth.account.views import PasswordChangeView, PasswordResetFromKeyView
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -26,9 +28,9 @@ from .serializers import (
 )
 from .models import User, GroupingUserGroup
 from .forms import (
-    UserRegistrationForm,
     UsergroupCreateForm,
-    CustomPasswordChangeForm
+    CustomPasswordChangeForm,
+    CustomResetPasswordKeyForm
 )
 
 
@@ -78,117 +80,6 @@ class Dashboard(LoginRequiredMixin, TemplateView):
             'status_types': STATUS,
             'extensions': ext
         }
-
-
-class CreateUserMixin(object):
-    def create_user(self, data):
-        user = User.objects.create_user(
-            data.get('email'),
-            data.get('display_name'),
-            password=data.get('password')
-        )
-        user.save()
-        return user
-
-
-class SignupAdminView(CreateUserMixin, CreateView):
-    """
-    Displays the sign-up page
-    """
-    template_name = 'users/signup.html'
-    form_class = UserRegistrationForm
-
-    def form_valid(self, form):
-        """
-        Registers the user if the form is valid and no other has been
-        regstered with the username.
-        """
-        data = form.cleaned_data
-        self.create_user(data)
-
-        user = auth.authenticate(
-            username=data.get('email'),
-            password=data.get('password')
-        )
-
-        auth.login(self.request, user)
-        return redirect('admin:dashboard')
-
-    def form_invalid(self, form):
-        """
-        The form is invalid or another user has already been registerd worth
-        that username. Displays the error message.
-        """
-        context = self.get_context_data(form=form, user_exists=True)
-        return self.render_to_response(context)
-
-
-class UserAPIView(CreateUserMixin, APIView):
-    def get(self, request):
-        user = request.user
-        if not user.is_anonymous():
-            serializer = UserSerializer(user)
-            return Response(
-                serializer.data,
-                status=status.HTTP_200_OK
-            )
-        else:
-            return Response(
-                {'error': 'You have to be signed in to get user information'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-    def patch(self, request):
-        user = request.user
-
-        if not user.is_anonymous():
-            data = request.DATA
-            serializer = UserSerializer(user, data=data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-
-                if data.get('password') is not None:
-                    user.reset_password(data.get('password'))
-
-                return Response(
-                    serializer.data,
-                    status=status.HTTP_200_OK
-                )
-            else:
-                return Response(
-                    {'error': serializer.errors},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        else:
-            return Response(
-                {'error': 'You have to be signed in to get user information'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-    def post(self, request):
-        data = request.DATA
-        form = UserRegistrationForm(data)
-        client_id = data.pop('client_id', None)
-
-        try:
-            Application.objects.get(client_id=client_id)
-            if form.is_valid():
-                user = self.create_user(data)
-                serializer = UserSerializer(user)
-                return Response(
-                    serializer.data,
-                    status=status.HTTP_201_CREATED
-                )
-            else:
-                return Response(
-                    {'errors': form.errors},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        except Application.DoesNotExist:
-            return Response(
-                {'errors': {'client': 'Client ID not provided or incorrect.'}},
-                status=status.HTTP_400_BAD_REQUEST
-            )
 
 
 class UserGroupList(LoginRequiredMixin, TemplateView):
@@ -358,27 +249,20 @@ class UserProfile(LoginRequiredMixin, TemplateView):
     """
     template_name = 'users/profile.html'
 
-    @handle_exceptions_for_admin
-    def get_context_data(self, **kwargs):
-        """
-        Creates the request context for rendering the page
-        """
-        context = super(UserProfile, self).get_context_data(**kwargs)
-
-        referer = self.request.META.get('HTTP_REFERER')
-        if referer is not None and 'profile/password/change' in referer:
-            context['password_reset'] = True
-
-        return context
-
     def post(self, request):
         """
         Updates the user information
         """
         user = request.user
 
-        user.email = request.POST.get('email')
         user.display_name = request.POST.get('display_name')
+        new_email = request.POST.get('email')
+
+        if user.email != new_email:
+            email = EmailAddress.objects.get(user=user, email=user.email)
+            email.change(request, new_email, confirm=True)
+
+            user.email = new_email
 
         user.save()
 
@@ -419,42 +303,12 @@ class UserNotifications(LoginRequiredMixin, TemplateView):
         return self.render_to_response(context)
 
 
-def password_reset_confirm(request, *args, **kwargs):
-    return reset_view(
-        request,
-        set_password_form=CustomPasswordChangeForm,
-        *args,
-        **kwargs
-    )
+class ChangePassword(LoginRequiredMixin, PasswordChangeView):
+    form_class = CustomPasswordChangeForm
 
 
-class ChangePassword(LoginRequiredMixin, TemplateView):
-    """
-    Displays the change password page
-    `/admin/profile/password/change`
-    """
-    template_name = 'users/changepassword.html'
-
-    def post(self, request):
-        """
-        Changes the password.
-        """
-        user = request.user
-        user = auth.authenticate(
-            username=user.email,
-            password=request.POST.get('old_password')
-        )
-
-        if user is not None:
-            user.reset_password(request.POST.get('new_password1'))
-
-            messages.success(request, 'The password has been changed.')
-            return redirect('admin:userprofile')
-        else:
-            messages.error(request, 'We were not able to athorise you with '
-                                    'your old password. The password has not '
-                                    'been changed.')
-            return self.render_to_response(self.get_context_data())
+class ResetPassword(PasswordResetFromKeyView):
+    form_class = CustomResetPasswordKeyForm
 
 
 # ############################################################################
@@ -639,4 +493,117 @@ class UserGroupSingleView(APIView):
 #
 # ############################################################################
 
-# N/A
+
+class CreateUserMixin(object):
+    def create_user(self, data):
+        user = User.objects.create_user(
+            data.get('email'),
+            data.get('username'),
+            password=data.get('password1')
+        )
+        user.save()
+        return user
+
+
+class UserAPIView(CreateUserMixin, APIView):
+    def get(self, request):
+        user = request.user
+        if not user.is_anonymous():
+            serializer = UserSerializer(user)
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {'error': 'You have to be signed in to get user information'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+    def patch(self, request):
+        user = request.user
+
+        if not user.is_anonymous():
+            data = request.DATA
+
+            serializer = UserSerializer(user, data=data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+
+                if user.email != data.get('email'):
+                    print 'change email'
+                    email = EmailAddress.objects.get(
+                        user=user, email=user.email
+                    )
+                    email.change(request, data.get('email'), confirm=True)
+
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_200_OK
+                )
+            else:
+                return Response(
+                    {'error': serializer.errors},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            return Response(
+                {'error': 'You have to be signed in to get user information'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+    def post(self, request):
+        data = request.DATA
+        form = SignupForm(data)
+        client_id = data.pop('client_id', None)
+
+        try:
+            Application.objects.get(client_id=client_id)
+            if form.is_valid():
+                user = self.create_user(data)
+
+                EmailAddress.objects.add_email(
+                    request._request,
+                    user,
+                    user.email,
+                    signup=True,
+                    confirm=True
+                )
+
+                serializer = UserSerializer(user)
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_201_CREATED
+                )
+            else:
+                return Response(
+                    {'errors': form.errors},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        except Application.DoesNotExist:
+            return Response(
+                {'errors': {'client': 'Client ID not provided or incorrect.'}},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class ChangePasswordView(APIView):
+    def post(self, request):
+        user = request.user
+        data = request.DATA
+
+        if not user.is_anonymous():
+            form = CustomPasswordChangeForm(user, data)
+            if form.is_valid():
+                form.save()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response(
+                    {'errors': form.errors},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            return Response(
+                {'error': 'You have to be signed in to change the password.'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
