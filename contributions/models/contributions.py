@@ -9,6 +9,7 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save
 
 from django_hstore import hstore
+from django_pgjson.fields import JsonField
 from simple_history.models import HistoricalRecords
 
 from core.exceptions import InputError
@@ -35,6 +36,7 @@ class Observation(models.Model):
         max_length=20
     )
     attributes = hstore.DictionaryField(db_index=True)
+    properties = JsonField(default={})
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
