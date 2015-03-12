@@ -35,7 +35,7 @@ class Observation(models.Model):
         default=OBSERVATION_STATUS.active,
         max_length=20
     )
-    attributes = hstore.DictionaryField(db_index=True)
+    # attributes = hstore.DictionaryField(db_index=True)
     properties = JsonField(default={})
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(

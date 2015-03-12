@@ -2,10 +2,10 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-from contributions.models.contributions import Observation
 
 
 def copy_attributes(apps, schema_editor):
+    Observation = apps.get_model("contributions", "Observation")
     for observation in Observation.objects.all():
         properties = {}
         for field in observation.category.fields.all():
