@@ -93,7 +93,6 @@ $(function() {
         return valid;
     }
 
-<<<<<<< HEAD
 	function passwordsValid(form) {
 		var valid = true;
 		var password1 = $('input#password1');
@@ -191,7 +190,7 @@ $(function() {
 
 	form.submit(validate);
 	$('button[type="reset"]').click(reset);
-=======
+
     function allValid(form) {
         return emailsValid(form) && dateTimeValid(form) && urlsValid(form);
     }
@@ -281,5 +280,4 @@ $(function() {
 
     form.submit(validate);
     $('button[type="reset"]').click(reset);
->>>>>>> master
 }());
