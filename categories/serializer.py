@@ -71,6 +71,16 @@ class LookupValueSerializer(ModelSerializer):
         fields = ('id', 'name')
 
 
+class MultipleLookupValueSerializer(ModelSerializer):
+    """
+    Serializer for lookup value.
+    Used in .views.FieldApiLookups
+    """
+    class Meta:
+        model = MultipleLookupValue
+        fields = ('id', 'name')
+
+
 class BaseLookupSerializer(object):
     def get_lookupvalues(self, field):
         values = field.lookupvalues.filter(status='active')
@@ -81,16 +91,6 @@ class BaseLookupSerializer(object):
             serializer = MultipleLookupValueSerializer(values, many=True)
 
         return serializer.data
-
-
-class MultipleLookupValueSerializer(ModelSerializer):
-    """
-    Serializer for lookup value.
-    Used in .views.FieldApiLookups
-    """
-    class Meta:
-        model = MultipleLookupValue
-        fields = ('id', 'name')
 
 
 class LookupFieldSerializer(ModelSerializer, BaseLookupSerializer):
@@ -117,7 +117,7 @@ class MultipleLookupFieldSerializer(ModelSerializer, BaseLookupSerializer):
     Serializer for lookup fields.
     Used in .views.FieldApiLookups
     """
-    lookupvalues = MultipleLookupValueSerializer(many=True, read_only=True)
+    lookupvalues = SerializerMethodField()
     fieldtype = ReadOnlyField()
 
     class Meta:
