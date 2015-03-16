@@ -19,7 +19,7 @@ def populate_display_field(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('categories', '0008_auto_20150130_1216'),
+        ('categories', '0012_auto_20150223_1311'),
     ]
 
     operations = [

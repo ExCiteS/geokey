@@ -11,10 +11,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='category',
-            name='display_field',
-            field=models.ForeignKey(related_name='display_field_of', to='categories.Field', null=True),
-            preserve_default=True,
-        ),
+        # migrations.AlterField(
+        #     model_name='category',
+        #     name='display_field',
+        #     field=models.ForeignKey(related_name='display_field_of', to='categories.Field', null=True),
+        #     preserve_default=True,
+        # ),
     ]

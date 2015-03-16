@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='category',
             name='display_field',
-            field=models.ForeignKey(related_name='display_field_of', default=1, to='categories.Field'),
+            field=models.ForeignKey(related_name='display_field_of', default=None, to='categories.Field', null=True),
             preserve_default=False,
         ),
     ]
