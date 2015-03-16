@@ -116,7 +116,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "active"}}
+        request.DATA = {'meta': {'status': "active"}}
         request.user = self.admin
 
         view = SingleContributionAPIView()
@@ -134,7 +134,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "active"}}
+        request.DATA = {'meta': {'status': "active"}}
         request.user = self.moderator
 
         view = SingleContributionAPIView()
@@ -153,7 +153,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "active"}}
+        request.DATA = {'meta': {'status': "active"}}
         request.user = self.creator
 
         view = SingleContributionAPIView()
@@ -172,7 +172,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "active"}}
+        request.DATA = {'meta': {'status': "active"}}
         request.user = self.creator
 
         view = SingleContributionAPIView()
@@ -187,7 +187,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "pending"}}
+        request.DATA = {'meta': {'status': "pending"}}
         request.user = self.admin
 
         view = SingleContributionAPIView()
@@ -202,7 +202,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "pending"}}
+        request.DATA = {'meta': {'status': "pending"}}
         request.user = self.moderator
 
         view = SingleContributionAPIView()
@@ -215,10 +215,14 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {
-            'status': 'pending',
-            'key': 'updated'
-        }}
+        request.DATA = {
+            'properies': {
+                'key': 'updated'
+            },
+            'meta': {
+                'status': 'pending',
+            }
+        }
         request.user = self.moderator
 
         view = SingleContributionAPIView()
@@ -232,7 +236,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "pending"}}
+        request.DATA = {'meta': {'status': "pending"}}
         request.user = self.creator
 
         view = SingleContributionAPIView()
@@ -248,7 +252,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "pending"}}
+        request.DATA = {'meta': {'status': "pending"}}
         request.user = AnonymousUser()
 
         view = SingleContributionAPIView()
@@ -267,7 +271,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "active"}}
+        request.DATA = {'meta': {'status': "active"}}
         request.user = self.admin
 
         view = SingleContributionAPIView()
@@ -286,7 +290,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "active"}}
+        request.DATA = {'meta': {'status': "active"}}
         request.user = self.moderator
 
         view = SingleContributionAPIView()
@@ -306,7 +310,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "active"}}
+        request.DATA = {'meta': {'status': "active"}}
         request.user = self.creator
 
         view = SingleContributionAPIView()
@@ -324,7 +328,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "active"}}
+        request.DATA = {'meta': {'status': "active"}}
         request.user = self.creator
 
         view = SingleContributionAPIView()
@@ -344,10 +348,10 @@ class SingleContributionAPIViewTest(TestCase):
         request = self.factory.patch(url)
         request.DATA = {
             'properties': {
+                'key': 'updated'
+            },
+            'meta': {
                 'status': "active",
-                'attributes': {
-                    'key': 'updated'
-                }
             }
         }
         request.user = self.creator
@@ -565,16 +569,16 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                },
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
                 "category": self.category.id,
-                "location": {
-                    "name": "UCL",
-                    "description": "UCL's main quad",
-                    "private": True
-                },
+            },
+            "location": {
+                "name": "UCL",
+                "description": "UCL's main quad",
+                "private": True
             }
         }
 
@@ -592,7 +596,7 @@ class ProjectPublicApiTest(TestCase):
         return view(request, project_id=self.project.id).render()
 
     def test_contribute_with_wrong_category(self):
-        self.data['properties']['category'] = 3864
+        self.data['meta']['category'] = 3864
 
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 400)
@@ -608,16 +612,16 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "attributes": {
-                    "key_1": 12,
-                    "key_2": "jsdbdjhsb"
-                },
+                "key_1": 12,
+                "key_2": "jsdbdjhsb"
+            },
+            "meta": {
                 "category": self.category.id,
-                "location": {
-                    "name": "UCL",
-                    "description": "UCL's main quad",
-                    "private": True
-                },
+            },
+            "location": {
+                "name": "UCL",
+                "description": "UCL's main quad",
+                "private": True
             }
         }
 
@@ -635,16 +639,16 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "attributes": {
-                    "key_1": 12,
-                    "key_2": 2000
-                },
+                "key_1": 12,
+                "key_2": 2000
+            },
+            "meta": {
                 "category": self.category.id,
-                "location": {
-                    "name": "UCL",
-                    "description": "UCL's main quad",
-                    "private": True
-                },
+            },
+            "location": {
+                "name": "UCL",
+                "description": "UCL's main quad",
+                "private": True
             }
         }
 
@@ -656,18 +660,18 @@ class ProjectPublicApiTest(TestCase):
         data = {
             "type": "Feature",
             "geometry": location.geometry.geojson,
+            "location": {
+                "id": location.id,
+                "name": location.name,
+                "description": location.description,
+                "private": location.private
+            },
             "properties": {
-                "location": {
-                    "id": location.id,
-                    "name": location.name,
-                    "description": location.description,
-                    "private": location.private
-                },
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
                 "category": self.category.id,
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                }
             }
         }
 
@@ -683,18 +687,18 @@ class ProjectPublicApiTest(TestCase):
         data = {
             "type": "Feature",
             "geometry": location.geometry.geojson,
+            "location": {
+                "id": location.id,
+                "name": location.name,
+                "description": location.description,
+                "private": location.private
+            },
             "properties": {
-                "location": {
-                    "id": location.id,
-                    "name": location.name,
-                    "description": location.description,
-                    "private": location.private
-                },
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
                 "category": self.category.id,
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                }
             }
         }
         response = self._post(data, self.admin)
@@ -710,18 +714,18 @@ class ProjectPublicApiTest(TestCase):
         data = {
             "type": "Feature",
             "geometry": location.geometry.geojson,
+            "location": {
+                "id": location.id,
+                "name": location.name,
+                "description": location.description,
+                "private": location.private
+            },
             "properties": {
-                "location": {
-                    "id": location.id,
-                    "name": location.name,
-                    "description": location.description,
-                    "private": location.private
-                },
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
                 "category": self.category.id,
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                }
             }
         }
 
@@ -736,18 +740,18 @@ class ProjectPublicApiTest(TestCase):
         data = {
             "type": "Feature",
             "geometry": location.geometry.geojson,
+            "location": {
+                "id": location.id,
+                "name": location.name,
+                "description": location.description,
+                "private": location.private
+            },
             "properties": {
-                "location": {
-                    "id": location.id,
-                    "name": location.name,
-                    "description": location.description,
-                    "private": location.private
-                },
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
                 "category": self.category.id,
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                }
             }
         }
 
@@ -764,17 +768,17 @@ class ProjectPublicApiTest(TestCase):
                     51.52439200896907
                 ]
             },
+            "location": {
+                "name": "UCL",
+                "description": "UCL's main quad",
+                "private": True
+            },
             "properties": {
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                },
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
                 "category": self.category.id,
-                "location": {
-                    "name": "UCL",
-                    "description": "UCL's main quad",
-                    "private": True
-                },
                 "status": "draft"
             }
         }
@@ -793,17 +797,17 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "attributes": {
-                    "key_1": None,
-                    "key_2": 12
-                },
+                "key_1": None,
+                "key_2": 12
+            },
+            "meta": {
                 "category": self.category.id,
-                "location": {
-                    "name": "UCL",
-                    "description": "UCL's main quad",
-                    "private": True
-                },
                 "status": "draft"
+            },
+            "location": {
+                "name": "UCL",
+                "description": "UCL's main quad",
+                "private": True
             }
         }
         response = self._post(self.data, self.admin)
@@ -821,18 +825,18 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 'Blah'
-                },
+                "key_1": "value 1",
+                "key_2": 'Blah'
+            },
+            "meta": {
                 "category": self.category.id,
-                "location": {
-                    "name": "UCL",
-                    "description": "UCL's main quad",
-                    "private": True
-                },
                 "status": "draft"
-            }
+            },
+            "location": {
+                "name": "UCL",
+                "description": "UCL's main quad",
+                "private": True
+            },
         }
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 400)
@@ -1077,10 +1081,8 @@ class UpdateObservationInProject(TestCase):
 
         self.update_data = {
             "properties": {
-                "attributes": {
-                    "version": 1,
-                    "key_2": 15
-                }
+                "version": 1,
+                "key_2": 15
             }
         }
 
@@ -1350,10 +1352,8 @@ class UpdateObservationInView(TestCase):
 
         self.update_data = {
             "properties": {
-                "attributes": {
-                    "version": 1,
-                    "key_2": 15
-                }
+                "version": 1,
+                "key_2": 15
             }
         }
 
@@ -1397,7 +1397,7 @@ class UpdateObservationInView(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-        data = {"properties": {"attributes": {"version": 1, "key_2": 2}}}
+        data = {"properties": {"version": 1, "key_2": 2}}
         response = self._patch(data, self.admin)
         self.assertEqual(response.status_code, 200)
 
@@ -1555,10 +1555,8 @@ class UpdateMyObservation(TestCase):
 
         self.update_data = {
             "properties": {
-                "attributes": {
-                    "version": 1,
-                    "key_2": 15
-                }
+                "version": 1,
+                "key_2": 15
             }
         }
 
