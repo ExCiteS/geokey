@@ -162,6 +162,51 @@ class UserAPIViewTest(TestCase):
         response = view(request).render()
         self.assertEqual(response.status_code, 200)
 
+    def test_update_user_display_name(self):
+        user = UserF.create()
+        EmailAddress.objects.create(user=user, email=user.email)
+
+        view = UserAPIView.as_view()
+        data = {
+            'display_name': 'user-2'
+        }
+
+        request = self.factory.patch(
+            self.url,
+            json.dumps(data),
+            content_type='application/json'
+        )
+        request.user = AnonymousUser()
+        response = view(request).render()
+        self.assertEqual(response.status_code, 401)
+
+        request = self.factory.patch(
+            self.url,
+            json.dumps(data),
+            content_type='application/json'
+        )
+        request.user = user
+        response = view(request).render()
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_old_user_email(self):
+        user = UserF.create()
+
+        view = UserAPIView.as_view()
+        data = {
+            'display_name': 'user-2',
+            'email': 'user-215@example.com'
+        }
+
+        request = self.factory.patch(
+            self.url,
+            json.dumps(data),
+            content_type='application/json'
+        )
+        request.user = user
+        response = view(request).render()
+        self.assertEqual(response.status_code, 200)
+
     def test_update_user_existing(self):
         data = {
             'display_name': 'user-1',

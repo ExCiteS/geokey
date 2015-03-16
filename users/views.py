@@ -523,33 +523,37 @@ class UserAPIView(CreateUserMixin, APIView):
     def patch(self, request):
         user = request.user
 
-        if not user.is_anonymous():
-            data = request.DATA
-
-            serializer = UserSerializer(user, data=data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-
-                if user.email != data.get('email'):
-                    print 'change email'
-                    email = EmailAddress.objects.get(
-                        user=user, email=user.email
-                    )
-                    email.change(request, data.get('email'), confirm=True)
-
-                return Response(
-                    serializer.data,
-                    status=status.HTTP_200_OK
-                )
-            else:
-                return Response(
-                    {'error': serializer.errors},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        else:
+        if user.is_anonymous():
             return Response(
                 {'error': 'You have to be signed in to get user information'},
                 status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        data = request.DATA
+
+        serializer = UserSerializer(user, data=data, partial=True)
+        if serializer.is_valid():
+            new_mail = data.get('email')
+
+            if new_mail is not None and user.email != new_mail:
+                try:
+                    email = EmailAddress.objects.get(
+                        user=user, email=user.email
+                    )
+                    email.change(request, new_mail, confirm=True)
+                except EmailAddress.DoesNotExist:
+                    EmailAddress.objects.create(user=user, email=new_mail)
+
+            serializer.save()
+
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {'error': serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
             )
 
     def post(self, request):
