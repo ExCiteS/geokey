@@ -530,7 +530,7 @@ class UserAPIView(CreateUserMixin, APIView):
             if serializer.is_valid():
                 serializer.save()
 
-                if user.email != data.get('email'):
+                if data.get('email') is not None and user.email != data.get('email'):
                     print 'change email'
                     email = EmailAddress.objects.get(
                         user=user, email=user.email
