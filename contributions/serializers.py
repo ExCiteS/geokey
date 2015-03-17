@@ -4,7 +4,7 @@ import tempfile
 from django.core import files
 
 from django.contrib.gis.geos import GEOSGeometry
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.utils.html import strip_tags
 
 from easy_thumbnails.files import get_thumbnailer
@@ -53,6 +53,7 @@ class ContributionSerializer(BaseSerializer):
 
     def validate_category(self, project, category_id):
         errors = []
+        category = None
         try:
             category = project.categories.get(pk=category_id)
             if category.status == 'inactive':
@@ -67,18 +68,62 @@ class ContributionSerializer(BaseSerializer):
         if errors:
             self._errors['category'] = errors
 
-    def is_valid(self, raise_exception=False):
-        project = self.context.get('project')
-        meta = self.initial_data.get('meta')
+        return category
 
+    def replace_null(self, properties):
+        for key, value in properties.iteritems():
+            if isinstance(value, (str, unicode)) and len(value) == 0:
+                properties[key] = None
+
+        return properties
+
+    def validate_properties(self, properties, category=None, status=None):
+        errors = []
+
+        if self.instance is not None:
+            status = status or self.instance.status
+            update = self.instance.properties.copy()
+            update.update(properties)
+            properties = update
+        else:
+            status = status or category.default_status
+
+        properties = self.replace_null(properties)
+        try:
+            if status == 'draft':
+                Observation.validate_partial(category, properties)
+            else:
+                Observation.validate_full(category, properties)
+        except ValidationError, e:
+            errors.append(e)
+
+        if errors:
+            self._errors['properties'] = errors
+
+    def is_valid(self, raise_exception=False):
         self._errors = {}
         self._validated_data = self.initial_data
 
+        category = None
+        status = None
+
+        project = self.context.get('project')
+        meta = self.initial_data.get('meta')
+
+        if meta is not None:
+            status = meta.get('status', None)
+
         if self.instance is None and meta is not None:
-            self.validate_category(project, meta.get('category'))
+            category = self.validate_category(project, meta.get('category'))
+        else:
+            category = self.instance.category
+
+        properties = self.initial_data.get('properties')
+        if properties is not None and category is not None:
+            self.validate_properties(properties, category=category, status=status)
 
         if self._errors and raise_exception:
-            raise MalformedRequestData(self._errors)
+            raise ValidationError(self._errors)
 
         return not bool(self._errors)
 

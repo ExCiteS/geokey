@@ -335,7 +335,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         serializer.is_valid()
         serializer.save()
 
-    @raises(MalformedRequestData)
+    @raises(ValidationError)
     def test_create_with_inactive_category(self):
         self.category.status = 'inactive'
         self.category.save()
@@ -415,8 +415,7 @@ class ContributionSerializerIntegrationTests(TestCase):
             data=data,
             context={'user': self.contributor, 'project': self.project}
         )
-        serializer.is_valid()
-        serializer.save()
+        serializer.is_valid(raise_exception=True)
 
     def test_serialize_instance(self):
         observation = ObservationFactory.create(
@@ -563,8 +562,7 @@ class ContributionSerializerIntegrationTests(TestCase):
             },
             context={'user': self.contributor, 'project': self.project}
         )
-        serializer.is_valid()
-        serializer.save()
+        serializer.is_valid(raise_exception=True)
 
         o = Observation.objects.get(pk=observation.id)
         self.assertEqual(o.attributes.get('number'), 12)
