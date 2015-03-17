@@ -106,16 +106,6 @@ class Observation(models.Model):
         ValidationError if at least one field did not validate.
         Creates the object if all fields are valid.
         """
-        properties = cls.replace_null(properties)
-
-        if status is None:
-            status = category.default_status
-
-        if status == 'draft':
-            cls.validate_partial(category, properties)
-        else:
-            cls.validate_full(category, properties)
-
         location.save()
         observation = cls.objects.create(
             location=location,
@@ -131,19 +121,10 @@ class Observation(models.Model):
         """
         Updates data of the observation
         """
-        update = self.properties.copy()
-
-        if properties is not None:
-            properties = self.replace_null(properties)
-            update.update(properties)
-
-        if status == 'draft' or (status is None and self.status == 'draft'):
-            self.validate_partial(self.category, update)
-        else:
-            self.validate_full(self.category, update)
+        if status != 'draft':
             self.version = self.version + 1
 
-        self.properties = update
+        self.properties = properties
         self.updator = updator
         self.status = status or self.status
         self.updated_at = datetime.utcnow().replace(tzinfo=utc)

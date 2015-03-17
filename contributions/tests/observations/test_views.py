@@ -216,7 +216,7 @@ class SingleContributionAPIViewTest(TestCase):
         })
         request = self.factory.patch(url)
         request.DATA = {
-            'properies': {
+            'properties': {
                 'key': 'updated'
             },
             'meta': {
@@ -229,7 +229,7 @@ class SingleContributionAPIViewTest(TestCase):
         view.update_and_respond(request, self.observation)
         ref = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(ref.status, 'pending')
-        self.assertNotEqual(ref.properties.get('key'), 'updated')
+        self.assertEqual(ref.properties.get('key'), 'updated')
 
     def test_flag_with_contributor(self):
         url = reverse('api:project_all_observations', kwargs={
@@ -1347,7 +1347,8 @@ class UpdateObservationInView(TestCase):
             category=self.category,
             project=self.project,
             location=location,
-            creator=self.admin
+            creator=self.admin,
+            status='active'
         )
 
         self.update_data = {
@@ -1550,7 +1551,8 @@ class UpdateMyObservation(TestCase):
             category=self.category,
             project=self.project,
             location=location,
-            creator=self.contributor
+            creator=self.contributor,
+            status='active'
         )
 
         self.update_data = {

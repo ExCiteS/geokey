@@ -146,7 +146,8 @@ class ContributionSerializer(BaseSerializer):
         except ValidationError, e:
             errors.append(e)
 
-        # validated data
+        self._validated_data['properties'] = properties
+        self._validated_data['meta']['status'] = status
 
         if errors:
             self._errors['properties'] = errors
@@ -176,6 +177,9 @@ class ContributionSerializer(BaseSerializer):
         project = self.context.get('project')
         meta = self.initial_data.get('meta')
 
+        if meta is None:
+            self._validated_data['meta'] = dict()
+
         # Validate location
         location_id = None
         if self.initial_data.get('location') is not None:
@@ -188,6 +192,7 @@ class ContributionSerializer(BaseSerializer):
             category = self.validate_category(project, meta.get('category'))
         else:
             category = self.instance.category
+        self._validated_data['meta']['category'] = category
 
         # Validatie properties
         properties = self.initial_data.get('properties')
@@ -195,7 +200,11 @@ class ContributionSerializer(BaseSerializer):
         if meta is not None:
             status = meta.get('status', None)
         if properties is not None and category is not None:
-            self.validate_properties(properties, category=category, status=status)
+            self.validate_properties(
+                properties,
+                category=category,
+                status=status
+            )
 
         # raise the exception
         if self._errors and raise_exception:

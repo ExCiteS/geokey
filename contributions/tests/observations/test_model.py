@@ -90,10 +90,9 @@ class ObservationTest(TestCase):
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
             properties=data, creator=creator, location=location,
-            category=category, project=category.project
+            category=category, project=category.project, status='active'
         )
         self.assertEqual(observation.properties, data)
-        self.assertEqual(observation.status, 'pending')
 
     def test_create_observation_with_polish_chars(self):
         creator = UserF()
@@ -113,10 +112,9 @@ class ObservationTest(TestCase):
         data = {'text': u'śmietnik', 'number': 12}
         observation = Observation.create(
             properties=data, creator=creator, location=location,
-            category=category, project=category.project
+            category=category, project=category.project, status='active'
         )
         self.assertEqual(observation.properties, data)
-        self.assertEqual(observation.status, 'pending')
 
     def test_create_observation_active_default(self):
         creator = UserF()
@@ -137,14 +135,11 @@ class ObservationTest(TestCase):
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
             properties=data, creator=creator, location=location,
-            category=category, project=category.project
+            category=category, project=category.project, status='active'
         )
         self.assertEqual(observation.properties, data)
-        self.assertEqual(observation.status, 'active')
 
-    def test_create_observation_with_inactive_field(self):
-        creator = UserF()
-        location = LocationFactory()
+    def test_validate_full_inactive_field(self):
         category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
@@ -164,11 +159,7 @@ class ObservationTest(TestCase):
             'order': 1
         })
         data = {'text': 'Text', 'number': 12}
-        observation = Observation.create(
-            properties=data, creator=creator, location=location,
-            category=category, project=category.project
-        )
-        self.assertEqual(observation.properties, data)
+        Observation.validate_full(category=category, data=data)
 
     def test_update_observation(self):
         category = CategoryFactory()
@@ -200,7 +191,7 @@ class ObservationTest(TestCase):
         )
         self.assertEqual(observation.version, 2)
 
-    def test_update_observation_with_inactive_field(self):
+    def test_validate_full_with_inactive_field(self):
         category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
@@ -228,6 +219,7 @@ class ObservationTest(TestCase):
 
         updater = UserF()
         update = {'text': 'Udpated Text', 'number': 13}
+        Observation.validate_full(category=category, data=update)
         observation.update(properties=update, updator=updater)
 
         self.assertEqual(
@@ -237,7 +229,7 @@ class ObservationTest(TestCase):
         self.assertEqual(observation.version, 2)
 
     @raises(ValidationError)
-    def test_update_invalid_observation(self):
+    def test_validate_full_invalid(self):
         creator = UserF()
         location = LocationFactory()
         category = CategoryFactory()
@@ -254,20 +246,19 @@ class ObservationTest(TestCase):
         data = {'text': 'Text', 'number': 12}
         observation = Observation.create(
             properties=data, creator=creator, location=location,
-            category=category, project=category.project
+            category=category, project=category.project, status='active'
         )
 
         updater = UserF()
         update = {'text': 'Udpated Text', 'number': 'abc', 'version': 1}
+        Observation.validate_full(category=category, data=update)
         observation.update(properties=update, updator=updater)
 
         self.assertEqual(observation.properties, data)
         self.assertEqual(observation.version, 1)
 
     @raises(ValidationError)
-    def test_create_invalid_observation(self):
-        creator = UserF()
-        location = LocationFactory()
+    def test_validate_full_invalid_nubmer(self):
         category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
@@ -280,15 +271,10 @@ class ObservationTest(TestCase):
             'order': 1
         })
         data = {'text': 'Text', 'number': 'abc'}
-        Observation.create(
-            properties=data, creator=creator, location=location,
-            category=category, project=category.project
-        )
+        Observation.validate_full(data=data, category=category)
 
     @raises(ValidationError)
-    def test_create_invalid_observation_with_empty_textfield(self):
-        creator = UserF()
-        location = LocationFactory()
+    def test_validate_full_with_empty_textfield(self):
         category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
@@ -302,15 +288,10 @@ class ObservationTest(TestCase):
             'order': 1
         })
         data = {'number': 1000}
-        Observation.create(
-            properties=data, creator=creator, location=location,
-            category=category, project=category.project
-        )
+        Observation.validate_full(data=data, category=category)
 
     @raises(ValidationError)
-    def test_create_invalid_observation_with_zero_textfield(self):
-        creator = UserF()
-        location = LocationFactory()
+    def test_validate_full_with_zero_textfield(self):
         category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
@@ -324,10 +305,7 @@ class ObservationTest(TestCase):
             'order': 1
         })
         data = {'text': '', 'number': 1000}
-        Observation.create(
-            properties=data, creator=creator, location=location,
-            category=category, project=category.project
-        )
+        Observation.validate_full(data=data, category=category)
 
     def test_update_draft_observation(self):
         creator = UserF()
@@ -353,15 +331,13 @@ class ObservationTest(TestCase):
 
         updater = UserF()
         update = {'number': 13}
-        observation.update(properties=update, updator=updater)
+        observation.update(properties=update, updator=updater, status='draft')
 
         self.assertEqual(observation.properties.get('number'), 13)
         self.assertEqual(observation.version, 1)
 
     @raises(ValidationError)
-    def test_create_invalid_observation_with_empty_number(self):
-        creator = UserF()
-        location = LocationFactory()
+    def test_validate_full_with_empty_number(self):
         category = CategoryFactory()
         TextFieldFactory(**{
             'key': 'text',
@@ -375,7 +351,4 @@ class ObservationTest(TestCase):
             'order': 1
         })
         data = {'text': 'bla'}
-        Observation.create(
-            properties=data, creator=creator, location=location,
-            category=category, project=category.project
-        )
+        Observation.validate_full(data=data, category=category)
