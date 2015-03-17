@@ -1,6 +1,5 @@
 import json
 
-from core.exceptions import MalformedRequestData
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from nose.tools import raises
@@ -306,7 +305,7 @@ class ContributionSerializerIntegrationTests(TestCase):
             result.get('location').get('description'),
             location.description)
 
-    @raises(MalformedRequestData)
+    @raises(ValidationError)
     def test_create_with_wrong_location(self):
         project = ProjectF()
         location = LocationFactory(**{
@@ -332,8 +331,7 @@ class ContributionSerializerIntegrationTests(TestCase):
             data=data,
             context={'user': self.contributor, 'project': self.project}
         )
-        serializer.is_valid()
-        serializer.save()
+        serializer.is_valid(raise_exception=True)
 
     @raises(ValidationError)
     def test_create_with_inactive_category(self):
@@ -363,7 +361,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         )
         serializer.is_valid(raise_exception=True)
 
-    @raises(MalformedRequestData)
+    @raises(ValidationError)
     def test_create_with_private_location(self):
         location = LocationFactory(**{'private': True})
         data = {
@@ -384,8 +382,7 @@ class ContributionSerializerIntegrationTests(TestCase):
             data=data,
             context={'user': self.contributor, 'project': self.project}
         )
-        serializer.is_valid()
-        serializer.save()
+        serializer.is_valid(raise_exception=True)
 
     @raises(ValidationError)
     def test_create_with_invalid_data(self):

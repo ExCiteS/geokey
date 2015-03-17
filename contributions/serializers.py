@@ -51,120 +51,6 @@ class ContributionSerializer(BaseSerializer):
         kwargs['context']['many'] = True
         return GeoFeatureModelListSerializer(*args, **kwargs)
 
-    def validate_category(self, project, category_id):
-        errors = []
-        category = None
-        try:
-            category = project.categories.get(pk=category_id)
-            if category.status == 'inactive':
-                errors.append('The category can not be used because it is '
-                              'inactive.')
-            else:
-                self._validated_data['meta']['category'] = category
-        except Category.DoesNotExist:
-            errors.append('The category can not be used with the project '
-                          'or does not exist.')
-
-        if errors:
-            self._errors['category'] = errors
-
-        return category
-
-    def replace_null(self, properties):
-        for key, value in properties.iteritems():
-            if isinstance(value, (str, unicode)) and len(value) == 0:
-                properties[key] = None
-
-        return properties
-
-    def validate_properties(self, properties, category=None, status=None):
-        errors = []
-
-        if self.instance is not None:
-            status = status or self.instance.status
-            update = self.instance.properties.copy()
-            update.update(properties)
-            properties = update
-        else:
-            status = status or category.default_status
-
-        properties = self.replace_null(properties)
-        try:
-            if status == 'draft':
-                Observation.validate_partial(category, properties)
-            else:
-                Observation.validate_full(category, properties)
-        except ValidationError, e:
-            errors.append(e)
-
-        if errors:
-            self._errors['properties'] = errors
-
-    def is_valid(self, raise_exception=False):
-        self._errors = {}
-        self._validated_data = self.initial_data
-
-        category = None
-        status = None
-
-        project = self.context.get('project')
-        meta = self.initial_data.get('meta')
-
-        if meta is not None:
-            status = meta.get('status', None)
-
-        if self.instance is None and meta is not None:
-            category = self.validate_category(project, meta.get('category'))
-        else:
-            category = self.instance.category
-
-        properties = self.initial_data.get('properties')
-        if properties is not None and category is not None:
-            self.validate_properties(properties, category=category, status=status)
-
-        if self._errors and raise_exception:
-            raise ValidationError(self._errors)
-
-        return not bool(self._errors)
-
-    def create(self, validated_data):
-        project = self.context.get('project')
-        meta = validated_data.pop('meta')
-
-        location = self.restore_location(
-            data=validated_data.pop('location', None),
-            geometry=validated_data.get('geometry')
-        )
-
-        self.instance = Observation.create(
-            properties=validated_data.get('properties'),
-            creator=self.context.get('user'),
-            location=location,
-            project=project,
-            category=meta.get('category'),
-            status=meta.pop('status', None)
-        )
-
-        return self.instance
-
-    def update(self, instance, validated_data):
-        meta = validated_data.get('meta')
-        status = None
-        if meta is not None:
-            status = meta.get('status', None)
-
-        self.restore_location(
-            instance.location,
-            data=validated_data.pop('location', None),
-            geometry=validated_data.pop('geometry', None)
-        )
-
-        return instance.update(
-            properties=validated_data.get('properties'),
-            updator=self.context.get('user'),
-            status=status
-        )
-
     def restore_location(self, instance=None, data=None, geometry=None):
         if instance is not None:
             if data is not None:
@@ -213,6 +99,147 @@ class ContributionSerializer(BaseSerializer):
                     private_for_project=private_for_project,
                     creator=self.context.get('user')
                 )
+
+    def validate_category(self, project, category_id):
+        errors = []
+        category = None
+        try:
+            category = project.categories.get(pk=category_id)
+            if category.status == 'inactive':
+                errors.append('The category can not be used because it is '
+                              'inactive.')
+            else:
+                self._validated_data['meta']['category'] = category
+        except Category.DoesNotExist:
+            errors.append('The category can not be used with the project '
+                          'or does not exist.')
+
+        if errors:
+            self._errors['category'] = errors
+
+        return category
+
+    def replace_null(self, properties):
+        for key, value in properties.iteritems():
+            if isinstance(value, (str, unicode)) and len(value) == 0:
+                properties[key] = None
+
+        return properties
+
+    def validate_properties(self, properties, category=None, status=None):
+        errors = []
+
+        if self.instance is not None:
+            status = status or self.instance.status
+            update = self.instance.properties.copy()
+            update.update(properties)
+            properties = update
+        else:
+            status = status or category.default_status
+
+        properties = self.replace_null(properties)
+        try:
+            if status == 'draft':
+                Observation.validate_partial(category, properties)
+            else:
+                Observation.validate_full(category, properties)
+        except ValidationError, e:
+            errors.append(e)
+
+        # validated data
+
+        if errors:
+            self._errors['properties'] = errors
+
+    def validate_location(self, project, location_id):
+        errors = []
+
+        try:
+            if location_id is not None:
+                Location.objects.get_single(
+                    self.context.get('user'),
+                    project.id,
+                    location_id
+                )
+        except PermissionDenied, error:
+            errors.append(error)
+        except Location.DoesNotExist, error:
+            errors.append(error)
+
+        if errors:
+            self._errors['location'] = errors
+
+    def is_valid(self, raise_exception=False):
+        self._errors = {}
+        self._validated_data = self.initial_data
+
+        project = self.context.get('project')
+        meta = self.initial_data.get('meta')
+
+        # Validate location
+        location_id = None
+        if self.initial_data.get('location') is not None:
+            location_id = self.initial_data.get('location').get('id')
+        self.validate_location(project, location_id)
+
+        # Validate category
+        category = None
+        if self.instance is None and meta is not None:
+            category = self.validate_category(project, meta.get('category'))
+        else:
+            category = self.instance.category
+
+        # Validatie properties
+        properties = self.initial_data.get('properties')
+        status = None
+        if meta is not None:
+            status = meta.get('status', None)
+        if properties is not None and category is not None:
+            self.validate_properties(properties, category=category, status=status)
+
+        # raise the exception
+        if self._errors and raise_exception:
+            raise ValidationError(self._errors)
+
+        return not bool(self._errors)
+
+    def create(self, validated_data):
+        project = self.context.get('project')
+        meta = validated_data.pop('meta')
+
+        location = self.restore_location(
+            data=validated_data.pop('location', None),
+            geometry=validated_data.get('geometry')
+        )
+
+        self.instance = Observation.create(
+            properties=validated_data.get('properties'),
+            creator=self.context.get('user'),
+            location=location,
+            project=project,
+            category=meta.get('category'),
+            status=meta.pop('status', None)
+        )
+
+        return self.instance
+
+    def update(self, instance, validated_data):
+        meta = validated_data.get('meta')
+        status = None
+        if meta is not None:
+            status = meta.get('status', None)
+
+        self.restore_location(
+            instance.location,
+            data=validated_data.pop('location', None),
+            geometry=validated_data.pop('geometry', None)
+        )
+
+        return instance.update(
+            properties=validated_data.get('properties'),
+            updator=self.context.get('user'),
+            status=status
+        )
 
     def get_display_field(self, obj):
         if obj.display_field is not None:
