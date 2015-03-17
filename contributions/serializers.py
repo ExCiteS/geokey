@@ -51,25 +51,40 @@ class ContributionSerializer(BaseSerializer):
         kwargs['context']['many'] = True
         return GeoFeatureModelListSerializer(*args, **kwargs)
 
+    def validate_category(self, project, category_id):
+        errors = []
+        try:
+            category = project.categories.get(pk=category_id)
+            if category.status == 'inactive':
+                errors.append('The category can not be used because it is '
+                              'inactive.')
+            else:
+                self._validated_data['meta']['category'] = category
+        except Category.DoesNotExist:
+            errors.append('The category can not be used with the project '
+                          'or does not exist.')
+
+        if errors:
+            self._errors['category'] = errors
+
     def is_valid(self, raise_exception=False):
+        project = self.context.get('project')
+        meta = self.initial_data.get('meta')
+
         self._errors = {}
         self._validated_data = self.initial_data
-        return True
+
+        if self.instance is None and meta is not None:
+            self.validate_category(project, meta.get('category'))
+
+        if self._errors and raise_exception:
+            raise MalformedRequestData(self._errors)
+
+        return not bool(self._errors)
 
     def create(self, validated_data):
         project = self.context.get('project')
         meta = validated_data.pop('meta')
-
-        try:
-            category = project.categories.get(pk=meta.pop('category'))
-        except Category.DoesNotExist:
-            raise MalformedRequestData('The category can not'
-                                       'be used with the project or '
-                                       'does not exist.')
-
-        if category.status == 'inactive':
-            raise MalformedRequestData('The category can not be used '
-                                       'because it is inactive.')
 
         location = self.restore_location(
             data=validated_data.pop('location', None),
@@ -81,7 +96,7 @@ class ContributionSerializer(BaseSerializer):
             creator=self.context.get('user'),
             location=location,
             project=project,
-            category=category,
+            category=meta.get('category'),
             status=meta.pop('status', None)
         )
 

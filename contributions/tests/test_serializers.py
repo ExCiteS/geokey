@@ -361,8 +361,7 @@ class ContributionSerializerIntegrationTests(TestCase):
             data=data,
             context={'user': self.contributor, 'project': self.project}
         )
-        serializer.is_valid()
-        serializer.save()
+        serializer.is_valid(raise_exception=True)
 
     @raises(MalformedRequestData)
     def test_create_with_private_location(self):
