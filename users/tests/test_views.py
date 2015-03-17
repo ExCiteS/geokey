@@ -78,7 +78,7 @@ class DashboardTest(TestCase):
 class CreateUserMixinTest(TransactionTestCase):
     def setUp(self):
         self.data = {
-            'username': 'user-1',
+            'display_name': 'user-1',
             'email': 'user-1@example.com',
             'password': '123'
         }
@@ -91,7 +91,7 @@ class CreateUserMixinTest(TransactionTestCase):
         user = create_mixin.create_user(self.data)
 
         self.assertTrue(isinstance(user, User))
-        self.assertEqual(user.display_name, self.data.get('username'))
+        self.assertEqual(user.display_name, self.data.get('display_name'))
         self.assertEqual(user.email, self.data.get('email'))
 
     @raises(IntegrityError)
@@ -103,209 +103,6 @@ class CreateUserMixinTest(TransactionTestCase):
         self.assertTrue(isinstance(user, User))
         self.assertEqual(user.display_name, self.data.get('username'))
         self.assertEqual(user.email, self.data.get('email'))
-
-
-class UserAPIViewTest(TestCase):
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.url = reverse('api:user_api')
-        self.client = ApplicationFactory.create()
-        self.user_data = {
-            'username': 'user-1',
-            'email': 'user-1@example.com',
-            'password1': '123456',
-            'password2': '123456'
-        }
-        self.data = self.user_data.copy()
-        self.data['client_id'] = self.client.client_id
-
-    def test_get_user(self):
-        user = UserF.create()
-        view = UserAPIView.as_view()
-        request = self.factory.get(self.url)
-        request.user = user
-        response = view(request).render()
-
-        self.assertEqual(response.status_code, 200)
-
-        request = self.factory.get(self.url)
-        request.user = AnonymousUser()
-        response = view(request).render()
-
-        self.assertEqual(response.status_code, 401)
-
-    def test_update_user(self):
-        user = UserF.create()
-        EmailAddress.objects.create(user=user, email=user.email)
-
-        view = UserAPIView.as_view()
-        data = {
-            'display_name': 'user-1',
-            'email': 'user-1@example.com'
-        }
-
-        request = self.factory.patch(
-            self.url,
-            json.dumps(data),
-            content_type='application/json'
-        )
-        request.user = AnonymousUser()
-        response = view(request).render()
-        self.assertEqual(response.status_code, 401)
-
-        request = self.factory.patch(
-            self.url,
-            json.dumps(data),
-            content_type='application/json'
-        )
-        request.user = user
-        response = view(request).render()
-        self.assertEqual(response.status_code, 200)
-
-    def test_update_user_display_name(self):
-        user = UserF.create()
-        EmailAddress.objects.create(user=user, email=user.email)
-
-        view = UserAPIView.as_view()
-        data = {
-            'display_name': 'user-2'
-        }
-
-        request = self.factory.patch(
-            self.url,
-            json.dumps(data),
-            content_type='application/json'
-        )
-        request.user = AnonymousUser()
-        response = view(request).render()
-        self.assertEqual(response.status_code, 401)
-
-        request = self.factory.patch(
-            self.url,
-            json.dumps(data),
-            content_type='application/json'
-        )
-        request.user = user
-        response = view(request).render()
-        self.assertEqual(response.status_code, 200)
-
-    def test_update_old_user_email(self):
-        user = UserF.create()
-
-        view = UserAPIView.as_view()
-        data = {
-            'display_name': 'user-2',
-            'email': 'user-215@example.com'
-        }
-
-        request = self.factory.patch(
-            self.url,
-            json.dumps(data),
-            content_type='application/json'
-        )
-        request.user = user
-        response = view(request).render()
-        self.assertEqual(response.status_code, 200)
-
-    def test_update_user_existing(self):
-        data = {
-            'display_name': 'user-1',
-            'email': 'user-1@example.com'
-        }
-        UserF.create(**data)
-        user = UserF.create()
-        view = UserAPIView.as_view()
-
-        request = self.factory.patch(
-            self.url,
-            json.dumps(data),
-            content_type='application/json'
-        )
-        request.user = user
-        response = view(request).render()
-        self.assertEqual(response.status_code, 400)
-
-    def test_sign_up(self):
-        request = self.factory.post(
-            self.url, json.dumps(self.data), content_type='application/json')
-
-        view = UserAPIView.as_view()
-        response = view(request).render()
-        self.assertEqual(response.status_code, 201)
-
-        user_json = json.loads(response.content)
-        self.assertEqual(
-            user_json.get('display_name'),
-            self.data.get('username')
-        )
-        self.assertEquals(len(mail.outbox), 1)
-
-    def test_sign_with_existing_email(self):
-        UserF.create(**{
-            'display_name': 'USer-3',
-            'email': 'user-1@example.com'}
-        )
-
-        data = {
-            'client_id': self.client.client_id,
-            'username': 'user-3',
-            'email': 'user-3@example.com',
-            'password1': '123456',
-            'password2': '123456'
-        }
-
-        request = self.factory.post(
-            self.url, json.dumps(data), content_type='application/json')
-        view = UserAPIView.as_view()
-        response = view(request).render()
-
-        self.assertEqual(response.status_code, 400)
-        errors = json.loads(response.content)
-        self.assertEqual(len(errors.get('errors')), 1)
-
-    def test_sign_with_empty_display(self):
-        data = {
-            'client_id': self.client.client_id,
-            'email': 'user-1@example.com',
-            'password1': '123456',
-            'password2': '123456'
-        }
-
-        request = self.factory.post(
-            self.url, json.dumps(data), content_type='application/json')
-        view = UserAPIView.as_view()
-        response = view(request).render()
-
-        self.assertEqual(response.status_code, 400)
-        errors = json.loads(response.content)
-
-        self.assertEqual(len(errors.get('errors')), 1)
-
-    def test_sign_with_existing_email_and_name(self):
-        UserF.create(**{
-            'display_name': 'user-1',
-            'email': 'user-1@example.com'
-        })
-
-        request = self.factory.post(
-            self.url, json.dumps(self.data), content_type='application/json')
-        view = UserAPIView.as_view()
-        response = view(request).render()
-
-        self.assertEqual(response.status_code, 400)
-        errors = json.loads(response.content)
-        self.assertEqual(len(errors.get('errors')), 2)
-
-    def test_without_client_id(self):
-        request = self.factory.post(
-            self.url,
-            json.dumps(self.user_data),
-            content_type='application/json'
-        )
-        view = UserAPIView.as_view()
-        response = view(request).render()
-
-        self.assertEqual(response.status_code, 400)
 
 
 class UserGroupCreateTest(TestCase):
@@ -1084,3 +881,233 @@ class ChangePasswordTest(TestCase):
             json.loads(response.content).get('errors').get('password2')[0],
             'You must type the same password each time.'
         )
+
+
+class UserAPIViewTest(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.url = reverse('api:user_api')
+        self.client = ApplicationFactory.create()
+        self.user_data = {
+            'display_name': 'user 1',
+            'email': 'user-1@example.com',
+            'password1': '123456',
+            'password2': '123456'
+        }
+        self.data = self.user_data.copy()
+        self.data['client_id'] = self.client.client_id
+
+    def test_get_user(self):
+        user = UserF.create()
+        view = UserAPIView.as_view()
+        request = self.factory.get(self.url)
+        request.user = user
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 200)
+
+        request = self.factory.get(self.url)
+        request.user = AnonymousUser()
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 401)
+
+    def test_update_user(self):
+        user = UserF.create()
+        EmailAddress.objects.create(user=user, email=user.email)
+
+        view = UserAPIView.as_view()
+        data = {
+            'display_name': 'user-1',
+            'email': 'user-1@example.com'
+        }
+
+        request = self.factory.patch(
+            self.url,
+            json.dumps(data),
+            content_type='application/json'
+        )
+        request.user = AnonymousUser()
+        response = view(request).render()
+        self.assertEqual(response.status_code, 401)
+
+        request = self.factory.patch(
+            self.url,
+            json.dumps(data),
+            content_type='application/json'
+        )
+        request.user = user
+        response = view(request).render()
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_user_display_name(self):
+        user = UserF.create()
+        EmailAddress.objects.create(user=user, email=user.email)
+
+        view = UserAPIView.as_view()
+        data = {
+            'display_name': 'user-2'
+        }
+
+        request = self.factory.patch(
+            self.url,
+            json.dumps(data),
+            content_type='application/json'
+        )
+        request.user = AnonymousUser()
+        response = view(request).render()
+        self.assertEqual(response.status_code, 401)
+
+        request = self.factory.patch(
+            self.url,
+            json.dumps(data),
+            content_type='application/json'
+        )
+        request.user = user
+        response = view(request).render()
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_user_display_name_with_whitespace(self):
+        user = UserF.create()
+        EmailAddress.objects.create(user=user, email=user.email)
+
+        view = UserAPIView.as_view()
+        data = {
+            'display_name': 'user-2 sdfdf'
+        }
+
+        request = self.factory.patch(
+            self.url,
+            json.dumps(data),
+            content_type='application/json'
+        )
+        request.user = AnonymousUser()
+        response = view(request).render()
+        self.assertEqual(response.status_code, 401)
+
+        request = self.factory.patch(
+            self.url,
+            json.dumps(data),
+            content_type='application/json'
+        )
+        request.user = user
+        response = view(request).render()
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_old_user_email(self):
+        user = UserF.create()
+
+        view = UserAPIView.as_view()
+        data = {
+            'display_name': 'user-2',
+            'email': 'user-215@example.com'
+        }
+
+        request = self.factory.patch(
+            self.url,
+            json.dumps(data),
+            content_type='application/json'
+        )
+        request.user = user
+        response = view(request).render()
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_user_existing(self):
+        data = {
+            'display_name': 'user-1',
+            'email': 'user-1@example.com'
+        }
+        UserF.create(**data)
+        user = UserF.create()
+        view = UserAPIView.as_view()
+
+        request = self.factory.patch(
+            self.url,
+            json.dumps(data),
+            content_type='application/json'
+        )
+        request.user = user
+        response = view(request).render()
+        self.assertEqual(response.status_code, 400)
+
+    def test_sign_up(self):
+        request = self.factory.post(
+            self.url, json.dumps(self.data), content_type='application/json')
+
+        view = UserAPIView.as_view()
+        response = view(request).render()
+        self.assertEqual(response.status_code, 201)
+
+        user_json = json.loads(response.content)
+        self.assertEqual(
+            user_json.get('display_name'),
+            self.data.get('display_name')
+        )
+        self.assertEquals(len(mail.outbox), 1)
+
+    def test_sign_with_existing_email(self):
+        UserF.create(**{
+            'display_name': 'USer-3',
+            'email': 'user-1@example.com'}
+        )
+
+        data = {
+            'client_id': self.client.client_id,
+            'username': 'user-3',
+            'email': 'user-3@example.com',
+            'password1': '123456',
+            'password2': '123456'
+        }
+
+        request = self.factory.post(
+            self.url, json.dumps(data), content_type='application/json')
+        view = UserAPIView.as_view()
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 400)
+        errors = json.loads(response.content)
+        self.assertEqual(len(errors.get('errors')), 1)
+
+    def test_sign_with_empty_display(self):
+        data = {
+            'client_id': self.client.client_id,
+            'email': 'user-1@example.com',
+            'password1': '123456',
+            'password2': '123456'
+        }
+
+        request = self.factory.post(
+            self.url, json.dumps(data), content_type='application/json')
+        view = UserAPIView.as_view()
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 400)
+        errors = json.loads(response.content)
+
+        self.assertEqual(len(errors.get('errors')), 1)
+
+    def test_sign_with_existing_email_and_name(self):
+        UserF.create(**{
+            'display_name': 'user 1',
+            'email': 'user-1@example.com'
+        })
+
+        request = self.factory.post(
+            self.url, json.dumps(self.data), content_type='application/json')
+        view = UserAPIView.as_view()
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 400)
+        errors = json.loads(response.content)
+        self.assertEqual(len(errors.get('errors')), 2)
+
+    def test_without_client_id(self):
+        request = self.factory.post(
+            self.url,
+            json.dumps(self.user_data),
+            content_type='application/json'
+        )
+        view = UserAPIView.as_view()
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 400)

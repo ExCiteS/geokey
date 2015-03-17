@@ -85,12 +85,19 @@ SITE_ID = 1
 LOGIN_REDIRECT_URL = '/admin/dashboard/'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/admin/account/login/'
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'display_name'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/admin/account/login/'
 ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/admin/dashboard/'
-ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_FORMS = {
+    'signup': 'users.forms.UserRegistrationForm',
+    'change_password': 'users.forms.CustomPasswordChangeForm',
+    'reset_password_from_key': 'users.forms.CustomResetPasswordKeyForm'
+}
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",

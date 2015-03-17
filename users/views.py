@@ -7,8 +7,6 @@ from django.utils.html import strip_tags
 from braces.views import LoginRequiredMixin
 
 from allauth.account.models import EmailAddress
-from allauth.account.forms import SignupForm
-from allauth.account.views import PasswordChangeView, PasswordResetFromKeyView
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -30,7 +28,7 @@ from .models import User, GroupingUserGroup
 from .forms import (
     UsergroupCreateForm,
     CustomPasswordChangeForm,
-    CustomResetPasswordKeyForm
+    UserRegistrationForm
 )
 
 
@@ -303,14 +301,6 @@ class UserNotifications(LoginRequiredMixin, TemplateView):
         return self.render_to_response(context)
 
 
-class ChangePassword(LoginRequiredMixin, PasswordChangeView):
-    form_class = CustomPasswordChangeForm
-
-
-class ResetPassword(PasswordResetFromKeyView):
-    form_class = CustomResetPasswordKeyForm
-
-
 # ############################################################################
 #
 # AJAX VIEWS
@@ -498,7 +488,7 @@ class CreateUserMixin(object):
     def create_user(self, data):
         user = User.objects.create_user(
             data.get('email'),
-            data.get('username'),
+            data.get('display_name'),
             password=data.get('password1')
         )
         user.save()
@@ -558,7 +548,7 @@ class UserAPIView(CreateUserMixin, APIView):
 
     def post(self, request):
         data = request.DATA
-        form = SignupForm(data)
+        form = UserRegistrationForm(data)
         client_id = data.pop('client_id', None)
 
         try:

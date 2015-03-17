@@ -23,8 +23,8 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['display_name']
+    USERNAME_FIELD = 'display_name'
+    REQUIRED_FIELDS = ['email']
 
     objects = UserManager()
 

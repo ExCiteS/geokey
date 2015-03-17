@@ -2,27 +2,28 @@ from django import forms
 from django.utils.html import strip_tags
 from django.core.exceptions import ValidationError
 
-from allauth.account.forms import ChangePasswordForm, ResetPasswordKeyForm
+from allauth.account.forms import (
+    ChangePasswordForm,
+    ResetPasswordKeyForm,
+    SignupForm
+)
 
 from oauth2_provider.models import AccessToken
 
 from .models import User, UserGroup
 
 
-class UserRegistrationForm(forms.ModelForm):
-    """
-    Validates the inputs against the User model definition.
-    Used in .views.Signup
-    """
-    class Meta:
-        model = User
-        fields = ('email', 'password', 'display_name')
+class UserRegistrationForm(SignupForm):
+    display_name = forms.CharField(max_length=50)
+
+    def __init__(self, *args, **kwargs):
+        super(UserRegistrationForm, self).__init__(*args, **kwargs)
+        del self.fields['username']
 
     def clean_display_name(self):
         cleaned = self.cleaned_data.get('display_name')
-        if self.instance is None or self.instance.display_name != cleaned:
-            if User.objects.filter(display_name__iexact=cleaned).exists():
-                raise ValidationError('The given display name exists.')
+        if User.objects.filter(display_name__iexact=cleaned).exists():
+            raise ValidationError('The given display name exists.')
 
         return cleaned
 
