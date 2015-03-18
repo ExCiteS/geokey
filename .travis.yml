@@ -23,6 +23,6 @@ install:
 
 script:
   - python manage.py test --nocapture --nologcapture
-  - coverage run --source=applications,projects,categories,contributions,datagroupings,users manage.py test
+  - coverage run --source=applications,projects,categories,contributions,datagroupings,users,superusertools,extensions manage.py test
 
 after_success: coveralls
