@@ -33,14 +33,17 @@ class ProjectObservations(APIView):
         data = request.DATA
         project = Project.objects.as_contributor(request.user, project_id)
 
-        if (not data.get('properties').get('status') == 'draft' and
+        if (not data.get('meta').get('status') == 'draft' and
                 project.can_moderate(user)):
-            data['properties']['status'] = 'active'
+            data['meta']['status'] = 'active'
 
         serializer = ContributionSerializer(
             data=data, context={'user': user, 'project': project}
         )
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class ContributionSearchAPIView(APIView):
@@ -60,6 +63,7 @@ class ContributionSearchAPIView(APIView):
             many=True,
             context={'user': request.user, 'project': project, 'search': q}
         )
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -151,7 +155,9 @@ class SingleContributionAPIView(APIView):
         if user.is_anonymous():
             user = User.objects.get(display_name='AnonymousUser')
 
-        new_status = data.get('properties').get('status')
+        new_status = None
+        if data.get('meta') is not None:
+            new_status = data.get('meta').get('status')
 
         user_can_moderate = observation.project.can_moderate(user)
         user_is_owner = (observation.creator == user)
@@ -179,19 +185,21 @@ class SingleContributionAPIView(APIView):
                                    'contribution')
 
         if new_status == 'active' and under_review:
-            data['properties']['status'] = 'review'
+            data['meta']['status'] = 'review'
 
         if ((new_status == 'active' and observation.status == 'draft') and
                 not user_can_moderate):
             default_status = observation.category.default_status
-            data['properties']['status'] = default_status
+            data['meta']['status'] = default_status
 
         serializer = ContributionSerializer(
             observation,
             data=data,
             context={'user': user, 'project': observation.project}
         )
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete_and_respond(self, request, observation):
         """

@@ -45,12 +45,12 @@ class ContributionSearchTest(TestCase):
         TextFieldFactory.create(**{'key': 'key', 'category': category})
 
         ObservationFactory.create_batch(5, **{
-            'attributes': {'key': 'blah'},
+            'properties': {'key': 'blah'},
             'project': self.project,
             'category': category
         })
         ObservationFactory.create_batch(5, **{
-            'attributes': {'key': 'blub'},
+            'properties': {'key': 'blub'},
             'project': self.project,
             'category': category
         })
@@ -116,7 +116,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "active"}}
+        request.DATA = {'meta': {'status': "active"}}
         request.user = self.admin
 
         view = SingleContributionAPIView()
@@ -134,7 +134,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "active"}}
+        request.DATA = {'meta': {'status': "active"}}
         request.user = self.moderator
 
         view = SingleContributionAPIView()
@@ -153,7 +153,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "active"}}
+        request.DATA = {'meta': {'status': "active"}}
         request.user = self.creator
 
         view = SingleContributionAPIView()
@@ -172,7 +172,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "active"}}
+        request.DATA = {'meta': {'status': "active"}}
         request.user = self.creator
 
         view = SingleContributionAPIView()
@@ -187,7 +187,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "pending"}}
+        request.DATA = {'meta': {'status': "pending"}}
         request.user = self.admin
 
         view = SingleContributionAPIView()
@@ -202,7 +202,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "pending"}}
+        request.DATA = {'meta': {'status': "pending"}}
         request.user = self.moderator
 
         view = SingleContributionAPIView()
@@ -215,24 +215,28 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {
-            'status': 'pending',
-            'key': 'updated'
-        }}
+        request.DATA = {
+            'properties': {
+                'key': 'updated'
+            },
+            'meta': {
+                'status': 'pending',
+            }
+        }
         request.user = self.moderator
 
         view = SingleContributionAPIView()
         view.update_and_respond(request, self.observation)
         ref = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(ref.status, 'pending')
-        self.assertNotEqual(ref.attributes.get('key'), 'updated')
+        self.assertEqual(ref.properties.get('key'), 'updated')
 
     def test_flag_with_contributor(self):
         url = reverse('api:project_all_observations', kwargs={
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "pending"}}
+        request.DATA = {'meta': {'status': "pending"}}
         request.user = self.creator
 
         view = SingleContributionAPIView()
@@ -248,7 +252,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "pending"}}
+        request.DATA = {'meta': {'status': "pending"}}
         request.user = AnonymousUser()
 
         view = SingleContributionAPIView()
@@ -267,7 +271,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "active"}}
+        request.DATA = {'meta': {'status': "active"}}
         request.user = self.admin
 
         view = SingleContributionAPIView()
@@ -286,7 +290,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "active"}}
+        request.DATA = {'meta': {'status': "active"}}
         request.user = self.moderator
 
         view = SingleContributionAPIView()
@@ -306,7 +310,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "active"}}
+        request.DATA = {'meta': {'status': "active"}}
         request.user = self.creator
 
         view = SingleContributionAPIView()
@@ -324,7 +328,7 @@ class SingleContributionAPIViewTest(TestCase):
             'project_id': self.project.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properties': {'status': "active"}}
+        request.DATA = {'meta': {'status': "active"}}
         request.user = self.creator
 
         view = SingleContributionAPIView()
@@ -344,10 +348,10 @@ class SingleContributionAPIViewTest(TestCase):
         request = self.factory.patch(url)
         request.DATA = {
             'properties': {
+                'key': 'updated'
+            },
+            'meta': {
                 'status': "active",
-                'attributes': {
-                    'key': 'updated'
-                }
             }
         }
         request.user = self.creator
@@ -356,7 +360,7 @@ class SingleContributionAPIViewTest(TestCase):
         view.update_and_respond(request, self.observation)
         ref = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(ref.status, 'pending')
-        self.assertEqual(ref.attributes.get('key'), 'updated')
+        self.assertEqual(ref.properties.get('key'), 'updated')
 
 
 class SingleAllContributionAPIViewTest(TestCase):
@@ -565,16 +569,16 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                },
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
                 "category": self.category.id,
-                "location": {
-                    "name": "UCL",
-                    "description": "UCL's main quad",
-                    "private": True
-                },
+            },
+            "location": {
+                "name": "UCL",
+                "description": "UCL's main quad",
+                "private": True
             }
         }
 
@@ -592,7 +596,7 @@ class ProjectPublicApiTest(TestCase):
         return view(request, project_id=self.project.id).render()
 
     def test_contribute_with_wrong_category(self):
-        self.data['properties']['category'] = 3864
+        self.data['meta']['category'] = 3864
 
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 400)
@@ -608,16 +612,16 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "attributes": {
-                    "key_1": 12,
-                    "key_2": "jsdbdjhsb"
-                },
+                "key_1": 12,
+                "key_2": "jsdbdjhsb"
+            },
+            "meta": {
                 "category": self.category.id,
-                "location": {
-                    "name": "UCL",
-                    "description": "UCL's main quad",
-                    "private": True
-                },
+            },
+            "location": {
+                "name": "UCL",
+                "description": "UCL's main quad",
+                "private": True
             }
         }
 
@@ -635,16 +639,16 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "attributes": {
-                    "key_1": 12,
-                    "key_2": 2000
-                },
+                "key_1": 12,
+                "key_2": 2000
+            },
+            "meta": {
                 "category": self.category.id,
-                "location": {
-                    "name": "UCL",
-                    "description": "UCL's main quad",
-                    "private": True
-                },
+            },
+            "location": {
+                "name": "UCL",
+                "description": "UCL's main quad",
+                "private": True
             }
         }
 
@@ -656,18 +660,18 @@ class ProjectPublicApiTest(TestCase):
         data = {
             "type": "Feature",
             "geometry": location.geometry.geojson,
+            "location": {
+                "id": location.id,
+                "name": location.name,
+                "description": location.description,
+                "private": location.private
+            },
             "properties": {
-                "location": {
-                    "id": location.id,
-                    "name": location.name,
-                    "description": location.description,
-                    "private": location.private
-                },
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
                 "category": self.category.id,
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                }
             }
         }
 
@@ -683,18 +687,18 @@ class ProjectPublicApiTest(TestCase):
         data = {
             "type": "Feature",
             "geometry": location.geometry.geojson,
+            "location": {
+                "id": location.id,
+                "name": location.name,
+                "description": location.description,
+                "private": location.private
+            },
             "properties": {
-                "location": {
-                    "id": location.id,
-                    "name": location.name,
-                    "description": location.description,
-                    "private": location.private
-                },
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
                 "category": self.category.id,
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                }
             }
         }
         response = self._post(data, self.admin)
@@ -710,18 +714,18 @@ class ProjectPublicApiTest(TestCase):
         data = {
             "type": "Feature",
             "geometry": location.geometry.geojson,
+            "location": {
+                "id": location.id,
+                "name": location.name,
+                "description": location.description,
+                "private": location.private
+            },
             "properties": {
-                "location": {
-                    "id": location.id,
-                    "name": location.name,
-                    "description": location.description,
-                    "private": location.private
-                },
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
                 "category": self.category.id,
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                }
             }
         }
 
@@ -736,18 +740,18 @@ class ProjectPublicApiTest(TestCase):
         data = {
             "type": "Feature",
             "geometry": location.geometry.geojson,
+            "location": {
+                "id": location.id,
+                "name": location.name,
+                "description": location.description,
+                "private": location.private
+            },
             "properties": {
-                "location": {
-                    "id": location.id,
-                    "name": location.name,
-                    "description": location.description,
-                    "private": location.private
-                },
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
                 "category": self.category.id,
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                }
             }
         }
 
@@ -764,17 +768,17 @@ class ProjectPublicApiTest(TestCase):
                     51.52439200896907
                 ]
             },
+            "location": {
+                "name": "UCL",
+                "description": "UCL's main quad",
+                "private": True
+            },
             "properties": {
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                },
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
                 "category": self.category.id,
-                "location": {
-                    "name": "UCL",
-                    "description": "UCL's main quad",
-                    "private": True
-                },
                 "status": "draft"
             }
         }
@@ -793,17 +797,17 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "attributes": {
-                    "key_1": None,
-                    "key_2": 12
-                },
+                "key_1": None,
+                "key_2": 12
+            },
+            "meta": {
                 "category": self.category.id,
-                "location": {
-                    "name": "UCL",
-                    "description": "UCL's main quad",
-                    "private": True
-                },
                 "status": "draft"
+            },
+            "location": {
+                "name": "UCL",
+                "description": "UCL's main quad",
+                "private": True
             }
         }
         response = self._post(self.data, self.admin)
@@ -821,18 +825,18 @@ class ProjectPublicApiTest(TestCase):
                 ]
             },
             "properties": {
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 'Blah'
-                },
+                "key_1": "value 1",
+                "key_2": 'Blah'
+            },
+            "meta": {
                 "category": self.category.id,
-                "location": {
-                    "name": "UCL",
-                    "description": "UCL's main quad",
-                    "private": True
-                },
                 "status": "draft"
-            }
+            },
+            "location": {
+                "name": "UCL",
+                "description": "UCL's main quad",
+                "private": True
+            },
         }
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 400)
@@ -1064,7 +1068,7 @@ class UpdateObservationInProject(TestCase):
         location = LocationFactory()
 
         self.observation = ObservationFactory.create(**{
-            'attributes': {
+            'properties': {
                 "key_1": "value 1",
                 "key_2": 12,
             },
@@ -1077,10 +1081,8 @@ class UpdateObservationInProject(TestCase):
 
         self.update_data = {
             "properties": {
-                "attributes": {
-                    "version": 1,
-                    "key_2": 15
-                }
+                "version": 1,
+                "key_2": 15
             }
         }
 
@@ -1148,7 +1150,7 @@ class UpdateObservationInProject(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.attributes.get('key_2'), '15')
+            observation.properties.get('key_2'), 15)
 
         self.assertContains(response, 'New name')
         self.assertContains(response, '-0.144415')
@@ -1162,7 +1164,7 @@ class UpdateObservationInProject(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.attributes.get('key_2'), '15')
+            observation.properties.get('key_2'), 15)
 
     @raises(Observation.DoesNotExist)
     def test_delete_with_admin(self):
@@ -1182,7 +1184,7 @@ class UpdateObservationInProject(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.attributes.get('key_2'), '12')
+            observation.properties.get('key_2'), 12)
 
     def test_delete_with_contributor(self):
         response = self._delete(
@@ -1199,7 +1201,7 @@ class UpdateObservationInProject(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.attributes.get('key_2'), '12')
+            observation.properties.get('key_2'), 12)
 
     def test_delete_with_view_member(self):
         response = self._delete(
@@ -1219,7 +1221,7 @@ class UpdateObservationInProject(TestCase):
         self.assertEqual(response.status_code, 404)
 
         self.assertEqual(
-            self.observation.attributes.get('key_2'), '12')
+            self.observation.properties.get('key_2'), 12)
 
     def test_delete_with_non_member(self):
         response = self._delete(
@@ -1338,22 +1340,21 @@ class UpdateObservationInView(TestCase):
         location = LocationFactory()
 
         self.observation = Observation.create(
-            attributes={
+            properties={
                 "key_1": "value 1",
                 "key_2": 12,
             },
             category=self.category,
             project=self.project,
             location=location,
-            creator=self.admin
+            creator=self.admin,
+            status='active'
         )
 
         self.update_data = {
             "properties": {
-                "attributes": {
-                    "version": 1,
-                    "key_2": 15
-                }
+                "version": 1,
+                "key_2": 15
             }
         }
 
@@ -1397,7 +1398,7 @@ class UpdateObservationInView(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-        data = {"properties": {"attributes": {"version": 1, "key_2": 2}}}
+        data = {"properties": {"version": 1, "key_2": 2}}
         response = self._patch(data, self.admin)
         self.assertEqual(response.status_code, 200)
 
@@ -1407,7 +1408,7 @@ class UpdateObservationInView(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.attributes.get('key_2'), '15')
+            observation.properties.get('key_2'), 15)
 
     @raises(Observation.DoesNotExist)
     def test_delete_with_admin(self):
@@ -1451,7 +1452,7 @@ class UpdateObservationInView(TestCase):
         self.assertEqual(response.status_code, 404)
 
         self.assertEqual(
-            self.observation.attributes.get('key_2'), '12')
+            self.observation.properties.get('key_2'), 12)
 
     def test_delete_with_non_member(self):
         response = self._delete(
@@ -1543,22 +1544,21 @@ class UpdateMyObservation(TestCase):
         location = LocationFactory()
 
         self.observation = Observation.create(
-            attributes={
+            properties={
                 "key_1": "value 1",
                 "key_2": 12,
             },
             category=self.category,
             project=self.project,
             location=location,
-            creator=self.contributor
+            creator=self.contributor,
+            status='active'
         )
 
         self.update_data = {
             "properties": {
-                "attributes": {
-                    "version": 1,
-                    "key_2": 15
-                }
+                "version": 1,
+                "key_2": 15
             }
         }
 
@@ -1599,7 +1599,7 @@ class UpdateMyObservation(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.attributes.get('key_2'), '15')
+            observation.properties.get('key_2'), 15)
 
     def test_delete_with_admin(self):
         response = self._delete(self.admin)
@@ -1612,7 +1612,7 @@ class UpdateMyObservation(TestCase):
 
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertEqual(
-            observation.attributes.get('key_2'), '12')
+            observation.properties.get('key_2'), 12)
 
     @raises(Observation.DoesNotExist)
     def test_delete_with_contributor(self):

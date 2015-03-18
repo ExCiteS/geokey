@@ -44,5 +44,5 @@ class RuleFactory(factory.django.DjangoModelFactory):
 
     category = factory.SubFactory(CategoryFactory)
     grouping = factory.SubFactory(GroupingFactory)
-    filters = None
+    constraints = None
     status = 'active'

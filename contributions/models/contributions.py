@@ -1,4 +1,3 @@
-import json
 from pytz import utc
 from datetime import datetime
 
@@ -8,7 +7,7 @@ from django.core.exceptions import ValidationError
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
 
-from django_hstore import hstore
+from django_pgjson.fields import JsonBField
 from simple_history.models import HistoricalRecords
 
 from core.exceptions import InputError
@@ -34,7 +33,7 @@ class Observation(models.Model):
         default=OBSERVATION_STATUS.active,
         max_length=20
     )
-    attributes = hstore.DictionaryField(db_index=True)
+    properties = JsonBField(default={})
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -92,59 +91,40 @@ class Observation(models.Model):
             raise ValidationError(error_messages)
 
     @classmethod
-    def replace_null(self, attributes):
-        for key, value in attributes.iteritems():
+    def replace_null(self, properties):
+        for key, value in properties.iteritems():
             if isinstance(value, (str, unicode)) and len(value) == 0:
-                attributes[key] = None
+                properties[key] = None
 
-        return attributes
+        return properties
 
     @classmethod
-    def create(cls, attributes=None, creator=None, location=None,
+    def create(cls, properties=None, creator=None, location=None,
                category=None, project=None, status=None):
         """
         Creates a new observation. Validates all fields first and raises a
         ValidationError if at least one field did not validate.
         Creates the object if all fields are valid.
         """
-        attributes = cls.replace_null(attributes)
-
-        if status is None:
-            status = category.default_status
-
-        if status == 'draft':
-            cls.validate_partial(category, attributes)
-        else:
-            cls.validate_full(category, attributes)
-
         location.save()
         observation = cls.objects.create(
             location=location,
             category=category,
             project=project,
-            attributes=attributes,
+            properties=properties,
             creator=creator,
             status=status
         )
         return observation
 
-    def update(self, attributes, updator, status=None):
+    def update(self, properties, updator, status=None):
         """
         Updates data of the observation
         """
-        update = self.attributes.copy()
-
-        if attributes is not None:
-            attributes = self.replace_null(attributes)
-            update.update(attributes)
-
-        if status == 'draft' or (status is None and self.status == 'draft'):
-            self.validate_partial(self.category, update)
-        else:
-            self.validate_full(self.category, update)
+        if status != 'draft':
             self.version = self.version + 1
 
-        self.attributes = update
+        self.properties = properties
         self.updator = updator
         self.status = status or self.status
         self.updated_at = datetime.utcnow().replace(tzinfo=utc)
@@ -155,16 +135,16 @@ class Observation(models.Model):
     def update_display_field(self):
         display_field = self.category.display_field
         if display_field is not None:
-            value = self.attributes.get(display_field.key)
+            value = self.properties.get(display_field.key)
             self.display_field = '%s:%s' % (display_field.key, value)
 
     def update_search_matches(self):
         search_matches = []
         for field in self.category.fields.all():
-            if field.key in self.attributes.keys():
+            if field.key in self.properties.keys():
 
                 if field.fieldtype == 'LookupField':
-                    l_id = self.attributes.get(field.key)
+                    l_id = self.properties.get(field.key)
                     if l_id is not None:
                         lookup = field.lookupvalues.get(pk=l_id)
                         search_matches.append('%s:%s' % (
@@ -172,12 +152,11 @@ class Observation(models.Model):
                         ))
 
                 elif field.fieldtype == 'MultipleLookupField':
-                    values = self.attributes.get(field.key)
+                    values = self.properties.get(field.key)
                     if values is not None:
-                        l_ids = sorted(json.loads(values))
                         lookups = []
 
-                        for l_id in l_ids:
+                        for l_id in values:
                             lookups.append(
                                 field.lookupvalues.get(pk=l_id).name
                             )
@@ -188,7 +167,7 @@ class Observation(models.Model):
                         )
 
                 else:
-                    term = self.attributes.get(field.key)
+                    term = self.properties.get(field.key)
                     if term is not None:
                         search_matches.append(
                             '%s:%s' % (field.key, term)

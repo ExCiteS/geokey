@@ -172,8 +172,12 @@ class Field(models.Model):
         )
 
     def delete(self):
-        Rule.objects.filter(
-            category=self.category).hremove('filters', self.key)
+        rules = Rule.objects.filter(category=self.category)
+
+        for rule in rules:
+            rule.constraints.pop(self.key, None)
+            rule.save()
+
         super(Field, self).delete()
 
 
@@ -221,7 +225,7 @@ class TextField(Field):
         Returns the filter object for the given field based on the rule. Used
         to filter data for a view.
         """
-        return '((attributes -> \'' + self.key + '\') \
+        return '((properties ->> \'' + self.key + '\') \
             ILIKE \'%%' + rule + '%%\')'
 
 
@@ -306,17 +310,17 @@ class NumericField(Field):
 
         if minval is not None and maxval is not None:
 
-            return '(cast(attributes -> \'' + self.key + '\' as double \
-                precision) >= ' + str(minval) + ') AND (cast(attributes \
-                -> \'' + self.key + '\' as double precision) <= \
+            return '(cast(properties ->> \'' + self.key + '\' as double \
+                precision) >= ' + str(minval) + ') AND (cast(properties \
+                ->> \'' + self.key + '\' as double precision) <= \
                 ' + str(maxval) + ')'
         else:
             if minval is not None:
-                return '(cast(attributes -> \'' + self.key + '\' as double \
+                return '(cast(properties ->> \'' + self.key + '\' as double \
                     precision) >= ' + str(minval) + ')'
 
             if maxval is not None:
-                return '(cast(attributes -> \'' + self.key + '\' as double \
+                return '(cast(properties ->> \'' + self.key + '\' as double \
                     precision) <= ' + str(maxval) + ')'
 
 
@@ -359,19 +363,19 @@ class DateTimeField(Field):
         maxval = rule.get('maxval')
 
         if minval is not None and maxval is not None:
-            return '(to_date(attributes -> \'' + self.key + '\', \'YYYY-MM-DD \
+            return '(to_date(properties ->> \'' + self.key + '\', \'YYYY-MM-DD \
                 HH24:MI\') >= to_date(\'' + minval + '\', \'YYYY-MM-DD \
-                HH24:MI\')) AND (to_date(attributes -> \'' + self.key + '\', \'\
+                HH24:MI\')) AND (to_date(properties ->> \'' + self.key + '\', \'\
                 YYYY-MM-DD HH24:MI\') <= to_date(\'' + maxval + '\', \'\
                 YYYY-MM-DD HH24:MI\'))'
         else:
             if minval is not None:
-                return '(to_date(attributes -> \'' + self.key + '\', \'\
+                return '(to_date(properties ->> \'' + self.key + '\', \'\
                     YYYY-MM-DD HH24:MI\') >= to_date(\'' + minval + '\', \'\
                     YYYY-MM-DD HH24:MI\'))'
 
             if maxval is not None:
-                return '(to_date(attributes -> \'' + self.key + '\', \'\
+                return '(to_date(properties ->> \'' + self.key + '\', \'\
                     YYYY-MM-DD HH24:MI\') <= to_date(\'' + maxval + '\', \'\
                     YYYY-MM-DD HH24:MI\'))'
 
@@ -414,18 +418,18 @@ class DateField(Field):
         maxval = rule.get('maxval')
 
         if minval is not None and maxval is not None:
-            return '(to_date(attributes -> \'' + self.key + '\',\
+            return '(to_date(properties ->> \'' + self.key + '\',\
                 \'YYYY-MM-DD\') >= to_date(\'' + minval + '\', \'YYYY-MM-DD\')\
-                ) AND (to_date(attributes -> \'' + self.key + '\', \'\
+                ) AND (to_date(properties ->> \'' + self.key + '\', \'\
                 YYYY-MM-DD\') <= to_date(\'' + maxval + '\', \'YYYY-MM-DD\'))'
         else:
             if minval is not None:
-                return '(to_date(attributes -> \'' + self.key + '\', \
+                return '(to_date(properties ->> \'' + self.key + '\', \
                 \'YYYY-MM-DD\') >= to_date(\'' + minval + '\', \
                 \'YYYY-MM-DD\'))'
 
             if maxval is not None:
-                return '(to_date(attributes -> \'' + self.key + '\', \
+                return '(to_date(properties ->> \'' + self.key + '\', \
                 \'YYYY-MM-DD\') <= to_date(\'' + maxval + '\', \
                 \'YYYY-MM-DD\'))'
 
@@ -466,20 +470,20 @@ class TimeField(Field):
 
         if minval is not None and maxval is not None:
             if time.strptime(minval, '%H:%M') > time.strptime(maxval, '%H:%M'):
-                return '((attributes -> \'' + self.key + '\')::\
-                    time >= \'' + minval + '\'::time) OR ((attributes -> \
+                return '((properties ->> \'' + self.key + '\')::\
+                    time >= \'' + minval + '\'::time) OR ((properties ->> \
                     \'' + self.key + '\')::time <= \'' + maxval + '\'::time)'
             else:
-                return '((attributes -> \'' + self.key + '\')::\
-                    time >= \'' + minval + '\'::time) AND ((attributes -> \
+                return '((properties ->> \'' + self.key + '\')::\
+                    time >= \'' + minval + '\'::time) AND ((properties ->> \
                     \'' + self.key + '\')::time <= \'' + maxval + '\'::time)'
         else:
             if minval is not None:
-                return '((attributes -> \'' + self.key + '\')::\
+                return '((properties ->> \'' + self.key + '\')::\
                     time >= \'' + minval + '\'::time)'
 
             if maxval is not None:
-                return '((attributes -> \'' + self.key + '\')::\
+                return '((properties ->> \'' + self.key + '\')::\
                     time <= \'' + maxval + '\'::time)'
 
 
@@ -534,7 +538,7 @@ class LookupField(Field):
         Returns the filter object for the given field based on the rule. Used
         to filter data for a view.
         """
-        return '((attributes -> \'' + self.key + '\')::int IN \
+        return '((properties ->> \'' + self.key + '\')::int IN \
             (' + ','.join(str(x) for x in rule) + '))'
 
 
@@ -600,7 +604,7 @@ class MultipleLookupField(Field):
 
     def get_filter(self, rule):
         return '(regexp_split_to_array(\
-            btrim(attributes -> \'' + self.key + '\', \'[]\'), \',\')::int[]\
+            btrim(properties ->> \'' + self.key + '\', \'[]\'), \',\')::int[]\
             && ARRAY' + json.dumps(rule) + ')'
 
 

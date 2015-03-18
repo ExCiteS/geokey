@@ -4,13 +4,16 @@ import tempfile
 from django.core import files
 
 from django.contrib.gis.geos import GEOSGeometry
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.utils.html import strip_tags
 
 from easy_thumbnails.files import get_thumbnailer
 
 from rest_framework import serializers
 from rest_framework_gis import serializers as geoserializers
+
+from rest_framework.serializers import BaseSerializer
+from rest_framework_gis.serializers import GeoFeatureModelListSerializer
 
 from core.exceptions import MalformedRequestData
 from categories.serializer import CategorySerializer
@@ -38,46 +41,15 @@ class LocationContributionSerializer(serializers.ModelSerializer):
         write_only_fields = ('status',)
 
 
-class ObservationSerializer(serializers.ModelSerializer):
-    creator = UserSerializer(fields=('id', 'display_name'))
-    updator = UserSerializer(fields=('id', 'display_name'))
-    category = serializers.SerializerMethodField('get_category')
-
+class ContributionSerializer(BaseSerializer):
     class Meta:
-        model = Observation
-        depth = 0
-        fields = (
-            'status', 'category', 'creator', 'updator', 'created_at', 'version'
-        )
+        list_serializer_class = GeoFeatureModelListSerializer
 
-    def get_category(self, observation):
-        return observation.category.id
-
-
-class ContributionSerializer(object):
-    """
-    Serializes and deserializes contribution object from and to its GeoJSON
-    conterparts.
-    """
-    def __init__(self, instance=None, data=None, many=False, context=None):
-        self.many = many
-        self.context = context
-
-        if self.many:
-            self.instance = instance
-        else:
-            self.instance = self.restore_object(instance, data)
-
-    @property
-    def data(self):
-        if self.many:
-            features = [self.to_native_min(obj) for obj in self.instance]
-            return {
-                "type": "FeatureCollection",
-                "features": features
-            }
-
-        return self.to_native(self.instance)
+    @classmethod
+    def many_init(cls, *args, **kwargs):
+        kwargs['child'] = cls()
+        kwargs['context']['many'] = True
+        return GeoFeatureModelListSerializer(*args, **kwargs)
 
     def restore_location(self, instance=None, data=None, geometry=None):
         if instance is not None:
@@ -128,57 +100,155 @@ class ContributionSerializer(object):
                     creator=self.context.get('user')
                 )
 
-    def restore_object(self, instance=None, data=None):
-        if data is None:
-            return instance
+    def validate_category(self, project, category_id):
+        errors = []
+        category = None
+        try:
+            category = project.categories.get(pk=category_id)
+            if category.status == 'inactive':
+                errors.append('The category can not be used because it is '
+                              'inactive.')
+            else:
+                self._validated_data['meta']['category'] = category
+        except Category.DoesNotExist:
+            errors.append('The category can not be used with the project '
+                          'or does not exist.')
 
-        properties = data.get('properties')
-        location = properties.get('location')
-        attributes = properties.get('attributes')
-        user = self.context.get('user')
+        if errors:
+            self._errors['category'] = errors
 
-        status = properties.pop('status', None)
+        return category
 
-        if instance is not None:
-            self.restore_location(
-                instance.location,
-                data=data.get('properties').pop('location', None),
-                geometry=data.pop('geometry', None)
-            )
+    def replace_null(self, properties):
+        for key, value in properties.iteritems():
+            if isinstance(value, (str, unicode)) and len(value) == 0:
+                properties[key] = None
 
-            return instance.update(
-                attributes=attributes,
-                updator=user,
-                status=status
-            )
+        return properties
+
+    def validate_properties(self, properties, category=None, status=None):
+        errors = []
+
+        if self.instance is not None:
+            status = status or self.instance.status
+            update = self.instance.properties.copy()
+            update.update(properties)
+            properties = update
         else:
-            project = self.context.get('project')
+            status = status or category.default_status
 
-            try:
-                category = project.categories.get(
-                    pk=properties.pop('category'))
+        properties = self.replace_null(properties)
+        try:
+            if status == 'draft':
+                Observation.validate_partial(category, properties)
+            else:
+                Observation.validate_full(category, properties)
+        except ValidationError, e:
+            errors.append(e)
 
-                if category.status == 'inactive':
-                    raise MalformedRequestData('The category can not be used '
-                                               'because it is inactive.')
-            except Category.DoesNotExist:
-                raise MalformedRequestData('The category can not'
-                                           'be used with the project or '
-                                           'does not exist.')
+        self._validated_data['properties'] = properties
+        self._validated_data['meta']['status'] = status
 
-            location = self.restore_location(
-                data=data.get('properties').pop('location', None),
-                geometry=data.get('geometry')
-            )
+        if errors:
+            self._errors['properties'] = errors
 
-            return Observation.create(
-                attributes=attributes,
-                creator=user,
-                location=location,
-                project=category.project,
+    def validate_location(self, project, location_id):
+        errors = []
+
+        try:
+            if location_id is not None:
+                Location.objects.get_single(
+                    self.context.get('user'),
+                    project.id,
+                    location_id
+                )
+        except PermissionDenied, error:
+            errors.append(error)
+        except Location.DoesNotExist, error:
+            errors.append(error)
+
+        if errors:
+            self._errors['location'] = errors
+
+    def is_valid(self, raise_exception=False):
+        self._errors = {}
+        self._validated_data = self.initial_data
+
+        project = self.context.get('project')
+        meta = self.initial_data.get('meta')
+
+        if meta is None:
+            self._validated_data['meta'] = dict()
+
+        # Validate location
+        location_id = None
+        if self.initial_data.get('location') is not None:
+            location_id = self.initial_data.get('location').get('id')
+        self.validate_location(project, location_id)
+
+        # Validate category
+        category = None
+        if self.instance is None and meta is not None:
+            category = self.validate_category(project, meta.get('category'))
+        else:
+            category = self.instance.category
+        self._validated_data['meta']['category'] = category
+
+        # Validatie properties
+        properties = self.initial_data.get('properties')
+        status = None
+        if meta is not None:
+            status = meta.get('status', None)
+        if properties is not None and category is not None:
+            self.validate_properties(
+                properties,
                 category=category,
                 status=status
             )
+
+        # raise the exception
+        if self._errors and raise_exception:
+            raise ValidationError(self._errors)
+
+        return not bool(self._errors)
+
+    def create(self, validated_data):
+        project = self.context.get('project')
+        meta = validated_data.pop('meta')
+
+        location = self.restore_location(
+            data=validated_data.pop('location', None),
+            geometry=validated_data.get('geometry')
+        )
+
+        self.instance = Observation.create(
+            properties=validated_data.get('properties'),
+            creator=self.context.get('user'),
+            location=location,
+            project=project,
+            category=meta.get('category'),
+            status=meta.pop('status', None)
+        )
+
+        return self.instance
+
+    def update(self, instance, validated_data):
+        meta = validated_data.get('meta')
+        status = None
+        if meta is not None:
+            status = meta.get('status', None)
+
+        self.restore_location(
+            instance.location,
+            data=validated_data.pop('location', None),
+            geometry=validated_data.pop('geometry', None)
+        )
+
+        return instance.update(
+            properties=validated_data.get('properties'),
+            updator=self.context.get('user'),
+            status=status
+        )
 
     def get_display_field(self, obj):
         if obj.display_field is not None:
@@ -203,7 +273,7 @@ class ContributionSerializer(object):
 
         return search_matches
 
-    def to_native_base(self, obj):
+    def to_representation(self, obj):
         location = obj.location
 
         isowner = False
@@ -217,86 +287,69 @@ class ContributionSerializer(object):
                 'display_name': obj.updator.display_name
             }
 
-        json_object = {
+        feature = {
             'id': obj.id,
             'type': 'Feature',
-            'geometry': json.loads(obj.location.geometry.geojson),
-            'properties': {
+            'geometry': json.loads(location.geometry.geojson),
+            'properties': obj.properties,
+            'meta': {
                 'status': obj.status,
                 'creator': {
                     'id': obj.creator.id,
                     'display_name': obj.creator.display_name
                 },
-                'updator': updator,
+                'updator': (updator),
                 'created_at': obj.created_at,
                 'version': obj.version,
-                'location': {
-                    'id': location.id,
-                    'name': location.name,
-                    'description': location.description
-                }
+                'isowner': isowner
             },
-            'isowner': isowner
+            'location': {
+                'id': location.id,
+                'name': location.name,
+                'description': location.description
+            }
         }
 
-        return json_object
+        if self.context.get('many'):
+            category_serializer = CategorySerializer(
+                obj.category,
+                context=self.context,
+                fields=('id', 'name', 'description', 'symbol', 'colour')
+            )
+            feature['meta']['category'] = category_serializer.data
 
-    def to_native_min(self, obj):
-        json_object = self.to_native_base(obj)
-        json_object['category'] = {
-            'id': obj.category.id,
-            'name': obj.category.name,
-            'description': obj.category.description,
-            'symbol': (obj.category.symbol.url
-                       if obj.category.symbol else None),
-            'colour': obj.category.colour
-        }
+            feature['display_field'] = self.get_display_field(obj)
 
-        json_object['display_field'] = self.get_display_field(obj)
+            q = self.context.get('search')
+            if q is not None:
+                feature['search_matches'] = self.get_search_result(obj, q)
+        else:
+            category_serializer = CategorySerializer(
+                obj.category, context=self.context)
+            feature['meta']['category'] = category_serializer.data
 
-        q = self.context.get('search')
-        if q is not None:
-            json_object['search_matches'] = self.get_search_result(obj, q)
+            comment_serializer = CommentSerializer(
+                obj.comments.filter(respondsto=None),
+                many=True,
+                context=self.context
+            )
+            feature['comments'] = comment_serializer.data
 
-        return json_object
+            review_serializer = CommentSerializer(
+                obj.comments.filter(review_status='open'),
+                many=True,
+                context=self.context
+            )
+            feature['review_comments'] = review_serializer.data
 
-    def to_native(self, obj):
-        json_object = self.to_native_base(obj)
+            file_serializer = FileSerializer(
+                obj.files_attached.all(),
+                many=True,
+                context=self.context
+            )
+            feature['media'] = file_serializer.data
 
-        category_serializer = CategorySerializer(
-            obj.category, context=self.context)
-        json_object['category'] = category_serializer.data
-
-        comment_serializer = CommentSerializer(
-            obj.comments.filter(respondsto=None),
-            many=True,
-            context=self.context
-        )
-        json_object['comments'] = comment_serializer.data
-
-        review_serializer = CommentSerializer(
-            obj.comments.filter(review_status='open'),
-            many=True,
-            context=self.context
-        )
-        json_object['review_comments'] = review_serializer.data
-
-        file_serializer = FileSerializer(
-            obj.files_attached.all(),
-            many=True,
-            context=self.context
-        )
-        json_object['media'] = file_serializer.data
-
-        attributes = {}
-        for field in obj.category.fields.all():
-            value = obj.attributes.get(field.key)
-            if value is not None:
-                attributes[field.key] = field.convert_from_string(value)
-
-        json_object['properties']['attributes'] = attributes
-
-        return json_object
+        return feature
 
 
 class CommentSerializer(serializers.ModelSerializer):

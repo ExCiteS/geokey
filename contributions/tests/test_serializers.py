@@ -1,6 +1,5 @@
 import json
 
-from core.exceptions import MalformedRequestData
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from nose.tools import raises
@@ -48,16 +47,16 @@ class RestoreLocationTest(TestCase):
                 ]
             },
             "properties": {
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                },
-                "category": self.category.id,
-                "location": {
-                    "name": "UCL",
-                    "description": "UCL's main quad",
-                    "private": True
-                },
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
+                "category": self.category.id
+            },
+            "location": {
+                "name": "UCL",
+                "description": "UCL's main quad",
+                "private": True
             }
         }
 
@@ -167,16 +166,16 @@ class ContributionSerializerIntegrationTests(TestCase):
                 ]
             },
             "properties": {
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                },
-                "category": self.category.id,
-                "location": {
-                    "name": "UCL",
-                    "description": "UCL's main quad",
-                    "private": True
-                },
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
+                "category": self.category.id
+            },
+            "location": {
+                "name": "UCL",
+                "description": "UCL's main quad",
+                "private": True
             }
         }
 
@@ -184,25 +183,28 @@ class ContributionSerializerIntegrationTests(TestCase):
             data=data,
             context={'user': self.contributor, 'project': self.project}
         )
+        serializer.is_valid()
+        serializer.save()
+
         result = serializer.data
 
         self.assertEqual(result.get('type'), 'Feature')
         self.assertEqual(result.get('geometry'), data.get('geometry'))
         self.assertEqual(
-            result.get('properties').get('attributes').get('key_1'),
+            result.get('properties').get('key_1'),
             'value 1'
         )
         self.assertEqual(
-            result.get('properties').get('attributes').get('key_2'),
+            result.get('properties').get('key_2'),
             12
         )
         self.assertEqual(
-            result.get('category').get('id'),
+            result.get('meta').get('category').get('id'),
             self.category.id)
         self.assertEqual(
-            result.get('properties').get('location').get('name'), 'UCL')
+            result.get('location').get('name'), 'UCL')
         self.assertEqual(
-            result.get('properties').get('location').get('description'),
+            result.get('location').get('description'),
             "UCL's main quad")
 
     def test_create_without_speficfied_location(self):
@@ -216,10 +218,10 @@ class ContributionSerializerIntegrationTests(TestCase):
                 ]
             },
             "properties": {
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                },
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
                 "category": self.category.id
             }
         }
@@ -228,25 +230,27 @@ class ContributionSerializerIntegrationTests(TestCase):
             data=data,
             context={'user': self.contributor, 'project': self.project}
         )
+        serializer.is_valid()
+        serializer.save()
         result = serializer.data
 
         self.assertEqual(result.get('type'), 'Feature')
         self.assertEqual(result.get('geometry'), data.get('geometry'))
         self.assertEqual(
-            result.get('properties').get('attributes').get('key_1'),
+            result.get('properties').get('key_1'),
             'value 1'
         )
         self.assertEqual(
-            result.get('properties').get('attributes').get('key_2'),
+            result.get('properties').get('key_2'),
             12
         )
         self.assertEqual(
-            result.get('category').get('id'),
+            result.get('meta').get('category').get('id'),
             self.category.id)
         self.assertEqual(
-            result.get('properties').get('location').get('name'), None)
+            result.get('location').get('name'), None)
         self.assertEqual(
-            result.get('properties').get('location').get('description'),
+            result.get('location').get('description'),
             None)
 
     def test_create_with_existing_location(self):
@@ -262,12 +266,14 @@ class ContributionSerializerIntegrationTests(TestCase):
                 ]
             },
             "properties": {
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                },
-                "category": self.category.id,
-                "location": {"id": location.id}
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
+                "category": self.category.id
+            },
+            "location": {
+                "id": location.id
             }
         }
 
@@ -275,29 +281,31 @@ class ContributionSerializerIntegrationTests(TestCase):
             data=data,
             context={'user': self.contributor, 'project': self.project}
         )
+        serializer.is_valid()
+        serializer.save()
         result = serializer.data
 
         self.assertEqual(result.get('type'), 'Feature')
         self.assertEqual(result.get('geometry'), data.get('geometry'))
         self.assertEqual(
-            result.get('properties').get('attributes').get('key_1'),
+            result.get('properties').get('key_1'),
             'value 1'
         )
         self.assertEqual(
-            result.get('properties').get('attributes').get('key_2'),
+            result.get('properties').get('key_2'),
             12
         )
         self.assertEqual(
-            result.get('category').get('id'),
+            result.get('meta').get('category').get('id'),
             self.category.id)
         self.assertEqual(
-            result.get('properties').get('location').get('name'),
+            result.get('location').get('name'),
             location.name)
         self.assertEqual(
-            result.get('properties').get('location').get('description'),
+            result.get('location').get('description'),
             location.description)
 
-    @raises(MalformedRequestData)
+    @raises(ValidationError)
     def test_create_with_wrong_location(self):
         project = ProjectF()
         location = LocationFactory(**{
@@ -309,20 +317,23 @@ class ContributionSerializerIntegrationTests(TestCase):
             "type": "Feature",
             "geometry": location.geometry.geojson,
             "properties": {
-                "location": {"id": location.id},
-                "category": self.category.id,
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                }
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
+                "category": self.category.id
+            },
+            "location": {
+                "id": location.id
             }
         }
-        ContributionSerializer(
+        serializer = ContributionSerializer(
             data=data,
             context={'user': self.contributor, 'project': self.project}
         )
+        serializer.is_valid(raise_exception=True)
 
-    @raises(MalformedRequestData)
+    @raises(ValidationError)
     def test_create_with_inactive_category(self):
         self.category.status = 'inactive'
         self.category.save()
@@ -337,37 +348,41 @@ class ContributionSerializerIntegrationTests(TestCase):
                 ]
             },
             "properties": {
-                "category": self.category.id,
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                }
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
+                "category": self.category.id
             }
         }
-        ContributionSerializer(
+        serializer = ContributionSerializer(
             data=data,
             context={'user': self.contributor, 'project': self.project}
         )
+        serializer.is_valid(raise_exception=True)
 
-    @raises(MalformedRequestData)
+    @raises(ValidationError)
     def test_create_with_private_location(self):
         location = LocationFactory(**{'private': True})
         data = {
             "type": "Feature",
             "geometry": location.geometry.geojson,
             "properties": {
-                "location": {"id": location.id},
-                "category": self.category.id,
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": 12
-                }
+                "key_1": "value 1",
+                "key_2": 12
+            },
+            "meta": {
+                "category": self.category.id
+            },
+            "location": {
+                "id": location.id
             }
         }
-        ContributionSerializer(
+        serializer = ContributionSerializer(
             data=data,
             context={'user': self.contributor, 'project': self.project}
         )
+        serializer.is_valid(raise_exception=True)
 
     @raises(ValidationError)
     def test_create_with_invalid_data(self):
@@ -381,26 +396,27 @@ class ContributionSerializerIntegrationTests(TestCase):
                 ]
             },
             "properties": {
-                "attributes": {
-                    "key_1": "value 1",
-                    "key_2": "blah"
-                },
-                "category": self.category.id,
-                "location": {
-                    "name": "UCL",
-                    "description": "UCL's main quad",
-                    "private": True
-                },
+                "key_1": "value 1",
+                "key_2": "blah"
+            },
+            "meta": {
+                "category": self.category.id
+            },
+            "location": {
+                "name": "UCL",
+                "description": "UCL's main quad",
+                "private": True
             }
         }
-        ContributionSerializer(
+        serializer = ContributionSerializer(
             data=data,
             context={'user': self.contributor, 'project': self.project}
         )
+        serializer.is_valid(raise_exception=True)
 
     def test_serialize_instance(self):
         observation = ObservationFactory.create(
-            **{'attributes': {'key': 'value'}}
+            **{'properties': {'key': 'value'}}
         )
         TextFieldFactory.create(**{
             'key': 'key',
@@ -416,17 +432,17 @@ class ContributionSerializerIntegrationTests(TestCase):
             result.get('geometry'),
             json.loads(observation.location.geometry.geojson))
         self.assertEqual(
-            result.get('properties').get('attributes').get('key'),
+            result.get('properties').get('key'),
             'value'
         )
         self.assertEqual(
-            result.get('category').get('id'),
+            result.get('meta').get('category').get('id'),
             observation.category.id)
         self.assertEqual(
-            result.get('properties').get('location').get('name'),
+            result.get('location').get('name'),
             observation.location.name)
         self.assertEqual(
-            result.get('properties').get('location').get('description'),
+            result.get('location').get('description'),
             observation.location.description)
 
     def test_serialize_bulk(self):
@@ -472,7 +488,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         ObservationFactory.create_batch(
             number,
             **{
-                'attributes': {
+                'properties': {
                     'field-1': 'blah',
                     'field-2': 'blabla',
                     'field-3': 'sddsdsfdsf'
@@ -505,7 +521,7 @@ class ContributionSerializerIntegrationTests(TestCase):
 
     def test_serialize_update(self):
         observation = ObservationFactory.create(
-            **{'attributes': {'number': 12}})
+            **{'properties': {'number': 12}})
         NumericFieldFactory.create(**{
             'key': 'number',
             'category': observation.category})
@@ -513,39 +529,37 @@ class ContributionSerializerIntegrationTests(TestCase):
             observation,
             data={
                 'properties': {
-                    'attributes': {
-                        'number': 15
-                    }
+                    'number': 15
                 }
             },
             context={'user': self.contributor, 'project': self.project}
         )
+        serializer.is_valid()
+        serializer.save()
         result = serializer.data
 
         self.assertEqual(
-            result.get('properties').get('attributes').get('number'),
+            result.get('properties').get('number'),
             15
         )
 
     @raises(ValidationError)
     def test_serialize_invalid_update(self):
         observation = ObservationFactory.create(
-            **{'attributes': {'number': 12}})
+            **{'properties': {'number': 12}})
         NumericFieldFactory.create(**{
             'key': 'number',
             'category': observation.category})
-        ContributionSerializer(
+        serializer = ContributionSerializer(
             observation,
             data={
                 'properties': {
-                    'attributes': {
-                        'number': "blah"
-                    }
-
+                    'number': "blah"
                 }
             },
             context={'user': self.contributor, 'project': self.project}
         )
+        serializer.is_valid(raise_exception=True)
 
         o = Observation.objects.get(pk=observation.id)
         self.assertEqual(o.attributes.get('number'), 12)

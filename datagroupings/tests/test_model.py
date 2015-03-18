@@ -187,32 +187,32 @@ class ViewTest(TestCase):
         observation = ObservationFactory(**{
             'project': project,
             'category': category_1,
-            'attributes': {'text': 'yes to update'}
+            'properties': {'text': 'yes to update'}
         })
 
         for x in range(0, 5):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'text': 'yes ' + str(x)}
+                'properties': {'text': 'yes ' + str(x)}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'text': 'no ' + str(x)}
+                'properties': {'text': 'no ' + str(x)}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'text': 'yes'}
+            'constraints': {'text': 'yes'}
         })
 
         updater = UserF()
         update = {'text': 'yes, this has been updated', 'version': 1}
-        observation.update(attributes=update, updator=updater)
+        observation.update(properties=update, updator=updater)
         self.assertEqual(view.data(user).count(), 6)
 
     def test_get_data_combined(self):
@@ -268,26 +268,26 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'text': 'yes ' + str(x)}}
+                'properties': {'text': 'yes ' + str(x)}}
             )
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'text': 'no ' + str(x)}}
+                'properties': {'text': 'no ' + str(x)}}
             )
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': 'yes ' + str(x)}}
+                'properties': {'bla': 'yes ' + str(x)}}
             )
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'text': 'yes'}
+            'constraints': {'text': 'yes'}
         })
         self.assertEqual(view.data(user).count(), 5)
 
@@ -309,26 +309,26 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'number': 12}}
+                'properties': {'number': 12}}
             )
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'number': 20}}
+                'properties': {'number': 20}}
             )
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'number': 12}}
+                'properties': {'number': 12}}
             )
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'number': {'minval': '15'}}
+            'constraints': {'number': {'minval': '15'}}
         })
 
         self.assertEqual(view.data(user).count(), 5)
@@ -351,26 +351,26 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'number': 12}
+                'properties': {'number': 12}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'number': 20}
+                'properties': {'number': 20}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'number': 12}
+                'properties': {'number': 12}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'number': {'maxval': 15}}
+            'constraints': {'number': {'maxval': 15}}
         })
 
         self.assertEqual(view.data(user).count(), 5)
@@ -393,26 +393,26 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'rating': x}
+                'properties': {'rating': x}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'rating': x}
+                'properties': {'rating': x}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'rating': x}
+                'properties': {'rating': x}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'rating': {'minval': 8, 'maxval': 10}}
+            'constraints': {'rating': {'minval': 8, 'maxval': 10}}
         })
 
         self.assertEqual(view.data(user).count(), 6)
@@ -447,26 +447,26 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'lookup': lookup_1.id}
+                'properties': {'lookup': lookup_1.id}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'lookup': lookup_2.id}
+                'properties': {'lookup': lookup_2.id}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': lookup_3.id}
+                'properties': {'bla': lookup_3.id}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'lookup': [lookup_1.id, lookup_2.id]}
+            'constraints': {'lookup': [lookup_1.id, lookup_2.id]}
         })
 
         self.assertEqual(view.data(user).count(), 10)
@@ -489,26 +489,26 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'date': '2014-04-09'}
+                'properties': {'date': '2014-04-09'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'date': '2013-04-09'}
+                'properties': {'date': '2013-04-09'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': '2014-04-09'}
+                'properties': {'bla': '2014-04-09'}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'date': {
+            'constraints': {'date': {
                 'minval': '2014-01-01', 'maxval': '2014-06-09 00:00'}
             }
         })
@@ -533,26 +533,26 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'date': '2014-04-09'}
+                'properties': {'date': '2014-04-09'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'date': '2013-04-09'}
+                'properties': {'date': '2013-04-09'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': '2014-04-09'}
+                'properties': {'bla': '2014-04-09'}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'date': {
+            'constraints': {'date': {
                 'minval': '2014-01-01', 'maxval': '2014-06-09'}
             }
         })
@@ -577,26 +577,26 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'date': '2014-04-09'}
+                'properties': {'date': '2014-04-09'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'date': '2013-04-09'}
+                'properties': {'date': '2013-04-09'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': '2014-04-09'}
+                'properties': {'bla': '2014-04-09'}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'date': {
+            'constraints': {'date': {
                 'minval': '2014-01-01'}
             }
         })
@@ -621,26 +621,26 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'date': '2014-04-09'}
+                'properties': {'date': '2014-04-09'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'date': '2013-04-09'}
+                'properties': {'date': '2013-04-09'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': '2014-04-09'}
+                'properties': {'bla': '2014-04-09'}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'date': {
+            'constraints': {'date': {
                 'maxval': '2014-01-01'}
             }
         })
@@ -665,26 +665,26 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'time': '11:00'}
+                'properties': {'time': '11:00'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'time': '18:00'}
+                'properties': {'time': '18:00'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': '11:00'}
+                'properties': {'bla': '11:00'}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'time': {
+            'constraints': {'time': {
                 'minval': '10:00', 'maxval': '12:00'}
             }
         })
@@ -709,26 +709,26 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'time': '2:00'}
+                'properties': {'time': '2:00'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'time': '18:00'}
+                'properties': {'time': '18:00'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': '2:00'}
+                'properties': {'bla': '2:00'}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'time': {
+            'constraints': {'time': {
                 'minval': '22:00', 'maxval': '8:00'}
             }
         })
@@ -753,26 +753,26 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'time': '11:00'}
+                'properties': {'time': '11:00'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'time': '18:00'}
+                'properties': {'time': '18:00'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': '11:00'}
+                'properties': {'bla': '11:00'}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'time': {
+            'constraints': {'time': {
                 'minval': '12:00'}
             }
         })
@@ -797,26 +797,26 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'time': '11:00'}
+                'properties': {'time': '11:00'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'time': '18:00'}
+                'properties': {'time': '18:00'}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': '11:00'}
+                'properties': {'bla': '11:00'}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'time': {
+            'constraints': {'time': {
                 'maxval': '12:00'}
             }
         })
@@ -981,26 +981,26 @@ class ViewTest(TestCase):
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'lookup': [lookup_1.id, lookup_3.id]}
+                'properties': {'lookup': [lookup_1.id, lookup_3.id]}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_1,
-                'attributes': {'lookup': [lookup_2.id, lookup_3.id]}
+                'properties': {'lookup': [lookup_2.id, lookup_3.id]}
             })
 
             ObservationFactory(**{
                 'project': project,
                 'category': category_2,
-                'attributes': {'bla': [lookup_4.id]}
+                'properties': {'bla': [lookup_4.id]}
             })
 
         view = GroupingFactory(**{'project': project})
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
-            'filters': {'lookup': [lookup_1.id, lookup_2.id]}
+            'constraints': {'lookup': [lookup_1.id, lookup_2.id]}
         })
 
         self.assertEqual(view.data(user).count(), 10)
