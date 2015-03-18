@@ -11,13 +11,13 @@ from rest_framework.response import Response
 
 from braces.views import LoginRequiredMixin
 
-from core.decorators import (
+from geokey.core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
-from core.exceptions import Unauthenticated
-from users.serializers import UserSerializer
-from users.models import User
-from categories.models import Category
+from geokey.core.exceptions import Unauthenticated
+from geokey.users.serializers import UserSerializer
+from geokey.users.models import User
+from geokey.categories.models import Category
 
 from .base import STATUS
 from .models import Project, Admins

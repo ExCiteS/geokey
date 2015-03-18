@@ -1,9 +1,9 @@
 import datetime
 import factory
 
-from users.tests.model_factories import UserF
-from projects.tests.model_factories import ProjectF
-from categories.tests.model_factories import CategoryFactory
+from geokey.users.tests.model_factories import UserF
+from geokey.projects.tests.model_factories import ProjectF
+from geokey.categories.tests.model_factories import CategoryFactory
 
 from ..models.locations import Location
 from ..models.contributions import Observation, Comment

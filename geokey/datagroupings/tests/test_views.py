@@ -3,8 +3,8 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from projects.tests.model_factories import ProjectF, UserF
-from users.tests.model_factories import GroupingUserGroupFactory, UserGroupF
+from geokey.projects.tests.model_factories import ProjectF, UserF
+from geokey.users.tests.model_factories import GroupingUserGroupFactory, UserGroupF
 
 from ..models import Grouping
 from ..views import GroupingUpdate

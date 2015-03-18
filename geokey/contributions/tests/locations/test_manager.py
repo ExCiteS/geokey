@@ -3,10 +3,10 @@ from django.test import TestCase
 
 from nose.tools import raises
 
-from projects.tests.model_factories import ProjectF, UserF
+from geokey.projects.tests.model_factories import ProjectF, UserF
 
 from ..model_factories import LocationFactory
-from contributions.models.locations import Location
+from geokey.contributions.models.locations import Location
 
 
 class LocationTest(TestCase):

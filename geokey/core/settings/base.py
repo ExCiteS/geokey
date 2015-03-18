@@ -49,14 +49,14 @@ INSTALLED_APPS = (
     'allauth.socialaccount',
 
     # geokey apps
-    'projects',
-    'categories',
-    'contributions',
-    'datagroupings',
-    'users',
-    'applications',
-    'superusertools',
-    'extensions',
+    'geokey.projects',
+    'geokey.categories',
+    'geokey.contributions',
+    'geokey.datagroupings',
+    'geokey.users',
+    'geokey.applications',
+    'geokey.superusertools',
+    'geokey.extensions',
 )
 
 MIDDLEWARE_CLASSES = (

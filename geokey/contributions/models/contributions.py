@@ -10,7 +10,7 @@ from django.db.models.signals import pre_save
 from django_pgjson.fields import JsonBField
 from simple_history.models import HistoricalRecords
 
-from core.exceptions import InputError
+from geokey.core.exceptions import InputError
 
 from ..base import OBSERVATION_STATUS, COMMENT_STATUS, COMMENT_REVIEW
 from ..manager import ObservationManager, CommentManager

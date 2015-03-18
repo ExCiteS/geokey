@@ -3,21 +3,21 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from rest_framework import status
 from rest_framework.response import Response
 
-from core.exceptions import (
+from geokey.core.exceptions import (
     MalformedRequestData,
     Unauthenticated,
     FileTypeError
 )
-from projects.models import Project
-from users.models import User, UserGroup, GroupingUserGroup
-from categories.models import (
+from geokey.projects.models import Project
+from geokey.users.models import User, UserGroup, GroupingUserGroup
+from geokey.categories.models import (
     Category, Field, LookupValue, MultipleLookupValue
 )
-from datagroupings.models import Grouping, Rule
-from applications.models import Application
-from contributions.models.contributions import Observation, Comment
-from contributions.models.locations import Location
-from contributions.models.media import MediaFile
+from geokey.datagroupings.models import Grouping, Rule
+from geokey.applications.models import Application
+from geokey.contributions.models.contributions import Observation, Comment
+from geokey.contributions.models.locations import Location
+from geokey.contributions.models.media import MediaFile
 
 
 def handle_exceptions_for_admin(func):

@@ -8,28 +8,28 @@ from django.contrib.auth.models import AnonymousUser
 from nose.tools import raises
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from projects.tests.model_factories import UserF, ProjectF
-from projects.models import Project
-from categories.tests.model_factories import (
+from geokey.projects.tests.model_factories import UserF, ProjectF
+from geokey.projects.models import Project
+from geokey.categories.tests.model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory
 )
-from datagroupings.tests.model_factories import (
+from geokey.datagroupings.tests.model_factories import (
     GroupingFactory, RuleFactory
 )
-from datagroupings.models import Grouping
-from users.tests.model_factories import UserGroupF, GroupingUserGroupFactory
+from geokey.datagroupings.models import Grouping
+from geokey.users.tests.model_factories import UserGroupF, GroupingUserGroupFactory
 
 from ..model_factories import (
     ObservationFactory, CommentFactory, LocationFactory
 )
 
-from contributions.views.observations import (
+from geokey.contributions.views.observations import (
     SingleMyContributionAPIView, SingleAllContributionAPIView,
     SingleGroupingContributionAPIView, SingleContributionAPIView,
     ContributionSearchAPIView, MyObservations, ProjectObservationsView,
     ViewObservations, ProjectObservations
 )
-from contributions.models.contributions import Observation
+from geokey.contributions.models.contributions import Observation
 
 
 class ContributionSearchTest(TestCase):

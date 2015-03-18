@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 
 from nose.tools import raises
 
-from projects.tests.model_factories import UserF
+from geokey.projects.tests.model_factories import UserF
 
 from .model_factories import ApplicationFactory
 

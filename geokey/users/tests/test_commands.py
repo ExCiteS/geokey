@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from django.test import TestCase
 from django.core import mail
 
-from projects.tests.model_factories import ProjectF, AdminsFactory
-from contributions.tests.model_factories import ObservationFactory
+from geokey.projects.tests.model_factories import ProjectF, AdminsFactory
+from geokey.contributions.tests.model_factories import ObservationFactory
 
 from ..management.commands.daily_digest import Command
 from ..tests.model_factories import UserF

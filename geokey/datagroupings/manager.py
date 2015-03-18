@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import Q
 
-from projects.models import Project
+from geokey.projects.models import Project
 
 from .base import STATUS
 

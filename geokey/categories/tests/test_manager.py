@@ -3,8 +3,8 @@ from django.core.exceptions import PermissionDenied
 
 from nose.tools import raises
 
-from projects.tests.model_factories import UserF, ProjectF
-from projects.models import Project
+from geokey.projects.tests.model_factories import UserF, ProjectF
+from geokey.projects.models import Project
 
 from ..models import Field, Category
 

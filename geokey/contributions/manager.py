@@ -9,8 +9,8 @@ from model_utils.managers import InheritanceManager
 from django_hstore import hstore, query
 from django_youtube.api import Api as Youtube, AccessControl
 
-from core.exceptions import FileTypeError
-from projects.models import Project
+from geokey.core.exceptions import FileTypeError
+from geokey.projects.models import Project
 
 from .base import (
     OBSERVATION_STATUS, COMMENT_STATUS, ACCEPTED_IMAGE_FORMATS,
@@ -137,7 +137,7 @@ class MediaFileManager(InheritanceManager):
         """
         Creates an ImageFile and returns the instance.
         """
-        from contributions.models.media import ImageFile
+        from geokey.contributions.models.media import ImageFile
 
         filename, extension = os.path.splitext(the_file.name)
         the_file.name = filename[:FILE_NAME_TRUNC] + extension
@@ -170,7 +170,7 @@ class MediaFileManager(InheritanceManager):
         Creates a new video file. Uploads the video to Youtube and returns the
         VideoFile instance.
         """
-        from contributions.models.media import VideoFile
+        from geokey.contributions.models.media import VideoFile
         from django.core.files.storage import default_storage
         from django.core.files.base import ContentFile
 

@@ -1,5 +1,5 @@
 from django.test import TestCase
-from extensions.base import ExtensionExists, register, extensions as ext
+from geokey.extensions.base import ExtensionExists, register, extensions as ext
 
 
 class RegisterExtensionTest(TestCase):

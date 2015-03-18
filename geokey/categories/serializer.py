@@ -2,7 +2,7 @@ from rest_framework.serializers import (
     ModelSerializer, ReadOnlyField, SerializerMethodField
 )
 
-from core.serializers import FieldSelectorSerializer
+from geokey.core.serializers import FieldSelectorSerializer
 
 from .models import (
     Category, Field, TextField, NumericField, LookupField, LookupValue,

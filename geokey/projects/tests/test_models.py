@@ -4,12 +4,12 @@ from django.core import mail
 
 from nose.tools import raises
 
-from datagroupings.tests.model_factories import GroupingFactory
-from categories.tests.model_factories import CategoryFactory
-from users.tests.model_factories import (
+from geokey.datagroupings.tests.model_factories import GroupingFactory
+from geokey.categories.tests.model_factories import CategoryFactory
+from geokey.users.tests.model_factories import (
     UserF, UserGroupF, GroupingUserGroupFactory
 )
-from categories.models import Category
+from geokey.categories.models import Category
 
 from .model_factories import ProjectF
 from ..models import Project, Admins

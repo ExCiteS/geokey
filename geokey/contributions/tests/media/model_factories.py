@@ -4,9 +4,9 @@ from StringIO import StringIO
 
 from django.core.files.base import ContentFile
 
-from users.tests.model_factories import UserF
-from contributions.tests.model_factories import ObservationFactory
-from contributions.models.media import ImageFile, VideoFile
+from geokey.users.tests.model_factories import UserF
+from geokey.contributions.tests.model_factories import ObservationFactory
+from geokey.contributions.models.media import ImageFile, VideoFile
 
 
 def get_image(file_name='test.png', width=200, height=200):

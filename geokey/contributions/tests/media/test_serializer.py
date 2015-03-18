@@ -5,10 +5,10 @@ from django.test import TestCase
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 
-from users.tests.model_factories import UserF
+from geokey.users.tests.model_factories import UserF
 
 from .model_factories import ImageFileFactory, VideoFileFactory
-from contributions.serializers import FileSerializer
+from geokey.contributions.serializers import FileSerializer
 
 
 class FileSerializerTest(TestCase):

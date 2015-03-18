@@ -6,9 +6,9 @@ from django.contrib.sites.models import Site
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from users.tests.model_factories import UserF
-from users.models import User
-from projects.tests.model_factories import ProjectF
+from geokey.users.tests.model_factories import UserF
+from geokey.users.models import User
+from geokey.projects.tests.model_factories import ProjectF
 
 from ..views import (
     PlatformSettings,

@@ -1,7 +1,7 @@
-from core.serializers import FieldSelectorSerializer
+from geokey.core.serializers import FieldSelectorSerializer
 from rest_framework.serializers import SerializerMethodField
 
-from contributions.serializers import ContributionSerializer
+from geokey.contributions.serializers import ContributionSerializer
 
 from .models import Grouping
 

@@ -8,9 +8,8 @@ from django.conf import settings
 from django.db import models
 from django.db.models.loading import get_model
 
-from core.exceptions import InputError
-
-from datagroupings.models import Rule
+from geokey.core.exceptions import InputError
+from geokey.datagroupings.models import Rule
 
 from .manager import CategoryManager, FieldManager, LookupValueManager
 from .base import STATUS, DEFAULT_STATUS
@@ -63,7 +62,7 @@ class Category(models.Model):
             field.save()
 
     def delete(self):
-        from contributions.models.contributions import Observation
+        from geokey.contributions.models.contributions import Observation
         Observation.objects.filter(category=self).delete()
         Rule.objects.filter(category=self).delete()
         self.status = STATUS.deleted

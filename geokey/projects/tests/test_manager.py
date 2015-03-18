@@ -1,8 +1,8 @@
 from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser
 
-from datagroupings.tests.model_factories import GroupingFactory
-from users.tests.model_factories import (
+from geokey.datagroupings.tests.model_factories import GroupingFactory
+from geokey.users.tests.model_factories import (
     UserF, UserGroupF, GroupingUserGroupFactory
 )
 

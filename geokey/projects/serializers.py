@@ -3,11 +3,11 @@ from django.db.models import Q
 
 from rest_framework import serializers
 
-from core.serializers import FieldSelectorSerializer
-from datagroupings.serializers import GroupingSerializer
-from datagroupings.models import Grouping
-from categories.serializer import CategorySerializer
-from contributions.models.locations import Location
+from geokey.core.serializers import FieldSelectorSerializer
+from geokey.datagroupings.serializers import GroupingSerializer
+from geokey.datagroupings.models import Grouping
+from geokey.categories.serializer import CategorySerializer
+from geokey.contributions.models.locations import Location
 
 from .models import Project
 

@@ -10,11 +10,11 @@ from django.conf import settings
 
 from nose.tools import raises
 
-from core.exceptions import FileTypeError
-from contributions.models.media import MediaFile
+from geokey.core.exceptions import FileTypeError
+from geokey.contributions.models.media import MediaFile
 
-from contributions.tests.model_factories import ObservationFactory
-from users.tests.model_factories import UserF
+from geokey.contributions.tests.model_factories import ObservationFactory
+from geokey.users.tests.model_factories import UserF
 from .model_factories import ImageFileFactory, get_image
 
 
@@ -66,7 +66,7 @@ class ModelManagerTest(TestCase):
         )
 
     # def test_upload_youtube(self):
-    #     from contributions.manager import MediaFileManager
+    #     from geokey.contributions.manager import MediaFileManager
     #     path = '/home/oroick/opencomap/contributions/tests/media/video.MOV'
     #     video_id, swf_link = MediaFileManager()._upload_to_youtube(
     #         'Test video',

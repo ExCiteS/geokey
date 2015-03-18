@@ -7,8 +7,8 @@ from django.http import HttpResponseRedirect
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 
-from projects.tests.model_factories import UserF, ProjectF
-from datagroupings.models import Grouping
+from geokey.projects.tests.model_factories import UserF, ProjectF
+from geokey.datagroupings.models import Grouping
 
 from .model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory,

@@ -8,7 +8,7 @@ from nose.tools import raises
 from oauth2_provider.models import AccessToken
 from rest_framework.test import APIRequestFactory
 
-from projects.tests.model_factories import UserF
+from geokey.projects.tests.model_factories import UserF
 
 from ..views import (
     ApplicationOverview, ApplicationCreate, ApplicationSettings,

@@ -4,11 +4,11 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from core.decorators import handle_exceptions_for_ajax
-from users.models import User
-from projects.models import Project
-from datagroupings.models import Grouping
-from datagroupings.serializers import GroupingSerializer
+from geokey.core.decorators import handle_exceptions_for_ajax
+from geokey.users.models import User
+from geokey.projects.models import Project
+from geokey.datagroupings.models import Grouping
+from geokey.datagroupings.serializers import GroupingSerializer
 
 from .base import (
     SingleAllContribution, SingleGroupingContribution, SingleMyContribution

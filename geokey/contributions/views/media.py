@@ -4,13 +4,13 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from core.exceptions import MalformedRequestData
-from core.decorators import handle_exceptions_for_ajax
+from geokey.core.exceptions import MalformedRequestData
+from geokey.core.decorators import handle_exceptions_for_ajax
 from .base import (
     SingleAllContribution, SingleGroupingContribution, SingleMyContribution
 )
 
-from users.models import User
+from geokey.users.models import User
 from ..serializers import FileSerializer
 from ..models.media import MediaFile
 

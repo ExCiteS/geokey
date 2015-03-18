@@ -3,8 +3,8 @@ from django.core.exceptions import PermissionDenied
 
 from model_utils.managers import InheritanceManager
 
-from datagroupings.models import Grouping, Rule
-from projects.models import Project
+from geokey.datagroupings.models import Grouping, Rule
+from geokey.projects.models import Project
 
 from .base import STATUS
 

@@ -4,9 +4,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from core.decorators import handle_exceptions_for_ajax
-from core.exceptions import MalformedRequestData
-from users.models import User
+from geokey.core.decorators import handle_exceptions_for_ajax
+from geokey.core.exceptions import MalformedRequestData
+from geokey.users.models import User
 from .base import (
     SingleAllContribution, SingleGroupingContribution, SingleMyContribution
 )

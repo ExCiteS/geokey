@@ -1,7 +1,7 @@
 import factory
 
-from projects.tests.model_factories import ProjectF
-from users.tests.model_factories import UserF
+from geokey.projects.tests.model_factories import ProjectF
+from geokey.users.tests.model_factories import UserF
 
 from ..models import (
     Category, TextField, NumericField, DateTimeField, DateField, TimeField,

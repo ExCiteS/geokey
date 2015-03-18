@@ -1,9 +1,9 @@
 import datetime
 import factory
 
-from users.tests.model_factories import UserF
-from projects.tests.model_factories import ProjectF
-from categories.tests.model_factories import CategoryFactory
+from geokey.users.tests.model_factories import UserF
+from geokey.projects.tests.model_factories import ProjectF
+from geokey.categories.tests.model_factories import CategoryFactory
 
 from ..models import Grouping, Rule
 
@@ -25,7 +25,7 @@ class GroupingFactory(factory.django.DjangoModelFactory):
             return
 
         if extracted:
-            from users.tests.model_factories import (
+            from geokey.users.tests.model_factories import (
                 UserGroupF, GroupingUserGroupFactory
             )
             group = UserGroupF(add_users=extracted, **{

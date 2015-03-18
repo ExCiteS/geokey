@@ -15,10 +15,10 @@ from rest_framework_gis import serializers as geoserializers
 from rest_framework.serializers import BaseSerializer
 from rest_framework_gis.serializers import GeoFeatureModelListSerializer
 
-from core.exceptions import MalformedRequestData
-from categories.serializer import CategorySerializer
-from categories.models import Category
-from users.serializers import UserSerializer
+from geokey.core.exceptions import MalformedRequestData
+from geokey.categories.serializer import CategorySerializer
+from geokey.categories.models import Category
+from geokey.users.serializers import UserSerializer
 
 from .models.contributions import Observation, Comment
 from .models.locations import Location

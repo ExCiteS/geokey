@@ -3,9 +3,9 @@ import factory
 
 from django.contrib.gis.geos import GEOSGeometry
 
-from users.tests.model_factories import UserF
+from geokey.users.tests.model_factories import UserF
 
-from ..models import Project, Admins
+from geokey.projects.models import Project, Admins
 
 
 class ProjectF(factory.django.DjangoModelFactory):
@@ -36,7 +36,7 @@ class ProjectF(factory.django.DjangoModelFactory):
 
     @factory.post_generation
     def add_contributors(self, create, extracted, **kwargs):
-        from users.tests.model_factories import UserGroupF
+        from geokey.users.tests.model_factories import UserGroupF
         if not create:
             return
 
@@ -52,7 +52,7 @@ class ProjectF(factory.django.DjangoModelFactory):
             return
 
         if extracted:
-            from datagroupings.tests.model_factories import GroupingFactory
+            from geokey.datagroupings.tests.model_factories import GroupingFactory
 
             GroupingFactory(add_viewers=extracted, **{
                 'project': self

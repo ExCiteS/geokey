@@ -1,6 +1,6 @@
-from projects.models import Project
-from datagroupings.models import Grouping
-from contributions.models.contributions import Observation
+from geokey.projects.models import Project
+from geokey.datagroupings.models import Grouping
+from geokey.contributions.models.contributions import Observation
 
 
 class SingleAllContribution(object):

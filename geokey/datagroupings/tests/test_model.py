@@ -5,15 +5,15 @@ from django.test import TestCase
 
 from nose.tools import raises
 
-from projects.tests.model_factories import ProjectF
-from categories.tests.model_factories import (
+from geokey.projects.tests.model_factories import ProjectF
+from geokey.categories.tests.model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory,
     LookupFieldFactory, LookupValueFactory, DateFieldFactory,
     DateTimeFieldFactory, MultipleLookupFieldFactory,
     MultipleLookupValueFactory, TimeFieldFactory
 )
-from contributions.tests.model_factories import ObservationFactory
-from users.tests.model_factories import (
+from geokey.contributions.tests.model_factories import ObservationFactory
+from geokey.users.tests.model_factories import (
     UserF, UserGroupF, GroupingUserGroupFactory
 )
 

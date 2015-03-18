@@ -11,8 +11,8 @@ from nose.tools import raises
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from datagroupings.tests.model_factories import GroupingFactory
-from categories.tests.model_factories import (
+from geokey.datagroupings.tests.model_factories import GroupingFactory
+from geokey.categories.tests.model_factories import (
     TextFieldFactory, CategoryFactory
 )
 

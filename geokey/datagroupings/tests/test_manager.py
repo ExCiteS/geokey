@@ -4,8 +4,8 @@ from django.contrib.auth.models import AnonymousUser
 
 from nose.tools import raises
 
-from projects.tests.model_factories import UserF, ProjectF
-from projects.models import Project
+from geokey.projects.tests.model_factories import UserF, ProjectF
+from geokey.projects.models import Project
 from .model_factories import GroupingFactory
 
 from ..models import Grouping

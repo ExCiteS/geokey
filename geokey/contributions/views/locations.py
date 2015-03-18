@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from core.decorators import handle_exceptions_for_ajax
+from geokey.core.decorators import handle_exceptions_for_ajax
 
 from ..models.locations import Location
 from ..serializers import LocationSerializer

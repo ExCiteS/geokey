@@ -1,9 +1,9 @@
 from django.test import TestCase
 
-from contributions.models.contributions import Observation
+from geokey.contributions.models.contributions import Observation
 
-from projects.tests.model_factories import ProjectF, UserF
-from categories.tests.model_factories import (
+from geokey.projects.tests.model_factories import ProjectF, UserF
+from geokey.categories.tests.model_factories import (
     CategoryFactory, LookupFieldFactory, LookupValueFactory,
     TextFieldFactory, MultipleLookupFieldFactory, MultipleLookupValueFactory
 )

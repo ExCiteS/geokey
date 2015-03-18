@@ -8,7 +8,7 @@ from django.utils.html import strip_tags
 
 from braces.views import LoginRequiredMixin
 
-from core.decorators import (
+from geokey.core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
 
@@ -16,8 +16,8 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from projects.models import Project
-from categories.models import Category
+from geokey.projects.models import Project
+from geokey.categories.models import Category
 
 from .base import STATUS
 from .forms import GroupingCreateForm

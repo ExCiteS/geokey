@@ -12,19 +12,19 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 from rest_framework.renderers import JSONRenderer
 
-from projects.tests.model_factories import UserF, ProjectF
-from projects.models import Project
-from categories.tests.model_factories import CategoryFactory
-from datagroupings.tests.model_factories import (
+from geokey.projects.tests.model_factories import UserF, ProjectF
+from geokey.projects.models import Project
+from geokey.categories.tests.model_factories import CategoryFactory
+from geokey.datagroupings.tests.model_factories import (
     GroupingFactory, RuleFactory
 )
-from contributions.models.contributions import Comment, Observation
-from datagroupings.models import Grouping
+from geokey.contributions.models.contributions import Comment, Observation
+from geokey.datagroupings.models import Grouping
 
-from users.tests.model_factories import UserGroupF, GroupingUserGroupFactory
+from geokey.users.tests.model_factories import UserGroupF, GroupingUserGroupFactory
 from ..model_factories import ObservationFactory, CommentFactory
 
-from contributions.views.comments import (
+from geokey.contributions.views.comments import (
     AllContributionsSingleCommentAPIView,
     GroupingContributionsSingleCommentAPIView,
     AllContributionsCommentsAPIView, MyContributionsCommentsAPIView,

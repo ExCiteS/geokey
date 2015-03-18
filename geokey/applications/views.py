@@ -8,7 +8,7 @@ from braces.views import LoginRequiredMixin
 
 from oauth2_provider.models import AccessToken
 
-from core.decorators import handle_exceptions_for_admin
+from geokey.core.decorators import handle_exceptions_for_admin
 
 from .forms import AppCreateForm
 from .models import Application

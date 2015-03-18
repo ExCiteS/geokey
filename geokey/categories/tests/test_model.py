@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from nose.tools import raises
 
-from core.exceptions import InputError
+from geokey.core.exceptions import InputError
 
 from ..models import Field, Category
 
@@ -14,10 +14,10 @@ from .model_factories import (
     MultipleLookupValueFactory, DateFieldFactory
 )
 
-from datagroupings.models import Rule
-from datagroupings.tests.model_factories import GroupingFactory, RuleFactory
-from contributions.tests.model_factories import ObservationFactory
-from contributions.models.contributions import Observation
+from geokey.datagroupings.models import Rule
+from geokey.datagroupings.tests.model_factories import GroupingFactory, RuleFactory
+from geokey.contributions.tests.model_factories import ObservationFactory
+from geokey.contributions.models.contributions import Observation
 
 
 class CategoryTest(TestCase):

@@ -14,10 +14,10 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 from allauth.account.models import EmailAddress
 
-from applications.tests.model_factories import ApplicationFactory
-from projects.tests.model_factories import ProjectF
-from projects.models import Admins
-from datagroupings.tests.model_factories import GroupingFactory
+from geokey.applications.tests.model_factories import ApplicationFactory
+from geokey.projects.tests.model_factories import ProjectF
+from geokey.projects.models import Admins
+from geokey.datagroupings.tests.model_factories import GroupingFactory
 
 from .model_factories import UserF, UserGroupF, GroupingUserGroupFactory
 from ..views import (

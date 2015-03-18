@@ -4,8 +4,8 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from nose.tools import raises
 
-from projects.tests.model_factories import UserF, ProjectF
-from categories.tests.model_factories import (
+from geokey.projects.tests.model_factories import UserF, ProjectF
+from geokey.categories.tests.model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory
 )
 

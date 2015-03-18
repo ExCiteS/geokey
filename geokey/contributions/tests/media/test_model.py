@@ -1,9 +1,9 @@
 from django.test import TestCase
 
-from contributions.models.media import ImageFile, VideoFile
+from geokey.contributions.models.media import ImageFile, VideoFile
 
-from contributions.tests.model_factories import ObservationFactory
-from users.tests.model_factories import UserF
+from geokey.contributions.tests.model_factories import ObservationFactory
+from geokey.users.tests.model_factories import UserF
 
 from .model_factories import get_image
 

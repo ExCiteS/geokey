@@ -12,8 +12,8 @@ from rest_framework.response import Response
 
 from braces.views import LoginRequiredMixin
 
-from projects.models import Project
-from core.decorators import (
+from geokey.projects.models import Project
+from geokey.core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
 
@@ -26,7 +26,7 @@ from .forms import CategoryCreateForm, FieldCreateForm
 from .serializer import (
     CategorySerializer, FieldSerializer, LookupFieldSerializer
 )
-from contributions.models.contributions import Observation
+from geokey.contributions.models.contributions import Observation
 
 
 # ############################################################################

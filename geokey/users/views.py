@@ -12,14 +12,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from applications.models import Application
+from geokey.applications.models import Application
 
-from core.decorators import (
+from geokey.core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
-from projects.models import Project, Admins
-from projects.base import STATUS
-from datagroupings.models import Grouping
+from geokey.projects.models import Project, Admins
+from geokey.projects.base import STATUS
+from geokey.datagroupings.models import Grouping
 
 from .serializers import (
     UserSerializer, UserGroupSerializer, GroupingUserGroupSerializer
@@ -61,7 +61,7 @@ class Dashboard(LoginRequiredMixin, TemplateView):
     def get_context_data(self):
         projects = Project.objects.get_list(self.request.user)
 
-        from extensions.base import extensions
+        from geokey.extensions.base import extensions
         ext = []
         for ext_id in extensions.keys():
             extension = extensions.get(ext_id)

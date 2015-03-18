@@ -1,11 +1,11 @@
 from django.conf.urls import patterns, url
 
-from projects import views as project_views
-from categories import views as category_views
-from users import views as login_views
-from datagroupings import views as dataviews
-from applications import views as app_views
-from superusertools import views as superuser
+from geokey.projects import views as project_views
+from geokey.categories import views as category_views
+from geokey.users import views as login_views
+from geokey.datagroupings import views as dataviews
+from geokey.applications import views as app_views
+from geokey.superusertools import views as superuser
 
 from django.contrib.auth.views import login, logout
 

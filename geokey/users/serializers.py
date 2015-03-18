@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer, ValidationError
 
-from core.serializers import FieldSelectorSerializer
+from geokey.core.serializers import FieldSelectorSerializer
 from .models import User, UserGroup, GroupingUserGroup
 
 

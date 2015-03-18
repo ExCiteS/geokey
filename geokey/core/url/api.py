@@ -1,10 +1,10 @@
 from django.conf.urls import patterns, url
 
-from projects import views as project_views
-from categories import views as category_views
+from geokey.projects import views as project_views
+from geokey.categories import views as category_views
 
-from contributions.views import observations, comments, locations, media
-from users.views import UserAPIView, ChangePasswordView
+from geokey.contributions.views import observations, comments, locations, media
+from geokey.users.views import UserAPIView, ChangePasswordView
 
 
 urlpatterns = patterns(

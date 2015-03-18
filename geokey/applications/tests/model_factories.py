@@ -1,7 +1,7 @@
 import datetime
 import factory
 
-from users.tests.model_factories import UserF
+from geokey.users.tests.model_factories import UserF
 
 from ..models import Application
 

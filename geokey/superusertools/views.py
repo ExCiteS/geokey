@@ -9,9 +9,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import BasePermission
 from rest_framework import status
 
-from projects.models import Project
-from users.models import User
-from users.serializers import UserSerializer
+from geokey.projects.models import Project
+from geokey.users.models import User
+from geokey.users.serializers import UserSerializer
 
 
 # #############################################################################
