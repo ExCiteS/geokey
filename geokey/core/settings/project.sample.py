@@ -1,4 +1,4 @@
-from .contrib import *
+from .prod import *
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
@@ -25,17 +25,7 @@ DATABASES = {
 
 
 INSTALLED_APPS += (
-    'projects',
-    'categories',
-    'contributions',
-    'datagroupings',
-    'users',
-    'applications',
-    'superusertools',
-    'extensions',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
+
 )
 
 AUTH_USER_MODEL = 'users.User'
@@ -46,5 +36,5 @@ AUTH_USER_MODEL = 'users.User'
 
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = normpath(join(SITE_ROOT, 'media'))
-MEDIA_URL = '/media/'
+MEDIA_ROOT = normpath(join(SITE_ROOT, 'assets'))
+MEDIA_URL = '/assets/'

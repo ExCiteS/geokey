@@ -30,6 +30,7 @@ STATICFILES_DIRS = (
 # Application definition
 
 INSTALLED_APPS = (
+    # Django apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,6 +39,24 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'django.contrib.sites',
+
+    # third-party apps
+    'django_hstore',
+    'oauth2_provider',
+    'easy_thumbnails',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+
+    # geokey apps
+    'projects',
+    'categories',
+    'contributions',
+    'datagroupings',
+    'users',
+    'applications',
+    'superusertools',
+    'extensions',
 )
 
 MIDDLEWARE_CLASSES = (

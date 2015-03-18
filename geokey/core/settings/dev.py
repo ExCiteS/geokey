@@ -1,4 +1,4 @@
-from .project import *
+from .base import *
 
 # Set debug to True for development
 DEBUG = True

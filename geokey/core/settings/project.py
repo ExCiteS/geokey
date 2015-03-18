@@ -1,4 +1,4 @@
-from .contrib import *
+from .dev import *
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
@@ -26,17 +26,6 @@ DATABASES = {
 
 
 INSTALLED_APPS += (
-    'projects',
-    'categories',
-    'contributions',
-    'datagroupings',
-    'users',
-    'applications',
-    'superusertools',
-    'extensions',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
     # 'geokey_epicollect',
     # 'geokey_cartodb',
     # 'geokey_communitymaps',
