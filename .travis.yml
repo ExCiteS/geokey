@@ -13,6 +13,7 @@ before_script:
   - psql template1 postgres -c 'create extension hstore;'
   - psql -c 'create database geokey;' -U postgres
   - psql -U postgres -d geokey -c "create extension postgis;"
+  - cd geokey
   - cp core/settings/project.sample.py core/settings/project.py
   - cp core/url/extensions.sample.py core/url/extensions.py
   - python manage.py migrate
