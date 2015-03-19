@@ -19,6 +19,9 @@
 *.rar
 *.tar
 *.zip
+*.egg-info
+dist
+MANIFEST
 
 # Logs and databases #
 ######################
@@ -57,7 +60,6 @@ local_settings.py
 geokey/core/settings/project.py
 uploads
 geokey/core/url/extensions.py
-*.egg-info
 
 # Grunt #
 ##########
