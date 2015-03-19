@@ -11,11 +11,10 @@ def get_install_requires():
     requirements = list()
     for line in open('requirements.txt').readlines():
         # skip to next iteration if comment or empty line
-        if line.startswith('#') or line == '':
+        if line.startswith('#') or line.startswith('git+https') or line == '':
             continue
         # add line to requirements
         requirements.append(line.rstrip())
-    print requirements
     return requirements
 
 setup(
@@ -29,6 +28,6 @@ setup(
     author_email="o.roick@ucl.ac.uk",
     packages=find_packages(exclude=['tests', 'tests.*']),
     dependency_links=['https://github.com/evonove/django-oauth-toolkit/tarball/master#egg=django-oauth-toolkit-0.7.3'],
-    install_requires=get_install_requires(),
+    install_requires=get_install_requires().append('django-oauth-toolkit>0.7.2'),
     include_package_data=True,
 )

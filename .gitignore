@@ -54,9 +54,9 @@ Thumbs.db
 .coverage
 htmlcov
 local_settings.py
-core/settings/project.py
+geokey/core/settings/project.py
 uploads
-core/url/extensions.py
+geokey/core/url/extensions.py
 *.egg-info
 
 # Grunt #
