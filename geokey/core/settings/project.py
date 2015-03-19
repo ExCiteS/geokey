@@ -32,8 +32,6 @@ INSTALLED_APPS += (
     # 'pantechnicon'
 )
 
-AUTH_USER_MODEL = 'users.User'
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
