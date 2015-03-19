@@ -15,6 +15,8 @@ def get_install_requires():
             continue
         # add line to requirements
         requirements.append(line.rstrip())
+
+    requirements.append('django-oauth-toolkit>0.7.2')
     return requirements
 
 setup(
@@ -28,6 +30,6 @@ setup(
     author_email="o.roick@ucl.ac.uk",
     packages=find_packages(exclude=['tests', 'tests.*']),
     dependency_links=['https://github.com/evonove/django-oauth-toolkit/tarball/master#egg=django-oauth-toolkit-0.7.3'],
-    install_requires=get_install_requires().append('django-oauth-toolkit>0.7.2'),
+    install_requires=get_install_requires(),
     include_package_data=True,
 )
