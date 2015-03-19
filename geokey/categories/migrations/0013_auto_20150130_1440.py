@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-from geokey.contributions.models.contributions import Observation
+from geokey.contributions.models import Observation
 
 
 def populate_display_field(apps, schema_editor):

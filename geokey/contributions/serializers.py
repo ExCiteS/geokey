@@ -20,9 +20,9 @@ from geokey.categories.serializer import CategorySerializer
 from geokey.categories.models import Category
 from geokey.users.serializers import UserSerializer
 
-from .models.contributions import Observation, Comment
-from .models.locations import Location
-from .models.media import MediaFile, ImageFile, VideoFile
+from .models import Observation, Comment
+from .models import Location
+from .models import MediaFile, ImageFile, VideoFile
 
 
 class LocationSerializer(geoserializers.GeoFeatureModelSerializer):

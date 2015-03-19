@@ -17,7 +17,7 @@ from .model_factories import (
 from geokey.datagroupings.models import Rule
 from geokey.datagroupings.tests.model_factories import GroupingFactory, RuleFactory
 from geokey.contributions.tests.model_factories import ObservationFactory
-from geokey.contributions.models.contributions import Observation
+from geokey.contributions.models import Observation
 
 
 class CategoryTest(TestCase):

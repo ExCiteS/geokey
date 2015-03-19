@@ -29,7 +29,7 @@ from geokey.contributions.views.observations import (
     ContributionSearchAPIView, MyObservations, ProjectObservationsView,
     ViewObservations, ProjectObservations
 )
-from geokey.contributions.models.contributions import Observation
+from geokey.contributions.models import Observation
 
 
 class ContributionSearchTest(TestCase):

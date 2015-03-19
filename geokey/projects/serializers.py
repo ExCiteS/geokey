@@ -7,7 +7,7 @@ from geokey.core.serializers import FieldSelectorSerializer
 from geokey.datagroupings.serializers import GroupingSerializer
 from geokey.datagroupings.models import Grouping
 from geokey.categories.serializer import CategorySerializer
-from geokey.contributions.models.locations import Location
+from geokey.contributions.models import Location
 
 from .models import Project
 

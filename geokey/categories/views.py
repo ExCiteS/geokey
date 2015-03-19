@@ -26,7 +26,7 @@ from .forms import CategoryCreateForm, FieldCreateForm
 from .serializer import (
     CategorySerializer, FieldSerializer, LookupFieldSerializer
 )
-from geokey.contributions.models.contributions import Observation
+from geokey.contributions.models import Observation
 
 
 # ############################################################################

@@ -9,7 +9,7 @@ from geokey.projects.tests.model_factories import UserF, ProjectF
 
 from ..model_factories import LocationFactory
 from geokey.contributions.views.locations import Locations, SingleLocation
-from geokey.contributions.models.locations import Location
+from geokey.contributions.models import Location
 
 
 class LocationApiTest(TestCase):

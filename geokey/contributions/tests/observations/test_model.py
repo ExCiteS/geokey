@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 
 from nose.tools import raises
 
-from geokey.contributions.models.contributions import Observation, pre_save_update
+from geokey.contributions.models import Observation, pre_save_update
 from geokey.projects.tests.model_factories import UserF
 
 from geokey.categories.tests.model_factories import (

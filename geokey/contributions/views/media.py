@@ -12,7 +12,7 @@ from .base import (
 
 from geokey.users.models import User
 from ..serializers import FileSerializer
-from ..models.media import MediaFile
+from ..models import MediaFile
 
 
 class MediaFileListAbstractAPIView(APIView):

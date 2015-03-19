@@ -10,7 +10,7 @@ from geokey.users.models import User
 from .base import (
     SingleAllContribution, SingleGroupingContribution, SingleMyContribution
 )
-from ..models.contributions import Comment
+from ..models import Comment
 from ..serializers import CommentSerializer
 
 

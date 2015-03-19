@@ -15,9 +15,9 @@ from geokey.categories.models import (
 )
 from geokey.datagroupings.models import Grouping, Rule
 from geokey.applications.models import Application
-from geokey.contributions.models.contributions import Observation, Comment
-from geokey.contributions.models.locations import Location
-from geokey.contributions.models.media import MediaFile
+from geokey.contributions.models import Observation, Comment
+from geokey.contributions.models import Location
+from geokey.contributions.models import MediaFile
 
 
 def handle_exceptions_for_admin(func):

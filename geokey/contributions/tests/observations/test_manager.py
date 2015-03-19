@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from geokey.contributions.models.contributions import Observation
+from geokey.contributions.models import Observation
 
 from geokey.projects.tests.model_factories import ProjectF, UserF
 from geokey.categories.tests.model_factories import (

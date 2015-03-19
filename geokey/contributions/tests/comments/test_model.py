@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from nose.tools import raises
 
-from geokey.contributions.models.contributions import Comment
+from geokey.contributions.models import Comment
 from ..model_factories import CommentFactory
 
 

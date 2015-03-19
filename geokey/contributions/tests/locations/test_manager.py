@@ -6,7 +6,7 @@ from nose.tools import raises
 from geokey.projects.tests.model_factories import ProjectF, UserF
 
 from ..model_factories import LocationFactory
-from geokey.contributions.models.locations import Location
+from geokey.contributions.models import Location
 
 
 class LocationTest(TestCase):

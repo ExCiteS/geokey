@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from ..model_factories import ObservationFactory, CommentFactory
-from geokey.contributions.models.contributions import Comment
+from geokey.contributions.models import Comment
 
 
 class CommentTest(TestCase):

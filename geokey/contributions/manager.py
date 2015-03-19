@@ -137,7 +137,7 @@ class MediaFileManager(InheritanceManager):
         """
         Creates an ImageFile and returns the instance.
         """
-        from geokey.contributions.models.media import ImageFile
+        from geokey.contributions.models import ImageFile
 
         filename, extension = os.path.splitext(the_file.name)
         the_file.name = filename[:FILE_NAME_TRUNC] + extension
@@ -170,7 +170,7 @@ class MediaFileManager(InheritanceManager):
         Creates a new video file. Uploads the video to Youtube and returns the
         VideoFile instance.
         """
-        from geokey.contributions.models.media import VideoFile
+        from geokey.contributions.models import VideoFile
         from django.core.files.storage import default_storage
         from django.core.files.base import ContentFile
 

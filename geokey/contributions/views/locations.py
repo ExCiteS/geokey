@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 
 from geokey.core.decorators import handle_exceptions_for_ajax
 
-from ..models.locations import Location
+from ..models import Location
 from ..serializers import LocationSerializer
 
 

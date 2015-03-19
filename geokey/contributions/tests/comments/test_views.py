@@ -18,7 +18,7 @@ from geokey.categories.tests.model_factories import CategoryFactory
 from geokey.datagroupings.tests.model_factories import (
     GroupingFactory, RuleFactory
 )
-from geokey.contributions.models.contributions import Comment, Observation
+from geokey.contributions.models import Comment, Observation
 from geokey.datagroupings.models import Grouping
 
 from geokey.users.tests.model_factories import UserGroupF, GroupingUserGroupFactory

@@ -19,7 +19,7 @@ from rest_framework.renderers import JSONRenderer
 from geokey.core.exceptions import MalformedRequestData
 from geokey.projects.tests.model_factories import UserF, ProjectF
 from geokey.datagroupings.tests.model_factories import GroupingFactory, RuleFactory
-from geokey.contributions.models.media import MediaFile
+from geokey.contributions.models import MediaFile
 
 from geokey.contributions.views.media import (
     MediaFileListAbstractAPIView, AllContributionsMediaAPIView,

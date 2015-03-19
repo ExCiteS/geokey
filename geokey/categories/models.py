@@ -62,7 +62,7 @@ class Category(models.Model):
             field.save()
 
     def delete(self):
-        from geokey.contributions.models.contributions import Observation
+        from geokey.contributions.models import Observation
         Observation.objects.filter(category=self).delete()
         Rule.objects.filter(category=self).delete()
         self.status = STATUS.deleted
