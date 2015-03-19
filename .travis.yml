@@ -22,6 +22,6 @@ install:
   - pip install coveralls
 
 script:
-  - coverage run --source=geokey.applications,geokey.projects,geokey.categories,geokey.contributions,geokey.datagroupings,geokey.users,geokey.superusertools,geokey.extensions ./runtests.py
+  - coverage run --source=geokey.applications,geokey.projects,geokey.categories,geokey.contributions,geokey.datagroupings,geokey.users,geokey.superusertools,geokey.extensions geokey/manage.py test
 
 after_success: coveralls
