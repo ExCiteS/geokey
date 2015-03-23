@@ -1,5 +1,5 @@
 [run]
 omit =
-    */tests/*
-    */migrations/*
-    */__init__.py
+    geokey/*/tests/*
+    geokey/*/migrations/*
+    geokey/*/__init__.py

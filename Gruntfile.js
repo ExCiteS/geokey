@@ -18,7 +18,7 @@ module.exports = function(grunt) {
             },
             compile: {
                 files: {
-                    "templates/templates.js": "templates/handlebars/**/*.hbs",
+                    "geokey/templates/templates.js": "geokey/templates/handlebars/**/*.hbs",
                 }
             }
         },
@@ -30,9 +30,9 @@ module.exports = function(grunt) {
             },
             handlebars: {
                 // the files to concatenate
-                src: ['templates/handlebars/helpers.js', 'templates/templates.js'],
+                src: ['geokey/templates/handlebars/helpers.js', 'geokey/templates/templates.js'],
                 // the location of the resulting JS file
-                dest: 'static/js/templates.js'
+                dest: 'geokey/static/js/templates.js'
             }
         },
 
@@ -42,7 +42,7 @@ module.exports = function(grunt) {
             },
 
             concat: {
-                files: ['templates/handlebars/helpers.js', 'templates/templates.js'],
+                files: ['geokey/templates/handlebars/helpers.js', 'geokey/templates/templates.js'],
                 tasks: ['concat'],
                 options: {
                     spawn: false,
@@ -50,7 +50,7 @@ module.exports = function(grunt) {
             },
 
             handlebars: {
-                files: ['templates/handlebars/**/*.hbs'],
+                files: ['geokey/templates/handlebars/**/*.hbs'],
                 tasks: ['handlebars'],
                 options: {
                     spawn: false,
