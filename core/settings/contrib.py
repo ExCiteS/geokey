@@ -4,4 +4,7 @@ INSTALLED_APPS += (
     'django_hstore',
     'oauth2_provider',
     'easy_thumbnails',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 )

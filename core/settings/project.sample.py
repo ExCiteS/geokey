@@ -33,9 +33,6 @@ INSTALLED_APPS += (
     'applications',
     'superusertools',
     'extensions',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
 )
 
 AUTH_USER_MODEL = 'users.User'
