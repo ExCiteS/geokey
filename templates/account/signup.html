@@ -17,8 +17,9 @@
 						<div class="alert alert-danger">
 							<strong>We were not able to register you as a new user, because: </strong>
 							{{ form.email.errors }}
-                            {{ form.username.errors }}
+							{{ form.display_name.errors }}
                 			{{ form.password1.errors }}
+							{{ form.password2.errors }}
 						</div>
 					</div>
 				</div>
@@ -47,7 +48,7 @@
 							</div>
 							<div class="form-group">
 								<label for="display_name">Choose a display name</label>
-								<input type="text" class="form-control input-lg" id="display_name" name="display_name" maxlength="50"  value="{{ form.data.username }}" required>
+								<input type="text" class="form-control input-lg" id="display_name" name="display_name" maxlength="50"  value="{{ form.data.display_name }}" required>
 							</div>
 							<div class="form-group">
 								<button type="submit" class="btn btn-primary">Sign up</button>
