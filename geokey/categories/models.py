@@ -224,8 +224,8 @@ class TextField(Field):
         Returns the filter object for the given field based on the rule. Used
         to filter data for a view.
         """
-        return '((properties ->> \'' + self.key + '\') \
-            ILIKE \'%%' + rule + '%%\')'
+        return ('((properties ->> \'' + self.key + '\') '
+                'ILIKE \'%%' + rule + '%%\')')
 
 
 class NumericField(Field):
@@ -276,10 +276,6 @@ class NumericField(Field):
                                          ' be lower than %s.'
                                          % (self.name, self.maxval))
 
-            else:
-                raise InputError('The value provided for field %s is not a '
-                                 'number.' % self.name)
-
     def convert_from_string(self, value):
         """
         Returns the `value` of the field in `Float` format.
@@ -308,19 +304,17 @@ class NumericField(Field):
         maxval = rule.get('maxval')
 
         if minval is not None and maxval is not None:
-
-            return '(cast(properties ->> \'' + self.key + '\' as double \
-                precision) >= ' + str(minval) + ') AND (cast(properties \
-                ->> \'' + self.key + '\' as double precision) <= \
-                ' + str(maxval) + ')'
+            return ('(cast(properties ->> \'%s\' as double precision) >= %s) '
+                    'AND (cast(properties ->> \'%s\' as double precision) <= '
+                    '%s)' % (self.key, minval, self.key, maxval))
         else:
             if minval is not None:
-                return '(cast(properties ->> \'' + self.key + '\' as double \
-                    precision) >= ' + str(minval) + ')'
+                return ('(cast(properties ->> \'%s\' as double '
+                        'precision) >= %s)' % (self.key, minval))
 
             if maxval is not None:
-                return '(cast(properties ->> \'' + self.key + '\' as double \
-                    precision) <= ' + str(maxval) + ')'
+                return ('(cast(properties ->> \'%s\' as double '
+                        'precision) <= %s)' % (self.key,  maxval))
 
 
 class DateTimeField(Field):
@@ -362,21 +356,21 @@ class DateTimeField(Field):
         maxval = rule.get('maxval')
 
         if minval is not None and maxval is not None:
-            return '(to_date(properties ->> \'' + self.key + '\', \'YYYY-MM-DD \
-                HH24:MI\') >= to_date(\'' + minval + '\', \'YYYY-MM-DD \
-                HH24:MI\')) AND (to_date(properties ->> \'' + self.key + '\', \'\
-                YYYY-MM-DD HH24:MI\') <= to_date(\'' + maxval + '\', \'\
-                YYYY-MM-DD HH24:MI\'))'
+            return ('(to_date(properties ->> \'%s\', \'YYYY-MM-DD HH24:MI\') '
+                    '>= to_date(\'%s\', \'YYYY-MM-DD HH24:MI\')) AND '
+                    '(to_date(properties ->> \'%s\', \'YYYY-MM-DD HH24:MI\') '
+                    '<= to_date(\'%s\', \'YYYY-MM-DD HH24:MI\'))' %
+                    (self.key, minval, self.key, maxval))
         else:
             if minval is not None:
-                return '(to_date(properties ->> \'' + self.key + '\', \'\
-                    YYYY-MM-DD HH24:MI\') >= to_date(\'' + minval + '\', \'\
-                    YYYY-MM-DD HH24:MI\'))'
+                return ('(to_date(properties ->> \'%s\', \'YYYY-MM-DD '
+                        'HH24:MI\') >= to_date(\'%s\', \'YYYY-MM-DD HH24:MI\''
+                        '))' % (self.key, minval))
 
             if maxval is not None:
-                return '(to_date(properties ->> \'' + self.key + '\', \'\
-                    YYYY-MM-DD HH24:MI\') <= to_date(\'' + maxval + '\', \'\
-                    YYYY-MM-DD HH24:MI\'))'
+                return ('(to_date(properties ->> \'%s\', \'YYYY-MM-DD '
+                        'HH24:MI\') <= to_date(\'%s\', \'YYYY-MM-DD HH24:MI\''
+                        '))' % (self.key, maxval))
 
 
 class DateField(Field):
@@ -417,20 +411,21 @@ class DateField(Field):
         maxval = rule.get('maxval')
 
         if minval is not None and maxval is not None:
-            return '(to_date(properties ->> \'' + self.key + '\',\
-                \'YYYY-MM-DD\') >= to_date(\'' + minval + '\', \'YYYY-MM-DD\')\
-                ) AND (to_date(properties ->> \'' + self.key + '\', \'\
-                YYYY-MM-DD\') <= to_date(\'' + maxval + '\', \'YYYY-MM-DD\'))'
+            return ('(to_date(properties ->> \'%s\', \'YYYY-MM-DD\') '
+                    '>= to_date(\'%s\', \'YYYY-MM-DD\')) AND '
+                    '(to_date(properties ->> \'%s\', \'YYYY-MM-DD\') '
+                    '<= to_date(\'%s\', \'YYYY-MM-DD\'))' %
+                    (self.key, minval, self.key, maxval))
         else:
             if minval is not None:
-                return '(to_date(properties ->> \'' + self.key + '\', \
-                \'YYYY-MM-DD\') >= to_date(\'' + minval + '\', \
-                \'YYYY-MM-DD\'))'
+                return ('(to_date(properties ->> \'%s\', \'YYYY-MM-DD'
+                        '\') >= to_date(\'%s\', \'YYYY-MM-DD\''
+                        '))' % (self.key, minval))
 
             if maxval is not None:
-                return '(to_date(properties ->> \'' + self.key + '\', \
-                \'YYYY-MM-DD\') <= to_date(\'' + maxval + '\', \
-                \'YYYY-MM-DD\'))'
+                return ('(to_date(properties ->> \'%s\', \'YYYY-MM-DD'
+                        '\') <= to_date(\'%s\', \'YYYY-MM-DD\''
+                        '))' % (self.key, maxval))
 
 
 class TimeField(Field):
@@ -469,21 +464,21 @@ class TimeField(Field):
 
         if minval is not None and maxval is not None:
             if time.strptime(minval, '%H:%M') > time.strptime(maxval, '%H:%M'):
-                return '((properties ->> \'' + self.key + '\')::\
-                    time >= \'' + minval + '\'::time) OR ((properties ->> \
-                    \'' + self.key + '\')::time <= \'' + maxval + '\'::time)'
+                return ('((properties ->> \'%s\')::time >= \'%s\'::time) OR '
+                        '((properties ->> \'%s\')::time <= \'%s\'::time)' %
+                        (self.key, minval, self.key, maxval))
             else:
-                return '((properties ->> \'' + self.key + '\')::\
-                    time >= \'' + minval + '\'::time) AND ((properties ->> \
-                    \'' + self.key + '\')::time <= \'' + maxval + '\'::time)'
+                return ('((properties ->> \'%s\')::time >= \'%s\'::time) AND '
+                        '((properties ->> \'%s\')::time <= \'%s\'::time)' %
+                        (self.key, minval, self.key, maxval))
         else:
             if minval is not None:
-                return '((properties ->> \'' + self.key + '\')::\
-                    time >= \'' + minval + '\'::time)'
+                return ('((properties ->> \'%s\')::time >= \'%s\'::time)' %
+                        (self.key, minval))
 
             if maxval is not None:
-                return '((properties ->> \'' + self.key + '\')::\
-                    time <= \'' + maxval + '\'::time)'
+                return ('((properties ->> \'%s\')::time <= \'%s\'::time)' %
+                        (self.key, maxval))
 
 
 class LookupField(Field):
@@ -503,12 +498,11 @@ class LookupField(Field):
         if value is not None:
             try:
                 value = int(value)
+                for lookupvalue in self.lookupvalues.all():
+                    if lookupvalue.id == value:
+                        valid = True
             except ValueError:
                 pass
-
-            for lookupvalue in self.lookupvalues.all():
-                if lookupvalue.id == value:
-                    valid = True
         else:
             valid = True
 
@@ -537,8 +531,8 @@ class LookupField(Field):
         Returns the filter object for the given field based on the rule. Used
         to filter data for a view.
         """
-        return '((properties ->> \'' + self.key + '\')::int IN \
-            (' + ','.join(str(x) for x in rule) + '))'
+        return ('((properties ->> \'%s\')::int IN (%s))' %
+                (self.key, ','.join(str(x) for x in rule)))
 
 
 class LookupValue(models.Model):
@@ -602,9 +596,8 @@ class MultipleLookupField(Field):
         return 'Multiple select'
 
     def get_filter(self, rule):
-        return '(regexp_split_to_array(\
-            btrim(properties ->> \'' + self.key + '\', \'[]\'), \',\')::int[]\
-            && ARRAY' + json.dumps(rule) + ')'
+        return ('(regexp_split_to_array(btrim(properties ->> \'%s\', \'[]\'),'
+                ' \',\')::int[] && ARRAY%s)' % (self.key, json.dumps(rule)))
 
 
 class MultipleLookupValue(models.Model):

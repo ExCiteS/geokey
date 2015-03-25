@@ -9,15 +9,17 @@ from rest_framework import status
 
 from geokey.projects.tests.model_factories import UserF, ProjectF
 from geokey.datagroupings.models import Grouping
+from geokey.contributions.tests.media.model_factories import get_image
 
 from .model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory,
     LookupFieldFactory, LookupValueFactory, MultipleLookupFieldFactory,
-    MultipleLookupValueFactory
+    MultipleLookupValueFactory, DateTimeFieldFactory
 )
 
 from ..models import Category, Field
 from ..views import (
+    CategoryOverview, CategoryDelete, FieldSettings, FieldDelete,
     CategoryUpdate, FieldUpdate, FieldLookupsUpdate, FieldLookups,
     SingleCategory, CategoryCreate, CategorySettings,
     FieldCreate, CategoryList, CategoryDisplay, FieldsReorderView
@@ -30,7 +32,7 @@ from ..views import (
 # ############################################################################
 
 
-class CategoryOverviewTest(TestCase):
+class CategoryListTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.admin = UserF.create()
@@ -50,6 +52,60 @@ class CategoryOverviewTest(TestCase):
         request = self.factory.get(url)
         request.user = user
         return view(request, project_id=self.project.id).render()
+
+    def test_get_with_admin(self):
+        response = self.get(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+    def test_get_with_contributor(self):
+        response = self.get(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+    def test_get_with_non_member(self):
+        response = self.get(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'Project matching query does not exist.'
+        )
+
+
+class CategoryOverviewTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
+
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+        self.category = CategoryFactory.create(**{'project': self.project})
+
+    def get(self, user):
+        view = CategoryOverview.as_view()
+        url = reverse('admin:category_overview', kwargs={
+            'project_id': self.project.id,
+            'category_id': self.category.id,
+        })
+        request = self.factory.get(url)
+        request.user = user
+        return view(
+            request,
+            project_id=self.project.id,
+            category_id=self.category.id
+        ).render()
 
     def test_get_with_admin(self):
         response = self.get(self.admin)
@@ -175,7 +231,10 @@ class CategoryDisplayTest(TestCase):
             add_contributors=[self.contributor]
         )
         self.category = CategoryFactory.create(
-            **{'project': self.project}
+            **{
+                'project': self.project,
+                'symbol': get_image()
+            }
         )
 
     def get(self, user):
@@ -186,6 +245,30 @@ class CategoryDisplayTest(TestCase):
         })
         request = self.factory.get(url)
         request.user = user
+        return view(
+            request,
+            project_id=self.project.id,
+            category_id=self.category.id).render()
+
+    def post(self, user, clear_symbol='false'):
+        self.data = {
+            'colour': '#222222',
+            'symbol': get_image() if clear_symbol == 'false' else None,
+            'clear-symbol': clear_symbol
+        }
+        view = CategoryDisplay.as_view()
+        url = reverse('admin:category_display', kwargs={
+            'project_id': self.project.id,
+            'category_id': self.category.id
+        })
+        request = self.factory.post(url, self.data)
+        request.user = user
+
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
         return view(
             request,
             project_id=self.project.id,
@@ -217,8 +300,51 @@ class CategoryDisplayTest(TestCase):
             'Project matching query does not exist.'
         )
 
+    def test_update_with_admin(self):
+        response = self.post(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-class ObservationTypeSettingsTest(TestCase):
+        ref = Category.objects.get(pk=self.category.id)
+        self.assertEqual(ref.colour, self.data.get('colour'))
+        self.assertNotEqual(ref.symbol, self.category.symbol)
+
+    def test_update_clear_symbol_with_admin(self):
+        response = self.post(self.admin, clear_symbol='true')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        ref = Category.objects.get(pk=self.category.id)
+        self.assertEqual(ref.colour, self.data.get('colour'))
+        self.assertFalse(bool(ref.symbol))
+
+    def test_update_with_contributor(self):
+        response = self.post(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+        ref = Category.objects.get(pk=self.category.id)
+        self.assertNotEqual(ref.colour, self.data.get('colour'))
+        self.assertEqual(ref.symbol, self.category.symbol)
+
+    def test_update_with_non_member(self):
+        response = self.post(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertContains(
+            response,
+            'Project matching query does not exist.'
+        )
+
+        ref = Category.objects.get(pk=self.category.id)
+        self.assertNotEqual(ref.colour, self.data.get('colour'))
+        self.assertEqual(ref.symbol, self.category.symbol)
+
+
+class CategorySettingsTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.admin = UserF.create()
@@ -240,6 +366,31 @@ class ObservationTypeSettingsTest(TestCase):
         })
         request = self.factory.get(url)
         request.user = user
+        return view(
+            request,
+            project_id=self.project.id,
+            category_id=self.category.id).render()
+
+    def post(self, user, display_field=None):
+        self.data = {
+            'name': 'Cat Name',
+            'description': 'Cat description',
+            'default_status': 'active',
+            'display_field': display_field
+        }
+        view = CategorySettings.as_view()
+        url = reverse('admin:category_settings', kwargs={
+            'project_id': self.project.id,
+            'category_id': self.category.id
+        })
+        request = self.factory.post(url, self.data)
+        request.user = user
+
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
         return view(
             request,
             project_id=self.project.id,
@@ -270,6 +421,144 @@ class ObservationTypeSettingsTest(TestCase):
             response,
             'Project matching query does not exist.'
         )
+
+    def test_update_settings_with_admin(self):
+        response = self.post(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+        ref = Category.objects.get(pk=self.category.id)
+        self.assertEqual(ref.name, self.data.get('name'))
+        self.assertEqual(ref.description, self.data.get('description'))
+        self.assertEqual(ref.default_status, self.data.get('default_status'))
+
+    def test_update_settings_with_displayfield(self):
+        field_1 = TextFieldFactory.create(**{'category': self.category})
+        field_2 = TextFieldFactory.create(**{'category': self.category})
+
+        self.category.display_field = field_1
+        self.category.save()
+
+        response = self.post(self.admin, display_field=field_2.id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+        ref = Category.objects.get(pk=self.category.id)
+        self.assertEqual(ref.name, self.data.get('name'))
+        self.assertEqual(ref.description, self.data.get('description'))
+        self.assertEqual(ref.default_status, self.data.get('default_status'))
+        self.assertEqual(ref.display_field, field_2)
+
+    def test_update_settings_with_non_member(self):
+        response = self.post(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'Project matching query does not exist.'
+        )
+
+        ref = Category.objects.get(pk=self.category.id)
+        self.assertNotEqual(ref.name, self.data.get('name'))
+        self.assertNotEqual(ref.description, self.data.get('description'))
+        self.assertNotEqual(
+            ref.default_status, self.data.get('default_status'))
+
+    def test_update_settings_with_contributor(self):
+        response = self.post(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+        ref = Category.objects.get(pk=self.category.id)
+        self.assertNotEqual(ref.name, self.data.get('name'))
+        self.assertNotEqual(ref.description, self.data.get('description'))
+        self.assertNotEqual(
+            ref.default_status, self.data.get('default_status'))
+
+
+class CategoryDeleteTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
+
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+        self.category = CategoryFactory.create(
+            **{'project': self.project})
+
+    def get(self, user):
+        view = CategoryDelete.as_view()
+        url = reverse('admin:category_delete', kwargs={
+            'project_id': self.project.id,
+            'category_id': self.category.id
+        })
+        request = self.factory.get(url)
+        request.user = user
+
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        return view(
+            request,
+            project_id=self.project.id,
+            category_id=self.category.id)
+
+    def test_delete_with_admin(self):
+        response = self.get(self.admin)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+        try:
+            Category.objects.get(pk=self.category.id)
+        except Category.DoesNotExist:
+            pass
+        else:
+            self.fail('Category not deleted.')
+
+    def test_delete_with_contributor(self):
+        response = self.get(self.contributor).render()
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+        try:
+            Category.objects.get(pk=self.category.id)
+        except Category.DoesNotExist:
+            self.fail('Category has been deleted.')
+
+    def test_delete_with_non_member(self):
+        response = self.get(self.non_member)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(
+            response,
+            'Project matching query does not exist.'
+        )
+
+        try:
+            Category.objects.get(pk=self.category.id)
+        except Category.DoesNotExist:
+            self.fail('Category has been deleted.')
 
 
 class FieldCreateTest(TestCase):
@@ -337,6 +626,33 @@ class FieldCreateTest(TestCase):
         response = self.post(self.admin, data)
         self.assertEquals(type(response), HttpResponseRedirect)
 
+    def test_post_create_with_existing_name(self):
+        TextFieldFactory.create(**{
+            'category': self.category,
+            'name': 'Test Name',
+            'key': 'test-name'
+        })
+
+        data = {
+            'name': 'Test name',
+            'description': 'Test description',
+            'required': False,
+            'type': 'TextField'
+        }
+        response = self.post(self.admin, data)
+        self.assertEquals(type(response), HttpResponseRedirect)
+
+    def test_post_create_numeric_field(self):
+        data = {
+            'name': 'Test name',
+            'description': 'Test description',
+            'required': False,
+            'type': 'NumericField',
+            'minval': 10
+        }
+        response = self.post(self.admin, data)
+        self.assertEquals(type(response), HttpResponseRedirect)
+
     def test_post_create_with_admin_and_long_name(self):
         data = {
             'name': 'Test name that is really long more than 30 chars',
@@ -382,7 +698,7 @@ class FieldSettingsTest(TestCase):
             **{'category': self.category})
 
     def get(self, user):
-        view = FieldCreate.as_view()
+        view = FieldSettings.as_view()
         url = reverse('admin:category_field_settings', kwargs={
             'project_id': self.project.id,
             'category_id': self.category.id,
@@ -390,6 +706,32 @@ class FieldSettingsTest(TestCase):
         })
         request = self.factory.get(url)
         request.user = user
+        return view(
+            request,
+            project_id=self.project.id,
+            category_id=self.category.id,
+            field_id=self.field.id).render()
+
+    def post(self, user):
+        self.data = {
+            'name': 'Field name',
+            'description': 'Field description',
+            'required': True
+        }
+        view = FieldSettings.as_view()
+        url = reverse('admin:category_field_settings', kwargs={
+            'project_id': self.project.id,
+            'category_id': self.category.id,
+            'field_id': self.field.id
+        })
+        request = self.factory.post(url, self.data)
+        request.user = user
+
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
         return view(
             request,
             project_id=self.project.id,
@@ -422,6 +764,140 @@ class FieldSettingsTest(TestCase):
             'Project matching query does not exist.'
         )
 
+    def test_update_settings_with_admin(self):
+        response = self.post(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+        ref = Field.objects.get(pk=self.field.id)
+        self.assertEqual(ref.name, self.data.get('name'))
+        self.assertEqual(ref.description, self.data.get('description'))
+        self.assertTrue(ref.required)
+
+    def test_update_settings_with_contributor(self):
+        response = self.post(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+        ref = Field.objects.get(pk=self.field.id)
+        self.assertNotEqual(ref.name, self.data.get('name'))
+        self.assertNotEqual(ref.description, self.data.get('description'))
+        self.assertFalse(ref.required)
+
+    def test_update_settings_with_non_member(self):
+        response = self.post(self.non_member)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'Project matching query does not exist.'
+        )
+
+        ref = Field.objects.get(pk=self.field.id)
+        self.assertNotEqual(ref.name, self.data.get('name'))
+        self.assertNotEqual(ref.description, self.data.get('description'))
+        self.assertFalse(ref.required)
+
+    def test_update_numeric_settings_with_non_member(self):
+        self.field = NumericFieldFactory.create(
+            **{'category': self.category})
+
+        response = self.post(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+        ref = Field.objects.get(pk=self.field.id)
+        self.assertEqual(ref.name, self.data.get('name'))
+        self.assertEqual(ref.description, self.data.get('description'))
+        self.assertTrue(ref.required)
+
+
+class FieldDeleteTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.admin = UserF.create()
+        self.contributor = UserF.create()
+        self.non_member = UserF.create()
+
+        self.project = ProjectF.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor]
+        )
+        self.category = CategoryFactory.create(
+            **{'project': self.project})
+        self.field = TextFieldFactory.create(**{'category': self.category})
+
+    def get(self, user):
+        view = FieldDelete.as_view()
+        url = reverse('admin:category_field_delete', kwargs={
+            'project_id': self.project.id,
+            'category_id': self.category.id,
+            'field_id': self.field.id
+        })
+        request = self.factory.get(url)
+        request.user = user
+
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        return view(
+            request,
+            project_id=self.project.id,
+            category_id=self.category.id,
+            field_id=self.field.id)
+
+    def test_delete_with_admin(self):
+        response = self.get(self.admin)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+        try:
+            Field.objects.get(pk=self.field.id)
+        except Field.DoesNotExist:
+            pass
+        else:
+            self.fail('Field not deleted.')
+
+    def test_delete_with_contributor(self):
+        response = self.get(self.contributor).render()
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+        try:
+            Field.objects.get(pk=self.field.id)
+        except Field.DoesNotExist:
+            self.fail('Field has been deleted.')
+
+    def test_delete_with_non_member(self):
+        response = self.get(self.non_member)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(
+            response,
+            'Project matching query does not exist.'
+        )
+
+        try:
+            Field.objects.get(pk=self.field.id)
+        except Field.DoesNotExist:
+            self.fail('Category has been deleted.')
 
 # ############################################################################
 #
@@ -447,6 +923,23 @@ class CategoryAjaxTest(TestCase):
             'status': 'active'
         })
 
+    def _get(self, user):
+        url = reverse(
+            'ajax:category',
+            kwargs={
+                'project_id': self.project.id,
+                'category_id': self.active_type.id
+            }
+        )
+        request = self.factory.get(url)
+        force_authenticate(request, user=user)
+        view = CategoryUpdate.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            category_id=self.active_type.id
+        ).render()
+
     def _put(self, data, user):
         url = reverse(
             'ajax:category',
@@ -463,6 +956,18 @@ class CategoryAjaxTest(TestCase):
             project_id=self.project.id,
             category_id=self.active_type.id
         ).render()
+
+    def test_get_with_admin(self):
+        response = self._get(self.admin)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_contributor(self):
+        response = self._get(self.contributor)
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_with_non_member(self):
+        response = self._get(self.non_member)
+        self.assertEqual(response.status_code, 404)
 
     def test_update_not_existing_type(self):
         url = reverse(
@@ -1255,6 +1760,14 @@ class ObservationTypePublicApiTest(TestCase):
             'field': lookup_field,
             'status': 'inactive'
         })
+        lookup_field = MultipleLookupFieldFactory(**{
+            'key': 'key_5',
+            'category': self.category
+        })
+        DateTimeFieldFactory.create(**{
+            'key': 'key_6',
+            'category': self.category
+        })
 
     def _get(self, user):
         url = reverse(
@@ -1273,20 +1786,20 @@ class ObservationTypePublicApiTest(TestCase):
             category_id=self.category.id
         ).render()
 
-    def test_get_observationType_with_admin(self):
+    def test_get_category_with_admin(self):
         response = self._get(self.admin)
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Gonzo")
         self.assertNotContains(response, self.inactive_field.name)
 
-    def test_get_observationType_with_contributor(self):
+    def test_get_category_with_contributor(self):
         response = self._get(self.contributor)
         self.assertEqual(response.status_code, 200)
 
-    def test_get_observationType_with_view_member(self):
+    def test_get_category_with_view_member(self):
         response = self._get(self.view_member)
         self.assertEqual(response.status_code, 200)
 
-    def test_get_observationType_with_non_member(self):
+    def test_get_category_with_non_member(self):
         response = self._get(self.non_member)
         self.assertEqual(response.status_code, 404)

@@ -7,8 +7,6 @@ from geokey.datagroupings import views as dataviews
 from geokey.applications import views as app_views
 from geokey.superusertools import views as superuser
 
-from django.contrib.auth.views import login, logout
-
 
 urlpatterns = patterns(
     '',
@@ -77,7 +75,7 @@ urlpatterns = patterns(
         name='usergroup_delete'),
 
     # ###########################
-    # OBSERVATION TYPES & FIELDS
+    # CATEGORIES & FIELDS
     # ###########################
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/$',

@@ -6,10 +6,10 @@ from nose.tools import raises
 from geokey.projects.tests.model_factories import UserF, ProjectF
 from geokey.projects.models import Project
 
-from ..models import Field, Category
+from ..models import Field, Category, LookupValue
 
 from .model_factories import (
-    TextFieldFactory, CategoryFactory
+    TextFieldFactory, CategoryFactory, LookupValueFactory
 )
 
 
@@ -351,6 +351,23 @@ class FieldManagerTest(TestCase):
                 user, project.id, category.id, field.id))
 
     @raises(PermissionDenied)
+    def test_access_active_field_inactive_cat_with_contributor(self):
+        user = UserF.create()
+        project = ProjectF.create(
+            add_contributors=[user],
+            **{'isprivate': True}
+        )
+        category = CategoryFactory(**{
+            'project': project,
+            'status': 'inactive'
+        })
+        field = TextFieldFactory.create(**{
+            'status': 'active',
+            'category': category
+        })
+        Field.objects.get_single(user, project.id, category.id, field.id)
+
+    @raises(PermissionDenied)
     def test_access_inactive_field_with_contributor(self):
         user = UserF.create()
         project = ProjectF.create(
@@ -448,3 +465,12 @@ class FieldManagerTest(TestCase):
         })
         Field.objects.as_admin(
             user, project.id, category.id, field.id)
+
+
+class LookupManagerTest(TestCase):
+    def test(self):
+        LookupValueFactory.create_batch(5, **{'status': 'active'})
+        LookupValueFactory.create_batch(5, **{'status': 'deleted'})
+
+        values = LookupValue.objects.active()
+        self.assertEqual(len(values), 5)

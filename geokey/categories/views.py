@@ -90,19 +90,6 @@ class CategoryCreate(LoginRequiredMixin, CreateView):
         )
         return context
 
-    def get_success_url(self):
-        """
-        Returns the redeirect URL after successful creation of the
-        observation type
-        """
-        project_id = self.kwargs['project_id']
-        return reverse(
-            'admin:category_overview',
-            kwargs={
-                'project_id': project_id, 'category_id': self.object.id
-            }
-        )
-
     def form_valid(self, form):
         """
         Is called when the POSTed data is valid and creates the observation
@@ -156,26 +143,30 @@ class CategorySettings(LoginRequiredMixin, TemplateView):
 
     def post(self, request, project_id, category_id):
         context = self.get_context_data(project_id, category_id)
-        category = context.pop('category')
-        data = request.POST
+        category = context.pop('category', None)
 
-        category.name = strip_tags(data.get('name'))
-        category.description = strip_tags(data.get('description'))
-        category.default_status = data.get('default_status')
+        if category is not None:
+            data = request.POST
 
-        if category.fields.exists():
-            display_field = category.fields.get(pk=data.get('display_field'))
+            category.name = strip_tags(data.get('name'))
+            category.description = strip_tags(data.get('description'))
+            category.default_status = data.get('default_status')
 
-            if category.display_field != display_field:
-                category.display_field = display_field
-                for obs in category.observation_set.all():
-                    obs.update_display_field()
-                    obs.save()
+            if category.fields.exists():
+                display_field = category.fields.get(
+                    pk=data.get('display_field')
+                )
 
-        category.save()
+                if category.display_field != display_field:
+                    category.display_field = display_field
+                    for obs in category.observation_set.all():
+                        obs.update_display_field()
+                        obs.save()
 
-        messages.success(self.request, "The category has been updated.")
-        context['category'] = category
+            category.save()
+
+            messages.success(self.request, "The category has been updated.")
+            context['category'] = category
         return self.render_to_response(context)
 
 
@@ -193,10 +184,10 @@ class CategoryDisplay(LoginRequiredMixin, TemplateView):
     def post(self, request, project_id, category_id):
         context = self.get_context_data(project_id, category_id)
         category = context.pop('category', None)
-        data = request.POST
-        symbol = request.FILES.get('symbol')
 
         if category is not None:
+            data = request.POST
+            symbol = request.FILES.get('symbol')
             category.colour = data.get('colour')
 
             if symbol is not None:
@@ -206,9 +197,10 @@ class CategoryDisplay(LoginRequiredMixin, TemplateView):
 
             category.save()
 
-        messages.success(
-            self.request, 'The display settings have been updated')
-        context['category'] = category
+            messages.success(
+                self.request, 'The display settings have been updated')
+            context['category'] = category
+
         return self.render_to_response(context)
 
 
@@ -244,7 +236,7 @@ class FieldCreate(LoginRequiredMixin, CreateView):
     template_name = 'categories/field_create.html'
 
     @handle_exceptions_for_admin
-    def get_context_data(self, data=None, key_error=False, **kwargs):
+    def get_context_data(self, data=None, **kwargs):
         project_id = self.kwargs['project_id']
         category_id = self.kwargs['category_id']
 
@@ -254,9 +246,6 @@ class FieldCreate(LoginRequiredMixin, CreateView):
             self.request.user, project_id, category_id
         )
         context['fieldtypes'] = Field.get_field_types()
-        context['key_error'] = key_error
-        if key_error:
-            context['data'] = data
         return context
 
     def form_valid(self, form):
@@ -341,25 +330,28 @@ class FieldSettings(LoginRequiredMixin, TemplateView):
             category_id,
             field_id
         )
-        field = context.pop('field')
-        data = request.POST
+        field = context.pop('field', None)
 
-        field.name = strip_tags(data.get('name'))
-        field.description = strip_tags(data.get('description'))
-        field.required = data.get('required') or False
+        if field is not None:
+            data = request.POST
 
-        if isinstance(field, TextField):
-            field.textarea = data.get('textarea') or False
-            field.maxlength = data.get('maxlength') or None
+            field.name = strip_tags(data.get('name'))
+            field.description = strip_tags(data.get('description'))
+            field.required = data.get('required') or False
 
-        elif isinstance(field, NumericField):
-            field.minval = data.get('minval') or None
-            field.maxval = data.get('maxval') or None
+            if isinstance(field, TextField):
+                field.textarea = data.get('textarea') or False
+                field.maxlength = data.get('maxlength') or None
 
-        field.save()
+            elif isinstance(field, NumericField):
+                field.minval = data.get('minval') or None
+                field.maxval = data.get('maxval') or None
 
-        messages.success(self.request, "The field has been updated.")
-        context['field'] = field
+            field.save()
+
+            messages.success(self.request, "The field has been updated.")
+            context['field'] = field
+
         return self.render_to_response(context)
 
 

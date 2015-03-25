@@ -105,6 +105,16 @@ class FieldTest(TestCase):
         field = FieldFactory()
         field.validate_input('Bla')
 
+    @raises(NotImplementedError)
+    def test_field_type_name(self):
+        field = FieldFactory()
+        field.type_name
+
+    @raises(NotImplementedError)
+    def test_field_get_filter(self):
+        field = FieldFactory()
+        field.get_filter('Bla')
+
     def test_get_field_types(self):
         field_types = Field.get_field_types()
         self.assertEqual(len(field_types), 7)
@@ -227,6 +237,13 @@ class TextFieldTest(TestCase):
         textfield = TextFieldFactory()
         self.assertEqual('Bla', textfield.convert_from_string('Bla'))
 
+    def test_get_filter(self):
+        textfield = TextFieldFactory(**{'key': 'key'})
+        self.assertEqual(
+            textfield.get_filter('blah'),
+            "((properties ->> 'key') ILIKE '%%blah%%')"
+        )
+
 
 class NumericFieldTest(TestCase):
     def test_create_numericfield(self):
@@ -295,6 +312,11 @@ class NumericFieldTest(TestCase):
         numeric_field = NumericFieldFactory()
         numeric_field.validate_input('bla')
 
+    # @raises(InputError)
+    def test_numericfield_validate_input_empty_string(self):
+        numeric_field = NumericFieldFactory()
+        numeric_field.validate_input('')
+
     def test_numericfield_validate_input_minval(self):
         numeric_field = NumericFieldFactory(**{
             'minval': 10
@@ -360,10 +382,27 @@ class NumericFieldTest(TestCase):
     def test_numericfield_convert_from_string(self):
         numeric_field = NumericFieldFactory()
         self.assertEqual(100, numeric_field.convert_from_string('100'))
+        self.assertEqual(1.2, numeric_field.convert_from_string('1.2'))
 
     def test_numericfield_convert_from_empty_string(self):
         numeric_field = NumericFieldFactory()
         self.assertEqual(None, numeric_field.convert_from_string(''))
+
+    def test_get_filter(self):
+        numeric_field = NumericFieldFactory(**{'key': 'key'})
+        self.assertEqual(
+            numeric_field.get_filter({'minval': 10, 'maxval': 20}),
+            "(cast(properties ->> 'key' as double precision) >= 10) AND "
+            "(cast(properties ->> 'key' as double precision) <= 20)"
+        )
+        self.assertEqual(
+            numeric_field.get_filter({'minval': 10}),
+            "(cast(properties ->> 'key' as double precision) >= 10)"
+        )
+        self.assertEqual(
+            numeric_field.get_filter({'maxval': 20}),
+            "(cast(properties ->> 'key' as double precision) <= 20)"
+        )
 
 
 class SingleLookupFieldTest(TestCase):
@@ -433,6 +472,15 @@ class SingleLookupFieldTest(TestCase):
         })
         lookup_field.validate_input(781865458)
 
+    @raises(InputError)
+    def test_lookupfield_validate_wrong_input_string(self):
+        lookup_field = LookupFieldFactory()
+        LookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': lookup_field
+        })
+        lookup_field.validate_input('blah')
+
     def test_lookupfield_convert_from_string(self):
         lookup_field = LookupFieldFactory()
         lookup_value = LookupValueFactory(**{
@@ -442,6 +490,15 @@ class SingleLookupFieldTest(TestCase):
         self.assertEqual(
             lookup_value.id,
             lookup_field.convert_from_string(str(lookup_value.id))
+        )
+        self.assertIsNone(lookup_field.convert_from_string(''))
+        self.assertIsNone(lookup_field.convert_from_string(None))
+
+    def test_get_filter(self):
+        lookup_field = LookupFieldFactory(**{'key': 'key'})
+        self.assertEqual(
+            lookup_field.get_filter([1, 2, 3]),
+            '((properties ->> \'key\')::int IN (1,2,3))'
         )
 
 
@@ -504,6 +561,28 @@ class DateTimeFieldTest(TestCase):
         date_time_field = DateTimeFieldFactory()
         date_time_field.validate_input('2014-15-01')
 
+    def test_get_filter(self):
+        date_time_field = DateTimeFieldFactory(**{'key': 'key'})
+        self.assertEqual(
+            date_time_field.get_filter(
+                {'minval': '2014-10-31 13:00', 'maxval': '2015-02-23 12:00'}
+            ),
+            "(to_date(properties ->> \'key\', \'YYYY-MM-DD HH24:MI\') >= "
+            "to_date(\'2014-10-31 13:00\', \'YYYY-MM-DD HH24:MI\')) AND "
+            "(to_date(properties ->> \'key\', \'YYYY-MM-DD HH24:MI\') <= "
+            "to_date(\'2015-02-23 12:00\', \'YYYY-MM-DD HH24:MI\'))"
+        )
+        self.assertEqual(
+            date_time_field.get_filter({'minval': '2014-10-31 13:00'}),
+            "(to_date(properties ->> \'key\', \'YYYY-MM-DD HH24:MI\') >= "
+            "to_date(\'2014-10-31 13:00\', \'YYYY-MM-DD HH24:MI\'))"
+        )
+        self.assertEqual(
+            date_time_field.get_filter({'maxval': '2015-02-23 12:00'}),
+            "(to_date(properties ->> \'key\', \'YYYY-MM-DD HH24:MI\') <= "
+            "to_date(\'2015-02-23 12:00\', \'YYYY-MM-DD HH24:MI\'))"
+        )
+
 
 class TimeFieldTest(TestCase):
     def test_create_datefield(self):
@@ -564,6 +643,27 @@ class TimeFieldTest(TestCase):
         time_field = TimeFieldFactory()
         time_field.validate_input('25:54')
 
+    def test_get_filter(self):
+        time_field = TimeFieldFactory(**{'key': 'key'})
+        self.assertEqual(
+            time_field.get_filter({'minval': '8:00', 'maxval': '10:00'}),
+            '((properties ->> \'key\')::time >= \'8:00\'::time) AND '
+            '((properties ->> \'key\')::time <= \'10:00\'::time)'
+        )
+        self.assertEqual(
+            time_field.get_filter({'minval': '21:00', 'maxval': '3:00'}),
+            '((properties ->> \'key\')::time >= \'21:00\'::time) OR '
+            '((properties ->> \'key\')::time <= \'3:00\'::time)'
+        )
+        self.assertEqual(
+            time_field.get_filter({'minval': '21:00'}),
+            '((properties ->> \'key\')::time >= \'21:00\'::time)'
+        )
+        self.assertEqual(
+            time_field.get_filter({'maxval': '21:00'}),
+            '((properties ->> \'key\')::time <= \'21:00\'::time)'
+        )
+
 
 class DateFieldTest(TestCase):
     def test_create_datefield(self):
@@ -623,6 +723,28 @@ class DateFieldTest(TestCase):
     def test_datefield_validate_false_input(self):
         date_time_field = DateFieldFactory()
         date_time_field.validate_input('2014-15-01')
+
+    def test_get_filter(self):
+        date_field = DateFieldFactory(**{'key': 'key'})
+        self.assertEqual(
+            date_field.get_filter(
+                {'minval': '2014-10-31', 'maxval': '2015-02-23'}
+            ),
+            "(to_date(properties ->> \'key\', \'YYYY-MM-DD\') >= "
+            "to_date(\'2014-10-31\', \'YYYY-MM-DD\')) AND "
+            "(to_date(properties ->> \'key\', \'YYYY-MM-DD\') <= "
+            "to_date(\'2015-02-23\', \'YYYY-MM-DD\'))"
+        )
+        self.assertEqual(
+            date_field.get_filter({'minval': '2014-10-31'}),
+            "(to_date(properties ->> \'key\', \'YYYY-MM-DD\') >= "
+            "to_date(\'2014-10-31\', \'YYYY-MM-DD\'))"
+        )
+        self.assertEqual(
+            date_field.get_filter({'maxval': '2015-02-23'}),
+            "(to_date(properties ->> \'key\', \'YYYY-MM-DD\') <= "
+            "to_date(\'2015-02-23\', \'YYYY-MM-DD\'))"
+        )
 
 
 class MultipleLookupTest(TestCase):
@@ -760,3 +882,11 @@ class MultipleLookupTest(TestCase):
             'field': field
         })
         field.validate_input(json.dumps([lookup_value_1.id, 8986552121]))
+
+    def test_get_filter(self):
+        lookup_field = MultipleLookupFieldFactory(**{'key': 'key'})
+        self.assertEqual(
+            lookup_field.get_filter([1, 2, 3]),
+            '(regexp_split_to_array(btrim(properties ->> \'key\', \'[]\'), '
+            '\',\')::int[] && ARRAY[1, 2, 3])'
+        )
