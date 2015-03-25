@@ -14,6 +14,7 @@ from ..views import (
     ApplicationOverview, ApplicationCreate, ApplicationSettings,
     ApplicationDelete, ApplicationConnected, ApplicationDisconnect
 )
+from ..models import Application
 
 from .model_factories import ApplicationFactory
 
@@ -118,6 +119,45 @@ class ApplicationCreateTest(TestCase):
         response = view(request)
         self.assertTrue(isinstance(response, HttpResponseRedirect))
 
+    def test_post_with_user(self):
+        data = {
+            'name': 'test app',
+            'description:': '',
+            'download_url': 'http://example.com',
+            'redirect_uris': 'http://example.com',
+            'authorization_grant_type': 'password'
+        }
+        view = ApplicationCreate.as_view()
+        url = reverse('admin:app_register')
+        request = APIRequestFactory().post(url, data)
+        request.user = UserF.create()
+
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = view(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Application.objects.count(), 1)
+
+    def test_post_with_anonymous(self):
+        data = {
+            'name': 'test app',
+            'description': '',
+            'download_url': 'http://example.com',
+            'redirect_uris': 'http://example.com',
+            'authorization_grant_type': 'password'
+        }
+        view = ApplicationCreate.as_view()
+        url = reverse('admin:app_register')
+        request = APIRequestFactory().post(url, data)
+        request.user = AnonymousUser()
+
+        response = view(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Application.objects.count(), 0)
+
 
 class ApplicationSettingsTest(TestCase):
     def setUp(self):
@@ -157,6 +197,99 @@ class ApplicationSettingsTest(TestCase):
         request.user = AnonymousUser()
         response = view(request, app_id=self.app.id)
         self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+    def test_post_with_creator(self):
+        data = {
+            'name': 'test app',
+            'description': '',
+            'download_url': 'http://example.com',
+            'redirect_uris': 'http://example.com',
+            'authorization_grant_type': 'password'
+        }
+        view = ApplicationSettings.as_view()
+        url = reverse('admin:app_settings', kwargs={'app_id': self.app.id})
+        request = APIRequestFactory().post(url, data)
+        request.user = self.creator
+
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = view(request, app_id=self.app.id).render()
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(
+            response,
+            'You are not the owner of this application and therefore not'
+            'allowed to access this app.'
+        )
+
+        ref = Application.objects.get(pk=self.app.id)
+        self.assertEqual(ref.name, data.get('name'))
+        self.assertEqual(ref.description, data.get('description'))
+        self.assertEqual(ref.download_url, data.get('download_url'))
+        self.assertEqual(ref.redirect_uris, data.get('redirect_uris'))
+        self.assertEqual(
+            ref.authorization_grant_type,
+            data.get('authorization_grant_type')
+        )
+
+    def test_post_with_user(self):
+        data = {
+            'name': 'test app',
+            'description': '',
+            'download_url': 'http://example.com/download',
+            'redirect_uris': 'http://example.com/redirect',
+            'authorization_grant_type': 'password'
+        }
+
+        view = ApplicationSettings.as_view()
+        url = reverse('admin:app_settings', kwargs={'app_id': self.app.id})
+        request = APIRequestFactory().post(url, data)
+        request.user = UserF.create()
+        response = view(request, app_id=self.app.id).render()
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'You are not the owner of this application and therefore not '
+            'allowed to access this app.'
+        )
+
+        ref = Application.objects.get(pk=self.app.id)
+        self.assertNotEqual(ref.name, data.get('name'))
+        self.assertNotEqual(ref.description, data.get('description'))
+        self.assertNotEqual(ref.download_url, data.get('download_url'))
+        self.assertNotEqual(ref.redirect_uris, data.get('redirect_uris'))
+        self.assertNotEqual(
+            ref.authorization_grant_type,
+            data.get('authorization_grant_type')
+        )
+
+    def test_post_with_anonymous(self):
+        data = {
+            'name': 'test app',
+            'description': '',
+            'download_url': 'http://example.com/download',
+            'redirect_uris': 'http://example.com/redirect',
+            'authorization_grant_type': 'password'
+        }
+
+        view = ApplicationSettings.as_view()
+        url = reverse('admin:app_settings', kwargs={'app_id': self.app.id})
+        request = APIRequestFactory().post(url, data)
+        request.user = AnonymousUser()
+        response = view(request, app_id=self.app.id)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+        ref = Application.objects.get(pk=self.app.id)
+        self.assertNotEqual(ref.name, data.get('name'))
+        self.assertNotEqual(ref.description, data.get('description'))
+        self.assertNotEqual(ref.download_url, data.get('download_url'))
+        self.assertNotEqual(ref.redirect_uris, data.get('redirect_uris'))
+        self.assertNotEqual(
+            ref.authorization_grant_type,
+            data.get('authorization_grant_type')
+        )
 
 
 class ApplicationDeleteTest(TestCase):

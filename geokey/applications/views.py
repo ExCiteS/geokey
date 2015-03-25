@@ -94,7 +94,6 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         Is called if the form is valid.
         """
         form.instance.user = self.request.user
-        form.instance.client_type = 'public'
         messages.success(self.request, "The application has been created.")
         return super(ApplicationCreate, self).form_valid(form)
 
@@ -116,18 +115,20 @@ class ApplicationSettings(LoginRequiredMixin, TemplateView):
 
     def post(self, request, app_id):
         context = self.get_context_data(app_id)
-        app = context.pop('application')
-        data = request.POST
+        app = context.pop('application', None)
 
-        app.name = strip_tags(data.get('name'))
-        app.description = strip_tags(data.get('description'))
-        app.download_url = data.get('download_url')
-        app.redirect_uris = data.get('redirect_uris')
-        app.authorization_grant_type = data.get('authorization_grant_type')
-        app.save()
+        if (app is not None):
+            data = request.POST
+            app.name = strip_tags(data.get('name'))
+            app.description = strip_tags(data.get('description'))
+            app.download_url = data.get('download_url')
+            app.redirect_uris = data.get('redirect_uris')
+            app.authorization_grant_type = data.get('authorization_grant_type')
+            app.save()
 
-        messages.success(self.request, "The application has been updated.")
-        context['application'] = app
+            messages.success(self.request, "The application has been updated.")
+            context['application'] = app
+
         return self.render_to_response(context)
 
 
