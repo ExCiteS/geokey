@@ -392,9 +392,6 @@ class ProjectContactAdmins(APIView):
 
         email_text = self.request.DATA.get('email_text')
         project = Project.objects.get_single(request.user, project_id)
-        if project.status == 'active':
-            project.contact_admins(user, email_text)
-            return Response(status=status.HTTP_204_NO_CONTENT)
 
-        raise PermissionDenied('The project is inactive and therefore '
-                               'not accessable through the public API.')
+        project.contact_admins(user, email_text)
+        return Response(status=status.HTTP_204_NO_CONTENT)

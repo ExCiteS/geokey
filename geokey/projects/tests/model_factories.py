@@ -35,6 +35,18 @@ class ProjectF(factory.django.DjangoModelFactory):
                 Admins.objects.create(project=self, user=user)
 
     @factory.post_generation
+    def add_moderators(self, create, extracted, **kwargs):
+        from geokey.users.tests.model_factories import UserGroupF
+        if not create:
+            return
+
+        if extracted:
+            UserGroupF(add_users=extracted, **{
+                'project': self,
+                'can_moderate': True
+            })
+
+    @factory.post_generation
     def add_contributors(self, create, extracted, **kwargs):
         from geokey.users.tests.model_factories import UserGroupF
         if not create:

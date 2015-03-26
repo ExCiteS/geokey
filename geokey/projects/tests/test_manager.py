@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser
+from django.core.exceptions import PermissionDenied
 
 from geokey.datagroupings.tests.model_factories import GroupingFactory
 from geokey.users.tests.model_factories import (
@@ -440,3 +441,35 @@ class ProjectListTest(TestCase):
     def test_get_list_with_anonymous(self):
         projects = Project.objects.get_list(AnonymousUser())
         self.assertEquals(len(projects), 2)
+
+
+class ProjectAccessTest(TestCase):
+    def test_as_admin(self):
+        project = ProjectF.create()
+        user = UserF.create(**{'is_superuser': True})
+        ref = Project.objects.as_admin(user, project.id)
+        self.assertEqual(project, ref)
+
+    def test_as_contributor(self):
+        admin = UserF.create()
+        contributor = UserF.create()
+        other = UserF.create()
+
+        project = ProjectF.create(
+            add_admins=[admin],
+            add_contributors=[contributor],
+            add_viewers=[other]
+        )
+
+        ref = Project.objects.as_contributor(admin, project.id)
+        self.assertEqual(project, ref)
+
+        ref = Project.objects.as_contributor(contributor, project.id)
+        self.assertEqual(project, ref)
+
+        try:
+            Project.objects.as_contributor(other, project.id)
+        except PermissionDenied:
+            pass
+        else:
+            self.fail('PermissionDenied not raise for non contributor')

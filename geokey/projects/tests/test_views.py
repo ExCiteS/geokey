@@ -21,7 +21,8 @@ from ..models import Project
 from ..views import (
     ProjectCreate, ProjectSettings, ProjectUpdate, ProjectAdmins,
     ProjectAdminsUser, Projects, SingleProject, ProjectOverview, ProjectExtend,
-    ProjectContactAdmins, CategoriesReorderView
+    ProjectContactAdmins, CategoriesReorderView, ProjectsInvolved,
+    ProjectDelete
 )
 
 # ############################################################################
@@ -47,6 +48,63 @@ class ProjectCreateTest(TestCase):
         request.user = AnonymousUser()
         response = view(request)
         self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+    def test_post_with_user(self):
+        data = {
+            'name': 'Project',
+            'description': '',
+            'isprivate': True,
+            'everyone_contributes': 'auth'
+        }
+        view = ProjectCreate.as_view()
+        url = reverse('admin:project_create')
+        request = APIRequestFactory().post(url, data)
+        request.user = UserF.create()
+
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = view(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Project.objects.count(), 1)
+
+    def test_post_with_anonymous(self):
+        data = {
+            'name': 'Project',
+            'description': '',
+            'isprivate': True,
+            'everyone_contributes': 'auth'
+        }
+        view = ProjectCreate.as_view()
+        url = reverse('admin:project_create')
+        request = APIRequestFactory().post(url, data)
+        request.user = AnonymousUser()
+
+        response = view(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Project.objects.count(), 0)
+
+
+class ProjectsInvolvedTest(TestCase):
+    def test_get_with_user(self):
+        user = UserF.create()
+        ProjectF.create(add_contributors=[user])
+        view = ProjectsInvolved.as_view()
+        url = reverse('admin:projects_involved')
+        request = APIRequestFactory().get(url)
+        request.user = user
+        response = view(request).render()
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_with_anonymous(self):
+        view = ProjectsInvolved.as_view()
+        url = reverse('admin:projects_involved')
+        request = APIRequestFactory().get(url)
+        request.user = AnonymousUser()
+        response = view(request)
+        self.assertEqual(response.status_code, 302)
 
 
 class ProjectExtendTest(TestCase):
@@ -270,6 +328,27 @@ class ProjectSettingsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Project matching query does not exist.')
 
+    def test_post_with_admin(self):
+        data = {
+            'name': 'Project',
+            'description': '',
+            'isprivate': True,
+            'everyone_contributes': 'auth'
+        }
+        view = ProjectSettings.as_view()
+        url = reverse('admin:project_settings',
+                      kwargs={'project_id': self.project.id})
+        request = APIRequestFactory().post(url, data)
+        request.user = self.creator
+
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = view(request, project_id=self.project.id).render()
+        self.assertEqual(response.status_code, 200)
+
 
 class ProjectOverviewTest(TestCase):
     def setUp(self):
@@ -332,6 +411,52 @@ class ProjectOverviewTest(TestCase):
         response = view(request, project_id=self.project.id).render()
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Project matching query does not exist.')
+
+
+class ProjectDeleteTest(TestCase):
+    def test_delete_with_admin(self):
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
+
+        view = ProjectDelete.as_view()
+        url = reverse('admin:project_delete',
+                      kwargs={'project_id': project.id})
+        request = APIRequestFactory().get(url)
+        request.user = user
+
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = view(request, project_id=project.id)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Project.objects.count(), 0)
+
+    def test_delete_with_contributor(self):
+        user = UserF.create()
+        project = ProjectF.create(add_contributors=[user])
+
+        view = ProjectDelete.as_view()
+        url = reverse('admin:project_delete',
+                      kwargs={'project_id': project.id})
+        request = APIRequestFactory().get(url)
+        request.user = user
+        response = view(request, project_id=project.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Project.objects.count(), 1)
+
+    def test_delete_with_anonymous(self):
+        project = ProjectF.create()
+
+        view = ProjectDelete.as_view()
+        url = reverse('admin:project_delete',
+                      kwargs={'project_id': project.id})
+        request = APIRequestFactory().get(url)
+        request.user = AnonymousUser()
+        response = view(request, project_id=project.id)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Project.objects.count(), 1)
 
 
 # ############################################################################

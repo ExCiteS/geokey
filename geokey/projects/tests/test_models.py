@@ -43,6 +43,24 @@ class ProjectTest(TestCase):
             'Name status: inactive private: False'
         )
 
+    def test_get_role(self):
+        admin = UserF.create()
+        moderator = UserF.create()
+        contributor = UserF.create()
+        other = UserF.create()
+
+        project = ProjectF.create(
+            add_admins=[admin],
+            add_moderators=[moderator],
+            add_contributors=[contributor],
+            add_viewers=[other]
+        )
+
+        self.assertEqual('administrator', project.get_role(admin))
+        self.assertEqual('moderator', project.get_role(moderator))
+        self.assertEqual('contributor', project.get_role(contributor))
+        self.assertEqual('watcher', project.get_role(other))
+
     def test_re_order_categories(self):
         project = ProjectF.create()
 
