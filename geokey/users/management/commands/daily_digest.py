@@ -90,10 +90,10 @@ class Command(NoArgsCommand):
                             if (item.status == 'pending' and
                                     historical.status == 'active'):
                                 suspended.append(item)
-                            if (item.status == 'review' and
+                            elif (item.status == 'review' and
                                     historical.status == 'active'):
                                 reported.append(item)
-                            if (item.status == 'active' and
+                            elif (item.status == 'active' and
                                     historical.status == 'pending'):
                                 approved.append(item)
                         except Observation.DoesNotExist:

@@ -4,14 +4,59 @@ from datetime import datetime, timedelta
 from django.test import TestCase
 from django.core import mail
 
+from allauth.account.models import EmailAddress, EmailConfirmation
+
 from geokey.projects.tests.model_factories import ProjectF, AdminsFactory
 from geokey.contributions.tests.model_factories import ObservationFactory
 
+from ..models import User
 from ..management.commands.daily_digest import Command
+from ..management.commands.check_confirm import Command as CheckConfirm
 from ..tests.model_factories import UserF
 
 
-class CommandTest(TestCase):
+class CheckConfirmTest(TestCase):
+    def test_check_confirm(self):
+        confirmed_user = UserF.create()
+        unconfirmed_user = UserF.create()
+
+        confirmed_email = EmailAddress.objects.create(
+            user=confirmed_user,
+            email=confirmed_user.email,
+            verified=True
+        )
+
+        unconfirmed_email = EmailAddress.objects.create(
+            user=unconfirmed_user,
+            email=unconfirmed_user.email,
+            verified=False
+        )
+
+        EmailConfirmation.objects.create(
+            email_address=confirmed_email,
+            created=datetime.utcnow().replace(tzinfo=utc),
+            sent=datetime.utcnow().replace(tzinfo=utc),
+            key='38974hewjkhnuweyf8h8d'
+        )
+        EmailConfirmation.objects.create(
+            email_address=unconfirmed_email,
+            created=datetime.utcnow().replace(tzinfo=utc),
+            sent=datetime.utcnow().replace(tzinfo=utc),
+            key='38974hewjkhnsdfuweyf8h8d'
+        )
+
+        yesterday = datetime.utcnow().replace(tzinfo=utc)
+        command = CheckConfirm()
+        command.set_user_inactive(yesterday)
+
+        ref_unconfirmed = User.objects.get(pk=unconfirmed_user.id)
+        self.assertFalse(ref_unconfirmed.is_active)
+
+        ref_confirmed = User.objects.get(pk=confirmed_user.id)
+        self.assertTrue(ref_confirmed.is_active)
+
+
+class DailyDigestTest(TestCase):
     def test_get_update_projects(self):
         # Setup everything
         updated_project_1 = ProjectF.create()
@@ -59,6 +104,11 @@ class CommandTest(TestCase):
             creator=contributor
         )
 
+        reported = ObservationFactory.create(
+            project=project,
+            creator=contributor
+        )
+
         approved = ObservationFactory.create(
             project=project,
             creator=contributor,
@@ -72,6 +122,13 @@ class CommandTest(TestCase):
             status='pending',
             updator=UserF.create()
         )
+
+        reported.update(
+            properties=None,
+            status='review',
+            updator=UserF.create()
+        )
+
         updated.update(properties={'key': 'value'}, updator=UserF.create())
         approved.update(properties=None, status='active', updator=moderator)
 
@@ -93,8 +150,9 @@ class CommandTest(TestCase):
         report = command.get_updated_items(project, contributor, yesterday)
 
         yours = report.get('yours')
-        self.assertEqual(len(yours.get('changed')), 3)
+        self.assertEqual(len(yours.get('changed')), 4)
         self.assertEqual(len(yours.get('approved')), 1)
+        self.assertEqual(len(yours.get('reported')), 1)
         self.assertEqual(len(yours.get('suspended')), 1)
 
         report = command.get_updated_items(project, some_dude, yesterday)

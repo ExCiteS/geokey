@@ -20,31 +20,31 @@ def get_view_group(grouping, group):
             )
 
     if group.viewgroups.filter(grouping=grouping).exists():
-        return '<li>\
-                    %s<button type="button" name="%s" class="btn btn-default \
-                    pull-right active grant-single" data-toggle="button" %s>\
-                    <span class="text-danger">Revoke access</span></button>\
-                    <strong>%s</strong><p>%s</p>\
-                </li>' % (
-            message,
-            grouping.id,
-            disabled,
-            grouping.name,
-            grouping.description
-        )
+        return ('<li>'
+                '%s<button type="button" name="%s" class="btn btn-default '
+                'pull-right active grant-single" data-toggle="button" %s>'
+                '<span class="text-danger">Revoke access</span></button>'
+                '<strong>%s</strong><p>%s</p>'
+                '</li>' % (
+                    message,
+                    grouping.id,
+                    disabled,
+                    grouping.name,
+                    grouping.description)
+                )
     else:
-        return '<li>\
-                    %s<button type="button" name="%s" class="btn btn-default \
-                    pull-right grant-single" data-toggle="button" %s><span \
-                    class="text-success">Grant access</span></button>\
-                    <strong>%s</strong><p>%s</p>\
-                </li>' % (
-            message,
-            grouping.id,
-            disabled,
-            grouping.name,
-            grouping.description
-        )
+        return ('<li>'
+                '%s<button type="button" name="%s" class="btn btn-default '
+                'pull-right grant-single" data-toggle="button" %s><span '
+                'class="text-success">Grant access</span></button>'
+                '<strong>%s</strong><p>%s</p>'
+                '</li>' % (
+                    message,
+                    grouping.id,
+                    disabled,
+                    grouping.name,
+                    grouping.description)
+                )
 
 
 @register.simple_tag

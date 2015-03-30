@@ -1,7 +1,27 @@
 from django.test import TestCase
 
-from .model_factories import UserGroupF
+from oauth2_provider.models import AccessToken
+from geokey.applications.tests.model_factories import ApplicationFactory
+
+from .model_factories import UserGroupF, UserF
 from ..models import UserGroup
+
+
+class UserTest(TestCase):
+    def test_reset_password(self):
+        user = UserF.create()
+        app = ApplicationFactory.create()
+        AccessToken.objects.create(
+            user=user,
+            application=app,
+            token='df0af6a395b4cd072445b3832e9379bfee257da0',
+            scope=1,
+            expires='2030-12-31 23:59'
+        )
+
+        user.reset_password('123456')
+
+        self.assertEqual(0, AccessToken.objects.filter(user=user).count())
 
 
 class UserGroupPreSaveSignalTest(TestCase):

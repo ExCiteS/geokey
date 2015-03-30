@@ -83,6 +83,7 @@ class Dashboard(LoginRequiredMixin, TemplateView):
 class UserGroupList(LoginRequiredMixin, TemplateView):
     template_name = 'users/usergroup_list.html'
 
+    @handle_exceptions_for_admin
     def get_context_data(self, project_id):
         project = Project.objects.as_admin(self.request.user, project_id)
         return super(UserGroupList, self).get_context_data(project=project)
@@ -124,7 +125,7 @@ class UserGroupCreate(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         """
-        Creates the project and redirects to the project overview page
+        Creates the user group and redirects to the groups overview page
         """
         project_id = self.kwargs['project_id']
         project = Project.objects.as_admin(self.request.user, project_id)
@@ -132,6 +133,18 @@ class UserGroupCreate(LoginRequiredMixin, CreateView):
         form.instance.project = project
         messages.success(self.request, "The user group has been created.")
         return super(UserGroupCreate, self).form_valid(form)
+
+    def post(self, request, project_id, *args, **kwargs):
+        self.object = None
+        context = self.get_context_data(*args, **kwargs)
+        project = context.get('project')
+
+        if project is not None:
+            return super(UserGroupCreate, self).post(
+                request, project_id, *args, **kwargs
+            )
+
+        return self.render_to_response(context)
 
 
 class UserGroupOverview(LoginRequiredMixin, TemplateView):
@@ -189,14 +202,16 @@ class UserGroupSettings(LoginRequiredMixin, TemplateView):
         context = self.get_context_data(project_id, group_id)
         group = context.pop('group', None)
 
-        data = request.POST
+        if group is not None:
+            data = request.POST
 
-        group.name = strip_tags(data.get('name'))
-        group.description = strip_tags(data.get('description'))
-        group.save()
+            group.name = strip_tags(data.get('name'))
+            group.description = strip_tags(data.get('description'))
+            group.save()
 
-        messages.success(self.request, "The user group has been updated.")
-        context['group'] = group
+            messages.success(self.request, "The user group has been updated.")
+            context['group'] = group
+
         return self.render_to_response(context)
 
 
@@ -231,13 +246,14 @@ class UserGroupDelete(LoginRequiredMixin, TemplateView):
 
     def get(self, request, project_id, group_id):
         context = self.get_context_data(project_id, group_id)
-        group = context.pop('group', None)
+        group = context.get('group')
 
         if group is not None:
             group.delete()
+            messages.success(self.request, 'The user group has been deleted.')
+            return redirect('admin:usergroup_list', project_id=project_id)
 
-        messages.success(self.request, 'The user group has been deleted.')
-        return redirect('admin:usergroup_list', project_id=project_id)
+        return self.render_to_response(context)
 
 
 class UserProfile(LoginRequiredMixin, TemplateView):
@@ -343,17 +359,6 @@ class UserGroup(APIView):
             return Response(serializer.data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @handle_exceptions_for_ajax
-    def delete(self, request, project_id, group_id):
-        """
-        Deletes a user group
-        """
-        project = Project.objects.as_admin(request.user, project_id)
-        group = project.usergroups.get(pk=group_id)
-
-        group.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UserGroupUsers(APIView):
