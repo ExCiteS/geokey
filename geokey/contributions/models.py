@@ -119,14 +119,6 @@ class Observation(models.Model):
             raise ValidationError(error_messages)
 
     @classmethod
-    def replace_null(self, properties):
-        for key, value in properties.iteritems():
-            if isinstance(value, (str, unicode)) and len(value) == 0:
-                properties[key] = None
-
-        return properties
-
-    @classmethod
     def create(cls, properties=None, creator=None, location=None,
                category=None, project=None, status=None):
         """

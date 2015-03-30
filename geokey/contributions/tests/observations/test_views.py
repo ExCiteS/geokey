@@ -94,9 +94,11 @@ class SingleContributionAPIViewTest(TestCase):
         self.admin = UserF.create()
         self.creator = UserF.create()
         self.moderator = UserF.create()
+        self.viewer = UserF.create()
         self.project = ProjectF(
             add_admins=[self.admin],
-            add_contributors=[self.creator]
+            add_contributors=[self.creator],
+            add_viewers=[self.viewer]
         )
         self.moderators = UserGroupF(add_users=[self.moderator], **{
             'project': self.project,
@@ -261,6 +263,36 @@ class SingleContributionAPIViewTest(TestCase):
             Observation.objects.get(pk=self.observation.id).status,
             'active'
         )
+
+    @raises(PermissionDenied)
+    def test_update_user(self):
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.patch(url)
+        request.DATA = {'properies': {'text': 'blah'}}
+        request.user = self.viewer
+
+        view = SingleContributionAPIView()
+        view.update_and_respond(request, self.observation)
+
+    def test_update_under_review(self):
+        CommentFactory.create(**{
+            'commentto': self.observation,
+            'review_status': 'open'
+        })
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.patch(url)
+        request.DATA = {'meta': {'status': 'active'}}
+        request.user = self.admin
+
+        view = SingleContributionAPIView()
+        view.update_and_respond(request, self.observation)
+
+        ref = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(ref.status, 'review')
 
     @raises(PermissionDenied)
     def test_commit_from_draft_admin(self):
@@ -1204,10 +1236,27 @@ class UpdateObservationInProject(TestCase):
             observation.properties.get('key_2'), 12)
 
     def test_delete_with_view_member(self):
-        response = self._delete(
-            self.view_member
-        )
+        response = self._delete(self.view_member)
         self.assertEqual(response.status_code, 404)
+        self.assertNotEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'deleted'
+        )
+
+        self.project.isprivate = False
+        self.project.save()
+
+        grouping = GroupingFactory(**{
+            'project': self.project,
+            'isprivate': False,
+        })
+        RuleFactory.create(**{
+            'category': self.observation.category,
+            'grouping': grouping
+        })
+
+        response = self._delete(self.view_member)
+        self.assertEqual(response.status_code, 403)
         self.assertNotEqual(
             Observation.objects.get(pk=self.observation.id).status,
             'deleted'

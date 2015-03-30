@@ -21,7 +21,9 @@ from geokey.datagroupings.tests.model_factories import (
 from geokey.contributions.models import Comment, Observation
 from geokey.datagroupings.models import Grouping
 
-from geokey.users.tests.model_factories import UserGroupF, GroupingUserGroupFactory
+from geokey.users.tests.model_factories import (
+    UserGroupF, GroupingUserGroupFactory
+)
 from ..model_factories import ObservationFactory, CommentFactory
 
 from geokey.contributions.views.comments import (
@@ -147,6 +149,39 @@ class CommentAbstractAPIViewTest(TestCase):
             Comment.objects.get(pk=self.comment.id).text,
             self.comment.text
         )
+
+    def test_update_invalid_comment(self):
+        self.project.isprivate = False
+        self.project.save()
+
+        grouping = GroupingFactory(**{
+            'project': self.project,
+            'isprivate': False,
+        })
+        RuleFactory.create(**{
+            'category': self.observation.category,
+            'grouping': grouping
+        })
+
+        url = reverse('api:project_single_comment', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id,
+            'comment_id': self.comment.id
+        })
+        request = self.factory.patch(
+            url, {'text': 'Updated', 'review_status': 'blah'}
+        )
+        force_authenticate(request, user=self.commenter)
+
+        view = AllContributionsSingleCommentAPIView.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            observation_id=self.observation.id,
+            comment_id=self.comment.id
+        ).render()
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class CommentAbstractAPIViewResolveTest(TestCase):
@@ -561,6 +596,13 @@ class AddCommentToPrivateProjectTest(APITestCase):
         response = self.get_response(view_member)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_add_comment_to_draft(self):
+        self.observation.status = 'draft'
+        self.observation.save()
+
+        response = self.get_response(self.observation.creator)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class AddCommentToPublicProjectTest(APITestCase):
     def setUp(self):
@@ -615,6 +657,17 @@ class AddCommentToPublicProjectTest(APITestCase):
     def test_add_comment_to_observation_with_anonymous(self):
         response = self.get_response(AnonymousUser())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        grouping = GroupingFactory(**{
+            'project': self.project,
+            'isprivate': False,
+        })
+        RuleFactory.create(**{
+            'category': self.observation.category,
+            'grouping': grouping
+        })
+        response = self.get_response(AnonymousUser())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 class AddCommentToWrongProjectObservation(APITestCase):
@@ -1050,7 +1103,7 @@ class AddResponseToWrongMyObservationCommentTest(APITestCase):
         )
 
 
-class DeleteMyObservationCommentTest(APITestCase):
+class MyObservationCommentTest(APITestCase):
     def setUp(self):
         self.creator = UserF.create()
         self.contributor = UserF.create()
@@ -1073,16 +1126,16 @@ class DeleteMyObservationCommentTest(APITestCase):
             'creator': self.creator
         })
 
-    def get_response(self, user):
+    def update_comment(self, user):
         factory = APIRequestFactory()
         url = reverse('api:myobservations_single_comment', kwargs={
             'project_id': self.project.id,
             'observation_id': self.observation.id,
             'comment_id': self.comment_to_remove.id
         })
-        request = factory.delete(
+        request = factory.patch(
             url,
-            {'text': 'A comment to the observation'}
+            {'text': 'new text'}
         )
         force_authenticate(request, user=user)
         view = MyContributionsSingleCommentAPIView.as_view()
@@ -1093,8 +1146,29 @@ class DeleteMyObservationCommentTest(APITestCase):
             comment_id=self.comment_to_remove.id
         ).render()
 
+    def delete_comment(self, user):
+        factory = APIRequestFactory()
+        url = reverse('api:myobservations_single_comment', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id,
+            'comment_id': self.comment_to_remove.id
+        })
+        request = factory.delete(url)
+        force_authenticate(request, user=user)
+        view = MyContributionsSingleCommentAPIView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            observation_id=self.observation.id,
+            comment_id=self.comment_to_remove.id
+        ).render()
+
+    def test_update_comment_comment_creator(self):
+        response = self.update_comment(self.creator)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_delete_comment_with_admin(self):
-        response = self.get_response(self.admin)
+        response = self.delete_comment(self.admin)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         observation = Observation.objects.get(pk=self.observation.id)
@@ -1102,7 +1176,7 @@ class DeleteMyObservationCommentTest(APITestCase):
         self.assertIn(self.comment_to_remove, observation.comments.all())
 
     def test_delete_comment_with_contributor(self):
-        response = self.get_response(self.contributor)
+        response = self.delete_comment(self.contributor)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         observation = Observation.objects.get(pk=self.observation.id)
@@ -1110,7 +1184,7 @@ class DeleteMyObservationCommentTest(APITestCase):
         self.assertIn(self.comment_to_remove, observation.comments.all())
 
     def test_delete_comment_with_comment_creator(self):
-        response = self.get_response(self.creator)
+        response = self.delete_comment(self.creator)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         observation = Observation.objects.get(pk=self.observation.id)
@@ -1493,7 +1567,7 @@ class DeleteGroupingCommentTest(APITestCase):
             'creator': self.commentor
         })
 
-    def get_response(self, user):
+    def delete_comment(self, user):
         factory = APIRequestFactory()
         url = reverse(
             'api:view_single_comment',
@@ -1515,8 +1589,34 @@ class DeleteGroupingCommentTest(APITestCase):
             comment_id=self.comment_to_remove.id
         ).render()
 
+    def update_comment(self, user):
+        factory = APIRequestFactory()
+        url = reverse(
+            'api:view_single_comment',
+            kwargs={
+                'project_id': self.project.id,
+                'grouping_id': self.view.id,
+                'observation_id': self.observation.id,
+                'comment_id': self.comment_to_remove.id
+            }
+        )
+        request = factory.patch(url, {'text': 'new text'})
+        force_authenticate(request, user=user)
+        view = GroupingContributionsSingleCommentAPIView.as_view()
+        return view(
+            request,
+            project_id=self.project.id,
+            grouping_id=self.view.id,
+            observation_id=self.observation.id,
+            comment_id=self.comment_to_remove.id
+        ).render()
+
+    def test_update_comment_with_admin(self):
+        response = self.update_comment(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_delete_comment_with_admin(self):
-        response = self.get_response(self.admin)
+        response = self.delete_comment(self.admin)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         observation = Observation.objects.get(pk=self.observation.id)
@@ -1524,7 +1624,7 @@ class DeleteGroupingCommentTest(APITestCase):
         self.assertNotIn(self.comment_to_remove, observation.comments.all())
 
     def test_delete_comment_with_view_comment_creator(self):
-        response = self.get_response(self.commentor)
+        response = self.delete_comment(self.commentor)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         observation = Observation.objects.get(pk=self.observation.id)
@@ -1532,7 +1632,7 @@ class DeleteGroupingCommentTest(APITestCase):
         self.assertNotIn(self.comment_to_remove, observation.comments.all())
 
     def test_delete_comment_with_view_member(self):
-        response = self.get_response(self.view_member)
+        response = self.delete_comment(self.view_member)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(
             json.loads(response.content).get('error'),
@@ -1545,7 +1645,7 @@ class DeleteGroupingCommentTest(APITestCase):
         self.assertIn(self.comment_to_remove, observation.comments.all())
 
     def test_delete_comment_with_non_member(self):
-        response = self.get_response(self.non_member)
+        response = self.delete_comment(self.non_member)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 

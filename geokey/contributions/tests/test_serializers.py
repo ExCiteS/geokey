@@ -2,16 +2,67 @@ import json
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django.contrib.auth.models import AnonymousUser
 from nose.tools import raises
 
+from geokey.core.exceptions import MalformedRequestData
 from geokey.projects.tests.model_factories import UserF, ProjectF
 from geokey.categories.tests.model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory
 )
 
-from ..serializers import ContributionSerializer
+from ..serializers import ContributionSerializer, CommentSerializer
 from ..models import Observation
-from .model_factories import LocationFactory, ObservationFactory
+from .model_factories import (
+    LocationFactory, ObservationFactory, CommentFactory
+)
+
+
+class ContributionSerializerTest(TestCase):
+    def test_replace_null(self):
+        properties = {
+            'text': 'blah',
+            'number': 2,
+            'text_null': ''
+        }
+
+        serializer = ContributionSerializer(data={})
+
+        result = serializer.replace_null(properties)
+        self.assertIsNone(result.get('text_null'))
+        self.assertEqual(result.get('number'), properties.get('number'))
+        self.assertEqual(result.get('text'), properties.get('text'))
+
+    def test_validate_location(self):
+        project = ProjectF.create()
+        serializer = ContributionSerializer(context={'user': project.creator})
+        serializer._errors = {}
+        serializer.validate_location(project, 8271839172)
+        self.assertIsNotNone(serializer._errors.get('location'))
+
+        project = ProjectF.create()
+        location = LocationFactory.create(**{'private': True})
+        serializer = ContributionSerializer(context={'user': project.creator})
+        serializer._errors = {}
+        serializer.validate_location(project, location.id)
+        self.assertIsNotNone(serializer._errors.get('location'))
+
+        project = ProjectF.create()
+        location = LocationFactory.create()
+        serializer = ContributionSerializer(context={'user': project.creator})
+        serializer._errors = {}
+        serializer.validate_location(project, location.id)
+        self.assertEqual(serializer._errors, {})
+
+    def test_get_display_field(self):
+        observation = ObservationFactory(**{
+            'display_field': 'text:blah'
+        })
+
+        serializer = ContributionSerializer(observation)
+        display_field = serializer.get_display_field(observation)
+        self.assertEqual(display_field.get('key'), 'text')
+        self.assertEqual(display_field.get('value'), 'blah')
 
 
 class RestoreLocationTest(TestCase):
@@ -109,22 +160,54 @@ class RestoreLocationTest(TestCase):
         self.assertEqual(json.loads(location.geometry.geojson), geometry)
 
     def test_restore_existing_location(self):
-        location = LocationFactory()
+        serializer = ContributionSerializer(
+            data=self.data,
+            context={'user': self.admin, 'project': self.project}
+        )
+        if serializer.is_valid():
+            serializer.save()
+        contribution = serializer.instance
+
+        data = {
+            "name": 'Location name',
+            "description": 'Location description'
+        }
+        geometry = self.data.get('geometry')
+
+        result = serializer.restore_location(
+            contribution.location,
+            data=data,
+            geometry=geometry
+        )
+        self.assertEqual(result.name, data.get('name'))
+
+    def test_permssion_denied(self):
+        location = LocationFactory.create(
+            **{'private': True}
+        )
+
+        data = {
+            "id": location.id
+        }
+        geometry = {
+            "type": "Point",
+            "coordinates": [
+                -0.134046077728271,
+                51.52439200896907
+            ]
+        }
+
         serializer = ContributionSerializer(
             data=self.data,
             context={'user': self.admin, 'project': self.project}
         )
 
-        data = {
-            "id": location.id,
-            "name": location.name,
-            "description": location.description,
-            "private": location.private
-        }
-        geometry = json.loads(location.geometry.geojson)
-
-        result = serializer.restore_location(data=data, geometry=geometry)
-        self.assertEqual(location, result)
+        try:
+            serializer.restore_location(data=data, geometry=geometry)
+        except MalformedRequestData:
+            pass
+        else:
+            self.fail('PermissionDenied not raised')
 
 
 class ContributionSerializerIntegrationTests(TestCase):
@@ -563,3 +646,20 @@ class ContributionSerializerIntegrationTests(TestCase):
 
         o = Observation.objects.get(pk=observation.id)
         self.assertEqual(o.attributes.get('number'), 12)
+
+
+class CommendSerializerTest(TestCase):
+    def test_get_isowner(self):
+        user = UserF.create()
+        comment = CommentFactory.create(**{'creator': user})
+
+        serializer = CommentSerializer(comment, context={'user': user})
+        self.assertTrue(serializer.get_isowner(comment))
+
+        serializer = CommentSerializer(
+            comment, context={'user': UserF.create()})
+        self.assertFalse(serializer.get_isowner(comment))
+
+        serializer = CommentSerializer(
+            comment, context={'user': AnonymousUser()})
+        self.assertFalse(serializer.get_isowner(comment))

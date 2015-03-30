@@ -67,6 +67,7 @@ class CommentAbstractAPIView(APIView):
                 raise PermissionDenied('You are not a project moderator and '
                                        'therefore not eligable to resolve this'
                                        ' comment.')
+
             serializer = CommentSerializer(
                 comment,
                 data=data,

@@ -353,7 +353,7 @@ class ContributionSerializer(BaseSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    creator = UserSerializer(fields=('id', 'display_name'))
+    creator = UserSerializer(fields=('id', 'display_name'), read_only=True)
     isowner = serializers.SerializerMethodField()
 
     class Meta:
