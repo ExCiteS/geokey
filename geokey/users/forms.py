@@ -20,6 +20,10 @@ class UserRegistrationForm(SignupForm):
         super(UserRegistrationForm, self).__init__(*args, **kwargs)
         del self.fields['username']
 
+    def clean(self):
+        self.cleaned_data['username'] = self.cleaned_data.get('display_name')
+        return super(UserRegistrationForm, self).clean()
+
     def clean_display_name(self):
         cleaned = self.cleaned_data.get('display_name')
         if User.objects.filter(display_name__iexact=cleaned).exists():
