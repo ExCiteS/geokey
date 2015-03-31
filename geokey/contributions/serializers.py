@@ -298,8 +298,9 @@ class ContributionSerializer(BaseSerializer):
                     'id': obj.creator.id,
                     'display_name': obj.creator.display_name
                 },
-                'updator': (updator),
+                'updator': updator,
                 'created_at': obj.created_at,
+                'updated_at': obj.updated_at,
                 'version': obj.version,
                 'isowner': isowner
             },
