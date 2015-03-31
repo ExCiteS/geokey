@@ -229,6 +229,7 @@ class ContributionSerializer(object):
                 },
                 'updator': updator,
                 'created_at': obj.created_at,
+                'updated_at': obj.updated_at,
                 'version': obj.version,
                 'location': {
                     'id': location.id,
