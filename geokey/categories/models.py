@@ -392,7 +392,7 @@ class DateField(Field):
             try:
                 parse_date(value)
             except ParseError:
-                raise InputError('The value for DateTimeField %s is not a '
+                raise InputError('The value for DateField %s is not a '
                                  'valid date.' % self.name)
 
     @property
