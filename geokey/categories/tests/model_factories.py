@@ -10,7 +10,8 @@ from ..models import (
 
 
 class CategoryFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = Category
+    class Meta:
+        model = Category
 
     creator = factory.SubFactory(UserF)
     name = factory.Sequence(lambda n: "category %s" % n)
@@ -20,7 +21,8 @@ class CategoryFactory(factory.django.DjangoModelFactory):
 
 
 class FieldFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = Field
+    class Meta:
+        model = Field
 
     name = factory.Sequence(lambda n: "field %s" % n)
     key = factory.Sequence(lambda n: "field_%s" % n)
@@ -32,7 +34,8 @@ class FieldFactory(factory.django.DjangoModelFactory):
 
 
 class TextFieldFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = TextField
+    class Meta:
+        model = TextField
 
     name = factory.Sequence(lambda n: "textfield %s" % n)
     key = factory.Sequence(lambda n: "textfield_%s" % n)
@@ -43,7 +46,8 @@ class TextFieldFactory(factory.django.DjangoModelFactory):
 
 
 class NumericFieldFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = NumericField
+    class Meta:
+        model = NumericField
 
     name = factory.Sequence(lambda n: "numericfield %s" % n)
     key = factory.Sequence(lambda n: "numericfield_%s" % n)
@@ -54,7 +58,8 @@ class NumericFieldFactory(factory.django.DjangoModelFactory):
 
 
 class DateTimeFieldFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = DateTimeField
+    class Meta:
+        model = DateTimeField
 
     name = factory.Sequence(lambda n: "datetimefield %s" % n)
     key = factory.Sequence(lambda n: "datetimefield_%s" % n)
@@ -65,7 +70,8 @@ class DateTimeFieldFactory(factory.django.DjangoModelFactory):
 
 
 class DateFieldFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = DateField
+    class Meta:
+        model = DateField
 
     name = factory.Sequence(lambda n: "datefield %s" % n)
     key = factory.Sequence(lambda n: "datefield_%s" % n)
@@ -76,7 +82,8 @@ class DateFieldFactory(factory.django.DjangoModelFactory):
 
 
 class TimeFieldFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = TimeField
+    class Meta:
+        model = TimeField
 
     name = factory.Sequence(lambda n: "timefield %s" % n)
     key = factory.Sequence(lambda n: "timefield_%s" % n)
@@ -87,7 +94,8 @@ class TimeFieldFactory(factory.django.DjangoModelFactory):
 
 
 class LookupFieldFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = LookupField
+    class Meta:
+        model = LookupField
 
     name = factory.Sequence(lambda n: "lookupfield %s" % n)
     key = factory.Sequence(lambda n: "lookupfield_%s" % n)
@@ -98,7 +106,8 @@ class LookupFieldFactory(factory.django.DjangoModelFactory):
 
 
 class LookupValueFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = LookupValue
+    class Meta:
+        model = LookupValue
 
     name = factory.Sequence(lambda n: "lookupfield %s" % n)
     field = factory.SubFactory(LookupFieldFactory)
@@ -106,7 +115,8 @@ class LookupValueFactory(factory.django.DjangoModelFactory):
 
 
 class MultipleLookupFieldFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = MultipleLookupField
+    class Meta:
+        model = MultipleLookupField
 
     name = factory.Sequence(lambda n: "lookupfield %s" % n)
     key = factory.Sequence(lambda n: "lookupfield_%s" % n)
@@ -117,7 +127,8 @@ class MultipleLookupFieldFactory(factory.django.DjangoModelFactory):
 
 
 class MultipleLookupValueFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = MultipleLookupValue
+    class Meta:
+        model = MultipleLookupValue
 
     name = factory.Sequence(lambda n: "lookupfield %s" % n)
     field = factory.SubFactory(MultipleLookupFieldFactory)

@@ -7,7 +7,8 @@ from ..models import Application
 
 
 class ApplicationFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = Application
+    class Meta:
+        model = Application
 
     name = factory.Sequence(lambda n: 'name_%d' % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)

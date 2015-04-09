@@ -6,7 +6,7 @@ from django.core.files.base import ContentFile
 
 from geokey.users.tests.model_factories import UserF
 from geokey.contributions.tests.model_factories import ObservationFactory
-from geokey.contributions.models import MediaFile, ImageFile, VideoFile
+from geokey.contributions.models import ImageFile, VideoFile
 
 
 def get_image(file_name='test.png', width=200, height=200):

@@ -6,7 +6,8 @@ from ..models import User, UserGroup, GroupingUserGroup
 
 
 class UserF(factory.django.DjangoModelFactory):
-    FACTORY_FOR = User
+    class Meta:
+        model = User
 
     display_name = factory.Sequence(lambda n: "display_name%s" % n)
     email = factory.Sequence(lambda n: "email%s@example.com" % n)
@@ -30,7 +31,8 @@ class UserF(factory.django.DjangoModelFactory):
 
 
 class UserGroupF(factory.django.DjangoModelFactory):
-    FACTORY_FOR = UserGroup
+    class Meta:
+        model = UserGroup
 
     name = factory.Sequence(lambda n: 'name_%d' % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
@@ -49,7 +51,8 @@ class UserGroupF(factory.django.DjangoModelFactory):
 
 
 class GroupingUserGroupFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = GroupingUserGroup
+    class Meta:
+        model =GroupingUserGroup
 
     usergroup = factory.SubFactory(UserGroupF)
     grouping = factory.SubFactory(

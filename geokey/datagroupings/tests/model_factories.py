@@ -9,7 +9,8 @@ from ..models import Grouping, Rule
 
 
 class GroupingFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = Grouping
+    class Meta:
+        model = Grouping
 
     name = factory.Sequence(lambda n: 'name_%d' % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
@@ -40,7 +41,8 @@ class GroupingFactory(factory.django.DjangoModelFactory):
 
 
 class RuleFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = Rule
+    class Meta:
+        model = Rule
 
     category = factory.SubFactory(CategoryFactory)
     grouping = factory.SubFactory(GroupingFactory)
