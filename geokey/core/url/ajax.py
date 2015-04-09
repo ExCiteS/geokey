@@ -73,14 +73,6 @@ urlpatterns = patterns(
         name='category_fields_reorder'),
 
     # ###########################
-    # VIEWS
-    # ###########################
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/$',
-        view_views.GroupingUpdate.as_view(),
-        name='view'),
-
-    # ###########################
     # USER
     # ###########################
     url(r'^users/$', user_views.QueryUsers.as_view(), name='users_users'),

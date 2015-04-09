@@ -1,4 +1,4 @@
-import json
+# import json
 from django import template
 
 register = template.Library()
@@ -26,7 +26,7 @@ def value(d, key_name):
 def minval(d, key_name):
     if d is not None:
         if d.get(key_name) is not None:
-            minval = json.loads(d.get(key_name)).get('minval')
+            minval = d.get(key_name).get('minval')
             if minval is not None:
                 return minval
 
@@ -37,7 +37,7 @@ def minval(d, key_name):
 def maxval(d, key_name):
     if d is not None:
         if d.get(key_name) is not None:
-            maxval = json.loads(d.get(key_name)).get('maxval')
+            maxval = d.get(key_name).get('maxval')
             if maxval is not None:
                 return maxval
 

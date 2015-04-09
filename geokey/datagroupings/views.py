@@ -119,15 +119,18 @@ class GroupingSettings(LoginRequiredMixin, TemplateView):
 
     def post(self, request, project_id, grouping_id):
         context = self.get_context_data(project_id, grouping_id)
-        grouping = context.pop('grouping')
-        data = request.POST
+        grouping = context.pop('grouping', None)
 
-        grouping.name = strip_tags(data.get('name'))
-        grouping.description = strip_tags(data.get('description'))
-        grouping.save()
+        if grouping is not None:
+            data = request.POST
 
-        messages.success(self.request, "The data grouping has been updated.")
-        context['grouping'] = grouping
+            grouping.name = strip_tags(data.get('name'))
+            grouping.description = strip_tags(data.get('description'))
+            grouping.save()
+
+            messages.success(self.request, "The data grouping has been updated.")
+            context['grouping'] = grouping
+
         return self.render_to_response(context)
 
 
@@ -164,10 +167,14 @@ class GroupingDelete(LoginRequiredMixin, TemplateView):
 
         if grouping is not None:
             grouping.delete()
+            messages.success(
+                self.request,
+                'The data grouping has been deleted'
+            )
 
-        messages.success(self.request, 'The data grouping has been deleted')
+            return redirect('admin:grouping_list', project_id=project_id)
 
-        return redirect('admin:grouping_list', project_id=project_id)
+        return self.render_to_response(context)
 
 
 class RuleCreate(LoginRequiredMixin, CreateView):
@@ -178,55 +185,56 @@ class RuleCreate(LoginRequiredMixin, CreateView):
     model = Rule
 
     @handle_exceptions_for_admin
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, *args, **kwargs):
         """
         Returns the context data for creating the view.
         """
+        self.object = None
+
         project_id = self.kwargs['project_id']
         grouping_id = self.kwargs['grouping_id']
 
         context = super(
-            RuleCreate, self).get_context_data(**kwargs)
+            RuleCreate, self).get_context_data(*args, **kwargs)
 
         context['grouping'] = Grouping.objects.as_admin(
             self.request.user, project_id, grouping_id
         )
         return context
 
-    @handle_exceptions_for_admin
     def post(self, request, project_id, grouping_id):
         """
         Creates a new Rule with the POSTed data.
         """
-        grouping = Grouping.objects.as_admin(
-            self.request.user,
-            project_id,
-            grouping_id
-        )
-        category = Category.objects.as_admin(
-            self.request.user, project_id, request.POST.get('category'))
+        context = self.get_context_data()
+        grouping = context.pop('grouping', None)
 
-        rules = None
-        min_date = None
-        max_date = None
+        if grouping is not None:
+            category = Category.objects.as_admin(
+                self.request.user, project_id, request.POST.get('category'))
 
-        try:
-            rules = json.loads(request.POST.get('rules', None))
-            min_date = rules.pop('min_date')
-            max_date = rules.pop('max_date')
-        except ValueError:
-            pass
+            rules = None
+            min_date = None
+            max_date = None
 
-        Rule.objects.create(
-            grouping=grouping,
-            category=category,
-            min_date=min_date,
-            max_date=max_date,
-            filters=rules
-        )
-        messages.success(self.request, 'The filter has been created.')
-        return redirect('admin:grouping_overview',
-                        project_id=project_id, grouping_id=grouping_id)
+            rules = request.POST.get('rules', None)
+            if rules is not None:
+                rules = json.loads(rules)
+                min_date = rules.pop('min_date')
+                max_date = rules.pop('max_date')
+
+            Rule.objects.create(
+                grouping=grouping,
+                category=category,
+                min_date=min_date,
+                max_date=max_date,
+                constraints=rules
+            )
+            messages.success(self.request, 'The filter has been created.')
+            return redirect('admin:grouping_overview',
+                            project_id=project_id, grouping_id=grouping_id)
+
+        return self.render_to_response(context)
 
 
 class RuleSettings(LoginRequiredMixin, TemplateView):
@@ -240,93 +248,65 @@ class RuleSettings(LoginRequiredMixin, TemplateView):
         """
         Creates the request context for rendering the page
         """
+        context = super(RuleSettings, self).get_context_data(**kwargs)
+
         view = Grouping.objects.as_admin(
             self.request.user,
             project_id,
             grouping_id
         )
-        context = super(RuleSettings, self).get_context_data(**kwargs)
 
         context['rule'] = view.rules.get(pk=rule_id)
         return context
 
     @handle_exceptions_for_admin
     def post(self, request, project_id, grouping_id, rule_id):
-        view = Grouping.objects.as_admin(
-            self.request.user,
-            project_id,
-            grouping_id
-        )
-        rule = view.rules.get(pk=rule_id)
+        context = self.get_context_data(project_id, grouping_id, rule_id)
 
-        rules = None
+        rule = context.pop('rule', None)
 
-        try:
-            rules = json.loads(request.POST.get('rules'))
-            rule.min_date = rules.pop('min_date')
-            rule.max_date = rules.pop('max_date')
-        except ValueError:
-            pass
+        if rule is not None:
+            rules = request.POST.get('rules', None)
+            if rules is not None:
+                rules = json.loads(rules)
+                rule.min_date = rules.pop('min_date')
+                rule.max_date = rules.pop('max_date')
+                rule.constraints = rules
 
-        rule.filters = rules
-        rule.save()
-        messages.success(self.request, 'The filter has been updated.')
-        return redirect('admin:grouping_overview',
-                        project_id=project_id, grouping_id=grouping_id)
+            rule.save()
+            messages.success(self.request, 'The filter has been updated.')
+            return redirect('admin:grouping_overview',
+                            project_id=project_id, grouping_id=grouping_id)
+
+        return self.render_to_response(context)
 
 
-class FilterDelete(LoginRequiredMixin, TemplateView):
+class RuleDelete(LoginRequiredMixin, TemplateView):
     template_name = 'base.html'
 
     @handle_exceptions_for_admin
-    def get_context_data(self, project_id, grouping_id, filter_id, **kwargs):
+    def get_context_data(self, project_id, grouping_id, rule_id, **kwargs):
         """
         Creates the request context for rendering the page
         """
         grouping = Grouping.objects.as_admin(
             self.request.user, project_id, grouping_id)
-        context = super(FilterDelete, self).get_context_data(**kwargs)
+        context = super(RuleDelete, self).get_context_data(**kwargs)
 
-        context['filter'] = grouping.rules.get(pk=filter_id)
+        context['filter'] = grouping.rules.get(pk=rule_id)
         return context
 
-    def get(self, request, project_id, grouping_id, filter_id):
-        context = self.get_context_data(project_id, grouping_id, filter_id)
+    def get(self, request, project_id, grouping_id, rule_id):
+        context = self.get_context_data(project_id, grouping_id, rule_id)
         data_filter = context.pop('filter', None)
 
         if data_filter is not None:
             data_filter.delete()
 
-        messages.success(self.request, 'The filter has been deleted')
+            messages.success(self.request, 'The filter has been deleted')
+            return redirect(
+                'admin:grouping_overview',
+                project_id=project_id, grouping_id=grouping_id
+            )
 
-        return redirect('admin:grouping_overview',
-                        project_id=project_id, grouping_id=grouping_id)
-
-
-# ############################################################################
-#
-# AJAX API views
-#
-# ############################################################################
-
-class GroupingUpdate(APIView):
-    """
-    API Endpoints for a view in the AJAX API.
-    /ajax/projects/:project_id/views/:grouping_id
-    """
-    @handle_exceptions_for_ajax
-    def put(self, request, project_id, grouping_id):
-        """
-        Updates a view
-        """
-        view = Grouping.objects.as_admin(request.user, project_id, grouping_id)
-        serializer = GroupingSerializer(
-            view, data=request.DATA, partial=True,
-            fields=('id', 'name', 'description', 'status', 'isprivate')
-        )
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return self.render_to_response(context)

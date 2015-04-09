@@ -1,4 +1,3 @@
-import json
 from django import template
 
 register = template.Library()
@@ -8,8 +7,7 @@ register = template.Library()
 def is_in(value, key, d):
     if d is not None:
         if d.get(key) is not None:
-            l = json.loads(d[key])
-            if str(value) in l:
+            if str(value) in d[key]:
                 return 'selected'
 
     return ''

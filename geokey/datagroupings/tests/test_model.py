@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AnonymousUser
 from datetime import datetime
 import pytz
 
@@ -97,6 +98,13 @@ class TestViewPermissions(TestCase):
         self.assertFalse(view.can_read(user))
         self.assertFalse(view.can_moderate(user))
 
+    def test_anonymous(self):
+        user = AnonymousUser()
+        view = GroupingFactory.create()
+
+        self.assertFalse(view.can_view(user))
+        self.assertFalse(view.can_read(user))
+        self.assertFalse(view.can_moderate(user))
 
 class RuleTest(TestCase):
     @raises(Rule.DoesNotExist)
@@ -127,28 +135,19 @@ class RuleTest(TestCase):
         self.assertNotIn(inactive, rules)
 
 
-class ViewTest(TestCase):
-    def setUp(self):
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.view1_user = UserF.create()
-        self.view2_user = UserF.create()
-        self.non_member = UserF.create()
-        self.project = ProjectF(
-            add_admins=[self.admin],
-            add_contributors=[self.contributor]
-        )
-        self.view1 = GroupingFactory(add_viewers=[self.view1_user], **{
-            'project': self.project
-        })
-        self.view2 = GroupingFactory(add_viewers=[self.view2_user], **{
-            'project': self.project
-        })
-
+class DataGroupingTest(TestCase):
     @raises(Grouping.DoesNotExist)
     def test_delete(self):
-        self.view1.delete()
-        Grouping.objects.get(pk=self.view1.id)
+        view = GroupingFactory.create()
+        view.delete()
+        Grouping.objects.get(pk=view.id)
+
+    def test_get_where_clause(self):
+        user = UserF.create()
+        project = ProjectF.create(add_admins=[user])
+        grouping = GroupingFactory(**{'project': project})
+
+        self.assertIsNone(grouping.get_where_clause())
 
     def test_get_data(self):
         user = UserF.create()
@@ -157,11 +156,11 @@ class ViewTest(TestCase):
         category_2 = CategoryFactory(**{'project': project})
         view = GroupingFactory(**{'project': project})
         for x in range(0, 5):
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1}
             )
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_2}
             )
@@ -184,20 +183,20 @@ class ViewTest(TestCase):
             'category': category_1
         })
 
-        observation = ObservationFactory(**{
+        observation = ObservationFactory.create(**{
             'project': project,
             'category': category_1,
             'properties': {'text': 'yes to update'}
         })
 
         for x in range(0, 5):
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'text': 'yes ' + str(x)}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'text': 'no ' + str(x)}
@@ -223,15 +222,15 @@ class ViewTest(TestCase):
         category_3 = CategoryFactory(**{'project': project})
         view = GroupingFactory(**{'project': project})
         for x in range(0, 5):
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1}
             )
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_2}
             )
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_3}
             )
@@ -250,9 +249,9 @@ class ViewTest(TestCase):
             self.assertNotEqual(
                 observation.category, category_3)
 
-    def test_get_data_text_filter(self):
-        user = UserF.create()
-        project = ProjectF.create(add_admins=[user])
+    def test_get_data_no_rules(self):
+        admin = UserF.create()
+        project = ProjectF.create(add_admins=[admin])
         category_1 = CategoryFactory(**{'project': project})
         TextFieldFactory(**{
             'key': 'text',
@@ -265,31 +264,83 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'text': 'yes ' + str(x)}}
             )
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'status': 'pending',
+                'properties': {'text': 'yes ' + str(x)}}
+            )
+
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'text': 'no ' + str(x)}}
             )
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': 'yes ' + str(x)}}
             )
 
         view = GroupingFactory(**{'project': project})
+        self.assertEqual(view.data(admin).count(), 0)
+
+    def test_get_data_text_filter(self):
+        admin = UserF.create()
+        project = ProjectF.create(add_admins=[admin])
+        category_1 = CategoryFactory(**{'project': project})
+        TextFieldFactory(**{
+            'key': 'text',
+            'category': category_1
+        })
+        category_2 = CategoryFactory(**{'project': project})
+        TextFieldFactory(**{
+            'key': 'bla',
+            'category': category_2
+        })
+
+        for x in range(0, 5):
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'properties': {'text': 'yes ' + str(x)}}
+            )
+
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'status': 'pending',
+                'properties': {'text': 'yes ' + str(x)}}
+            )
+
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'properties': {'text': 'no ' + str(x)}}
+            )
+
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_2,
+                'properties': {'bla': 'yes ' + str(x)}}
+            )
+
+        viewer = UserF.create()
+        view = GroupingFactory(add_viewers=[viewer], **{'project': project})
         RuleFactory(**{
             'grouping': view,
             'category': category_1,
             'constraints': {'text': 'yes'}
         })
-        self.assertEqual(view.data(user).count(), 5)
+        self.assertEqual(view.data(admin).count(), 10)
+        self.assertEqual(view.data(viewer).count(), 5)
 
     def test_get_data_min_number_filter(self):
         user = UserF.create()
@@ -306,19 +357,19 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'number': 12}}
             )
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'number': 20}}
             )
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'number': 12}}
@@ -348,19 +399,19 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'number': 12}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'number': 20}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'number': 12}
@@ -390,19 +441,19 @@ class ViewTest(TestCase):
         })
 
         for x in range(5, 11):
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'rating': x}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'rating': x}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'rating': x}
@@ -444,19 +495,19 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'lookup': lookup_1.id}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'lookup': lookup_2.id}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': lookup_3.id}
@@ -486,19 +537,19 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'date': '2014-04-09'}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'date': '2013-04-09'}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': '2014-04-09'}
@@ -530,19 +581,19 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'date': '2014-04-09'}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'date': '2013-04-09'}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': '2014-04-09'}
@@ -574,19 +625,19 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'date': '2014-04-09'}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'date': '2013-04-09'}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': '2014-04-09'}
@@ -618,19 +669,19 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'date': '2014-04-09'}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'date': '2013-04-09'}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': '2014-04-09'}
@@ -662,19 +713,19 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'time': '11:00'}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'time': '18:00'}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': '11:00'}
@@ -706,19 +757,19 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'time': '2:00'}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'time': '18:00'}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': '2:00'}
@@ -750,19 +801,19 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'time': '11:00'}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'time': '18:00'}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': '11:00'}
@@ -794,19 +845,19 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'time': '11:00'}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'time': '18:00'}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': '11:00'}
@@ -978,19 +1029,19 @@ class ViewTest(TestCase):
         })
 
         for x in range(0, 5):
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'lookup': [lookup_1.id, lookup_3.id]}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'lookup': [lookup_2.id, lookup_3.id]}
             })
 
-            ObservationFactory(**{
+            ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': [lookup_4.id]}

@@ -14,7 +14,6 @@ class Project(models.Model):
     """
     Stores a single project.
     """
-
     name = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
     isprivate = models.BooleanField(default=False)
