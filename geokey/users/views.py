@@ -46,6 +46,22 @@ class Index(TemplateView):
     template_name = 'index.html'
 
     def get(self, request, *args, **kwargs):
+        """
+        Renders the page or redirects to dashboard if user is authenticated.
+
+        Parameter
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+
+        Returns
+        -------
+        django.http.HttpResponse
+            Rendered template
+
+        django.http.HttpResponseRedirect
+            to dashboard, if the user is signed in
+        """
         if request.user.is_anonymous():
             return self.render_to_response(self.get_context_data)
         else:
@@ -59,6 +75,13 @@ class Dashboard(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard.html'
 
     def get_context_data(self):
+        """
+        Returns the context to render the view. Overwrites the method to add
+        projects, projects status types and extensions to context
+
+        Return
+        dict
+        """
         projects = Project.objects.get_list(self.request.user)
 
         from geokey.extensions.base import extensions
@@ -81,10 +104,25 @@ class Dashboard(LoginRequiredMixin, TemplateView):
 
 
 class UserGroupList(LoginRequiredMixin, TemplateView):
+    """
+    Displays a list of all user groups for a project.
+    """
     template_name = 'users/usergroup_list.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id):
+        """
+        Overwrites the method to add project to the context
+
+        Parameters
+        ----------
+        project_id : int
+            identifies the project in the data base
+
+        Returns
+        -------
+        dict
+        """
         project = Project.objects.as_admin(self.request.user, project_id)
         return super(UserGroupList, self).get_context_data(project=project)
 
@@ -100,7 +138,11 @@ class UserGroupCreate(LoginRequiredMixin, CreateView):
     @handle_exceptions_for_admin
     def get_context_data(self, **kwargs):
         """
-        Creates the request context for rendering the page
+        Overwrites the method to add project to the context
+
+        Returns
+        -------
+        dict
         """
         project_id = self.kwargs['project_id']
 
@@ -116,6 +158,11 @@ class UserGroupCreate(LoginRequiredMixin, CreateView):
         """
         Returns the redirect URL that is called after the user group has been
         created.
+
+        Returns
+        -------
+        str
+            URL that is called after the Group has been created
         """
         project_id = self.kwargs['project_id']
         return reverse(
@@ -125,7 +172,12 @@ class UserGroupCreate(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         """
-        Creates the user group and redirects to the groups overview page
+        Creates the user group
+
+        Parameter
+        ---------
+        form : geokey.users.forms.UsergroupCreateForm
+            Represents the user input
         """
         project_id = self.kwargs['project_id']
         project = Project.objects.as_admin(self.request.user, project_id)
@@ -135,6 +187,21 @@ class UserGroupCreate(LoginRequiredMixin, CreateView):
         return super(UserGroupCreate, self).form_valid(form)
 
     def post(self, request, project_id, *args, **kwargs):
+        """
+        Creates the user group
+
+        Parameter
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+        project_id : int
+            identifies the project in the data base
+
+        Returns
+        -------
+        django.http.HttpResponse
+            Rendered template
+        """
         self.object = None
         context = self.get_context_data(*args, **kwargs)
         project = context.get('project')
@@ -157,7 +224,19 @@ class UserGroupOverview(LoginRequiredMixin, TemplateView):
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, group_id):
         """
-        Creates the request context for rendering the page
+        Creates the request context for rendering the page, add the user group
+        and available status types
+
+        Parameters
+        ----------
+        project_id : int
+            identifies the project in the data base
+        group_id : int
+            identifies the user groups in the data base
+
+        Return
+        ------
+        dict
         """
         project = Project.objects.as_admin(self.request.user, project_id)
         group = project.usergroups.get(pk=group_id)
@@ -167,7 +246,7 @@ class UserGroupOverview(LoginRequiredMixin, TemplateView):
 
 class AdministratorsOverview(LoginRequiredMixin, TemplateView):
     """
-    Displays the user group settings page
+    Displays the list of administrators of the project
     `/admin/projects/:project_id/usergroups/:group_id/`
     """
     template_name = 'users/usergroup_admins.html'
@@ -175,7 +254,17 @@ class AdministratorsOverview(LoginRequiredMixin, TemplateView):
     @handle_exceptions_for_admin
     def get_context_data(self, project_id):
         """
-        Creates the request context for rendering the page
+        Creates the request context for rendering the page, adds the project
+        to the context
+
+        Parameters
+        ----------
+        project_id : int
+            identifies the project in the data base
+
+        Return
+        ------
+        dict
         """
         project = Project.objects.as_admin(self.request.user, project_id)
         return {'project': project}
@@ -191,7 +280,19 @@ class UserGroupSettings(LoginRequiredMixin, TemplateView):
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, group_id):
         """
-        Creates the request context for rendering the page
+        Creates the request context for rendering the page, add the user group
+        and available status types
+
+        Parameters
+        ----------
+        project_id : int
+            identifies the project in the data base
+        group_id : int
+            identifies the user groups in the data base
+
+        Return
+        ------
+        dict
         """
         project = Project.objects.as_admin(self.request.user, project_id)
         group = project.usergroups.get(pk=group_id)
@@ -199,6 +300,23 @@ class UserGroupSettings(LoginRequiredMixin, TemplateView):
         return {'group': group, 'status_types': STATUS}
 
     def post(self, request, project_id, group_id):
+        """
+        Updates the user group settings
+
+        Parameter
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+        project_id : int
+            identifies the project in the data base
+        group_id : int
+            identifies the group in the data base
+
+        Returns
+        -------
+        django.http.HttpResponse
+            Rendered template
+        """
         context = self.get_context_data(project_id, group_id)
         group = context.pop('group', None)
 
@@ -225,7 +343,19 @@ class UserGroupPermissions(LoginRequiredMixin, TemplateView):
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, group_id):
         """
-        Creates the request context for rendering the page
+        Creates the request context for rendering the page, adds the user group
+        to the context
+
+        Parameter
+        ---------
+        project_id : int
+            identifies the project in the data base
+        group_id : int
+            identifies the group in the data base
+
+        Returns
+        -------
+        dict
         """
         project = Project.objects.as_admin(self.request.user, project_id)
         group = project.usergroups.get(pk=group_id)
@@ -233,18 +363,55 @@ class UserGroupPermissions(LoginRequiredMixin, TemplateView):
 
 
 class UserGroupDelete(LoginRequiredMixin, TemplateView):
+    """
+    Deletes the user group
+    """
     template_name = 'base.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, group_id):
         """
-        Creates the request context for rendering the page
+        Creates the request context for rendering the page, adds the user group
+        to the context
+
+        Parameter
+        ---------
+        project_id : int
+            identifies the project in the data base
+        group_id : int
+            identifies the group in the data base
+
+        Returns
+        -------
+        dict
         """
         project = Project.objects.as_admin(self.request.user, project_id)
         group = project.usergroups.get(pk=group_id)
         return super(UserGroupDelete, self).get_context_data(group=group)
 
     def get(self, request, project_id, group_id):
+        """
+        Deletes the user group
+
+        Parameter
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+        project_id : int
+            identifies the project in the database
+        group_id : int
+            identifies the group in the database
+
+        Returns
+        -------
+        django.http.HttpResponseRedirect
+            to the user group list
+
+        django.http.HttpResponse
+            If user is not administrator of the project, the error message is
+            rendered.
+        """
+
         context = self.get_context_data(project_id, group_id)
         group = context.get('group')
 
@@ -266,6 +433,16 @@ class UserProfile(LoginRequiredMixin, TemplateView):
     def post(self, request):
         """
         Updates the user information
+
+        Parameter
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+
+        Returns
+        -------
+        django.http.HttpResponse
+            Rendered template
         """
         user = request.user
 
@@ -294,6 +471,14 @@ class UserNotifications(LoginRequiredMixin, TemplateView):
 
     @handle_exceptions_for_admin
     def get_context_data(self, **kwargs):
+        """
+        Returns the context to render the view. Adds projects the user is admin
+        of.
+
+        Return
+        ------
+        dict
+        """
         user = self.request.user
 
         context = super(UserNotifications, self).get_context_data(**kwargs)
@@ -303,6 +488,19 @@ class UserNotifications(LoginRequiredMixin, TemplateView):
 
     @handle_exceptions_for_admin
     def post(self, request):
+        """
+        Updates the notification settings
+
+        Parameter
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+
+        Returns
+        -------
+        django.http.HttpResponse
+            Rendered template
+        """
         context = self.get_context_data()
         data = self.request.POST
 
@@ -329,6 +527,19 @@ class QueryUsers(APIView):
     `/ajax/users/?query={username}
     """
     def get(self, request):
+        """
+        Returns a list of users where the display_name matches the query
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Represents the HTTP request
+
+        Returns
+        -------
+        rest_framework.response.Response
+            Contains the list of users
+        """
         q = request.GET.get('query').lower()
         users = User.objects.filter(
             display_name__icontains=q).exclude(pk=1)[:10]
@@ -348,6 +559,20 @@ class UserGroup(APIView):
     def put(self, request, project_id, group_id):
         """
         Updates user group information
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Represents the HTTP request
+        project_id : int
+            identifies the project in the database
+        group_id : int
+            identifies the group in the database
+
+        Returns
+        -------
+        rest_framework.response.Response
+            Contains the serialised usergroup or an error message
         """
         project = Project.objects.as_admin(request.user, project_id)
         group = project.usergroups.get(pk=group_id)
@@ -371,6 +596,20 @@ class UserGroupUsers(APIView):
     def post(self, request, project_id, group_id):
         """
         Adds a user to the usergroup
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Represents the HTTP request
+        project_id : int
+            identifies the project in the database
+        group_id : int
+            identifies the group in the database
+
+        Returns
+        -------
+        rest_framework.response.Response
+            Contains the serialised usergroup or an error message
         """
         project = Project.objects.as_admin(request.user, project_id)
         group = project.usergroups.get(pk=group_id)
@@ -399,6 +638,22 @@ class UserGroupSingleUser(APIView):
     def delete(self, request, project_id, group_id, user_id):
         """
         Removes a user from the user group
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Represents the HTTP request
+        project_id : int
+            identifies the project in the database
+        group_id : int
+            identifies the group in the database
+        user_id : int
+            identifies the user in the database
+
+        Returns
+        -------
+        rest_framework.response.Response
+            Empty response if successful
         """
         project = Project.objects.as_admin(request.user, project_id)
         group = project.usergroups.get(pk=group_id)
@@ -410,13 +665,28 @@ class UserGroupSingleUser(APIView):
 
 class UserGroupViews(APIView):
     """
-    AJAX API endpoint for views assigned to the user group
+    AJAX API endpoint for data groupings assigned to the user group
     `/ajax/project/:project_id/usergroups/:group_id/views/`
     """
     @handle_exceptions_for_ajax
     def post(self, request, project_id, group_id):
         """
-        Assigns a new view to the user group
+        Assigns a new data grouping to the user group
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Represents the HTTP request
+        project_id : int
+            identifies the project in the database
+        group_id : int
+            identifies the group in the database
+
+        Returns
+        -------
+        rest_framework.response.Response
+            Contains the serialised user group - data grouping relation or
+            an error message
         """
         project = Project.objects.as_admin(request.user, project_id)
         group = project.usergroups.get(pk=group_id)
@@ -446,10 +716,28 @@ class UserGroupViews(APIView):
 
 class UserGroupSingleView(APIView):
     """
-    AJAX API endpoint for views assigned to the user group
+    AJAX API endpoint for data groupings assigned to the user group
     `/ajax/project/:project_id/usergroups/:group_id/views/:grouping_id/`
     """
     def get_object(self, user, project_id, group_id, grouping_id):
+        """
+        Returns the data grouping
+
+        Parameter
+        ---------
+        user : geokey.users.models.User
+            User who was authenticated with the  request
+        project_id : int
+            identifies the project in the database
+        group_id : int
+            identifies the group in the database
+        grouping_id : id
+            identifies the data grouping in the database
+
+        Returns
+        -------
+        geokey.users.models.GroupingUserGroup
+        """
         project = Project.objects.as_admin(user, project_id)
         group = project.usergroups.get(pk=group_id)
         return group.viewgroups.get(grouping_id=grouping_id)
@@ -459,6 +747,23 @@ class UserGroupSingleView(APIView):
         """
         Updates the relation between user group and view, e.g. granting
         permissions on the view to the user group members.
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Represents the HTTP request
+        project_id : int
+            identifies the project in the database
+        group_id : int
+            identifies the group in the database
+        grouping_id : id
+            identifies the data grouping in the database
+
+        Returns
+        -------
+        rest_framework.response.Response
+            Contains the serialised user group - data grouping relation or
+            an error message
         """
         view_group = self.get_object(
             request.user, project_id, group_id, grouping_id)
@@ -476,6 +781,22 @@ class UserGroupSingleView(APIView):
     def delete(self, request, project_id, group_id, grouping_id):
         """
         Removes the relation between usergroup and view.
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Represents the HTTP request
+        project_id : int
+            identifies the project in the database
+        group_id : int
+            identifies the group in the database
+        grouping_id : id
+            identifies the data grouping in the database
+
+        Returns
+        -------
+        rest_framework.response.Response
+            Empty response indicating success or an error message
         """
         view_group = self.get_object(
             request.user, project_id, group_id, grouping_id)
@@ -490,7 +811,23 @@ class UserGroupSingleView(APIView):
 
 
 class CreateUserMixin(object):
+    """
+    Mixin to create a user
+    """
     def create_user(self, data):
+        """
+        Creates a user
+
+        Parameters
+        ----------
+        data : dict
+            User data
+
+        Returns
+        -------
+        geokey.users.models.User
+            The newly created user
+        """
         user = User.objects.create_user(
             data.get('email'),
             data.get('display_name'),
@@ -501,7 +838,23 @@ class CreateUserMixin(object):
 
 
 class UserAPIView(CreateUserMixin, APIView):
+    """
+    API endpoint to get, update and create a user
+    """
     def get(self, request):
+        """
+        Returns user information
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Represents the HTTP request
+
+        Response
+        --------
+        rest_framework.response.Response
+            Containing the user info or an error message if no user is signed in
+        """
         user = request.user
         if not user.is_anonymous():
             serializer = UserSerializer(user)
@@ -516,6 +869,19 @@ class UserAPIView(CreateUserMixin, APIView):
             )
 
     def patch(self, request):
+        """
+        Updates user information
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Represents the HTTP request
+
+        Response
+        --------
+        rest_framework.response.Response
+            Containing the user info or an error message
+        """
         user = request.user
 
         if user.is_anonymous():
@@ -552,6 +918,19 @@ class UserAPIView(CreateUserMixin, APIView):
             )
 
     def post(self, request):
+        """
+        Creates a new user
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Represents the HTTP request
+
+        Response
+        --------
+        rest_framework.response.Response
+            Containing the user info or an error message
+        """
         data = request.DATA
         form = UserRegistrationForm(data)
         client_id = data.pop('client_id', None)
@@ -587,7 +966,23 @@ class UserAPIView(CreateUserMixin, APIView):
 
 
 class ChangePasswordView(APIView):
+    """
+    API endpoint to change the password via the client
+    """
     def post(self, request):
+        """
+        Updates the password
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Represents the HTTP request
+
+        Response
+        --------
+        rest_framework.response.Response
+            Empty response indicating success or error message
+        """
         user = request.user
         data = request.DATA
 

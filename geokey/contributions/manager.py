@@ -26,7 +26,17 @@ class LocationQuerySet(models.query.QuerySet):
     """
     def get_list(self, project):
         """
-        Returns a list of all locaation avaiable for that project/
+        Returns a list of all locations avaiable for that project
+
+        Parameters
+        ----------
+        project : geokey.projects.models.Project
+            Project locations are queried for
+
+        Return
+        ------
+        django.db.models.Queryset
+            All Locations available for the project
         """
         return self.filter(
             Q(private=False) |
@@ -40,7 +50,13 @@ class LocationManager(models.GeoManager):
     """
     def get_queryset(self):
         """
-        Returns the QuerySet
+        Returns the QuerySet. Overwrites the method for specific queryset
+        methods
+
+        Returns
+        -------
+        django.db.models.Queryset
+            All Locations
         """
         return LocationQuerySet(self.model)
 
@@ -49,6 +65,18 @@ class LocationManager(models.GeoManager):
         Returns all locations that can be used with the project. Includes all
         non-private locations and locations that a match the
         private_for_project property
+
+        Parameters
+        ----------
+        user : geokey.users.models.User
+            User locations are queried for
+        project_id : int
+            identifies the project in the database
+
+        Returns
+        -------
+        django.db.models.Queryset
+            All locations for user and project
         """
         project = Project.objects.as_contributor(user, project_id)
         return self.get_queryset().get_list(project)
@@ -57,7 +85,25 @@ class LocationManager(models.GeoManager):
         """
         Returns a single location if the location is not private or if the
         private_for_project property matches the project.
-        Raises PermissionDenied if otherwise.
+
+        Parameters
+        ----------
+        user : geokey.users.models.User
+            User locations are queried for
+        project_id : int
+            identifies the project in the database
+        location_id : int
+            identifies the location in the database
+
+        Returns
+        -------
+        geokey.contributions.models.Location
+            The location requested
+
+        Raises
+        ------
+        PermissionDenied
+            if users is not allowed to access project or use the location
         """
         project = Project.objects.as_contributor(user, project_id)
         location = self.get(pk=location_id)
@@ -69,10 +115,49 @@ class LocationManager(models.GeoManager):
 
 
 class ObservationQuerySet(query.HStoreQuerySet):
+    """
+    Implements custom queryset methods that are applied in ObservationManager
+    """
     def for_moderator(self, user):
+        """
+        Returns all observations for moderators; That includes all observations
+        in a project; except this with status='draft', which where not created
+        by the given user.
+
+        Parameters
+        ----------
+        user : geokey.users.models.User
+            User that contributions are filtered for
+
+        Return
+        ------
+        django.db.models.Queryset
+            List of observations for moderators
+        """
         return self.exclude(~Q(creator=user), status='draft')
 
     def for_viewer(self, user):
+        """
+        Returns all observations for viewer, i.e. users who have no moderation
+        permissions on the projects.
+
+        If the user is anonymous, it returns only observations with
+        status='active' and status='review'
+
+        If the user is not anonymous, it returns it returns only observations
+        with status='active' and status='review' as well as status='pending'
+        when the given user is creator of those observation.
+
+        Parameters
+        ----------
+        user : geokey.users.models.User
+            User that contributions are filtered for
+
+        Return
+        ------
+        django.db.models.Queryset
+            List of observations for viewer
+        """
         if user.is_anonymous():
             return self.exclude(status='draft').exclude(status='pending')
 
@@ -81,7 +166,18 @@ class ObservationQuerySet(query.HStoreQuerySet):
 
     def search(self, query):
         """
-        Returns a subset of the query set filtered by query provided
+        Returns a subset of the queryset containing observations where one of
+        the properties matches the given query
+
+        Parameters
+        ----------
+        query : str
+            Query that needs to matched
+
+        Return
+        ------
+        django.db.models.Queryset
+            List of search results matching the query
         """
         regex = r':[^#{5}]*%s' % query
         return self.filter(search_matches__iregex=regex)
@@ -94,15 +190,48 @@ class ObservationManager(hstore.HStoreManager):
     def get_queryset(self):
         """
         Returns all observations excluding those with status `deleted`
+
+        Return
+        ------
+        django.db.models.Queryset
+            All observations excluding deleted
         """
         return ObservationQuerySet(self.model).prefetch_related(
             'location', 'category', 'creator', 'updator').exclude(
             status=OBSERVATION_STATUS.deleted)
 
     def for_moderator(self, user):
+        """
+        Returns all observations for moderators; see
+        ObservationQuerySet.for_moderator for more info
+
+        Parameter
+        ---------
+        user : geokey.users.models.User
+            User observations are queried for
+
+        Return
+        ------
+        django.db.models.Queryset
+            All observations for moderators
+        """
         return self.get_queryset().for_moderator(user)
 
     def for_viewer(self, user):
+        """
+        Returns all observations for viewers; see
+        ObservationQuerySet.for_viewer for more info
+
+        Parameter
+        ---------
+        user : geokey.users.models.User
+            User observations are queried for
+
+        Return
+        ------
+        django.db.models.Queryset
+            All observations for viewer
+        """
         return self.get_queryset().for_viewer(user)
 
 
@@ -112,7 +241,12 @@ class CommentManager(models.Manager):
     """
     def get_queryset(self):
         """
-        Returns all comments excluding those with status `deleted`
+        Returns all comments excluding those with status='deleted'
+
+        Return
+        ------
+        django.db.models.Queryset
+            All comments
         """
         return super(CommentManager, self).get_queryset().exclude(
             status=COMMENT_STATUS.deleted)
@@ -120,12 +254,18 @@ class CommentManager(models.Manager):
 
 class MediaFileManager(InheritanceManager):
     """
-    Manger for `MediaFile` model
+    Manger for MediaFile model
     """
     def get_queryset(self):
         """
-        Returns the subclasses of the MediaFiles. Needed to get access to the
-        actual instances when searching all files of a contribution.
+        Returns the subclasses of the MediaFiles; i.e. ImageFile or VideoFile
+        instances are returned rather that MediaFile instances. Excludes
+        deleted files.
+
+        Return
+        ------
+        django.db.models.Queryset
+            All media files
         """
         query_set = super(MediaFileManager, self).get_queryset().exclude(
             status=MEDIA_STATUS.deleted
@@ -136,6 +276,24 @@ class MediaFileManager(InheritanceManager):
                            the_file):
         """
         Creates an ImageFile and returns the instance.
+
+        Parameter
+        ---------
+        name : str
+            Name of the file (short caption)
+        description : str
+            Long-form description (or caption) for the file
+        creator : geokey.users.models.User
+            User who created the file
+        contribution : geokey.contributions.models.Observation
+            Observation the file is assigned to
+        the_file : django.core.files.File
+            The actual file
+
+        Return
+        ------
+        geokey.contributions.models.ImageFile
+            File created
         """
         from geokey.contributions.models import ImageFile
 
@@ -153,6 +311,18 @@ class MediaFileManager(InheritanceManager):
     def _upload_to_youtube(self, name, path):
         """
         Uploads the file from the given path to youtube
+
+        Parameter
+        ---------
+        name : str
+            Name of the file (short caption)
+        path : str
+            Path to tempory file
+
+        Return
+        ------
+        str, str
+            Youtube video id, Youtube SWF url
         """
         youtube = Youtube()
         youtube.authenticate()
@@ -169,6 +339,24 @@ class MediaFileManager(InheritanceManager):
         """
         Creates a new video file. Uploads the video to Youtube and returns the
         VideoFile instance.
+
+        Parameter
+        ---------
+        name : str
+            Name of the file (short caption)
+        description : str
+            Long-form description (or caption) for the file
+        creator : geokey.users.models.User
+            User who created the file
+        contribution : geokey.contributions.models.Observation
+            Observation the file is assigned to
+        the_file : django.core.files.File
+            The actual file
+
+        Return
+        ------
+        geokey.contributions.models.VideoFile
+            File created
         """
         from geokey.contributions.models import VideoFile
         from django.core.files.storage import default_storage
@@ -201,8 +389,24 @@ class MediaFileManager(InheritanceManager):
 
     def create(self, the_file=None, **kwargs):
         """
-        Create a new file. Selects the class by examining the file name
-        extension.
+        Create a new file. Evaluates the file's content type and creates either
+        an ImageFile or VideoFile
+
+        Parameters
+        ----------
+        the_file : django.core.files.File
+            The file object uploaded by the user
+
+        Returns
+        -------
+        geokey.contributions.models.ImageFile or
+        geokey.contributions.models.VideoFile
+            File created
+
+        Raises
+        ------
+        FileTypeError
+            if the file type is not supported, e.g. PDFs
         """
         name = kwargs.get('name')
         description = kwargs.get('description')

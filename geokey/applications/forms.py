@@ -15,6 +15,15 @@ class AppCreateForm(forms.ModelForm):
                   'authorization_grant_type')
 
     def clean(self):
+        """
+        Overwrites ModelForm's clean method to strip HTML Tags from name and
+        description
+
+        Returns
+        -------
+        dict
+            Cleaned form data including HTML free name and description
+        """
         cleaned_data = super(AppCreateForm, self).clean()
         cleaned_data['name'] = strip_tags(cleaned_data['name'])
         cleaned_data['description'] = strip_tags(cleaned_data['description'])

@@ -14,13 +14,6 @@ from .forms import AppCreateForm
 from .models import Application
 
 
-# ############################################################################
-#
-# Admin views
-#
-# ############################################################################
-
-
 class ApplicationOverview(LoginRequiredMixin, TemplateView):
     """
     Displays an overview of all apps a developer has registered
@@ -30,6 +23,15 @@ class ApplicationOverview(LoginRequiredMixin, TemplateView):
 
     @handle_exceptions_for_admin
     def get_context_data(self, **kwargs):
+        """
+        Returns the context to render the view. Overwrites the method to add
+        the user's applications to the context.
+
+        Returns
+        -------
+        dict
+            context
+        """
         context = super(ApplicationOverview, self).get_context_data(**kwargs)
         context['apps'] = Application.objects.get_list(self.request.user)
         return context
@@ -44,6 +46,20 @@ class ApplicationConnected(LoginRequiredMixin, TemplateView):
 
     @handle_exceptions_for_admin
     def get_context_data(self, **kwargs):
+        """
+        Returns the context to render the view. Overwrites the method to add
+        all connected applications to the context.
+
+        Parameters
+        ----------
+        app_id : int
+            ID identifying the the app in the database.
+
+        Returns
+        -------
+        dict
+            context
+        """
         tokens = AccessToken.objects.filter(
             user=self.request.user).distinct('application')
 
@@ -55,9 +71,29 @@ class ApplicationConnected(LoginRequiredMixin, TemplateView):
 
 
 class ApplicationDisconnect(LoginRequiredMixin, TemplateView):
+    """
+    Disconnect an app
+    `/admin/apps/:app_id/disconnect`
+    """
     template_name = 'base.html'
 
     def get(self, request, app_id):
+        """
+        Handles the get request of the view. It disconnects the application
+        by deleting all AccessTokens registered for the app and users.
+
+        Parameters
+        ----------
+        request : django.http.HttpRequest
+            Object representing the request.
+        app_id : int
+            ID identifying the the app in the database.
+
+        Returns
+        -------
+        django.http.HttpResponseRedirect
+            redirecting to connected apps overview.
+        """
         app = Application.objects.get(pk=app_id)
 
         tokens = AccessToken.objects.filter(
@@ -91,7 +127,12 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         """
-        Is called if the form is valid.
+        Overwrites CreateView method to add the user to the form instance
+
+        Parameters
+        ----------
+        form : geokey.applications.forms.AppCreateForm
+            Represents the user input
         """
         form.instance.user = self.request.user
         messages.success(self.request, "The application has been created.")
@@ -107,6 +148,20 @@ class ApplicationSettings(LoginRequiredMixin, TemplateView):
 
     @handle_exceptions_for_admin
     def get_context_data(self, app_id, **kwargs):
+        """
+        Returns the context to render the view. Overwrites the method to add
+        the application to the context.
+
+        Parameters
+        ----------
+        app_id : int
+            ID identifying the the app in the database.
+
+        Returns
+        -------
+        dict
+            context
+        """
         app = Application.objects.as_owner(self.request.user, app_id)
         users = AccessToken.objects.values('user').filter(
             application=app).distinct().count()
@@ -114,6 +169,21 @@ class ApplicationSettings(LoginRequiredMixin, TemplateView):
             application=app, users=users, **kwargs)
 
     def post(self, request, app_id):
+        """
+        Handles the POST request and updates the application
+
+        Parameters
+        ----------
+        request : django.http.HttpRequest
+            Object representing the request.
+        app_id : int
+            ID identifying the the app in the database.
+
+        Returns
+        -------
+        django.http.HttpResponse
+            Rendered template
+        """
         context = self.get_context_data(app_id)
         app = context.pop('application', None)
 
@@ -133,15 +203,51 @@ class ApplicationSettings(LoginRequiredMixin, TemplateView):
 
 
 class ApplicationDelete(LoginRequiredMixin, TemplateView):
+    """
+    Deletes an app
+    `/admin/apps/:app_id/delete`
+    """
     template_name = 'base.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, app_id, **kwargs):
+        """
+        Returns the context to render the view. Overwrites the method to add
+        the application to the context.
+
+        Parameters
+        ----------
+        app_id : int
+            ID identifying the the app in the database.
+
+        Returns
+        -------
+        dict
+            context
+        """
         app = Application.objects.as_owner(self.request.user, app_id)
         return super(ApplicationDelete, self).get_context_data(
             application=app, **kwargs)
 
     def get(self, request, app_id):
+        """
+        Handles the GET request and deletes the application
+
+        Parameters
+        ----------
+        request : django.http.HttpRequest
+            Object representing the request.
+        app_id : int
+            ID identifying the the app in the database.
+
+        Returns
+        -------
+        django.http.HttpResponseRedirect
+            redirecting to list of apps overview.
+
+        django.http.HttpResponse
+            If user is not owner of the app, the error message is rendered.
+        """
         context = self.get_context_data(app_id)
         app = context.pop('application', None)
 

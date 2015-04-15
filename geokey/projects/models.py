@@ -51,6 +51,25 @@ class Project(models.Model):
         """
         Creates a new project. Creates two usergroups and adds the creator to
         the administrators user group.
+
+        name : str
+            Name of the project
+        description : str
+            Long-form description of the project
+        isprivate : Boolean
+            Indicates if the project should be private
+        everyone_contributes : str
+            Indicates if all you users who have access can contribute to the
+            project
+
+            Accepted:
+            true - all users who have access, including anonymous
+            auth - all user who are authenticated
+            false - users need to be member of a user group
+
+        Return
+        ------
+        geokey.projects.models.Project
         """
         project = cls(
             name=name,
@@ -67,8 +86,8 @@ class Project(models.Model):
 
     def delete(self):
         """
-        Removes the project from the listing of all projects by setting its
-        status to `DELETED`.
+        Deletes the project by setting its status to `DELETED`. Also deletes
+        all Admin groups related to the project.
         """
         Admins.objects.filter(project=self).delete()
         self.status = STATUS.deleted
@@ -77,6 +96,11 @@ class Project(models.Model):
     def re_order_categories(self, order):
         """
         Reorders the categories according to the order given in `order`
+
+        Parameters
+        ----------
+        order : list
+            ordered list of category IDs that define the new order
         """
         categories_to_save = []
         for idx, category_id in enumerate(order):
@@ -88,6 +112,19 @@ class Project(models.Model):
             category.save()
 
     def get_role(self, user):
+        """
+        Returns the user's role in plain text
+
+        Parameters
+        ----------
+        user : geokey.users.models.User
+            User that is examined
+
+        Returns
+        -------
+        str
+            Role of the user in the project
+        """
         if self.is_admin(user):
             return 'administrator'
         elif self.can_moderate(user):
@@ -101,6 +138,16 @@ class Project(models.Model):
         """
         Returns True if the user is member of the administrators group, False
         if not.
+
+        Parameters
+        ----------
+        user : geokey.users.models.User
+            User that is examined
+
+        Returns
+        -------
+        Boolean
+            Indicating if user is admin
         """
         return user in self.admins.all()
 
@@ -110,6 +157,16 @@ class Project(models.Model):
         - the user is member of the administrators group
         - the user is member of one of the usergroups
         - the project is public and has at least one public view
+
+        Parameters
+        ----------
+        user : geokey.users.models.User
+            User that is examined
+
+        Returns
+        -------
+        Boolean
+            Indicating if user is can access
         """
 
         return self.status == STATUS.active and (self.is_admin(user) or (
@@ -132,6 +189,16 @@ class Project(models.Model):
         - the user is member of the administrators group
         - the user is member of one usergroup that has can_contribute granted
         - everyone_contributes is True
+
+        Parameters
+        ----------
+        user : geokey.users.models.User
+            User that is examined
+
+        Returns
+        -------
+        Boolean
+            Indicating if user can contribute
         """
         return self.status == STATUS.active and (
             (self.everyone_contributes != 'false' and (
@@ -143,6 +210,20 @@ class Project(models.Model):
                         can_contribute=True, users=user).exists())))
 
     def can_moderate(self, user):
+        """
+        Returns True if the user is member of a user group with moderation
+        rights
+
+        Parameters
+        ----------
+        user : geokey.users.models.User
+            User that is examined
+
+        Returns
+        -------
+        Boolean
+            Indicating if user can moderate
+        """
         return self.status == STATUS.active and (
             self.is_admin(user) or (
                 not user.is_anonymous() and (
@@ -154,6 +235,16 @@ class Project(models.Model):
         Returns True if:
         - the user is member of the administrators group
         - the user is member of at least usergroup assigned to the project
+
+        Parameters
+        ----------
+        user : geokey.users.models.User
+            User that is examined
+
+        Returns
+        -------
+        Boolean
+            Indicating if user is involved
         """
         return self.is_admin(user) or (
             not user.is_anonymous() and (
@@ -161,7 +252,19 @@ class Project(models.Model):
 
     def get_all_contributions(self, user):
         """
-        Returns all contributions a user can access in a project
+        Returns all contributions a user can access in a project. It gets
+        the SQL clauses of all data groupings in the project and combines them
+        to filter all contributions in the project.
+
+        Parameters
+        ----------
+        user : geokey.users.models.User
+            User that contributions are queried for
+
+        Returns
+        -------
+        django.db.models.query.QuerySet
+            List of geokey.contributions.models.Observations
         """
         data = None
         if self.is_admin(user):
@@ -198,6 +301,13 @@ class Project(models.Model):
         """
         Sends an email with `mail_content` to all admins of the project, that
         are contact persons.
+
+        Parameters
+        ----------
+        sender : str
+            Email address of the user sending the request
+        mail_content : str
+            Email text of the request
         """
         messages = []
         email_text = get_template('contact_admins_email.txt')
@@ -230,6 +340,10 @@ class Project(models.Model):
 
 
 class Admins(models.Model):
+    """
+    An Administator group for a project. Represents the relation between
+    Project and User.
+    """
     project = models.ForeignKey('Project', related_name='admin_of')
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

@@ -13,12 +13,48 @@ class UserSerializer(FieldSelectorSerializer):
         fields = ('id', 'email', 'display_name')
 
     def validate_display_name(self, value):
+        """
+        Checks if the display name already exists
+
+        Parameter
+        ---------
+        value : str
+            Display name to be examined
+
+        Returns
+        -------
+        str
+            The display name
+
+        Raises
+        ------
+        ValidationError
+            If the display name exists in the data base
+        """
         if User.objects.filter(display_name__iexact=value).exists():
             raise ValidationError('Display name already exists')
 
         return value
 
     def validate_email(self, value):
+        """
+        Checks if the email already exists
+
+        Parameter
+        ---------
+        value : str
+            email to be examined
+
+        Returns
+        -------
+        str
+            The email
+
+        Raises
+        ------
+        ValidationError
+            If the email exists in the data base
+        """
         if User.objects.filter(email__iexact=value).exists():
             raise ValidationError('Email already exists')
 

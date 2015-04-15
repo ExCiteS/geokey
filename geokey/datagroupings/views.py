@@ -8,13 +8,7 @@ from django.utils.html import strip_tags
 
 from braces.views import LoginRequiredMixin
 
-from geokey.core.decorators import (
-    handle_exceptions_for_ajax, handle_exceptions_for_admin
-)
-
-from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from geokey.core.decorators import handle_exceptions_for_admin
 
 from geokey.projects.models import Project
 from geokey.categories.models import Category
@@ -22,7 +16,6 @@ from geokey.categories.models import Category
 from .base import STATUS
 from .forms import GroupingCreateForm
 from .models import Grouping, Rule
-from .serializers import GroupingSerializer
 
 
 # ############################################################################
@@ -37,7 +30,18 @@ class GroupingList(LoginRequiredMixin, TemplateView):
     @handle_exceptions_for_admin
     def get_context_data(self, project_id):
         """
-        Creates the request context for rendering the page
+        Returns the context to render the view. Overwrites the method to add
+        the project to the context.
+
+        Parameter
+        ---------
+        project_id : int
+            identifies the project in the database
+
+        Returns
+        -------
+        dict
+            context
         """
         user = self.request.user
 
@@ -55,6 +59,15 @@ class GroupingCreate(LoginRequiredMixin, CreateView):
     template_name = 'datagroupings/grouping_create.html'
 
     def get_success_url(self):
+        """
+        Returns the URL that is called after successfully creating the
+        grouping.
+
+        Returns
+        -------
+        str
+            URL that is called
+        """
         project_id = self.kwargs['project_id']
         return reverse(
             'admin:grouping_overview',
@@ -64,7 +77,13 @@ class GroupingCreate(LoginRequiredMixin, CreateView):
     @handle_exceptions_for_admin
     def get_context_data(self, **kwargs):
         """
-        Creates the request context for rendering the page
+        Returns the context to render the view. Overwrites the method to add
+        the project to the context.
+
+        Returns
+        -------
+        dict
+            context
         """
         project_id = self.kwargs['project_id']
 
@@ -80,6 +99,11 @@ class GroupingCreate(LoginRequiredMixin, CreateView):
         """
         Is called when the POSTed data is valid and creates the observation
         type.
+
+        Parameters
+        ----------
+        form : geokey.grouings.forms.GroupingCreateForm
+            Represents the user input
         """
         project_id = self.kwargs['project_id']
         project = Project.objects.as_admin(self.request.user, project_id)
@@ -91,12 +115,28 @@ class GroupingCreate(LoginRequiredMixin, CreateView):
 
 
 class GroupingOverview(LoginRequiredMixin, TemplateView):
+    """
+    Provides an overview of all rules assigned to the grouping.
+    """
     template_name = 'datagroupings/grouping_overview.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, grouping_id):
         """
-        Creates the request context for rendering the page
+        Returns the context to render the view. Overwrites the method to add
+        the grouping to the context.
+
+        Parameter
+        ---------
+        project_id : int
+            identifies the project in the database
+        grouping_id : int
+            identifies the data grouping in the database
+
+        Returns
+        -------
+        dict
+            context
         """
         user = self.request.user
         grouping = Grouping.objects.as_admin(user, project_id, grouping_id)
@@ -106,18 +146,51 @@ class GroupingOverview(LoginRequiredMixin, TemplateView):
 
 
 class GroupingSettings(LoginRequiredMixin, TemplateView):
+    """
+    Displays the page to change the settings of the data grouping
+    """
     template_name = 'datagroupings/grouping_settings.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, grouping_id):
         """
-        Creates the request context for rendering the page
+        Returns the context to render the view. Overwrites the method to add
+        the grouping and available status types to the context.
+
+        Parameter
+        ---------
+        project_id : int
+            identifies the project in the database
+        grouping_id : int
+            identifies the data grouping in the database
+
+        Returns
+        -------
+        dict
+            context
         """
         user = self.request.user
         grouping = Grouping.objects.as_admin(user, project_id, grouping_id)
         return {'grouping': grouping, 'status_types': STATUS}
 
     def post(self, request, project_id, grouping_id):
+        """
+        Updates the settings of the data grouping
+
+        Parameter
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+        project_id : int
+            identifies the project in the database
+        grouping_id : int
+            identifies the data grouping in the database
+
+        Returns
+        -------
+        django.http.HttpResponse
+            Rendered template
+        """
         context = self.get_context_data(project_id, grouping_id)
         grouping = context.pop('grouping', None)
 
@@ -135,12 +208,29 @@ class GroupingSettings(LoginRequiredMixin, TemplateView):
 
 
 class GroupingPermissions(LoginRequiredMixin, TemplateView):
+    """
+    Displays the page to change the permissions for the data grouping.
+    Permissions are change via Ajax
+    """
     template_name = 'datagroupings/grouping_permissions.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, grouping_id):
         """
-        Creates the request context for rendering the page
+        Returns the context to render the view. Overwrites the method to add
+        the grouping to the context.
+
+        Parameter
+        ---------
+        project_id : int
+            identifies the project in the database
+        grouping_id : int
+            identifies the data grouping in the database
+
+        Returns
+        -------
+        dict
+            context
         """
         user = self.request.user
         grouping = Grouping.objects.as_admin(user, project_id, grouping_id)
@@ -150,18 +240,55 @@ class GroupingPermissions(LoginRequiredMixin, TemplateView):
 
 
 class GroupingDelete(LoginRequiredMixin, TemplateView):
+    """
+    Deletes a data grouping
+    """
     template_name = 'base.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, grouping_id):
         """
-        Creates the request context for rendering the page
+        Returns the context to render the view. Overwrites the method to add
+        the grouping to the context.
+
+        Parameter
+        ---------
+        project_id : int
+            identifies the project in the database
+        grouping_id : int
+            identifies the data grouping in the database
+
+        Returns
+        -------
+        dict
+            context
         """
         user = self.request.user
         grouping = Grouping.objects.as_admin(user, project_id, grouping_id)
         return super(GroupingDelete, self).get_context_data(grouping=grouping)
 
     def get(self, request, project_id, grouping_id):
+        """
+        Deletes a data grouping
+
+        Parameter
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+        project_id : int
+            identifies the project in the database
+        grouping_id : int
+            identifies the data grouping in the database
+
+        Returns
+        -------
+        django.http.HttpResponseRedirect
+            redirecting to list of data groupings overview.
+
+        django.http.HttpResponse
+            If user is not administrator of the project, the error message is
+            rendered.
+        """
         context = self.get_context_data(project_id, grouping_id)
         grouping = context.pop('grouping', None)
 
@@ -187,7 +314,13 @@ class RuleCreate(LoginRequiredMixin, CreateView):
     @handle_exceptions_for_admin
     def get_context_data(self, *args, **kwargs):
         """
-        Returns the context data for creating the view.
+        Returns the context to render the view. Overwrites the method to add
+        the grouping to the context.
+
+        Returns
+        -------
+        dict
+            context
         """
         self.object = None
 
@@ -205,6 +338,24 @@ class RuleCreate(LoginRequiredMixin, CreateView):
     def post(self, request, project_id, grouping_id):
         """
         Creates a new Rule with the POSTed data.
+
+        Parameter
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+        project_id : int
+            identifies the project in the database
+        grouping_id : int
+            identifies the data grouping in the database
+
+        Returns
+        -------
+        django.http.HttpResponseRedirect
+            redirecting to the rule settings.
+
+        django.http.HttpResponse
+            If user is administrator of the project, the error message is
+            rendered.
         """
         context = self.get_context_data()
         grouping = context.pop('grouping', None)
@@ -239,14 +390,29 @@ class RuleCreate(LoginRequiredMixin, CreateView):
 
 class RuleSettings(LoginRequiredMixin, TemplateView):
     """
-    Displays the settings page
+    Displays the rule settings page
     """
     template_name = 'datagroupings/rule_settings.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, grouping_id, rule_id, **kwargs):
         """
-        Creates the request context for rendering the page
+        Returns the context to render the view. Overwrites the method to add
+        the rule to the context.
+
+        Parameter
+        ---------
+        project_id : int
+            identifies the project in the database
+        grouping_id : int
+            identifies the data grouping in the database
+        rule_id : int
+            identifies the rule in the database
+
+        Returns
+        -------
+        dict
+            context
         """
         context = super(RuleSettings, self).get_context_data(**kwargs)
 
@@ -261,6 +427,25 @@ class RuleSettings(LoginRequiredMixin, TemplateView):
 
     @handle_exceptions_for_admin
     def post(self, request, project_id, grouping_id, rule_id):
+        """
+        Updates the rule.
+
+        Parameter
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+        project_id : int
+            identifies the project in the database
+        grouping_id : int
+            identifies the data grouping in the database
+        rule_id : int
+            identifies the rule in the database
+
+        Returns
+        -------
+        django.http.HttpResponse
+            Rendered template
+        """
         context = self.get_context_data(project_id, grouping_id, rule_id)
 
         rule = context.pop('rule', None)
@@ -282,26 +467,67 @@ class RuleSettings(LoginRequiredMixin, TemplateView):
 
 
 class RuleDelete(LoginRequiredMixin, TemplateView):
+    """
+    Deletes the rule
+    """
     template_name = 'base.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, grouping_id, rule_id, **kwargs):
         """
-        Creates the request context for rendering the page
+        Returns the context to render the view. Overwrites the method to add
+        the rule to the context.
+
+        Parameter
+        ---------
+        project_id : int
+            identifies the project in the database
+        grouping_id : int
+            identifies the data grouping in the database
+        rule_id : int
+            identifies the rule in the database
+
+        Returns
+        -------
+        dict
+            context
         """
         grouping = Grouping.objects.as_admin(
             self.request.user, project_id, grouping_id)
         context = super(RuleDelete, self).get_context_data(**kwargs)
 
-        context['filter'] = grouping.rules.get(pk=rule_id)
+        context['rule'] = grouping.rules.get(pk=rule_id)
         return context
 
     def get(self, request, project_id, grouping_id, rule_id):
-        context = self.get_context_data(project_id, grouping_id, rule_id)
-        data_filter = context.pop('filter', None)
+        """
+        Deletes the rule
 
-        if data_filter is not None:
-            data_filter.delete()
+        Parameter
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+        project_id : int
+            identifies the project in the database
+        grouping_id : int
+            identifies the data grouping in the database
+        rule_id : int
+            identifies the rule in the database
+
+        Returns
+        -------
+        django.http.HttpResponseRedirect
+            redirecting to list of rules overview.
+
+        django.http.HttpResponse
+            If user is administrator of the project, the error message is
+            rendered.
+        """
+        context = self.get_context_data(project_id, grouping_id, rule_id)
+        rule = context.pop('rule', None)
+
+        if rule is not None:
+            rule.delete()
 
             messages.success(self.request, 'The filter has been deleted')
             return redirect(

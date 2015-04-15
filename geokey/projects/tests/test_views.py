@@ -558,40 +558,6 @@ class ProjectUpdateTest(TestCase):
             self.project.description
         )
 
-    @raises(Project.DoesNotExist)
-    def test_delete_project_with_admin(self):
-        request = self.factory.delete('/api/projects/%s/' % self.project.id)
-        force_authenticate(request, user=self.admin)
-        view = ProjectUpdate.as_view()
-        response = view(request, project_id=self.project.id).render()
-
-        self.assertEqual(response.status_code, 204)
-        Project.objects.get(pk=self.project.id)
-
-    def test_delete_project_with_contributor(self):
-        request = self.factory.delete('/api/projects/%s/' % self.project.id)
-        force_authenticate(request, user=self.contributor)
-        view = ProjectUpdate.as_view()
-        response = view(request, project_id=self.project.id).render()
-
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual(
-            Project.objects.get(pk=self.project.id).status,
-            'active'
-        )
-
-    def test_delete_project_with_non_member(self):
-        request = self.factory.delete('/api/projects/%s/' % self.project.id)
-        force_authenticate(request, user=self.non_member)
-        view = ProjectUpdate.as_view()
-        response = view(request, project_id=self.project.id).render()
-
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual(
-            Project.objects.get(pk=self.project.id).status,
-            'active'
-        )
-
 
 class ProjectAdminsTest(TestCase):
     def setUp(self):

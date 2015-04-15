@@ -14,6 +14,15 @@ class GroupingCreateForm(forms.ModelForm):
         fields = ('name', 'description', 'isprivate')
 
     def clean(self):
+        """
+        Cleans incoming data and returnes cleaned data. Removes HTML tags from
+        name and description.
+
+        Return
+        ------
+        dict
+            Cleaned form data.
+        """
         cleaned_data = super(GroupingCreateForm, self).clean()
         cleaned_data['name'] = strip_tags(cleaned_data['name'])
         cleaned_data['description'] = strip_tags(cleaned_data['description'])

@@ -7,6 +7,10 @@ from .manager import ApplicationManager
 
 
 class Application(AbstractApplication):
+    """
+    Represents an OAuth client an application developer resgisters with GeoKey
+    in order to obtain OAuth tokens to interact with GeoKey.
+    """
     description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     download_url = models.URLField(blank=False)

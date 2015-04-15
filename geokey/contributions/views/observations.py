@@ -25,6 +25,18 @@ class ProjectObservations(APIView):
     def post(self, request, project_id):
         """
         Adds a new contribution to a project
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request
+        project_id : int
+            identifies the project in the data base
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the serialised contribution
         """
         user = request.user
         if user.is_anonymous():
@@ -53,6 +65,21 @@ class ContributionSearchAPIView(APIView):
     """
     @handle_exceptions_for_ajax
     def get(self, request, project_id):
+        """
+        Returns a list of contributions that match the query
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request
+        project_id : int
+            identifies the project in the data base
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the serialised search results
+        """
         q = request.GET.get('query')
 
         project = Project.objects.get_single(request.user, project_id)
@@ -74,6 +101,21 @@ class ProjectObservationsView(APIView):
     """
     @handle_exceptions_for_ajax
     def get(self, request, project_id):
+        """
+        Returns a list of contributions for a project
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request
+        project_id : int
+            identifies the project in the data base
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the serialised observations
+        """
         project = Project.objects.get_single(request.user, project_id)
         contributions = project.get_all_contributions(request.user)
 
@@ -87,13 +129,27 @@ class ProjectObservationsView(APIView):
 
 class MyObservations(APIView):
     """
-    Public API endpoint for all observations in a project. Used to add new
-    contributions to a project
+    Public API endpoint for user's observations in a project.
     /api/projects/:project_id/data-groupings/my-contributions/
     """
 
     @handle_exceptions_for_ajax
     def get(self, request, project_id):
+        """
+        Returns a list of user's contributions
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request
+        project_id : int
+            identifies the project in the data base
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the serialised observations
+        """
         project = Project.objects.get_single(request.user, project_id)
 
         if request.user.is_anonymous():
@@ -119,11 +175,29 @@ class MyObservations(APIView):
 
 
 class ViewObservations(APIView):
+    """
+    Public API endpoint for all observations in data grouping.
+    /api/projects/:project_id/data-groupings/:grouping_id/
+    """
     @handle_exceptions_for_ajax
     def get(self, request, project_id, grouping_id):
         """
         Returns a single view and its data
         /api/projects/:project_id/data-groupings/:grouping_id/
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request
+        project_id : int
+            identifies the project in the data base
+        grouping_id : int
+            identifies the data grouping in the data base
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the serialised observations
         """
         view = Grouping.objects.get_single(
             request.user,
@@ -142,7 +216,25 @@ class ViewObservations(APIView):
 
 
 class SingleContributionAPIView(APIView):
+    """
+    Abstract APIView for handling requests to single observations
+    """
     def get_and_respond(self, request, observation):
+        """
+        Returns a single contributions
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request
+        observation : geokey.contributions.models.Observation
+            Observation to be returned
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the serialised observation
+        """
         serializer = ContributionSerializer(
             observation,
             context={'user': request.user, 'project': observation.project}
@@ -150,6 +242,21 @@ class SingleContributionAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update_and_respond(self, request, observation):
+        """
+        Updates and returns a single contributions
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request
+        observation : geokey.contributions.models.Observation
+            Observation to be returned
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the updated serialised observation
+        """
         data = request.DATA
         user = request.user
         if user.is_anonymous():
@@ -204,6 +311,18 @@ class SingleContributionAPIView(APIView):
     def delete_and_respond(self, request, observation):
         """
         Deletes a single observation
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request
+        observation : geokey.contributions.models.Observation
+            Observation to be deleted
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Empty response indicating successful delete
         """
         if (observation.creator == request.user or
                 observation.project.can_moderate(request.user)):
@@ -223,16 +342,67 @@ class SingleAllContributionAPIView(
 
     @handle_exceptions_for_ajax
     def get(self, request, project_id, observation_id):
+        """
+        Returns a single contribution
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request
+        project_id : int
+            identifies the project in the data base
+        observation_id : int
+            identifies the observation in the data base
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the serialised observation
+        """
         observation = self.get_object(request.user, project_id, observation_id)
         return self.get_and_respond(request, observation)
 
     @handle_exceptions_for_ajax
     def patch(self, request, project_id, observation_id):
+        """
+        Updates and returns a single contribution
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request
+        project_id : int
+            identifies the project in the data base
+        observation_id : int
+            identifies the observation in the data base
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the updated serialised observation
+        """
         observation = self.get_object(request.user, project_id, observation_id)
         return self.update_and_respond(request, observation)
 
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, observation_id):
+        """
+        Deletes a single contribution
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request
+        project_id : int
+            identifies the project in the data base
+        observation_id : int
+            identifies the observation in the data base
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Empty response indicating successful delete
+        """
         observation = self.get_object(request.user, project_id, observation_id)
         return self.delete_and_respond(request, observation)
 
@@ -245,18 +415,75 @@ class SingleGroupingContributionAPIView(
     """
     @handle_exceptions_for_ajax
     def get(self, request, project_id, grouping_id, observation_id):
+        """
+        Returns a single contribution
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request
+        project_id : int
+            identifies the project in the data base
+        grouping_id : int
+            identifies the data grouping in the data base
+        observation_id : int
+            identifies the observation in the data base
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the serialised observation
+        """
         observation = self.get_object(
             request.user, project_id, grouping_id, observation_id)
         return self.get_and_respond(request, observation)
 
     @handle_exceptions_for_ajax
     def patch(self, request, project_id, grouping_id, observation_id):
+        """
+        Updates and returns a single contribution
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request
+        project_id : int
+            identifies the project in the data base
+        grouping_id : int
+            identifies the data grouping in the data base
+        observation_id : int
+            identifies the observation in the data base
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the updated serialised observation
+        """
         observation = self.get_object(
             request.user, project_id, grouping_id, observation_id)
         return self.update_and_respond(request, observation)
 
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, grouping_id, observation_id):
+        """
+        Deletes a single contribution
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request
+        project_id : int
+            identifies the project in the data base
+        grouping_id : int
+            identifies the data grouping in the data base
+        observation_id : int
+            identifies the observation in the data base
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Empty response indicating successful delete
+        """
         observation = self.get_object(
             request.user, project_id, grouping_id, observation_id)
         return self.delete_and_respond(request, observation)
@@ -267,15 +494,66 @@ class SingleMyContributionAPIView(
 
     @handle_exceptions_for_ajax
     def get(self, request, project_id, observation_id):
+        """
+        Returns a single contribution
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request
+        project_id : int
+            identifies the project in the data base
+        observation_id : int
+            identifies the observation in the data base
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the serialised observation
+        """
         observation = self.get_object(request.user, project_id, observation_id)
         return self.get_and_respond(request, observation)
 
     @handle_exceptions_for_ajax
     def patch(self, request, project_id, observation_id):
+        """
+        Updates and returns a single contribution
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request
+        project_id : int
+            identifies the project in the data base
+        observation_id : int
+            identifies the observation in the data base
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the updated serialised observation
+        """
         observation = self.get_object(request.user, project_id, observation_id)
         return self.update_and_respond(request, observation)
 
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, observation_id):
+        """
+        Deletes a single contribution
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request
+        project_id : int
+            identifies the project in the data base
+        observation_id : int
+            identifies the observation in the data base
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Empty response indicating successful delete
+        """
         observation = self.get_object(request.user, project_id, observation_id)
         return self.delete_and_respond(request, observation)

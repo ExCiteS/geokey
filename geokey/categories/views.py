@@ -36,12 +36,26 @@ from geokey.contributions.models import Observation
 # ############################################################################
 
 class CategoryList(LoginRequiredMixin, TemplateView):
+    """
+    Displays a list of all catgories for a given project.
+    """
     template_name = 'categories/category_list.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id):
         """
-        Creates the request context for rendering the page
+        Returns the context to render the view. Overwrites the method to add
+        the project.
+
+        Parameter
+        ---------
+        project_id : int
+            Identifier of the project in the database
+
+        Returns
+        -------
+        dict
+            context; {'project': <geokey.projects.models.Project>}
         """
         user = self.request.user
 
@@ -52,12 +66,29 @@ class CategoryList(LoginRequiredMixin, TemplateView):
 
 
 class CategoryOverview(LoginRequiredMixin, TemplateView):
+    """
+    Landing page when a user clicks on a category. Displays a lis of fields
+    assigned to the category.
+    """
     template_name = 'categories/category_overview.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, category_id):
         """
-        Creates the request context for rendering the page
+        Returns the context to render the view. Overwrites the method to add
+        the category.
+
+        Parameter
+        ---------
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+
+        Returns
+        -------
+        dict
+            context; {'project': <geokey.categories.models.Category>}
         """
         user = self.request.user
         category = Category.objects.as_admin(
@@ -80,7 +111,13 @@ class CategoryCreate(LoginRequiredMixin, CreateView):
     @handle_exceptions_for_admin
     def get_context_data(self, **kwargs):
         """
-        Creates the request context for rendering the page
+        Returns the context to render the view. Overwrites the method to add
+        the project.
+
+        Returns
+        -------
+        dict
+            context; {'project': <geokey.projects.models.Project>}
         """
         project_id = self.kwargs['project_id']
 
@@ -92,8 +129,12 @@ class CategoryCreate(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         """
-        Is called when the POSTed data is valid and creates the observation
-        type.
+        Is called when the POSTed data is valid and creates the category.
+
+        Parameters
+        ----------
+        form : geokey.categories.forms.CategoryCreateForm
+            Represents the user input
         """
         data = form.cleaned_data
 
@@ -119,14 +160,32 @@ class CategoryCreate(LoginRequiredMixin, CreateView):
 
 class CategorySettings(LoginRequiredMixin, TemplateView):
     """
-    Displays the observation type detail page
+    Displays the category settings page
     """
     template_name = 'categories/category_settings.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, category_id):
         """
-        Creates the request context for rendering the page
+        Returns the context to render the view. Overwrites the method to add
+        the category.
+
+        Parameter
+        ---------
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+
+        Returns
+        -------
+        dict
+            {
+                'category': <geokey.categories.models.Category>
+                'admin': Boolean, indicates if the user is admin
+                'status_types': List of status types for categoies
+                'num_contributions': Number of contributions of that category
+            }
         """
         user = self.request.user
         category = Category.objects.as_admin(
@@ -142,6 +201,23 @@ class CategorySettings(LoginRequiredMixin, TemplateView):
         }
 
     def post(self, request, project_id, category_id):
+        """
+        Handles the POST request and updates the category
+
+        Parameters
+        ----------
+        request : django.http.HttpRequest
+            Object representing the request.
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+
+        Returns
+        -------
+        django.http.HttpResponse
+            Rendered template
+        """
         context = self.get_context_data(project_id, category_id)
         category = context.pop('category', None)
 
@@ -171,17 +247,56 @@ class CategorySettings(LoginRequiredMixin, TemplateView):
 
 
 class CategoryDisplay(LoginRequiredMixin, TemplateView):
+    """
+    Displat the category display settings, i.e. where colour and icon for the
+    category can be set.
+    """
     template_name = 'categories/category_display.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, category_id, **kwargs):
+        """
+        Returns the context to render the view. Overwrites the method to add
+        the category.
+
+        Parameter
+        ---------
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+
+        Returns
+        -------
+        dict
+            {
+                'category': <geokey.categories.models.Category>
+            }
+        """
         user = self.request.user
-        category = Category.objects.as_admin(
-            user, project_id, category_id)
+        category = Category.objects.as_admin(user, project_id, category_id)
+
         return super(CategoryDisplay, self).get_context_data(
             category=category, **kwargs)
 
     def post(self, request, project_id, category_id):
+        """
+        Handles the POST request and updates the category display settings
+
+        Parameters
+        ----------
+        request : django.http.HttpRequest
+            Object representing the request.
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+
+        Returns
+        -------
+        django.http.HttpResponse
+            Rendered template
+        """
         context = self.get_context_data(project_id, category_id)
         category = context.pop('category', None)
 
@@ -205,10 +320,31 @@ class CategoryDisplay(LoginRequiredMixin, TemplateView):
 
 
 class CategoryDelete(LoginRequiredMixin, TemplateView):
+    """
+    Deletes a category if requesting user is admin of the project
+    """
     template_name = 'base.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, category_id, **kwargs):
+        """
+        Returns the context to render the view. Overwrites the method to add
+        the category.
+
+        Parameter
+        ---------
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+
+        Returns
+        -------
+        dict
+            {
+                'category': <geokey.categories.models.Category>
+            }
+        """
         user = self.request.user
         category = Category.objects.as_admin(
             user, project_id, category_id)
@@ -216,6 +352,24 @@ class CategoryDelete(LoginRequiredMixin, TemplateView):
             category=category, **kwargs)
 
     def get(self, request, project_id, category_id):
+        """
+        Handles the GET request and deletes the category
+
+        Parameter
+        ---------
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+
+        Returns
+        -------
+        django.http.HttpResponseRedirect
+            redirecting to list of categories overview.
+
+        django.http.HttpResponse
+            If user is not admin of the project, the error message is rendered.
+        """
         context = self.get_context_data(project_id, category_id)
         category = context.pop('category', None)
 
@@ -237,6 +391,25 @@ class FieldCreate(LoginRequiredMixin, CreateView):
 
     @handle_exceptions_for_admin
     def get_context_data(self, data=None, **kwargs):
+        """
+        Returns the context to render the view. Overwrites the method to add
+        the category and available field types
+
+        Parameter
+        ---------
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+
+        Returns
+        -------
+        dict
+            {
+                'category': <geokey.categories.models.Category>
+                'fieldtypes': List of str, representing the field types
+            }
+        """
         project_id = self.kwargs['project_id']
         category_id = self.kwargs['category_id']
 
@@ -249,6 +422,18 @@ class FieldCreate(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
+        """
+        Is called when the POSTed data is valid and creates the field.
+
+        Parameters
+        ----------
+        form : geokey.categories.forms.FieldCreateForm
+            Represents the user input
+
+        Return
+        ------
+        Redirects to field setting page of the created field
+        """
         project_id = self.kwargs['project_id']
         category_id = self.kwargs['category_id']
         data = form.cleaned_data
@@ -306,25 +491,63 @@ class FieldCreate(LoginRequiredMixin, CreateView):
 
 class FieldSettings(LoginRequiredMixin, TemplateView):
     """
-    Displays the field detail page
+    Displays the field settings page
     """
-    template_name = 'categories/field_view.html'
+    template_name = 'categories/field_settings.html'
 
     @handle_exceptions_for_admin
-    def get_context_data(self, project_id, category_id, field_id,
-                         **kwargs):
+    def get_context_data(self, project_id, category_id, field_id, **kwargs):
+        """
+        Returns the context to render the view. Overwrites the method to add
+        the field and available field types
+
+        Parameter
+        ---------
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+        field_id : int
+            Identifier of the field in the database
+
+        Returns
+        -------
+        dict
+            {
+                'field': <geokey.categories.models.Field>
+                'status_types': List of str, representing the status types
+                'is_display_field : Boolean, indicates if field is display
+                    field
+            }
+        """
         user = self.request.user
         field = Field.objects.as_admin(
             user, project_id, category_id, field_id)
         context = super(FieldSettings, self).get_context_data(**kwargs)
         context['field'] = field
         context['status_types'] = STATUS
-        context['fieldtypes'] = Field.get_field_types()
         context['is_display_field'] = (field == field.category.display_field)
 
         return context
 
     def post(self, request, project_id, category_id, field_id):
+        """
+        Handles the POST request and updates the field
+
+        Parameter
+        ---------
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+        field_id : int
+            Identifier of the field in the database
+
+        Returns
+        -------
+        django.http.HttpResponse
+            Rendered template
+        """
         context = self.get_context_data(
             project_id,
             category_id,
@@ -360,6 +583,26 @@ class FieldDelete(LoginRequiredMixin, TemplateView):
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, category_id, field_id, **kwargs):
+        """
+        Returns the context to render the view. Overwrites the method to add
+        the field and available field types
+
+        Parameter
+        ---------
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+        field_id : int
+            Identifier of the field in the database
+
+        Returns
+        -------
+        dict
+            {
+                'field': <geokey.categories.models.Field>
+            }
+        """
         user = self.request.user
         field = Field.objects.as_admin(
             user, project_id, category_id, field_id)
@@ -367,6 +610,26 @@ class FieldDelete(LoginRequiredMixin, TemplateView):
             field=field, **kwargs)
 
     def get(self, request, project_id, category_id, field_id):
+        """
+        Handles the GET request and deletes the field
+
+        Parameter
+        ---------
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+        field_id : int
+            Identifier of the field in the database
+
+        Returns
+        -------
+        django.http.HttpResponseRedirect
+            redirecting to list of fields overview.
+
+        django.http.HttpResponse
+            If user is not admin of the project, the error message is rendered.
+        """
         context = self.get_context_data(project_id, category_id, field_id)
         field = context.pop('field', None)
 
@@ -396,6 +659,23 @@ class CategoryUpdate(APIView):
     """
     @handle_exceptions_for_ajax
     def get(self, request, project_id, category_id):
+        """
+        Handles the GET request
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Object reprensting the request
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+
+        Return
+        ------
+        rest_framework.response.Response
+            Reponse to the request
+        """
         category = Category.objects.as_admin(
             request.user, project_id, category_id)
 
@@ -405,7 +685,21 @@ class CategoryUpdate(APIView):
     @handle_exceptions_for_ajax
     def put(self, request, project_id, category_id):
         """
-        Updates an category
+        Handles the POST request and updates the category
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Object reprensting the request
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+
+        Return
+        ------
+        rest_framework.response.Response
+            Reponse to the request
         """
 
         category = Category.objects.as_admin(
@@ -432,7 +726,23 @@ class FieldUpdate(APIView):
     def put(self, request, project_id, category_id, field_id,
             format=None):
         """
-        Updates a field
+        Handles the POST request and updates the category
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Object reprensting the request
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+        field_id : int
+            Identifier of the field in the database
+
+        Return
+        ------
+        rest_framework.response.Response
+            Reponse to the request
         """
         field = Field.objects.as_admin(
             request.user, project_id, category_id, field_id)
@@ -458,7 +768,23 @@ class FieldLookups(APIView):
     def post(self, request, project_id, category_id, field_id,
              format=None):
         """
-        Adds a lookup value to the lookup field
+        Handles the POST request and adds a lookupvalue to the field
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Object reprensting the request
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+        field_id : int
+            Identifier of the field in the database
+
+        Return
+        ------
+        rest_framework.response.Response
+            Reponse to the request
         """
         field = Field.objects.as_admin(
             request.user, project_id, category_id, field_id)
@@ -493,7 +819,25 @@ class FieldLookupsUpdate(APIView):
     def delete(self, request, project_id, category_id, field_id,
                value_id):
         """
-        Removes a LookupValue
+        Handles the DELETE request and removes the lookupvalue the category
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Object reprensting the request
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+        field_id : int
+            Identifier of the field in the database
+        value_id : int
+            Identifier of the lookupvalue in the database
+
+        Return
+        ------
+        rest_framework.response.Response
+            Reponse to the request
         """
         field = Field.objects.as_admin(
             request.user, project_id, category_id, field_id)
@@ -510,8 +854,29 @@ class FieldLookupsUpdate(APIView):
 
 
 class FieldsReorderView(APIView):
+    """
+    API endpoint to reorder the fields of a category
+    /ajax/projects/:project_id/categories/:category_id/fields/re-order/
+    """
     @handle_exceptions_for_ajax
     def post(self, request, project_id, category_id):
+        """
+        Handles the DELETE request and removes the lookupvalue the category
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Object reprensting the request
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+
+        Return
+        ------
+        rest_framework.response.Response
+            Reponse to the request
+        """
         category = Category.objects.as_admin(
             request.user, project_id, category_id)
         try:
@@ -540,7 +905,22 @@ class SingleCategory(APIView):
     @handle_exceptions_for_ajax
     def get(self, request, project_id, category_id):
         """
-        Returns the category and all fields
+        Handles the GET request and returns the complete category including
+        all fields
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Object reprensting the request
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+
+        Return
+        ------
+        rest_framework.response.Response
+            Reponse to the request
         """
         category = Category.objects.get_single(
             request.user, project_id, category_id)

@@ -29,7 +29,7 @@ class FieldSerializer(ModelSerializer):
 
 class TextFieldSerializer(ModelSerializer):
     """
-    Serializer for fields.
+    Serializer for text fields.
     Used in .views.FieldApiDetail
     """
     fieldtype = ReadOnlyField()
@@ -82,7 +82,23 @@ class MultipleLookupValueSerializer(ModelSerializer):
 
 
 class BaseLookupSerializer(object):
+    """
+    Base class for LookupFieldSerializer and MultipleLookupFieldSerializer
+    """
     def get_lookupvalues(self, field):
+        """
+        Returns serialised Lookupvalues
+
+        Parameter
+        ---------
+        field : geokey.categories.models.Field
+            Field which lookupvalues are serialised
+
+        Return
+        ------
+        List
+            Serialized lookupvalues
+        """
         values = field.lookupvalues.filter(status='active')
 
         if isinstance(field, LookupField):
@@ -146,6 +162,19 @@ class CategorySerializer(FieldSelectorSerializer):
         read_only_fields = ('id', 'name', 'created_at')
 
     def get_fields_serialized(self, category):
+        """
+        Returns a list of serialized fields for the category
+
+        Parameter
+        ---------
+        category : geokey.categories.models.category
+            Category which field are serialized
+
+        Return
+        ------
+        List
+            Serialized fields
+        """
         fields = []
 
         for field in category.fields.filter(status='active'):

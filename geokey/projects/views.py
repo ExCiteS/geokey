@@ -42,6 +42,11 @@ class ProjectCreate(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         """
         Creates the project and redirects to the project overview page
+
+        Parameters
+        ----------
+        form : geokey.projects.forms.ProjectCreateForm
+            Represents the user input
         """
         data = form.cleaned_data
         project = Project.create(
@@ -56,9 +61,21 @@ class ProjectCreate(LoginRequiredMixin, CreateView):
 
 
 class ProjectsInvolved(LoginRequiredMixin, TemplateView):
+    """
+    Displays a list of all projects the user is involved in
+    """
     template_name = 'projects/projects_involved.html'
 
     def get_context_data(self):
+        """
+        Returns the context to render the view. Overwrites the method to add
+        the list of projects to the context.
+
+        Returns
+        -------
+        dict
+            context
+        """
         projects = Project.objects.get_list(self.request.user).exclude(
             admins=self.request.user)
         project_list = []
@@ -87,10 +104,19 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
     @handle_exceptions_for_admin
     def get_context_data(self, project_id):
         """
-        Creates the request context for rendering the page. If the user is not
-        an administrator of the project, `PermissionDenied` is caught and
-        handled in the `handle_exceptions_for_admin` decorator and an error
-        message is displayed.
+        Returns the context to render the view. Overwrites the method to add
+        the project, number of contributions and number of user contributions
+        to the context.
+
+        Parameters
+        ----------
+        project_id : int
+            identifies the project in the database
+
+        Returns
+        -------
+        dict
+            context
         """
         user = self.request.user
         project = Project.objects.as_admin(user, project_id)
@@ -105,15 +131,26 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
 
 
 class ProjectExtend(LoginRequiredMixin, TemplateView):
+    """
+    Displays the page to edit the geograhic extent of the project
+    """
     template_name = 'projects/project_extend.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id):
         """
-        Creates the request context for rendering the page. If the user is not
-        an administrator of the project, `PermissionDenied` is caught and
-        handled in the `handle_exceptions_for_admin` decorator and an error
-        message is displayed.
+        Returns the context to render the view. Overwrites the method to add
+        the project to the context.
+
+        Parameters
+        ----------
+        project_id : int
+            identifies the project in the database
+
+        Returns
+        -------
+        dict
+            context
         """
         project = Project.objects.as_admin(self.request.user, project_id)
 
@@ -123,6 +160,21 @@ class ProjectExtend(LoginRequiredMixin, TemplateView):
         return context
 
     def post(self, request, project_id):
+        """
+        Adds or updates the geographic extent of the project.
+
+        Parameter
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+        project_id : int
+            identifies the project in the database
+
+        Returns
+        -------
+        django.http.HttpResponse
+            Rendered template
+        """
         data = request.POST
         context = self.get_context_data(project_id)
         project = context.pop('project', None)
@@ -142,7 +194,7 @@ class ProjectExtend(LoginRequiredMixin, TemplateView):
             )
 
             context['project'] = project
-            return self.render_to_response(context)
+        return self.render_to_response(context)
 
 
 class ProjectSettings(LoginRequiredMixin, TemplateView):
@@ -156,10 +208,18 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
     @handle_exceptions_for_admin
     def get_context_data(self, project_id):
         """
-        Creates the request context for rendering the page. If the user is not
-        an administrator of the project, `PermissionDenied` is caught and
-        handled in the `handle_exceptions_for_admin` decorator and an error
-        message is displayed.
+        Returns the context to render the view. Overwrites the method to add
+        the project and status types to the context.
+
+        Parameters
+        ----------
+        project_id : int
+            identifies the project in the database
+
+        Returns
+        -------
+        dict
+            context
         """
         project = Project.objects.as_admin(self.request.user, project_id)
         return {
@@ -168,30 +228,83 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
         }
 
     def post(self, request, project_id):
+        """
+        Updates the project settings
+
+        Parameter
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+        project_id : int
+            identifies the project in the database
+
+        Returns
+        -------
+        django.http.HttpResponse
+            Rendered template
+        """
         context = self.get_context_data(project_id)
         project = context.pop('project')
-        data = request.POST
 
-        project.name = strip_tags(data.get('name'))
-        project.description = strip_tags(data.get('description'))
-        project.everyone_contributes = data.get('everyone_contributes')
-        project.save()
+        if project is not None:
+            data = request.POST
 
-        messages.success(self.request, "The project has been updated.")
-        context['project'] = project
+            project.name = strip_tags(data.get('name'))
+            project.description = strip_tags(data.get('description'))
+            project.everyone_contributes = data.get('everyone_contributes')
+            project.save()
+
+            messages.success(self.request, "The project has been updated.")
+            context['project'] = project
         return self.render_to_response(context)
 
 
 class ProjectDelete(LoginRequiredMixin, TemplateView):
+    """
+    Deletes a project
+    """
     template_name = 'base.html'
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, **kwargs):
+        """
+        Returns the context to render the view. Overwrites the method to add
+        the project and status types to the context.
+
+        Parameters
+        ----------
+        project_id : int
+            identifies the project in the database
+
+        Returns
+        -------
+        dict
+            context
+        """
         project = Project.objects.as_admin(self.request.user, project_id)
         return super(ProjectDelete, self).get_context_data(
             project=project, **kwargs)
 
     def get(self, request, project_id):
+        """
+        Deletes the project
+
+        Parameter
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+        project_id : int
+            identifies the project in the database
+
+        Returns
+        -------
+        django.http.HttpResponseRedirect
+            redirecting to the dashboard
+
+        django.http.HttpResponse
+            If user is not administrator of the project, the error message is
+            rendered.
+        """
         context = self.get_context_data(project_id)
         project = context.pop('project', None)
 
@@ -219,9 +332,19 @@ class ProjectUpdate(APIView):
     @handle_exceptions_for_ajax
     def put(self, request, project_id):
         """
-        Updates a project. If the user is not an administrator of the project,
-        `PermissionDenied` is caught and handled in the
-        `handle_exceptions_for_ajax` decorator and an error 403 is returned.
+        Updates a project.
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Object representing the request.
+        project_id : int
+            identifies the project in the database
+
+        Returns
+        -------
+        rest_framework.reponse.Response
+            Response containing the serialised project or an error message
         """
         project = Project.objects.as_admin(request.user, project_id)
         serializer = ProjectSerializer(
@@ -237,17 +360,6 @@ class ProjectUpdate(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @handle_exceptions_for_ajax
-    def delete(self, request, project_id):
-        """
-        Deletes a project. If the user is not an administrator of the project,
-        `PermissionDenied` is caught and handled in the
-        `handle_exceptions_for_ajax` decorator and an error 403 is returned.
-        """
-        project = Project.objects.as_admin(request.user, project_id)
-        project.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class ProjectAdmins(APIView):
     """
@@ -258,9 +370,20 @@ class ProjectAdmins(APIView):
     @handle_exceptions_for_ajax
     def post(self, request, project_id):
         """
-        Adds a user to the admin group. . If the user is not an administrator
-        of the project, `PermissionDenied` is caught and handled in the
-        `handle_exceptions_for_ajax` decorator and an error 403 is returned.
+        Adds a user to the admin group.
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Object representing the request.
+        project_id : int
+            identifies the project in the database
+
+        Returns
+        -------
+        rest_framework.reponse.Response
+            Response containing the serialised list of admins or an error
+            message.
         """
         project = Project.objects.as_admin(request.user, project_id)
 
@@ -288,10 +411,20 @@ class ProjectAdminsUser(APIView):
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, user_id):
         """
-        Removes a user from the user group. . If the user is not an
-        administrator of the project, `PermissionDenied` is caught and handled
-        in the `handle_exceptions_for_ajax` decorator and an error 403 is
-        returned.
+        Removes a user from the user group.
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Object representing the request.
+        project_id : int
+            identifies the project in the database
+
+        Returns
+        -------
+        rest_framework.reponse.Response
+            Empty response if successful or response containing an error
+            message.
         """
         project = Project.objects.as_admin(request.user, project_id)
         user = project.admins.get(pk=user_id)
@@ -306,6 +439,21 @@ class CategoriesReorderView(APIView):
     """
     @handle_exceptions_for_ajax
     def post(self, request, project_id):
+        """
+        Reorders the cateories in the project.
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Object representing the request.
+        project_id : int
+            identifies the project in the database
+
+        Returns
+        -------
+        rest_framework.reponse.Response
+            Contains the serialised project or an error message
+        """
         project = Project.objects.as_admin(request.user, project_id)
 
         try:
@@ -340,7 +488,17 @@ class Projects(APIView):
     @handle_exceptions_for_ajax
     def get(self, request):
         """
-        Returns a list a all projects accessable to the user.
+        Returns a list a all projects accessible to the user.
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Object representing the request.
+
+        Returns
+        -------
+        rest_framework.reponse.Response
+            Contains serialised list of projects
         """
         projects = Project.objects.get_list(
             request.user).filter(status='active')
@@ -359,9 +517,25 @@ class SingleProject(APIView):
     @handle_exceptions_for_ajax
     def get(self, request, project_id):
         """
-        Returns a single project. If the user is not eligable to access the
-        project, `PermissionDenied` is caught and handled in the
-        `handle_exceptions_for_ajax` decorator and an error 403 is returned.
+        Returns a single project.
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Object representing the request.
+        project_id : int
+            identifies the project in the database
+
+        Returns
+        -------
+        rest_framework.reponse.Response
+            Contains the serialised project
+
+        Raises
+        ------
+        PermissionDenied
+            if the project is inactive, is handled in the
+            handle_exceptions_for_ajax decorator
         """
         project = Project.objects.get_single(request.user, project_id)
         if project.status == 'active':
@@ -384,6 +558,24 @@ class ProjectContactAdmins(APIView):
         """
         Sends an email to all admins that are contact persons for the given
         project.
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Object representing the request.
+        project_id : int
+            identifies the project in the database
+
+        Returns
+        -------
+        rest_framework.reponse.Response
+            Empty reponse indicating success
+
+        Raises
+        ------
+        Unauthenticated
+            if the user is anonymous; is handled in the
+            handle_exceptions_for_ajax decorator
         """
         user = request.user
         if user.is_anonymous():

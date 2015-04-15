@@ -8,7 +8,7 @@ from .models import Grouping
 
 class GroupingSerializer(FieldSelectorSerializer):
     """
-    Serializer for Views.
+    Serializer for geokey.datagroupings.models.Grouping
     """
     contributions = SerializerMethodField('get_data')
     num_contributions = SerializerMethodField()
@@ -23,7 +23,18 @@ class GroupingSerializer(FieldSelectorSerializer):
 
     def get_data(self, obj):
         """
-        Returns all serialized contributions accessable through the view.
+        Returns all serialized contributions accessable through the data
+        grouping.
+
+        Parameter
+        ---------
+        obj : geokey.datagroupings.models.Grouping
+            Grouping that is serialised
+
+        Returns
+        -------
+        list
+            serialised contribution objects
         """
         user = self.context.get('user')
 
@@ -37,6 +48,16 @@ class GroupingSerializer(FieldSelectorSerializer):
     def get_num_contributions(self, obj):
         """
         Returns the number of contributions accessable through the view.
+
+        Parameter
+        ---------
+        obj : geokey.datagroupings.models.Grouping
+            Grouping that is serialised
+
+        Returns
+        -------
+        int
+            The number of contributions in the data grouping
         """
         user = self.context.get('user')
         return obj.data(user).count()

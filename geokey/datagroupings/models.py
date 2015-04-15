@@ -8,6 +8,11 @@ from .manager import GroupingManager, RuleManager
 
 
 class Grouping(models.Model):
+    """
+    Data groupings provide access to subsets of teh overall contributions in
+    a project. Together with rules and usergroups they define who can access
+    what parts of the data in a project.
+    """
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
@@ -26,6 +31,15 @@ class Grouping(models.Model):
         ordering = ['name']
 
     def get_where_clause(self):
+        """
+        Returns the SQL where clause for the data grouping. It combines the
+        partial clauses of all rules assigned to the data grouping.
+
+        Returns
+        -------
+        str
+            SQL where clause for the data grouping
+        """
         queries = [rule.get_query() for rule in self.rules.all()]
 
         if len(queries) > 0:
@@ -36,8 +50,19 @@ class Grouping(models.Model):
 
     def data(self, user):
         """
-        Provides access to all data accessable through the view. Uses the
-        rules of the view to filter the data.
+        Provides access to all data accessable through the data grouping. It
+        gets all contributions of the project accoring to the user's role
+        (moderator or not) and filters the data using the where clause.
+
+        Parameter
+        ---------
+        user : geokey.users.models.User
+            User the data is queried for
+
+        Returns
+        -------
+        django.db.models.query.QuerySet
+            List of all contributions in the data grouping
         """
         where_clause = self.get_where_clause()
 
@@ -60,7 +85,17 @@ class Grouping(models.Model):
 
     def can_view(self, user):
         """
-        Returns if the user can view data of the view.
+        Returns if the user can view data of the data grouping.
+
+        Parameter
+        ---------
+        user : geokey.users.models.User
+            User that is examined
+
+        Returns
+        -------
+        Boolean
+            indicates if user can read
         """
         if user.is_anonymous():
             return not self.isprivate
@@ -73,6 +108,16 @@ class Grouping(models.Model):
     def can_read(self, user):
         """
         Returns if the user can read data of the view.
+
+        Parameter
+        ---------
+        user : geokey.users.models.User
+            User that is examined
+
+        Returns
+        -------
+        Boolean
+            indicates if user can view
         """
         if user.is_anonymous():
             return not self.isprivate
@@ -85,6 +130,16 @@ class Grouping(models.Model):
     def can_moderate(self, user):
         """
         Returns if the user can moderate data of the view.
+
+        Parameter
+        ---------
+        user : geokey.users.models.User
+            User that is examined
+
+        Returns
+        -------
+        Boolean
+            indicates if user can moderate
         """
         if user.is_anonymous():
             return False
@@ -94,6 +149,10 @@ class Grouping(models.Model):
 
 
 class Rule(models.Model):
+    """
+    Rules are used in data groupings to define directives to filter data in a
+    project.
+    """
     grouping = models.ForeignKey('Grouping', related_name='rules')
     category = models.ForeignKey('categories.Category')
     min_date = models.DateTimeField(null=True)
@@ -109,7 +168,14 @@ class Rule(models.Model):
 
     def get_query(self):
         """
-        Returns the queryset filter for the Rule
+        Returns the SQL where clause for the rule. It combines the where clause
+        parts of each field in the category. See Grouping.get_where_clause()
+        to find out how it's applied.
+
+        Returns
+        -------
+        str
+            SQL where clause for the rule
         """
         queries = ['(category_id = %s)' % self.category.id]
 

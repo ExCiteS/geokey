@@ -16,15 +16,28 @@ class ActiveMixin(object):
     """
     def active(self):
         """
-        Returns a queryset of all active instances
+        Returns all active instances
+
+        Returns
+        -------
+        django.db.models.Queryset
+            All active instances
         """
         return self.get_queryset().filter(status=STATUS.active)
 
 
 class CategoryManager(ActiveMixin, models.Manager):
+    """
+    Adds category-specific manager methods.
+    """
     def get_queryset(self):
         """
-        Returns the QuerySet
+        Returns all categories
+
+        Returns
+        -------
+        django.db.models.Queryset
+            All categories, excluding deleted
         """
         return super(
             CategoryManager,
@@ -33,7 +46,21 @@ class CategoryManager(ActiveMixin, models.Manager):
 
     def get_list(self, user, project_id):
         """
-        Returns all category objects the user is allowed to access
+        Returns all category objects the user is allowed to access. Project
+        admins can access all categories, other users will get access to
+        active categories only.
+
+        Parameters
+        ----------
+        user : geokey.users.models.User
+            User the categories are queried for
+        project_id : int
+            ID identifying the project in the database
+
+        Returns
+        -------
+        django.db.models.Queryset
+            Queryset of all categories the user is allowed to access
         """
         project = Project.objects.get_single(user, project_id)
         if (project.is_admin(user)):
@@ -43,8 +70,25 @@ class CategoryManager(ActiveMixin, models.Manager):
 
     def get_single(self, user, project_id, category_id):
         """
-        Returns all a single category. Raises PermissionDenied if user
-        is not eligable to access the category.
+        Returns all a single category.
+
+        Parameters
+        ----------
+        user : geokey.users.models.User
+            User the categories are queried for
+        project_id : int
+            ID identifying the project in the database
+        category_id : int
+            ID identifying the category in the database
+
+        Returns
+        -------
+        geokey.categories.models.Category
+
+        Raises
+        ------
+        PermissionDenied
+            if the user is not eligable to access the category
         """
         category = Project.objects.get_single(
             user, project_id).categories.get(pk=category_id)
@@ -58,13 +102,45 @@ class CategoryManager(ActiveMixin, models.Manager):
 
     def as_admin(self, user, project_id, category_id):
         """
-        Returns all a single category for an project admin.
+        Returns all a single category for a project admin.
+
+        Parameters
+        ----------
+        user : geokey.users.models.User
+            User the categories are queried for
+        project_id : int
+            ID identifying the project in the database
+        category_id : int
+            ID identifying the category in the database
+
+        Returns
+        -------
+        geokey.categories.models.Category
+
+        Raises
+        ------
+        PermissionDenied
+            if the user is not an admin of the project
         """
         return Project.objects.as_admin(
             user, project_id
             ).categories.get(pk=category_id)
 
     def create(self, create_grouping=False, *args, **kwargs):
+        """
+        Creates a new category. Overwrites method to optionally create a
+        data grouping for the category
+
+        Parameters
+        ----------
+        create_grouping : Boolean
+            indicating if a data grouping should be created
+
+        Returns
+        -------
+        geokey.categories.models.Category
+            The newly created category
+        """
         category = super(CategoryManager, self).create(*args, **kwargs)
 
         category.order = category.project.categories.count() - 1
@@ -88,15 +164,39 @@ class CategoryManager(ActiveMixin, models.Manager):
 
 
 class FieldManager(ActiveMixin, InheritanceManager):
+    """
+    Adds field-specific manager methods.
+    """
     use_for_related_fields = True
 
     def get_queryset(self):
+        """
+        Returns all field subclasses ordered by `order` within the category.
+
+        Returns
+        -------
+        django.db.models.Queryset
+            All fields, excluding deleted
+        """
         return super(FieldManager, self).get_queryset().order_by(
             'order').select_subclasses()
 
     def get_list(self, user, project_id, category_id):
         """
         Returns all fields the user is allowed to access.
+
+        Parameters
+        ----------
+        user : geokey.users.models.User
+            User the categories are queried for
+        project_id : int
+            ID identifying the project in the database
+        category_id : int
+            ID identifying the category in the database
+
+        Returns
+        -------
+        django.db.models.Queryset
         """
         project = Project.objects.get_single(user, project_id)
 
@@ -111,7 +211,29 @@ class FieldManager(ActiveMixin, InheritanceManager):
 
     def get_single(self, user, project_id, category_id, field_id):
         """
-        Returns a single field
+        Returns all a single field.
+
+        Parameters
+        ----------
+        user : geokey.users.models.User
+            User the categories are queried for
+        project_id : int
+            ID identifying the project in the database
+        category_id : int
+            ID identifying the category in the database
+        field_id : int
+            ID identifying the field in the database
+
+        Returns
+        -------
+        geokey.categories.models.Field sublcass
+            i.e. if you query for a TextField instance
+            geokey.categories.models.TextField is return
+
+        Raises
+        ------
+        PermissionDenied
+            if the user is not eligable to access the field
         """
         project = Project.objects.get_single(user, project_id)
         category = project.categories.get(pk=category_id)
@@ -132,7 +254,29 @@ class FieldManager(ActiveMixin, InheritanceManager):
 
     def as_admin(self, user, project_id, category_id, field_id):
         """
-        Returns all a single field for an project admin.
+        Returns all a single field for a project admin.
+
+        Parameters
+        ----------
+        user : geokey.users.models.User
+            User the categories are queried for
+        project_id : int
+            ID identifying the project in the database
+        category_id : int
+            ID identifying the category in the database
+        field_id : int
+            ID identifying the field in the database
+
+        Returns
+        -------
+        geokey.categories.models.Field sublcass
+            i.e. if you query for a TextField instance
+            geokey.categories.models.TextField is return
+
+        Raises
+        ------
+        PermissionDenied
+            if the user is not admin of the project
         """
         return Project.objects.as_admin(
             user, project_id).categories.get(
@@ -144,6 +288,13 @@ class LookupQuerySet(models.query.QuerySet):
     QuerySet for models having a field status. User by ActiveManager.
     """
     def active(self):
+        """
+        Returns all active instances
+
+        Returns
+        -------
+        Queryset of all active instances
+        """
         return self.filter(status=STATUS.active)
 
 
@@ -155,7 +306,23 @@ class LookupValueManager(models.Manager):
     use_for_related_fields = True
 
     def get_queryset(self):
+        """
+        Returns the Queryset
+
+        Returns
+        -------
+        django.db.models.Queryset
+            all lookupvalues
+        """
         return LookupQuerySet(self.model)
 
     def active(self, *args, **kwargs):
+        """
+        Returns all active instances
+
+        Returns
+        -------
+        django.db.models.Queryset
+            All active instances
+        """
         return self.get_queryset().active(*args, **kwargs)

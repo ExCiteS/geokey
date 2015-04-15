@@ -50,7 +50,12 @@ class Category(models.Model):
 
     def re_order_fields(self, order):
         """
-        Reorders the category fields according to the order given in `order`
+        Changes the order in which fields are displayed on client side.
+
+        Parameters
+        -------
+        order : List
+            IDs of fields, ordered according to new display order
         """
         fields_to_save = []
         for idx, field_id in enumerate(order):
@@ -62,6 +67,14 @@ class Category(models.Model):
             field.save()
 
     def delete(self):
+        """
+        Deletes the category by setting its status to deleted.
+
+        Notes
+        -----
+        It also deletes all contributions of that category and the rules for
+        any data grouping of that category.
+        """
         from geokey.contributions.models import Observation
         Observation.objects.filter(category=self).delete()
         Rule.objects.filter(category=self).delete()
@@ -92,10 +105,36 @@ class Field(models.Model):
         unique_together = ('key', 'category')
 
     @classmethod
-    def create(self, name, key, description, required, category,
-               field_type):
+    def create(self, name, key, description, required, category, field_type):
         """
         Creates a new field based on the field type provided.
+
+        Parameters
+        ----------
+        name : str
+            Name of the field. Used for displaying labels.
+        key : str
+            Key of the field. Used in API to assign values to a field.
+        description : str
+            Long description providing further details about the field.
+        required : Boolean
+            Indicates if the field is required
+        category : geokey.categories.models.Category
+            The category this field is assigned to.
+        field_type : str
+            Type of the field. Must be one of:
+                - TextField
+                - NumericField
+                - DateField
+                - DateTimeField
+                - TimeField
+                - LookupField
+                - MultipleLookupfield
+
+        Returns
+        -------
+        geokey.categories.models.Field
+            Intance of the newly created field
         """
         model_class = get_model('categories', field_type)
         order = category.fields.count()
@@ -113,19 +152,24 @@ class Field(models.Model):
         if order == 0:
             category.display_field = field
             category.save()
+
         return field
 
     @classmethod
     def get_field_types(cls):
         """
-        Returns a list of all available field types. Simply returns the names
-        of the subclasses of `Field`
+        Returns the names of the subclasses of Field.
+
+        Returns
+        -------
+        List
+            The names of available field types.
         """
         return cls.__subclasses__()
 
     def validate_input(self, value):
         """
-        Validates the given `value` against the field definition.
+        Validates the given value against the field definition.
         @abstractmethod
         """
         raise NotImplementedError(
@@ -135,18 +179,22 @@ class Field(models.Model):
 
     def validate_required(self, value):
         """
-        Validates input value against required status. Raises an `InputError`
-        if no value has been provided.
+        Validates input value against required status.
+        Raises an `InputError` if no value has been provided.
         """
         if self.status == STATUS.active and self.required and (value is None):
             raise InputError('The field %s is required.' % self.name)
 
     def convert_from_string(self, value):
         """
-        Converts the given `value` of an `Observation`'s field from `String`
+        Converts the given value of an Observation's field from String
         to the proper data type. By default returns simply the value in
-        `String` format. Needs to be overridden in order to support other data
+        String format. Needs to be overridden in order to support other data
         types.
+
+        Notes
+        -----
+        Deprecated from version 0.6 on.
         """
         return value
 
@@ -154,23 +202,57 @@ class Field(models.Model):
     def fieldtype(self):
         """
         Returns the class name of the field instance
+
+        Returns
+        -------
+        str
+            The class name of the field instance
         """
         return self.__class__.__name__
 
     @property
     def type_name(self):
+        """
+        Returns the type name of the field instance. This is a human-readable
+        name that can be used in user interfaces, e.g. Date and Time for
+        DateTimeField.
+        @abstractmethod
+        """
         raise NotImplementedError(
             'The property `type_name` has not been implemented for this '
             'subclass of Field.'
         )
 
     def get_filter(self, rule):
+        """
+        Returns an SQL where clause that can be used to filter contributions in
+        data groupings
+        @abstractmethod
+
+        Parameter
+        ---------
+        rule : str or list or dict
+            Depending on the field type, this provides the values the filter
+            should be built against
+
+        Return
+        ------
+        str
+            The where-clause that can be used in SQL queries.
+        """
         raise NotImplementedError(
             'The method `filter` has not been implemented for this '
             'subclass of Field.'
         )
 
     def delete(self):
+        """
+        Deletes the field.
+
+        Notes
+        -----
+        Also deletes all references to the Field in Rules.
+        """
         rules = Rule.objects.filter(category=self.category)
 
         for rule in rules:
@@ -189,8 +271,17 @@ class TextField(Field):
 
     def validate_required(self, value):
         """
-        Validate teh given value agaist required status. Checks if value is
+        Validate the given value agaist required status. Checks if value is
         not None and has at least one character.
+
+        Parameters
+        ----------
+        value : str
+            The value to be validated
+
+        Notes
+        -----
+        Raises InputError if no value is provided
         """
         if isinstance(value, str) or isinstance(value, unicode):
             value = value.encode('utf-8')
@@ -201,9 +292,17 @@ class TextField(Field):
 
     def validate_input(self, value):
         """
-        Validates if the given value is a valid input for the `TextField` by
-        checking if the provided value is of type `String`.
-        Returns `True` or `False`.
+        Validates if the given value is a valid input for the TextField.
+        Checks if the value is required and if maxlength constraint is met.
+
+        Parameters
+        ----------
+        value : str
+            The value to be validated
+
+        Notes
+        -----
+        Raises InputError if an invalid value is provided
         """
         self.validate_required(value)
 
@@ -216,13 +315,28 @@ class TextField(Field):
     def type_name(self):
         """
         Returns a human readable name of the field.
+
+        Return
+        ------
+        str
+            The name of the field
         """
         return 'Text'
 
     def get_filter(self, rule):
         """
-        Returns the filter object for the given field based on the rule. Used
-        to filter data for a view.
+        Returns the SQL where clause for the given field based on the rule.
+        Used to filter data for a data grouping.
+
+        Parameter
+        ---------
+        rule : str
+            A keyword that needs to matched for the filter to apply.
+
+        Return
+        ------
+        str
+            SQL where-clause
         """
         return ('((properties ->> \'' + self.key + '\') '
                 'ILIKE \'%%' + rule + '%%\')')
@@ -241,7 +355,16 @@ class NumericField(Field):
         Checks if a value of type number has been provided or if a value of
         type String has been provided that can be successfully converted to a
         Float value. Then checks if the value is between bounds of minval and
-        maxval. Returns `True` or `False`.
+        maxval.
+
+        Parameters
+        ----------
+        value : str
+            The value to be validated
+
+        Notes
+        -----
+        Raises InputError if an invalid value is provided
         """
         if isinstance(value, (str, unicode)) and len(value) == 0:
             value = None
@@ -278,7 +401,21 @@ class NumericField(Field):
 
     def convert_from_string(self, value):
         """
-        Returns the `value` of the field in `Float` format.
+        Returns the `value` of the field either as float or int.
+
+        Parameters
+        ----------
+        value : str
+            The value to be converted
+
+        Return
+        ------
+        int or float
+            Value of the field
+
+        Notes
+        -----
+        Deprecated from version 0.6 on.
         """
         if value is None or len(value) == 0:
             return None
@@ -292,13 +429,29 @@ class NumericField(Field):
     def type_name(self):
         """
         Returns a human readable name of the field.
+
+        Return
+        ------
+        str
+            The name of the field
         """
         return 'Numeric'
 
     def get_filter(self, rule):
         """
-        Returns the filter object for the given field based on the rule. Used
-        to filter data for a view.
+        Returns the SQL where clause for the given field based on the rule.
+        Used to filter data for a data grouping.
+
+        Parameter
+        ---------
+        rule : dict
+            Contains either minimum and maximum value for the filer:
+            {minval: 1, maxval: 10}
+
+        Return
+        ------
+        str
+            SQL where-clause
         """
         minval = rule.get('minval')
         maxval = rule.get('maxval')
@@ -323,6 +476,19 @@ class DateTimeField(Field):
     """
 
     def validate_required(self, value):
+        """
+        Validate the given value agaist required status. Checks if value is
+        not None and has at least one character.
+
+        Parameters
+        ----------
+        value : str or None
+            The value to be validated
+
+        Notes
+        -----
+        Raises InputError if no value is provided
+        """
         if (self.status == STATUS.active and
                 self.required and (value is None or len(value) == 0)):
             raise InputError('The field %s is required.' % self.name)
@@ -331,6 +497,15 @@ class DateTimeField(Field):
         """
         Checks if the provided value is a valid and ISO8601 compliant date
         string.
+
+        Parameters
+        ----------
+        value : str
+            The value to be validated
+
+        Notes
+        -----
+        Raises InputError if an invalid value is provided
         """
         self.validate_required(value)
         if value is not None:
@@ -344,13 +519,29 @@ class DateTimeField(Field):
     def type_name(self):
         """
         Returns a human readable name of the field.
+
+        Return
+        ------
+        str
+            The name of the field
         """
         return 'Date and Time'
 
     def get_filter(self, rule):
         """
-        Returns the filter object for the given field based on the rule. Used
-        to filter data for a view.
+        Returns the SQL where clause for the given field based on the rule.
+        Used to filter data for a data grouping.
+
+        Parameter
+        ---------
+        rule : dict
+            Contains either minimum and maximum value for the filer:
+            {minval: '2015-10-01', maxval: '2015-10-31'}
+
+        Return
+        ------
+        str
+            SQL where-clause
         """
         minval = rule.get('minval')
         maxval = rule.get('maxval')
@@ -378,6 +569,19 @@ class DateField(Field):
     A field for storing dates.
     """
     def validate_required(self, value):
+        """
+        Validate the given value agaist required status. Checks if value is
+        not None and has at least one character.
+
+        Parameters
+        ----------
+        value : str or None
+            The value to be validated
+
+        Notes
+        -----
+        Raises InputError if no value is provided
+        """
         if (self.status == STATUS.active and self.required and
                 (value is None or len(value) == 0)):
             raise InputError('The field %s is required.' % self.name)
@@ -386,6 +590,15 @@ class DateField(Field):
         """
         Checks if the provided value is a valid and ISO8601 compliant date
         string.
+
+        Parameters
+        ----------
+        value : str
+            The value to be validated
+
+        Notes
+        -----
+        Raises InputError if an invalid value is provided
         """
         self.validate_required(value)
         if value is not None:
@@ -399,13 +612,29 @@ class DateField(Field):
     def type_name(self):
         """
         Returns a human readable name of the field.
+
+        Return
+        ------
+        str
+            The name of the field
         """
         return 'Date'
 
     def get_filter(self, rule):
         """
-        Returns the filter object for the given field based on the rule. Used
-        to filter data for a view.
+        Returns the SQL where clause for the given field based on the rule.
+        Used to filter data for a data grouping.
+
+        Parameter
+        ---------
+        rule : dict
+            Contains either minimum and maximum value for the filer:
+            {minval: '2015-10-01 10:00', maxval: '2015-10-31 15:00'}
+
+        Return
+        ------
+        str
+            SQL where-clause
         """
         minval = rule.get('minval')
         maxval = rule.get('maxval')
@@ -433,18 +662,44 @@ class TimeField(Field):
     def type_name(self):
         """
         Returns a human readable name of the field.
+
+        Return
+        ------
+        str
+            The name of the field
         """
         return 'Time'
 
     def validate_required(self, value):
+        """
+        Validate the given value agaist required status. Checks if value is
+        not None and has at least one character.
+
+        Parameters
+        ----------
+        value : str or None
+            The value to be validated
+
+        Notes
+        -----
+        Raises InputError if no value is provided
+        """
         if (self.status == STATUS.active and self.required and
                 (value is None or len(value) == 0)):
             raise InputError('The field %s is required.' % self.name)
 
     def validate_input(self, value):
         """
-        Checks if the provided value is a valid and ISO8601 compliant date
-        string.
+        Checks if the provided value is a matches the patterns HH:mm
+
+        Parameters
+        ----------
+        value : str
+            The value to be validated
+
+        Notes
+        -----
+        Raises InputError if an invalid value is provided
         """
         self.validate_required(value)
         if value is not None:
@@ -456,8 +711,19 @@ class TimeField(Field):
 
     def get_filter(self, rule):
         """
-        Returns the filter object for the given field based on the rule. Used
-        to filter data for a view.
+        Returns the SQL where clause for the given field based on the rule.
+        Used to filter data for a data grouping.
+
+        Parameter
+        ---------
+        rule : dict
+            Contains either minimum and maximum value for the filer:
+            {minval: '10:00', maxval: '15:00'}
+
+        Return
+        ------
+        str
+            SQL where-clause
         """
         minval = rule.get('minval')
         maxval = rule.get('maxval')
@@ -488,8 +754,17 @@ class LookupField(Field):
     """
     def validate_input(self, value):
         """
-        Checks if the provided value is in the list of `LookupValue`'s.
-        Returns `True` or `False`.
+        Checks if the provided value matches the ID of one of the field's
+        lookupvalues.
+
+        Parameters
+        ----------
+        value : int
+            The value to be validated
+
+        Notes
+        -----
+        Raises InputError if an invalid value is provided
         """
         self.validate_required(value)
 
@@ -512,7 +787,21 @@ class LookupField(Field):
 
     def convert_from_string(self, value):
         """
-        Returns the `value` of the field in `int` format.
+        Returns the `value` of the field int.
+
+        Parameters
+        ----------
+        value : str
+            The value to be converted
+
+        Return
+        ------
+        int
+            Value of the field
+
+        Notes
+        -----
+        Deprecated from version 0.6 on.
         """
         if value is None or len(value) == 0:
             return None
@@ -523,13 +812,29 @@ class LookupField(Field):
     def type_name(self):
         """
         Returns a human readable name of the field.
+
+        Return
+        ------
+        str
+            The name of the field
         """
         return 'Select box'
 
     def get_filter(self, rule):
         """
-        Returns the filter object for the given field based on the rule. Used
-        to filter data for a view.
+        Returns the SQL where clause for the given field based on the rule.
+        Used to filter data for a data grouping.
+
+        Parameter
+        ---------
+        rule : List
+            IDs of LookupValues that need to matched in order for the filter
+            to apply.
+
+        Return
+        ------
+        str
+            SQL where-clause
         """
         return ('((properties ->> \'%s\')::int IN (%s))' %
                 (self.key, ','.join(str(x) for x in rule)))
@@ -562,6 +867,19 @@ class LookupValue(models.Model):
 
 class MultipleLookupField(Field):
     def validate_input(self, provided_vals):
+        """
+        Checks if the provided value matches the ID of one of the field's
+        lookupvalues.
+
+        Parameters
+        ----------
+        value : int
+            The value to be validated
+
+        Notes
+        -----
+        Raises InputError if an invalid value is provided
+        """
         self.validate_required(provided_vals)
 
         valid = True
@@ -583,6 +901,23 @@ class MultipleLookupField(Field):
                              'field.' % self.name)
 
     def convert_from_string(self, value):
+        """
+        Returns the `value` of the field as List.
+
+        Parameters
+        ----------
+        value : str
+            The value to be converted
+
+        Return
+        ------
+        List
+            List of lookup value IDs
+
+        Notes
+        -----
+        Deprecated from version 0.6 on.
+        """
         if value is None or len(value) == 0:
             return None
 
@@ -592,17 +927,37 @@ class MultipleLookupField(Field):
     def type_name(self):
         """
         Returns a human readable name of the field.
+
+        Return
+        ------
+        str
+            The name of the field
         """
         return 'Multiple select'
 
     def get_filter(self, rule):
+        """
+        Returns the SQL where clause for the given field based on the rule.
+        Used to filter data for a data grouping.
+
+        Parameter
+        ---------
+        rule : List
+            IDs of LookupValues that need to matched in order for the filter
+            to apply.
+
+        Return
+        ------
+        str
+            SQL where-clause
+        """
         return ('(regexp_split_to_array(btrim(properties ->> \'%s\', \'[]\'),'
                 ' \',\')::int[] && ARRAY%s)' % (self.key, json.dumps(rule)))
 
 
 class MultipleLookupValue(models.Model):
     """
-    Stores a single lookup value.
+    Stores a multiple lookup value.
     """
     name = models.CharField(max_length=100)
     field = models.ForeignKey(MultipleLookupField, related_name='lookupvalues')

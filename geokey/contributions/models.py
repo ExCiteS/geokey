@@ -87,7 +87,21 @@ class Observation(models.Model):
     @classmethod
     def validate_partial(self, category, data):
         """
-        Validates the update data of the observation
+        Validates the data against the category field definition. This is a
+        partial validation, which is used to validate drafts, field values
+        that are not provided are not validated.
+
+        Parameter
+        ---------
+        category : geokey.categories.models.Category
+            Category that the data is validated against
+        data : dict
+            Dictionary of key-value-pairs; incoming data that is validated
+
+        Raises
+        ------
+        ValidationError:
+            when data is invalid
         """
         is_valid = True
         error_messages = []
@@ -105,6 +119,22 @@ class Observation(models.Model):
 
     @classmethod
     def validate_full(self, category, data):
+        """
+        Validates the data against the category field definition. This is a
+        full validation.
+
+        Parameter
+        ---------
+        category : geokey.categories.models.Category
+            Category that the data is validated against
+        data : dict
+            Dictionary of key-value-pairs; incoming data that is validated
+
+        Raises
+        ------
+        ValidationError:
+            when data is invalid
+        """
         is_valid = True
         error_messages = []
 
@@ -122,9 +152,34 @@ class Observation(models.Model):
     def create(cls, properties=None, creator=None, location=None,
                category=None, project=None, status=None):
         """
-        Creates a new observation. Validates all fields first and raises a
-        ValidationError if at least one field did not validate.
+        Creates and returns a new observation. Validates all fields first and
+        raises a ValidationError if at least one field did not validate.
         Creates the object if all fields are valid.
+
+        Parameter
+        ---------
+        properties : dict
+            Attributes of the observation
+        creator : geokey.users.models.User
+            User who creates the observation
+        location : geokey.contributions.models.Location
+            Location of the contribution
+        category : geokey.categories.models.Category
+            Category of the contribution
+        project : geokey.projects.models.Project
+            Project the contribution is assigned to
+        status : str
+            Status of the contribution; one of active, review, pending or draft
+
+        Return
+        ------
+        geokey.contributions.models.Observation
+            The observation created
+
+        Raises
+        ------
+        ValidationError:
+            when data is invalid
         """
         location.save()
         observation = cls.objects.create(
@@ -140,6 +195,25 @@ class Observation(models.Model):
     def update(self, properties, updator, status=None):
         """
         Updates data of the observation
+
+        Parameter
+        ---------
+        properties : dict
+            Attributes of the observation
+        updator : geokey.users.models.User
+            User who creates the observation
+        status : str
+            Status of the contribution; one of active, review, pending or draft
+
+        Return
+        ------
+        geokey.contributions.models.Observation
+            The updated observation
+
+        Raises
+        ------
+        ValidationError:
+            when data is invalid
         """
         if status != 'draft':
             self.version = self.version + 1
@@ -153,12 +227,22 @@ class Observation(models.Model):
         return self
 
     def update_display_field(self):
+        """
+        Updates the display_field attribute. It uses the display field of the
+        contributions category and adds a string line 'key:value' to the
+        display field property
+        """
         display_field = self.category.display_field
         if display_field is not None:
             value = self.properties.get(display_field.key)
             self.display_field = '%s:%s' % (display_field.key, value)
 
     def update_search_matches(self):
+        """
+        Updates the search_matches propertiy, which is used to filter
+        contributions against a query string. It reads all fields from the
+        category and creates a string like 'key1:value#####key2:value2'
+        """
         search_matches = []
         for field in self.category.fields.all():
             if field.key in self.properties.keys():
@@ -197,7 +281,7 @@ class Observation(models.Model):
 
     def delete(self):
         """
-        Deletes the comment by setting it's `status` to `DELETED`
+        Deletes the comment by setting it's status to DELETED
         """
         self.status = OBSERVATION_STATUS.deleted
         self.save()
@@ -205,6 +289,10 @@ class Observation(models.Model):
 
 @receiver(pre_save, sender=Observation)
 def pre_save_update(sender, **kwargs):
+    """
+    Receiver that is called before an observation is saved. Updates
+    search_matches and display_field properties.
+    """
     observation = kwargs.get('instance')
 
     observation.update_display_field()
@@ -212,6 +300,9 @@ def pre_save_update(sender, **kwargs):
 
 
 class Comment(models.Model):
+    """
+    A comment that is added to a contribution.
+    """
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
@@ -241,7 +332,7 @@ class Comment(models.Model):
 
     def delete(self):
         """
-        Deletes the comment by setting it's `status` to `DELETED`
+        Deletes the comment by setting it's status to DELETED
         """
         self.responses.all().delete()
         self.status = COMMENT_STATUS.deleted
@@ -275,6 +366,11 @@ class MediaFile(models.Model):
     def type_name(self):
         """
         Returns the type of media file. To be implemented by child classes.
+
+        Raises
+        ------
+        NotImplementedError
+            if called on MediaFile base class
         """
         raise NotImplementedError(
             'The property `type_name` has not been implemented for this '
@@ -283,7 +379,7 @@ class MediaFile(models.Model):
 
     def delete(self):
         """
-        Deletes a file by setting its status to active
+        Deletes a file by setting its status to deleted
         """
         self.status = MEDIA_STATUS.deleted
         self.save()
@@ -302,7 +398,12 @@ class ImageFile(MediaFile):
     @property
     def type_name(self):
         """
-        Returns 'ImageFile'
+        Returns file type name
+
+        Returns
+        -------
+        str
+            'ImageFile'
         """
         return 'ImageFile'
 
@@ -323,6 +424,11 @@ class VideoFile(MediaFile):
     @property
     def type_name(self):
         """
-        Returns 'VideoFile'
+        Returns file type name
+
+        Returns
+        -------
+        str
+            'VideoFile'
         """
         return 'VideoFile'

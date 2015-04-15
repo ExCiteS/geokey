@@ -29,6 +29,15 @@ class User(AbstractBaseUser):
     objects = UserManager()
 
     def reset_password(self, password):
+        """
+        Resets the users password and deletes all access tokens assigned to the
+        user.
+
+        Parameters
+        ----------
+        password : str
+            New password of the user
+        """
         self.set_password(password)
         self.save()
         AccessToken.objects.filter(user=self).delete()
@@ -48,6 +57,10 @@ class UserGroup(models.Model):
 
 @receiver(pre_save, sender=UserGroup)
 def update_application_client(sender, **kwargs):
+    """
+    Receiver function to ensure that can_contribute is set to True when the
+    user groups has moderation permissions.
+    """
     group = kwargs.get('instance')
 
     if group.can_moderate:

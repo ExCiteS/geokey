@@ -26,6 +26,9 @@ from .models import MediaFile, ImageFile, VideoFile
 
 
 class LocationSerializer(geoserializers.GeoFeatureModelSerializer):
+    """
+    Serialiser for geokey.contribtions.models.Location
+    """
     class Meta:
         model = Location
         geo_field = 'geometry'
@@ -33,25 +36,48 @@ class LocationSerializer(geoserializers.GeoFeatureModelSerializer):
         write_only_fields = ('status',)
 
 
-class LocationContributionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Location
-        depth = 1
-        fields = ('id', 'name', 'description', 'status', 'created_at')
-        write_only_fields = ('status',)
-
-
 class ContributionSerializer(BaseSerializer):
+    """
+    Serialiser for geokey.contribtions.models.Observations. This is a custom
+    serialiser, not a standard ModelSerializer
+    """
     class Meta:
         list_serializer_class = GeoFeatureModelListSerializer
 
     @classmethod
     def many_init(cls, *args, **kwargs):
+        """
+        Is called when many=True property is set when instantiating the
+        serialiser.
+
+        Return
+        ------
+        rest_framework_gis.serializers.GeoFeatureModelListSerializer
+            Native GeoJSON object contain a list of contributions
+        """
         kwargs['child'] = cls()
         kwargs['context']['many'] = True
         return GeoFeatureModelListSerializer(*args, **kwargs)
 
     def restore_location(self, instance=None, data=None, geometry=None):
+        """
+        Deserialises a contribution's location. Creates a new location or
+        updates an existing location
+
+        Parameters
+        ----------
+        instance : geokey.contributions.models.Location
+            Optional instance that will be updated
+        data : dict
+            Data to be deserialied into a location instance
+        geometry : dict
+            GeoJson-like geometry
+
+        Returns
+        -------
+        geokey.contributions.models.Location
+            Created or updated instance
+        """
         if instance is not None:
             if data is not None:
                 instance.name = data.get('name') or instance.name
@@ -101,6 +127,21 @@ class ContributionSerializer(BaseSerializer):
                 )
 
     def validate_category(self, project, category_id):
+        """
+        Validates if the category can be used with the project
+
+        Parameters
+        ----------
+        project : geokey.projects.models.Project
+            Project that the category is used for
+        category_id : int
+            identifies the category in the database
+
+        Returns
+        -------
+        geokey.categories.models.Category
+            The valid category
+        """
         errors = []
         category = None
         try:
@@ -120,6 +161,21 @@ class ContributionSerializer(BaseSerializer):
         return category
 
     def replace_null(self, properties):
+        """
+        Replaces all empty str or unicode values with None and returns the
+        properies dict
+
+        Parameter
+        ---------
+        properties : dict
+            Contribution properties
+
+        Returns
+        -------
+        dict
+            Contribution properties with replaced null values
+
+        """
         for key, value in properties.iteritems():
             if isinstance(value, (str, unicode)) and len(value) == 0:
                 properties[key] = None
@@ -127,6 +183,18 @@ class ContributionSerializer(BaseSerializer):
         return properties
 
     def validate_properties(self, properties, category=None, status=None):
+        """
+        Validates the properties and adds error messages to self._errors
+
+        Parameter
+        ---------
+        properties : dict
+            Contribution properties
+        category : geokey.categories.models.Category
+            Category the properties are validated against
+        status : str
+            Status for the contribution
+        """
         errors = []
 
         if self.instance is not None:
@@ -153,6 +221,16 @@ class ContributionSerializer(BaseSerializer):
             self._errors['properties'] = errors
 
     def validate_location(self, project, location_id):
+        """
+        Validates if the location can be used with the project
+
+        Parameters
+        ----------
+        project : geokey.projects.models.Project
+            Project that the category is used for
+        location_id : int
+            identifies the location in the database
+        """
         errors = []
 
         try:
@@ -171,6 +249,28 @@ class ContributionSerializer(BaseSerializer):
             self._errors['location'] = errors
 
     def is_valid(self, raise_exception=False):
+        """
+        Checks if the contribution that is deserialised is valid. Validates
+        location, category and properties.
+
+        Parameter
+        ---------
+        raise_exception : Boolean
+            indicates if an exeption should be raised if the data is invalid.
+            If set to false, this method will return False if the data is
+            invalid.
+
+        Returns
+        -------
+        Boolean
+            indicating if data is valid
+
+        Raises
+        ------
+        ValidationError
+            If data is invalid. Exception is raised when raise_exception is set
+            tp True.
+        """
         self._errors = {}
         self._validated_data = self.initial_data
 
@@ -213,6 +313,19 @@ class ContributionSerializer(BaseSerializer):
         return not bool(self._errors)
 
     def create(self, validated_data):
+        """
+        Creates a new observation and returns the instance.
+
+        Parameter
+        ---------
+        validated_data : dict
+            the data dict after validation
+
+        Returns
+        -------
+        geokey.contributions.models.Observation
+            The instance created
+        """
         project = self.context.get('project')
         meta = validated_data.pop('meta')
 
@@ -233,6 +346,21 @@ class ContributionSerializer(BaseSerializer):
         return self.instance
 
     def update(self, instance, validated_data):
+        """
+        Updates an existing observation and returns the instance.
+
+        Parameter
+        ---------
+        instance : geokey.contributions.models.Observation
+            the instance to be updated
+        validated_data : dict
+            the data dict after validation
+
+        Returns
+        -------
+        geokey.contributions.models.Observation
+            The instance update
+        """
         meta = validated_data.get('meta')
         status = None
         if meta is not None:
@@ -251,6 +379,23 @@ class ContributionSerializer(BaseSerializer):
         )
 
     def get_display_field(self, obj):
+        """
+        Returns a native representation of the display_field property.
+
+        Parameter
+        ---------
+        obj : geokey.contributions.models.Observation
+            The instance that is serialised
+
+        Returns
+        -------
+        dict
+            serialised display_field; e.g.
+            {
+                'key': 'field_key',
+                'value': 'The value of the field'
+            }
+        """
         if obj.display_field is not None:
             display_field = obj.display_field.split(':', 1)
             value = display_field[1] if display_field[1] != 'None' else None
@@ -262,6 +407,25 @@ class ContributionSerializer(BaseSerializer):
             return None
 
     def get_search_result(self, obj, q):
+        """
+        Returns all fields which values have matched a search query
+
+        Parameter
+        ---------
+        obj : geokey.contributions.models.Observation
+            The instance that is serialised
+        q : str
+            The query string of the search
+
+        Return
+        ------
+        dict
+            the field that matched the query, e.g.
+            {
+                'field_key_1': 'value 1',
+                'field_key_2': 'value 2',
+            }
+        """
         search_matches = {}
 
         matcher = obj.search_matches.split('#####')
@@ -274,6 +438,19 @@ class ContributionSerializer(BaseSerializer):
         return search_matches
 
     def to_representation(self, obj):
+        """
+        Returns the native representation of a contribution
+
+        Parameter
+        ---------
+        obj : geokey.contributions.models.Observation
+            The instance that is serialised
+
+        Returns
+        -------
+        dict
+            Native represenation of the Contribution
+        """
         location = obj.location
 
         isowner = False
@@ -354,6 +531,9 @@ class ContributionSerializer(BaseSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """
+    Serialiser for geokey.contributions.models.Comment
+    """
     creator = UserSerializer(fields=('id', 'display_name'), read_only=True)
     isowner = serializers.SerializerMethodField()
 
@@ -364,6 +544,20 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only = ('id', 'respondsto', 'created_at')
 
     def to_representation(self, obj):
+        """
+        Returns native represenation of the Comment. Adds reponses to comment
+
+        Parameter
+        ---------
+        obj : geokey.contributions.models.Comment
+            The instance that is serialised
+
+        Returns
+        -------
+        dict
+            Native represenation of the Comment
+
+        """
         native = super(CommentSerializer, self).to_representation(obj)
         native['responses'] = CommentSerializer(
             obj.responses.all(),
@@ -374,6 +568,20 @@ class CommentSerializer(serializers.ModelSerializer):
         return native
 
     def get_isowner(self, comment):
+        """
+        Returns True if the user serialising the Comment has created the
+        comment
+
+        Parameter
+        ---------
+        comment : geokey.contributions.models.Comment
+            The instance that is serialised
+
+        Returns
+        -------
+        Boolean
+            indicating of user is creator of comment
+        """
         if not self.context.get('user').is_anonymous():
             return comment.creator == self.context.get('user')
         else:
@@ -381,6 +589,9 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class FileSerializer(serializers.ModelSerializer):
+    """
+    Serialiser for geokey.contributions.models.MediaFile instances
+    """
     creator = UserSerializer(fields=('id', 'display_name'))
     isowner = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
@@ -397,6 +608,16 @@ class FileSerializer(serializers.ModelSerializer):
     def get_file_type(self, obj):
         """
         Returns the type of the MediaFile
+
+        Parameter
+        ---------
+        obj : geokey.contributions.models.MediaFile
+            The instance that is serialised
+
+        Returns
+        -------
+        str
+            The type of the, e.g. 'ImageFile'
         """
         return obj.type_name
 
@@ -404,6 +625,16 @@ class FileSerializer(serializers.ModelSerializer):
         """
         Returns `True` if the user provided in the serializer context is the
         creator of this file
+
+        Parameter
+        ---------
+        obj : geokey.contributions.models.MediaFile
+            The instance that is serialised
+
+        Returns
+        -------
+        Boolean
+            indicating if user created the file
         """
         if not self.context.get('user').is_anonymous():
             return obj.creator == self.context.get('user')
@@ -413,6 +644,16 @@ class FileSerializer(serializers.ModelSerializer):
     def get_url(self, obj):
         """
         Return the url to access this file based on its file type
+
+        Parameter
+        ---------
+        obj : geokey.contributions.models.MediaFile
+            The instance that is serialised
+
+        Returns
+        -------
+        str
+            The URL to embed the file on client side
         """
         if isinstance(obj, ImageFile):
             return obj.image.url
@@ -420,6 +661,22 @@ class FileSerializer(serializers.ModelSerializer):
             return obj.youtube_link
 
     def _get_thumb(self, image, size=(300, 300)):
+        """
+        Returns the thumbnail of the media file base on the size privoded
+
+        Parameter
+        ---------
+        image : Image
+            The image to be thumbnailed
+        size : tuple
+            width and height of the thumbnail, defaults to 300 by 300
+
+        Returns
+        -------
+        Image
+            The thumbnail
+
+        """
         thumbnailer = get_thumbnailer(image)
         thumb = thumbnailer.get_thumbnail({
             'crop': True,
@@ -429,7 +686,17 @@ class FileSerializer(serializers.ModelSerializer):
 
     def get_thumbnail_url(self, obj):
         """
-        Creates and returns a thumbnail for the ImageFile object
+        Creates and returns a thumbnail for the MediaFile object
+
+        Parameter
+        ---------
+        obj : geokey.contributions.models.MediaFile
+            The instance that is serialised
+
+        Returns
+        -------
+        str
+            The url to embed thumbnails on client side
         """
         if isinstance(obj, ImageFile):
             return self._get_thumb(obj.image).url

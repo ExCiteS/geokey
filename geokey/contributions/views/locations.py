@@ -21,6 +21,18 @@ class Locations(APIView):
         """
         Returns a list of locations that can be used for contributions to the
         given project.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            User authenticated with the request
+        project_id : int
+            identifies the project the locations should be returned for
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the list of serialised locations
         """
         q = request.GET.get('query')
         locations = Location.objects.get_list(request.user, project_id)
@@ -42,6 +54,23 @@ class SingleLocation(APIView):
     """
     @handle_exceptions_for_ajax
     def patch(self, request, project_id, location_id):
+        """
+        Updates a single location
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            User authenticated with the request
+        project_id : int
+            identifies the project in the database
+        location_id : int
+            identifies the location in the database
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the serialised location
+        """
         location = Location.objects.get_single(
             request.user, project_id, location_id)
         serializer = LocationSerializer(
