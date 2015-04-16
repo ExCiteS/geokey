@@ -27,10 +27,7 @@ YOUTUBE_CLIENT_ID = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleus
 
 
 INSTALLED_APPS += (
-    # 'geokey_epicollect',
-    # 'geokey_cartodb',
-    # 'geokey_communitymaps',
-    # 'pantechnicon'
+    
 )
 
 
@@ -39,7 +36,7 @@ INSTALLED_APPS += (
 
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = normpath(join(SITE_ROOT, 'assets'))
+MEDIA_ROOT = normpath(join(dirname(dirname(abspath(__file__))), 'assets'))
 MEDIA_URL = '/assets/'
 
 WSGI_APPLICATION = 'local_settings.wsgi.application'
