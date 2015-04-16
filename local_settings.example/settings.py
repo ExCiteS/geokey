@@ -42,9 +42,5 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = normpath(join(SITE_ROOT, 'assets'))
 MEDIA_URL = '/assets/'
 
-WSGI_APPLICATION = 'wsgi.application'
-
-if os.path.exists('urls.py'):
-    ROOT_URLCONF = 'urls'
-else:
-    ROOT_URLCONF = 'geokey.core.urls'
+WSGI_APPLICATION = 'local_settings.wsgi.application'
+ROOT_URLCONF = 'local_settings.urls'
