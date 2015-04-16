@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %} | Register a new application{% endblock %}
+
+{% block main %}
+        <div class="page-header">
+            <div class="container">
+                <h1 class="smaller"><a href="{% url 'admin:app_overview' %}">Applications</a></h1>
+                <a href="{% url 'admin:app_overview' %}"><span class="glyphicon glyphicon-arrow-left"></span> Applications home page</a>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <form role="form" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url 'admin:app_register' %}" novalidate>
+                    <h3 class="header">Register a new application</h3>
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="name" class="control-label">Name (required)</label>
+                        <input type="text" class="form-control input-lg" id="name" name="name" maxlength="100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description" class="control-label">Description</label>
+                        <textarea class="form-control input-lg" rows="5" name="description" id="description"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="download_url" class="control-label">Download / welcome page URL (required)</label>
+                        <input type="url" class="form-control input-lg" id="download_url" name="download_url" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="redirect_uris" class="control-label">Redirect URL (required)</label>
+                        <input type="url" class="form-control input-lg" id="redirect_uris" name="redirect_uris" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authorization_grant_type" class="control-label">Authorisation type</label>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="authorization_grant_type" value="implicit" checked> <strong>Implicit</strong><br>Use this authorisation type if your app is a mobile app or running in a browser.
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="authorization_grant_type" value="authorization-code"> <strong>Authorization Code</strong><br>Use this authorisation type if your app is running on a server.
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="authorization_grant_type" value="password"> <strong>Password</strong><br>Use this authorisation type if you want to obtain the access token simply by exchanging username and password. This should only be used by apps created by the service itself.
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <a href="{% url 'admin:dashboard' %}" class="btn btn-default" role="button">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+{% endblock %}
+
+{% block libraries %}
+            <script src="/static/js/admin.ui.forms.validate.js"></script>
+{% endblock %}

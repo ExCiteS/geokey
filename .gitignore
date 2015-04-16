@@ -20,6 +20,8 @@
 *.tar
 *.zip
 *.egg-info
+dist
+MANIFEST
 
 # Logs and databases #
 ######################
@@ -54,10 +56,10 @@ Thumbs.db
 *.pyc
 .coverage
 htmlcov
-local_settings.py
-core/settings/project.py
+local_settings
+geokey/core/settings/project.py
 uploads
-core/url/extensions.py
+geokey/core/url/extensions.py
 
 # Grunt #
 ##########

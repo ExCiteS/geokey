@@ -7,22 +7,20 @@ services:
   - postgresql
 
 addons:
-  postgresql: "9.3"
+  postgresql: "9.4"
 
 before_script:
   - psql template1 postgres -c 'create extension hstore;'
   - psql -c 'create database geokey;' -U postgres
   - psql -U postgres -d geokey -c "create extension postgis;"
-  - cp core/settings/project.sample.py core/settings/project.py
-  - cp core/url/extensions.sample.py core/url/extensions.py
+  - cp -r local_settings.example local_settings
+  - pip install --process-dependency-links -e .
   - python manage.py migrate
 
 install:
-  - pip install -r requirements.txt
   - pip install coveralls
 
 script:
-  - python manage.py test --nocapture --nologcapture
-  - coverage run --source=applications,projects,categories,contributions,datagroupings,users manage.py test
+  - coverage run --source=geokey.applications,geokey.projects,geokey.categories,geokey.contributions,geokey.datagroupings,geokey.users,geokey.superusertools,geokey.extensions manage.py test
 
 after_success: coveralls

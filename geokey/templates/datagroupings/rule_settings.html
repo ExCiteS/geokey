@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% load key %}
+{% load is_in %}
+
+{% block bodydata %} data-project-id="{{rule.grouping.project.id}}" data-grouping-id="{{rule.grouping.id}}" data-grouping-id="{{rule.id}}"{% endblock %}
+{% block title %} | Filter settings{% endblock %}
+
+{% block main %}
+        <div class="page-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' rule.grouping.project.id %}">{{rule.grouping.project.name}}</a></h1>
+                        <a href="{% url 'admin:project_overview' rule.grouping.project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
+                    </div>
+                    <ul class="header-nav">
+                        <li><a href="{% url 'admin:category_list' rule.grouping.project.id %}">Categories <span class="badge">{{ rule.grouping.project.categories.count }}</span></a></li>
+                        <li class="active"><a href="{% url 'admin:grouping_list' rule.grouping.project.id %}">Data groupings <span class="badge">{{ rule.grouping.project.groupings.count }}</span></a></li>
+                        <li><a href="{% url 'admin:usergroup_list' rule.grouping.project.id %}">User groups <span class="badge">{{ rule.grouping.project.usergroups.count }}</span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3>Filter</h3>
+                        </div>
+                        <div class="panel-body">
+                            <p><strong>Data grouping:</strong> <a href="{% url 'admin:grouping_overview' rule.grouping.project.id rule.grouping.id %}">{{ rule.grouping.name }}</a></p>
+                        </div>
+                    </div>
+                </div>
+                <form id="rule-form" role="form" class="col-sm-8" method="POST" action="{% url 'admin:rule_settings' rule.grouping.project.id rule.grouping.id rule.id %}" novalidate>
+                    <h3 class="header">Filter settings</h3>
+                    {% csrf_token %}
+                    <input type="hidden" name="rules">
+                    <div class="alert alert-info">Please set the value for each individual field you want to filter for. If you leave a filter blank, the field will not be filtered for.</div>
+                    <div id="field-options">
+                        <div class="field-filter form-horizontal">
+                            <h5>The contribution has been created</h5>
+
+                            <div class="form-group">
+                                <label for="created_at-min" class="col-sm-3 col-sm-offset-1 control-label">after</label>
+                                <div class="col-sm-7">
+                                    <input data-date-format="YYYY-MM-DD H:mm" type="text" class="form-control datetime" data-key="created_at" name="created_at-min" id="created_at-min" {% if rule.min_date %}value="{{ rule.min_date|date:"Y-m-d H:m" }}"{% endif %} max="{{ rule.max_date|date:"Y-m-d H:m" }}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="created_at-max" class="col-sm-3 col-sm-offset-1 control-label">and before</label>
+                                <div class="col-sm-7">
+                                    <input data-date-format="YYYY-MM-DD H:mm" type="text" class="form-control datetime" data-key="created_at" name="created_at-max" id="created_at-max" {% if rule.max_date %}value="{{ rule.max_date|date:"Y-m-d H:m" }}"{% endif %} min="{{ rule.min_date|date:"Y-m-d H:m" }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        {% for field in rule.category.fields.all %}
+                            <div class="field-filter form-horizontal" data-key="{{field.key}}" data-type="{{field.fieldtype}}">
+                                <h5>{{field.name}} ({{field.key}})</h5>
+                                {% if field.fieldtype == 'TextField' %}
+                                    <div class="form-group">
+                                        <label for="{{field.key}}-ref" class="col-sm-3 col-sm-offset-1 control-label">contains</label>
+                                        <div class="col-sm-7">
+                                            <input type="text" class="form-control" name="{{field.key}}-ref" id="reference-value" class="reference-value" value="{{ rule.filters|key:field.key }}">
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                {% if field.fieldtype == 'NumericField' %}
+                                    <div class="form-group">
+                                        <label for="{{field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is larger than</label>
+                                        <div class="col-sm-7">
+                                            <input type="number" class="form-control" data-key="{{field.key}}" name="{{field.key}}-min" id="{{field.key}}-min" {% if not field.minval == None %}placeholder="{{field.minval}}" {% endif %} value="{{ rule.filters|minval:field.key }}" max="{{ rule.filters|maxval:field.key }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="{{field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">is lower than</label>
+                                        <div class="col-sm-7">
+                                            <input type="number" class="form-control" data-key="{{field.key}}" name="{{field.key}}-max" id="{{field.key}}-max" {% if not field.maxval == None %}placeholder="{{field.maxval}}" {% endif %} value="{{ rule.filters|maxval:field.key }}" min="{{ rule.filters|minval:field.key }}">
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                {% if field.fieldtype == 'DateTimeField' %}
+                                    <div class="form-group">
+                                        <label for="{{field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is after</label>
+                                        <div class="col-sm-7">
+                                            <input data-date-format="YYYY-MM-DD H:mm" type="text" class="form-control datetime" data-key="{{field.key}}" name="{{field.key}}-min" id="{{field.key}}-min" value="{{ rule.filters|minval:field.key }}" max="{{ rule.filters|maxval:field.key }}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="{{field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">and before</label>
+                                        <div class="col-sm-7">
+                                            <input data-date-format="YYYY-MM-DD H:mm" type="text" class="form-control datetime" data-key="{{field.key}}" name="{{field.key}}-max" id="{{field.key}}-max" value="{{ rule.filters|maxval:field.key }}" min="{{ rule.filters|minval:field.key }}">
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                {% if field.fieldtype == 'DateField' %}
+                                <div class="form-group">
+                                    <label for="{{field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is after</label>
+                                    <div class="col-sm-7">
+                                        <input data-date-format="YYYY-MM-DD" type="text" class="form-control date" data-key="{{field.key}}" name="{{field.key}}-min" id="{{field.key}}-min" value="{{ rule.filters|minval:field.key }}" max="{{ rule.filters|maxval:field.key }}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">and before</label>
+                                    <div class="col-sm-7">
+                                        <input data-date-format="YYYY-MM-DD" type="text" class="form-control date" data-key="{{field.key}}" name="{{field.key}}-max" id="{{field.key}}-max" value="{{ rule.filters|maxval:field.key }}" min="{{ rule.filters|minval:field.key }}">
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if field.fieldtype == 'TimeField' %}
+                                <div class="form-group">
+                                    <label for="{{field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is after</label>
+                                    <div class="col-sm-7">
+                                        <input data-date-format="HH:mm" type="text" class="form-control time" data-key="{{field.key}}" name="{{field.key}}-min" id="{{field.key}}-min" value="{{ rule.filters|minval:field.key }}" max="{{ rule.filters|maxval:field.key }}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">and before</label>
+                                    <div class="col-sm-7">
+                                        <input data-date-format="HH:mm" type="text" class="form-control time" data-key="{{field.key}}" name="{{field.key}}-max" id="{{field.key}}-max" value="{{ rule.filters|maxval:field.key }}" min="{{ rule.filters|minval:field.key }}">
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if field.fieldtype == 'LookupField' %}
+                                    <div class="form-group">
+                                        <label for="{{field.key}}-ref" class="col-sm-3 col-sm-offset-1 control-label">is one of</label>
+                                        <div class="col-sm-7">
+                                            <select name="{{field.key}}-ref" id="reference-value" multiple size="3" class="form-control">
+                                                {% for value in field.lookupvalues.active %}
+                                                    <option value="{{value.id}}" {% is_in value.id field.key rule.filters %}>{{value.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                {% if field.fieldtype == 'MultipleLookupField' %}
+                                    <div class="form-group">
+                                        <label for="{{field.key}}-ref" class="col-sm-3 col-sm-offset-1 control-label">matches at least one of</label>
+                                        <div class="col-sm-7">
+                                            <select name="{{field.key}}-ref" id="reference-value" multiple size="3" class="form-control">
+                                                {% for value in field.lookupvalues.active %}
+                                                    <option value="{{value.id}}" {% is_in value.id field.key rule.filters %}>{{value.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="reset" class="btn btn-link">Reset</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-8 col-sm-offset-4">
+                    <div class="panel panel-danger">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Be careful!</h2>
+                        </div>
+                        <div class="panel-body becareful">
+                            <div>
+                                <strong>Delete filter</strong>
+                                <p>Deleting the filter grouping can not be undone.</p>
+                                <a href="#" class="text-danger" data-toggle="modal" data-target="#delete-confirm">Delete this filter</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block modals %}
+        <!-- Delete confirmation modal -->
+        <div class="modal fade" id="delete-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content panel-danger">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+                    </div>
+                    <div class="modal-body panel-body">
+                        <p>You are about to delete the filter. This can not be undone.</p>
+                    </div>
+                    <div class="modal-footer panel-footer">
+                        <a href="{% url 'admin:rule_delete' rule.grouping.project.id rule.grouping.id rule.id %}" class="btn btn-danger">I'm absolutely sure, delete the filter!</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Delete confirmation modal -->
+
+{% endblock %}
+
+{% block libraries %}
+            <script src="/static/lib/moment/moment.min.js"></script>
+            <link rel="stylesheet" href="/static/lib/bootstrap-datetime/css/bootstrap-datetimepicker.min.css">
+            <script src="/static/lib/bootstrap-datetime/js/bootstrap-datetimepicker.min.js"></script>
+            <script src="/static/js/admin.ui.forms.validate.js"></script>
+            <script src="/static/js/admin.ui.grouping.rules.js"></script>
+            <script src="/static/js/admin.control.ajax.js"></script>
+            <script type="text/javascript">
+                $(function() {
+                    $('input.datetime').datetimepicker();
+                    $('input.date').datetimepicker({ pickTime: false });
+                    $('input.time').datetimepicker({ pickDate: false });
+                }());
+            </script>
+{% endblock %}
