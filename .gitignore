@@ -56,7 +56,7 @@ Thumbs.db
 *.pyc
 .coverage
 htmlcov
-local_settings.py
+local_settings
 geokey/core/settings/project.py
 uploads
 geokey/core/url/extensions.py

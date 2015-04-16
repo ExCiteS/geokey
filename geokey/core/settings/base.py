@@ -129,11 +129,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 APPEND_SLASH = True
 
-ROOT_URLCONF = 'core.urls'
-
-WSGI_APPLICATION = 'core.wsgi.application'
-
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
 

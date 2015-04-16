@@ -13,8 +13,7 @@ before_script:
   - psql template1 postgres -c 'create extension hstore;'
   - psql -c 'create database geokey;' -U postgres
   - psql -U postgres -d geokey -c "create extension postgis;"
-  - cp geokey/core/settings/project.sample.py geokey/core/settings/project.py
-  - cp geokey/core/url/extensions.sample.py geokey/core/url/extensions.py
+  - cp geokey/local_settings.example geokey/local_settings
   - pip install --process-dependency-links -e .
   - python geokey/manage.py migrate
 
