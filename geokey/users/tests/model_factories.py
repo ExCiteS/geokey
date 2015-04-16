@@ -36,7 +36,8 @@ class UserGroupF(factory.django.DjangoModelFactory):
 
     name = factory.Sequence(lambda n: 'name_%d' % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
-    project = factory.SubFactory('projects.tests.model_factories.ProjectF')
+    project = factory.SubFactory(
+        'geokey.projects.tests.model_factories.ProjectF')
     can_contribute = True
     can_moderate = False
 
@@ -52,7 +53,7 @@ class UserGroupF(factory.django.DjangoModelFactory):
 
 class GroupingUserGroupFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model =GroupingUserGroup
+        model = GroupingUserGroup
 
     usergroup = factory.SubFactory(UserGroupF)
     grouping = factory.SubFactory(

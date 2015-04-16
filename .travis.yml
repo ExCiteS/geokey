@@ -15,12 +15,12 @@ before_script:
   - psql -U postgres -d geokey -c "create extension postgis;"
   - cp geokey/local_settings.example geokey/local_settings
   - pip install --process-dependency-links -e .
-  - python geokey/manage.py migrate
+  - python manage.py migrate
 
 install:
   - pip install coveralls
 
 script:
-  - coverage run --source=geokey.applications,geokey.projects,geokey.categories,geokey.contributions,geokey.datagroupings,geokey.users,geokey.superusertools,geokey.extensions geokey/manage.py test
+  - coverage run --source=geokey.applications,geokey.projects,geokey.categories,geokey.contributions,geokey.datagroupings,geokey.users,geokey.superusertools,geokey.extensions manage.py test
 
 after_success: coveralls
