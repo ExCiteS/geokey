@@ -4,6 +4,118 @@
 
 GeoKey is a platform for participatory mapping that is currently developed at [Extreme Citizen Science Research Group](http://ucl.ac.uk/excites) at University College London.
 
+## Developing
+
+### Install for development
+
+#### Installing pre-requisites
+
+1. Update your system
+
+    ```
+    sudo apt-get update && sudo apt-get upgrade
+    ```
+
+2. Install Postgres and PostGIS (we follow the [official guides](http://trac.osgeo.org/postgis/wiki/UsersWikiPostGIS21UbuntuPGSQL93Apt))
+
+    ```
+    sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt wheezy-pgdg main" >> /etc/apt/sources.list'
+    wget --quiet -O - http://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc | sudo apt-key add -
+    sudo apt-get update
+
+    sudo apt-get install postgresql-9.4-postgis-2.1 postgresql-contrib
+    ```
+
+3. Setup all other dependencies
+
+    ```
+    sudo apt-get install python-pip python-virtualenv
+    ```
+
+#### Setup the database
+
+1. Create the user
+
+    ```
+    postgres=# CREATE USER django WITH PASSWORD 'django123';
+    ```
+    
+2. Create the database
+
+    ```
+    postgres=# CREATE DATABASE geokey OWNER django;
+    ```
+
+3. Install the extensions on database geokey
+
+    ```
+    geokey=# CREATE EXTENSION postgis;
+    geokey=# CREATE EXTENSION hstore;
+    ```
+
+
+Setting up GeoKey
+
+1. Clone the repository (you should use your own fork)
+    
+    ```
+    git clone https://github.com/ExCiteS/geokey.git
+    ```
+    
+2. Install the package
+
+    ```
+    cd geokey
+    pip install --process-dependency-links -e .
+    ```
+    
+3. Copy the directory `local_settings.example` to `local_settings`
+
+  ```
+  cp -r local_settings.example local_settings
+  ```
+  
+4. Inside `local_settings` open `settings.py` in a text editor and add your database settings:
+
+  ```
+  DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': 'geokey',
+            'USER': 'django',
+            'PASSWORD': 'django123',
+            'HOST': 'localhost',
+            'PORT': '',
+        }
+    }
+
+    SECRET_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+  ```
+  
+5. Migrate the database
+
+    ```
+    python manage.py migrate
+    ```
+
+6. Add yourself as super user. You can use the same email and password to log into the system later.
+
+    ```
+    python manage.py createsuperuser
+    ```
+
+### Run the test server
+
+```
+python manage.py runserver 0.0.0.0:8000
+```
+
+### Run tests
+
+```
+python manage.py test
+```
+
 ## We use open-source technologies
 
 GeoKey was built using some amazing open-source technology. We would like to thank all contributors to these projects:
