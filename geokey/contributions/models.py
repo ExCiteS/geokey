@@ -175,12 +175,10 @@ class Observation(models.Model):
         ------
         geokey.contributions.models.Observation
             The observation created
-
-        Raises
-        ------
-        ValidationError:
-            when data is invalid
         """
+        if not properties:
+            properties = {}
+
         location.save()
         observation = cls.objects.create(
             location=location,
@@ -209,11 +207,6 @@ class Observation(models.Model):
         ------
         geokey.contributions.models.Observation
             The updated observation
-
-        Raises
-        ------
-        ValidationError:
-            when data is invalid
         """
         if status != 'draft':
             self.version = self.version + 1

@@ -295,7 +295,7 @@ class ContributionSerializer(BaseSerializer):
         self._validated_data['meta']['category'] = category
 
         # Validatie properties
-        properties = self.initial_data.get('properties')
+        properties = self.initial_data.get('properties') or {}
         status = None
         if meta is not None:
             status = meta.get('status', None)
