@@ -239,6 +239,25 @@ class CommentAbstractAPIViewResolveTest(TestCase):
             'active'
         )
 
+    def test_resolve_comment_with_invalid_review_status(self):
+        url = reverse('api:project_single_comment', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id,
+            'comment_id': self.comment.id
+        })
+        request = self.factory.patch(url, {'text': 'Updated'})
+        request.user = self.admin
+        request.DATA = {'review_status': 'closed'}
+
+        view = CommentAbstractAPIView()
+        response = self.render(
+            view.update_and_respond(request, self.comment)
+        )
+
+        ref = Comment.objects.get(pk=self.comment.id)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(ref.review_status, 'open')
+
     def test_resolve_one_of_two_comment_with_admin(self):
         CommentFactory.create(**{
             'commentto': self.observation,

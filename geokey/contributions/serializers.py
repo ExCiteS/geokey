@@ -489,12 +489,14 @@ class ContributionSerializer(BaseSerializer):
         }
 
         if self.context.get('many'):
-            category_serializer = CategorySerializer(
-                obj.category,
-                context=self.context,
-                fields=('id', 'name', 'description', 'symbol', 'colour')
-            )
-            feature['meta']['category'] = category_serializer.data
+            cat = obj.category
+            feature['meta']['category'] = {
+                'id': cat.id,
+                'name': cat.name,
+                'description': cat.description,
+                'symbol': cat.symbol.url if cat.symbol else None,
+                'colour': cat.colour
+            }
 
             feature['display_field'] = self.get_display_field(obj)
 
