@@ -23,13 +23,13 @@ GeoKey is a platform for participatory mapping that is currently developed at [E
     wget --quiet -O - http://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc | sudo apt-key add -
     sudo apt-get update
 
-    sudo apt-get install postgresql-9.4-postgis-2.1 postgresql-contrib
+    sudo apt-get install postgresql-9.4-postgis-2.1 postgresql-contrib postgresql-server-dev-9.4
     ```
 
 3. Setup all other dependencies
 
     ```
-    sudo apt-get install python-pip python-virtualenv
+    sudo apt-get install python-pip python-virtualenv python-dev libjpeg-dev
     ```
 
 #### Setup the database
@@ -39,7 +39,7 @@ GeoKey is a platform for participatory mapping that is currently developed at [E
     ```
     postgres=# CREATE USER django WITH PASSWORD 'django123';
     ```
-    
+
 2. Create the database
 
     ```
@@ -57,24 +57,24 @@ GeoKey is a platform for participatory mapping that is currently developed at [E
 Setting up GeoKey
 
 1. Clone the repository (you should use your own fork)
-    
+
     ```
     git clone https://github.com/ExCiteS/geokey.git
     ```
-    
+
 2. Install the package
 
     ```
     cd geokey
     pip install --process-dependency-links -e .
     ```
-    
+
 3. Copy the directory `local_settings.example` to `local_settings`
 
   ```
   cp -r local_settings.example local_settings
   ```
-  
+
 4. Inside `local_settings` open `settings.py` in a text editor and add your database settings:
 
   ```
@@ -91,7 +91,7 @@ Setting up GeoKey
 
     SECRET_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
   ```
-  
+
 5. Migrate the database
 
     ```
