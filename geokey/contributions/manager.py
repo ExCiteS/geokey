@@ -6,7 +6,6 @@ from django.core.exceptions import PermissionDenied
 from django.conf import settings
 
 from model_utils.managers import InheritanceManager
-from django_hstore import hstore, query
 from django_youtube.api import Api as Youtube, AccessControl
 
 from geokey.core.exceptions import FileTypeError
@@ -114,7 +113,7 @@ class LocationManager(models.GeoManager):
                                    'project.')
 
 
-class ObservationQuerySet(query.HStoreQuerySet):
+class ObservationQuerySet(models.query.QuerySet):
     """
     Implements custom queryset methods that are applied in ObservationManager
     """
@@ -183,7 +182,7 @@ class ObservationQuerySet(query.HStoreQuerySet):
         return self.filter(search_matches__iregex=regex)
 
 
-class ObservationManager(hstore.HStoreManager):
+class ObservationManager(models.Manager):
     """
     Manager for Observation Model
     """
