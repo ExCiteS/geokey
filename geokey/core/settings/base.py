@@ -103,6 +103,7 @@ AUTHENTICATION_BACKENDS = (
 
 SITE_ID = 1
 LOGIN_REDIRECT_URL = '/admin/dashboard/'
+LOGIN_URL = '/admin/account/login/'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/admin/account/login/'
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'display_name'
 ACCOUNT_EMAIL_REQUIRED = True
