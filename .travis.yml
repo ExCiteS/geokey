@@ -14,7 +14,7 @@ before_script:
   - psql -c 'create database geokey;' -U postgres
   - psql -U postgres -d geokey -c "create extension postgis;"
   - cp -r local_settings.example local_settings
-  - pip install --process-dependency-links -e .
+  - pip install -e .
   - python manage.py migrate
 
 install:

@@ -4,7 +4,6 @@ django-pgjson==0.2.3
 psycopg2==2.6
 iso8601==0.1.10
 django-oauth-toolkit==0.8.0
-# git+https://github.com/evonove/django-oauth-toolkit.git#egg=django-oauth-toolkit
 django-model-utils==2.2
 djangorestframework==3.1.1
 djangorestframework-gis==0.8.1
