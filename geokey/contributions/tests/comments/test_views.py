@@ -66,6 +66,62 @@ class CommentAbstractAPIViewTest(TestCase):
         response.renderer_context = {'blah': 'blubb'}
         return response.render()
 
+    def test_create_comment_with_admin(self):
+        url = reverse('api:project_comments', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
+        })
+        request = self.factory.post(url, {'text': 'Comment'})
+        request.user = self.admin
+        request.DATA = {'text': 'Comment'}
+
+        view = CommentAbstractAPIView()
+        response = self.render(
+            view.create_and_respond(request, self.observation)
+        )
+        self.assertEqual(json.loads(response.content).get('text'), 'Comment')
+
+    def test_create_reviewcomment_with_admin(self):
+        url = reverse('api:project_comments', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
+        })
+        request = self.factory.post(
+            url, {'text': 'Comment', 'review_status': 'open'}
+        )
+        request.user = self.admin
+        request.DATA = {'text': 'Comment', 'review_status': 'open'}
+
+        view = CommentAbstractAPIView()
+        response = self.render(
+            view.create_and_respond(request, self.observation)
+        )
+        self.assertEqual(json.loads(response.content).get('text'), 'Comment')
+        ref = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(ref.status, 'review')
+
+    def test_create_reviewcomment_to_empty_obs_with_admin(self):
+        self.observation.properties = None
+        self.observation.save()
+
+        url = reverse('api:project_comments', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
+        })
+        request = self.factory.post(
+            url, {'text': 'Comment', 'review_status': 'open'}
+        )
+        request.user = self.admin
+        request.DATA = {'text': 'Comment', 'review_status': 'open'}
+
+        view = CommentAbstractAPIView()
+        response = self.render(
+            view.create_and_respond(request, self.observation)
+        )
+        self.assertEqual(json.loads(response.content).get('text'), 'Comment')
+        ref = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(ref.status, 'review')
+
     def test_update_comment_with_admin(self):
         url = reverse('api:project_single_comment', kwargs={
             'project_id': self.project.id,

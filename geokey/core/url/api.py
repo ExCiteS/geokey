@@ -139,7 +139,7 @@ urlpatterns = patterns(
         name='grouping_single_media'),
 
     # ###########################
-    # OBSERVATION TYPES
+    # CATEGORIES
     # ###########################
     url(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/$',
