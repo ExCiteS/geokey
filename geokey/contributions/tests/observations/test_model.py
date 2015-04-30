@@ -98,6 +98,49 @@ class ObservationTest(TestCase):
         ref = Observation.objects.get(pk=observation.id)
         self.assertEqual(ref.display_field, 'text:blah')
 
+    def test_update_display_field_empty_properties(self):
+        category = CategoryFactory()
+        field = TextFieldFactory(**{
+            'key': 'text',
+            'category': category,
+            'order': 0
+        })
+        category.display_field = field
+        category.save()
+
+        observation = ObservationFactory(**{
+            'project': category.project,
+            'category': category,
+            'display_field': None,
+            'properties': None
+        })
+
+        observation.update_display_field()
+        observation.save()
+
+        ref = Observation.objects.get(pk=observation.id)
+        self.assertEqual(ref.display_field, 'text:None')
+
+    def test_update_display_field_no_display_field(self):
+        category = CategoryFactory()
+        TextFieldFactory(**{
+            'key': 'text',
+            'category': category,
+            'order': 0
+        })
+        observation = ObservationFactory(**{
+            'project': category.project,
+            'category': category,
+            'display_field': None,
+            'properties': None
+        })
+
+        observation.update_display_field()
+        observation.save()
+
+        ref = Observation.objects.get(pk=observation.id)
+        self.assertIsNone(ref.display_field)
+
     def test_create_observation(self):
         creator = UserF()
         location = LocationFactory()

@@ -227,7 +227,10 @@ class Observation(models.Model):
         """
         display_field = self.category.display_field
         if display_field is not None:
-            value = self.properties.get(display_field.key)
+            value = None
+            if self.properties:
+                value = self.properties.get(display_field.key)
+
             self.display_field = '%s:%s' % (display_field.key, value)
 
     def update_search_matches(self):
@@ -238,7 +241,7 @@ class Observation(models.Model):
         """
         search_matches = []
         for field in self.category.fields.all():
-            if field.key in self.properties.keys():
+            if self.properties and field.key in self.properties.keys():
 
                 if field.fieldtype == 'LookupField':
                     l_id = self.properties.get(field.key)
