@@ -102,7 +102,7 @@ class LocationManager(models.GeoManager):
         Raises
         ------
         PermissionDenied
-            if users is not allowed to access project or use the location
+            if user is not allowed to access project or use the location
         """
         project = Project.objects.as_contributor(user, project_id)
         location = self.get(pk=location_id)
@@ -166,7 +166,7 @@ class ObservationQuerySet(models.query.QuerySet):
     def search(self, query):
         """
         Returns a subset of the queryset containing observations where one of
-        the properties matches the given query
+        the properties matches the given query.
 
         Parameters
         ----------

@@ -50,8 +50,8 @@ class Grouping(models.Model):
 
     def data(self, user):
         """
-        Provides access to all data accessable through the data grouping. It
-        gets all contributions of the project accoring to the user's role
+        Provides access to all data accessible through the data grouping. It
+        gets all contributions of the project according to the user's role
         (moderator or not) and filters the data using the where clause.
 
         Parameter

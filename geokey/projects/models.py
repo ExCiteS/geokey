@@ -156,7 +156,7 @@ class Project(models.Model):
         Returns True if:
         - the user is member of the administrators group
         - the user is member of one of the usergroups
-        - the project is public and has at least one public view
+        - the project is public and has at least one public data grouping
 
         Parameters
         ----------
