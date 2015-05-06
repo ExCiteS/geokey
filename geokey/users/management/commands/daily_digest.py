@@ -20,9 +20,6 @@ from geokey.projects.models import Project, Admins
 from geokey.users.models import User
 from geokey.contributions.models import Observation
 
-sys.path.append('/vagrant/geokey/')
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings.prod")
-
 
 class Command(NoArgsCommand):
     def get_updated_projects(self, yesterday):
