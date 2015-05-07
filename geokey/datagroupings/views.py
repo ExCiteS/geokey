@@ -369,10 +369,10 @@ class RuleCreate(LoginRequiredMixin, CreateView):
             max_date = None
 
             rules = request.POST.get('rules', None)
-            if rules is not None:
+            if rules:
                 rules = json.loads(rules)
-                min_date = rules.pop('min_date')
-                max_date = rules.pop('max_date')
+                min_date = rules.pop('min_date', None)
+                max_date = rules.pop('max_date', None)
 
             Rule.objects.create(
                 grouping=grouping,
@@ -452,10 +452,10 @@ class RuleSettings(LoginRequiredMixin, TemplateView):
 
         if rule is not None:
             rules = request.POST.get('rules', None)
-            if rules is not None:
+            if rules:
                 rules = json.loads(rules)
-                rule.min_date = rules.pop('min_date')
-                rule.max_date = rules.pop('max_date')
+                rule.min_date = rules.pop('min_date', None)
+                rule.max_date = rules.pop('max_date', None)
                 rule.constraints = rules
 
             rule.save()
