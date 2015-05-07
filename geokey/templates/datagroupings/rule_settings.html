@@ -65,7 +65,7 @@
                                     <div class="form-group">
                                         <label for="{{field.key}}-ref" class="col-sm-3 col-sm-offset-1 control-label">contains</label>
                                         <div class="col-sm-7">
-                                            <input type="text" class="form-control" name="{{field.key}}-ref" id="reference-value" class="reference-value" value="{{ rule.filters|key:field.key }}">
+                                            <input type="text" class="form-control" name="{{field.key}}-ref" id="reference-value" class="reference-value" value="{{ rule.constraints|key:field.key }}">
                                         </div>
                                     </div>
                                 {% endif %}
@@ -74,14 +74,14 @@
                                     <div class="form-group">
                                         <label for="{{field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is larger than</label>
                                         <div class="col-sm-7">
-                                            <input type="number" class="form-control" data-key="{{field.key}}" name="{{field.key}}-min" id="{{field.key}}-min" {% if not field.minval == None %}placeholder="{{field.minval}}" {% endif %} value="{{ rule.filters|minval:field.key }}" max="{{ rule.filters|maxval:field.key }}">
+                                            <input type="number" class="form-control" data-key="{{field.key}}" name="{{field.key}}-min" id="{{field.key}}-min" {% if not field.minval == None %}placeholder="{{field.minval}}" {% endif %} value="{{ rule.constraints|minval:field.key }}" max="{{ rule.constraints|maxval:field.key }}">
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label for="{{field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">is lower than</label>
                                         <div class="col-sm-7">
-                                            <input type="number" class="form-control" data-key="{{field.key}}" name="{{field.key}}-max" id="{{field.key}}-max" {% if not field.maxval == None %}placeholder="{{field.maxval}}" {% endif %} value="{{ rule.filters|maxval:field.key }}" min="{{ rule.filters|minval:field.key }}">
+                                            <input type="number" class="form-control" data-key="{{field.key}}" name="{{field.key}}-max" id="{{field.key}}-max" {% if not field.maxval == None %}placeholder="{{field.maxval}}" {% endif %} value="{{ rule.constraints|maxval:field.key }}" min="{{ rule.constraints|minval:field.key }}">
                                         </div>
                                     </div>
                                 {% endif %}
@@ -90,13 +90,13 @@
                                     <div class="form-group">
                                         <label for="{{field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is after</label>
                                         <div class="col-sm-7">
-                                            <input data-date-format="YYYY-MM-DD H:mm" type="text" class="form-control datetime" data-key="{{field.key}}" name="{{field.key}}-min" id="{{field.key}}-min" value="{{ rule.filters|minval:field.key }}" max="{{ rule.filters|maxval:field.key }}">
+                                            <input data-date-format="YYYY-MM-DD H:mm" type="text" class="form-control datetime" data-key="{{field.key}}" name="{{field.key}}-min" id="{{field.key}}-min" value="{{ rule.constraints|minval:field.key }}" max="{{ rule.constraints|maxval:field.key }}">
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="{{field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">and before</label>
                                         <div class="col-sm-7">
-                                            <input data-date-format="YYYY-MM-DD H:mm" type="text" class="form-control datetime" data-key="{{field.key}}" name="{{field.key}}-max" id="{{field.key}}-max" value="{{ rule.filters|maxval:field.key }}" min="{{ rule.filters|minval:field.key }}">
+                                            <input data-date-format="YYYY-MM-DD H:mm" type="text" class="form-control datetime" data-key="{{field.key}}" name="{{field.key}}-max" id="{{field.key}}-max" value="{{ rule.constraints|maxval:field.key }}" min="{{ rule.constraints|minval:field.key }}">
                                         </div>
                                     </div>
                                 {% endif %}
@@ -105,13 +105,13 @@
                                 <div class="form-group">
                                     <label for="{{field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is after</label>
                                     <div class="col-sm-7">
-                                        <input data-date-format="YYYY-MM-DD" type="text" class="form-control date" data-key="{{field.key}}" name="{{field.key}}-min" id="{{field.key}}-min" value="{{ rule.filters|minval:field.key }}" max="{{ rule.filters|maxval:field.key }}">
+                                        <input data-date-format="YYYY-MM-DD" type="text" class="form-control date" data-key="{{field.key}}" name="{{field.key}}-min" id="{{field.key}}-min" value="{{ rule.constraints|minval:field.key }}" max="{{ rule.constraints|maxval:field.key }}">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="{{field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">and before</label>
                                     <div class="col-sm-7">
-                                        <input data-date-format="YYYY-MM-DD" type="text" class="form-control date" data-key="{{field.key}}" name="{{field.key}}-max" id="{{field.key}}-max" value="{{ rule.filters|maxval:field.key }}" min="{{ rule.filters|minval:field.key }}">
+                                        <input data-date-format="YYYY-MM-DD" type="text" class="form-control date" data-key="{{field.key}}" name="{{field.key}}-max" id="{{field.key}}-max" value="{{ rule.constraints|maxval:field.key }}" min="{{ rule.constraints|minval:field.key }}">
                                     </div>
                                 </div>
                                 {% endif %}
@@ -120,13 +120,13 @@
                                 <div class="form-group">
                                     <label for="{{field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is after</label>
                                     <div class="col-sm-7">
-                                        <input data-date-format="HH:mm" type="text" class="form-control time" data-key="{{field.key}}" name="{{field.key}}-min" id="{{field.key}}-min" value="{{ rule.filters|minval:field.key }}" max="{{ rule.filters|maxval:field.key }}">
+                                        <input data-date-format="HH:mm" type="text" class="form-control time" data-key="{{field.key}}" name="{{field.key}}-min" id="{{field.key}}-min" value="{{ rule.constraints|minval:field.key }}" max="{{ rule.constraints|maxval:field.key }}">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="{{field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">and before</label>
                                     <div class="col-sm-7">
-                                        <input data-date-format="HH:mm" type="text" class="form-control time" data-key="{{field.key}}" name="{{field.key}}-max" id="{{field.key}}-max" value="{{ rule.filters|maxval:field.key }}" min="{{ rule.filters|minval:field.key }}">
+                                        <input data-date-format="HH:mm" type="text" class="form-control time" data-key="{{field.key}}" name="{{field.key}}-max" id="{{field.key}}-max" value="{{ rule.constraints|maxval:field.key }}" min="{{ rule.constraints|minval:field.key }}">
                                     </div>
                                 </div>
                                 {% endif %}
@@ -137,7 +137,7 @@
                                         <div class="col-sm-7">
                                             <select name="{{field.key}}-ref" id="reference-value" multiple size="3" class="form-control">
                                                 {% for value in field.lookupvalues.active %}
-                                                    <option value="{{value.id}}" {% is_in value.id field.key rule.filters %}>{{value.name}}</option>
+                                                    <option value="{{value.id}}" {% is_in value.id field.key rule.constraints %}>{{value.name}}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
@@ -150,7 +150,7 @@
                                         <div class="col-sm-7">
                                             <select name="{{field.key}}-ref" id="reference-value" multiple size="3" class="form-control">
                                                 {% for value in field.lookupvalues.active %}
-                                                    <option value="{{value.id}}" {% is_in value.id field.key rule.filters %}>{{value.name}}</option>
+                                                    <option value="{{value.id}}" {% is_in value.id field.key rule.constraints %}>{{value.name}}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
