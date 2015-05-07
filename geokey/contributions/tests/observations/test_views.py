@@ -128,6 +128,43 @@ class SingleContributionAPIViewTest(TestCase):
             'active'
         )
 
+    def test_approve_pending_with_admin_empty_properties(self):
+        self.observation.properties = None
+        self.observation.status = 'pending'
+        self.observation.save()
+
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.patch(url)
+        request.DATA = {'meta': {'status': "active"}}
+        request.user = self.admin
+
+        view = SingleContributionAPIView()
+        view.update_and_respond(request, self.observation)
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'active'
+        )
+
+    def test_suspend_pending_with_admin(self):
+        self.observation.status = 'active'
+        self.observation.save()
+
+        url = reverse('api:project_all_observations', kwargs={
+            'project_id': self.project.id
+        })
+        request = self.factory.patch(url)
+        request.DATA = {'meta': {'status': "pending"}}
+        request.user = self.admin
+
+        view = SingleContributionAPIView()
+        view.update_and_respond(request, self.observation)
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'pending'
+        )
+
     def test_approve_pending_with_moderator(self):
         self.observation.status = 'pending'
         self.observation.save()

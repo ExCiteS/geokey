@@ -197,11 +197,12 @@ class ContributionSerializer(BaseSerializer):
         """
         errors = []
 
-        if self.instance is not None:
+        if self.instance:
             status = status or self.instance.status
-            update = self.instance.properties.copy()
-            update.update(properties)
-            properties = update
+            if self.instance.properties:
+                update = self.instance.properties.copy()
+                update.update(properties)
+                properties = update
         else:
             status = status or category.default_status
 
