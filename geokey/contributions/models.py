@@ -211,7 +211,8 @@ class Observation(models.Model):
         if status != 'draft':
             self.version = self.version + 1
 
-        self.properties = properties
+        if properties:
+            self.properties = properties
         self.updator = updator
         self.status = status or self.status
         self.updated_at = datetime.utcnow().replace(tzinfo=utc)
