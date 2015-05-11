@@ -43,18 +43,27 @@ def clean_values(apps, schema_editor):
 
     for field in NumericField.objects.all():
         for observation in Observation.objects.filter(category=field.category):
-            observation.properties[field.key] = clean_number(observation.properties[field.key])
-            observation.save()
+            if observation.properties:
+                value = observation.properties.get(field.key)
+                if value:
+                    observation.properties[field.key] = clean_number(value)
+                    observation.save()
 
     for field in LookupField.objects.all():
         for observation in Observation.objects.filter(category=field.category):
-            observation.properties[field.key] = clean_int(observation.properties[field.key])
-            observation.save()
+            if observation.properties:
+                value = observation.properties.get(field.key)
+                if value:
+                    observation.properties[field.key] = clean_int(value)
+                    observation.save()
 
     for field in MultipleLookupField.objects.all():
         for observation in Observation.objects.filter(category=field.category):
-            observation.properties[field.key] = clean_list(observation.properties[field.key])
-            observation.save()
+            if observation.properties:
+                value = observation.properties.get(field.key)
+                if value:
+                    observation.properties[field.key] = clean_list(value)
+                    observation.save()
 
 
 class Migration(migrations.Migration):
