@@ -6,21 +6,21 @@ from django.db import migrations
 
 
 def clean_list(val):
-    if val is not None and isinstance(val, str):
+    if val is not None and (isinstance(val, str) or isinstance(val, unicode)):
         return json.loads(val)
 
     return val
 
 
 def clean_int(val):
-    if val is not None and isinstance(val, str):
+    if val is not None and (isinstance(val, str) or isinstance(val, unicode)):
         return int(val)
 
     return val
 
 
 def clean_number(val):
-    if val is not None and isinstance(val, str):
+    if val is not None and (isinstance(val, str) or isinstance(val, unicode)):
         try:  # it's an int
             return int(val)
         except ValueError:
@@ -37,19 +37,24 @@ def clean_number(val):
 
 def clean_values(apps, schema_editor):
     Observation = apps.get_model("contributions", "Observation")
-    for observation in Observation.objects.all():
-        for field in observation.category.fields.all():
-            if field.__class__.__name__ == 'NumericField':
-                observation.properties[field.key] = clean_number(
-                    observation.properties[field.key])
-            if field.__class__.__name__ == 'LookupField':
-                observation.properties[field.key] = clean_int(
-                    observation.properties[field.key])
-            if field.__class__.__name__ == 'MultipleLookupField':
-                observation.properties[field.key] = clean_list(
-                    observation.properties[field.key])
+    NumericField = apps.get_model("categories", "NumericField")
+    LookupField = apps.get_model("categories", "LookupField")
+    MultipleLookupField = apps.get_model("categories", "MultipleLookupField")
 
-        observation.save()
+    for field in NumericField.objects.all():
+        for observation in Observation.objects.filter(category=field.category):
+            observation.properties[field.key] = clean_number(observation.properties[field.key])
+            observation.save()
+
+    for field in LookupField.objects.all():
+        for observation in Observation.objects.filter(category=field.category):
+            observation.properties[field.key] = clean_int(observation.properties[field.key])
+            observation.save()
+
+    for field in MultipleLookupField.objects.all():
+        for observation in Observation.objects.filter(category=field.category):
+            observation.properties[field.key] = clean_list(observation.properties[field.key])
+            observation.save()
 
 
 class Migration(migrations.Migration):
