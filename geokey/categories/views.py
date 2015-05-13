@@ -441,6 +441,8 @@ class FieldCreate(LoginRequiredMixin, CreateView):
             self.request.user, project_id, category_id)
 
         proposed_key = slugify(strip_tags(data.get('name')))
+        if len(proposed_key) < 1:
+            proposed_key = 'key'
         suggested_key = proposed_key
 
         count = 1
