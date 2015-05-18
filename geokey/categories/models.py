@@ -256,8 +256,9 @@ class Field(models.Model):
         rules = Rule.objects.filter(category=self.category)
 
         for rule in rules:
-            rule.constraints.pop(self.key, None)
-            rule.save()
+            if rule.constraints:
+                rule.constraints.pop(self.key, None)
+                rule.save()
 
         super(Field, self).delete()
 
