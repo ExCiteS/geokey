@@ -197,11 +197,12 @@ class ContributionSerializer(BaseSerializer):
         """
         errors = []
 
-        if self.instance is not None:
+        if self.instance:
             status = status or self.instance.status
-            update = self.instance.properties.copy()
-            update.update(properties)
-            properties = update
+            if self.instance.properties:
+                update = self.instance.properties.copy()
+                update.update(properties)
+                properties = update
         else:
             status = status or category.default_status
 
@@ -469,6 +470,7 @@ class ContributionSerializer(BaseSerializer):
             'type': 'Feature',
             'geometry': json.loads(location.geometry.geojson),
             'properties': obj.properties,
+            'display_field': self.get_display_field(obj),
             'meta': {
                 'status': obj.status,
                 'creator': {
@@ -497,8 +499,6 @@ class ContributionSerializer(BaseSerializer):
                 'symbol': cat.symbol.url if cat.symbol else None,
                 'colour': cat.colour
             }
-
-            feature['display_field'] = self.get_display_field(obj)
 
             q = self.context.get('search')
             if q is not None:

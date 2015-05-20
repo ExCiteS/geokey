@@ -66,7 +66,7 @@ Setting up GeoKey
 
     ```
     cd geokey
-    pip install --process-dependency-links -e .
+    pip install -e .
     ```
 
 3. Copy the directory `local_settings.example` to `local_settings`

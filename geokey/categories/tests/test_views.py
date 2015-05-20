@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import json
 
 from django.test import TestCase, RequestFactory
@@ -625,6 +627,18 @@ class FieldCreateTest(TestCase):
         }
         response = self.post(self.admin, data)
         self.assertEquals(type(response), HttpResponseRedirect)
+
+    def test_post_create_with_hebrew_field_name(self):
+        data = {
+            'name': 'צַדִי, צדיק',
+            'description': 'Test description',
+            'required': False,
+            'type': 'TextField'
+        }
+        response = self.post(self.admin, data)
+        self.assertEquals(type(response), HttpResponseRedirect)
+        field = self.category.fields.all()[0]
+        self.assertEquals(field.key, 'key')
 
     def test_post_create_with_existing_name(self):
         TextFieldFactory.create(**{

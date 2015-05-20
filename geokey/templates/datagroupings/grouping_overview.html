@@ -51,7 +51,7 @@
 
                     <li>
 
-                        <h4><a href="{% url 'admin:rule_settings' grouping.project.id grouping.id filter.id %}">Contributions of type <strong>{{ filter.category.name }}</strong></a>{% if filter.filters or filter.min_date or filter.max_date %} where {% endif %}</h4>
+                        <h4><a href="{% url 'admin:rule_settings' grouping.project.id grouping.id filter.id %}">Contributions of type <strong>{{ filter.category.name }}</strong></a>{% if filter.constraints or filter.min_date or filter.max_date %} where {% endif %}</h4>
                         <ul>
                             {% filters filter %}
                         </ul>

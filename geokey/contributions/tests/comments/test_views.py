@@ -290,10 +290,10 @@ class CommentAbstractAPIViewResolveTest(TestCase):
             json.loads(response.content).get('review_status'),
             'resolved'
         )
-        self.assertEqual(
-            Observation.objects.get(pk=self.observation.id).status,
-            'active'
-        )
+
+        reference = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(reference.status, 'active')
+        self.assertIsNotNone(reference.properties)
 
     def test_resolve_comment_with_invalid_review_status(self):
         url = reverse('api:project_single_comment', kwargs={
