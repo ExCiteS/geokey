@@ -12,24 +12,10 @@ class GeoJsonParser(BaseParser):
         request_data = stream.read()
         data = json.loads(request_data)
 
-        parsed = {}
-
-        if 'id' in data:
-            parsed['id'] = data.pop('id')
-
-        if 'location' in data:
-            parsed['location'] = data.pop('location')
-
-        if 'properties' in data:
-            parsed['properties'] = data.pop('properties')
-
         if 'geometry' in data:
-            if 'location' not in parsed:
-                parsed['location'] = {}
+            if 'location' not in data:
+                data['location'] = {}
 
-            parsed['location']['geometry'] = json.dumps(data.pop('geometry'))
+            data['location']['geometry'] = json.dumps(data.pop('geometry'))
 
-        if 'meta' in data:
-            parsed.update(data.pop('meta'))
-
-        return parsed
+        return data

@@ -44,15 +44,16 @@ class GeoJsonParserTest(TestCase):
                 "name": "The Grafton",
                 "address": "20 Prince of Wales Rd, London NW5 3LG"
             },
-            "category": 40,
-            "status": "active"
+            "meta": {
+                "category": 40,
+                "status": "active"
+            }
         }
         parser = GeoJsonParser()
         parsed = parser.parse(BytesIO(json.dumps(obj)))
 
         self.assertFalse('id' in parsed)
-        self.assertEqual(parsed.get('category'), ref.get('category'))
-        self.assertEqual(parsed.get('status'), ref.get('status'))
+        self.assertEqual(parsed.get('meta'), ref.get('meta'))
         self.assertEqual(
             parsed.get('location').get('id'),
             ref.get('location').get('id')
@@ -93,15 +94,16 @@ class GeoJsonParserTest(TestCase):
                 "name": "The Grafton",
                 "address": "20 Prince of Wales Rd, London NW5 3LG"
             },
-            "category": 40,
-            "status": "active"
+            "meta": {
+                "category": 40,
+                "status": "active"
+            }
         }
         parser = GeoJsonParser()
         parsed = parser.parse(BytesIO(json.dumps(obj)))
 
         self.assertFalse('id' in parsed)
-        self.assertEqual(parsed.get('category'), ref.get('category'))
-        self.assertEqual(parsed.get('status'), ref.get('status'))
+        self.assertEqual(parsed.get('meta'), ref.get('meta'))
         self.assertFalse('id' in parsed.get('location'))
         self.assertFalse('name' in parsed.get('location'))
         self.assertFalse('description' in parsed.get('location'))
@@ -145,15 +147,16 @@ class GeoJsonParserTest(TestCase):
                 "name": "The Grafton",
                 "address": "20 Prince of Wales Rd, London NW5 3LG"
             },
-            "category": 40,
-            "status": "active"
+            "meta": {
+                "category": 40,
+                "status": "active"
+            }
         }
         parser = GeoJsonParser()
         parsed = parser.parse(BytesIO(json.dumps(obj)))
 
         self.assertFalse('id' in parsed)
-        self.assertEqual(parsed.get('category'), ref.get('category'))
-        self.assertEqual(parsed.get('status'), ref.get('status'))
+        self.assertEqual(parsed.get('meta'), ref.get('meta'))
         self.assertEqual(
             parsed.get('location').get('id'),
             ref.get('location').get('id')
@@ -187,8 +190,7 @@ class GeoJsonParserTest(TestCase):
         parser = GeoJsonParser()
         parsed = parser.parse(BytesIO(json.dumps(obj)))
 
-        self.assertFalse('category' in parsed)
-        self.assertFalse('status' in parsed)
+        self.assertFalse('meta' in parsed)
         self.assertFalse('location' in parsed)
         self.assertEqual(parsed.get('properties'), ref.get('properties'))
 
@@ -204,8 +206,7 @@ class GeoJsonParserTest(TestCase):
         parsed = parser.parse(BytesIO(json.dumps(obj)))
 
         self.assertEqual(parsed.get('id'), 12)
-        self.assertFalse('category' in parsed)
-        self.assertEqual('review', parsed.get('status'))
+        self.assertEqual('review', parsed.get('meta').get('status'))
         self.assertFalse('location' in parsed)
         self.assertFalse('properties' in parsed)
 
@@ -222,8 +223,7 @@ class GeoJsonParserTest(TestCase):
         parsed = parser.parse(BytesIO(json.dumps(obj)))
 
         self.assertFalse('id' in parsed)
-        self.assertFalse('category' in parsed)
-        self.assertFalse('status' in parsed)
+        self.assertFalse('meta' in parsed)
         self.assertEqual(1, parsed.get('location').get('id'))
         self.assertEqual("Location", parsed.get('location').get('name'))
         self.assertEqual(
@@ -247,8 +247,7 @@ class GeoJsonParserTest(TestCase):
         parsed = parser.parse(BytesIO(json.dumps(obj)))
 
         self.assertFalse('id' in parsed)
-        self.assertFalse('category' in parsed)
-        self.assertFalse('status' in parsed)
+        self.assertFalse('meta' in parsed)
         self.assertFalse('id' in parsed.get('location'))
         self.assertFalse('name' in parsed.get('location'))
         self.assertFalse('description' in parsed.get('location'))
