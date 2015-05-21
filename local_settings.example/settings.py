@@ -20,6 +20,7 @@ DATABASES = {
 
 SECRET_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
+ENABLE_VIDEO = False
 YOUTUBE_AUTH_EMAIL = 'your-email@example.com'
 YOUTUBE_AUTH_PASSWORD = 'password'
 YOUTUBE_DEVELOPER_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
@@ -27,7 +28,7 @@ YOUTUBE_CLIENT_ID = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleus
 
 
 INSTALLED_APPS += (
-    
+
 )
 
 

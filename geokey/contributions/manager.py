@@ -425,6 +425,7 @@ class MediaFileManager(InheritanceManager):
             )
 
         elif (content_type[0] == 'video' and
+                settings.ENABLE_VIDEO and
                 content_type[1] in ACCEPTED_VIDEO_FORMATS):
             return self._create_video_file(
                 name,
