@@ -1,3 +1,5 @@
+import json
+
 from geokey.core.serializers import FieldSelectorSerializer
 from rest_framework.serializers import SerializerMethodField
 
@@ -43,7 +45,18 @@ class GroupingSerializer(FieldSelectorSerializer):
             many=True,
             context={'project': obj.project, 'user': user}
         )
-        return serializer.data
+
+        # convert features to GeoJSON
+        features = serializer.data
+        for f in features:
+            f['geometry'] = json.loads(f['location'].pop('geometry'))
+
+        geojson = {
+            "type": "FeatureCollection",
+            "features": features
+        }
+
+        return geojson
 
     def get_num_contributions(self, obj):
         """

@@ -10,13 +10,21 @@ from geokey.projects.models import Project
 from geokey.datagroupings.models import Grouping
 from geokey.datagroupings.serializers import GroupingSerializer
 
+from ..renderer.geojson import GeoJsonRenderer
+from ..parsers.geojson import GeoJsonParser
+
 from .base import (
     SingleAllContribution, SingleGroupingContribution, SingleMyContribution
 )
 from ..serializers import ContributionSerializer
 
 
-class ProjectObservations(APIView):
+class GeoJsonView(APIView):
+    renderer_classes = (GeoJsonRenderer,)
+    parser_classes = (GeoJsonParser,)
+
+
+class ProjectObservations(GeoJsonView):
     """
     Public API endpoint to add new contributions to a project
     /api/projects/:project_id/contributions
@@ -58,7 +66,7 @@ class ProjectObservations(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class ContributionSearchAPIView(APIView):
+class ContributionSearchAPIView(GeoJsonView):
     """
     Public API endpoint to search all contributions in a project
     /api/projects/:project_id/contributions/search/?query={query}
@@ -94,7 +102,7 @@ class ContributionSearchAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class ProjectObservationsView(APIView):
+class ProjectObservationsView(GeoJsonView):
     """
     Public API endpoint to get all contributions in a project
     /api/projects/:project_id/data-groupings/all-contributions/
@@ -127,7 +135,7 @@ class ProjectObservationsView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class MyObservations(APIView):
+class MyObservations(GeoJsonView):
     """
     Public API endpoint for user's observations in a project.
     /api/projects/:project_id/data-groupings/my-contributions/
@@ -215,7 +223,7 @@ class ViewObservations(APIView):
 # ############################################################################
 
 
-class SingleContributionAPIView(APIView):
+class SingleContributionAPIView(GeoJsonView):
     """
     Abstract APIView for handling requests to single observations
     """

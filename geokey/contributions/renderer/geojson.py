@@ -8,9 +8,10 @@ class GeoJsonRenderer(BaseRenderer):
     """
     media_type = 'application/json'
     format = 'json'
+    separators = (',', ':')
 
     def render_single(self, data):
-        data['geometry'] = data.get('location').pop('geometry')
+        data['geometry'] = json.loads(data.get('location').pop('geometry'))
         return data
 
     def render_many(self, data):
@@ -26,9 +27,11 @@ class GeoJsonRenderer(BaseRenderer):
         if data is None:
             return ''
 
-        if isinstance(data, dict):
+        if 'error' in data:
+            rendered = data
+        elif isinstance(data, dict):
             rendered = self.render_single(data)
         else:
             rendered = self.render_many(data)
 
-        return json.dumps(rendered)
+        return json.dumps(rendered, separators=self.separators)
