@@ -7,6 +7,9 @@ class GeoJsonParser(BaseParser):
     media_type = 'application/json'
 
     def parse(self, stream, media_type=None, parser_context=None):
+        """
+        Parses the GeoJson imput and returns deserialisable Python native
+        """
         parser_context = parser_context or {}
 
         request_data = stream.read()

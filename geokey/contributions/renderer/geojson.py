@@ -11,10 +11,17 @@ class GeoJsonRenderer(BaseRenderer):
     separators = (',', ':')
 
     def render_single(self, data):
+        """
+        Renders a single `Contribution` into GeoJson
+        """
         data['geometry'] = json.loads(data.get('location').pop('geometry'))
         return data
 
     def render_many(self, data):
+        """
+        Creates a `FeatureCollection` object and adds Contributions to
+        `features`.
+        """
         return {
             "type": "FeatureCollection",
             "features": [self.render_single(item) for item in data]

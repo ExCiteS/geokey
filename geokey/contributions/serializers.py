@@ -37,6 +37,9 @@ class LocationSerializer(geoserializers.GeoFeatureModelSerializer):
 
 
 class LocationContributionSerializer(serializers.ModelSerializer):
+    """
+    Serialiser for `Location`; to be used within `ContributionSerializer`.
+    """
     class Meta:
         model = Location
         fields = ('id', 'name', 'description', 'status', 'created_at',
@@ -44,6 +47,18 @@ class LocationContributionSerializer(serializers.ModelSerializer):
         write_only_fields = ('status', 'private', 'private_for_project')
 
     def create(self, validated_data):
+        """
+        Creates a new contribution from `validated_data`
+
+        Parameter
+        ---------
+        validated_data : dict
+            Input data after validation
+
+        Returns
+        -------
+        Location
+        """
         validated_data['creator'] = self.context.get('user')
         return super(
             LocationContributionSerializer,
