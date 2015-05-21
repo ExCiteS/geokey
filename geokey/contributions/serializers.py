@@ -36,95 +36,49 @@ class LocationSerializer(geoserializers.GeoFeatureModelSerializer):
         write_only_fields = ('status',)
 
 
+class LocationContributionSerializer(serializers.ModelSerializer):
+    """
+    Serialiser for `Location`; to be used within `ContributionSerializer`.
+    """
+    class Meta:
+        model = Location
+        fields = ('id', 'name', 'description', 'status', 'created_at',
+                  'geometry', 'private', 'private_for_project')
+        write_only_fields = ('status', 'private', 'private_for_project')
+
+    def create(self, validated_data):
+        """
+        Creates a new contribution from `validated_data`
+
+        Parameter
+        ---------
+        validated_data : dict
+            Input data after validation
+
+        Returns
+        -------
+        Location
+        """
+        validated_data['creator'] = self.context.get('user')
+        return super(
+            LocationContributionSerializer,
+            self
+        ).create(validated_data)
+
+
 class ContributionSerializer(BaseSerializer):
     """
     Serialiser for geokey.contribtions.models.Observations. This is a custom
     serialiser, not a standard ModelSerializer
     """
-    class Meta:
-        list_serializer_class = GeoFeatureModelListSerializer
-
     @classmethod
     def many_init(cls, *args, **kwargs):
         """
         Is called when many=True property is set when instantiating the
         serialiser.
-
-        Return
-        ------
-        rest_framework_gis.serializers.GeoFeatureModelListSerializer
-            Native GeoJSON object contain a list of contributions
         """
-        kwargs['child'] = cls()
         kwargs['context']['many'] = True
-        return GeoFeatureModelListSerializer(*args, **kwargs)
-
-    def restore_location(self, instance=None, data=None, geometry=None):
-        """
-        Deserialises a contribution's location. Creates a new location or
-        updates an existing location
-
-        Parameters
-        ----------
-        instance : geokey.contributions.models.Location
-            Optional instance that will be updated
-        data : dict
-            Data to be deserialied into a location instance
-        geometry : dict
-            GeoJson-like geometry
-
-        Returns
-        -------
-        geokey.contributions.models.Location
-            Created or updated instance
-        """
-        if instance is not None:
-            if data is not None:
-                instance.name = data.get('name') or instance.name
-                instance.description = (data.get('description') or
-                                        instance.description)
-                private = data.get('private') or instance.private
-                private_for_project = (data.get('private_for_project') or
-                                       instance.private_for_project)
-
-            if geometry is not None:
-                if type(geometry) is not unicode:
-                    geometry = json.dumps(geometry)
-
-                instance.geometry = GEOSGeometry(geometry)
-
-            instance.save()
-            return instance
-        else:
-            if (data is not None) and ('id' in data):
-                try:
-                    return Location.objects.get_single(
-                        self.context.get('user'),
-                        self.context.get('project').id,
-                        data.get('id')
-                    )
-                except PermissionDenied, error:
-                    raise MalformedRequestData(error)
-            else:
-                name = None
-                description = None
-                private_for_project = None
-                private = False
-
-                if data is not None:
-                    name = strip_tags(data.get('name'))
-                    description = strip_tags(data.get('description'))
-                    private = data.get('private')
-                    private_for_project = data.get('private_for_project')
-
-                return Location(
-                    name=name,
-                    description=description,
-                    geometry=GEOSGeometry(json.dumps(geometry)),
-                    private=private,
-                    private_for_project=private_for_project,
-                    creator=self.context.get('user')
-                )
+        return super(ContributionSerializer, cls).many_init(*args, **kwargs)
 
     def validate_category(self, project, category_id):
         """
@@ -233,10 +187,11 @@ class ContributionSerializer(BaseSerializer):
             identifies the location in the database
         """
         errors = []
+        self.location = None
 
         try:
             if location_id is not None:
-                Location.objects.get_single(
+                self.location = Location.objects.get_single(
                     self.context.get('user'),
                     project.id,
                     location_id
@@ -330,15 +285,18 @@ class ContributionSerializer(BaseSerializer):
         project = self.context.get('project')
         meta = validated_data.pop('meta')
 
-        location = self.restore_location(
+        location_serializer = LocationContributionSerializer(
+            self.location,
             data=validated_data.pop('location', None),
-            geometry=validated_data.get('geometry')
+            context=self.context
         )
+        if location_serializer.is_valid():
+            location_serializer.save()
 
         self.instance = Observation.create(
             properties=validated_data.get('properties'),
             creator=self.context.get('user'),
-            location=location,
+            location=location_serializer.instance,
             project=project,
             category=meta.get('category'),
             status=meta.pop('status', None)
@@ -367,11 +325,14 @@ class ContributionSerializer(BaseSerializer):
         if meta is not None:
             status = meta.get('status', None)
 
-        self.restore_location(
+        location_serializer = LocationContributionSerializer(
             instance.location,
-            data=validated_data.pop('location', None),
-            geometry=validated_data.pop('geometry', None)
+            data=validated_data.pop('location', {}),
+            context=self.context,
+            partial=True
         )
+        if location_serializer.is_valid():
+            location_serializer.save()
 
         return instance.update(
             properties=validated_data.get('properties'),
@@ -467,8 +428,6 @@ class ContributionSerializer(BaseSerializer):
 
         feature = {
             'id': obj.id,
-            'type': 'Feature',
-            'geometry': json.loads(location.geometry.geojson),
             'properties': obj.properties,
             'display_field': self.get_display_field(obj),
             'meta': {
@@ -478,15 +437,16 @@ class ContributionSerializer(BaseSerializer):
                     'display_name': obj.creator.display_name
                 },
                 'updator': updator,
-                'created_at': obj.created_at,
-                'updated_at': obj.updated_at,
+                'created_at': str(obj.created_at),
+                'updated_at': str(obj.updated_at),
                 'version': obj.version,
                 'isowner': isowner
             },
             'location': {
                 'id': location.id,
                 'name': location.name,
-                'description': location.description
+                'description': location.description,
+                'geometry': location.geometry.geojson
             }
         }
 

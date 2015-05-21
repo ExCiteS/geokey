@@ -11,11 +11,100 @@ from geokey.categories.tests.model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory
 )
 
-from ..serializers import ContributionSerializer, CommentSerializer
-from ..models import Observation
+from ..serializers import (
+    LocationContributionSerializer, ContributionSerializer, CommentSerializer
+)
+
+from ..models import Observation, Location
 from .model_factories import (
     LocationFactory, ObservationFactory, CommentFactory
 )
+
+
+class LocationContributionSerializerTest(TestCase):
+    def test_create_new_full_location(self):
+        user = UserF.create()
+        project = ProjectF.create()
+        data = {
+            "name": "Location",
+            "description": "Location description",
+            "geometry": '{"type": "Point","coordinates": [ '
+                        '-0.144415497779846, 51.54671869005856]}',
+            "private": True,
+            "private_for_project": project.id
+        }
+        serializer = LocationContributionSerializer(
+            data=data,
+            context={'user': user}
+        )
+        if serializer.is_valid():
+            serializer.save()
+
+        self.assertEqual(Location.objects.count(), 1)
+        self.assertEqual(Location.objects.all()[0].creator, user)
+
+    def test_create_geometry_only(self):
+        user = UserF.create()
+        data = {
+            "geometry": '{ "type": "Point","coordinates": [ '
+                        '-0.144415497779846, 51.54671869005856] }',
+        }
+        serializer = LocationContributionSerializer(
+            data=data,
+            context={'user': user}
+        )
+        if serializer.is_valid():
+            serializer.save()
+
+        self.assertEqual(Location.objects.count(), 1)
+        self.assertEqual(Location.objects.all()[0].creator, user)
+
+    def test_update_full_location(self):
+        user = UserF.create()
+        location = LocationFactory.create()
+        data = {
+            "name": "Private Location",
+            "private": True,
+            "geometry": '{"type": "Point","coordinates": [ '
+                        '-0.144415497779846, 51.54671869005856]}',
+        }
+        serializer = LocationContributionSerializer(
+            location,
+            data=data,
+            context={'user': user}
+        )
+        if serializer.is_valid():
+            serializer.save()
+
+        ref = Location.objects.get(pk=location.id)
+        self.assertEqual(ref.name, data.get('name'))
+        self.assertEqual(
+            json.loads(ref.geometry.geojson),
+            json.loads(data.get('geometry'))
+        )
+        self.assertEqual(ref.private, data.get('private'))
+
+    def test_update_geometry_only(self):
+        user = UserF.create()
+        location = LocationFactory.create()
+        data = {
+            "geometry": '{"type": "Point","coordinates": [ '
+                        '-0.144415497779846, 51.54671869005856]}',
+        }
+        serializer = LocationContributionSerializer(
+            location,
+            data=data,
+            context={'user': user}
+        )
+        if serializer.is_valid():
+            serializer.save()
+
+        ref = Location.objects.get(pk=location.id)
+        self.assertEqual(ref.name, location.name)
+        self.assertEqual(
+            json.loads(ref.geometry.geojson),
+            json.loads(data.get('geometry'))
+        )
 
 
 class ContributionSerializerTest(TestCase):
@@ -65,151 +154,6 @@ class ContributionSerializerTest(TestCase):
         self.assertEqual(display_field.get('value'), 'blah')
 
 
-class RestoreLocationTest(TestCase):
-    def setUp(self):
-        self.admin = UserF.create()
-
-        self.project = ProjectF(
-            add_admins=[self.admin]
-        )
-        self.category = CategoryFactory(**{
-            'status': 'active',
-            'project': self.project
-        })
-
-        TextFieldFactory.create(**{
-            'key': 'key_1',
-            'category': self.category,
-            'order': 0
-        })
-        NumericFieldFactory.create(**{
-            'key': 'key_2',
-            'category': self.category,
-            'order': 1
-        })
-
-        self.data = {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    -0.134046077728271,
-                    51.52439200896907
-                ]
-            },
-            "properties": {
-                "key_1": "value 1",
-                "key_2": 12
-            },
-            "meta": {
-                "category": self.category.id
-            },
-            "location": {
-                "name": "UCL",
-                "description": "UCL's main quad",
-                "private": True
-            }
-        }
-
-    def test_restore_new_location(self):
-        user = UserF.create()
-        data = {
-            "name": "UCL",
-            "description": "UCL's main quad",
-            "private": True
-        }
-        geometry = {
-            "type": "Point",
-            "coordinates": [
-                -0.134046077728271,
-                51.52439200896907
-            ]
-        }
-        serializer = ContributionSerializer(
-            data=self.data,
-            context={'user': user, 'project': self.project}
-        )
-        location = serializer.restore_location(data=data, geometry=geometry)
-
-        self.assertEqual(location.creator, user)
-        self.assertEqual(location.name, 'UCL')
-        self.assertEqual(location.description, "UCL's main quad")
-        self.assertTrue(location.private)
-        self.assertEqual(location.private_for_project, None)
-        self.assertEqual(json.loads(location.geometry.geojson), geometry)
-
-    def test_restore_unspecified_location(self):
-        geometry = {
-            "type": "Point",
-            "coordinates": [
-                -0.134046077728271,
-                51.52439200896907
-            ]
-        }
-        serializer = ContributionSerializer(
-            data=self.data,
-            context={'user': self.admin, 'project': self.project}
-        )
-        location = serializer.restore_location(geometry=geometry)
-
-        self.assertEqual(location.creator, self.admin)
-        self.assertEqual(location.name, None)
-        self.assertEqual(location.description, None)
-        self.assertFalse(location.private)
-        self.assertEqual(location.private_for_project, None)
-        self.assertEqual(json.loads(location.geometry.geojson), geometry)
-
-    def test_restore_existing_location(self):
-        serializer = ContributionSerializer(
-            data=self.data,
-            context={'user': self.admin, 'project': self.project}
-        )
-        if serializer.is_valid():
-            serializer.save()
-        contribution = serializer.instance
-
-        data = {
-            "name": 'Location name',
-            "description": 'Location description'
-        }
-        geometry = self.data.get('geometry')
-
-        result = serializer.restore_location(
-            contribution.location,
-            data=data,
-            geometry=geometry
-        )
-        self.assertEqual(result.name, data.get('name'))
-
-    def test_permssion_denied(self):
-        location = LocationFactory.create(
-            **{'private': True}
-        )
-
-        data = {
-            "id": location.id
-        }
-        geometry = {
-            "type": "Point",
-            "coordinates": [
-                -0.134046077728271,
-                51.52439200896907
-            ]
-        }
-
-        serializer = ContributionSerializer(
-            data=self.data,
-            context={'user': self.admin, 'project': self.project}
-        )
-
-        try:
-            serializer.restore_location(data=data, geometry=geometry)
-        except MalformedRequestData:
-            pass
-        else:
-            self.fail('PermissionDenied not raised')
-
-
 class ContributionSerializerIntegrationTests(TestCase):
     def setUp(self):
         self.admin = UserF.create()
@@ -240,14 +184,6 @@ class ContributionSerializerIntegrationTests(TestCase):
 
     def test_create_observation(self):
         data = {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    -0.134046077728271,
-                    51.52439200896907
-                ]
-            },
             "properties": {
                 "key_1": "value 1",
                 "key_2": 12
@@ -258,7 +194,9 @@ class ContributionSerializerIntegrationTests(TestCase):
             "location": {
                 "name": "UCL",
                 "description": "UCL's main quad",
-                "private": True
+                "private": True,
+                "geometry": '{ "type": "Point", "coordinates": ['
+                            '-0.134046077728271, 51.52439200896907] }',
             }
         }
 
@@ -271,8 +209,6 @@ class ContributionSerializerIntegrationTests(TestCase):
 
         result = serializer.data
 
-        self.assertEqual(result.get('type'), 'Feature')
-        self.assertEqual(result.get('geometry'), data.get('geometry'))
         self.assertEqual(
             result.get('properties').get('key_1'),
             'value 1'
@@ -289,23 +225,23 @@ class ContributionSerializerIntegrationTests(TestCase):
         self.assertEqual(
             result.get('location').get('description'),
             "UCL's main quad")
+        self.assertEqual(
+            json.loads(data['location']['geometry']),
+            json.loads(result['location']['geometry'])
+        )
 
     def test_create_without_speficfied_location(self):
         data = {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    -0.134046077728271,
-                    51.52439200896907
-                ]
-            },
             "properties": {
                 "key_1": "value 1",
                 "key_2": 12
             },
             "meta": {
                 "category": self.category.id
+            },
+            "location": {
+                "geometry": '{ "type": "Point", "coordinates": ['
+                            '-0.134046077728271, 51.52439200896907] }',
             }
         }
 
@@ -317,8 +253,6 @@ class ContributionSerializerIntegrationTests(TestCase):
         serializer.save()
         result = serializer.data
 
-        self.assertEqual(result.get('type'), 'Feature')
-        self.assertEqual(result.get('geometry'), data.get('geometry'))
         self.assertEqual(
             result.get('properties').get('key_1'),
             'value 1'
@@ -335,19 +269,15 @@ class ContributionSerializerIntegrationTests(TestCase):
         self.assertEqual(
             result.get('location').get('description'),
             None)
+        self.assertEqual(
+            json.loads(data['location']['geometry']),
+            json.loads(result['location']['geometry'])
+        )
 
     def test_create_with_existing_location(self):
         location = LocationFactory.create()
 
         data = {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    location.geometry.coords[0],
-                    location.geometry.coords[1]
-                ]
-            },
             "properties": {
                 "key_1": "value 1",
                 "key_2": 12
@@ -356,7 +286,8 @@ class ContributionSerializerIntegrationTests(TestCase):
                 "category": self.category.id
             },
             "location": {
-                "id": location.id
+                "id": location.id,
+                "geometry": location.geometry.geojson
             }
         }
 
@@ -368,8 +299,6 @@ class ContributionSerializerIntegrationTests(TestCase):
         serializer.save()
         result = serializer.data
 
-        self.assertEqual(result.get('type'), 'Feature')
-        self.assertEqual(result.get('geometry'), data.get('geometry'))
         self.assertEqual(
             result.get('properties').get('key_1'),
             'value 1'
@@ -387,6 +316,10 @@ class ContributionSerializerIntegrationTests(TestCase):
         self.assertEqual(
             result.get('location').get('description'),
             location.description)
+        self.assertEqual(
+            json.loads(data['location']['geometry']),
+            json.loads(result['location']['geometry'])
+        )
 
     @raises(ValidationError)
     def test_create_with_wrong_location(self):
@@ -397,8 +330,6 @@ class ContributionSerializerIntegrationTests(TestCase):
         })
 
         data = {
-            "type": "Feature",
-            "geometry": location.geometry.geojson,
             "properties": {
                 "key_1": "value 1",
                 "key_2": 12
@@ -407,7 +338,8 @@ class ContributionSerializerIntegrationTests(TestCase):
                 "category": self.category.id
             },
             "location": {
-                "id": location.id
+                "id": location.id,
+                "geometry": location.geometry.geojson
             }
         }
         serializer = ContributionSerializer(
@@ -422,13 +354,9 @@ class ContributionSerializerIntegrationTests(TestCase):
         self.category.save()
 
         data = {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    -0.134046077728271,
-                    51.52439200896907
-                ]
+            "location": {
+                "geometry": '{ "type": "Point", "coordinates": ['
+                            '-0.134046077728271, 51.52439200896907] }',
             },
             "properties": {
                 "key_1": "value 1",
@@ -448,8 +376,6 @@ class ContributionSerializerIntegrationTests(TestCase):
     def test_create_with_private_location(self):
         location = LocationFactory(**{'private': True})
         data = {
-            "type": "Feature",
-            "geometry": location.geometry.geojson,
             "properties": {
                 "key_1": "value 1",
                 "key_2": 12
@@ -458,7 +384,8 @@ class ContributionSerializerIntegrationTests(TestCase):
                 "category": self.category.id
             },
             "location": {
-                "id": location.id
+                "id": location.id,
+                "geometry": location.geometry.geojson
             }
         }
         serializer = ContributionSerializer(
@@ -470,14 +397,6 @@ class ContributionSerializerIntegrationTests(TestCase):
     @raises(ValidationError)
     def test_create_with_invalid_data(self):
         data = {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                    -0.134046077728271,
-                    51.52439200896907
-                ]
-            },
             "properties": {
                 "key_1": "value 1",
                 "key_2": "blah"
@@ -488,7 +407,9 @@ class ContributionSerializerIntegrationTests(TestCase):
             "location": {
                 "name": "UCL",
                 "description": "UCL's main quad",
-                "private": True
+                "private": True,
+                "geometry": '{ "type": "Point", "coordinates": ['
+                            '-0.134046077728271, 51.52439200896907] }',
             }
         }
         serializer = ContributionSerializer(
@@ -510,10 +431,6 @@ class ContributionSerializerIntegrationTests(TestCase):
         )
         result = serializer.data
 
-        self.assertEqual(result.get('type'), 'Feature')
-        self.assertEqual(
-            result.get('geometry'),
-            json.loads(observation.location.geometry.geojson))
         self.assertEqual(
             result.get('properties').get('key'),
             'value'
@@ -527,6 +444,10 @@ class ContributionSerializerIntegrationTests(TestCase):
         self.assertEqual(
             result.get('location').get('description'),
             observation.location.description)
+        self.assertEqual(
+            json.loads(observation.location.geometry.geojson),
+            json.loads(result['location']['geometry'])
+        )
 
     def test_serialize_bulk(self):
         number = 20
@@ -542,10 +463,9 @@ class ContributionSerializerIntegrationTests(TestCase):
         )
         result = serializer.data
 
-        self.assertEqual(result.get('type'), 'FeatureCollection')
-        self.assertEqual(len(result.get('features')), number)
+        self.assertEqual(len(result), number)
 
-        for f in result.get('features'):
+        for f in result:
             self.assertIsNone(f.get('search_matches'))
 
     def test_serialize_bulk_search(self):
@@ -593,10 +513,9 @@ class ContributionSerializerIntegrationTests(TestCase):
         )
         result = serializer.data
 
-        self.assertEqual(result.get('type'), 'FeatureCollection')
-        self.assertEqual(len(result.get('features')), number)
+        self.assertEqual(len(result), number)
 
-        for f in result.get('features'):
+        for f in result:
             self.assertIsNotNone(f.get('search_matches'))
             self.assertIsNone(
                 f.get('search_matches').get('field-3')
