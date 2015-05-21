@@ -14,6 +14,7 @@ class GeoJsonRenderer(BaseRenderer):
         """
         Renders a single `Contribution` into GeoJson
         """
+        data['type'] = "Feature"
         data['geometry'] = json.loads(data.get('location').pop('geometry'))
         return data
 
