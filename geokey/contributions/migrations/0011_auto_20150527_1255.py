@@ -20,4 +20,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(clean_youtube_links),
     ]
