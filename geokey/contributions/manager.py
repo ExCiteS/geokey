@@ -382,7 +382,7 @@ class MediaFileManager(InheritanceManager):
             contribution=contribution,
             video=the_file,
             youtube_id=video_id,
-            youtube_link='http://www.youtube.com/embed/' + video_id,
+            youtube_link='https://www.youtube.com/embed/' + video_id,
             swf_link=swf_link
         )
 
