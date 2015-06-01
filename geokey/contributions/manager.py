@@ -273,6 +273,13 @@ class MediaFileManager(InheritanceManager):
         )
         return query_set.select_subclasses()
 
+    def _normalise_filename(self, name):
+        filename = slugify(name)
+        if len(filename) < 1:
+            filename = 'file_%s' % datetime.now().microsecond
+
+        return filename
+
     def _create_image_file(self, name, description, creator, contribution,
                            the_file):
         """
@@ -299,6 +306,7 @@ class MediaFileManager(InheritanceManager):
         from geokey.contributions.models import ImageFile
 
         filename, extension = os.path.splitext(the_file.name)
+        filename = self._normalise_filename(filename)
         the_file.name = filename[:FILE_NAME_TRUNC] + extension
 
         return ImageFile.objects.create(
@@ -365,9 +373,7 @@ class MediaFileManager(InheritanceManager):
 
         filename, extension = os.path.splitext(the_file.name)
 
-        filename = slugify(filename)
-        if len(filename) < 1:
-            filename = 'file_%s' % datetime.now().microsecond
+        filename = self._normalise_filename(filename)
 
         path = default_storage.save(
             'tmp/' + filename + extension,
