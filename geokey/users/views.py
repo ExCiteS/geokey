@@ -214,36 +214,6 @@ class UserGroupCreate(LoginRequiredMixin, CreateView):
         return self.render_to_response(context)
 
 
-class UserGroupOverview(LoginRequiredMixin, TemplateView):
-    """
-    Displays the user group settings page
-    `/admin/projects/:project_id/usergroups/:group_id/`
-    """
-    template_name = 'users/usergroup_overview.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id, group_id):
-        """
-        Creates the request context for rendering the page, add the user group
-        and available status types
-
-        Parameters
-        ----------
-        project_id : int
-            identifies the project in the data base
-        group_id : int
-            identifies the user groups in the data base
-
-        Return
-        ------
-        dict
-        """
-        project = Project.objects.as_admin(self.request.user, project_id)
-        group = project.usergroups.get(pk=group_id)
-
-        return {'group': group, 'status_types': STATUS}
-
-
 class AdministratorsOverview(LoginRequiredMixin, TemplateView):
     """
     Displays the list of administrators of the project
@@ -270,34 +240,90 @@ class AdministratorsOverview(LoginRequiredMixin, TemplateView):
         return {'project': project}
 
 
-class UserGroupSettings(LoginRequiredMixin, TemplateView):
+class UserGroupMixin(object):
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, group_id):
+        """
+        Creates the request context for rendering the page, adds the user group
+        to the context
+
+        Parameter
+        ---------
+        project_id : int
+            identifies the project in the data base
+        group_id : int
+            identifies the group in the data base
+
+        Returns
+        -------
+        dict
+        """
+        project = Project.objects.as_admin(self.request.user, project_id)
+        group = project.usergroups.get(pk=group_id)
+        return super(UserGroupMixin, self).get_context_data(
+            group=group,
+            status_types=STATUS
+        )
+
+
+class UserGroupOverview(LoginRequiredMixin, UserGroupMixin, TemplateView):
+    """
+    Displays the user group settings page
+    `/admin/projects/:project_id/usergroups/:group_id/`
+    """
+    template_name = 'users/usergroup_overview.html'
+
+    # @handle_exceptions_for_admin
+    # def get_context_data(self, project_id, group_id):
+    #     """
+    #     Creates the request context for rendering the page, add the user group
+    #     and available status types
+    #
+    #     Parameters
+    #     ----------
+    #     project_id : int
+    #         identifies the project in the data base
+    #     group_id : int
+    #         identifies the user groups in the data base
+    #
+    #     Return
+    #     ------
+    #     dict
+    #     """
+    #     project = Project.objects.as_admin(self.request.user, project_id)
+    #     group = project.usergroups.get(pk=group_id)
+    #
+    #     return {'group': group, 'status_types': STATUS}
+
+
+class UserGroupSettings(LoginRequiredMixin, UserGroupMixin, TemplateView):
     """
     Displays the user group settings page
     `/admin/projects/:project_id/usergroups/:group_id/settings/`
     """
     template_name = 'users/usergroup_settings.html'
 
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id, group_id):
-        """
-        Creates the request context for rendering the page, add the user group
-        and available status types
-
-        Parameters
-        ----------
-        project_id : int
-            identifies the project in the data base
-        group_id : int
-            identifies the user groups in the data base
-
-        Return
-        ------
-        dict
-        """
-        project = Project.objects.as_admin(self.request.user, project_id)
-        group = project.usergroups.get(pk=group_id)
-
-        return {'group': group, 'status_types': STATUS}
+    # @handle_exceptions_for_admin
+    # def get_context_data(self, project_id, group_id):
+    #     """
+    #     Creates the request context for rendering the page, add the user group
+    #     and available status types
+    #
+    #     Parameters
+    #     ----------
+    #     project_id : int
+    #         identifies the project in the data base
+    #     group_id : int
+    #         identifies the user groups in the data base
+    #
+    #     Return
+    #     ------
+    #     dict
+    #     """
+    #     project = Project.objects.as_admin(self.request.user, project_id)
+    #     group = project.usergroups.get(pk=group_id)
+    #
+    #     return {'group': group, 'status_types': STATUS}
 
     def post(self, request, project_id, group_id):
         """
@@ -333,61 +359,60 @@ class UserGroupSettings(LoginRequiredMixin, TemplateView):
         return self.render_to_response(context)
 
 
-class UserGroupPermissions(LoginRequiredMixin, TemplateView):
     """
     Displays the user group settings page
     `/admin/projects/:project_id/usergroups/:group_id/settings/`
     """
     template_name = 'users/usergroup_permissions.html'
 
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id, group_id):
-        """
-        Creates the request context for rendering the page, adds the user group
-        to the context
+    # @handle_exceptions_for_admin
+    # def get_context_data(self, project_id, group_id):
+    #     """
+    #     Creates the request context for rendering the page, adds the user group
+    #     to the context
+    #
+    #     Parameter
+    #     ---------
+    #     project_id : int
+    #         identifies the project in the data base
+    #     group_id : int
+    #         identifies the group in the data base
+    #
+    #     Returns
+    #     -------
+    #     dict
+    #     """
+    #     project = Project.objects.as_admin(self.request.user, project_id)
+    #     group = project.usergroups.get(pk=group_id)
+    #     return super(UserGroupPermissions, self).get_context_data(group=group)
 
-        Parameter
-        ---------
-        project_id : int
-            identifies the project in the data base
-        group_id : int
-            identifies the group in the data base
 
-        Returns
-        -------
-        dict
-        """
-        project = Project.objects.as_admin(self.request.user, project_id)
-        group = project.usergroups.get(pk=group_id)
-        return super(UserGroupPermissions, self).get_context_data(group=group)
-
-
-class UserGroupDelete(LoginRequiredMixin, TemplateView):
+class UserGroupDelete(LoginRequiredMixin, UserGroupMixin, TemplateView):
     """
     Deletes the user group
     """
     template_name = 'base.html'
 
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id, group_id):
-        """
-        Creates the request context for rendering the page, adds the user group
-        to the context
-
-        Parameter
-        ---------
-        project_id : int
-            identifies the project in the data base
-        group_id : int
-            identifies the group in the data base
-
-        Returns
-        -------
-        dict
-        """
-        project = Project.objects.as_admin(self.request.user, project_id)
-        group = project.usergroups.get(pk=group_id)
-        return super(UserGroupDelete, self).get_context_data(group=group)
+    # @handle_exceptions_for_admin
+    # def get_context_data(self, project_id, group_id):
+    #     """
+    #     Creates the request context for rendering the page, adds the user group
+    #     to the context
+    #
+    #     Parameter
+    #     ---------
+    #     project_id : int
+    #         identifies the project in the data base
+    #     group_id : int
+    #         identifies the group in the data base
+    #
+    #     Returns
+    #     -------
+    #     dict
+    #     """
+    #     project = Project.objects.as_admin(self.request.user, project_id)
+    #     group = project.usergroups.get(pk=group_id)
+    #     return super(UserGroupDelete, self).get_context_data(group=group)
 
     def get(self, request, project_id, group_id):
         """
