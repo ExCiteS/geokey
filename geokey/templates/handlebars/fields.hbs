@@ -1,5 +1,6 @@
-<div class="alert alert-info">Please set the value for each individual field you want to filter for. If you leave a filter blank, the field will not be filtered for.</div>
+<div class="field-filter form-horizontal">
 {{> created-field}}
+</div>
 {{#each fields}}
     <div class="field-filter form-horizontal" data-key="{{key}}" data-type="{{fieldtype}}">
         {{#ifCond fieldtype 'TextField'}}

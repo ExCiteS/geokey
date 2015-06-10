@@ -226,7 +226,7 @@ ul.type-away {
 
 .field-filter {
 	padding: 15px 5px;
-	border-top: 1px solid #e7e7e7;
+	border-bottom: 1px solid #e7e7e7;
 	font-weight: bold;
 }
 
@@ -438,10 +438,17 @@ form#permissions .message {
 	text-align: center;
 }
 
-/*.contributions {
-	line-height: 42px;
-	vertical-align: middle;
-}*/
+.category {
+	clear: both;
+	border-top: 1px solid #ddd;
+	padding-top: 15px;
+	padding-bottom: 10px;
+}
+
+.field-options {
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
 
 .number {
 	font-weight: bold;

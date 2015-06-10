@@ -1,0 +1,7 @@
+<select class="field-select form-control">
+    <option value="-1">Select filter field</option>
+    <option value="created_at">Date created</option>
+{{#each fields}}
+    <option value="{{key}}">{{name}} ({{key}})</option>
+{{/each}}
+</select>

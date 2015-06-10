@@ -1,0 +1,29 @@
+<div class="field-filter form-horizontal" data-key="{{key}}" data-type="{{fieldtype}}">
+    {{#ifCond fieldtype 'TextField'}}
+        {{> textfield}}
+    {{/ifCond}}
+    {{#ifCond fieldtype 'NumericField'}}
+        {{> numericfield}}
+    {{/ifCond}}
+    {{#ifCond fieldtype 'DateTimeField'}}
+        {{> datetimefield}}
+    {{/ifCond}}
+    {{#ifCond fieldtype 'DateField'}}
+        {{> datefield}}
+    {{/ifCond}}
+    {{#ifCond fieldtype 'TimeField'}}
+        {{> timefield}}
+    {{/ifCond}}
+    {{#ifCond fieldtype 'LookupField'}}
+        {{> lookupfield}}
+    {{/ifCond}}
+    {{#ifCond fieldtype 'MultipleLookupField'}}
+        {{> multiplelookupfield}}
+    {{/ifCond}}
+
+    <div class="form-group">
+        <div class="col-sm-8 col-sm-offset-4">
+            <a href="#" class="text-danger remove">Remove filter</a>
+        </div>
+    </div>
+</div>
