@@ -73,6 +73,10 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/delete/$',
         login_views.UserGroupDelete.as_view(),
         name='usergroup_delete'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/data/$',
+        login_views.UserGroupData.as_view(),
+        name='usergroup_data'),
 
     # ###########################
     # CATEGORIES & FIELDS

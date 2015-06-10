@@ -32,15 +32,33 @@
                             {% if group.description %}<p>{{ group.description|linebreaksbr }}</p>{% endif %}
                         </div>
                         <div class="list-group">
-                            <a href="{% url 'admin:usergroup_overview' group.project.id group.id %}" class="list-group-item active">Members</a>
+                            <a href="{% url 'admin:usergroup_overview' group.project.id group.id %}" class="list-group-item">Members</a>
                             <a href="{% url 'admin:usergroup_permissions' group.project.id group.id %}" class="list-group-item">Permissions</a>
-                            <a href="{% url 'admin:usergroup_data' group.project.id group.id %}" class="list-group-item">Data</a>
+                            <a href="{% url 'admin:usergroup_data' group.project.id group.id %}" class="list-group-item active">Data</a>
                             <a href="{% url 'admin:usergroup_settings' group.project.id group.id %}" class="list-group-item">Settings</a>
                         </div>
                     </div>
                 </div>
                 <div class="col-sm-8" id="members">
-                    {% include 'snippets/usergroup-editor.html' with users=group.users.all %}
+                    <h3 class="header">Data</h3>
+                    <form id="permissions">
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="permission" id="all" value="all" {% if not group.filter %} checked="true" {% endif %}>
+                                <strong>Members can access all data</strong>
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="permission" id="restricted" value="restricted" {% if group.filter %} checked="true" {% endif %}>
+                                <strong>Access is restricted</strong>
+                            </label>
+                        </div>
+                    </form>
+
+                    <div id="filter" {% if not group.filter %}class="hidden"{% endif %}>
+                        <h4>Select the categories that will be accessible by the usergroup</h4>
+                    </div>
                 </div>
             </div>
         </div>
@@ -51,5 +69,4 @@
             <script src="/static/js/templates.js"></script>
 
             <script src="/static/js/admin.control.ajax.js"></script>
-            <script src="/static/js/admin.ui.usergroup.users.js"></script>
 {% endblock %}

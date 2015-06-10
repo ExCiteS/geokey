@@ -1,12 +1,14 @@
 import json
 
 from django.test import TestCase, TransactionTestCase
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, resolve
 from django.test import RequestFactory
 from django.contrib.auth.models import AnonymousUser
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpRequest
 from django.db import IntegrityError
 from django.core import mail
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
 
 from nose.tools import raises
 
@@ -25,7 +27,8 @@ from ..views import (
     UserGroupSingleView, UserGroupCreate, UserGroupSettings, UserProfile,
     CreateUserMixin, UserAPIView, Dashboard, UserNotifications,
     ChangePasswordView, Index, UserGroupList, UserGroupOverview,
-    AdministratorsOverview, UserGroupPermissions, UserGroupDelete
+    AdministratorsOverview, UserGroupPermissions, UserGroupDelete,
+    UserGroupData
 )
 from ..models import User, UserGroup as Group
 
@@ -403,6 +406,68 @@ class UserGroupPermissionsTest(TestCase):
         context = view.get_context_data(project.id, group.id)
 
         self.assertEqual(context.get('group'), group)
+
+
+class UserGroupDataTest(TestCase):
+    def test_url(self):
+        self.assertEqual(
+            reverse(
+                'admin:usergroup_data',
+                kwargs={'project_id': 1, 'group_id': 1}
+            ),
+            '/admin/projects/1/usergroups/1/data/'
+        )
+
+        resolved = resolve('/admin/projects/1/usergroups/1/data/')
+        self.assertEqual(resolved.kwargs['project_id'], '1')
+        self.assertEqual(resolved.kwargs['group_id'], '1')
+        self.assertEqual(resolved.func.func_name, UserGroupData.__name__)
+
+    def test_views_with_admin(self):
+        group = UserGroupF.create()
+        request = HttpRequest()
+        request.method = 'GET'
+        request.user = group.project.creator
+        view = UserGroupData.as_view()
+        response = view(
+            request,
+            project_id=group.project.id,
+            group_id=group.id
+        ).render()
+
+        rendered = render_to_string(
+            'users/usergroup_data.html',
+            {
+                'group': group,
+                'user': group.project.creator,
+                'PLATFORM_NAME': get_current_site(request).name
+            }
+        )
+        self.assertEqual(unicode(response.content), rendered)
+
+    def test_views_with_other_user(self):
+        user = UserF.create()
+        group = UserGroupF.create()
+        request = HttpRequest()
+        request.method = 'GET'
+        request.user = user
+        view = UserGroupData.as_view()
+        response = view(
+            request,
+            project_id=group.project.id,
+            group_id=group.id
+        ).render()
+
+        rendered = render_to_string(
+            'users/usergroup_data.html',
+            {
+                'error_description': 'Project matching query does not exist.',
+                'error': 'Not found.',
+                'user': user,
+                'PLATFORM_NAME': get_current_site(request).name
+            }
+        )
+        self.assertEqual(unicode(response.content), rendered)
 
 
 class UserGroupDeleteTest(TestCase):

@@ -315,6 +315,11 @@ class UserGroupSettings(LoginRequiredMixin, UserGroupMixin, TemplateView):
         return self.render_to_response(context)
 
 
+class UserGroupData(LoginRequiredMixin, UserGroupMixin, TemplateView):
+    template_name = 'users/usergroup_data.html'
+
+
+class UserGroupPermissions(LoginRequiredMixin, UserGroupMixin, TemplateView):
     """
     Displays the user group settings page
     `/admin/projects/:project_id/usergroups/:group_id/settings/`
