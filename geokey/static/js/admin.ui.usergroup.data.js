@@ -45,6 +45,14 @@
                     var value;
                     switch (field.attr('data-type')) {
                         case 'DateCreated':
+                            if (field.find('input#created_at-min').val()) {
+                                filters[catId]['min_date'] = field.find('input#created_at-min').val();
+                            }
+                            if (field.find('input#created_at-max').val()) {
+                                filters[catId]['max_date'] = field.find('input#created_at-max').val() || null;
+                            }
+
+                            break;
                         case 'DateTimeField':
                         case 'DateField':
                         case 'TimeField':

@@ -3,6 +3,8 @@
 {% block title %} | {{group.name}}{% endblock %}
 {% block bodydata %} data-project-id="{{group.project.id}}" data-group-id="{{group.id}}"{% endblock %}
 
+{% load tags %}
+
 {% block main %}
         <div class="page-header">
             <div class="container">
@@ -43,28 +45,28 @@
                     <h3 class="header">Data</h3>
                     <form id="data-access" method="POST" action="{% url 'admin:usergroup_data' group.project.id group.id %}" novalidate>
                         {% csrf_token %}
-                        <input type="hidden" name="filters">
+                        <input type="hidden" name="filters" value="{{ group.filters }}">
 
                         <div class="radio">
                             <label>
-                                <input type="radio" name="permission" id="all" value="all" {% if not group.filter %} checked="true" {% endif %}>
+                                <input type="radio" name="permission" id="all" value="all" {% if not group.filters %} checked="true" {% endif %}>
                                 <strong>Members can access all data</strong>
                             </label>
                         </div>
                         <div class="radio">
                             <label>
-                                <input type="radio" name="permission" id="restricted" value="restricted" {% if group.filter %} checked="true" {% endif %}>
+                                <input type="radio" name="permission" id="restricted" value="restricted" {% if group.filters %} checked="true" {% endif %}>
                                 <strong>Access is restricted</strong>
                             </label>
                         </div>
 
-                        <div id="filter" {% if not group.filter %}class="hidden"{% endif %}>
+                        <div id="filter" {% if not group.filters %}class="hidden"{% endif %}>
                             <h5>Select the categories that will be accessible by the usergroup</h5>
 
                             {% for category in group.project.categories.all %}
                             <div class="category checkbox">
                                 <label>
-                                    <input type="checkbox" name="category" class="cat" value="{{ category.id }}"> {{ category.name }}
+                                    <input type="checkbox" name="category" class="cat" value="{{ category.id }}" {% if group.filters|is_in:category.id %}checked="checked"{% endif%}> {{ category.name }} {% if group.filters|is_in:category.id %}<a href="#" class="text-danger activate-detailed">Restrict further</a>{% endif%}
                                 </label>
                             </div>
                             {% endfor %}

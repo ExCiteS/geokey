@@ -40,7 +40,9 @@ class UserGroupTest(TestCase):
 
         self.assertEqual(
             UserGroup.objects.get(pk=usergroup.id).where_clause,
-            '((category_id = %s)) OR ((category_id = %s))' % (cat_1.id, cat_2.id)
+            '((category_id = %s)) OR ((category_id = %s))' % (
+                cat_2.id, cat_1.id
+            )
         )
 
     def test_contribute_and_moderate(self):

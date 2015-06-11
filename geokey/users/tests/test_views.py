@@ -460,17 +460,19 @@ class UserGroupDataTest(TestCase):
             group_id=group.id
         ).render()
 
+        ref = Group.objects.get(pk=group.id)
+
         rendered = render_to_string(
             'users/usergroup_data.html',
             {
-                'group': group,
-                'user': group.project.creator,
+                'group': ref,
+                'user': ref.project.creator,
                 'PLATFORM_NAME': get_current_site(request).name
             }
         )
         self.assertEqual(unicode(response.content), rendered)
         self.assertEqual(
-            Group.objects.get(pk=group.id).filters,
+            ref.filters,
             json.loads('{ "%s": { } }' % category.id)
         )
 
