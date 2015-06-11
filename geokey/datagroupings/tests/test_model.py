@@ -106,6 +106,7 @@ class TestViewPermissions(TestCase):
         self.assertFalse(view.can_read(user))
         self.assertFalse(view.can_moderate(user))
 
+
 class RuleTest(TestCase):
     @raises(Rule.DoesNotExist)
     def test_delete_rules(self):

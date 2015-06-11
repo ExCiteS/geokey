@@ -57,17 +57,26 @@ class UserGroup(models.Model):
     filters = JsonBField(blank=True, null=True)
     where_clause = models.TextField(blank=True, null=True)
 
+    def save(self, *args, **kwargs):
+        """
+        Overwrites save to implement integrity ensurance.
+        """
+        if self.filters:
+            queries = []
+            for key in self.filters:
+                category = self.project.categories.get(pk=key)
+                queries.append(category.get_query(self.filters[key]))
 
-@receiver(pre_save, sender=UserGroup)
-def update_application_client(sender, **kwargs):
-    """
-    Receiver function to ensure that can_contribute is set to True when the
-    user groups has moderation permissions.
-    """
-    group = kwargs.get('instance')
+            if len(queries) > 0:
+                query = ' OR '.join(queries)
+                self.where_clause = query
+            else:
+                self.where_clause = None
 
-    if group.can_moderate:
-        group.can_contribute = True
+        if self.can_moderate:
+            self.can_contribute = True
+
+        super(UserGroup, self).save(*args, **kwargs)
 
 
 class GroupingUserGroup(models.Model):
