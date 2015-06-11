@@ -20,6 +20,7 @@ from geokey.applications.tests.model_factories import ApplicationFactory
 from geokey.projects.tests.model_factories import ProjectF
 from geokey.projects.models import Admins
 from geokey.datagroupings.tests.model_factories import GroupingFactory
+from geokey.categories.tests.model_factories import CategoryFactory
 
 from .model_factories import UserF, UserGroupF, GroupingUserGroupFactory
 from ..views import (
@@ -425,10 +426,11 @@ class UserGroupDataTest(TestCase):
 
     def test_views_with_admin(self):
         group = UserGroupF.create()
+        view = UserGroupData.as_view()
+
         request = HttpRequest()
         request.method = 'GET'
         request.user = group.project.creator
-        view = UserGroupData.as_view()
         response = view(
             request,
             project_id=group.project.id,
@@ -445,13 +447,41 @@ class UserGroupDataTest(TestCase):
         )
         self.assertEqual(unicode(response.content), rendered)
 
+        category = CategoryFactory.create(**{'project': group.project})
+        request = HttpRequest()
+        request.method = 'POST'
+        request.user = group.project.creator
+        request.POST = {
+            'filters': '{ "%s": { } }' % category.id
+        }
+        response = view(
+            request,
+            project_id=group.project.id,
+            group_id=group.id
+        ).render()
+
+        rendered = render_to_string(
+            'users/usergroup_data.html',
+            {
+                'group': group,
+                'user': group.project.creator,
+                'PLATFORM_NAME': get_current_site(request).name
+            }
+        )
+        self.assertEqual(unicode(response.content), rendered)
+        self.assertEqual(
+            Group.objects.get(pk=group.id).filters,
+            json.loads('{ "%s": { } }' % category.id)
+        )
+
     def test_views_with_other_user(self):
         user = UserF.create()
         group = UserGroupF.create()
+        view = UserGroupData.as_view()
+
         request = HttpRequest()
         request.method = 'GET'
         request.user = user
-        view = UserGroupData.as_view()
         response = view(
             request,
             project_id=group.project.id,
@@ -468,6 +498,31 @@ class UserGroupDataTest(TestCase):
             }
         )
         self.assertEqual(unicode(response.content), rendered)
+
+        category = CategoryFactory.create(**{'project': group.project})
+        request = HttpRequest()
+        request.method = 'POST'
+        request.user = user
+        request.POST = {
+            'filters': '{ "%s": { } }' % category.id
+        }
+        response = view(
+            request,
+            project_id=group.project.id,
+            group_id=group.id
+        ).render()
+
+        rendered = render_to_string(
+            'users/usergroup_data.html',
+            {
+                'error_description': 'Project matching query does not exist.',
+                'error': 'Not found.',
+                'user': user,
+                'PLATFORM_NAME': get_current_site(request).name
+            }
+        )
+        self.assertEqual(unicode(response.content), rendered)
+        self.assertIsNone(Group.objects.get(pk=group.id).filters)
 
 
 class UserGroupDeleteTest(TestCase):

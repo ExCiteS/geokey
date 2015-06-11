@@ -1,3 +1,4 @@
+from json import loads as json_loads
 from django.views.generic import TemplateView, CreateView
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
@@ -317,6 +318,18 @@ class UserGroupSettings(LoginRequiredMixin, UserGroupMixin, TemplateView):
 
 class UserGroupData(LoginRequiredMixin, UserGroupMixin, TemplateView):
     template_name = 'users/usergroup_data.html'
+
+    def post(self, request, project_id, group_id):
+        context = self.get_context_data(project_id, group_id)
+        group = context.pop('group', None)
+
+        if group is not None:
+            data = request.POST
+            group.filters = json_loads(data['filters'])
+            group.save()
+            context['group'] = group
+
+        return self.render_to_response(context)
 
 
 class UserGroupPermissions(LoginRequiredMixin, UserGroupMixin, TemplateView):

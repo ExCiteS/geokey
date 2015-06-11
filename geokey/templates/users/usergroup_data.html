@@ -43,7 +43,7 @@
                     <h3 class="header">Data</h3>
                     <form id="data-access" method="POST" action="{% url 'admin:usergroup_data' group.project.id group.id %}" novalidate>
                         {% csrf_token %}
-                        <input type="hidden" name="rules">
+                        <input type="hidden" name="filters">
 
                         <div class="radio">
                             <label>
