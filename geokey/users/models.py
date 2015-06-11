@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
+from django_pgjson.fields import JsonBField
 from oauth2_provider.models import AccessToken
 
 from .manager import UserManager
@@ -53,6 +54,8 @@ class UserGroup(models.Model):
     project = models.ForeignKey('projects.Project', related_name='usergroups')
     can_contribute = models.BooleanField(default=True)
     can_moderate = models.BooleanField(default=False)
+    filters = JsonBField(blank=True, null=True)
+    where_clause = models.TextField(blank=True, null=True)
 
 
 @receiver(pre_save, sender=UserGroup)
