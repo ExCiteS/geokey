@@ -98,6 +98,58 @@ class CategoryTest(TestCase):
         Category.objects.get(pk=category.id)
         Observation.objects.get(pk=observation.id)
 
+    def test_get_query(self):
+        category = CategoryFactory.create()
+        query = category.get_query({})
+        self.assertEqual(query, '((category_id = %s))' % category.id)
+
+        category = CategoryFactory.create()
+        query = category.get_query({
+            'min_date': '2014-01-05 00:00'
+        })
+        self.assertEqual(
+            query,
+            '((category_id = %s) AND (created_at >= to_date(\'2014-'
+            '01-05 00:00\', \'YYYY-MM-DD HH24:MI\')))' % category.id
+        )
+
+        category = CategoryFactory.create()
+        query = category.get_query({
+            'max_date': '2014-01-05 00:00'
+        })
+        self.assertEqual(
+            query,
+            '((category_id = %s) AND (created_at <= to_date(\'2014-'
+            '01-05 00:00\', \'YYYY-MM-DD HH24:MI\')))' % category.id
+        )
+
+        category = CategoryFactory.create()
+        query = category.get_query({
+            'min_date': '2014-01-01 00:00',
+            'max_date': '2014-01-05 00:00'
+        })
+        self.assertEqual(
+            query,
+            '((category_id = %s) AND (created_at >= to_date(\'2014-'
+            '01-01 00:00\', \'YYYY-MM-DD HH24:MI\')) AND (created_at <= to_'
+            'date(\'2014-01-05 00:00\', \'YYYY-MM-DD HH24:MI\')))' % category.id
+        )
+
+        category = CategoryFactory.create()
+        NumericFieldFactory.create(**{'key': 'number', 'category': category})
+        query = category.get_query({
+            'min_date': '2014-01-01 00:00',
+            'max_date': '2014-01-05 00:00',
+            'number': {'minval': 20}
+        })
+        self.assertEqual(
+            query,
+            "((category_id = %s) AND (created_at >= to_date(\'2014-"
+            "01-01 00:00', 'YYYY-MM-DD HH24:MI')) AND (created_at <= to_"
+            "date('2014-01-05 00:00', 'YYYY-MM-DD HH24:MI')) AND (cast(prop"
+            "erties ->> 'number' as double precision) >= 20))" % category.id
+        )
+
 
 class FieldTest(TestCase):
     @raises(NotImplementedError)

@@ -66,6 +66,35 @@ class Category(models.Model):
         for field in fields_to_save:
             field.save()
 
+    def get_query(self, rule):
+        """
+        Returns the SQL where clause for the category. It combines the where
+        clause parts of each field in the category.
+
+        Returns
+        -------
+        str
+            SQL where clause for the rule
+        """
+        queries = ['(category_id = %s)' % self.id]
+
+        if 'min_date' in rule:
+            queries.append('(created_at >= to_date(\'' +
+                           rule['min_date'] +
+                           '\', \'YYYY-MM-DD HH24:MI\'))')
+
+        if 'max_date' in rule:
+            queries.append('(created_at <= to_date(\'' +
+                           rule['max_date'] +
+                           '\', \'YYYY-MM-DD HH24:MI\'))')
+
+        for key in rule:
+            if key not in ['min_date', 'max_date']:
+                field = self.fields.get_subclass(key=key)
+                queries.append(field.get_filter(rule[key]))
+
+        return '(%s)' % ' AND '.join(queries)
+
     def delete(self):
         """
         Deletes the category by setting its status to deleted.
