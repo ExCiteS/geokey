@@ -41,7 +41,10 @@
                 </div>
                 <div class="col-sm-8" id="members">
                     <h3 class="header">Data</h3>
-                    <form id="data-access">
+                    <form id="data-access" method="POST" action="{% url 'admin:usergroup_data' group.project.id group.id %}" novalidate>
+                        {% csrf_token %}
+                        <input type="hidden" name="rules">
+
                         <div class="radio">
                             <label>
                                 <input type="radio" name="permission" id="all" value="all" {% if not group.filter %} checked="true" {% endif %}>
@@ -54,31 +57,35 @@
                                 <strong>Access is restricted</strong>
                             </label>
                         </div>
-                    </form>
 
-                    <div id="filter" {% if not group.filter %}class="hidden"{% endif %}>
-                        <h5>Select the categories that will be accessible by the usergroup</h5>
-                        {% for category in group.project.categories.all %}
-                        <div class="category checkbox">
-                            <label>
-                                <input type="checkbox" name="category" class="cat" value="{{ category.id }}"> {{ category.name }}
-                            </label>
+                        <div id="filter" {% if not group.filter %}class="hidden"{% endif %}>
+                            <h5>Select the categories that will be accessible by the usergroup</h5>
+
+                            {% for category in group.project.categories.all %}
+                            <div class="category checkbox">
+                                <label>
+                                    <input type="checkbox" name="category" class="cat" value="{{ category.id }}"> {{ category.name }}
+                                </label>
+                            </div>
+                            {% endfor %}
+
                         </div>
-                        {% endfor %}
-                    </div>
 
-                    <button type="button" class="btn btn-primary">Save</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </form>
                 </div>
             </div>
         </div>
 {% endblock %}
 
 {% block libraries %}
+            <link rel="stylesheet" href="/static/lib/bootstrap-datetime/css/bootstrap-datetimepicker.min.css">
             <script src="/static/lib/handlebars/handlebars.js"></script>
             <script src="/static/js/templates.js"></script>
             <script src="/static/lib/moment/moment.min.js"></script>
             <script src="/static/lib/bootstrap-datetime/js/bootstrap-datetimepicker.min.js"></script>
 
-            <script src="/static/js/admin.control.ajax.js"></script>
             <script src="/static/js/admin.ui.usergroup.data.js"></script>
+            <script src="/static/js/admin.ui.forms.validate.js"></script>
+            <script src="/static/js/admin.control.ajax.js"></script>
 {% endblock %}

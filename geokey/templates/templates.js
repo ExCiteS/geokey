@@ -354,7 +354,7 @@ helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partial
   var buffer = "", stack1, self=this;
 
 
-  buffer += "<div class=\"field-filter form-horizontal\">\n    ";
+  buffer += "<div class=\"field-filter form-horizontal\" data-key=\"created_at\" data-type=\"DateCreated\">\n    ";
   stack1 = self.invokePartial(partials['created-field'], 'created-field', depth0, helpers, partials, data);
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n\n    <div class=\"form-group\">\n        <div class=\"col-sm-8 col-sm-offset-4\">\n            <a href=\"#\" class=\"text-danger remove\">Remove filter</a>\n        </div>\n    </div>\n</div>\n";
