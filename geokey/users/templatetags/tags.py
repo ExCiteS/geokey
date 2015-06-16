@@ -4,11 +4,19 @@ register = template.Library()
 
 
 @register.simple_tag
-def is_selected(value, key, d):
-    if d is not None:
-        if d.get(key) is not None:
-            if str(value) in d[key]:
-                return 'selected'
+def is_selected(value, arr):
+    if str(value) in arr:
+        return 'selected'
+    return ''
+
+
+@register.simple_tag
+def show_restrict(rules, category):
+    if rules:
+        if str(category.id) in rules:
+            if rules[str(category.id)] == {}:
+                return ('<a href="#" class="text-danger activate-detailed">'
+                        'Restrict further</a>')
 
     return ''
 
@@ -18,46 +26,41 @@ def is_in(d, key_name):
     if d is not None:
         if str(key_name) in d:
             return True
-            return 'checked="checked"'
+
     return False
-    return ''
 
 
-@register.filter(name='key')
-def key(d, key_name):
-    if d is not None:
-        if key_name in d:
-            return d[key_name]
+@register.inclusion_tag('users/data_fields_rules.html')
+def show_fields(filters, category):
+    if filters and str(category.id) in filters:
+        cat_rules = filters.get(str(category.id))
 
-    return ''
+        context = {
+            'min_date': cat_rules.pop('min_date', None),
+            'max_date': cat_rules.pop('max_date', None)
+        }
 
+        context['fields'] = [{
+                'field': category.fields.get_subclass(key=key),
+                'rule': cat_rules[key]
+            } for key in cat_rules]
 
-@register.filter(name='value')
-def value(d, key_name):
-    if d is not None:
-        if key_name in d:
-            return d[key_name]
-
-    return ''
+        return context
 
 
 @register.filter(name='minval')
-def minval(d, key_name):
+def minval(d):
     if d is not None:
-        if d.get(key_name) is not None:
-            minval = d.get(key_name).get('minval')
-            if minval is not None:
-                return minval
+        if d.get('minval'):
+            return d.get('minval')
 
     return ''
 
 
 @register.filter(name='maxval')
-def maxval(d, key_name):
+def maxval(d):
     if d is not None:
-        if d.get(key_name) is not None:
-            maxval = d.get(key_name).get('maxval')
-            if maxval is not None:
-                return maxval
+        if d.get('maxval'):
+            return d.get('maxval')
 
     return ''

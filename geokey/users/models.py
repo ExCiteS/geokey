@@ -61,7 +61,8 @@ class UserGroup(models.Model):
         """
         Overwrites save to implement integrity ensurance.
         """
-        if self.filters:
+        self.where_clause = None
+        if self.filters is not None:
             queries = []
             for key in self.filters:
                 category = self.project.categories.get(pk=key)
@@ -71,7 +72,7 @@ class UserGroup(models.Model):
                 query = ' OR '.join(queries)
                 self.where_clause = query
             else:
-                self.where_clause = None
+                self.where_clause = 'FALSE'
 
         if self.can_moderate:
             self.can_contribute = True

@@ -7,7 +7,12 @@
 
     function handlePermissionChange() {
         $('#filter').toggleClass('hidden');
-        filters = ($(this).val() === 'all' ? null : {});
+        if ($(this).val() === 'all') {
+            filters = null;
+            $('input[name="filters"]').val('');
+        } else {
+            handleEdit();
+        }
     }
 
     function getValue(field) {
@@ -49,9 +54,8 @@
                                 filters[catId]['min_date'] = field.find('input#created_at-min').val();
                             }
                             if (field.find('input#created_at-max').val()) {
-                                filters[catId]['max_date'] = field.find('input#created_at-max').val() || null;
+                                filters[catId]['max_date'] = field.find('input#created_at-max').val();
                             }
-
                             break;
                         case 'DateTimeField':
                         case 'DateField':
@@ -63,10 +67,11 @@
                             value = getValue(field);
                             break;
                     }
-                    if (value) { filters[catId][field.attr('data-key')] = value; }
+                    if (field.attr('data-type') != 'DateCreated' && value) { filters[catId][field.attr('data-key')] = value; }
                 }
             }
         }
+
         $('input[name="filters"]').val(JSON.stringify(filters));
     }
 
@@ -128,19 +133,39 @@
             filterForm.find('input[type="number"], input.datetime, input.date').change(handleRangeFieldEdit);
             filterForm.find(':input').change(handleEdit);
 
-            filterForm.find('a.remove').click(function(event) {
-                event.preventDefault();
-
-                if (field_options.siblings().length === 2) {
-                    container.find('#add-more').remove();
-                    var detailLink = $('<a href="#" class="text-danger activate-detailed">Restrict further</a>');
-                    container.children('label').append(detailLink);
-                    detailLink.click(handleActivateDetailed);
-                }
-
-                field_options.remove();
-            });
+            filterForm.find('a.remove').click(removeFilter);
         });
+    }
+
+    function removeFilter(event) {
+        event.preventDefault();
+
+        var container = $(this).parents('div.category'),
+            field_options = $(this).parents('div.field-options');
+
+        if (field_options.siblings().length === 2) {
+            container.find('#add-more').remove();
+            var detailLink = $('<a href="#" class="text-danger activate-detailed">Restrict further</a>');
+            container.children('label').append(detailLink);
+            detailLink.click(handleActivateDetailed);
+        }
+
+        field_options.remove();
+        handleEdit();
+    }
+
+    function handleAddMore(event) {
+        event.preventDefault();
+        var container = $(this).parent();
+
+        function handleTypeSuccess(response) {
+            addFilter(container, response);
+        }
+
+        Control.Ajax.get(
+            'projects/' + projectId + '/categories/' + container.find('input.cat').val(),
+            handleTypeSuccess
+        );
     }
 
     function handleActivateDetailed(event) {
@@ -165,6 +190,15 @@
     }
 
     $('form#data-access input[name="permission"]').change(handlePermissionChange);
-    $('form#data-access input[name="permission"]').change(handleEdit);
     $('div.category input.cat').change(handleCategorySelect);
+    $('a.activate-detailed').click(handleActivateDetailed);
+    $('button#add-more').click(handleAddMore);
+
+    $('input.datetime').datetimepicker();
+    $('input.date').datetimepicker({ pickTime: false });
+    $('input.time').datetimepicker({ pickDate: false });
+    $('input[type="number"], input.datetime, input.date').change(handleRangeFieldEdit);
+    $('#filter :input').change(handleEdit);
+
+    $('a.remove').click(removeFilter);
 }());

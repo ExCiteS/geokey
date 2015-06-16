@@ -45,7 +45,7 @@
                     <h3 class="header">Data</h3>
                     <form id="data-access" method="POST" action="{% url 'admin:usergroup_data' group.project.id group.id %}" novalidate>
                         {% csrf_token %}
-                        <input type="hidden" name="filters" value="{{ group.filters }}">
+                        <input type="hidden" name="filters" value="-1">
 
                         <div class="radio">
                             <label>
@@ -66,8 +66,11 @@
                             {% for category in group.project.categories.all %}
                             <div class="category checkbox">
                                 <label>
-                                    <input type="checkbox" name="category" class="cat" value="{{ category.id }}" {% if group.filters|is_in:category.id %}checked="checked"{% endif%}> {{ category.name }} {% if group.filters|is_in:category.id %}<a href="#" class="text-danger activate-detailed">Restrict further</a>{% endif%}
+                                    <input type="checkbox" name="category" class="cat" value="{{ category.id }}" {% if group.filters|is_in:category.id %}checked="checked"{% endif%}> {{ category.name }} {% show_restrict group.filters category %}
                                 </label>
+                                {% if group.filters|is_in:category.id %}
+                                        {% show_fields group.filters category %}
+                                {% endif%}
                             </div>
                             {% endfor %}
 

@@ -325,7 +325,12 @@ class UserGroupData(LoginRequiredMixin, UserGroupMixin, TemplateView):
 
         if group is not None:
             data = request.POST
-            group.filters = json_loads(data['filters'])
+
+            if data['filters'] != '-1':
+                if data['permission'] == 'all':
+                    group.filters = None
+                else:
+                    group.filters = json_loads(data['filters'])
             group.save()
             context['group'] = group
 

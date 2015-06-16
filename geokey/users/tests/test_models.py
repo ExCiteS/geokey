@@ -38,12 +38,23 @@ class UserGroupTest(TestCase):
         }
         usergroup.save()
 
-        self.assertEqual(
+        self.assertIn(
             UserGroup.objects.get(pk=usergroup.id).where_clause,
-            '((category_id = %s)) OR ((category_id = %s))' % (
-                cat_2.id, cat_1.id
-            )
+            [
+                '((category_id = %s)) OR ((category_id = %s))' % (
+                    cat_2.id, cat_1.id
+                ),
+                '((category_id = %s)) OR ((category_id = %s))' % (
+                    cat_1.id, cat_2.id
+                )
+            ]
         )
+
+        usergroup.filters = {}
+        usergroup.save()
+
+        self.assertEqual(UserGroup.objects.get(pk=usergroup.id).where_clause, 'FALSE')
+
 
     def test_contribute_and_moderate(self):
         usergroup = UserGroupF.create()

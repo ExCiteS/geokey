@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from geokey.projects.tests.model_factories import ProjectF
+from geokey.categories.tests.model_factories import CategoryFactory
 from geokey.datagroupings.tests.model_factories import GroupingFactory
 from .model_factories import UserGroupF, GroupingUserGroupFactory
 
@@ -9,13 +10,23 @@ from ..templatetags import tags
 
 
 class TemplateTagsTest(TestCase):
-    def test_is_selected(self):
-        dict = {
-            'name': ["1", "2", "3"]
-        }
+    def test_show_restrict(self):
+        category = CategoryFactory.create()
+        self.assertEqual(
+            tags.show_restrict({str(category.id): {}}, category),
+            '<a href="#" class="text-danger activate-detailed">'
+            'Restrict further</a>'
+        )
+        self.assertEqual(
+            tags.show_restrict({'2': {}}, category),
+            ''
+        )
 
-        self.assertEqual(tags.is_selected(1, 'name', dict), 'selected')
-        self.assertEqual(tags.is_selected(4, 'name', dict), '')
+    def test_is_selected(self):
+        dict = ["1", "2", "3"]
+
+        self.assertEqual(tags.is_selected(1, dict), 'selected')
+        self.assertEqual(tags.is_selected(4, dict), '')
 
     def test_is_in(self):
         dict = {
@@ -26,33 +37,13 @@ class TemplateTagsTest(TestCase):
         self.assertTrue(tags.is_in(dict, 1))
         self.assertFalse(tags.is_in(dict, 4))
 
-    def test_key(self):
-        dict = {
-            'name': 'Oliver'
-        }
-        self.assertEqual(tags.key(dict, 'name'), 'Oliver')
-        self.assertEqual(tags.key(dict, 'blah'), '')
-
-    def test_value(self):
-        dict = {
-            'name': 'Oliver'
-        }
-        self.assertEqual(tags.value(dict, 'name'), 'Oliver')
-        self.assertEqual(tags.value(dict, 'blah'), '')
-
     def test_minval(self):
-        dict = {
-            'field': {"minval": 5}
-        }
-        self.assertEqual(tags.minval(dict, 'field'), 5)
-        self.assertEqual(tags.minval(dict, 'blah'), '')
+        self.assertEqual(tags.minval({'minval': 5}), 5)
+        self.assertEqual(tags.minval({}), '')
 
     def test_maxval(self):
-        dict = {
-            'field': {"maxval": 5}
-        }
-        self.assertEqual(tags.maxval(dict, 'field'), 5)
-        self.assertEqual(tags.maxval(dict, 'blah'), '')
+        self.assertEqual(tags.maxval({'maxval': 5}), 5)
+        self.assertEqual(tags.maxval({}), '')
 
     def test_get_viewgroup(self):
         project = ProjectF.create()

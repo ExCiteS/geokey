@@ -447,11 +447,35 @@ class UserGroupDataTest(TestCase):
         )
         self.assertEqual(unicode(response.content), rendered)
 
+        request = HttpRequest()
+        request.method = 'POST'
+        request.user = group.project.creator
+        request.POST = {'permission': 'all', 'filters': ''}
+        response = view(
+            request,
+            project_id=group.project.id,
+            group_id=group.id
+        ).render()
+
+        ref = Group.objects.get(pk=group.id)
+
+        rendered = render_to_string(
+            'users/usergroup_data.html',
+            {
+                'group': ref,
+                'user': ref.project.creator,
+                'PLATFORM_NAME': get_current_site(request).name
+            }
+        )
+        self.assertEqual(unicode(response.content), rendered)
+        self.assertIsNone(ref.filters)
+
         category = CategoryFactory.create(**{'project': group.project})
         request = HttpRequest()
         request.method = 'POST'
         request.user = group.project.creator
         request.POST = {
+            'permission': 'restricted',
             'filters': '{ "%s": { } }' % category.id
         }
         response = view(
@@ -506,6 +530,7 @@ class UserGroupDataTest(TestCase):
         request.method = 'POST'
         request.user = user
         request.POST = {
+            'permission': 'restricted',
             'filters': '{ "%s": { } }' % category.id
         }
         response = view(
