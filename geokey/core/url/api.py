@@ -51,22 +51,6 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/data-groupings/all-contributions/contributions/(?P<observation_id>[0-9]+)/$',
         observations.SingleAllContributionAPIView.as_view(),
         name='project_single_observation'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/my-contributions/$',
-        observations.MyObservations.as_view(),
-        name='project_my_observations'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/my-contributions/contributions/(?P<observation_id>[0-9]+)/$',
-        observations.SingleMyContributionAPIView.as_view(),
-        name='project_my_single_observation'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/$',
-        observations.ViewObservations.as_view(),
-        name='single_view'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/$',
-        observations.SingleGroupingContributionAPIView.as_view(),
-        name='view_single_observation'),
 
     # ###########################
     # LOCATIONS
@@ -92,22 +76,6 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/data-groupings/all-contributions/contributions/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
         comments.AllContributionsSingleCommentAPIView.as_view(),
         name='project_single_comment'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/comments/$',
-        comments.GroupingContributionsCommentsAPIView.as_view(),
-        name='view_comments'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
-        comments.GroupingContributionsSingleCommentAPIView.as_view(),
-        name='view_single_comment'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/my-contributions/contributions/(?P<observation_id>[0-9]+)/comments/$',
-        comments.MyContributionsCommentsAPIView.as_view(),
-        name='myobservations_comments'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/my-contributions/contributions/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
-        comments.MyContributionsSingleCommentAPIView.as_view(),
-        name='myobservations_single_comment'),
 
     # ###########################
     # MEDIA
@@ -121,22 +89,6 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/data-groupings/all-contributions/contributions/(?P<contribution_id>[0-9]+)/media/(?P<file_id>[0-9]+)/$',
         media.AllContributionsSingleMediaApiView.as_view(),
         name='project_single_media'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/my-contributions/contributions/(?P<contribution_id>[0-9]+)/media/$',
-        media.MyContributionsMediaApiView.as_view(),
-        name='mycontributions_media'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/my-contributions/contributions/(?P<contribution_id>[0-9]+)/media/(?P<file_id>[0-9]+)/$',
-        media.MyContributionsSingleMediaApiView.as_view(),
-        name='mycontributions_single_media'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/contributions/(?P<contribution_id>[0-9]+)/media/$',
-        media.GroupingContributionsMediaApiView.as_view(),
-        name='grouping_media'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/contributions/(?P<contribution_id>[0-9]+)/media/(?P<file_id>[0-9]+)/$',
-        media.GroupingContributionsSingleMediaApiView.as_view(),
-        name='grouping_single_media'),
 
     # ###########################
     # CATEGORIES

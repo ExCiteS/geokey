@@ -2,7 +2,7 @@ import factory
 
 from django.utils import timezone
 
-from ..models import User, UserGroup, GroupingUserGroup
+from ..models import User, UserGroup
 
 
 class UserF(factory.django.DjangoModelFactory):
@@ -49,15 +49,3 @@ class UserGroupF(factory.django.DjangoModelFactory):
         if extracted:
             for user in extracted:
                 self.users.add(user)
-
-
-class GroupingUserGroupFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = GroupingUserGroup
-
-    usergroup = factory.SubFactory(UserGroupF)
-    grouping = factory.SubFactory(
-        'datagroupings.tests.model_factories.GroupingFactory'
-    )
-    can_read = True
-    can_view = True

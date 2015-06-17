@@ -14,8 +14,6 @@ from .model_factories import (
     MultipleLookupValueFactory, DateFieldFactory
 )
 
-from geokey.datagroupings.models import Rule
-from geokey.datagroupings.tests.model_factories import GroupingFactory, RuleFactory
 from geokey.contributions.tests.model_factories import ObservationFactory
 from geokey.contributions.models import Observation
 
@@ -71,21 +69,6 @@ class CategoryTest(TestCase):
         category = CategoryFactory.create()
         category.delete()
         Category.objects.get(pk=category.id)
-
-    @raises(Category.DoesNotExist, Rule.DoesNotExist)
-    def test_delete_with_grouping(self):
-        category = CategoryFactory.create()
-
-        grouping = GroupingFactory.create()
-        rule = RuleFactory(**{
-            'grouping': grouping,
-            'status': 'active',
-            'category': category
-        })
-        category.delete()
-
-        Category.objects.get(pk=category.id)
-        Rule.objects.get(pk=rule.id)
 
     @raises(Category.DoesNotExist, Observation.DoesNotExist)
     def test_delete_with_observation(self):
@@ -197,45 +180,6 @@ class FieldTest(TestCase):
         f.delete()
 
         Field.objects.get(pk=f.id)
-
-    def test_delete_with_rule(self):
-        category = CategoryFactory()
-        Field.create(
-            'n', 'n', 'n', False, category, 'TextField'
-        )
-        field = Field.create(
-            'name', 'key', 'description', False, category, 'TextField'
-        )
-        grouping = GroupingFactory.create()
-        rule = RuleFactory(**{
-            'grouping': grouping,
-            'status': 'active',
-            'category': category,
-            'constraints': {
-                field.key: 'Blah',
-                'other-key': 'blubb'
-            }
-        })
-        field.delete()
-        reference_rule = Rule.objects.get(pk=rule.id)
-        self.assertEquals(reference_rule.constraints.get('key'), None)
-
-    def test_delete_with_rule_without_constraints(self):
-        category = CategoryFactory()
-        Field.create(
-            'n', 'n', 'n', False, category, 'TextField'
-        )
-        field = Field.create(
-            'name', 'key', 'description', False, category, 'TextField'
-        )
-        grouping = GroupingFactory.create()
-        rule = RuleFactory(**{
-            'grouping': grouping,
-            'status': 'active',
-            'category': category,
-            'constraints': None
-        })
-        field.delete()
 
 
 class TextFieldTest(TestCase):

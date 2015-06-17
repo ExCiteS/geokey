@@ -9,7 +9,6 @@ from django.db import models
 from django.db.models.loading import get_model
 
 from geokey.core.exceptions import InputError
-from geokey.datagroupings.models import Rule
 
 from .manager import CategoryManager, FieldManager, LookupValueManager
 from .base import STATUS, DEFAULT_STATUS
@@ -101,12 +100,10 @@ class Category(models.Model):
 
         Notes
         -----
-        It also deletes all contributions of that category and the rules for
-        any data grouping of that category.
+        It also deletes all contributions of that category.
         """
         from geokey.contributions.models import Observation
         Observation.objects.filter(category=self).delete()
-        Rule.objects.filter(category=self).delete()
         self.status = STATUS.deleted
         self.save()
 
@@ -282,12 +279,6 @@ class Field(models.Model):
         -----
         Also deletes all references to the Field in Rules.
         """
-        rules = Rule.objects.filter(category=self.category)
-
-        for rule in rules:
-            if rule.constraints:
-                rule.constraints.pop(self.key, None)
-                rule.save()
 
         super(Field, self).delete()
 

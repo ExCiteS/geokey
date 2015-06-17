@@ -13,32 +13,7 @@ from .model_factories import (
 )
 
 
-class ObservationTypeManagerTest(TestCase):
-    def test_create(self):
-        project = ProjectF.create()
-        Category.objects.create(
-            name='Test',
-            project=project,
-            creator=project.creator,
-            create_grouping=False
-        )
-
-        views = project.groupings.all()
-        self.assertEqual(len(views), 0)
-
-    def test_create_with_view(self):
-        project = ProjectF.create()
-        category = Category.objects.create(
-            name='Test',
-            project=project,
-            creator=project.creator,
-            create_grouping=True
-        )
-
-        views = project.groupings.all()
-        self.assertEqual(len(views), 1)
-        self.assertEqual(views[0].name, category.name)
-
+class CategoryManagerTest(TestCase):
     def test_access_with_projct_admin(self):
         admin = UserF.create()
 

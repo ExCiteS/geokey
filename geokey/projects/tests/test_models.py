@@ -4,11 +4,8 @@ from django.core import mail
 
 from nose.tools import raises
 
-from geokey.datagroupings.tests.model_factories import GroupingFactory
 from geokey.categories.tests.model_factories import CategoryFactory
-from geokey.users.tests.model_factories import (
-    UserF, UserGroupF, GroupingUserGroupFactory
-)
+from geokey.users.tests.model_factories import UserF, UserGroupF
 from geokey.categories.models import Category
 
 from .model_factories import ProjectF
@@ -52,8 +49,7 @@ class ProjectTest(TestCase):
         project = ProjectF.create(
             add_admins=[admin],
             add_moderators=[moderator],
-            add_contributors=[contributor],
-            add_viewers=[other]
+            add_contributors=[contributor]
         )
 
         self.assertEqual('administrator', project.get_role(admin))
@@ -123,10 +119,6 @@ class PrivateProjectTest(TestCase):
             'isprivate': True,
             'everyone_contributes': 'false'
         })
-
-        self.view = GroupingFactory(
-            **{'project': self.project, 'isprivate': True}
-        )
         self.moderators_view = UserGroupF(
             add_users=[self.moderator_view],
             **{
@@ -146,13 +138,6 @@ class PrivateProjectTest(TestCase):
                 'can_contribute': False,
                 'can_moderate': False
             })
-
-        GroupingUserGroupFactory.create(
-            **{'grouping': self.view, 'usergroup': self.moderators_view})
-        GroupingUserGroupFactory.create(
-            **{'grouping': self.view, 'usergroup': self.contributors_view})
-        GroupingUserGroupFactory.create(
-            **{'grouping': self.view, 'usergroup': self.viewers_view})
 
         self.moderators = UserGroupF(
             add_users=[self.moderator],
@@ -198,7 +183,7 @@ class PrivateProjectTest(TestCase):
         self.assertTrue(self.project.can_access(self.contributor_view))
         self.assertTrue(self.project.can_access(self.contributor))
 
-        self.assertTrue(self.project.can_access(self.viewer_view))
+        self.assertFalse(self.project.can_access(self.viewer_view))
         self.assertFalse(self.project.can_access(self.viewer))
 
         self.assertFalse(self.project.can_access(self.some_dude))
@@ -207,147 +192,6 @@ class PrivateProjectTest(TestCase):
     def can_contribute(self):
         self.assertTrue(self.project.can_contribute(
             self.project.creator))
-
-        self.assertTrue(self.project.can_contribute(self.moderator_view))
-        self.assertTrue(self.project.can_contribute(self.moderator))
-
-        self.assertTrue(self.project.can_contribute(self.contributor_view))
-        self.assertTrue(self.project.can_contribute(self.contributor))
-
-        self.assertFalse(self.project.can_contribute(self.viewer_view))
-        self.assertFalse(self.project.can_contribute(self.viewer))
-
-        self.assertFalse(self.project.can_contribute(self.some_dude))
-        self.assertFalse(self.project.can_contribute(AnonymousUser()))
-
-    def can_moderate(self):
-        self.assertTrue(self.project.can_moderate(self.project.creator))
-
-        self.assertTrue(self.project.can_moderate(self.moderator_view))
-        self.assertTrue(self.project.can_moderate(self.moderator))
-
-        self.assertFalse(self.project.can_moderate(self.contributor_view))
-        self.assertFalse(self.project.can_moderate(self.contributor))
-
-        self.assertFalse(self.project.can_moderate(self.viewer_view))
-        self.assertFalse(self.project.can_moderate(self.viewer))
-
-        self.assertFalse(self.project.can_moderate(self.some_dude))
-        self.assertFalse(self.project.can_moderate(AnonymousUser()))
-
-    def is_involved(self):
-        self.assertTrue(self.project.is_involved(self.project.creator))
-
-        self.assertTrue(self.project.is_involved(self.moderator_view))
-        self.assertTrue(self.project.is_involved(self.moderator))
-
-        self.assertTrue(self.project.is_involved(self.contributor_view))
-        self.assertTrue(self.project.is_involved(self.contributor))
-
-        self.assertTrue(self.project.is_involved(self.viewer_view))
-        self.assertTrue(self.project.is_involved(self.viewer))
-
-        self.assertFalse(self.project.is_involved(self.some_dude))
-        self.assertFalse(self.project.is_involved(AnonymousUser()))
-
-
-class PrivateProjectTest_PublicView(TestCase):
-    def setUp(self):
-        self.moderator_view = UserF.create()
-        self.moderator = UserF.create()
-        self.contributor_view = UserF.create()
-        self.contributor = UserF.create()
-        self.viewer_view = UserF.create()
-        self.viewer = UserF.create()
-        self.some_dude = UserF.create()
-
-        self.project = ProjectF.create(**{
-            'isprivate': True,
-            'everyone_contributes': 'false'
-        })
-
-        self.view = GroupingFactory(
-            **{'project': self.project, 'isprivate': False}
-        )
-        self.moderators_view = UserGroupF(
-            add_users=[self.moderator_view],
-            **{
-                'project': self.project,
-                'can_moderate': True
-            })
-        self.contributors_view = UserGroupF(
-            add_users=[self.contributor_view],
-            **{
-                'project': self.project,
-                'can_contribute': True
-            })
-        self.viewers_view = UserGroupF(
-            add_users=[self.viewer_view],
-            **{
-                'project': self.project,
-                'can_contribute': False,
-                'can_moderate': False
-            })
-
-        GroupingUserGroupFactory.create(
-            **{'grouping': self.view, 'usergroup': self.moderators_view})
-        GroupingUserGroupFactory.create(
-            **{'grouping': self.view, 'usergroup': self.contributors_view})
-        GroupingUserGroupFactory.create(
-            **{'grouping': self.view, 'usergroup': self.viewers_view})
-
-        self.moderators = UserGroupF(
-            add_users=[self.moderator],
-            **{
-                'project': self.project,
-                'can_moderate': True
-            })
-        self.contributors = UserGroupF(
-            add_users=[self.contributor],
-            **{
-                'project': self.project,
-                'can_contribute': True
-            })
-        self.viewers = UserGroupF(
-            add_users=[self.viewer],
-            **{
-                'project': self.project,
-                'can_contribute': False,
-                'can_moderate': False
-            })
-
-    def test_is_admin(self):
-        self.assertTrue(self.project.is_admin(self.project.creator))
-
-        self.assertFalse(self.project.is_admin(self.moderator_view))
-        self.assertFalse(self.project.is_admin(self.moderator))
-
-        self.assertFalse(self.project.is_admin(self.contributor_view))
-        self.assertFalse(self.project.is_admin(self.contributor))
-
-        self.assertFalse(self.project.is_admin(self.viewer_view))
-        self.assertFalse(self.project.is_admin(self.viewer))
-
-        self.assertFalse(self.project.is_admin(self.some_dude))
-        self.assertFalse(self.project.is_admin(AnonymousUser()))
-
-    def test_can_access(self):
-        self.assertTrue(self.project.can_access(self.project.creator))
-
-        self.assertTrue(self.project.can_access(self.moderator_view))
-        self.assertTrue(self.project.can_access(self.moderator))
-
-        self.assertTrue(self.project.can_access(self.contributor_view))
-        self.assertTrue(self.project.can_access(self.contributor))
-
-        self.assertTrue(self.project.can_access(self.viewer_view))
-        self.assertFalse(self.project.can_access(self.viewer))
-
-        self.assertFalse(self.project.can_access(self.some_dude))
-        self.assertFalse(self.project.can_access(AnonymousUser()))
-
-    def can_contribute(self):
-        self.assertTrue(self.project.can_contribute(self.project.creator))
 
         self.assertTrue(self.project.can_contribute(self.moderator_view))
         self.assertTrue(self.project.can_contribute(self.moderator))
@@ -426,9 +270,6 @@ class PublicProjectTest(TestCase):
             'everyone_contributes': 'false'
         })
 
-        self.view = GroupingFactory(
-            **{'project': self.project, 'isprivate': True}
-        )
         self.moderators_view = UserGroupF(
             add_users=[self.moderator_view],
             **{
@@ -448,154 +289,6 @@ class PublicProjectTest(TestCase):
                 'can_contribute': False,
                 'can_moderate': False
             })
-
-        GroupingUserGroupFactory.create(
-            **{'grouping': self.view, 'usergroup': self.moderators_view})
-        GroupingUserGroupFactory.create(
-            **{'grouping': self.view, 'usergroup': self.contributors_view})
-        GroupingUserGroupFactory.create(
-            **{'grouping': self.view, 'usergroup': self.viewers_view})
-
-        self.moderators = UserGroupF(
-            add_users=[self.moderator],
-            **{
-                'project': self.project,
-                'can_moderate': True
-            })
-        self.contributors = UserGroupF(
-            add_users=[self.contributor],
-            **{
-                'project': self.project,
-                'can_contribute': True
-            })
-        self.viewers = UserGroupF(
-            add_users=[self.viewer],
-            **{
-                'project': self.project,
-                'can_contribute': False,
-                'can_moderate': False
-            })
-
-    def test_is_admin(self):
-        self.assertTrue(self.project.is_admin(self.project.creator))
-
-        self.assertFalse(self.project.is_admin(self.moderator_view))
-        self.assertFalse(self.project.is_admin(self.moderator))
-
-        self.assertFalse(self.project.is_admin(self.contributor_view))
-        self.assertFalse(self.project.is_admin(self.contributor))
-
-        self.assertFalse(self.project.is_admin(self.viewer_view))
-        self.assertFalse(self.project.is_admin(self.viewer))
-
-        self.assertFalse(self.project.is_admin(self.some_dude))
-        self.assertFalse(self.project.is_admin(AnonymousUser()))
-
-    def test_can_access(self):
-        self.assertTrue(self.project.can_access(self.project.creator))
-
-        self.assertTrue(self.project.can_access(self.moderator_view))
-        self.assertTrue(self.project.can_access(self.moderator))
-
-        self.assertTrue(self.project.can_access(self.contributor_view))
-        self.assertTrue(self.project.can_access(self.contributor))
-
-        self.assertTrue(self.project.can_access(self.viewer_view))
-        self.assertFalse(self.project.can_access(self.viewer))
-
-        self.assertFalse(self.project.can_access(self.some_dude))
-        self.assertFalse(self.project.can_access(AnonymousUser()))
-
-    def can_contribute(self):
-        self.assertTrue(self.project.can_contribute(self.project.creator))
-
-        self.assertTrue(self.project.can_contribute(self.moderator_view))
-        self.assertTrue(self.project.can_contribute(self.moderator))
-
-        self.assertTrue(self.project.can_contribute(self.contributor_view))
-        self.assertTrue(self.project.can_contribute(self.contributor))
-
-        self.assertFalse(self.project.can_contribute(self.viewer_view))
-        self.assertFalse(self.project.can_contribute(self.viewer))
-
-        self.assertFalse(self.project.can_contribute(self.some_dude))
-        self.assertFalse(self.project.can_contribute(AnonymousUser()))
-
-    def can_moderate(self):
-        self.assertTrue(self.project.can_moderate(self.project.creator))
-
-        self.assertTrue(self.project.can_moderate(self.moderator_view))
-        self.assertTrue(self.project.can_moderate(self.moderator))
-
-        self.assertFalse(self.project.can_moderate(self.contributor_view))
-        self.assertFalse(self.project.can_moderate(self.contributor))
-
-        self.assertFalse(self.project.can_moderate(self.viewer_view))
-        self.assertFalse(self.project.can_moderate(self.viewer))
-
-        self.assertFalse(self.project.can_moderate(self.some_dude))
-        self.assertFalse(self.project.can_moderate(AnonymousUser()))
-
-    def is_involved(self):
-        self.assertTrue(self.project.is_involved(self.project.creator))
-
-        self.assertTrue(self.project.is_involved(self.moderator_view))
-        self.assertTrue(self.project.is_involved(self.moderator))
-
-        self.assertTrue(self.project.is_involved(self.contributor_view))
-        self.assertTrue(self.project.is_involved(self.contributor))
-
-        self.assertTrue(self.project.is_involved(self.viewer_view))
-        self.assertTrue(self.project.is_involved(self.viewer))
-
-        self.assertFalse(self.project.is_involved(self.some_dude))
-        self.assertFalse(self.project.is_involved(AnonymousUser()))
-
-
-class PublicProjectTest_PublicView(TestCase):
-    def setUp(self):
-        self.moderator_view = UserF.create()
-        self.moderator = UserF.create()
-        self.contributor_view = UserF.create()
-        self.contributor = UserF.create()
-        self.viewer_view = UserF.create()
-        self.viewer = UserF.create()
-        self.some_dude = UserF.create()
-
-        self.project = ProjectF.create(**{
-            'isprivate': False,
-            'everyone_contributes': 'false'
-        })
-
-        self.view = GroupingFactory(
-            **{'project': self.project, 'isprivate': False}
-        )
-        self.moderators_view = UserGroupF(
-            add_users=[self.moderator_view],
-            **{
-                'project': self.project,
-                'can_moderate': True
-            })
-        self.contributors_view = UserGroupF(
-            add_users=[self.contributor_view],
-            **{
-                'project': self.project,
-                'can_contribute': True
-            })
-        self.viewers_view = UserGroupF(
-            add_users=[self.viewer_view],
-            **{
-                'project': self.project,
-                'can_contribute': False,
-                'can_moderate': False
-            })
-
-        GroupingUserGroupFactory.create(
-            **{'grouping': self.view, 'usergroup': self.moderators_view})
-        GroupingUserGroupFactory.create(
-            **{'grouping': self.view, 'usergroup': self.contributors_view})
-        GroupingUserGroupFactory.create(
-            **{'grouping': self.view, 'usergroup': self.viewers_view})
 
         self.moderators = UserGroupF(
             add_users=[self.moderator],

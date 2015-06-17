@@ -20,12 +20,9 @@ from geokey.core.decorators import (
 )
 from geokey.projects.models import Project, Admins
 from geokey.projects.base import STATUS
-from geokey.datagroupings.models import Grouping
 
-from .serializers import (
-    UserSerializer, UserGroupSerializer, GroupingUserGroupSerializer
-)
-from .models import User, GroupingUserGroup
+from .models import User
+from .serializers import (UserSerializer, UserGroupSerializer)
 from .forms import (
     UsergroupCreateForm,
     CustomPasswordChangeForm,
@@ -625,146 +622,6 @@ class UserGroupSingleUser(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class UserGroupViews(APIView):
-    """
-    AJAX API endpoint for data groupings assigned to the user group
-    `/ajax/project/:project_id/usergroups/:group_id/views/`
-    """
-    @handle_exceptions_for_ajax
-    def post(self, request, project_id, group_id):
-        """
-        Assigns a new data grouping to the user group
-
-        Parameter
-        ---------
-        request : rest_framework.request.Request
-            Represents the HTTP request
-        project_id : int
-            identifies the project in the database
-        group_id : int
-            identifies the group in the database
-
-        Returns
-        -------
-        rest_framework.response.Response
-            Contains the serialised user group - data grouping relation or
-            an error message
-        """
-        project = Project.objects.as_admin(request.user, project_id)
-        group = project.usergroups.get(pk=group_id)
-
-        try:
-            grouping = project.groupings.get(pk=request.DATA.get('grouping'))
-            view_group = GroupingUserGroup.objects.create(
-                grouping=grouping,
-                usergroup=group
-            )
-            serializer = GroupingUserGroupSerializer(
-                view_group, data=request.DATA, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(
-                    serializer.data, status=status.HTTP_201_CREATED)
-
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Grouping.DoesNotExist:
-            return Response(
-                'The data grouping you are trying to add to the user group is'
-                'not assigned to this project.',
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-
-class UserGroupSingleView(APIView):
-    """
-    AJAX API endpoint for data groupings assigned to the user group
-    `/ajax/project/:project_id/usergroups/:group_id/views/:grouping_id/`
-    """
-    def get_object(self, user, project_id, group_id, grouping_id):
-        """
-        Returns the data grouping
-
-        Parameter
-        ---------
-        user : geokey.users.models.User
-            User who was authenticated with the  request
-        project_id : int
-            identifies the project in the database
-        group_id : int
-            identifies the group in the database
-        grouping_id : id
-            identifies the data grouping in the database
-
-        Returns
-        -------
-        geokey.users.models.GroupingUserGroup
-        """
-        project = Project.objects.as_admin(user, project_id)
-        group = project.usergroups.get(pk=group_id)
-        return group.viewgroups.get(grouping_id=grouping_id)
-
-    @handle_exceptions_for_ajax
-    def put(self, request, project_id, group_id, grouping_id):
-        """
-        Updates the relation between user group and view, e.g. granting
-        permissions on the view to the user group members.
-
-        Parameter
-        ---------
-        request : rest_framework.request.Request
-            Represents the HTTP request
-        project_id : int
-            identifies the project in the database
-        group_id : int
-            identifies the group in the database
-        grouping_id : id
-            identifies the data grouping in the database
-
-        Returns
-        -------
-        rest_framework.response.Response
-            Contains the serialised user group - data grouping relation or
-            an error message
-        """
-        view_group = self.get_object(
-            request.user, project_id, group_id, grouping_id)
-
-        serializer = GroupingUserGroupSerializer(
-            view_group, data=request.DATA, partial=True
-        )
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @handle_exceptions_for_ajax
-    def delete(self, request, project_id, group_id, grouping_id):
-        """
-        Removes the relation between usergroup and view.
-
-        Parameter
-        ---------
-        request : rest_framework.request.Request
-            Represents the HTTP request
-        project_id : int
-            identifies the project in the database
-        group_id : int
-            identifies the group in the database
-        grouping_id : id
-            identifies the data grouping in the database
-
-        Returns
-        -------
-        rest_framework.response.Response
-            Empty response indicating success or an error message
-        """
-        view_group = self.get_object(
-            request.user, project_id, group_id, grouping_id)
-        view_group.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
 # ############################################################################
 #
 # PUBLIC API VIEWS
@@ -815,7 +672,8 @@ class UserAPIView(CreateUserMixin, APIView):
         Response
         --------
         rest_framework.response.Response
-            Containing the user info or an error message if no user is signed in
+            Containing the user info or an error message if no user is signed
+            in
         """
         user = request.user
         if not user.is_anonymous():

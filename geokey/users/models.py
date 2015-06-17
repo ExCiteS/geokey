@@ -80,17 +80,17 @@ class UserGroup(models.Model):
         super(UserGroup, self).save(*args, **kwargs)
 
 
-class GroupingUserGroup(models.Model):
-    """
-    The relation between user groups and views. Used to grant permissions on
-    the given view to users.
-    """
-    usergroup = models.ForeignKey('UserGroup', related_name='viewgroups')
-    grouping = models.ForeignKey(
-        'datagroupings.Grouping',
-        related_name='usergroups'
-    )
-    can_read = models.BooleanField(default=True)
-    can_view = models.BooleanField(default=True)
-
-    unique_together = ('usergroup', 'grouping')
+# class GroupingUserGroup(models.Model):
+#     """
+#     The relation between user groups and views. Used to grant permissions on
+#     the given view to users.
+#     """
+#     usergroup = models.ForeignKey('UserGroup', related_name='viewgroups')
+#     grouping = models.ForeignKey(
+#         'datagroupings.Grouping',
+#         related_name='usergroups'
+#     )
+#     can_read = models.BooleanField(default=True)
+#     can_view = models.BooleanField(default=True)
+#
+#     unique_together = ('usergroup', 'grouping')

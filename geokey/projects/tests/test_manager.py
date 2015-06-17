@@ -2,10 +2,7 @@ from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import PermissionDenied
 
-from geokey.datagroupings.tests.model_factories import GroupingFactory
-from geokey.users.tests.model_factories import (
-    UserF, UserGroupF, GroupingUserGroupFactory
-)
+from geokey.users.tests.model_factories import UserF, UserGroupF
 
 from .model_factories import ProjectF
 from ..models import Project
@@ -18,7 +15,6 @@ class ProjectListTest(TestCase):
         self.moderator = UserF.create()
         self.contributor_view = UserF.create()
         self.contributor = UserF.create()
-        self.viewer_view = UserF.create()
         self.viewer = UserF.create()
         self.some_dude = UserF.create()
 
@@ -30,9 +26,6 @@ class ProjectListTest(TestCase):
                 'everyone_contributes': 'false'
             })
 
-        self.private_view = GroupingFactory(
-            **{'project': self.private_project, 'isprivate': True}
-        )
         self.private_moderators_view = UserGroupF(
             add_users=[self.moderator_view],
             **{
@@ -45,26 +38,6 @@ class ProjectListTest(TestCase):
                 'project': self.private_project,
                 'can_contribute': True
             })
-        self.private_viewers_view = UserGroupF(
-            add_users=[self.viewer_view],
-            **{
-                'project': self.private_project,
-                'can_contribute': False,
-                'can_moderate': False
-            })
-
-        GroupingUserGroupFactory.create(**{
-            'grouping': self.private_view,
-            'usergroup': self.private_moderators_view}
-        )
-        GroupingUserGroupFactory.create(**{
-            'grouping': self.private_view,
-            'usergroup': self.private_contributors_view
-        })
-        GroupingUserGroupFactory.create(**{
-            'grouping': self.private_view,
-            'usergroup': self.private_viewers_view
-        })
 
         self.private_moderators = UserGroupF(
             add_users=[self.moderator],
@@ -94,9 +67,6 @@ class ProjectListTest(TestCase):
                 'everyone_contributes': 'false'
             })
 
-        self.private_publicview_view = GroupingFactory(
-            **{'project': self.private_publicview_project, 'isprivate': False}
-        )
         self.private_publicview_moderators_view = UserGroupF(
             add_users=[self.moderator_view],
             **{
@@ -109,26 +79,6 @@ class ProjectListTest(TestCase):
                 'project': self.private_publicview_project,
                 'can_contribute': True
             })
-        self.private_publicview_viewers_view = UserGroupF(
-            add_users=[self.viewer_view],
-            **{
-                'project': self.private_publicview_project,
-                'can_contribute': False,
-                'can_moderate': False
-            })
-
-        GroupingUserGroupFactory.create(**{
-            'grouping': self.private_publicview_view,
-            'usergroup': self.private_publicview_moderators_view
-        })
-        GroupingUserGroupFactory.create(**{
-            'grouping': self.private_publicview_view,
-            'usergroup': self.private_publicview_contributors_view
-        })
-        GroupingUserGroupFactory.create(**{
-            'grouping': self.private_publicview_view,
-            'usergroup': self.private_publicview_viewers_view
-        })
 
         self.private_publicview_moderators = UserGroupF(
             add_users=[self.moderator],
@@ -158,9 +108,6 @@ class ProjectListTest(TestCase):
                 'everyone_contributes': 'false'
             })
 
-        self.private_publicviews_view = GroupingFactory(
-            **{'project': self.private_publicviews_project, 'isprivate': False}
-        )
         self.private_publicviews_moderators_view = UserGroupF(
             add_users=[self.moderator_view],
             **{
@@ -173,26 +120,6 @@ class ProjectListTest(TestCase):
                 'project': self.private_publicviews_project,
                 'can_contribute': True
             })
-        self.private_publicviews_viewers_view = UserGroupF(
-            add_users=[self.viewer_view],
-            **{
-                'project': self.private_publicviews_project,
-                'can_contribute': False,
-                'can_moderate': False
-            })
-
-        GroupingUserGroupFactory.create(**{
-            'grouping': self.private_publicviews_view,
-            'usergroup': self.private_publicviews_moderators_view
-        })
-        GroupingUserGroupFactory.create(**{
-            'grouping': self.private_publicviews_view,
-            'usergroup': self.private_publicviews_contributors_view
-        })
-        GroupingUserGroupFactory.create(**{
-            'grouping': self.private_publicviews_view,
-            'usergroup': self.private_publicviews_viewers_view
-        })
 
         self.private_publicviews_moderators = UserGroupF(
             add_users=[self.moderator],
@@ -222,9 +149,6 @@ class ProjectListTest(TestCase):
                 'everyone_contributes': 'false'
             })
 
-        self.public_view = GroupingFactory(
-            **{'project': self.public_project, 'isprivate': True}
-        )
         self.public_moderators_view = UserGroupF(
             add_users=[self.moderator_view],
             **{
@@ -237,26 +161,6 @@ class ProjectListTest(TestCase):
                 'project': self.public_project,
                 'can_contribute': True
             })
-        self.public_viewers_view = UserGroupF(
-            add_users=[self.viewer_view],
-            **{
-                'project': self.public_project,
-                'can_contribute': False,
-                'can_moderate': False
-            })
-
-        GroupingUserGroupFactory.create(**{
-            'grouping': self.public_view,
-            'usergroup': self.public_moderators_view
-        })
-        GroupingUserGroupFactory.create(**{
-            'grouping': self.public_view,
-            'usergroup': self.public_contributors_view
-        })
-        GroupingUserGroupFactory.create(**{
-            'grouping': self.public_view,
-            'usergroup': self.public_viewers_view
-        })
 
         self.public_moderators = UserGroupF(
             add_users=[self.moderator],
@@ -286,9 +190,6 @@ class ProjectListTest(TestCase):
                 'everyone_contributes': 'false'
             })
 
-        self.public_publicview_view = GroupingFactory(
-            **{'project': self.public_publicview_project, 'isprivate': False}
-        )
         self.public_publicview_moderators_view = UserGroupF(
             add_users=[self.moderator_view],
             **{
@@ -301,26 +202,6 @@ class ProjectListTest(TestCase):
                 'project': self.public_publicview_project,
                 'can_contribute': True
             })
-        self.public_publicview_viewers_view = UserGroupF(
-            add_users=[self.viewer_view],
-            **{
-                'project': self.public_publicview_project,
-                'can_contribute': False,
-                'can_moderate': False
-            })
-
-        GroupingUserGroupFactory.create(**{
-            'grouping': self.public_publicview_view,
-            'usergroup': self.public_publicview_moderators_view
-        })
-        GroupingUserGroupFactory.create(**{
-            'grouping': self.public_publicview_view,
-            'usergroup': self.public_publicview_contributors_view
-        })
-        GroupingUserGroupFactory.create(**{
-            'grouping': self.public_publicview_view,
-            'usergroup': self.public_publicview_viewers_view
-        })
 
         self.public_publicview_moderators = UserGroupF(
             add_users=[self.moderator],
@@ -350,9 +231,6 @@ class ProjectListTest(TestCase):
                 'everyone_contributes': 'false'
             })
 
-        self.public_publicviews_view = GroupingFactory(
-            **{'project': self.public_publicviews_project, 'isprivate': False}
-        )
         self.public_publicviews_moderators_view = UserGroupF(
             add_users=[self.moderator_view],
             **{
@@ -365,26 +243,6 @@ class ProjectListTest(TestCase):
                 'project': self.public_publicviews_project,
                 'can_contribute': True
             })
-        self.public_publicviews_viewers_view = UserGroupF(
-            add_users=[self.viewer_view],
-            **{
-                'project': self.public_publicviews_project,
-                'can_contribute': False,
-                'can_moderate': False
-            })
-
-        GroupingUserGroupFactory.create(**{
-            'grouping': self.public_publicviews_view,
-            'usergroup': self.public_publicviews_moderators_view
-        })
-        GroupingUserGroupFactory.create(**{
-            'grouping': self.public_publicviews_view,
-            'usergroup': self.public_publicviews_contributors_view
-        })
-        GroupingUserGroupFactory.create(**{
-            'grouping': self.public_publicviews_view,
-            'usergroup': self.public_publicviews_viewers_view
-        })
 
         self.public_publicviews_moderators = UserGroupF(
             add_users=[self.moderator],
@@ -426,21 +284,17 @@ class ProjectListTest(TestCase):
         projects = Project.objects.get_list(self.contributor)
         self.assertEquals(len(projects), 6)
 
-    def test_get_list_with_viewer_view(self):
-        projects = Project.objects.get_list(self.viewer_view)
-        self.assertEquals(len(projects), 6)
-
     def test_get_list_with_viewer(self):
         projects = Project.objects.get_list(self.viewer)
-        self.assertEquals(len(projects), 2)
+        self.assertEquals(len(projects), 6)
 
     def test_get_list_with_some_dude(self):
         projects = Project.objects.get_list(self.some_dude)
-        self.assertEquals(len(projects), 2)
+        self.assertEquals(len(projects), 3)
 
     def test_get_list_with_anonymous(self):
         projects = Project.objects.get_list(AnonymousUser())
-        self.assertEquals(len(projects), 2)
+        self.assertEquals(len(projects), 3)
 
 
 class ProjectAccessTest(TestCase):
@@ -458,7 +312,7 @@ class ProjectAccessTest(TestCase):
         project = ProjectF.create(
             add_admins=[admin],
             add_contributors=[contributor],
-            add_viewers=[other]
+            add_viewer=[other]
         )
 
         ref = Project.objects.as_contributor(admin, project.id)

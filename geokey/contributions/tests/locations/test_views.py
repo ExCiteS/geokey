@@ -17,13 +17,11 @@ class LocationApiTest(TestCase):
         self.factory = APIRequestFactory()
         self.admin = UserF.create()
         self.contributor = UserF.create()
-        self.view_member = UserF.create()
         self.non_member = UserF.create()
 
         self.project = ProjectF(
             add_admins=[self.admin],
-            add_contributors=[self.contributor],
-            add_viewers=[self.view_member]
+            add_contributors=[self.contributor]
         )
         self.other_project = ProjectF.create()
 
@@ -67,10 +65,6 @@ class LocationApiTest(TestCase):
         self.assertEquals(
             len(json.loads(response.content).get('features')), 10
         )
-
-    def test_get_locations_with_view_member(self):
-        response = self._get(self.view_member)
-        self.assertEquals(response.status_code, 403)
 
     def test_get_locations_with_non_member(self):
         response = self._get(self.non_member)
@@ -135,8 +129,7 @@ class LocationUpdateApiTest(TestCase):
 
         self.project = ProjectF(
             add_admins=[self.admin],
-            add_contributors=[self.contributor],
-            add_viewers=[self.view_member]
+            add_contributors=[self.contributor]
         )
 
         self.location = LocationFactory(**{
@@ -210,13 +203,6 @@ class LocationUpdateApiTest(TestCase):
 
         location = Location.objects.get(pk=self.location.id)
         self.assertEqual(location.description, 'main quad')
-
-    def test_update_location_with_view_member(self):
-        response = self.patch({'description': 'UCL'}, self.view_member)
-        self.assertEqual(response.status_code, 403)
-
-        location = Location.objects.get(pk=self.location.id)
-        self.assertEqual(location.description, self.location.description)
 
     def test_update_location_with_non_member(self):
         response = self.patch({'description': 'UCL'}, self.non_member)
