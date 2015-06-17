@@ -2,8 +2,6 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
 from django.utils import timezone
-from django.db.models.signals import pre_save
-from django.dispatch import receiver
 
 from django_pgjson.fields import JsonBField
 from oauth2_provider.models import AccessToken
@@ -64,6 +62,7 @@ class UserGroup(models.Model):
         self.where_clause = None
         if self.filters is not None:
             queries = []
+
             for key in self.filters:
                 category = self.project.categories.get(pk=key)
                 queries.append(category.get_query(self.filters[key]))
@@ -78,19 +77,3 @@ class UserGroup(models.Model):
             self.can_contribute = True
 
         super(UserGroup, self).save(*args, **kwargs)
-
-
-# class GroupingUserGroup(models.Model):
-#     """
-#     The relation between user groups and views. Used to grant permissions on
-#     the given view to users.
-#     """
-#     usergroup = models.ForeignKey('UserGroup', related_name='viewgroups')
-#     grouping = models.ForeignKey(
-#         'datagroupings.Grouping',
-#         related_name='usergroups'
-#     )
-#     can_read = models.BooleanField(default=True)
-#     can_view = models.BooleanField(default=True)
-#
-#     unique_together = ('usergroup', 'grouping')

@@ -272,27 +272,13 @@ class Project(models.Model):
             data = self.observations.for_viewer(user)
 
         where_clause = None
+        if self.isprivate and not user.is_anonymous():
+            where_clause = self.usergroups.get(users=user).where_clause
 
         if not where_clause:
             return data
 
-        return data.extra(where_clause)
-
-        # # Return everything found in data groupings plus the user's data
-        # if len(grouping_queries) > 0:
-        #     query = '(' + ') OR ('.join(grouping_queries) + ')'
-        #
-        #     if (not user.is_anonymous()):
-        #         query = query + ' OR (creator_id = ' + str(user.id) + ')'
-        #
-        #     return data.extra(where=[query])
-        #
-        # # If there are no data groupings for the user, return just the user's
-        # # data
-        # if (not user.is_anonymous()):
-        #     return self.observations.filter(creator=user)
-        # else:
-        #     return self.observations.none()
+        return data.extra(where=[where_clause])
 
     def contact_admins(self, sender, mail_content):
         """
