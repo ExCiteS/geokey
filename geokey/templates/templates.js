@@ -354,7 +354,7 @@ helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partial
   var buffer = "", stack1, self=this;
 
 
-  buffer += "<div class=\"field-filter form-horizontal\" data-key=\"created_at\" data-type=\"DateCreated\">\n    ";
+  buffer += "<div class=\"field-filter form-horizontal list-group-item\" data-key=\"created_at\" data-type=\"DateCreated\">\n    ";
   stack1 = self.invokePartial(partials['created-field'], 'created-field', depth0, helpers, partials, data);
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n\n    <div class=\"form-group\">\n        <div class=\"col-sm-8 col-sm-offset-4\">\n            <a href=\"#\" class=\"text-danger remove\">Remove filter</a>\n        </div>\n    </div>\n</div>\n";
@@ -436,7 +436,7 @@ function program13(depth0,data) {
   return buffer;
   }
 
-  buffer += "<div class=\"field-filter form-horizontal\" data-key=\"";
+  buffer += "<div class=\"field-filter form-horizontal list-group-item\" data-key=\"";
   if (helper = helpers.key) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.key); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
@@ -613,10 +613,10 @@ function program1(depth0,data) {
   return buffer;
   }
 
-  buffer += "<select class=\"field-select form-control\">\n    <option value=\"-1\">Select filter field</option>\n    <option value=\"created_at\">Date created</option>\n";
+  buffer += "<div class=\"list-group-item\">\n<select class=\"field-select form-control\">\n    <option value=\"-1\">Select filter field</option>\n    <option value=\"created_at\">Date created</option>\n";
   stack1 = helpers.each.call(depth0, (depth0 && depth0.fields), {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\n</select>\n";
+  buffer += "\n</select>\n</div>\n";
   return buffer;
   });
 

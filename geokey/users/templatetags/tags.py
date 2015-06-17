@@ -41,6 +41,7 @@ def show_fields(filters, category):
         }
 
         context['fields'] = [{
+                'category_id': category.id,
                 'field': category.fields.get_subclass(key=key),
                 'rule': cat_rules[key]
             } for key in cat_rules]

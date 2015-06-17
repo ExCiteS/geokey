@@ -1,11 +1,12 @@
 {% load tags %}
 
 {% if min_date or max_date or fields  %}
-<div class="field-options">
+<div class="field-options panel panel-default"">
+    <div class="list-group">
 {% endif %}
 
 {% if min_date or max_date %}
-<div class="field-filter form-horizontal" data-key="created_at" data-type="DateCreated">
+<div class="field-filter form-horizontal list-group-item" data-key="created_at" data-type="DateCreated">
     <h5>The contribution has been created</h5>
 
     <div class="form-group">
@@ -30,7 +31,7 @@
 {% endif %}
 
 {% for field in fields %}
-<div class="field-filter form-horizontal" data-key="{{field.field.key}}" data-type="{{field.field.fieldtype}}">
+<div class="field-filter form-horizontal list-group-item" data-key="{{field.field.key}}" data-type="{{field.field.fieldtype}}">
     <h5>{{field.field.name}} ({{field.field.key}})</h5>
 
     {% if field.field.fieldtype == 'TextField' %}
@@ -138,9 +139,10 @@
 </div>
 {% endfor%}
 
-
-
 {% if min_date or max_date or fields  %}
 </div>
-<button id="add-more" class="btn btn-primary" type="button">Add another filter</button>
+<div class="panel-footer"><button id="add-more" class="btn btn-default btn-sm" type="button"><span class="text-success">Add another filter</span></button></div>
+</div>
+
+
 {% endif %}

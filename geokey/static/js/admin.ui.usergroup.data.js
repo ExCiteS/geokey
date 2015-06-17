@@ -99,13 +99,11 @@
 
     function addFilter(container, category) {
         container.find('a.activate-detailed').remove();
-        var field_options = $('<div class="field-options"></div>');
-        container.find('#add-more').before(field_options);
 
         var fieldselect = $(Templates.fieldselect(category));
-        field_options.append(fieldselect);
+        container.find('.list-group').append(fieldselect);
 
-        fieldselect.change(function () {
+        fieldselect.find('select').change(function () {
             fieldselect.remove();
 
             var fieldkey = $(this).val();
@@ -113,7 +111,7 @@
 
             if (fieldkey === 'created_at') {
                 filterForm = $(Templates.createdfield(field))
-                field_options.append(filterForm);
+                container.append(filterForm);
             } else {
                 var field;
 
@@ -124,7 +122,7 @@
                     }
                 }
                 filterForm = $(Templates.field(field))
-                field_options.append(filterForm);
+                container.find('.list-group').append(filterForm);
             }
 
             filterForm.find('input.datetime').datetimepicker();
@@ -141,10 +139,10 @@
         event.preventDefault();
 
         var container = $(this).parents('div.category'),
-            field_options = $(this).parents('div.field-options');
+            field_options = $(this).parents('div.field-filter');
 
-        if (field_options.siblings().length === 2) {
-            container.find('#add-more').remove();
+        if (field_options.siblings().length === 0) {
+            container.find('.field-options').remove();
             var detailLink = $('<a href="#" class="text-danger activate-detailed">Restrict further</a>');
             container.children('label').append(detailLink);
             detailLink.click(handleActivateDetailed);
@@ -156,10 +154,10 @@
 
     function handleAddMore(event) {
         event.preventDefault();
-        var container = $(this).parent();
+        var container = $(this).parents('.category');
 
         function handleTypeSuccess(response) {
-            addFilter(container, response);
+            addFilter(container.find('.field-options .list-group'), response);
         }
 
         Control.Ajax.get(
@@ -173,14 +171,15 @@
         var container = $(this).parent().parent();
 
         function handleTypeSuccess(response) {
-            var button = $('<button id="add-more" class="btn btn-primary" type="button">Add another filter</button>');
-            container.append(button);
-            button.click(function(event) {
+            var field_container = $('<div class="field-options panel panel-default"><div class="list-group"></div><div class="panel-footer"><button id="add-more" class="btn btn-default btn-sm" type="button"><span class="text-success">Add another filter</span></button><div>');
+            container.append(field_container);
+
+            field_container.find('button#add-more').click(function(event) {
                 event.preventDefault();
-                addFilter(container, response);
+                addFilter(field_container, response);
             });
 
-            addFilter(container, response);
+            addFilter(field_container, response);
         }
 
         Control.Ajax.get(
