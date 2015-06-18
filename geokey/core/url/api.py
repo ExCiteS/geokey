@@ -44,11 +44,7 @@ urlpatterns = patterns(
         observations.ContributionSearchAPIView.as_view(),
         name='contributions_search'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/all-contributions/$',
-        observations.ProjectObservationsView.as_view(),
-        name='project_all_observations'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/all-contributions/contributions/(?P<observation_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/$',
         observations.SingleAllContributionAPIView.as_view(),
         name='project_single_observation'),
 
@@ -69,11 +65,11 @@ urlpatterns = patterns(
     # COMMENTS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/all-contributions/contributions/(?P<observation_id>[0-9]+)/comments/$',
+        r'^projects/(?P<project_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/comments/$',
         comments.AllContributionsCommentsAPIView.as_view(),
         name='project_comments'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/all-contributions/contributions/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
         comments.AllContributionsSingleCommentAPIView.as_view(),
         name='project_single_comment'),
 
@@ -82,11 +78,11 @@ urlpatterns = patterns(
     # ###########################
 
     url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/all-contributions/contributions/(?P<contribution_id>[0-9]+)/media/$',
+        r'^projects/(?P<project_id>[0-9]+)/contributions/(?P<contribution_id>[0-9]+)/media/$',
         media.AllContributionsMediaAPIView.as_view(),
         name='project_media'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/all-contributions/contributions/(?P<contribution_id>[0-9]+)/media/(?P<file_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/contributions/(?P<contribution_id>[0-9]+)/media/(?P<file_id>[0-9]+)/$',
         media.AllContributionsSingleMediaApiView.as_view(),
         name='project_single_media'),
 

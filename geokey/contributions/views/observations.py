@@ -61,6 +61,33 @@ class ProjectObservations(GeoJsonView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id):
+        """
+        Returns a list of contributions for a project
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the request
+        project_id : int
+            identifies the project in the data base
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the serialised observations
+        """
+        project = Project.objects.get_single(request.user, project_id)
+        contributions = project.get_all_contributions(request.user)
+
+        serializer = ContributionSerializer(
+            contributions,
+            many=True,
+            context={'user': request.user, 'project': project}
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class ContributionSearchAPIView(GeoJsonView):
     """
@@ -95,39 +122,6 @@ class ContributionSearchAPIView(GeoJsonView):
             context={'user': request.user, 'project': project, 'search': q}
         )
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class ProjectObservationsView(GeoJsonView):
-    """
-    Public API endpoint to get all contributions in a project
-    /api/projects/:project_id/data-groupings/all-contributions/
-    """
-    @handle_exceptions_for_ajax
-    def get(self, request, project_id):
-        """
-        Returns a list of contributions for a project
-
-        Parameters
-        ----------
-        request : rest_framework.request.Request
-            Represents the request
-        project_id : int
-            identifies the project in the data base
-
-        Returns
-        -------
-        rest_framework.response.Respone
-            Contains the serialised observations
-        """
-        project = Project.objects.get_single(request.user, project_id)
-        contributions = project.get_all_contributions(request.user)
-
-        serializer = ContributionSerializer(
-            contributions,
-            many=True,
-            context={'user': request.user, 'project': project}
-        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

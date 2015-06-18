@@ -21,8 +21,7 @@ from ..model_factories import (
 
 from geokey.contributions.views.observations import (
     SingleAllContributionAPIView, SingleContributionAPIView,
-    ContributionSearchAPIView, ProjectObservationsView,
-    ProjectObservations
+    ContributionSearchAPIView, ProjectObservations
 )
 from geokey.contributions.models import Observation
 
@@ -109,8 +108,9 @@ class SingleContributionAPIViewTest(TestCase):
         self.observation.status = 'pending'
         self.observation.save()
 
-        url = reverse('api:project_all_observations', kwargs={
-            'project_id': self.project.id
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
         request.DATA = {'meta': {'status': "active"}}
@@ -128,8 +128,9 @@ class SingleContributionAPIViewTest(TestCase):
         self.observation.status = 'pending'
         self.observation.save()
 
-        url = reverse('api:project_all_observations', kwargs={
-            'project_id': self.project.id
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
         request.DATA = {'meta': {'status': "active"}}
@@ -146,8 +147,9 @@ class SingleContributionAPIViewTest(TestCase):
         self.observation.status = 'active'
         self.observation.save()
 
-        url = reverse('api:project_all_observations', kwargs={
-            'project_id': self.project.id
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
         request.DATA = {'meta': {'status': "pending"}}
@@ -164,8 +166,9 @@ class SingleContributionAPIViewTest(TestCase):
         self.observation.status = 'pending'
         self.observation.save()
 
-        url = reverse('api:project_all_observations', kwargs={
-            'project_id': self.project.id
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
         request.DATA = {'meta': {'status': "active"}}
@@ -183,8 +186,9 @@ class SingleContributionAPIViewTest(TestCase):
         self.observation.status = 'pending'
         self.observation.save()
 
-        url = reverse('api:project_all_observations', kwargs={
-            'project_id': self.project.id
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
         request.DATA = {'meta': {'status': "active"}}
@@ -202,8 +206,9 @@ class SingleContributionAPIViewTest(TestCase):
         self.observation.status = 'pending'
         self.observation.save()
 
-        url = reverse('api:project_all_observations', kwargs={
-            'project_id': self.project.id
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
         request.DATA = {'meta': {'status': "active"}}
@@ -217,8 +222,9 @@ class SingleContributionAPIViewTest(TestCase):
         )
 
     def test_flag_with_admin(self):
-        url = reverse('api:project_all_observations', kwargs={
-            'project_id': self.project.id
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
         request.DATA = {'meta': {'status': "pending"}}
@@ -232,8 +238,9 @@ class SingleContributionAPIViewTest(TestCase):
         )
 
     def test_flag_with_moderator(self):
-        url = reverse('api:project_all_observations', kwargs={
-            'project_id': self.project.id
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
         request.DATA = {'meta': {'status': "pending"}}
@@ -245,8 +252,9 @@ class SingleContributionAPIViewTest(TestCase):
         self.assertEqual(ref.status, 'pending')
 
     def test_flag_with_moderator_and_edit(self):
-        url = reverse('api:project_all_observations', kwargs={
-            'project_id': self.project.id
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
         request.DATA = {
@@ -266,8 +274,9 @@ class SingleContributionAPIViewTest(TestCase):
         self.assertEqual(ref.properties.get('key'), 'updated')
 
     def test_flag_with_contributor(self):
-        url = reverse('api:project_all_observations', kwargs={
-            'project_id': self.project.id
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
         request.DATA = {'meta': {'status': "pending"}}
@@ -282,8 +291,9 @@ class SingleContributionAPIViewTest(TestCase):
 
     @raises(PermissionDenied)
     def test_flag_with_anonymous(self):
-        url = reverse('api:project_all_observations', kwargs={
-            'project_id': self.project.id
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
         request.DATA = {'meta': {'status': "pending"}}
@@ -298,8 +308,9 @@ class SingleContributionAPIViewTest(TestCase):
 
     @raises(PermissionDenied)
     def test_update_user(self):
-        url = reverse('api:project_all_observations', kwargs={
-            'project_id': self.project.id
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
         request.DATA = {'properies': {'text': 'blah'}}
@@ -313,8 +324,9 @@ class SingleContributionAPIViewTest(TestCase):
             'commentto': self.observation,
             'review_status': 'open'
         })
-        url = reverse('api:project_all_observations', kwargs={
-            'project_id': self.project.id
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
         request.DATA = {'meta': {'status': 'active'}}
@@ -331,8 +343,9 @@ class SingleContributionAPIViewTest(TestCase):
         self.observation.status = 'draft'
         self.observation.save()
 
-        url = reverse('api:project_all_observations', kwargs={
-            'project_id': self.project.id
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
         request.DATA = {'meta': {'status': "active"}}
@@ -350,8 +363,9 @@ class SingleContributionAPIViewTest(TestCase):
         self.observation.status = 'draft'
         self.observation.save()
 
-        url = reverse('api:project_all_observations', kwargs={
-            'project_id': self.project.id
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
         request.DATA = {'meta': {'status': "active"}}
@@ -370,8 +384,9 @@ class SingleContributionAPIViewTest(TestCase):
         self.observation.status = 'draft'
         self.observation.save()
 
-        url = reverse('api:project_all_observations', kwargs={
-            'project_id': self.project.id
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
         request.DATA = {'meta': {'status': "active"}}
@@ -388,8 +403,9 @@ class SingleContributionAPIViewTest(TestCase):
         self.observation.status = 'draft'
         self.observation.save()
 
-        url = reverse('api:project_all_observations', kwargs={
-            'project_id': self.project.id
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
         request.DATA = {'meta': {'status': "active"}}
@@ -406,8 +422,9 @@ class SingleContributionAPIViewTest(TestCase):
         self.observation.status = 'draft'
         self.observation.save()
 
-        url = reverse('api:project_all_observations', kwargs={
-            'project_id': self.project.id
+        url = reverse('api:project_single_observation', kwargs={
+            'project_id': self.project.id,
+            'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
         request.DATA = {
@@ -1145,12 +1162,12 @@ class TestProjectPublicApi(TestCase):
         )
 
     def get(self, user):
-        url = reverse('api:project_all_observations', kwargs={
+        url = reverse('api:project_observations', kwargs={
             'project_id': self.project.id
         })
         request = self.factory.get(url)
         force_authenticate(request, user=user)
-        theview = ProjectObservationsView.as_view()
+        theview = ProjectObservations.as_view()
         return theview(
             request,
             project_id=self.project.id).render()
