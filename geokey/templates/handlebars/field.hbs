@@ -1,4 +1,7 @@
 <div class="field-filter form-horizontal list-group-item" data-key="{{key}}" data-type="{{fieldtype}}">
+    <button type="button" class="close remove" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h5>{{name}} ({{key}})</h5>
+
     {{#ifCond fieldtype 'TextField'}}
         {{> textfield}}
     {{/ifCond}}
@@ -20,10 +23,4 @@
     {{#ifCond fieldtype 'MultipleLookupField'}}
         {{> multiplelookupfield}}
     {{/ifCond}}
-
-    <div class="form-group">
-        <div class="col-sm-8 col-sm-offset-4">
-            <a href="#" class="text-danger remove">Remove filter</a>
-        </div>
-    </div>
 </div>

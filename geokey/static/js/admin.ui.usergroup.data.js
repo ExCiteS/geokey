@@ -76,12 +76,15 @@
     }
 
     function handleRangeFieldEdit(event) {
-        var target = $(event.target);
+        var target = $(event.target),
+            container = target.parents('.field-filter');
+        console.log(target)
+        console.log('#' + target.attr('data-key') + '-min')
 
         if (target.attr('id') === target.attr('data-key') + '-min') {
-            $('input#' + target.attr('data-key') + '-max').attr('min', target.val());
+            container.find('input#' + target.attr('data-key') + '-max').attr('min', target.val());
         } else if (target.attr('id') === target.attr('data-key') + '-max') {
-            $('input#' + target.attr('data-key') + '-min').attr('max', target.val());
+            container.find('input#' + target.attr('data-key') + '-min').attr('max', target.val());
         }
     }
 
@@ -111,7 +114,7 @@
 
             if (fieldkey === 'created_at') {
                 filterForm = $(Templates.createdfield(field))
-                container.append(filterForm);
+                container.find('.list-group').append(filterForm);
             } else {
                 var field;
 
@@ -131,7 +134,7 @@
             filterForm.find('input[type="number"], input.datetime, input.date').change(handleRangeFieldEdit);
             filterForm.find(':input').change(handleEdit);
 
-            filterForm.find('a.remove').click(removeFilter);
+            filterForm.find('button.remove').click(removeFilter);
         });
     }
 
@@ -157,7 +160,7 @@
         var container = $(this).parents('.category');
 
         function handleTypeSuccess(response) {
-            addFilter(container.find('.field-options .list-group'), response);
+            addFilter(container.find('.field-options'), response);
         }
 
         Control.Ajax.get(
@@ -169,6 +172,7 @@
     function handleActivateDetailed(event) {
         event.preventDefault();
         var container = $(this).parent().parent();
+        $(this).remove();
 
         function handleTypeSuccess(response) {
             var field_container = $('<div class="field-options panel panel-default"><div class="list-group"></div><div class="panel-footer"><button id="add-more" class="btn btn-default btn-sm" type="button"><span class="text-success">Add another filter</span></button><div>');
@@ -199,5 +203,5 @@
     $('input[type="number"], input.datetime, input.date').change(handleRangeFieldEdit);
     $('#filter :input').change(handleEdit);
 
-    $('a.remove').click(removeFilter);
+    $('button.remove').click(removeFilter);
 }());
