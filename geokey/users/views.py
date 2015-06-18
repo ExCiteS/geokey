@@ -21,7 +21,7 @@ from geokey.core.decorators import (
 from geokey.projects.models import Project, Admins
 from geokey.projects.base import STATUS
 
-from .models import User
+from .models import User, UserGroup as UserGroupModel
 from .serializers import (UserSerializer, UserGroupSerializer)
 from .forms import (
     UsergroupCreateForm,
@@ -571,20 +571,50 @@ class UserGroupUsers(APIView):
             Contains the serialised usergroup or an error message
         """
         project = Project.objects.as_admin(request.user, project_id)
-        group = project.usergroups.get(pk=group_id)
+        user_id = request.DATA.get('userId')
 
         try:
-            user = User.objects.get(pk=request.DATA.get('userId'))
-            group.users.add(user)
-
-            serializer = UserGroupSerializer(group)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            user = User.objects.get(pk=user_id)
         except User.DoesNotExist:
             return Response(
                 'The user you are trying to add to the user group does ' +
                 'not exist',
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+        replace = (request.DATA.get('replace') == 'True')
+        error = False
+
+        try:  # Check if user is admin
+            existing_group = Admins.objects.get(project=project, user=user)
+            if replace:
+                existing_group.delete()
+            else:
+                error = {'reason': 'admin_exists', 'userId': user_id}
+        except Admins.DoesNotExist:
+            pass
+
+        try:  # Check if user is member of other user group
+            existing_group = project.usergroups.get(users=user)
+            if replace:
+                existing_group.users.remove(user)
+            else:
+                error = {
+                    'reason': 'user_exists',
+                    'group': existing_group.name,
+                    'userId': user_id
+                }
+        except UserGroupModel.DoesNotExist:
+            pass
+
+        if error and not replace:
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+
+        group = project.usergroups.get(pk=group_id)
+        group.users.add(user)
+
+        serializer = UserGroupSerializer(group)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class UserGroupSingleUser(APIView):

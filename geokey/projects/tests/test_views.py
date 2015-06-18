@@ -12,8 +12,9 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from geokey.categories.tests.model_factories import (
     TextFieldFactory, CategoryFactory
 )
+from geokey.users.tests.model_factories import UserF, UserGroupF
 
-from .model_factories import UserF, ProjectF
+from .model_factories import ProjectF
 from ..models import Project
 from ..views import (
     ProjectCreate, ProjectSettings, ProjectUpdate, ProjectAdmins,
@@ -582,6 +583,60 @@ class ProjectAdminsTest(TestCase):
         request = self.factory.post(
             '/ajax/projects/%s/admins/' % (self.project.id) + '/',
             {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectAdmins.as_view()
+        response = view(
+            request,
+            project_id=self.project.id
+        ).render()
+
+        self.assertEqual(response.status_code, 201)
+        self.assertIn(
+            self.user_to_add,
+            Project.objects.get(pk=self.project.id).admins.all()
+        )
+
+    def test_add_admin_from_other_group(self):
+        group = UserGroupF.create(
+            add_users=[self.user_to_add],
+            **{'project': self.project}
+        )
+
+        request = self.factory.post(
+            '/ajax/projects/%s/admins/' % (self.project.id) + '/',
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectAdmins.as_view()
+        response = view(
+            request,
+            project_id=self.project.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            json.loads(response.content).get('reason'),
+            'user_exists'
+        )
+        self.assertEqual(
+            json.loads(response.content).get('group'),
+            group.name
+        )
+        self.assertNotIn(
+            self.user_to_add,
+            Project.objects.get(pk=self.project.id).admins.all()
+        )
+
+    def test_replace_admin_from_other_group(self):
+        UserGroupF.create(
+            add_users=[self.user_to_add],
+            **{'project': self.project}
+        )
+
+        request = self.factory.post(
+            '/ajax/projects/%s/admins/' % (self.project.id) + '/',
+            {'userId': self.user_to_add.id, 'replace': 'True'}
         )
         force_authenticate(request, user=self.admin)
         view = ProjectAdmins.as_view()

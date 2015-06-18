@@ -113,7 +113,7 @@
             var filterForm;
 
             if (fieldkey === 'created_at') {
-                filterForm = $(Templates.createdfield(field))
+                filterForm = $(Templates.createdfield(field));
                 container.find('.list-group').append(filterForm);
             } else {
                 var field;
