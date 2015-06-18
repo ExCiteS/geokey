@@ -104,6 +104,14 @@ class Category(models.Model):
         """
         from geokey.contributions.models import Observation
         Observation.objects.filter(category=self).delete()
+
+        groups = self.project.usergroups.all()
+        for usergroup in groups:
+            if usergroup.filters is not None:
+                f = usergroup.filters.pop(str(self.id), None)
+                if f is not None:
+                    usergroup.save()
+
         self.status = STATUS.deleted
         self.save()
 
@@ -279,6 +287,18 @@ class Field(models.Model):
         -----
         Also deletes all references to the Field in Rules.
         """
+
+        groups = self.category.project.usergroups.all()
+        for usergroup in groups:
+            if usergroup.filters is not None:
+                category_filter = usergroup.filters.get(
+                    str(self.category.id), None)
+
+                if category_filter is not None:
+                    field_filter = category_filter.pop(self.key, None)
+
+                    if field_filter is not None:
+                        usergroup.save()
 
         super(Field, self).delete()
 

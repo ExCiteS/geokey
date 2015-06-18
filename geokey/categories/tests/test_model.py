@@ -14,8 +14,11 @@ from .model_factories import (
     MultipleLookupValueFactory, DateFieldFactory
 )
 
+from geokey.projects.tests.model_factories import ProjectF
+from geokey.users.tests.model_factories import UserGroupF
 from geokey.contributions.tests.model_factories import ObservationFactory
 from geokey.contributions.models import Observation
+from geokey.users.models import UserGroup
 
 
 class CategoryTest(TestCase):
@@ -80,6 +83,23 @@ class CategoryTest(TestCase):
 
         Category.objects.get(pk=category.id)
         Observation.objects.get(pk=observation.id)
+
+    def test_delete_with_category_filter(self):
+        project = ProjectF.create()
+        category = CategoryFactory.create(**{'project': project})
+        category_2 = CategoryFactory.create(**{'project': project})
+
+        group = UserGroupF.create(
+            **{
+                'project': project,
+                'filters': {category.id: {}, category_2.id: {}}
+            }
+        )
+
+        category.delete()
+
+        ref = UserGroup.objects.get(pk=group.id)
+        self.assertEqual(ref.filters, {str(category_2.id): {}})
 
     def test_get_query(self):
         category = CategoryFactory.create()
@@ -180,6 +200,27 @@ class FieldTest(TestCase):
         f.delete()
 
         Field.objects.get(pk=f.id)
+
+    def test_delete_with_field_filter(self):
+        project = ProjectF.create()
+        category = CategoryFactory.create(**{'project': project})
+        field = Field.create(
+            'name', 'key', 'description', False, category,
+            'TextField'
+        )
+
+        group = UserGroupF.create(
+            **{
+                'project': project,
+                'filters': {
+                    category.id: {field.key: 'blah'}}
+            }
+        )
+
+        field.delete()
+
+        ref = UserGroup.objects.get(pk=group.id)
+        self.assertEqual(ref.filters, {str(category.id): {}})
 
 
 class TextFieldTest(TestCase):
