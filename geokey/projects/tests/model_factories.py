@@ -59,15 +59,16 @@ class ProjectF(factory.django.DjangoModelFactory):
             })
 
     @factory.post_generation
-    def add_viewers(self, create, extracted, **kwargs):
+    def add_viewer(self, create, extracted, **kwargs):
+        from geokey.users.tests.model_factories import UserGroupF
         if not create:
             return
 
         if extracted:
-            from geokey.datagroupings.tests.model_factories import GroupingFactory
-
-            GroupingFactory(add_viewers=extracted, **{
-                'project': self
+            UserGroupF(add_users=extracted, **{
+                'project': self,
+                'can_contribute': False,
+                'can_moderate': False,
             })
 
 

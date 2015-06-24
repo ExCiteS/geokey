@@ -13,7 +13,6 @@
                     </div>
                     <ul class="header-nav">
                         <li><a href="{% url 'admin:category_list' group.project.id %}">Categories <span class="badge">{{ group.project.categories.count }}</span></a></li>
-                        <li><a href="{% url 'admin:grouping_list' group.project.id %}">Data groupings <span class="badge">{{ group.project.groupings.count }}</span></a></li>
                         <li class="active"><a href="{% url 'admin:usergroup_list' group.project.id %}">User groups <span class="badge">{{ group.project.usergroups.count }}</span></a></li>
                     </ul>
                 </div>
@@ -34,6 +33,7 @@
                         <div class="list-group">
                             <a href="{% url 'admin:usergroup_overview' group.project.id group.id %}" class="list-group-item active">Members</a>
                             <a href="{% url 'admin:usergroup_permissions' group.project.id group.id %}" class="list-group-item">Permissions</a>
+                            <a href="{% url 'admin:usergroup_data' group.project.id group.id %}" class="list-group-item">Data</a>
                             <a href="{% url 'admin:usergroup_settings' group.project.id group.id %}" class="list-group-item">Settings</a>
                         </div>
                     </div>

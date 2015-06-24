@@ -9,11 +9,10 @@ from geokey.core.exceptions import (
     FileTypeError
 )
 from geokey.projects.models import Project
-from geokey.users.models import User, UserGroup, GroupingUserGroup
+from geokey.users.models import User, UserGroup
 from geokey.categories.models import (
     Category, Field, LookupValue, MultipleLookupValue
 )
-from geokey.datagroupings.models import Grouping, Rule
 from geokey.applications.models import Application
 from geokey.contributions.models import Observation, Comment
 from geokey.contributions.models import Location
@@ -33,8 +32,6 @@ def handle_exceptions_for_admin(func):
             Project.DoesNotExist,
             Category.DoesNotExist,
             Field.DoesNotExist,
-            Grouping.DoesNotExist,
-            Rule.DoesNotExist,
             Application.DoesNotExist
         ) as error:
             return {"error_description": str(error), "error": "Not found."}
@@ -69,13 +66,11 @@ def handle_exceptions_for_ajax(func):
         except (
             Project.DoesNotExist,
             UserGroup.DoesNotExist,
-            GroupingUserGroup.DoesNotExist,
             User.DoesNotExist,
             Category.DoesNotExist,
             Field.DoesNotExist,
             MultipleLookupValue.DoesNotExist,
             LookupValue.DoesNotExist,
-            Grouping.DoesNotExist,
             Application.DoesNotExist,
             Observation.DoesNotExist,
             Location.DoesNotExist,

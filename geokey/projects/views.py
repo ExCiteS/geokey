@@ -16,7 +16,7 @@ from geokey.core.decorators import (
 )
 from geokey.core.exceptions import Unauthenticated
 from geokey.users.serializers import UserSerializer
-from geokey.users.models import User
+from geokey.users.models import User, UserGroup
 from geokey.categories.models import Category
 
 from .base import STATUS
@@ -386,20 +386,39 @@ class ProjectAdmins(APIView):
             message.
         """
         project = Project.objects.as_admin(request.user, project_id)
+        user_id = request.DATA.get('userId')
 
         try:
-            user = User.objects.get(pk=request.DATA.get('userId'))
-            Admins.objects.create(project=project, user=user)
-
-            serializer = UserSerializer(project.admins.all(), many=True)
-            return Response(
-                {'users': serializer.data}, status=status.HTTP_201_CREATED)
+            user = User.objects.get(pk=user_id)
         except User.DoesNotExist:
             return Response(
                 'The user you are trying to add to the user group does ' +
                 'not exist',
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+        replace = (request.DATA.get('replace') == 'True')
+
+        try:  # Check if user is member of other user group
+            existing_group = project.usergroups.get(users=user)
+            if replace:
+                existing_group.users.remove(user)
+            else:
+                return Response({
+                        'reason': 'user_exists',
+                        'group': existing_group.name,
+                        'userId': user_id
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        except UserGroup.DoesNotExist:
+            pass
+
+        Admins.objects.create(project=project, user=user)
+
+        serializer = UserSerializer(project.admins.all(), many=True)
+        return Response(
+            {'users': serializer.data}, status=status.HTTP_201_CREATED)
 
 
 class ProjectAdminsUser(APIView):

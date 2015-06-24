@@ -1,0 +1,24 @@
+<div class="modal fade" id="duplicate-user" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content panel-warning">
+            <div class="modal-header panel-heading">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">User could not be added</h4>
+            </div>
+            <div class="modal-body panel-body">
+                {{#ifCond reason 'user_exists'}}
+                    <p>The user you where trying to add to this user group is already member of user group <strong>{{ group }}</strong>.</p>
+                    <p>Do you want to remove the user from user group <strong>{{ group }}</strong> and add them to this group instead?</p>
+                {{/ifCond}}
+                {{#ifCond reason 'admin_exists'}}
+                    <p>The user you where trying to add to this user group is already <strong>administrator</strong> of the project.</p>
+                    <p>Do you want to remove the user from <strong>administrators</strong> and add them to this group?</p>
+                {{/ifCond}}
+            </div>
+            <div class="modal-footer panel-footer">
+                <button type="button" name="confirm" id="confirm" data-user-id="{{ userId }}" data-replace="True" class="btn btn-warning" data-dismiss="modal">Yes, add the user to this group.</button>
+                <button type="button" name="cancel" class="btn btn-default" data-dismiss="modal">No, I don't want to change anything.</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -14,10 +14,11 @@ from .model_factories import (
     MultipleLookupValueFactory, DateFieldFactory
 )
 
-from geokey.datagroupings.models import Rule
-from geokey.datagroupings.tests.model_factories import GroupingFactory, RuleFactory
+from geokey.projects.tests.model_factories import ProjectF
+from geokey.users.tests.model_factories import UserGroupF
 from geokey.contributions.tests.model_factories import ObservationFactory
 from geokey.contributions.models import Observation
+from geokey.users.models import UserGroup
 
 
 class CategoryTest(TestCase):
@@ -72,21 +73,6 @@ class CategoryTest(TestCase):
         category.delete()
         Category.objects.get(pk=category.id)
 
-    @raises(Category.DoesNotExist, Rule.DoesNotExist)
-    def test_delete_with_grouping(self):
-        category = CategoryFactory.create()
-
-        grouping = GroupingFactory.create()
-        rule = RuleFactory(**{
-            'grouping': grouping,
-            'status': 'active',
-            'category': category
-        })
-        category.delete()
-
-        Category.objects.get(pk=category.id)
-        Rule.objects.get(pk=rule.id)
-
     @raises(Category.DoesNotExist, Observation.DoesNotExist)
     def test_delete_with_observation(self):
         category = CategoryFactory.create()
@@ -97,6 +83,75 @@ class CategoryTest(TestCase):
 
         Category.objects.get(pk=category.id)
         Observation.objects.get(pk=observation.id)
+
+    def test_delete_with_category_filter(self):
+        project = ProjectF.create()
+        category = CategoryFactory.create(**{'project': project})
+        category_2 = CategoryFactory.create(**{'project': project})
+
+        group = UserGroupF.create(
+            **{
+                'project': project,
+                'filters': {category.id: {}, category_2.id: {}}
+            }
+        )
+
+        category.delete()
+
+        ref = UserGroup.objects.get(pk=group.id)
+        self.assertEqual(ref.filters, {str(category_2.id): {}})
+
+    def test_get_query(self):
+        category = CategoryFactory.create()
+        query = category.get_query({})
+        self.assertEqual(query, '((category_id = %s))' % category.id)
+
+        category = CategoryFactory.create()
+        query = category.get_query({
+            'min_date': '2014-01-05 00:00'
+        })
+        self.assertEqual(
+            query,
+            '((category_id = %s) AND (created_at >= to_date(\'2014-'
+            '01-05 00:00\', \'YYYY-MM-DD HH24:MI\')))' % category.id
+        )
+
+        category = CategoryFactory.create()
+        query = category.get_query({
+            'max_date': '2014-01-05 00:00'
+        })
+        self.assertEqual(
+            query,
+            '((category_id = %s) AND (created_at <= to_date(\'2014-'
+            '01-05 00:00\', \'YYYY-MM-DD HH24:MI\')))' % category.id
+        )
+
+        category = CategoryFactory.create()
+        query = category.get_query({
+            'min_date': '2014-01-01 00:00',
+            'max_date': '2014-01-05 00:00'
+        })
+        self.assertEqual(
+            query,
+            '((category_id = %s) AND (created_at >= to_date(\'2014-'
+            '01-01 00:00\', \'YYYY-MM-DD HH24:MI\')) AND (created_at <= to_'
+            'date(\'2014-01-05 00:00\', \'YYYY-MM-DD HH24:MI\')))' % category.id
+        )
+
+        category = CategoryFactory.create()
+        NumericFieldFactory.create(**{'key': 'number', 'category': category})
+        query = category.get_query({
+            'min_date': '2014-01-01 00:00',
+            'max_date': '2014-01-05 00:00',
+            'number': {'minval': 20}
+        })
+        self.assertEqual(
+            query,
+            "((category_id = %s) AND (created_at >= to_date(\'2014-"
+            "01-01 00:00', 'YYYY-MM-DD HH24:MI')) AND (created_at <= to_"
+            "date('2014-01-05 00:00', 'YYYY-MM-DD HH24:MI')) AND (cast(prop"
+            "erties ->> 'number' as double precision) >= 20))" % category.id
+        )
 
 
 class FieldTest(TestCase):
@@ -146,44 +201,26 @@ class FieldTest(TestCase):
 
         Field.objects.get(pk=f.id)
 
-    def test_delete_with_rule(self):
-        category = CategoryFactory()
-        Field.create(
-            'n', 'n', 'n', False, category, 'TextField'
-        )
+    def test_delete_with_field_filter(self):
+        project = ProjectF.create()
+        category = CategoryFactory.create(**{'project': project})
         field = Field.create(
-            'name', 'key', 'description', False, category, 'TextField'
+            'name', 'key', 'description', False, category,
+            'TextField'
         )
-        grouping = GroupingFactory.create()
-        rule = RuleFactory(**{
-            'grouping': grouping,
-            'status': 'active',
-            'category': category,
-            'constraints': {
-                field.key: 'Blah',
-                'other-key': 'blubb'
-            }
-        })
-        field.delete()
-        reference_rule = Rule.objects.get(pk=rule.id)
-        self.assertEquals(reference_rule.constraints.get('key'), None)
 
-    def test_delete_with_rule_without_constraints(self):
-        category = CategoryFactory()
-        Field.create(
-            'n', 'n', 'n', False, category, 'TextField'
+        group = UserGroupF.create(
+            **{
+                'project': project,
+                'filters': {
+                    category.id: {field.key: 'blah'}}
+            }
         )
-        field = Field.create(
-            'name', 'key', 'description', False, category, 'TextField'
-        )
-        grouping = GroupingFactory.create()
-        rule = RuleFactory(**{
-            'grouping': grouping,
-            'status': 'active',
-            'category': category,
-            'constraints': None
-        })
+
         field.delete()
+
+        ref = UserGroup.objects.get(pk=group.id)
+        self.assertEqual(ref.filters, {str(category.id): {}})
 
 
 class TextFieldTest(TestCase):

@@ -9,7 +9,6 @@ from django.db import models
 from django.db.models.loading import get_model
 
 from geokey.core.exceptions import InputError
-from geokey.datagroupings.models import Rule
 
 from .manager import CategoryManager, FieldManager, LookupValueManager
 from .base import STATUS, DEFAULT_STATUS
@@ -66,18 +65,53 @@ class Category(models.Model):
         for field in fields_to_save:
             field.save()
 
+    def get_query(self, rule):
+        """
+        Returns the SQL where clause for the category. It combines the where
+        clause parts of each field in the category.
+
+        Returns
+        -------
+        str
+            SQL where clause for the rule
+        """
+        queries = ['(category_id = %s)' % self.id]
+
+        if 'min_date' in rule:
+            queries.append('(created_at >= to_date(\'' +
+                           rule['min_date'] +
+                           '\', \'YYYY-MM-DD HH24:MI\'))')
+
+        if 'max_date' in rule:
+            queries.append('(created_at <= to_date(\'' +
+                           rule['max_date'] +
+                           '\', \'YYYY-MM-DD HH24:MI\'))')
+
+        for key in rule:
+            if key not in ['min_date', 'max_date']:
+                field = self.fields.get_subclass(key=key)
+                queries.append(field.get_filter(rule[key]))
+
+        return '(%s)' % ' AND '.join(queries)
+
     def delete(self):
         """
         Deletes the category by setting its status to deleted.
 
         Notes
         -----
-        It also deletes all contributions of that category and the rules for
-        any data grouping of that category.
+        It also deletes all contributions of that category.
         """
         from geokey.contributions.models import Observation
         Observation.objects.filter(category=self).delete()
-        Rule.objects.filter(category=self).delete()
+
+        groups = self.project.usergroups.all()
+        for usergroup in groups:
+            if usergroup.filters is not None:
+                f = usergroup.filters.pop(str(self.id), None)
+                if f is not None:
+                    usergroup.save()
+
         self.status = STATUS.deleted
         self.save()
 
@@ -253,12 +287,18 @@ class Field(models.Model):
         -----
         Also deletes all references to the Field in Rules.
         """
-        rules = Rule.objects.filter(category=self.category)
 
-        for rule in rules:
-            if rule.constraints:
-                rule.constraints.pop(self.key, None)
-                rule.save()
+        groups = self.category.project.usergroups.all()
+        for usergroup in groups:
+            if usergroup.filters is not None:
+                category_filter = usergroup.filters.get(
+                    str(self.category.id), None)
+
+                if category_filter is not None:
+                    field_filter = category_filter.pop(self.key, None)
+
+                    if field_filter is not None:
+                        usergroup.save()
 
         super(Field, self).delete()
 

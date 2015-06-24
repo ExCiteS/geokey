@@ -15,7 +15,6 @@ $(function() {
 
             $('input.datetime').datetimepicker();
             $('input.date').datetimepicker({ pickTime: false });
-
             $('input.time').datetimepicker({ pickDate: false });
 
             $('#field-options input[type="number"], #field-options input.datetime, #field-options input.date').change(handleRangeFieldEdit);

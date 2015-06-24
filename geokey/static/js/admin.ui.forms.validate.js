@@ -18,7 +18,7 @@ $(function() {
      */
     function showHelp(field, message) {
         field.siblings('.help-block').remove();
-        field.after('<span class="help-block">' + message  + '</span>');
+        field.parents('.form-group').append('<span class="help-block">' + message  + '</span>');
     }
 
     function dateTimeValid(form) {

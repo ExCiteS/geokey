@@ -1,7 +1,7 @@
 (function () {
     var projectId = $('body').attr('data-project-id');
     var groupId = $('body').attr('data-group-id');
-    var projectPrivate = $('body').attr('z`');
+    var projectPrivate = $('body').attr('data-project-isprivate');
     var everyoneContributes = $('body').attr('data-everyone-contributes');
     var url = 'projects/' + projectId + '/usergroups/' + groupId + '/';
 

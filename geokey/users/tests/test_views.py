@@ -1,12 +1,14 @@
 import json
 
 from django.test import TestCase, TransactionTestCase
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, resolve
 from django.test import RequestFactory
 from django.contrib.auth.models import AnonymousUser
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpRequest
 from django.db import IntegrityError
 from django.core import mail
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
 
 from nose.tools import raises
 
@@ -17,15 +19,16 @@ from allauth.account.models import EmailAddress
 from geokey.applications.tests.model_factories import ApplicationFactory
 from geokey.projects.tests.model_factories import ProjectF
 from geokey.projects.models import Admins
-from geokey.datagroupings.tests.model_factories import GroupingFactory
+from geokey.categories.tests.model_factories import CategoryFactory
 
-from .model_factories import UserF, UserGroupF, GroupingUserGroupFactory
+from .model_factories import UserF, UserGroupF
 from ..views import (
-    UserGroup, UserGroupUsers, UserGroupSingleUser, UserGroupViews,
-    UserGroupSingleView, UserGroupCreate, UserGroupSettings, UserProfile,
+    UserGroup, UserGroupUsers, UserGroupSingleUser,
+    UserGroupCreate, UserGroupSettings, UserProfile,
     CreateUserMixin, UserAPIView, Dashboard, UserNotifications,
     ChangePasswordView, Index, UserGroupList, UserGroupOverview,
-    AdministratorsOverview, UserGroupPermissions, UserGroupDelete
+    AdministratorsOverview, UserGroupPermissions, UserGroupDelete,
+    UserGroupData
 )
 from ..models import User, UserGroup as Group
 
@@ -405,6 +408,149 @@ class UserGroupPermissionsTest(TestCase):
         self.assertEqual(context.get('group'), group)
 
 
+class UserGroupDataTest(TestCase):
+    def test_url(self):
+        self.assertEqual(
+            reverse(
+                'admin:usergroup_data',
+                kwargs={'project_id': 1, 'group_id': 1}
+            ),
+            '/admin/projects/1/usergroups/1/data/'
+        )
+
+        resolved = resolve('/admin/projects/1/usergroups/1/data/')
+        self.assertEqual(resolved.kwargs['project_id'], '1')
+        self.assertEqual(resolved.kwargs['group_id'], '1')
+        self.assertEqual(resolved.func.func_name, UserGroupData.__name__)
+
+    def test_views_with_admin(self):
+        group = UserGroupF.create()
+        view = UserGroupData.as_view()
+
+        request = HttpRequest()
+        request.method = 'GET'
+        request.user = group.project.creator
+        response = view(
+            request,
+            project_id=group.project.id,
+            group_id=group.id
+        ).render()
+
+        rendered = render_to_string(
+            'users/usergroup_data.html',
+            {
+                'group': group,
+                'user': group.project.creator,
+                'PLATFORM_NAME': get_current_site(request).name
+            }
+        )
+        self.assertEqual(unicode(response.content), rendered)
+
+        request = HttpRequest()
+        request.method = 'POST'
+        request.user = group.project.creator
+        request.POST = {'permission': 'all', 'filters': ''}
+        response = view(
+            request,
+            project_id=group.project.id,
+            group_id=group.id
+        ).render()
+
+        ref = Group.objects.get(pk=group.id)
+
+        rendered = render_to_string(
+            'users/usergroup_data.html',
+            {
+                'group': ref,
+                'user': ref.project.creator,
+                'PLATFORM_NAME': get_current_site(request).name
+            }
+        )
+        self.assertEqual(unicode(response.content), rendered)
+        self.assertIsNone(ref.filters)
+
+        category = CategoryFactory.create(**{'project': group.project})
+        request = HttpRequest()
+        request.method = 'POST'
+        request.user = group.project.creator
+        request.POST = {
+            'permission': 'restricted',
+            'filters': '{ "%s": { } }' % category.id
+        }
+        response = view(
+            request,
+            project_id=group.project.id,
+            group_id=group.id
+        ).render()
+
+        ref = Group.objects.get(pk=group.id)
+
+        rendered = render_to_string(
+            'users/usergroup_data.html',
+            {
+                'group': ref,
+                'user': ref.project.creator,
+                'PLATFORM_NAME': get_current_site(request).name
+            }
+        )
+        self.assertEqual(unicode(response.content), rendered)
+        self.assertEqual(
+            ref.filters,
+            json.loads('{ "%s": { } }' % category.id)
+        )
+
+    def test_views_with_other_user(self):
+        user = UserF.create()
+        group = UserGroupF.create()
+        view = UserGroupData.as_view()
+
+        request = HttpRequest()
+        request.method = 'GET'
+        request.user = user
+        response = view(
+            request,
+            project_id=group.project.id,
+            group_id=group.id
+        ).render()
+
+        rendered = render_to_string(
+            'users/usergroup_data.html',
+            {
+                'error_description': 'Project matching query does not exist.',
+                'error': 'Not found.',
+                'user': user,
+                'PLATFORM_NAME': get_current_site(request).name
+            }
+        )
+        self.assertEqual(unicode(response.content), rendered)
+
+        category = CategoryFactory.create(**{'project': group.project})
+        request = HttpRequest()
+        request.method = 'POST'
+        request.user = user
+        request.POST = {
+            'permission': 'restricted',
+            'filters': '{ "%s": { } }' % category.id
+        }
+        response = view(
+            request,
+            project_id=group.project.id,
+            group_id=group.id
+        ).render()
+
+        rendered = render_to_string(
+            'users/usergroup_data.html',
+            {
+                'error_description': 'Project matching query does not exist.',
+                'error': 'Not found.',
+                'user': user,
+                'PLATFORM_NAME': get_current_site(request).name
+            }
+        )
+        self.assertEqual(unicode(response.content), rendered)
+        self.assertIsNone(Group.objects.get(pk=group.id).filters)
+
+
 class UserGroupDeleteTest(TestCase):
     def setUp(self):
         self.admin = UserF.create()
@@ -750,6 +896,118 @@ class UserGroupUsersTest(TestCase):
             self.contributors.users.all()
         )
 
+    def test_add_user_from_other_group(self):
+        group = UserGroupF.create(
+            add_users=[self.user_to_add],
+            **{'project': self.project}
+        )
+
+        request = self.factory.post(
+            '/ajax/projects/%s/usergroups/%s/users/' %
+            (self.project.id, self.contributors.id),
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.admin)
+        view = UserGroupUsers.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=self.contributors.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            json.loads(response.content).get('reason'),
+            'user_exists'
+        )
+        self.assertEqual(
+            json.loads(response.content).get('group'),
+            group.name
+        )
+        self.assertNotIn(
+            self.user_to_add,
+            self.contributors.users.all()
+        )
+
+    def test_add_user_from_admins(self):
+        Admins.objects.create(
+            user=self.user_to_add,
+            project=self.project
+        )
+
+        request = self.factory.post(
+            '/ajax/projects/%s/usergroups/%s/users/' %
+            (self.project.id, self.contributors.id),
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.admin)
+        view = UserGroupUsers.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=self.contributors.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            json.loads(response.content).get('reason'),
+            'admin_exists'
+        )
+        self.assertNotIn(
+            self.user_to_add,
+            self.contributors.users.all()
+        )
+
+    def test_replace_user_from_admins(self):
+        Admins.objects.create(
+            user=self.user_to_add,
+            project=self.project
+        )
+
+        request = self.factory.post(
+            '/ajax/projects/%s/usergroups/%s/users/' %
+            (self.project.id, self.contributors.id),
+            {'userId': self.user_to_add.id, 'replace': 'True'}
+        )
+        force_authenticate(request, user=self.admin)
+        view = UserGroupUsers.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=self.contributors.id
+        ).render()
+
+        self.assertEqual(response.status_code, 201)
+        self.assertIn(
+            self.user_to_add,
+            self.contributors.users.all()
+        )
+
+    def test_replace_user_from_other_group(self):
+        UserGroupF.create(
+            add_users=[self.user_to_add],
+            **{'project': self.project}
+        )
+
+        request = self.factory.post(
+            '/ajax/projects/%s/usergroups/%s/users/' %
+            (self.project.id, self.contributors.id),
+            {'userId': self.user_to_add.id, 'replace': 'True'}
+        )
+        force_authenticate(request, user=self.admin)
+        view = UserGroupUsers.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            group_id=self.contributors.id
+        ).render()
+
+        self.assertEqual(response.status_code, 201)
+        self.assertIn(
+            self.user_to_add,
+            self.contributors.users.all()
+        )
+
     def test_add_contributor_with_contributor(self):
         request = self.factory.post(
             '/ajax/projects/%s/usergroups/%s/users/' %
@@ -901,225 +1159,6 @@ class UserGroupSingleUserTest(TestCase):
             self.contrib_to_remove,
             self.contributors.users.all()
         )
-
-
-class UserGroupViewsTest(TestCase):
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
-
-        self.project = ProjectF.create(
-            add_admins=[self.admin]
-        )
-
-        self.contributors = UserGroupF(
-            add_users=[self.contributor],
-            **{'project': self.project}
-        )
-
-        self.view = GroupingFactory(**{
-            'project': self.project
-        })
-
-    def post(self, user, grouping_id=None):
-        url = reverse('ajax:usergroup_views', kwargs={
-            'project_id': self.project.id,
-            'group_id': self.contributors.id
-        })
-        request = self.factory.post(
-            url,
-            json.dumps({"grouping": grouping_id or self.view.id}),
-            content_type='application/json'
-        )
-        force_authenticate(request, user=user)
-        view = UserGroupViews.as_view()
-
-        return view(
-            request,
-            project_id=self.project.id,
-            group_id=self.contributors.id).render()
-
-    def test_add_not_existing_view(self):
-        view = GroupingFactory.create()
-        response = self.post(self.admin, grouping_id=view.id)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_add_view_with_admin(self):
-        response = self.post(self.admin)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(
-            self.contributors.viewgroups.filter(
-                usergroup=self.contributors, grouping=self.view).count(), 1)
-
-    def test_add_view_with_admin_with_invalid_data(self):
-        url = reverse('ajax:usergroup_views', kwargs={
-            'project_id': self.project.id,
-            'group_id': self.contributors.id
-        })
-        request = self.factory.post(
-            url,
-            json.dumps({"grouping": self.view.id, "can_read": 'Blah'}),
-            content_type='application/json'
-        )
-        force_authenticate(request, user=self.admin)
-        view = UserGroupViews.as_view()
-
-        response = view(
-            request,
-            project_id=self.project.id,
-            group_id=self.contributors.id).render()
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            self.contributors.viewgroups.filter(
-                usergroup=self.contributors, grouping=self.view).count(), 1)
-
-    def test_add_view_with_contributor(self):
-        response = self.post(self.contributor)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(
-            self.contributors.viewgroups.filter(
-                usergroup=self.contributors, grouping=self.view).count(), 0)
-
-    def test_add_view_with_non_member(self):
-        response = self.post(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(
-            self.contributors.viewgroups.filter(
-                usergroup=self.contributors, grouping=self.view).count(), 0)
-
-
-class UserGroupSingleViewTest(TestCase):
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
-
-        self.project = ProjectF.create(
-            add_admins=[self.admin]
-        )
-
-        self.contributors = UserGroupF(
-            add_users=[self.contributor],
-            **{'project': self.project}
-        )
-
-        self.view = GroupingFactory(**{
-            'project': self.project
-        })
-
-        GroupingUserGroupFactory(**{
-            'usergroup': self.contributors,
-            'grouping': self.view
-        })
-
-    def put(self, user, data):
-        url = reverse('ajax:usergroup_single_view', kwargs={
-            'project_id': self.project.id,
-            'group_id': self.contributors.id,
-            'grouping_id': self.view.id
-        })
-        request = self.factory.put(
-            url, json.dumps(data), content_type='application/json')
-        force_authenticate(request, user=user)
-        view = UserGroupSingleView.as_view()
-
-        return view(
-            request,
-            project_id=self.project.id,
-            group_id=self.contributors.id,
-            grouping_id=self.view.id).render()
-
-    def delete(self, user, view_to_delete=None):
-        the_view = view_to_delete or self.view
-        url = reverse('ajax:usergroup_single_view', kwargs={
-            'project_id': self.project.id,
-            'group_id': self.contributors.id,
-            'grouping_id': the_view.id
-        })
-        request = self.factory.delete(url)
-        force_authenticate(request, user=user)
-        view = UserGroupSingleView.as_view()
-
-        return view(
-            request,
-            project_id=self.project.id,
-            group_id=self.contributors.id,
-            grouping_id=the_view.id).render()
-
-    def test_delete_not_existing_viewgroup(self):
-        response = self.delete(
-            self.admin,
-            view_to_delete=GroupingFactory.create()
-        )
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_delete_with_admin(self):
-        response = self.delete(self.admin)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(
-            self.contributors.viewgroups.filter(
-                usergroup=self.contributors, grouping=self.view).count(), 0)
-
-    def test_delete_with_contributor(self):
-        response = self.delete(self.contributor)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(
-            self.contributors.viewgroups.filter(
-                usergroup=self.contributors, grouping=self.view).count(), 1)
-
-    def test_delete_with_non_member(self):
-        response = self.delete(self.non_member)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(
-            self.contributors.viewgroups.filter(
-                usergroup=self.contributors, grouping=self.view).count(), 1)
-
-    def test_update_partial_with_admin(self):
-        response = self.put(self.admin, {'can_read': True})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        view_group = self.contributors.viewgroups.get(
-            usergroup=self.contributors, grouping=self.view)
-        self.assertTrue(view_group.can_read)
-        self.assertTrue(view_group.can_view)
-
-    def test_update_invalid_partial_with_admin(self):
-        response = self.put(self.admin, {'can_read': 'Blah'})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_update_complete_with_admin(self):
-        response = self.put(
-            self.admin,
-            {'can_read': True, 'can_view': False}
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        view_group = self.contributors.viewgroups.get(
-            usergroup=self.contributors, grouping=self.view)
-        self.assertTrue(view_group.can_read)
-        self.assertFalse(view_group.can_view)
-
-    def test_update_with_contributor(self):
-        response = self.put(self.contributor, {'can_moderate': True})
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        view_group = self.contributors.viewgroups.get(
-            usergroup=self.contributors, grouping=self.view)
-        self.assertTrue(view_group.can_read)
-        self.assertTrue(view_group.can_view)
-
-    def test_update_with_non_member(self):
-        response = self.put(self.non_member, {'can_moderate': True})
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-        view_group = self.contributors.viewgroups.get(
-            usergroup=self.contributors, grouping=self.view)
-        self.assertTrue(view_group.can_read)
-        self.assertTrue(view_group.can_view)
 
 
 class ChangePasswordTest(TestCase):

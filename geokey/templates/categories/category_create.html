@@ -12,7 +12,6 @@
                     </div>
                     <ul class="header-nav">
                         <li class="active"><a href="{% url 'admin:category_list' project.id %}">Categories <span class="badge">{{ project.categories.count }}</span></a></li>
-                        <li><a href="{% url 'admin:grouping_list' project.id %}">Data groupings <span class="badge">{{ project.groupings.count }}</span></a></li>
                         <li><a href="{% url 'admin:usergroup_list' project.id %}">User groups <span class="badge">{{ project.usergroups.count }}</span></a></li>
                     </ul>
                 </div>
@@ -45,20 +44,6 @@
                         <div class="radio">
                             <label>
                                 <input type="radio" name="default_status" value="active"> <strong>Active</strong><br>A new contribution will appear on the map immediately.
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="create_grouping" class="control-label">Do you want to create a data grouping for this category</label>
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="create_grouping" value="True" checked> <strong>Yes, create a data grouping</strong><br>The data grouping will provide access to all contributions made with this category.
-                            </label>
-                        </div>
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="create_grouping" value="False"> <strong>No, thanks</strong><br>No data grouping will be created.
                             </label>
                         </div>
                     </div>

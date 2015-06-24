@@ -146,8 +146,7 @@ class CategoryCreate(LoginRequiredMixin, CreateView):
             creator=self.request.user,
             name=strip_tags(data.get('name')),
             description=strip_tags(data.get('description')),
-            default_status=data.get('default_status'),
-            create_grouping=(data.get('create_grouping') == 'True')
+            default_status=data.get('default_status')
         )
 
         messages.success(self.request, "The category has been created.")

@@ -99,7 +99,11 @@
      * @param  {Object} response JSON object of the response
      */
     function handleAddUserError(response) {
-        // displayError('An error occured while adding the user. Error text was: ' + response.responseJSON.error);
+        var modal = $(Templates.duplicateusermodal(response.responseJSON));
+        modal.find('button#confirm').click(handleAddUser);
+
+        $('body').append(modal);
+        modal.modal();
     }
 
     /**
@@ -107,10 +111,11 @@
      * @param  {Event} event The click event on the user link.
      */
     function handleAddUser(event) {
-        var userId = $(event.target).attr('data-user-id');
+        var userId = $(event.target).attr('data-user-id'),
+            replace = $(event.target).attr('data-replace');
 
         typeAwayResults.hide();
-        Control.Ajax.post(url, handleAddUserSucess, handleAddUserError, {'userId': userId});
+        Control.Ajax.post(url, handleAddUserSucess, handleAddUserError, {'userId': userId, 'replace': replace});
         event.preventDefault();
     }
 

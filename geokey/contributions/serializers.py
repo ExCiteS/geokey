@@ -1,11 +1,8 @@
-import json
 import requests
 import tempfile
 from django.core import files
 
-from django.contrib.gis.geos import GEOSGeometry
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.utils.html import strip_tags
 
 from easy_thumbnails.files import get_thumbnailer
 
@@ -13,9 +10,7 @@ from rest_framework import serializers
 from rest_framework_gis import serializers as geoserializers
 
 from rest_framework.serializers import BaseSerializer
-from rest_framework_gis.serializers import GeoFeatureModelListSerializer
 
-from geokey.core.exceptions import MalformedRequestData
 from geokey.categories.serializer import CategorySerializer
 from geokey.categories.models import Category
 from geokey.users.serializers import UserSerializer

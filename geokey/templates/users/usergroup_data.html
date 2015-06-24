@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %} | {{group.name}}{% endblock %}
+{% block bodydata %} data-project-id="{{group.project.id}}" data-group-id="{{group.id}}"{% endblock %}
+
+{% load tags %}
+
+{% block main %}
+        <div class="page-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' group.project.id %}">{{group.project.name}}</a></h1>
+                        <a href="{% url 'admin:project_overview' group.project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
+                    </div>
+                    <ul class="header-nav">
+                        <li><a href="{% url 'admin:category_list' group.project.id %}">Categories <span class="badge">{{ group.project.categories.count }}</span></a></li>
+                        <li class="active"><a href="{% url 'admin:usergroup_list' group.project.id %}">User groups <span class="badge">{{ group.project.usergroups.count }}</span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            {% include 'snippets/messages.html' %}
+
+            <div class="row">
+                <div class="col-sm-4">
+                <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h6 class="item-info">User group</h6>
+                            <h3>{{ group.name }}</h3>
+                            {% if group.description %}<p>{{ group.description|linebreaksbr }}</p>{% endif %}
+                        </div>
+                        <div class="list-group">
+                            <a href="{% url 'admin:usergroup_overview' group.project.id group.id %}" class="list-group-item">Members</a>
+                            <a href="{% url 'admin:usergroup_permissions' group.project.id group.id %}" class="list-group-item">Permissions</a>
+                            <a href="{% url 'admin:usergroup_data' group.project.id group.id %}" class="list-group-item active">Data</a>
+                            <a href="{% url 'admin:usergroup_settings' group.project.id group.id %}" class="list-group-item">Settings</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-8" id="members">
+                    <h3 class="header">Data</h3>
+                    {% if group.project.isprivate %}
+                    <form id="data-access" method="POST" action="{% url 'admin:usergroup_data' group.project.id group.id %}" novalidate>
+                        {% csrf_token %}
+                        <input type="hidden" name="filters" value="-1">
+                        <fieldset>
+                            <legend>General settings</legend>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="permission" id="all" value="all" {% if not group.filters %} checked="true" {% endif %}>
+                                    <strong>Members can access all data of the project.</strong>
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="permission" id="restricted" value="restricted" {% if group.filters %} checked="true" {% endif %}>
+                                    <strong>Members can access a subset of the project data only.</strong>
+                                </label>
+                            </div>
+                        </fieldset>
+
+                        <fieldset id="filter" {% if not group.filters %}class="hidden"{% endif %}>
+                            <legend>Select the categories that will be accessible by the usergroup</legend>
+
+                            {% for category in group.project.categories.all %}
+                            <div class="category checkbox">
+                                <label>
+                                    <input type="checkbox" name="category" class="cat" value="{{ category.id }}" {% if group.filters|is_in:category.id %}checked="checked"{% endif%}> {{ category.name }} {% show_restrict group.filters category %}
+                                </label>
+                                {% if group.filters|is_in:category.id %}
+                                        {% show_fields group.filters category %}
+                                {% endif%}
+                            </div>
+                            {% endfor %}
+                        </fieldset>
+
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <p>The project <strong>{{ group.project.name }}</strong> is public, therefore all data of the project is public too. To restrict access make the project private under <a href="{% url 'admin:project_settings' group.project.id %}">project settings</a> first.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block libraries %}
+            <link rel="stylesheet" href="/static/lib/bootstrap-datetime/css/bootstrap-datetimepicker.min.css">
+            <script src="/static/lib/handlebars/handlebars.js"></script>
+            <script src="/static/js/templates.js"></script>
+            <script src="/static/lib/moment/moment.min.js"></script>
+            <script src="/static/lib/bootstrap-datetime/js/bootstrap-datetimepicker.min.js"></script>
+
+            <script src="/static/js/admin.ui.usergroup.data.js"></script>
+            <script src="/static/js/admin.ui.forms.validate.js"></script>
+            <script src="/static/js/admin.control.ajax.js"></script>
+{% endblock %}

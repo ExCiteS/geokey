@@ -1,7 +1,5 @@
 {% extends "base.html" %}
 
-{% load viewgroups %}
-
 {% block title %} | {{group.name}}{% endblock %}
 {% block bodydata %} data-project-id="{{group.project.id}}" data-project-isprivate="{{group.project.isprivate}}" data-group-id="{{group.id}}" data-everyone-contributes="{{ group.project.everyone_contributes }}"{% endblock %}
 
@@ -15,7 +13,6 @@
                     </div>
                     <ul class="header-nav">
                         <li><a href="{% url 'admin:category_list' group.project.id %}">Categories <span class="badge">{{ group.project.categories.count }}</span></a></li>
-                        <li><a href="{% url 'admin:grouping_list' group.project.id %}">Data groupings <span class="badge">{{ group.project.groupings.count }}</span></a></li>
                         <li class="active"><a href="{% url 'admin:usergroup_list' group.project.id %}">User groups <span class="badge">{{ group.project.usergroups.count }}</span></a></li>
                     </ul>
                 </div>
@@ -36,6 +33,7 @@
                         <div class="list-group">
                             <a href="{% url 'admin:usergroup_overview' group.project.id group.id %}" class="list-group-item">Members</a>
                             <a href="{% url 'admin:usergroup_permissions' group.project.id group.id %}" class="list-group-item active">Permissions</a>
+                            <a href="{% url 'admin:usergroup_data' group.project.id group.id %}" class="list-group-item">Data</a>
                             <a href="{% url 'admin:usergroup_settings' group.project.id group.id %}" class="list-group-item">Settings</a>
                         </div>
                     </div>
@@ -75,23 +73,6 @@
                             <button type="reset" class="btn btn-link">Reset</button>
                         </div>
                     </form>
-
-                    <h3 class="header">
-                        Access to data groupings
-                        <div class="btn-group pull-right">
-                            <button type="button" id="grant-all" class="btn btn-default btn-sm"><span class="text-success">Grant to all groups</span></button>
-                            <button type="button" id="revoke-all" class="btn btn-default btn-sm"><span class="text-danger">Revoke from all groups</span></button>
-                        </div>
-                    </h3>
-                    {% if group.project.groupings.all %}
-                        {% viewgroups group %}
-                    {% else %}
-                        <div class="well empty-list">
-                            <p class="lead">We couldn't find any data groupings for this project.</p>
-                            <p>You can use data groupings to provide users access to a subset of all data contributed to the project. For instance, you can create a data grouping that includes all tube stations that were added during the last seven days.</p>
-                            <a href="{% url 'admin:grouping_create' group.project.id %}" class="btn btn-success btn-lg">Create new data grouping</a>
-                        </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
