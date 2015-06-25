@@ -4,6 +4,7 @@ from osgeo import ogr
 
 register = template.Library()
 
+
 @register.filter(name='kml_geom')
 def kml_geom(place):
     geojson_geom = place.get('location').get('geometry')
@@ -11,10 +12,12 @@ def kml_geom(place):
     kml_geom = json_geom.ExportToKML()
     return kml_geom
 
+
 @register.filter(name='kml_name')
 def kml_name(place):
     geojson_name = place.get('display_field').get('value')
     return geojson_name
+
 
 @register.filter(name='kml_desc')
 def kml_desc(place):
@@ -23,7 +26,8 @@ def kml_desc(place):
 
     for key in geojson_properties:
         if geojson_properties[key] is not None:
-            geojson_desc = geojson_desc + '<tr><td>{key}</td><td>{value}</td></tr>'.format(
+            geojson_desc = '{desc}<tr><td>{key}</td><td>{value}</td></tr>'.format(
+                desc=geojson_desc,
                 key=key,
                 value=geojson_properties[key]
             )
@@ -32,8 +36,9 @@ def kml_desc(place):
 
     return geojson_desc
 
+
 @register.filter(name='kml_style')
 def kml_style(place):
     geojson_colour = place.get('meta').get('category').get('colour')
-    geojson_colour = geojson_colour.replace('#','')
+    geojson_colour = geojson_colour.replace('#', '')
     return geojson_colour

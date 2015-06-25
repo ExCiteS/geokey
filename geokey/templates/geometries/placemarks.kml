@@ -1,6 +1,6 @@
 {% extends "gis/kml/base.kml" %}
 
-{% load tags %}
+{% load kml_tags %}
 
 {% block placemarks %}
 
