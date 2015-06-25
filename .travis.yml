@@ -21,7 +21,7 @@ before_script:
 install:
   - sudo rm /etc/apt/sources.list.d/ubuntugis-stable-source.list
   - sudo apt-get update -qq
-  - sudo apt-get install -qq python-gdal gdal-bin binutils
+  - sudo apt-get install -qq python-gdal gdal-bin binutils libgdal-dev
   - pip install coveralls
   - export C_INCLUDE_PATH=/usr/include/gdal
   - export CPLUS_INCLUDE_PATH=/usr/include/gdal
