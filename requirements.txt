@@ -18,4 +18,3 @@ gdata==2.0.18
 easy-thumbnails==2.2
 requests==2.6.2
 django-allauth==0.19.1
-gdal==1.9.0
