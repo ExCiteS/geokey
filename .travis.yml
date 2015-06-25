@@ -23,6 +23,8 @@ install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq python-gdal gdal-bin binutils
   - pip install coveralls
+  - export C_INCLUDE_PATH=/usr/include/gdal
+  - export CPLUS_INCLUDE_PATH=/usr/include/gdal
 
 script:
   - coverage run --source=geokey.applications,geokey.projects,geokey.categories,geokey.contributions,geokey.users,geokey.superusertools,geokey.extensions manage.py test
