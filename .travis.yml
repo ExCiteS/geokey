@@ -11,8 +11,8 @@ addons:
 
 before_install:
   - sudo apt-get update
-  # - sudo apt-get install postgresql-9.4-postgis-2.1
-  - sudo apt-get install binutils libproj-dev gdal-bin python-gdal  # libgdal-dev
+  - sudo apt-get install binutils libproj-dev gdal-bin python-gdal libgdal-dev
+  - sudo apt-get install postgresql-9.4-postgis-2.1
 
 before_script:
   - psql template1 postgres -c 'create extension hstore;'
