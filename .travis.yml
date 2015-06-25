@@ -10,8 +10,8 @@ addons:
   postgresql: "9.4"
 
 before_install:
-  - sudo rm /etc/apt/sources.list.d/ubuntugis-stable-source.list # work around for qgis/postgis package problems on travis
   - sudo apt-get update
+  - sudo apt-get install postgresql-9.4-postgis-2.1
   - sudo apt-get install binutils libproj-dev gdal-bin python-gdal gdal-bin libgdal-dev
   - gdal-config --version
 
