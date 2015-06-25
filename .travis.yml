@@ -9,11 +9,6 @@ services:
 addons:
   postgresql: "9.4"
 
-before_install:
-  - sudo apt-get update
-  - sudo apt-get install binutils libproj-dev gdal-bin python-gdal  # libgdal-dev
-  - sudo apt-get install postgresql-9.4-postgis-2.1
-
 before_script:
   - psql template1 postgres -c 'create extension hstore;'
   - psql -c 'create database geokey;' -U postgres
@@ -24,6 +19,9 @@ before_script:
   - python manage.py migrate
 
 install:
+  - sudo rm /etc/apt/sources.list.d/ubuntugis-stable-source.list
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq python-gdal gdal-bin binutils
   - pip install coveralls
 
 script:
