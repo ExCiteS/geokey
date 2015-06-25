@@ -10,6 +10,7 @@ addons:
   postgresql: "9.4"
 
 before_install:
+  - sudo apt-get update && sudo apt-get upgrade
   - sudo apt-get install binutils libproj-dev gdal-bin python-gdal gdal-bin libgdal-dev
   - gdal-config --version
 
