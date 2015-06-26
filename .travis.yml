@@ -9,6 +9,9 @@ services:
 addons:
   postgresql: "9.4"
 
+virtualenv:
+  system_site_packages: true
+
 install:
   - sudo rm /etc/apt/sources.list.d/ubuntugis-stable-source.list
   - sudo apt-get update -y
