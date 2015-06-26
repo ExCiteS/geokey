@@ -13,8 +13,8 @@ install:
   - sudo rm /etc/apt/sources.list.d/ubuntugis-stable-source.list
   - sudo apt-get update -y
   - sudo apt-get install python-gdal gdal-bin binutils
-  # - export C_INCLUDE_PATH=/usr/include/gdal
-  # - export CPLUS_INCLUDE_PATH=/usr/include/gdal
+  - export C_INCLUDE_PATH=/usr/include/gdal
+  - export CPLUS_INCLUDE_PATH=/usr/include/gdal
   # - V=`dpkg -s gdal-bin | grep Version | cut -d' ' -f2 | cut -d'-' -f1`; env CPLUS_INCLUDE_PATH=/usr/include/gdal C_INCLUDE_PATH=/usr/include/gdal pip install "GDAL==$V"
   - pip install gdal==1.10.0
 
