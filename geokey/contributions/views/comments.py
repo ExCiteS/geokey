@@ -169,15 +169,14 @@ class CommentAbstractAPIView(APIView):
             if the user authenticated with the request is not allowed to
             delete the comment
         """
+        observation = comment.commentto
         if (comment.creator == request.user or
-                comment.commentto.project.can_moderate(request.user)):
+                observation.project.can_moderate(request.user)):
 
             comment.delete()
 
-            if (comment.review_status == 'open' and
-                    not comment.commentto.comments.filter(
-                        review_status='open').exists()):
-                comment.commentto.update(None, request.user, status='active')
+            if not observation.comments.filter(review_status='open').exists():
+                observation.update(None, request.user, status='active')
 
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:

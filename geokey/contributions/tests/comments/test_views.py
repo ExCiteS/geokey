@@ -801,6 +801,25 @@ class DeleteProjectCommentTest(APITestCase):
         self.assertIn(self.comment, observation.comments.all())
         self.assertNotIn(self.comment_to_remove, observation.comments.all())
 
+    def test_resolve_nested_comment_with_admin(self):
+        self.comment.respondsto = self.comment_to_remove
+        self.comment.review_status = 'open'
+        self.comment.save()
+
+        self.comment_to_remove.review_status = None
+        self.comment_to_remove.save()
+
+        self.observation.status = 'review'
+        self.observation.save()
+
+        response = self.get_response(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.assertEqual(
+            Observation.objects.get(pk=self.observation.id).status,
+            'active'
+        )
+
 
 class DeleteWrongProjectComment(APITestCase):
     def test(self):
