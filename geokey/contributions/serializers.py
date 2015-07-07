@@ -656,7 +656,13 @@ class FileSerializer(serializers.ModelSerializer):
             The url to embed thumbnails on client side
         """
         if isinstance(obj, ImageFile):
-            return self._get_thumb(obj.image).url
+            # Some of the imported image files in the original community maps
+            # seem to be broken. The error thrown when the image can not be
+            # read is caught here.
+            try:
+                return self._get_thumb(obj.image).url
+            except IOError:
+                return ''
 
         elif isinstance(obj, VideoFile):
             if obj.thumbnail:
