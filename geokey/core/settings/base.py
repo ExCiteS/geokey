@@ -52,7 +52,6 @@ INSTALLED_APPS = (
     'geokey.projects',
     'geokey.categories',
     'geokey.contributions',
-    'geokey.datagroupings',
     'geokey.users',
     'geokey.applications',
     'geokey.superusertools',

@@ -3,7 +3,6 @@ from django.conf.urls import patterns, url
 from geokey.projects import views as project_views
 from geokey.categories import views as category_views
 from geokey.users import views as login_views
-from geokey.datagroupings import views as dataviews
 from geokey.applications import views as app_views
 from geokey.superusertools import views as superuser
 
@@ -117,46 +116,6 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/delete/$',
         category_views.FieldDelete.as_view(),
         name='category_field_delete'),
-
-    # ###########################
-    # DATA GROUPINGS
-    # ###########################
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/$',
-        dataviews.GroupingList.as_view(),
-        name='grouping_list'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/new/$',
-        dataviews.GroupingCreate.as_view(),
-        name='grouping_create'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/$',
-        dataviews.GroupingOverview.as_view(),
-        name='grouping_overview'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/permissions/$',
-        dataviews.GroupingPermissions.as_view(),
-        name='grouping_permissions'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/settings/$',
-        dataviews.GroupingSettings.as_view(),
-        name='grouping_settings'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/delete/$',
-        dataviews.GroupingDelete.as_view(),
-        name='grouping_delete'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/filter/new/$',
-        dataviews.RuleCreate.as_view(),
-        name='rule_create'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/filter/(?P<rule_id>[0-9]+)/$',
-        dataviews.RuleSettings.as_view(),
-        name='rule_settings'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/filter/(?P<rule_id>[0-9]+)/delete/$',
-        dataviews.RuleDelete.as_view(),
-        name='rule_delete'),
 
     # ###########################
     # APPS

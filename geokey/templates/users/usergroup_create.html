@@ -12,7 +12,7 @@
                     </div>
                     <ul class="header-nav">
                     <li><a href="{% url 'admin:category_list' project.id %}">Categories <span class="badge">{{ project.categories.count }}</span></a></li>
-                    <li class="active"><a href="{% url 'admin:grouping_list' project.id %}">User groups <span class="badge">{{ project.usergroups.count }}</span></a></li>
+                    <li class="active"><a href="{% url 'admin:usergroup_list' project.id %}">User groups <span class="badge">{{ project.usergroups.count }}</span></a></li>
                 </ul>
                 </div>
             </div>

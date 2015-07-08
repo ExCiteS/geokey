@@ -2,7 +2,6 @@ from django.conf.urls import patterns, url
 
 from geokey.projects import views as project_views
 from geokey.categories import views as category_views
-from geokey.datagroupings import views as view_views
 from geokey.users import views as user_views
 from geokey.superusertools import views as superuser_views
 
