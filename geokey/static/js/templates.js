@@ -329,46 +329,6 @@ helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partial
   return buffer;
   });
 
-this["Templates"]["duplicateusermodal"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, helper, options, functionType="function", escapeExpression=this.escapeExpression, self=this, helperMissing=helpers.helperMissing;
-
-function program1(depth0,data) {
-  
-  var buffer = "", stack1, helper;
-  buffer += "\n                    <p>The user you where trying to add to this user group is already member of user group <strong>";
-  if (helper = helpers.group) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-  else { helper = (depth0 && depth0.group); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-  buffer += escapeExpression(stack1)
-    + "</strong>.</p>\n                    <p>Do you want to remove the user from user group <strong>";
-  if (helper = helpers.group) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-  else { helper = (depth0 && depth0.group); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-  buffer += escapeExpression(stack1)
-    + "</strong> and add them to this group?</p>\n                ";
-  return buffer;
-  }
-
-function program3(depth0,data) {
-  
-  
-  return "\n                    <p>The user you where trying to add to this user group is already <strong>administrator</strong> of the project.</p>\n                    <p>Do you want to remove the user from <strong>administrators</strong> and add them to this group?</p>\n                ";
-  }
-
-  buffer += "<div class=\"modal fade\" id=\"duplicate-user\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\" aria-hidden=\"true\">\n    <div class=\"modal-dialog\">\n        <div class=\"modal-content panel-warning\">\n            <div class=\"modal-header panel-heading\">\n                <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>\n                <h4 class=\"modal-title\" id=\"myModalLabel\">User could not be added</h4>\n            </div>\n            <div class=\"modal-body panel-body\">\n                ";
-  stack1 = (helper = helpers.ifCond || (depth0 && depth0.ifCond),options={hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data},helper ? helper.call(depth0, (depth0 && depth0.reason), "user_exists", options) : helperMissing.call(depth0, "ifCond", (depth0 && depth0.reason), "user_exists", options));
-  if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\n                ";
-  stack1 = (helper = helpers.ifCond || (depth0 && depth0.ifCond),options={hash:{},inverse:self.noop,fn:self.program(3, program3, data),data:data},helper ? helper.call(depth0, (depth0 && depth0.reason), "admin_exists", options) : helperMissing.call(depth0, "ifCond", (depth0 && depth0.reason), "admin_exists", options));
-  if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\n            </div>\n            <div class=\"modal-footer panel-footer\">\n                <button type=\"button\" name=\"confirm\" id=\"confirm\" data-user-id=\"";
-  if (helper = helpers.userId) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-  else { helper = (depth0 && depth0.userId); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-  buffer += escapeExpression(stack1)
-    + "\" data-replace=\"True\" class=\"btn btn-warning\" data-dismiss=\"modal\">Yes, add the user to this group.</button>\n                <button type=\"button\" name=\"cancel\" class=\"btn btn-default\" data-dismiss=\"modal\">No, I don't want to change anything.</button>\n            </div>\n        </div>\n    </div>\n</div>\n";
-  return buffer;
-  });
-
 this["Templates"]["field"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); partials = this.merge(partials, Handlebars.partials); data = data || {};

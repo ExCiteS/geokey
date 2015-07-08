@@ -273,12 +273,19 @@ class Project(models.Model):
 
         where_clause = None
         if self.isprivate and not user.is_anonymous():
-            where_clause = self.usergroups.get(users=user).where_clause
+            clauses = []
+
+            for group in self.usergroups.filter(users=user):
+                if group.where_clause is not None:
+                    clauses.append(group.where_clause)
+
+            if clauses:
+                where_clause = '(' + ') OR ('.join(clauses) + ')'
 
         if not where_clause:
             return data
 
-        return data.extra(where=[where_clause])
+        return data.extra(where=[where_clause]).distinct()
 
     def contact_admins(self, sender, mail_content):
         """

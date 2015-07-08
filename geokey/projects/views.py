@@ -397,23 +397,6 @@ class ProjectAdmins(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        replace = (request.DATA.get('replace') == 'True')
-
-        try:  # Check if user is member of other user group
-            existing_group = project.usergroups.get(users=user)
-            if replace:
-                existing_group.users.remove(user)
-            else:
-                return Response({
-                        'reason': 'user_exists',
-                        'group': existing_group.name,
-                        'userId': user_id
-                    },
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        except UserGroup.DoesNotExist:
-            pass
-
         Admins.objects.create(project=project, user=user)
 
         serializer = UserSerializer(project.admins.all(), many=True)

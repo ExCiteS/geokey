@@ -597,60 +597,6 @@ class ProjectAdminsTest(TestCase):
             Project.objects.get(pk=self.project.id).admins.all()
         )
 
-    def test_add_admin_from_other_group(self):
-        group = UserGroupF.create(
-            add_users=[self.user_to_add],
-            **{'project': self.project}
-        )
-
-        request = self.factory.post(
-            '/ajax/projects/%s/admins/' % (self.project.id) + '/',
-            {'userId': self.user_to_add.id}
-        )
-        force_authenticate(request, user=self.admin)
-        view = ProjectAdmins.as_view()
-        response = view(
-            request,
-            project_id=self.project.id
-        ).render()
-
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            json.loads(response.content).get('reason'),
-            'user_exists'
-        )
-        self.assertEqual(
-            json.loads(response.content).get('group'),
-            group.name
-        )
-        self.assertNotIn(
-            self.user_to_add,
-            Project.objects.get(pk=self.project.id).admins.all()
-        )
-
-    def test_replace_admin_from_other_group(self):
-        UserGroupF.create(
-            add_users=[self.user_to_add],
-            **{'project': self.project}
-        )
-
-        request = self.factory.post(
-            '/ajax/projects/%s/admins/' % (self.project.id) + '/',
-            {'userId': self.user_to_add.id, 'replace': 'True'}
-        )
-        force_authenticate(request, user=self.admin)
-        view = ProjectAdmins.as_view()
-        response = view(
-            request,
-            project_id=self.project.id
-        ).render()
-
-        self.assertEqual(response.status_code, 201)
-        self.assertIn(
-            self.user_to_add,
-            Project.objects.get(pk=self.project.id).admins.all()
-        )
-
     def test_add_admin_with_contributor(self):
         request = self.factory.post(
             '/ajax/projects/%s/admins/' % (self.project.id) + '/',

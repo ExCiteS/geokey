@@ -582,34 +582,6 @@ class UserGroupUsers(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        replace = (request.DATA.get('replace') == 'True')
-        error = False
-
-        try:  # Check if user is admin
-            existing_group = Admins.objects.get(project=project, user=user)
-            if replace:
-                existing_group.delete()
-            else:
-                error = {'reason': 'admin_exists', 'userId': user_id}
-        except Admins.DoesNotExist:
-            pass
-
-        try:  # Check if user is member of other user group
-            existing_group = project.usergroups.get(users=user)
-            if replace:
-                existing_group.users.remove(user)
-            else:
-                error = {
-                    'reason': 'user_exists',
-                    'group': existing_group.name,
-                    'userId': user_id
-                }
-        except UserGroupModel.DoesNotExist:
-            pass
-
-        if error and not replace:
-            return Response(error, status=status.HTTP_400_BAD_REQUEST)
-
         group = project.usergroups.get(pk=group_id)
         group.users.add(user)
 
