@@ -29,7 +29,7 @@ def kml_desc(place):
             geojson_desc = '{desc}<tr><td>{key}</td><td>{value}</td></tr>'.format(
                 desc=geojson_desc,
                 key=key,
-                value=geojson_properties[key]
+                value=geojson_properties[key].encode('utf-8')
             )
 
     geojson_desc = geojson_desc + '</table>]]>'
