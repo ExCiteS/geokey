@@ -24,13 +24,19 @@ def kml_desc(place):
     geojson_properties = place.get('properties')
     geojson_desc = '<![CDATA[<table>'
 
-    for key in geojson_properties:
-        if geojson_properties[key] is not None:
-            geojson_desc = '{desc}<tr><td>{key}</td><td>{value}</td></tr>'.format(
-                desc=geojson_desc,
-                key=key,
-                value=geojson_properties[key].encode('utf-8')
-            )
+    if geojson_properties:
+        for key in geojson_properties:
+            value = geojson_properties[key]
+
+            if type(value) in ['str', 'unicode']:
+                value = value.encode('utf-8')
+
+            if geojson_properties[key] is not None:
+                geojson_desc = '{desc}<tr><td>{key}</td><td>{value}</td></tr>'.format(
+                    desc=geojson_desc,
+                    key=key,
+                    value=value
+                )
 
     geojson_desc = geojson_desc + '</table>]]>'
 
