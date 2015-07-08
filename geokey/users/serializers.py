@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer, ValidationError
 
 from geokey.core.serializers import FieldSelectorSerializer
-from .models import User, UserGroup, GroupingUserGroup
+from .models import User, UserGroup
 
 
 class UserSerializer(FieldSelectorSerializer):
@@ -74,12 +74,3 @@ class UserGroupSerializer(ModelSerializer):
             'id', 'name', 'description', 'users', 'can_contribute',
             'can_moderate'
         )
-
-
-class GroupingUserGroupSerializer(ModelSerializer):
-    """
-    Serializer for ViewGroup model.
-    """
-    class Meta:
-        model = GroupingUserGroup
-        fields = ('grouping', 'can_read', 'can_view')

@@ -10,7 +10,6 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 
 from geokey.projects.tests.model_factories import UserF, ProjectF
-from geokey.datagroupings.models import Grouping
 from geokey.contributions.tests.media.model_factories import get_image
 
 from .model_factories import (
@@ -197,28 +196,6 @@ class CategoryCreateTest(TestCase):
             response,
             'Project matching query does not exist.'
         )
-
-    def test_post_valid_without_grouping(self):
-        data = {
-            'name': 'Test',
-            'description': 'Test Description',
-            'default_status': 'active',
-            'create_grouping': 'False'
-        }
-        response = self.post(self.admin, data)
-        self.assertTrue(isinstance(response, HttpResponseRedirect))
-        self.assertEqual(Grouping.objects.all().count(), 0)
-
-    def test_post_valid_with_grouping(self):
-        data = {
-            'name': 'Test',
-            'description': 'Test Description',
-            'default_status': 'active',
-            'create_grouping': 'True'
-        }
-        response = self.post(self.admin, data)
-        self.assertTrue(isinstance(response, HttpResponseRedirect))
-        self.assertEqual(Grouping.objects.all().count(), 1)
 
 
 class CategoryDisplayTest(TestCase):
@@ -1733,12 +1710,10 @@ class ObservationTypePublicApiTest(TestCase):
         self.admin = UserF.create()
         self.contributor = UserF.create()
         self.non_member = UserF.create()
-        self.view_member = UserF.create()
 
         self.project = ProjectF.create(
             add_admins=[self.admin],
-            add_contributors=[self.contributor],
-            add_viewers=[self.view_member]
+            add_contributors=[self.contributor]
         )
         self.category = CategoryFactory(**{
             'status': 'active',
@@ -1808,10 +1783,6 @@ class ObservationTypePublicApiTest(TestCase):
 
     def test_get_category_with_contributor(self):
         response = self._get(self.contributor)
-        self.assertEqual(response.status_code, 200)
-
-    def test_get_category_with_view_member(self):
-        response = self._get(self.view_member)
         self.assertEqual(response.status_code, 200)
 
     def test_get_category_with_non_member(self):

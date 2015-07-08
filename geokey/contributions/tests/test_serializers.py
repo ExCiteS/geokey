@@ -158,13 +158,11 @@ class ContributionSerializerIntegrationTests(TestCase):
     def setUp(self):
         self.admin = UserF.create()
         self.contributor = UserF.create()
-        self.view_member = UserF.create()
         self.non_member = UserF.create()
 
         self.project = ProjectF(
             add_admins=[self.admin],
-            add_contributors=[self.contributor],
-            add_viewers=[self.view_member]
+            add_contributors=[self.contributor]
         )
         self.category = CategoryFactory(**{
             'status': 'active',

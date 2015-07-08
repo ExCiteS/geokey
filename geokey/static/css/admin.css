@@ -225,8 +225,8 @@ ul.type-away {
 }
 
 .field-filter {
-	padding: 15px 5px;
-	border-top: 1px solid #e7e7e7;
+	padding: 15px;
+	border-bottom: 1px solid #e7e7e7;
 	font-weight: bold;
 }
 
@@ -423,6 +423,14 @@ ul.overview-list > li > div:last-child {
 	border-bottom: none;
 }
 
+fieldset {
+	margin-top: 30px;
+}
+
+fieldset legend {
+	margin-bottom: 10px;
+}
+
 form#permissions {
 	margin-bottom: 60px;
 }
@@ -438,10 +446,17 @@ form#permissions .message {
 	text-align: center;
 }
 
-/*.contributions {
-	line-height: 42px;
-	vertical-align: middle;
-}*/
+.category {
+	clear: both;
+	border-bottom: 1px solid #ddd;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.field-options {
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
 
 .number {
 	font-weight: bold;

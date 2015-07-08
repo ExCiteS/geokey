@@ -3,7 +3,6 @@ from django.core.exceptions import PermissionDenied
 
 from model_utils.managers import InheritanceManager
 
-from geokey.datagroupings.models import Grouping, Rule
 from geokey.projects.models import Project
 
 from .base import STATUS
@@ -126,15 +125,10 @@ class CategoryManager(ActiveMixin, models.Manager):
             user, project_id
             ).categories.get(pk=category_id)
 
-    def create(self, create_grouping=False, *args, **kwargs):
+    def create(self, *args, **kwargs):
         """
-        Creates a new category. Overwrites method to optionally create a
-        data grouping for the category
-
-        Parameters
-        ----------
-        create_grouping : Boolean
-            indicating if a data grouping should be created
+        Creates a new category. Overwrites method to set the order of the
+        category in the list of categories.
 
         Returns
         -------
@@ -145,20 +139,6 @@ class CategoryManager(ActiveMixin, models.Manager):
 
         category.order = category.project.categories.count() - 1
         category.save()
-
-        if create_grouping:
-            grouping = Grouping.objects.create(
-                name=category.name,
-                description='All contributions of category %s.' % (
-                    category.name),
-                project=category.project,
-                creator=category.creator
-            )
-
-            Rule.objects.create(
-                grouping=grouping,
-                category=category
-            )
 
         return category
 

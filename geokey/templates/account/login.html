@@ -43,7 +43,7 @@
 
 					<form role="form" action="/admin/account/login/" method="POST">
 						{% csrf_token %}
-						<input type="hidden" name="next" value="{{ next|escape }}" />
+						<input type="hidden" name="next" value="{{ request.REQUEST.next }}" />
 						<div class="form-group">
 							<label for="login">E-mail</label>
 							<input type="text" class="form-control input-lg" id="login" name="login">

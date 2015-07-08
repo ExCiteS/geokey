@@ -22,10 +22,6 @@ INSTALLED_APPS += (
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
-FIXTURE_DIRS = (normpath(join(BASE_DIR, 'tests')),)
-
-SOUTH_TESTS_MIGRATE = False
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 

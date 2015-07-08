@@ -99,7 +99,7 @@
      * @param  {Object} response JSON object of the response
      */
     function handleAddUserError(response) {
-        // displayError('An error occured while adding the user. Error text was: ' + response.responseJSON.error);
+
     }
 
     /**

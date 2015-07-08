@@ -2,7 +2,6 @@ from django.conf.urls import patterns, url
 
 from geokey.projects import views as project_views
 from geokey.categories import views as category_views
-from geokey.datagroupings import views as view_views
 from geokey.users import views as user_views
 from geokey.superusertools import views as superuser_views
 
@@ -35,14 +34,6 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/users/(?P<user_id>[0-9]+)/$',
         user_views.UserGroupSingleUser.as_view(),
         name='usergroup_single_user'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/data-groupings/$',
-        user_views.UserGroupViews.as_view(),
-        name='usergroup_views'),
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/data-groupings/(?P<grouping_id>[0-9]+)/$',
-        user_views.UserGroupSingleView.as_view(),
-        name='usergroup_single_view'),
 
     # ###########################
     # CATEGORIES & FIELDS

@@ -2,6 +2,8 @@ from django.test import TestCase
 
 from oauth2_provider.models import AccessToken
 from geokey.applications.tests.model_factories import ApplicationFactory
+from geokey.projects.tests.model_factories import ProjectF
+from geokey.categories.tests.model_factories import CategoryFactory
 
 from .model_factories import UserGroupF, UserF
 from ..models import UserGroup
@@ -24,7 +26,36 @@ class UserTest(TestCase):
         self.assertEqual(0, AccessToken.objects.filter(user=user).count())
 
 
-class UserGroupPreSaveSignalTest(TestCase):
+class UserGroupTest(TestCase):
+    def test_update_where_clause(self):
+        project = ProjectF.create()
+        cat_1 = CategoryFactory.create(**{'project': project})
+        cat_2 = CategoryFactory.create(**{'project': project})
+        usergroup = UserGroupF.create(**{'project': project})
+        usergroup.filters = {
+            cat_1.id: {},
+            cat_2.id: {}
+        }
+        usergroup.save()
+
+        self.assertIn(
+            UserGroup.objects.get(pk=usergroup.id).where_clause,
+            [
+                '((category_id = %s)) OR ((category_id = %s))' % (
+                    cat_2.id, cat_1.id
+                ),
+                '((category_id = %s)) OR ((category_id = %s))' % (
+                    cat_1.id, cat_2.id
+                )
+            ]
+        )
+
+        usergroup.filters = {}
+        usergroup.save()
+
+        self.assertEqual(UserGroup.objects.get(pk=usergroup.id).where_clause, 'FALSE')
+
+
     def test_contribute_and_moderate(self):
         usergroup = UserGroupF.create()
 

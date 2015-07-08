@@ -1,0 +1,26 @@
+<div class="field-filter form-horizontal list-group-item" data-key="{{key}}" data-type="{{fieldtype}}">
+    <button type="button" class="close remove" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h5>{{name}} ({{key}})</h5>
+
+    {{#ifCond fieldtype 'TextField'}}
+        {{> textfield}}
+    {{/ifCond}}
+    {{#ifCond fieldtype 'NumericField'}}
+        {{> numericfield}}
+    {{/ifCond}}
+    {{#ifCond fieldtype 'DateTimeField'}}
+        {{> datetimefield}}
+    {{/ifCond}}
+    {{#ifCond fieldtype 'DateField'}}
+        {{> datefield}}
+    {{/ifCond}}
+    {{#ifCond fieldtype 'TimeField'}}
+        {{> timefield}}
+    {{/ifCond}}
+    {{#ifCond fieldtype 'LookupField'}}
+        {{> lookupfield}}
+    {{/ifCond}}
+    {{#ifCond fieldtype 'MultipleLookupField'}}
+        {{> multiplelookupfield}}
+    {{/ifCond}}
+</div>

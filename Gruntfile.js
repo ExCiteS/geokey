@@ -8,11 +8,11 @@ module.exports = function(grunt) {
             options: {
                 namespace: "Templates",
                 processName: function(filePath) {
-                    var file = filePath.split('/')[2];
+                    var file = filePath.split('/')[3];
                     return file.substring(0, file.indexOf('.hbs'));
                 },
                 processPartialName: function(filePath) {
-                    var file = filePath.split('/')[2];
+                    var file = filePath.split('/')[3];
                     return file.substring(1, file.indexOf('.hbs'));
                 }
             },

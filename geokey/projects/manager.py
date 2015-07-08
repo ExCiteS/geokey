@@ -20,9 +20,8 @@ class ProjectQuerySet(models.query.QuerySet):
 
         For authenticated users:
             Returns all projects that
-                - are public and have at least one public data grouping
-                - all projects the user can contribute or moderate or can
-                  access one data grouping
+                - are public
+                - all projects the user can contribute or moderate
 
         Parameter
         ---------
@@ -35,29 +34,17 @@ class ProjectQuerySet(models.query.QuerySet):
             List of geokey.projects.models.Project
         """
         if user.is_anonymous():
-            return self.annotate(public_groupings=Count(
-                'groupings',
-                only=Q(groupings__isprivate=False, groupings__status='active')
-                )).filter(
-                Q(status=STATUS.active) &
-                Q(isprivate=False, public_groupings__gte=1)
+            return self.filter(
+                    Q(status=STATUS.active) & Q(isprivate=False)
                 ).distinct()
         else:
-            projects = self.annotate(public_groupings=Count(
-                'groupings',
-                only=Q(groupings__isprivate=False, groupings__status='active')
-                )).filter(
+            projects = self.filter(
                 Q(admins=user) |
                 (
                     Q(status=STATUS.active) &
                     (
-                        Q(isprivate=False, public_groupings__gte=1) |
-                        Q(usergroups__can_contribute=True,
-                            usergroups__users=user) |
-                        Q(usergroups__can_moderate=True,
-                            usergroups__users=user) |
-                        Q(usergroups__users=user,
-                            usergroups__viewgroups__isnull=False)
+                        Q(isprivate=False) |
+                        Q(usergroups__users=user)
                     )
                 )
             ).distinct()

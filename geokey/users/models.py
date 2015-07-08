@@ -2,9 +2,8 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
 from django.utils import timezone
-from django.db.models.signals import pre_save
-from django.dispatch import receiver
 
+from django_pgjson.fields import JsonBField
 from oauth2_provider.models import AccessToken
 
 from .manager import UserManager
@@ -53,31 +52,28 @@ class UserGroup(models.Model):
     project = models.ForeignKey('projects.Project', related_name='usergroups')
     can_contribute = models.BooleanField(default=True)
     can_moderate = models.BooleanField(default=False)
+    filters = JsonBField(blank=True, null=True)
+    where_clause = models.TextField(blank=True, null=True)
 
+    def save(self, *args, **kwargs):
+        """
+        Overwrites save to implement integrity ensurance.
+        """
+        self.where_clause = None
+        if self.filters is not None:
+            queries = []
 
-@receiver(pre_save, sender=UserGroup)
-def update_application_client(sender, **kwargs):
-    """
-    Receiver function to ensure that can_contribute is set to True when the
-    user groups has moderation permissions.
-    """
-    group = kwargs.get('instance')
+            for key in self.filters:
+                category = self.project.categories.get(pk=key)
+                queries.append(category.get_query(self.filters[key]))
 
-    if group.can_moderate:
-        group.can_contribute = True
+            if len(queries) > 0:
+                query = ' OR '.join(queries)
+                self.where_clause = query
+            else:
+                self.where_clause = 'FALSE'
 
+        if self.can_moderate:
+            self.can_contribute = True
 
-class GroupingUserGroup(models.Model):
-    """
-    The relation between user groups and views. Used to grant permissions on
-    the given view to users.
-    """
-    usergroup = models.ForeignKey('UserGroup', related_name='viewgroups')
-    grouping = models.ForeignKey(
-        'datagroupings.Grouping',
-        related_name='usergroups'
-    )
-    can_read = models.BooleanField(default=True)
-    can_view = models.BooleanField(default=True)
-
-    unique_together = ('usergroup', 'grouping')
+        super(UserGroup, self).save(*args, **kwargs)

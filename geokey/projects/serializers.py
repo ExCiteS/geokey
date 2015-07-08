@@ -4,8 +4,6 @@ from django.db.models import Q
 from rest_framework import serializers
 
 from geokey.core.serializers import FieldSelectorSerializer
-from geokey.datagroupings.serializers import GroupingSerializer
-from geokey.datagroupings.models import Grouping
 from geokey.categories.serializer import CategorySerializer
 from geokey.contributions.models import Location
 
@@ -16,9 +14,7 @@ class ProjectSerializer(FieldSelectorSerializer):
     """
     Serializer for geokey.projects.models.Project
     """
-    data_groupings = serializers.SerializerMethodField()
     num_locations = serializers.SerializerMethodField()
-
     categories = serializers.SerializerMethodField()
     contribution_info = serializers.SerializerMethodField()
     user_info = serializers.SerializerMethodField()
@@ -28,7 +24,7 @@ class ProjectSerializer(FieldSelectorSerializer):
         model = Project
         depth = 1
         fields = ('id', 'name', 'description', 'isprivate', 'status',
-                  'created_at', 'categories', 'data_groupings',
+                  'created_at', 'categories',
                   'contribution_info', 'user_info', 'num_locations',
                   'geographic_extent')
         read_only_fields = ('id', 'name')
@@ -50,29 +46,6 @@ class ProjectSerializer(FieldSelectorSerializer):
         serializer = CategorySerializer(
             project.categories.all().exclude(fields=None), many=True)
         return serializer.data
-
-    def get_data_groupings(self, project):
-        """
-        Method for SerializerMethodField `data_groupings`
-
-        Parameters
-        ----------
-        project : geokey.projects.models.Project
-            Project that is serialised
-
-        Returns
-        -------
-        list
-            serialised data groupings
-        """
-        user = self.context.get('user')
-        maps = Grouping.objects.get_list(user, project.id)
-        view_serializer = GroupingSerializer(
-            maps, many=True,
-            fields=('id', 'name', 'description', 'num_contributions',
-                    'created_at', 'symbol', 'colour'),
-            context={'user': user})
-        return view_serializer.data
 
     def get_geographic_extent(self, project):
         """
@@ -113,7 +86,7 @@ class ProjectSerializer(FieldSelectorSerializer):
             Q(private_for_project=project)).count()
         return locations
 
-    def get_number_contrbutions(self, project):
+    def get_num_contributions(self, project):
         """
         Method for SerializerMethodField `num_observations`. Returns the
         overall number of observations contributed to the project.
@@ -186,7 +159,7 @@ class ProjectSerializer(FieldSelectorSerializer):
                     status='pending').count()
 
         return {
-            'total': self.get_number_contrbutions(project),
+            'total': self.get_num_contributions(project),
             'personal': personal,
             'pending_all': pending_all,
             'pending_personal': pending_personal,

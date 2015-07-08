@@ -1,0 +1,16 @@
+{% extends "gis/kml/base.kml" %}
+
+{% load kml_tags %}
+
+{% block placemarks %}
+
+{% for place in data %}
+  <Placemark>
+    <name>{{place|kml_name}}</name>
+    <description>{{place|kml_desc|safe}}</description>
+    {{place|kml_geom|safe}}
+    <IconStyle><color>{{place|kml_style}}</color></IconStyle>
+  </Placemark>
+{% endfor %}
+
+{% endblock %}

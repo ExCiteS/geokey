@@ -170,16 +170,12 @@ class Project(models.Model):
         """
 
         return self.status == STATUS.active and (self.is_admin(user) or (
-            not self.isprivate and
-            self.groupings.filter(isprivate=False).exists()
-            ) or (
+            not self.isprivate) or (
             not user.is_anonymous() and (
                 self.usergroups.filter(
                     can_contribute=True, users=user).exists() or
                 self.usergroups.filter(
-                    can_moderate=True, users=user).exists() or
-                self.usergroups.filter(
-                    users=user, viewgroups__isnull=False).exists())
+                    can_moderate=True, users=user).exists())
             )
         )
 
@@ -275,27 +271,21 @@ class Project(models.Model):
         else:
             data = self.observations.for_viewer(user)
 
-        grouping_queries = [
-            grouping.get_where_clause()
-            for grouping in self.groupings.get_list(user, self.id)
-        ]
-        grouping_queries = [x for x in grouping_queries if x is not None]
+        where_clause = None
+        if self.isprivate and not user.is_anonymous():
+            clauses = []
 
-        # Return everything found in data groupings plus the user's data
-        if len(grouping_queries) > 0:
-            query = '(' + ') OR ('.join(grouping_queries) + ')'
+            for group in self.usergroups.filter(users=user):
+                if group.where_clause is not None:
+                    clauses.append(group.where_clause)
 
-            if (not user.is_anonymous()):
-                query = query + ' OR (creator_id = ' + str(user.id) + ')'
+            if clauses:
+                where_clause = '(' + ') OR ('.join(clauses) + ')'
 
-            return data.extra(where=[query])
+        if not where_clause:
+            return data
 
-        # If there are no data groupings for the user, return just the user's
-        # data
-        if (not user.is_anonymous()):
-            return self.observations.filter(creator=user)
-        else:
-            return self.observations.none()
+        return data.extra(where=[where_clause]).distinct()
 
     def contact_admins(self, sender, mail_content):
         """

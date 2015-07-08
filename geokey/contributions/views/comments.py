@@ -7,9 +7,7 @@ from rest_framework import status
 from geokey.core.decorators import handle_exceptions_for_ajax
 from geokey.core.exceptions import MalformedRequestData
 from geokey.users.models import User
-from .base import (
-    SingleAllContribution, SingleGroupingContribution, SingleMyContribution
-)
+from .base import SingleAllContribution
 from ..models import Comment
 from ..serializers import CommentSerializer
 
@@ -171,15 +169,14 @@ class CommentAbstractAPIView(APIView):
             if the user authenticated with the request is not allowed to
             delete the comment
         """
+        observation = comment.commentto
         if (comment.creator == request.user or
-                comment.commentto.project.can_moderate(request.user)):
+                observation.project.can_moderate(request.user)):
 
             comment.delete()
 
-            if (comment.review_status == 'open' and
-                    not comment.commentto.comments.filter(
-                        review_status='open').exists()):
-                comment.commentto.update(None, request.user, status='active')
+            if not observation.comments.filter(review_status='open').exists():
+                observation.update(None, request.user, status='active')
 
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
@@ -264,216 +261,6 @@ class AllContributionsSingleCommentAPIView(
 
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, observation_id, comment_id):
-        """
-        Deletes a comment from the observation
-
-        Parameters
-        ----------
-        request : rest_framework.request.Request
-            User authenticated with the request
-        project_id : int
-            identifies the project in the data base
-        observation_id : int
-            identifies the observation in the data base
-
-        Returns
-        -------
-        rest_framework.response.Respone
-            Contains the serialised comment
-        """
-        observation = self.get_object(request.user, project_id, observation_id)
-        comment = observation.comments.get(pk=comment_id)
-        return self.delete_and_respond(request, comment)
-
-
-class GroupingContributionsCommentsAPIView(
-        CommentAbstractAPIView, SingleGroupingContribution):
-
-    @handle_exceptions_for_ajax
-    def get(self, request, project_id, grouping_id, observation_id):
-        """
-        Returns a list of all comments of the observation
-
-        Parameters
-        ----------
-        request : rest_framework.request.Request
-            User authenticated with the request
-        project_id : int
-            identifies the project in the data base
-        grouping_id : int
-            identifies the data grouping in the data base
-        observation_id : int
-            identifies the observation in the data base
-
-        Returns
-        -------
-        rest_framework.response.Respone
-            Contains the serialised comments
-        """
-        observation = self.get_object(
-            request.user, project_id, grouping_id, observation_id)
-        return self.get_list_and_respond(request.user, observation)
-
-    @handle_exceptions_for_ajax
-    def post(self, request, project_id, grouping_id, observation_id):
-        """
-        Adds a new comment to the observation
-
-        Parameters
-        ----------
-        request : rest_framework.request.Request
-            User authenticated with the request
-        project_id : int
-            identifies the project in the data base
-        grouping_id : int
-            identifies the data grouping in the data base
-        observation_id : int
-            identifies the observation in the data base
-
-        Returns
-        -------
-        rest_framework.response.Respone
-            Contains the serialised comment
-        """
-        observation = self.get_object(
-            request.user, project_id, grouping_id, observation_id)
-        return self.create_and_respond(request, observation)
-
-
-class GroupingContributionsSingleCommentAPIView(
-        CommentAbstractAPIView, SingleGroupingContribution):
-
-    @handle_exceptions_for_ajax
-    def patch(self, request, project_id, grouping_id, observation_id,
-              comment_id):
-        """
-        Updates a comment
-
-        Parameters
-        ----------
-        request : rest_framework.request.Request
-            User authenticated with the request
-        project_id : int
-            identifies the project in the data base
-        grouping_id : int
-            identifies the data grouping in the data base
-        observation_id : int
-            identifies the observation in the data base
-
-        Returns
-        -------
-        rest_framework.response.Respone
-            Contains the serialised comment
-        """
-        observation = self.get_object(
-            request.user, project_id, grouping_id, observation_id)
-        comment = observation.comments.get(pk=comment_id)
-        return self.update_and_respond(request, comment)
-
-    @handle_exceptions_for_ajax
-    def delete(self, request, project_id, grouping_id, observation_id,
-               comment_id):
-        """
-        Deletes a comment from the observation
-
-        Parameters
-        ----------
-        request : rest_framework.request.Request
-            User authenticated with the request
-        project_id : int
-            identifies the project in the data base
-        grouping_id : int
-            identifies the data grouping in the data base
-        observation_id : int
-            identifies the observation in the data base
-
-        Returns
-        -------
-        rest_framework.response.Respone
-            Contains the serialised comment
-        """
-        observation = self.get_object(
-            request.user, project_id, grouping_id, observation_id)
-        comment = observation.comments.get(pk=comment_id)
-        return self.delete_and_respond(request, comment)
-
-
-class MyContributionsCommentsAPIView(
-        CommentAbstractAPIView, SingleMyContribution):
-
-    @handle_exceptions_for_ajax
-    def get(self, request, project_id, observation_id):
-        """
-        Returns a list of all comments of the observation
-
-        Parameters
-        ----------
-        request : rest_framework.request.Request
-            User authenticated with the request
-        project_id : int
-            identifies the project in the data base
-        observation_id : int
-            identifies the observation in the data base
-
-        Returns
-        -------
-        rest_framework.response.Respone
-            Contains the serialised comments
-        """
-        observation = self.get_object(request.user, project_id, observation_id)
-        return self.get_list_and_respond(request.user, observation)
-
-    @handle_exceptions_for_ajax
-    def post(self, request, project_id, observation_id):
-        """
-        Adds a new comment to the observation
-
-        Parameters
-        ----------
-        request : rest_framework.request.Request
-            User authenticated with the request
-        project_id : int
-            identifies the project in the data base
-        observation_id : int
-            identifies the observation in the data base
-
-        Returns
-        -------
-        rest_framework.response.Respone
-            Contains the serialised comment
-        """
-        observation = self.get_object(request.user, project_id, observation_id)
-        return self.create_and_respond(request, observation)
-
-
-class MyContributionsSingleCommentAPIView(
-        CommentAbstractAPIView, SingleMyContribution):
-
-    @handle_exceptions_for_ajax
-    def patch(self, request, project_id, observation_id, comment_id,):
-        """
-        Updates a comment
-
-        Parameters
-        ----------
-        request : rest_framework.request.Request
-            User authenticated with the request
-        project_id : int
-            identifies the project in the data base
-        observation_id : int
-            identifies the observation in the data base
-
-        Returns
-        -------
-        rest_framework.response.Respone
-            Contains the serialised comment
-        """
-        observation = self.get_object(request.user, project_id, observation_id)
-        comment = observation.comments.get(pk=comment_id)
-        return self.update_and_respond(request, comment)
-
-    @handle_exceptions_for_ajax
-    def delete(self, request, project_id, observation_id, comment_id,):
         """
         Deletes a comment from the observation
 
