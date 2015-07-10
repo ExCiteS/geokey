@@ -11,15 +11,15 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='groupingusergroup',
-            name='grouping',
-        ),
-        migrations.RemoveField(
-            model_name='groupingusergroup',
-            name='usergroup',
-        ),
-        migrations.DeleteModel(
-            name='GroupingUserGroup',
-        ),
+        # migrations.RemoveField(
+        #     model_name='groupingusergroup',
+        #     name='grouping',
+        # ),
+        # migrations.RemoveField(
+        #     model_name='groupingusergroup',
+        #     name='usergroup',
+        # ),
+        # migrations.DeleteModel(
+        #     name='GroupingUserGroup',
+        # ),
     ]
