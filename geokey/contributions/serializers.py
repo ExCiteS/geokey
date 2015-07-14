@@ -455,6 +455,9 @@ class ContributionSerializer(BaseSerializer):
                 'colour': cat.colour
             }
 
+            feature['meta']['num_comments'] = len(obj.comments.all())
+            feature['meta']['num_media'] = len(obj.files_attached.all())
+
             q = self.context.get('search')
             if q is not None:
                 feature['search_matches'] = self.get_search_result(obj, q)
