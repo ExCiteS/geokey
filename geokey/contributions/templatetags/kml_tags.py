@@ -28,7 +28,7 @@ def kml_desc(place):
         for key in geojson_properties:
             value = geojson_properties[key]
 
-            if type(value) in ['str', 'unicode']:
+            if type(value) in [str, unicode]:
                 value = value.encode('utf-8')
 
             if geojson_properties[key] is not None:
