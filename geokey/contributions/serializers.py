@@ -435,7 +435,9 @@ class ContributionSerializer(BaseSerializer):
                 'created_at': str(obj.created_at),
                 'updated_at': str(obj.updated_at),
                 'version': obj.version,
-                'isowner': isowner
+                'isowner': isowner,
+                'num_comments': obj.comments.count(),
+                'num_media': obj.files_attached.count()
             },
             'location': {
                 'id': location.id,
@@ -454,9 +456,6 @@ class ContributionSerializer(BaseSerializer):
                 'symbol': cat.symbol.url if cat.symbol else None,
                 'colour': cat.colour
             }
-
-            feature['meta']['num_comments'] = obj.comments.count()
-            feature['meta']['num_media'] = obj.files_attached.count()
 
             q = self.context.get('search')
             if q is not None:
@@ -486,9 +485,6 @@ class ContributionSerializer(BaseSerializer):
                 context=self.context
             )
             feature['media'] = file_serializer.data
-
-            feature['meta']['num_comments'] = len(comment_serializer.data)
-            feature['meta']['num_media'] = len(file_serializer.data)
 
         return feature
 
