@@ -487,6 +487,9 @@ class ContributionSerializer(BaseSerializer):
             )
             feature['media'] = file_serializer.data
 
+            feature['meta']['num_comments'] = len(comment_serializer.data)
+            feature['meta']['num_media'] = len(file_serializer.data)
+
         return feature
 
 
