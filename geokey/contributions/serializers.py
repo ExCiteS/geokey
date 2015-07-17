@@ -435,7 +435,9 @@ class ContributionSerializer(BaseSerializer):
                 'created_at': str(obj.created_at),
                 'updated_at': str(obj.updated_at),
                 'version': obj.version,
-                'isowner': isowner
+                'isowner': isowner,
+                'num_comments': obj.comments.count(),
+                'num_media': obj.files_attached.count()
             },
             'location': {
                 'id': location.id,

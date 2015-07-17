@@ -423,6 +423,9 @@ class ContributionSerializerIntegrationTests(TestCase):
         TextFieldFactory.create(**{
             'key': 'key',
             'category': observation.category})
+        CommentFactory.create(**{
+            'commentto': observation
+        })
         serializer = ContributionSerializer(
             observation,
             context={'user': self.contributor, 'project': self.project}
@@ -436,6 +439,12 @@ class ContributionSerializerIntegrationTests(TestCase):
         self.assertEqual(
             result.get('meta').get('category').get('id'),
             observation.category.id)
+        self.assertEqual(
+            result.get('meta').get('num_comments'),
+            observation.comments.count())
+        self.assertEqual(
+            result.get('meta').get('num_media'),
+            observation.files_attached.count())
         self.assertEqual(
             result.get('location').get('name'),
             observation.location.name)
@@ -465,6 +474,8 @@ class ContributionSerializerIntegrationTests(TestCase):
 
         for f in result:
             self.assertIsNone(f.get('search_matches'))
+            self.assertEqual(f.get('meta').get('num_comments'), 0)
+            self.assertEqual(f.get('meta').get('num_media'), 0)
 
     def test_serialize_bulk_search(self):
         number = 20
