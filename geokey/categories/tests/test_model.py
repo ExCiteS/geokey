@@ -940,7 +940,7 @@ class MultipleLookupTest(TestCase):
     def test_get_filter(self):
         lookup_field = MultipleLookupFieldFactory(**{'key': 'key'})
         self.assertEqual(
-            lookup_field.get_filter([1, 2, 3]),
+            lookup_field.get_filter(['1', '2', '3']),
             '(regexp_split_to_array(btrim(properties ->> \'key\', \'[]\'), '
             '\',\')::int[] && ARRAY[1, 2, 3])'
         )

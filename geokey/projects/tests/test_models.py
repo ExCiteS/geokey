@@ -1290,7 +1290,7 @@ class ProjectGetDataTest(TestCase):
                 'project': project,
                 'filters': {
                     category_1.id: {
-                        'lookup': [lookup_1.id, lookup_2.id]}
+                        'lookup': [str(lookup_1.id), str(lookup_2.id)]}
                 }
             }
         )

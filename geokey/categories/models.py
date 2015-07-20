@@ -993,7 +993,7 @@ class MultipleLookupField(Field):
             SQL where-clause
         """
         return ('(regexp_split_to_array(btrim(properties ->> \'%s\', \'[]\'),'
-                ' \',\')::int[] && ARRAY%s)' % (self.key, json.dumps(rule)))
+                ' \',\')::int[] && ARRAY[%s])' % (self.key, ', '.join(rule)))
 
 
 class MultipleLookupValue(models.Model):
