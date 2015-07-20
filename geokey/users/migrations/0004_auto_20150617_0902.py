@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
+from django.db import migrations
 
 
 class Migration(migrations.Migration):
@@ -11,15 +11,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # migrations.RemoveField(
-        #     model_name='groupingusergroup',
-        #     name='grouping',
-        # ),
-        # migrations.RemoveField(
-        #     model_name='groupingusergroup',
-        #     name='usergroup',
-        # ),
-        # migrations.DeleteModel(
-        #     name='GroupingUserGroup',
-        # ),
+        migrations.RunSQL('DROP TABLE IF EXISTS users_groupingusergroup;')
     ]
