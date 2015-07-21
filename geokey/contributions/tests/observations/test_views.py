@@ -14,6 +14,7 @@ from geokey.categories.tests.model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory
 )
 from geokey.users.tests.model_factories import UserGroupF
+from geokey.subsets.tests.model_factories import SubsetFactory
 
 from ..model_factories import (
     ObservationFactory, CommentFactory, LocationFactory
@@ -1105,12 +1106,14 @@ class TestProjectPublicApi(TestCase):
             add_contributors=[self.contributor]
         )
 
-    def get(self, user, search=None):
+    def get(self, user, search=None, subset=None):
         url = reverse('api:project_observations', kwargs={
             'project_id': self.project.id
         })
         if search:
             url += '?search=blah'
+        if subset:
+            url += '?subset=' + str(subset)
 
         request = self.factory.get(url)
         force_authenticate(request, user=user)
@@ -1118,6 +1121,30 @@ class TestProjectPublicApi(TestCase):
         return theview(
             request,
             project_id=self.project.id).render()
+
+    def test_get_with_subset(self):
+        category_1 = CategoryFactory(**{'project': self.project})
+        category_2 = CategoryFactory(**{'project': self.project})
+
+        subset = SubsetFactory.create(**{
+            'project': self.project,
+            'filters': {category_1.id: {}}
+        })
+
+        for x in range(0, 2):
+            ObservationFactory.create(**{
+                'project': self.project,
+                'category': category_1}
+            )
+
+            ObservationFactory.create(**{
+                'project': self.project,
+                'category': category_2}
+            )
+
+        response = self.get(self.admin, subset=subset.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(json.loads(response.content).get('features')), 2)
 
     def test_get_with_search(self):
         category = CategoryFactory(**{'project': self.project})

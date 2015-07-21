@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 from geokey.core.serializers import FieldSelectorSerializer
 from geokey.categories.serializer import CategorySerializer
+from geokey.subsets.serializers import SubsetSerializer
 from geokey.contributions.models import Location
 
 from .models import Project
@@ -19,15 +20,33 @@ class ProjectSerializer(FieldSelectorSerializer):
     contribution_info = serializers.SerializerMethodField()
     user_info = serializers.SerializerMethodField()
     geographic_extent = serializers.SerializerMethodField()
+    subsets = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
         depth = 1
         fields = ('id', 'name', 'description', 'isprivate', 'status',
-                  'created_at', 'categories',
+                  'created_at', 'categories', 'subsets',
                   'contribution_info', 'user_info', 'num_locations',
                   'geographic_extent')
         read_only_fields = ('id', 'name')
+
+    def get_subsets(self, project):
+        """
+        Returns all serialised subset of the project
+
+        Parameters
+        ----------
+        project : geokey.projects.models.Project
+            Project that is serialised
+
+        Returns
+        -------
+        list
+            serialised subsets
+        """
+        serializer = SubsetSerializer(project.subsets.all(), many=True)
+        return serializer.data
 
     def get_categories(self, project):
         """

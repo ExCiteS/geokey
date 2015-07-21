@@ -79,8 +79,13 @@ class ProjectObservations(GeoJsonView):
             Contains the serialised observations
         """
         q = request.GET.get('search')
+        s = request.GET.get('subset')
         project = Project.objects.get_single(request.user, project_id)
-        contributions = project.get_all_contributions(request.user, search=q)
+        contributions = project.get_all_contributions(
+            request.user,
+            search=q,
+            subset=s
+        )
 
         serializer = ContributionSerializer(
             contributions,

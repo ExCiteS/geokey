@@ -56,6 +56,7 @@ INSTALLED_APPS = (
     'geokey.applications',
     'geokey.superusertools',
     'geokey.extensions',
+    'geokey.subsets',
 )
 
 MIDDLEWARE_CLASSES = (

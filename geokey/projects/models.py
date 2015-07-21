@@ -246,7 +246,7 @@ class Project(models.Model):
             not user.is_anonymous() and (
                 self.usergroups.filter(users=user).exists()))
 
-    def get_all_contributions(self, user, search=None):
+    def get_all_contributions(self, user, search=None, subset=None):
         """
         Returns all contributions a user can access in a project. It gets
         the SQL clauses of all data groupings in the project and combines them
@@ -280,13 +280,20 @@ class Project(models.Model):
             if clauses:
                 where_clause = '(' + ') OR ('.join(clauses) + ')'
 
+        if subset:
+            sub = self.subsets.get(pk=subset)
+            if where_clause:
+                where_clause = '(' + sub.where_clause + ') AND ' + where_clause
+            else:
+                where_clause = sub.where_clause
+
         if where_clause:
-            data = data.extra(where=[where_clause]).distinct()
+            data = data.extra(where=[where_clause])
 
         if search:
             data = data.search(search)
 
-        return data
+        return data.distinct()
 
     def contact_admins(self, sender, mail_content):
         """
