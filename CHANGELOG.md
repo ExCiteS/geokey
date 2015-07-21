@@ -1,5 +1,9 @@
 # GeoKey Changelog
 
+## Version 0.7
+
+- Adds `core.mixins`, that provide mixins for shared functionality, e.g. creating where clauses for user groups and subsets.
+
 ## Version 0.6
 
 - Separation of contribution serialiser into parser, serialiser and renderer. This enables rendering of geographic data into formats other than GeoJSON.

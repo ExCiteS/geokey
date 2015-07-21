@@ -53,7 +53,10 @@ class UserGroupTest(TestCase):
         usergroup.filters = {}
         usergroup.save()
 
-        self.assertEqual(UserGroup.objects.get(pk=usergroup.id).where_clause, 'FALSE')
+        self.assertEqual(
+            UserGroup.objects.get(pk=usergroup.id).where_clause,
+            'FALSE'
+        )
 
 
     def test_contribute_and_moderate(self):
