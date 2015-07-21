@@ -78,50 +78,15 @@ class ProjectObservations(GeoJsonView):
         rest_framework.response.Respone
             Contains the serialised observations
         """
+        q = request.GET.get('search')
         project = Project.objects.get_single(request.user, project_id)
-        contributions = project.get_all_contributions(request.user)
-
-        serializer = ContributionSerializer(
-            contributions,
-            many=True,
-            context={'user': request.user, 'project': project}
-        )
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class ContributionSearchAPIView(GeoJsonView):
-    """
-    Public API endpoint to search all contributions in a project
-    /api/projects/:project_id/contributions/search/?query={query}
-    """
-    @handle_exceptions_for_ajax
-    def get(self, request, project_id):
-        """
-        Returns a list of contributions that match the query
-
-        Parameters
-        ----------
-        request : rest_framework.request.Request
-            Represents the request
-        project_id : int
-            identifies the project in the data base
-
-        Returns
-        -------
-        rest_framework.response.Respone
-            Contains the serialised search results
-        """
-        q = request.GET.get('query')
-
-        project = Project.objects.get_single(request.user, project_id)
-        contributions = project.get_all_contributions(request.user).search(q)
+        contributions = project.get_all_contributions(request.user, search=q)
 
         serializer = ContributionSerializer(
             contributions,
             many=True,
             context={'user': request.user, 'project': project, 'search': q}
         )
-
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

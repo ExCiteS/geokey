@@ -3,6 +3,7 @@
 ## Version 0.7
 
 - Adds `core.mixins`, that provide mixins for shared functionality, e.g. creating where clauses for user groups and subsets.
+- Removes `/api/projects/:project_id/contributions/search` endpoint. Searching for contributions can now be implemented via `/api/projects/:project_id/contributions/search={query}`
 
 ## Version 0.6
 

@@ -494,6 +494,50 @@ class ProjectGetDataTest(TestCase):
             )
         self.assertEqual(project.get_all_contributions(user).count(), 10)
 
+    def test_get_data_category_filter_and_search(self):
+        user = UserF.create()
+        project = ProjectF.create()
+
+        category_1 = CategoryFactory(**{'project': project})
+        TextFieldFactory.create(**{'key': 'text', 'category': category_1})
+        category_2 = CategoryFactory(**{'project': project})
+
+        UserGroupF.create(
+            add_users=[user],
+            **{
+                'project': project,
+                'filters': {category_1.id: {}}
+            }
+        )
+
+        for x in range(0, 5):
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'properties': {'text': 'blah'}}
+            )
+
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'properties': {'text': 'blub'}}
+            )
+
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'status': 'pending'}
+            )
+
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_2}
+            )
+        self.assertEqual(
+            project.get_all_contributions(user, search='blah').count(),
+            5
+        )
+
     def test_get_data_text_filter(self):
         user = UserF.create()
         project = ProjectF.create()

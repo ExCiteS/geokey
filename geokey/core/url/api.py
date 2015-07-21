@@ -40,10 +40,6 @@ urlpatterns = patterns(
         observations.ProjectObservations.as_view(),
         name='project_observations'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/contributions/search/$',
-        observations.ContributionSearchAPIView.as_view(),
-        name='contributions_search'),
-    url(
         r'^projects/(?P<project_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/$',
         observations.SingleAllContributionAPIView.as_view(),
         name='project_single_observation'),
