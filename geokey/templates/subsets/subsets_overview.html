@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %} | Subsets{% endblock %}
+
+{% block main %}
+        <div class="page-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' project.id %}">{{project.name}}</a></h1>
+                        <a href="{% url 'admin:project_overview' project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
+                    </div>
+                    <ul class="header-nav">
+                        <li><a href="{% url 'admin:category_list' project.id %}">Categories <span class="badge">{{ project.categories.count }}</span></a></li>
+                        <li><a href="{% url 'admin:usergroup_list' project.id %}">User groups <span class="badge">{{ project.usergroups.count }}</span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            {% include 'snippets/messages.html' %}
+
+            <div class="row">
+                <div class="col-sm-8">
+                    <h3 class="header">
+                        Subsets
+                        {% if project.subsets.all %}
+                        <a href="{% url 'admin:subset_create' project.id %}" class="btn btn-success btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create new subset</a>
+                        {% endif %}
+                    </h3>
+
+                    {% for subset in project.subsets.all %}
+                    {% if forloop.first %}
+                    <ul class="list-unstyled overview-list" id="sortable">
+                    {% endif %}
+
+                        <li>
+                            <h4><a href="{% url 'admin:subset_data' project.id subset.id %}">{{subset.name}}</a></h4>
+                            {% if subset.description %}<p>{{subset.description}}</p>{% endif %}
+                        </li>
+
+
+                    {% if forloop.last %}
+                    </ul>
+                    {% endif %}
+
+                    {% empty %}
+                    <div class="well empty-list">
+                        <p class="lead">We couldn't find any subsets for this project.</p>
+                        <a href="{% url 'admin:subset_create' project.id %}" class="btn btn-success btn-lg">Create new subset</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %} | Subsets{% endblock %}
+
+{% block main %}
+        <div class="page-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h1 class="smaller"><a href="{% url 'admin:project_overview' subset.project.id %}">{{subset.project.name}}</a></h1>
+                        <a href="{% url 'admin:project_overview' subset.project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
+                    </div>
+                    <ul class="header-nav">
+                        <li><a href="{% url 'admin:category_list' subset.project.id %}">Categories <span class="badge">{{ subset.project.categories.count }}</span></a></li>
+                        <li><a href="{% url 'admin:usergroup_list' subset.project.id %}">User groups <span class="badge">{{ subset.project.usergroups.count }}</span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            {% include 'snippets/messages.html' %}
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h6 class="item-info">Subset</h6>
+                            <h3>{{ subset.name }}</h3>
+                            {% if subset.description %}<p>{{ subset.description|linebreaksbr }}</p>{% endif %}
+                        </div>
+                        <div class="list-group">
+                            <a href="{% url 'admin:subset_data' subset.project.id subset.id %}" class="list-group-item">Data</a>
+                            <a href="{% url 'admin:subset_settings' subset.project.id subset.id %}" class="list-group-item active">Settings</a>
+                        </div>
+                    </div>
+                </div>
+                <form role="form" class="col-sm-8" method="POST" action="{% url 'admin:subset_settings' subset.project.id subset.id %}" novalidate>
+                    <h3 class="header">Subset settings</h3>
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="name" class="control-label">Name (required)</label>
+                        <input type="text" class="form-control input-lg" id="name" name="name" maxlength="100" value="{{ subset.name }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description" class="control-label">Description</label>
+                        <textarea class="form-control input-lg" rows="5" name="description" id="description">{{ subset.description }}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <a href="{% url 'admin:subset_list' subset.project.id %}" class="btn btn-link" role="button">Cancel</a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-8 col-sm-offset-4">
+                    <div class="panel panel-danger">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Be careful!</h2>
+                        </div>
+                        <div class="panel-body becareful">
+                            <div>
+                                <strong>Delete subset</strong>
+                                <p>Deleting this subset can not be undone.</p>
+                                <a href="#" class="text-danger" data-toggle="modal" data-target="#delete-confirm">Delete this subset</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block modals %}
+<div class="modal fade" id="delete-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content panel-danger">
+            <div class="modal-header panel-heading">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+            </div>
+            <div class="modal-body panel-body">
+                <p><strong>Before you delete the subset, please read through the consequences of this action.</strong></p>
+
+                <ul>
+                    <li>Deleting a subset can not be undone.</li>
+                    <li>Data accessible through this subset will not be deleted.</li>
+                </ul>
+            </div>
+            <div class="modal-footer panel-footer">
+                <a href="{% url 'admin:subset_delete' subset.project.id subset.id %}" class="btn btn-danger">I'm absolutely sure, delete the subset!</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block libraries %}
+            <script src="/static/js/admin.ui.forms.validate.js"></script>
+{% endblock %}

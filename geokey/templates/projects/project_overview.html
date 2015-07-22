@@ -28,6 +28,7 @@
                         <div class="list-group">
                             <a href="{% url 'admin:category_list' project.id %}" class="list-group-item"><span class="badge">{{ project.categories.count }}</span>Categories</a>
                             <a href="{% url 'admin:usergroup_list' project.id %}" class="list-group-item"><span class="badge">{{ project.usergroups.count }}</span>User groups</a>
+                            <a href="{% url 'admin:subset_list' project.id %}" class="list-group-item"><span class="badge">{{ project.subsets.count }}</span>Subsets</a>
                             <a href="{% url 'admin:project_extend' project.id %}" class="list-group-item">Geographic extent</a>
                             <a href="{% url 'admin:project_settings' project.id %}" class="list-group-item">Settings</a>
                         </div>
