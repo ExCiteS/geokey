@@ -14,8 +14,24 @@ from .models import Subset
 
 
 class ProjectContext(object):
+    """
+    Mixin that provides the context to render templates. The context contains
+    a Project instance based on project_id.
+    """
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, *args, **kwargs):
+        """
+        Returns the context containing the project instance.
+
+        Parameters
+        ----------
+        project_id : int
+            identifies the project in the data base
+
+        Returns
+        -------
+        dict
+        """
         project = Project.objects.as_admin(self.request.user, project_id)
 
         return super(ProjectContext, self).get_context_data(
@@ -26,13 +42,36 @@ class ProjectContext(object):
 
 
 class SubsetOverview(LoginRequiredMixin, ProjectContext, TemplateView):
+    """
+    Displays the list of subsets in a project.
+    """
     template_name = 'subsets/subsets_overview.html'
 
 
 class SubsetCreate(LoginRequiredMixin, ProjectContext, TemplateView):
+    """
+    Provides the form to create a new subset.
+    """
     template_name = 'subsets/subsets_create.html'
 
     def post(self, request, project_id):
+        """
+        Creates the subset based on the data entered by the user
+
+        Parameter
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+        project_id : int
+            identifies the project in the data base
+
+        Returns
+        -------
+        django.http.HttpResponseRedirect
+            to SubsetData
+        django.http.HttpResponse
+            Rendered template, if an error occured
+        """
         data = request.POST
         context = self.get_context_data(project_id)
 
@@ -56,8 +95,26 @@ class SubsetCreate(LoginRequiredMixin, ProjectContext, TemplateView):
 
 
 class SubsetContext(object):
+    """
+    Mixin that provides the context to render templates. The context contains
+    a Subset instance based on project_id and subset_id.
+    """
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, subset_id, *args, **kwargs):
+        """
+        Returns the context containing the project instance.
+
+        Parameters
+        ----------
+        project_id : int
+            identifies the project in the data base
+        subset_id : int
+            identifies the subset in the data base
+
+        Returns
+        -------
+        dict
+        """
         project = Project.objects.as_admin(self.request.user, project_id)
         subset = project.subsets.get(pk=subset_id)
 
@@ -69,9 +126,29 @@ class SubsetContext(object):
 
 
 class SubsetSettings(LoginRequiredMixin, SubsetContext, TemplateView):
+    """
+    Provides the form to update the subset settings.
+    """
     template_name = 'subsets/subsets_settings.html'
 
     def post(self, request, project_id, subset_id):
+        """
+        Updates the subset based on the data entered by the user
+
+        Parameter
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+        project_id : int
+            identifies the project in the data base
+        subset_id : int
+            identifies the subset in the data base
+
+        Returns
+        -------
+        django.http.HttpResponse
+            Rendered template
+        """
         context = self.get_context_data(project_id, subset_id)
         subset = context.get('subset')
 
@@ -87,9 +164,29 @@ class SubsetSettings(LoginRequiredMixin, SubsetContext, TemplateView):
 
 
 class SubsetData(LoginRequiredMixin, SubsetContext, TemplateView):
+    """
+    Provides the form to change the filter settings for the subset
+    """
     template_name = 'subsets/subsets_data.html'
 
     def post(self, request, project_id, subset_id):
+        """
+        Updates the subset filter based on the data entered by the user
+
+        Parameter
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+        project_id : int
+            identifies the project in the data base
+        subset_id : int
+            identifies the subset in the data base
+
+        Returns
+        -------
+        django.http.HttpResponse
+            Rendered template
+        """
         context = self.get_context_data(project_id, subset_id)
         subset = context.get('subset')
 
@@ -105,9 +202,31 @@ class SubsetData(LoginRequiredMixin, SubsetContext, TemplateView):
 
 
 class SubsetDelete(LoginRequiredMixin, SubsetContext, TemplateView):
+    """
+    Deletes a subset
+    """
     template_name = 'base.html'
 
     def get(self, request, project_id, subset_id):
+        """
+        Deletes the subset
+
+        Parameter
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+        project_id : int
+            identifies the project in the data base
+        subset_id : int
+            identifies the subset in the data base
+
+        Returns
+        -------
+        django.http.HttpResponseRedirect
+            to SubsetOverview
+        django.http.HttpResponse
+            Rendered template, if an error has occured
+        """
         context = self.get_context_data(project_id, subset_id)
         subset = context.get('subset')
 

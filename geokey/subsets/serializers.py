@@ -3,6 +3,9 @@ from .models import Subset
 
 
 class SubsetSerializer(ModelSerializer):
+    """
+    Serialises Subset model instances
+    """
     class Meta:
         model = Subset
         depth = 1
