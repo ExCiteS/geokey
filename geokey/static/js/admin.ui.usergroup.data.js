@@ -95,7 +95,7 @@
             detailLink.click(handleActivateDetailed);
         } else {
             $(this).siblings('a.activate-detailed').remove();
-            $(this).siblings('div.field-options').remove();
+            $(this).parent().siblings('div.field-options').remove();
         }
         handleEdit();
     }
