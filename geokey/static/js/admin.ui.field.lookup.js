@@ -22,13 +22,22 @@
         this.addButton = this.panel.find('.panel-footer button');
 
         this.addButton.click(this.handleAddValue.bind(this));
-        this.lookuplist.find('li a').click(this.handleRemoveValue.bind(this));
+        this.lookuplist.find('button.edit-lookup').click(this.toggleEditForm.bind(this));
+        this.lookuplist.find('button.save-edit').click(this.handleEditValue.bind(this));
+        this.lookuplist.find('button.delete-lookup').click(this.handleRemoveValue.bind(this));
         this.formField.keyup(this.handleFormType.bind(this));
+        this.lookuplist.find('input[name="value"]').keyup(this.handleEditType.bind(this));
     }
 
     LookupPanel.prototype.handleFormType = function handleFormType(event) {
         if (event.keyCode === 13) {
             this.addButton.click();
+        }
+    };
+
+    LookupPanel.prototype.handleEditType = function handleEditType(event) {
+        if (event.keyCode === 13) {
+            $(event.target).parents('.list-group-item').find('button.save-edit').click();
         }
     };
 
@@ -48,14 +57,44 @@
         this.displayMessage(msg, 'danger', 'remove');
     };
 
+    LookupPanel.prototype.toggleEditForm = function toggleEditForm(event) {
+        var container = $(event.target).parents('.list-group-item');
+        container.find('.value-display').toggleClass('hidden');
+        container.find('.value-edit').toggleClass('hidden');
+
+        if (container.find('.value-edit').hasClass('hidden')) {
+            container.find('.cancel').off('click', toggleEditForm);
+        } else {
+            container.find('.cancel').click(toggleEditForm);
+        }
+    }
+
+    LookupPanel.prototype.handleEditValue = function handleEditValue(event) {
+        var container = $(event.target).parents('.list-group-item');
+        var lookupId = event.target.value;
+        var value = container.find('input').val();
+
+        function handleEditValueSucces() {
+            this.displaySuccess('The value has been updated.');
+            this.toggleEditForm(event);
+            container.find('span.value-label').text(value)
+        }
+
+        function handleEditValueError(response) {
+            this.displayError('An error occurred while updating the lookup value. Error text was: ' + response.responseJSON.error);
+        }
+
+        Control.Ajax.patch(this.url + '/' + lookupId, handleEditValueSucces.bind(this), handleEditValueError.bind(this), {name: value} );
+    }
+
     /**
      * Handles the removal of a lookup value from the lookup field. Is called
      * when the user clicks on the remove link next to the user name.
-     * @param  {[Event} event Click event fired by the link
+     * @param  {Event} event Click event fired by the link
      */
     LookupPanel.prototype.handleRemoveValue = function handleRemoveValue(event) {
-        var lookupId = $(event.target).attr('data-lookup-id');
-        var itemToRemove = $(event.target).parent('.list-group-item');
+        var lookupId = $(event.currentTarget).val();
+        var itemToRemove = $(event.currentTarget).parents('.list-group-item');
 
         /**
          * Handles succesfull removal of the lookup value. Removes the item from
@@ -97,7 +136,10 @@
             this.lookuplist.empty();
             this.lookuplist.append(Templates.lookupvalues(response));
 
-            this.lookuplist.find('li a').click(this.handleRemoveValue.bind(this));
+            this.lookuplist.find('button.edit-lookup').click(this.toggleEditForm.bind(this));
+            this.lookuplist.find('button.save-edit').click(this.handleEditValue.bind(this));
+            this.lookuplist.find('button.delete-lookup').click(this.handleRemoveValue.bind(this));
+            this.lookuplist.find('input[name="value"]').keyup(this.handleEditType.bind(this));
             this.addButton.button('reset');
             this.displaySuccess('The value has been added.');
         }

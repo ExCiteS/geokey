@@ -1,3 +1,18 @@
 {{#each lookupvalues }}
-    <li class="list-group-item">{{ name }} (<a data-lookup-id="{{ id }}" class="text-danger" href="#">remove</a>)</li>
+    <li class="list-group-item">
+        <div class="value-display">
+            <span class="value-label">{{ name }}</span>
+            <span class="btn-group">
+                <button type="button" class="edit-lookup btn btn-default btn-xs"><span class="text-primary">edit</span></button>
+                <button type="button" class="delete-lookup btn btn-default btn-xs" value="{{ id }}"><span class="text-danger">delete</span></button>
+            </span>
+        </div>
+        <div class="input-group value-edit hidden">
+            <input type="text" name="value" class="form-control" value="{{ name }}">
+            <span class="input-group-btn">
+                <button class="btn btn-primary save-edit" type="button" value="{{ id }}" data-loading-text="Saving...">Save</button>
+                <button class="btn btn-default cancel" type="button">Cancel</button>
+            </span>
+        </div>
+    </li>
 {{/each}}

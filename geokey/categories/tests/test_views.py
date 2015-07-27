@@ -18,7 +18,7 @@ from .model_factories import (
     MultipleLookupValueFactory, DateTimeFieldFactory
 )
 
-from ..models import Category, Field
+from ..models import Category, Field, LookupValue
 from ..views import (
     CategoryOverview, CategoryDelete, FieldSettings, FieldDelete,
     CategoryUpdate, FieldUpdate, FieldLookupsUpdate, FieldLookups,
@@ -1394,7 +1394,7 @@ class AddLookupValueTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
-class RemoveLookupValues(TestCase):
+class UpdateLookupValues(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserF.create()
@@ -1407,6 +1407,123 @@ class RemoveLookupValues(TestCase):
             'project': self.project,
             'status': 'active'
         })
+
+    def test_update_lookupvalue_with_admin(self):
+        lookup_field = LookupFieldFactory(**{
+            'category': self.active_type
+        })
+        lookup_value = LookupValueFactory(**{
+            'field': lookup_field
+        })
+
+        url = reverse(
+            'ajax:category_lookupvalues_detail',
+            kwargs={
+                'project_id': self.project.id,
+                'category_id': self.active_type.id,
+                'field_id': lookup_field.id,
+                'value_id': lookup_value.id
+            }
+        )
+        request = self.factory.patch(url, {'name': 'New Name'})
+        force_authenticate(request, user=self.admin)
+        view = FieldLookupsUpdate.as_view()
+
+        response = view(
+            request,
+            project_id=self.project.id,
+            category_id=self.active_type.id,
+            field_id=lookup_field.id,
+            value_id=lookup_value.id
+        ).render()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            LookupValue.objects.get(pk=lookup_value.id).name,
+            'New Name'
+        )
+
+    def test_update_lookupvalue_from_not_existing_field(self):
+        lookup_value = LookupValueFactory()
+
+        url = reverse(
+            'ajax:category_lookupvalues_detail',
+            kwargs={
+                'project_id': self.project.id,
+                'category_id': self.active_type.id,
+                'field_id': 45455,
+                'value_id': lookup_value.id
+            }
+        )
+        request = self.factory.patch(url, {'name': 'New Name'})
+        force_authenticate(request, user=self.admin)
+        view = FieldLookupsUpdate.as_view()
+
+        response = view(
+            request,
+            project_id=self.project.id,
+            category_id=self.active_type.id,
+            field_id=45455,
+            value_id=lookup_value.id
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_update_not_exisiting_lookupvalue(self):
+        lookup_field = LookupFieldFactory(**{
+            'category': self.active_type
+        })
+
+        url = reverse(
+            'ajax:category_lookupvalues_detail',
+            kwargs={
+                'project_id': self.project.id,
+                'category_id': self.active_type.id,
+                'field_id': lookup_field.id,
+                'value_id': 65645445444
+            }
+        )
+        request = self.factory.patch(url, {'name': 'New Name'})
+        force_authenticate(request, user=self.admin)
+        view = FieldLookupsUpdate.as_view()
+
+        response = view(
+            request,
+            project_id=self.project.id,
+            category_id=self.active_type.id,
+            field_id=lookup_field.id,
+            value_id=65645445444
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_update_lookupvalue_from_non_lookup(self):
+        num_field = NumericFieldFactory(**{
+            'category': self.active_type
+        })
+
+        url = reverse(
+            'ajax:category_lookupvalues_detail',
+            kwargs={
+                'project_id': self.project.id,
+                'category_id': self.active_type.id,
+                'field_id': num_field.id,
+                'value_id': 65645445444
+            }
+        )
+        request = self.factory.patch(url, {'name': 'New Name'})
+        force_authenticate(request, user=self.admin)
+        view = FieldLookupsUpdate.as_view()
+
+        response = view(
+            request,
+            project_id=self.project.id,
+            category_id=self.active_type.id,
+            field_id=num_field.id,
+            value_id=65645445444
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
 
     def test_remove_lookupvalue_with_admin(self):
         lookup_field = LookupFieldFactory(**{

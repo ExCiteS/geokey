@@ -575,26 +575,35 @@ function program1(depth0,data) {
 this["Templates"]["lookupvalues"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
 
 function program1(depth0,data) {
   
   var buffer = "", stack1, helper;
-  buffer += "\n    <li class=\"list-group-item\">";
+  buffer += "\n    <li class=\"list-group-item\">\n        <div class=\"value-display\">\n            <span class=\"value-label\">";
   if (helper = helpers.name) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.name); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + " (<a data-lookup-id=\"";
+    + "</span>\n            <span class=\"btn-group\">\n                <button type=\"button\" class=\"edit-lookup btn btn-default btn-xs\"><span class=\"text-primary\">edit</span></button>\n                <button type=\"button\" class=\"delete-lookup btn btn-default btn-xs\" value=\"";
   if (helper = helpers.id) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.id); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "\" class=\"text-danger\" href=\"#\">remove</a>)</li>\n";
+    + "\"><span class=\"text-danger\">delete</span></button>\n            </span>\n        </div>\n        <div class=\"input-group value-edit hidden\">\n            <input type=\"text\" name=\"value\" class=\"form-control\" value=\"";
+  if (helper = helpers.name) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.name); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "\">\n            <span class=\"input-group-btn\">\n                <button class=\"btn btn-primary save-edit\" type=\"button\" value=\"";
+  if (helper = helpers.id) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.id); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "\" data-loading-text=\"Saving...\">Save</button>\n                <button class=\"btn btn-default cancel\" type=\"button\">Cancel</button>\n            </span>\n        </div>\n    </li>\n";
   return buffer;
   }
 
   stack1 = helpers.each.call(depth0, (depth0 && depth0.lookupvalues), {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
-  if(stack1 || stack1 === 0) { return stack1; }
-  else { return ''; }
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n";
+  return buffer;
   });
 
 this["Templates"]["usergroupusers"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
