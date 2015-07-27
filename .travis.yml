@@ -20,7 +20,7 @@ virtualenv:
   system_site_packages: true
 
 install:
-  - rm /etc/apt/sources.list.d/ubuntugis-stable-source.list -y
+  - sudo rm /etc/apt/sources.list.d/ubuntugis-stable-source.list
   # - sudo apt-get update -y
   # - sudo apt-get install python-gdal gdal-bin binutils
   - export C_INCLUDE_PATH=/usr/include/gdal
