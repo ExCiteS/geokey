@@ -57,6 +57,10 @@
         this.displayMessage(msg, 'danger', 'remove');
     };
 
+    /**
+     * Toggles display of update form of a lookup value.
+     * @param  {Event} event Click event fired by the link
+     */
     LookupPanel.prototype.toggleEditForm = function toggleEditForm(event) {
         var container = $(event.target).parents('.list-group-item');
         container.find('.value-display').toggleClass('hidden');
@@ -69,17 +73,29 @@
         }
     }
 
+    /**
+     * Handles the update of a lookup. Is called when the user clicks save next
+     * to the form field.
+     * @param  {Event} event Click event fired by the link
+     */
     LookupPanel.prototype.handleEditValue = function handleEditValue(event) {
         var container = $(event.target).parents('.list-group-item');
         var lookupId = event.target.value;
         var value = container.find('input').val();
 
+        /**
+         * Handles succesfull update of the lookup value.
+         */
         function handleEditValueSucces() {
             this.displaySuccess('The value has been updated.');
             this.toggleEditForm(event);
             container.find('span.value-label').text(value)
         }
 
+        /**
+         * Handles the response after the update of a lookup value failed.
+         * @param  {Object} response JSON object of the response
+         */
         function handleEditValueError(response) {
             this.displayError('An error occurred while updating the lookup value. Error text was: ' + response.responseJSON.error);
         }
@@ -89,7 +105,7 @@
 
     /**
      * Handles the removal of a lookup value from the lookup field. Is called
-     * when the user clicks on the remove link next to the user name.
+     * when the user clicks on the remove link next to the value.
      * @param  {Event} event Click event fired by the link
      */
     LookupPanel.prototype.handleRemoveValue = function handleRemoveValue(event) {
