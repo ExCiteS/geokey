@@ -1,5 +1,3 @@
-sudo: false
-
 language: python
 
 python:
@@ -10,19 +8,14 @@ services:
 
 addons:
   postgresql: "9.4"
-  apt:
-    packages:
-    - python-gdal
-    - gdal-bin
-    - binutils
 
 virtualenv:
   system_site_packages: true
 
 install:
   - sudo rm /etc/apt/sources.list.d/ubuntugis-stable-source.list
-  # - sudo apt-get update -y
-  # - sudo apt-get install python-gdal gdal-bin binutils
+  - sudo apt-get update -y
+  - sudo apt-get install python-gdal gdal-bin binutils
   - export C_INCLUDE_PATH=/usr/include/gdal
   - export CPLUS_INCLUDE_PATH=/usr/include/gdal
 
