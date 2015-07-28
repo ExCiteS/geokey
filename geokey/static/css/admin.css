@@ -362,26 +362,13 @@ ul.overview-list > li > div:last-child {
 	border-bottom: 0;
 }
 
-.page-header .row {
-	position: relative;
+div.page-header {
+	padding-bottom: 0;
 }
 
 .page-header .header-nav {
-	position: absolute;
-	bottom: -33px;
-	right: 0;
-}
-
-.page-header .header-nav li {
-	list-style: none;
-	display: inline-block;
-	padding: 10px;
-	margin-left: 15px;
-	border-bottom: 3px solid transparent;
-}
-
-.page-header .header-nav li.active {
-	border-bottom-color: #5bc0de;
+	margin-top: 15px;
+	margin-bottom: -20px;
 }
 
 .header {
