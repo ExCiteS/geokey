@@ -6,14 +6,14 @@
 {% block main %}
         <div class="page-header">
             <div class="container">
-                <h1 class="smaller"><a href="{% url 'admin:project_overview' categpry.project.id %}">{{ category.project.name}}</a></h1>
+                <h1 class="smaller"><a href="{% url 'admin:project_overview' category.project.id %}">{{ category.project.name}}</a></h1>
                 <ul class="nav nav-tabs header-nav">
-                    <li role="presentation"><a href="{% url 'admin:project_overview' categpry.project.id %}">Project home</a></li>
-                    <li role="presentation" class="active"><a href="{% url 'admin:category_list' categpry.project.id %}">Categories</a></li>
-                    <li role="presentation"><a href="{% url 'admin:usergroup_list' categpry.project.id %}">User groups</a></li>
-                    <li role="presentation"><a href="{% url 'admin:subset_list' categpry.project.id %}">Subsets</a></li>
-                    <li role="presentation"><a href="{% url 'admin:project_extend' categpry.project.id %}">Geographic extent</a></li>
-                    <li role="presentation"><a href="{% url 'admin:project_settings' categpry.project.id %}">Settings</a></li>
+                    <li role="presentation"><a href="{% url 'admin:project_overview' category.project.id %}">Project home</a></li>
+                    <li role="presentation" class="active"><a href="{% url 'admin:category_list' category.project.id %}">Categories</a></li>
+                    <li role="presentation"><a href="{% url 'admin:usergroup_list' category.project.id %}">User groups</a></li>
+                    <li role="presentation"><a href="{% url 'admin:subset_list' category.project.id %}">Subsets</a></li>
+                    <li role="presentation"><a href="{% url 'admin:project_extend' category.project.id %}">Geographic extent</a></li>
+                    <li role="presentation"><a href="{% url 'admin:project_settings' category.project.id %}">Settings</a></li>
                 </ul>
             </div>
         </div>

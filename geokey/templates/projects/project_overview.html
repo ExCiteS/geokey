@@ -24,36 +24,96 @@
             {% include 'snippets/messages.html' %}
 
             <div class="row">
+                <div class="col-sm-8" id="stats-bock">
+                    <h3 class="header">Overview <a href="{% url 'admin:project_settings' project.id %}" class="btn btn-sm btn-default">Edit settings</a></h3>
+
+                    <div class="row" id="stats">
+                        <div class="col-sm-4">
+                            <a href="{% url 'admin:category_list' project.id %}"><span class="number">{{ project.categories.count }}</span><br>categories</a>
+                        </div>
+                        <div class="col-sm-4">
+                            <a href="{% url 'admin:subset_list' project.id %}"><span class="number">{{ project.subsets.count }}</span><br>subsets</a>
+                        </div>
+                        <div class="col-sm-4">
+                            <a href="{% url 'admin:usergroup_list' project.id %}"><span class="number">{{ project.usergroups.count }}</span><br>user groups</a>
+                        </div>
+                    </div>
+
+                    {% if project.description %}
+                        <h4>Project description</h4>
+                        {{ project.description|safe }}
+                    {% endif %}
+
+                    <h3 class="header">Statistics</h3>
+                    <div class="row" id="stats">
+                        <div class="col-sm-4">
+                            <span class="number">{{ allcontributions }}</span><br>contributions
+                        </div>
+                        <div class="col-sm-4">
+                            <span class="number">{{ comments }}</span><br>comments
+                        </div>
+                        <div class="col-sm-4">
+                            <span class="number">{{ files }}</span><br>files
+                        </div>
+                    </div>
+                </div>
+                {% include 'snippets/project-help.html' %}
+
                 <div class="col-sm-4">
                     <div class="alert alert-info">
                         <h4>Do you need help?</h4>
                         <p><a href="#" id="help-link">Click here to get started.</a></p>
                     </div>
+
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <h4 class="panel-title">Manage the project</h4>
+                            <h4 class="panel-title">Categories <span class="badge pull-right">{{ project.categories.count }}</span></h4>
                         </div>
                         <div class="list-group">
-                            <a href="{% url 'admin:category_list' project.id %}" class="list-group-item"><span class="badge">{{ project.categories.count }}</span>Categories</a>
-                            <a href="{% url 'admin:usergroup_list' project.id %}" class="list-group-item"><span class="badge">{{ project.usergroups.count }}</span>User groups</a>
-                            <a href="{% url 'admin:subset_list' project.id %}" class="list-group-item"><span class="badge">{{ project.subsets.count }}</span>Subsets</a>
-                            <a href="{% url 'admin:project_extend' project.id %}" class="list-group-item">Geographic extent</a>
-                            <a href="{% url 'admin:project_settings' project.id %}" class="list-group-item">Settings</a>
+                            {% for category in project.categories.all %}
+                            <a href="{% url 'admin:category_overview' project.id category.id %}" class="list-group-item"><strong>{{ category.name }}</strong><br> {{category.fields.count}} fields</a>
+                            {% empty %}
+                            <div class="list-group-item">No categories have been created yet.</div>
+                            {% endfor %}
+                        </div>
+                        <div class="panel-footer">
+                            <a href="{% url 'admin:category_create' project.id %}" class="btn btn-sm btn-success">Create category</a>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">Subsets <span class="badge pull-right">{{ project.subsets.count }}</span></h4>
+                        </div>
+                        <div class="list-group">
+                            {% for subset in project.subsets.all %}
+                            <a href="{% url 'admin:subset_data' project.id subset.id %}" class="list-group-item">{{ subset.name }}</a>
+                            {% empty %}
+                            <div class="list-group-item">No subsets have been created yet.</div>
+                            {% endfor %}
+                        </div>
+                        <div class="panel-footer">
+                            <a href="{% url 'admin:subset_create' project.id %}" class="btn btn-sm btn-success">Create subset</a>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">User groups <span class="badge pull-right">{{ project.usergroups.count }}</span></h4>
+                        </div>
+                        <div class="list-group">
+                            <a href="{% url 'admin:admins_overview' project.id %}" class="list-group-item"><strong>Administators</strong><br> {{project.admins.count}} members</a>
+
+                            {% for group in project.usergroups.all %}
+                            <a href="{% url 'admin:usergroup_overview' project.id group.id %}" class="list-group-item"><strong>{{ group.name }}</strong><br> {{group.users.count}} members</a>
+                            {% endfor %}
+                        </div>
+                        <div class="panel-footer">
+                            <a href="{% url 'admin:usergroup_create' project.id %}" class="btn btn-sm btn-success">Create user group</a>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-sm-8" id="stats-bock">
-                    <div class="row" id="stats">
-                        <div class="col-sm-6">
-                            <span class="number">{{ contributions }}</span><br>contributions you have made
-                        </div>
-                        <div class="col-sm-6">
-                            <span class="number">{{ allcontributions }}</span><br>made to the project by all users
-                        </div>
-                    </div>
-                </div>
-                {% include 'snippets/project-help.html' %}
             </div>
         </div>
 {% endblock %}
