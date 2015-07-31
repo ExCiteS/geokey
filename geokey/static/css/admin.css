@@ -241,11 +241,9 @@ ul.type-away {
  }
 
 footer {
-	text-align: center;
 	padding-top: 30px;
-	padding-bottom: 30px;
-	border-top: 1px solid #eee;
-	background-color: #fafafa;
+	background-color: #202020;
+	color: #fff;
 }
 
 footer p {
