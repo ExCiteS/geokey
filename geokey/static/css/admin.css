@@ -544,3 +544,7 @@ h6.item-info + h3 {
 	height: 400px;
 	margin-bottom: 30px;
 }
+
+a.badge {
+	color: #fff;
+}

@@ -46,7 +46,7 @@
                         {{ project.description|safe }}
                     {% endif %}
 
-                    <h3 class="header">Statistics</h3>
+                    <h3 class="header">Activity</h3>
                     <div class="row" id="stats">
                         <div class="col-sm-4">
                             <span class="number">{{ allcontributions }}</span><br>contributions
@@ -69,7 +69,7 @@
 
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <h4 class="panel-title">Categories <span class="badge pull-right">{{ project.categories.count }}</span></h4>
+                            <h4 class="panel-title">Categories <a href="{% url 'admin:category_list' project.id %}" class="badge pull-right">{{ project.categories.count }} &raquo;</a></h4>
                         </div>
                         <div class="list-group">
                             {% for category in project.categories.all %}
@@ -90,7 +90,7 @@
 
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <h4 class="panel-title">Subsets <span class="badge pull-right">{{ project.subsets.count }}</span></h4>
+                            <h4 class="panel-title">Subsets <a href="{% url 'admin:subset_list' project.id %}" class="badge pull-right">{{ project.subsets.count }} &raquo;</a></h4>
                         </div>
                         <div class="list-group">
                             {% for subset in project.subsets.all %}
@@ -111,7 +111,7 @@
 
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <h4 class="panel-title">User groups <span class="badge pull-right">{{ project.usergroups.count }}</span></h4>
+                            <h4 class="panel-title">User groups <a href="{% url 'admin:usergroup_list' project.id %}" class="badge pull-right">{% plus project.usergroups.count 1 %} &raquo;</a></span></h4>
                         </div>
                         <div class="list-group">
                             <a href="{% url 'admin:admins_overview' project.id %}" class="list-group-item"><strong>Administators</strong><br> {{project.admins.count}} members</a>

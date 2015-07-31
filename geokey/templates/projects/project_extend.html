@@ -23,22 +23,7 @@
             {% include 'snippets/messages.html' %}
 
             <div class="row">
-                <div class="col-sm-4">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">Manage Project</h3>
-                        </div>
-                        <div class="list-group">
-                            <a href="{% url 'admin:category_list' project.id %}" class="list-group-item"><span class="badge">{{ project.categories.count }}</span>Categories</a>
-                            <a href="{% url 'admin:usergroup_list' project.id %}" class="list-group-item"><span class="badge">{{ project.usergroups.count }}</span>User groups</a>
-                            <a href="{% url 'admin:subset_list' project.id %}" class="list-group-item"><span class="badge">{{ project.subsets.count }}</span>Subsets</a>
-                            <a href="{% url 'admin:project_extend' project.id %}" class="list-group-item active">Geographic extent</a>
-                            <a href="{% url 'admin:project_settings' project.id %}" class="list-group-item">Settings</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-sm-8">
+                <div class="col-sm-8 col-sm-offset-2">
                     <h3 class="header">Geographic Extent</h3>
                     <div id="map"></div>
                     <form method="POST" action="{% url 'admin:project_extend' project.id %}" novalidate>
