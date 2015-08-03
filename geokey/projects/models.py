@@ -5,6 +5,7 @@ from django.core import mail
 from django.template.loader import get_template
 from django.template import Context
 from django.contrib.sites.models import Site
+from django.db.models import Count
 
 from .manager import ProjectManager
 from .base import STATUS, EVERYONE_CONTRIB
@@ -262,14 +263,18 @@ class Project(models.Model):
         django.db.models.query.QuerySet
             List of geokey.contributions.models.Observations
         """
-        data = None
+        data = self.observations.annotate(
+            num_comments=Count('comments'),
+            num_files=Count('files_attached')
+        )
+
         if self.is_admin(user):
             # Return everything for admins
-            return self.observations.for_moderator(user)
+            return data.for_moderator(user)
         elif self.can_moderate(user):
-            data = self.observations.for_moderator(user)
+            data = data.for_moderator(user)
         else:
-            data = self.observations.for_viewer(user)
+            data = data.for_viewer(user)
 
         where_clause = None
         if self.isprivate and not user.is_anonymous():
