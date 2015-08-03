@@ -7,7 +7,22 @@
                         <ul class="list-group">
 
                         {% for lookupvalue in field.lookupvalues.active %}
-                            <li class="list-group-item">{{ lookupvalue.name }} (<a class="text-danger" data-lookup-id="{{ lookupvalue.id }}" href="#">remove</a>)</li>
+                            <li class="list-group-item">
+                                <div class="value-display">
+                                    <span class="value-label">{{ lookupvalue.name }}</span>
+                                    <span class="btn-group">
+                                        <button type="button" class="edit-lookup btn btn-default btn-xs"><span class="text-primary">edit</span></button>
+                                        <button type="button" class="delete-lookup btn btn-default btn-xs" value="{{ lookupvalue.id }}"><span class="text-danger">delete</span></button>
+                                    </span>
+                                </div>
+                                <div class="input-group value-edit hidden">
+                                    <input type="text" name="value" class="form-control" value="{{ lookupvalue.name }}">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-primary save-edit" type="button" value="{{ lookupvalue.id }}" data-loading-text="Saving...">Save</button>
+                                        <button class="btn btn-default cancel" type="button">Cancel</button>
+                                    </span>
+                                </div>
+                            </li>
                         {% empty %}
                             <li class="list-group-item">No values have been added yet.</li>
                         {% endfor %}

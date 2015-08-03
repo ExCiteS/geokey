@@ -112,8 +112,9 @@ class CategoryTest(TestCase):
         })
         self.assertEqual(
             query,
-            '((category_id = %s) AND (created_at >= to_date(\'2014-'
-            '01-05 00:00\', \'YYYY-MM-DD HH24:MI\')))' % category.id
+            '((category_id = %s) AND ("contributions_observation".created_at '
+            '>= to_date(\'2014-01-05 00:00\', \'YYYY-MM-DD HH24:MI\'))'
+            ')' % category.id
         )
 
         category = CategoryFactory.create()
@@ -122,8 +123,9 @@ class CategoryTest(TestCase):
         })
         self.assertEqual(
             query,
-            '((category_id = %s) AND (created_at <= to_date(\'2014-'
-            '01-05 00:00\', \'YYYY-MM-DD HH24:MI\')))' % category.id
+            '((category_id = %s) AND ("contributions_observation".created_at '
+            '<= to_date(\'2014-01-05 00:00\', \'YYYY-MM-DD HH24:MI\'))'
+            ')' % category.id
         )
 
         category = CategoryFactory.create()
@@ -133,9 +135,10 @@ class CategoryTest(TestCase):
         })
         self.assertEqual(
             query,
-            '((category_id = %s) AND (created_at >= to_date(\'2014-'
-            '01-01 00:00\', \'YYYY-MM-DD HH24:MI\')) AND (created_at <= to_'
-            'date(\'2014-01-05 00:00\', \'YYYY-MM-DD HH24:MI\')))' % category.id
+            '((category_id = %s) AND ("contributions_observation".created_at '
+            '>= to_date(\'2014-01-01 00:00\', \'YYYY-MM-DD HH24:MI\')) AND '
+            '("contributions_observation".created_at <= to_date(\'2014-01-05 '
+            '00:00\', \'YYYY-MM-DD HH24:MI\')))' % category.id
         )
 
         category = CategoryFactory.create()
@@ -147,8 +150,9 @@ class CategoryTest(TestCase):
         })
         self.assertEqual(
             query,
-            "((category_id = %s) AND (created_at >= to_date(\'2014-"
-            "01-01 00:00', 'YYYY-MM-DD HH24:MI')) AND (created_at <= to_"
+            "((category_id = %s) AND (\"contributions_observation\".created_at"
+            " >= to_date(\'2014-01-01 00:00', 'YYYY-MM-DD HH24:MI')) AND "
+            "(\"contributions_observation\".created_at <= to_"
             "date('2014-01-05 00:00', 'YYYY-MM-DD HH24:MI')) AND (cast(prop"
             "erties ->> 'number' as double precision) >= 20))" % category.id
         )

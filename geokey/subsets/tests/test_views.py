@@ -8,6 +8,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.urlresolvers import reverse
 from django.contrib.messages import get_messages
 
+from geokey import version
 from geokey.users.tests.model_factories import UserF
 from geokey.projects.tests.model_factories import ProjectF
 from geokey.categories.tests.model_factories import CategoryFactory
@@ -62,7 +63,8 @@ class SubsetOverviewTest(TestCase):
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
                 'user': user,
-                'PLATFORM_NAME': get_current_site(self.request).name
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(response.status_code, 200)
@@ -83,7 +85,8 @@ class SubsetOverviewTest(TestCase):
             {
                 'project': project,
                 'user': user,
-                'PLATFORM_NAME': get_current_site(self.request).name
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(response.status_code, 200)
@@ -144,7 +147,8 @@ class SubsetCreateTest(TestCase):
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
                 'user': user,
-                'PLATFORM_NAME': get_current_site(self.request).name
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(response.status_code, 200)
@@ -173,7 +177,8 @@ class SubsetCreateTest(TestCase):
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
                 'user': user,
-                'PLATFORM_NAME': get_current_site(self.request).name
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(response.status_code, 200)
@@ -195,7 +200,8 @@ class SubsetCreateTest(TestCase):
             {
                 'project': project,
                 'user': user,
-                'PLATFORM_NAME': get_current_site(self.request).name
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(response.status_code, 200)
@@ -300,7 +306,8 @@ class SubsetSettingsTest(TestCase):
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
                 'user': user,
-                'PLATFORM_NAME': get_current_site(self.request).name
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(response.status_code, 200)
@@ -331,7 +338,8 @@ class SubsetSettingsTest(TestCase):
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
                 'user': user,
-                'PLATFORM_NAME': get_current_site(self.request).name
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(response.status_code, 200)
@@ -359,7 +367,8 @@ class SubsetSettingsTest(TestCase):
             {
                 'subset': subset,
                 'user': user,
-                'PLATFORM_NAME': get_current_site(self.request).name
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(response.status_code, 200)
@@ -394,6 +403,7 @@ class SubsetSettingsTest(TestCase):
                 'subset': reference,
                 'user': user,
                 'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version(),
                 'messages': get_messages(self.request)
             }
         )
@@ -419,7 +429,8 @@ class SubsetSettingsTest(TestCase):
                 'error_description': 'Subset matching query does not exist.',
                 'error': 'Not found.',
                 'user': user,
-                'PLATFORM_NAME': get_current_site(self.request).name
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(response.status_code, 200)
@@ -450,7 +461,8 @@ class SubsetSettingsTest(TestCase):
                 'error_description': 'Subset matching query does not exist.',
                 'error': 'Not found.',
                 'user': user,
-                'PLATFORM_NAME': get_current_site(self.request).name
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(response.status_code, 200)
@@ -527,7 +539,8 @@ class SubsetDataTest(TestCase):
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
                 'user': user,
-                'PLATFORM_NAME': get_current_site(self.request).name
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(response.status_code, 200)
@@ -563,6 +576,7 @@ class SubsetDataTest(TestCase):
                 'error': 'Not found.',
                 'user': user,
                 'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(response.status_code, 200)
@@ -586,7 +600,8 @@ class SubsetDataTest(TestCase):
             {
                 'subset': subset,
                 'user': user,
-                'PLATFORM_NAME': get_current_site(self.request).name
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(response.status_code, 200)
@@ -623,7 +638,8 @@ class SubsetDataTest(TestCase):
                 'subset': reference_subset,
                 'user': user,
                 'PLATFORM_NAME': get_current_site(self.request).name,
-                'messages': get_messages(self.request)
+                'messages': get_messages(self.request),
+                'GEOKEY_VERSION': version.get_version()
             }
         )
 
@@ -678,7 +694,8 @@ class SubsetDeleteTest(TestCase):
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
                 'user': user,
-                'PLATFORM_NAME': get_current_site(self.request).name
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(response.status_code, 200)

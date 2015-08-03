@@ -816,9 +816,55 @@ class FieldLookupsUpdate(APIView):
     /ajax/projects/:project_id/categories/:category_id/fields/
     :field_id/lookupvalues/:value_id
     """
+    def get_field(self, user, project_id, category_id, field_id):
+        field = Field.objects.as_admin(
+            user, project_id, category_id, field_id)
+
+        if (isinstance(field, LookupField) or
+                isinstance(field, MultipleLookupField)):
+            return field
+        else:
+            return None
+
     @handle_exceptions_for_ajax
-    def delete(self, request, project_id, category_id, field_id,
-               value_id):
+    def patch(self, request, project_id, category_id, field_id, value_id):
+        """
+        Handles the PATCH request and updates the lookupvalue
+
+        Parameter
+        ---------
+        request : rest_framework.request.Request
+            Object reprensting the request
+        project_id : int
+            Identifier of the project in the database
+        category_id : int
+            Identifier of the category in the database
+        field_id : int
+            Identifier of the field in the database
+        value_id : int
+            Identifier of the lookupvalue in the database
+
+        Return
+        ------
+        rest_framework.response.Response
+            Reponse to the request
+        """
+        field = self.get_field(request.user, project_id, category_id, field_id)
+
+        if field:
+            val = field.lookupvalues.get(pk=value_id)
+            val.name = strip_tags(request.DATA.get('name'))
+            val.save()
+
+            return Response({"id": val.id, "name": val.name})
+        else:
+            return Response(
+                {'error': 'This field is not a lookup field'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, category_id, field_id, value_id):
         """
         Handles the DELETE request and removes the lookupvalue the category
 
@@ -840,11 +886,9 @@ class FieldLookupsUpdate(APIView):
         rest_framework.response.Response
             Reponse to the request
         """
-        field = Field.objects.as_admin(
-            request.user, project_id, category_id, field_id)
+        field = self.get_field(request.user, project_id, category_id, field_id)
 
-        if (isinstance(field, LookupField) or
-                isinstance(field, MultipleLookupField)):
+        if field:
             field.lookupvalues.get(pk=value_id).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:

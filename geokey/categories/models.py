@@ -78,12 +78,12 @@ class Category(models.Model):
         queries = ['(category_id = %s)' % self.id]
 
         if 'min_date' in rule:
-            queries.append('(created_at >= to_date(\'' +
+            queries.append('("contributions_observation".created_at >= to_date(\'' +
                            rule['min_date'] +
                            '\', \'YYYY-MM-DD HH24:MI\'))')
 
         if 'max_date' in rule:
-            queries.append('(created_at <= to_date(\'' +
+            queries.append('("contributions_observation".created_at <= to_date(\'' +
                            rule['max_date'] +
                            '\', \'YYYY-MM-DD HH24:MI\'))')
 
