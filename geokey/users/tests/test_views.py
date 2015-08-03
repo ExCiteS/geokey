@@ -16,6 +16,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 from allauth.account.models import EmailAddress
 
+from geokey import version
 from geokey.applications.tests.model_factories import ApplicationFactory
 from geokey.projects.tests.model_factories import ProjectF
 from geokey.projects.models import Admins
@@ -441,7 +442,8 @@ class UserGroupDataTest(TestCase):
             {
                 'group': group,
                 'user': group.project.creator,
-                'PLATFORM_NAME': get_current_site(request).name
+                'PLATFORM_NAME': get_current_site(request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(unicode(response.content), rendered)
@@ -463,7 +465,8 @@ class UserGroupDataTest(TestCase):
             {
                 'group': ref,
                 'user': ref.project.creator,
-                'PLATFORM_NAME': get_current_site(request).name
+                'PLATFORM_NAME': get_current_site(request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(unicode(response.content), rendered)
@@ -490,7 +493,8 @@ class UserGroupDataTest(TestCase):
             {
                 'group': ref,
                 'user': ref.project.creator,
-                'PLATFORM_NAME': get_current_site(request).name
+                'PLATFORM_NAME': get_current_site(request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(unicode(response.content), rendered)
@@ -519,7 +523,8 @@ class UserGroupDataTest(TestCase):
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
                 'user': user,
-                'PLATFORM_NAME': get_current_site(request).name
+                'PLATFORM_NAME': get_current_site(request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(unicode(response.content), rendered)
@@ -544,7 +549,8 @@ class UserGroupDataTest(TestCase):
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
                 'user': user,
-                'PLATFORM_NAME': get_current_site(request).name
+                'PLATFORM_NAME': get_current_site(request).name,
+                'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(unicode(response.content), rendered)
