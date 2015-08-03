@@ -555,3 +555,7 @@ h6.item-info + h3 {
 	height: 400px;
 	margin-bottom: 30px;
 }
+
+span.btn-group {
+	margin-left: 15px;
+}

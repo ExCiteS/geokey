@@ -110,6 +110,17 @@
     };
 
     /**
+     * Request using HTTP PATCH
+     * @param  {String}   url             URL the called.
+     * @param  {Function} successCallback Function to be called after successful request
+     * @param  {Function} errorCallback   Function to be called after request failed
+     * @param  {Object}   data            Data to be send with the request body
+     */
+    Ajax.prototype.patch = function patch(url, successCallback, errorCallback, data) {
+        request(url, 'PATCH', successCallback, errorCallback, data);
+    };
+
+    /**
      * Request using HTTP DELETE
      * @param  {String}   url             URL the called.
      * @param  {Function} successCallback Function to be called after successful request
