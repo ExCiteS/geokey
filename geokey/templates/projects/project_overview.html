@@ -25,48 +25,11 @@
         <div class="container">
             {% include 'snippets/messages.html' %}
 
-            <div class="row">
-                <div class="col-sm-8" id="stats-bock">
-                    <h3 class="header">Overview <a href="{% url 'admin:project_settings' project.id %}" class="btn btn-sm btn-default">Edit settings</a></h3>
-
-                    <div class="row" id="stats">
-                        <div class="col-sm-4">
-                            <a href="{% url 'admin:category_list' project.id %}"><span class="number">{{ project.categories.count }}</span><br>categories</a>
-                        </div>
-                        <div class="col-sm-4">
-                            <a href="{% url 'admin:subset_list' project.id %}"><span class="number">{{ project.subsets.count }}</span><br>subsets</a>
-                        </div>
-                        <div class="col-sm-4">
-                            <a href="{% url 'admin:usergroup_list' project.id %}"><span class="number">{{ project.usergroups.count }}</span><br>user groups</a>
-                        </div>
-                    </div>
-
-                    {% if project.description %}
-                        <h4>Project description</h4>
-                        {{ project.description|safe }}
-                    {% endif %}
-
-                    <h3 class="header">Activity</h3>
-                    <div class="row" id="stats">
-                        <div class="col-sm-4">
-                            <span class="number">{{ allcontributions }}</span><br>contributions
-                        </div>
-                        <div class="col-sm-4">
-                            <span class="number">{{ comments }}</span><br>comments
-                        </div>
-                        <div class="col-sm-4">
-                            <span class="number">{{ files }}</span><br>files
-                        </div>
-                    </div>
+            <div class="row" id="overview-block">
+                <div class="col-sm-12">
+                    <h3 class="header">Overview <small><a href="#" id="help-link">Click here for help</a></small></h3>
                 </div>
-                {% include 'snippets/project-help.html' %}
-
                 <div class="col-sm-4">
-                    <div class="alert alert-info">
-                        <h4>Do you need help?</h4>
-                        <p><a href="#" id="help-link">Click here to get started.</a></p>
-                    </div>
-
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h4 class="panel-title">Categories <a href="{% url 'admin:category_list' project.id %}" class="badge pull-right">{{ project.categories.count }} &raquo;</a></h4>
@@ -87,7 +50,9 @@
                             <a href="{% url 'admin:category_create' project.id %}" class="btn btn-sm btn-success">Create category</a>
                         </div>
                     </div>
+                </div>
 
+                <div class="col-sm-4">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h4 class="panel-title">Subsets <a href="{% url 'admin:subset_list' project.id %}" class="badge pull-right">{{ project.subsets.count }} &raquo;</a></h4>
@@ -108,7 +73,9 @@
                             <a href="{% url 'admin:subset_create' project.id %}" class="btn btn-sm btn-success">Create subset</a>
                         </div>
                     </div>
+                </div>
 
+                <div class="col-sm-4">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h4 class="panel-title">User groups <a href="{% url 'admin:usergroup_list' project.id %}" class="badge pull-right">{% plus project.usergroups.count 1 %} &raquo;</a></span></h4>
@@ -130,7 +97,25 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
+            {% include 'snippets/project-help.html' %}
+
+            <div class="row">
+                <div class="col-sm-8" id="stats-bock">
+                    <h3 class="header">Activity</h3>
+                    <div class="row" id="stats">
+                        <div class="col-sm-4">
+                            <span class="number">{{ allcontributions }}</span><br>contributions
+                        </div>
+                        <div class="col-sm-4">
+                            <span class="number">{{ comments }}</span><br>comments
+                        </div>
+                        <div class="col-sm-4">
+                            <span class="number">{{ files }}</span><br>files
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 {% endblock %}
@@ -139,7 +124,7 @@
     <script type="text/javascript">
         $('#help-link').click(function (event) {
             $('#help-block').removeClass('hidden');
-            $('#stats-bock').addClass('hidden');
+            $('#overview-block').addClass('hidden');
             event.preventDefault();
         });
 
