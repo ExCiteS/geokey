@@ -5,12 +5,13 @@
 {% block main %}
 <div class="page-header">
     <div class="container">
-        <div class="row">
-            <div class="col-sm-12">
-                <h1>Superuser tools</h1>
-            </div>
-        </div>
+        <h1>Superuser tools</h1>
 
+        <ul class="nav nav-tabs header-nav">
+            <li role="presentation"><a href="{% url 'admin:superuser_index' %}">Platform settings</a></li>
+            <li role="presentation" class="active"><a href="{% url 'admin:superuser_manage_users' %}">Manage super users</a></li>
+            <li role="presentation"><a href="{% url 'admin:superuser_projects' %}">Manage all projects</a></li>
+        </ul>
     </div>
 </div>
 
@@ -18,20 +19,10 @@
 <div class="container">
     {% include 'snippets/messages.html' %}
     <div class="row">
-        <div class="col-md-4">
-            <div class="panel panel-default">
-                <div class="list-group">
-                    <a href="{% url 'admin:superuser_index' %}" class="list-group-item">Platform settings</a>
-                    <a href="{% url 'admin:superuser_projects' %}" class="list-group-item">Manage all projects</a>
-                    <a href="{% url 'admin:superuser_manage_users' %}" class="list-group-item active">Add + remove super users</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-8" id="members">
+        <div class="col-sm-8 col-sm-offset-2" id="members">
             <div class="header">
                 <div class="row">
-                    <div class="col-sm-6"><h3>Add + remove super users</h3></div>
+                    <div class="col-sm-6"><h3>Manage super users</h3></div>
                     <div class="col-sm-6 dropdown">
                         <input type="text" id="find-users" class="pull-right form-control" placeholder="Search for users to add to the group">
                         <ul class="dropdown-menu type-away">
