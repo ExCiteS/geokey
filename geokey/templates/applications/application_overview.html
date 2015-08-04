@@ -6,6 +6,11 @@
         <div class="page-header">
             <div class="container">
                 <h1>Applications</h1>
+
+                <ul class="nav nav-tabs header-nav">
+                    <li role="presentation" class="active"><a href="{% url 'admin:app_overview' %}">Registered applications</a></li>
+                    <li role="presentation"><a href="{% url 'admin:app_connected' %}">Connected applications</a></li>
+                </ul>
             </div>
         </div>
 
@@ -14,13 +19,6 @@
 
             <div class="row">
                 <div class="col-md-4">
-                    <div class="panel panel-default">
-                        <div class="list-group">
-                            <a href="{% url 'admin:app_overview' %}" class="list-group-item active">Registered applications</a>
-                            <a href="{% url 'admin:app_connected' %}" class="list-group-item">Connected applications</a>
-                        </div>
-                    </div>
-
                     <div class="alert alert-info">
                         <h5><strong>Learn more about:</strong></h5>
                         <ul>
@@ -42,7 +40,7 @@
                     {% endif %}
 
                     <li>
-                        <h3><a href="{% url 'admin:app_settings' app.id %}">{{app.name}}</a></h3>
+                        <h4><a href="{% url 'admin:app_settings' app.id %}">{{app.name}}</a></h4>
                         {% if app.description %}<p>{{app.description}}</p>{% endif %}
                         <p class="meta">Client ID: <span class="lower-case">{{ app.client_id }}</span></p>
                         <p class="meta">Client secret: <span class="lower-case">{{ app.client_secret }}</span></p>

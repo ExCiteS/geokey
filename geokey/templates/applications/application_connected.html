@@ -1,11 +1,16 @@
 {% extends "base.html" %}
 
-{% block title %} | Register a new application{% endblock %}
+{% block title %} | Connected applications{% endblock %}
 
 {% block main %}
         <div class="page-header">
             <div class="container">
                 <h1>Applications</h1>
+
+                <ul class="nav nav-tabs header-nav">
+                    <li role="presentation"><a href="{% url 'admin:app_overview' %}">Registered applications</a></li>
+                    <li role="presentation" class="active"><a href="{% url 'admin:app_connected' %}">Connected applications</a></li>
+                </ul>
             </div>
         </div>
 
@@ -13,16 +18,13 @@
             {% include 'snippets/messages.html' %}
 
             <div class="row">
-                <div class="col-md-4">
-                    <div class="panel panel-default">
-                        <div class="list-group">
-                            <a href="{% url 'admin:app_overview' %}" class="list-group-item">Registered applications</a>
-                            <a href="{% url 'admin:app_connected' %}" class="list-group-item active">Connected applications</a>
-                        </div>
+                <div class="col-sm-4">
+                    <div class="alert alert-info">
+                        <p>Connected applications are applications that you have used before to access and edit data stored in {{ PLATFORM_NAME }}.</p>
                     </div>
                 </div>
 
-                <div class="col-md-8">
+                <div class="col-sm-8">
                     <h3 class="header">
                         Your connected applications
                     </h3>
@@ -34,7 +36,7 @@
 
                     <li>
                         <a href="{% url 'admin:app_disconnect' app.id %}" class="btn btn-default pull-right">Disconnect</a>
-                        <h3>{{ app.name }}</h3>
+                        <h4>{{ app.name }}</h4>
                         {% if app.description %}<p>{{app.description}}</p>{% endif %}
                     </li>
 
