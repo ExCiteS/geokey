@@ -263,18 +263,15 @@ class Project(models.Model):
         django.db.models.query.QuerySet
             List of geokey.contributions.models.Observations
         """
-        data = self.observations.annotate(
-            num_comments=Count('comments'),
-            num_files=Count('files_attached')
-        )
+        data = None
 
         if self.is_admin(user):
             # Return everything for admins
-            return data.for_moderator(user)
+            return self.observations.for_moderator(user)
         elif self.can_moderate(user):
-            data = data.for_moderator(user)
+            data = self.observations.for_moderator(user)
         else:
-            data = data.for_viewer(user)
+            data = self.observations.for_viewer(user)
 
         where_clause = None
         if self.isprivate and not user.is_anonymous():

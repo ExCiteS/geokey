@@ -3,7 +3,6 @@ import json
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser
-from django.db.models import Count
 
 from nose.tools import raises
 
@@ -441,6 +440,12 @@ class ContributionSerializerIntegrationTests(TestCase):
             result.get('meta').get('category').get('id'),
             observation.category.id)
         self.assertEqual(
+            result.get('meta').get('num_comments'),
+            observation.comments.count())
+        self.assertEqual(
+            result.get('meta').get('num_media'),
+            observation.files_attached.count())
+        self.assertEqual(
             result.get('location').get('name'),
             observation.location.name)
         self.assertEqual(
@@ -456,10 +461,7 @@ class ContributionSerializerIntegrationTests(TestCase):
 
         ObservationFactory.create_batch(number)
         observations = Observation.objects.prefetch_related(
-            'location', 'category', 'creator', 'updator').annotate(
-                num_comments=Count('comments'),
-                num_files=Count('files_attached')
-            )
+            'location', 'category', 'creator', 'updator')
 
         serializer = ContributionSerializer(
             observations,
@@ -507,10 +509,7 @@ class ContributionSerializerIntegrationTests(TestCase):
             }
         )
         observations = Observation.objects.prefetch_related(
-            'location', 'category', 'creator', 'updator').annotate(
-                num_comments=Count('comments'),
-                num_files=Count('files_attached')
-            )
+            'location', 'category', 'creator', 'updator')
 
         serializer = ContributionSerializer(
             observations,
