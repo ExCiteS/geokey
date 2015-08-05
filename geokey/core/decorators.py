@@ -14,9 +14,10 @@ from geokey.categories.models import (
     Category, Field, LookupValue, MultipleLookupValue
 )
 from geokey.applications.models import Application
-from geokey.contributions.models import Observation, Comment
-from geokey.contributions.models import Location
-from geokey.contributions.models import MediaFile
+from geokey.contributions.models import (
+    Observation, Comment, Location, MediaFile
+)
+from geokey.subsets.models import Subset
 
 
 def handle_exceptions_for_admin(func):
@@ -30,6 +31,7 @@ def handle_exceptions_for_admin(func):
             }
         except (
             Project.DoesNotExist,
+            Subset.DoesNotExist,
             Category.DoesNotExist,
             Field.DoesNotExist,
             Application.DoesNotExist

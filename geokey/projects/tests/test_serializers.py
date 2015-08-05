@@ -9,6 +9,11 @@ from ..serializers import ProjectSerializer
 
 
 class SerializerTest(TestCase):
+    def test_get_subsets(self):
+        project = ProjectF.create()
+        serializer = ProjectSerializer(project)
+        self.assertIsNotNone(serializer.get_subsets(project))
+
     def test_get_geographic_extent(self):
         project = ProjectF.create(**{'geographic_extend': None})
         serializer = ProjectSerializer(project)

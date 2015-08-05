@@ -6,6 +6,7 @@ from django.utils import timezone
 from django_pgjson.fields import JsonBField
 from oauth2_provider.models import AccessToken
 
+from geokey.core.mixins import FilterMixin
 from .manager import UserManager
 
 
@@ -42,7 +43,7 @@ class User(AbstractBaseUser):
         AccessToken.objects.filter(user=self).delete()
 
 
-class UserGroup(models.Model):
+class UserGroup(FilterMixin, models.Model):
     """
     A user gropup assigned to a project.
     """
@@ -59,20 +60,6 @@ class UserGroup(models.Model):
         """
         Overwrites save to implement integrity ensurance.
         """
-        self.where_clause = None
-        if self.filters is not None:
-            queries = []
-
-            for key in self.filters:
-                category = self.project.categories.get(pk=key)
-                queries.append(category.get_query(self.filters[key]))
-
-            if len(queries) > 0:
-                query = ' OR '.join(queries)
-                self.where_clause = query
-            else:
-                self.where_clause = 'FALSE'
-
         if self.can_moderate:
             self.can_contribute = True
 

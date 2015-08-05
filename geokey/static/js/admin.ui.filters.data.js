@@ -78,8 +78,6 @@
     function handleRangeFieldEdit(event) {
         var target = $(event.target),
             container = target.parents('.field-filter');
-        console.log(target)
-        console.log('#' + target.attr('data-key') + '-min')
 
         if (target.attr('id') === target.attr('data-key') + '-min') {
             container.find('input#' + target.attr('data-key') + '-max').attr('min', target.val());

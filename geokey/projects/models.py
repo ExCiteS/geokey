@@ -247,7 +247,7 @@ class Project(models.Model):
             not user.is_anonymous() and (
                 self.usergroups.filter(users=user).exists()))
 
-    def get_all_contributions(self, user):
+    def get_all_contributions(self, user, search=None, subset=None):
         """
         Returns all contributions a user can access in a project. It gets
         the SQL clauses of all data groupings in the project and combines them
@@ -264,17 +264,15 @@ class Project(models.Model):
             List of geokey.contributions.models.Observations
         """
         data = None
+        is_admin = self.is_admin(user)
 
-        if self.is_admin(user):
-            # Return everything for admins
-            return self.observations.for_moderator(user)
-        elif self.can_moderate(user):
+        if is_admin or self.can_moderate(user):
             data = self.observations.for_moderator(user)
         else:
             data = self.observations.for_viewer(user)
 
         where_clause = None
-        if self.isprivate and not user.is_anonymous():
+        if not is_admin and self.isprivate and not user.is_anonymous():
             clauses = []
 
             for group in self.usergroups.filter(users=user):
@@ -284,10 +282,20 @@ class Project(models.Model):
             if clauses:
                 where_clause = '(' + ') OR ('.join(clauses) + ')'
 
-        if not where_clause:
-            return data
+        if subset:
+            sub = self.subsets.get(pk=subset)
+            if where_clause:
+                where_clause = '(' + sub.where_clause + ') AND ' + where_clause
+            else:
+                where_clause = sub.where_clause
 
-        return data.extra(where=[where_clause]).distinct()
+        if where_clause:
+            data = data.extra(where=[where_clause])
+
+        if search:
+            data = data.search(search)
+
+        return data.distinct()
 
     def contact_admins(self, sender, mail_content):
         """

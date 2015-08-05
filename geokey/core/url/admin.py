@@ -5,6 +5,7 @@ from geokey.categories import views as category_views
 from geokey.users import views as login_views
 from geokey.applications import views as app_views
 from geokey.superusertools import views as superuser
+from geokey.subsets import views as subsets
 
 
 urlpatterns = patterns(
@@ -116,6 +117,25 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/delete/$',
         category_views.FieldDelete.as_view(),
         name='category_field_delete'),
+
+    # ###########################
+    # SUBSETS
+    # ###########################
+    url(r'^projects/(?P<project_id>[0-9]+)/subsets/$',
+        subsets.SubsetOverview.as_view(),
+        name='subset_list'),
+    url(r'^projects/(?P<project_id>[0-9]+)/subsets/new/$',
+        subsets.SubsetCreate.as_view(),
+        name='subset_create'),
+    url(r'^projects/(?P<project_id>[0-9]+)/subsets/(?P<subset_id>[0-9]+)/$',
+        subsets.SubsetSettings.as_view(),
+        name='subset_settings'),
+    url(r'^projects/(?P<project_id>[0-9]+)/subsets/(?P<subset_id>[0-9]+)/data/$',
+        subsets.SubsetData.as_view(),
+        name='subset_data'),
+    url(r'^projects/(?P<project_id>[0-9]+)/subsets/(?P<subset_id>[0-9]+)/delete/$',
+        subsets.SubsetDelete.as_view(),
+        name='subset_delete'),
 
     # ###########################
     # APPS

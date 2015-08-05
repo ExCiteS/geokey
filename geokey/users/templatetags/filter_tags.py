@@ -30,7 +30,7 @@ def is_in(d, key_name):
     return False
 
 
-@register.inclusion_tag('users/data_fields_rules.html')
+@register.inclusion_tag('snippets/data_fields_rules.html')
 def show_fields(filters, category):
     if filters and str(category.id) in filters:
         cat_rules = filters.get(str(category.id))

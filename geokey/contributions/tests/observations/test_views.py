@@ -14,6 +14,7 @@ from geokey.categories.tests.model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory
 )
 from geokey.users.tests.model_factories import UserGroupF
+from geokey.subsets.tests.model_factories import SubsetFactory
 
 from ..model_factories import (
     ObservationFactory, CommentFactory, LocationFactory
@@ -21,65 +22,9 @@ from ..model_factories import (
 
 from geokey.contributions.views.observations import (
     SingleAllContributionAPIView, SingleContributionAPIView,
-    ContributionSearchAPIView, ProjectObservations
+    ProjectObservations
 )
 from geokey.contributions.models import Observation
-
-
-class ContributionSearchTest(TestCase):
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.creator = UserF.create()
-        self.project = ProjectF(
-            add_admins=[self.admin],
-            add_contributors=[self.creator]
-        )
-        category = CategoryFactory.create()
-        TextFieldFactory.create(**{'key': 'key', 'category': category})
-
-        ObservationFactory.create_batch(5, **{
-            'properties': {'key': 'blah'},
-            'project': self.project,
-            'category': category
-        })
-        ObservationFactory.create_batch(5, **{
-            'properties': {'key': 'blub'},
-            'project': self.project,
-            'category': category
-        })
-
-    def get(self, user, query):
-        url = reverse('api:contributions_search', kwargs={
-            'project_id': self.project.id
-        })
-        request = self.factory.get(url + '?query=' + query)
-        force_authenticate(request, user=user)
-        theview = ContributionSearchAPIView.as_view()
-        return theview(request, project_id=self.project.id).render()
-
-    def test_get_with_bl(self):
-        response = self.get(self.admin, 'bl')
-        self.assertEqual(response.status_code, 200)
-
-        features = json.loads(response.content)
-        self.assertEqual(len(features.get('features')), 10)
-
-    def test_get_with_blah(self):
-        response = self.get(self.admin, 'blah')
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'blub')
-
-        features = json.loads(response.content)
-        self.assertEqual(len(features.get('features')), 5)
-
-    def test_get_with_blub(self):
-        response = self.get(self.admin, 'blub')
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'blah')
-
-        features = json.loads(response.content)
-        self.assertEqual(len(features.get('features')), 5)
 
 
 class SingleContributionAPIViewTest(TestCase):
@@ -1161,16 +1106,66 @@ class TestProjectPublicApi(TestCase):
             add_contributors=[self.contributor]
         )
 
-    def get(self, user):
+    def get(self, user, search=None, subset=None):
         url = reverse('api:project_observations', kwargs={
             'project_id': self.project.id
         })
+        if search:
+            url += '?search=blah'
+        if subset:
+            url += '?subset=' + str(subset)
+
         request = self.factory.get(url)
         force_authenticate(request, user=user)
         theview = ProjectObservations.as_view()
         return theview(
             request,
             project_id=self.project.id).render()
+
+    def test_get_with_subset(self):
+        category_1 = CategoryFactory(**{'project': self.project})
+        category_2 = CategoryFactory(**{'project': self.project})
+
+        subset = SubsetFactory.create(**{
+            'project': self.project,
+            'filters': {category_1.id: {}}
+        })
+
+        for x in range(0, 2):
+            ObservationFactory.create(**{
+                'project': self.project,
+                'category': category_1}
+            )
+
+            ObservationFactory.create(**{
+                'project': self.project,
+                'category': category_2}
+            )
+
+        response = self.get(self.admin, subset=subset.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(json.loads(response.content).get('features')), 2)
+
+    def test_get_with_search(self):
+        category = CategoryFactory(**{'project': self.project})
+        TextFieldFactory.create(**{'key': 'text', 'category': category})
+
+        for x in range(0, 2):
+            ObservationFactory.create(**{
+                'project': self.project,
+                'category': category,
+                'properties': {'text': 'blah'}}
+            )
+
+            ObservationFactory.create(**{
+                'project': self.project,
+                'category': category,
+                'properties': {'text': 'blub'}}
+            )
+
+        response = self.get(self.admin, search='blah')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(json.loads(response.content).get('features')), 2)
 
     def test_get_with_admin(self):
         response = self.get(self.admin)

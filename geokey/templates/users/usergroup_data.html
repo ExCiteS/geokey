@@ -3,7 +3,7 @@
 {% block title %} | {{group.name}}{% endblock %}
 {% block bodydata %} data-project-id="{{group.project.id}}" data-group-id="{{group.id}}"{% endblock %}
 
-{% load tags %}
+{% load filter_tags %}
 
 {% block main %}
         <div class="page-header">
@@ -26,7 +26,7 @@
 
             <div class="row">
                 <div class="col-sm-4">
-                <div class="panel panel-default">
+                    <div class="panel panel-default">
                         <div class="panel-heading">
                             <h6 class="item-info">User group</h6>
                             <h3>{{ group.name }}</h3>
@@ -108,7 +108,7 @@
             <script src="/static/lib/moment/moment.min.js"></script>
             <script src="/static/lib/bootstrap-datetime/js/bootstrap-datetimepicker.min.js"></script>
 
-            <script src="/static/js/admin.ui.usergroup.data.js"></script>
+            <script src="/static/js/admin.ui.filters.data.js"></script>
             <script src="/static/js/admin.ui.forms.validate.js"></script>
             <script src="/static/js/admin.control.ajax.js"></script>
 {% endblock %}

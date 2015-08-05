@@ -1,5 +1,15 @@
 # GeoKey Changelog
 
+## Version 0.7
+
+- Adds `core.mixins`, that provide mixins for shared functionality, e.g. creating where clauses for user groups and subsets.
+- Removes `/api/projects/:project_id/contributions/search` endpoint. Searching for contributions can now be implemented via `/api/projects/:project_id/contributions/search={query}`
+
+- The following files have been moved or renamed:
+    - `geokey/static/admin.usergroup.data.js` > `geokey/static/admin.filters.data.js`
+    - `geokey/templates/users/data_fields_rules.html` > `geokey/templates/snippets/data_fields_rules.html`
+    - `geokey/users/templatetags/tags.py` > `geokey/users/templatetags/filter_tags.py`
+
 ## Version 0.6
 
 - Separation of contribution serialiser into parser, serialiser and renderer. This enables rendering of geographic data into formats other than GeoJSON.
