@@ -236,7 +236,7 @@ class Observation(models.Model):
 
     def update_search_matches(self):
         """
-        Updates the search_matches propertiy, which is used to filter
+        Updates the search_matches property, which is used to filter
         contributions against a query string. It reads all fields from the
         category and creates a string like 'key1:value#####key2:value2'
         """
@@ -278,7 +278,7 @@ class Observation(models.Model):
 
     def delete(self):
         """
-        Deletes the comment by setting it's status to DELETED
+        Deletes the observation by setting it's status to DELETED
         """
         self.status = OBSERVATION_STATUS.deleted
         self.save()
