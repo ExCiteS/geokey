@@ -8,16 +8,15 @@
 {% block main %}
         <div class="page-header">
             <div class="container">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <h1 class="smaller"><a href="{% url 'admin:project_overview' subset.project.id %}">{{subset.project.name}}</a></h1>
-                        <a href="{% url 'admin:project_overview' subset.project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
-                    </div>
-                    <ul class="header-nav">
-                        <li><a href="{% url 'admin:category_list' subset.project.id %}">Categories <span class="badge">{{ subset.project.categories.count }}</span></a></li>
-                        <li><a href="{% url 'admin:usergroup_list' subset.project.id %}">User groups <span class="badge">{{ subset.project.usergroups.count }}</span></a></li>
-                    </ul>
-                </div>
+                <h1 class="smaller"><a href="{% url 'admin:project_overview' subset.project.id %}">{{subset.project.name}}</a></h1>
+                <ul class="nav nav-tabs header-nav">
+                    <li role="presentation"><a href="{% url 'admin:project_overview' subset.project.id %}">Project home</a></li>
+                    <li role="presentation"><a href="{% url 'admin:category_list' subset.project.id %}">Categories</a></li>
+                    <li role="presentation"><a href="{% url 'admin:usergroup_list' subset.project.id %}">User groups</a></li>
+                    <li role="presentation" class="active"><a href="{% url 'admin:subset_list' subset.project.id %}">Subsets</a></li>
+                    <li role="presentation"><a href="{% url 'admin:project_extend' subset.project.id %}">Geographic extent</a></li>
+                    <li role="presentation"><a href="{% url 'admin:project_settings' subset.project.id %}">Settings</a></li>
+                </ul>
             </div>
         </div>
 

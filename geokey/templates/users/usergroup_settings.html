@@ -6,16 +6,15 @@
 {% block main %}
         <div class="page-header">
             <div class="container">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <h1 class="smaller"><a href="{% url 'admin:project_overview' group.project.id %}">{{group.project.name}}</a></h1>
-                        <a href="{% url 'admin:project_overview' group.project.id %}"><span class="glyphicon glyphicon-arrow-left"></span> Project home page</a>
-                    </div>
-                    <ul class="header-nav">
-                        <li><a href="{% url 'admin:category_list' group.project.id %}">Categories <span class="badge">{{ group.project.categories.count }}</span></a></li>
-                        <li class="active"><a href="{% url 'admin:usergroup_list' group.project.id %}">User groups <span class="badge">{{ group.project.usergroups.count }}</span></a></li>
-                    </ul>
-                </div>
+                <h1 class="smaller"><a href="{% url 'admin:project_overview' group.project.id %}">{{group.project.name}}</a></h1>
+                <ul class="nav nav-tabs header-nav">
+                    <li role="presentation"><a href="{% url 'admin:project_overview' group.project.id %}">Project home</a></li>
+                    <li role="presentation"><a href="{% url 'admin:category_list' group.project.id %}">Categories</a></li>
+                    <li role="presentation" class="active"><a href="{% url 'admin:usergroup_list' group.project.id %}">User groups</a></li>
+                    <li role="presentation"><a href="{% url 'admin:subset_list' group.project.id %}">Subsets</a></li>
+                    <li role="presentation"><a href="{% url 'admin:project_extend' group.project.id %}">Geographic extent</a></li>
+                    <li role="presentation"><a href="{% url 'admin:project_settings' group.project.id %}">Settings</a></li>
+                </ul>
             </div>
         </div>
 

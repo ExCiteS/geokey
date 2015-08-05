@@ -8,8 +8,12 @@
 
     <div class="page-header">
         <div class="container">
-            <h1 class="smaller"><a href="{% url 'admin:app_overview' %}">Applications</a></h1>
-            <a href="{% url 'admin:app_overview' %}"><span class="glyphicon glyphicon-arrow-left"></span> Applications home page</a>
+            <h1>Applications</h1>
+
+            <ul class="nav nav-tabs header-nav">
+                <li role="presentation" class="active"><a href="{% url 'admin:app_overview' %}">Registered applications</a></li>
+                <li role="presentation"><a href="{% url 'admin:app_connected' %}">Connected applications</a></li>
+            </ul>
         </div>
     </div>
 

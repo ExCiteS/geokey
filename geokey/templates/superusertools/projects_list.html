@@ -5,12 +5,13 @@
 {% block main %}
 <div class="page-header">
     <div class="container">
-        <div class="row">
-            <div class="col-sm-12">
-                <h1>Superuser tools</h1>
-            </div>
-        </div>
+        <h1>Superuser tools</h1>
 
+        <ul class="nav nav-tabs header-nav">
+            <li role="presentation"><a href="{% url 'admin:superuser_index' %}">Platform settings</a></li>
+            <li role="presentation"><a href="{% url 'admin:superuser_manage_users' %}">Manage super users</a></li>
+            <li role="presentation" class="active"><a href="{% url 'admin:superuser_projects' %}">Manage all projects</a></li>
+        </ul>
     </div>
 </div>
 
@@ -18,17 +19,7 @@
 <div class="container">
     {% include 'snippets/messages.html' %}
     <div class="row">
-        <div class="col-md-4">
-            <div class="panel panel-default">
-                <div class="list-group">
-                    <a href="{% url 'admin:superuser_index' %}" class="list-group-item">Platform settings</a>
-                    <a href="{% url 'admin:superuser_projects' %}" class="list-group-item active">Manage all projects</a>
-                    <a href="{% url 'admin:superuser_manage_users' %}" class="list-group-item">Add + remove super users</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-8">
+        <div class="col-md-8 col-md-offset-2">
             <h3 class="header">Manage all projects</h3>
             {% for project in projects %}
 

@@ -16,8 +16,9 @@ from geokey.core.decorators import (
 )
 from geokey.core.exceptions import Unauthenticated
 from geokey.users.serializers import UserSerializer
-from geokey.users.models import User, UserGroup
+from geokey.users.models import User
 from geokey.categories.models import Category
+from geokey.contributions.models import Comment, MediaFile
 
 from .base import STATUS
 from .models import Project, Admins
@@ -121,12 +122,16 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
         user = self.request.user
         project = Project.objects.as_admin(user, project_id)
         contributions = project.observations.all()
+        comments = Comment.objects.filter(commentto=contributions).count()
+        files = MediaFile.objects.filter(contribution=contributions).count()
 
         return {
             'project': project,
             'allcontributions': contributions.count(),
             'contributions': contributions.filter(
-                creator=self.request.user).count()
+                creator=self.request.user).count(),
+            'comments': comments,
+            'files': files
         }
 
 

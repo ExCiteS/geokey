@@ -10,6 +10,8 @@
     - `geokey/templates/users/data_fields_rules.html` > `geokey/templates/snippets/data_fields_rules.html`
     - `geokey/users/templatetags/tags.py` > `geokey/users/templatetags/filter_tags.py`
 
+- Redesign of navigation elements
+
 ## Version 0.6
 
 - Separation of contribution serialiser into parser, serialiser and renderer. This enables rendering of geographic data into formats other than GeoJSON.
