@@ -77,6 +77,8 @@ class Observation(models.Model):
     version = models.IntegerField(default=1)
     search_matches = models.TextField()
     display_field = models.TextField(null=True, blank=True)
+    num_media = models.IntegerField(default=None, null=True)
+    num_comments = models.IntegerField(default=None, null=True)
 
     history = HistoricalRecords()
     objects = ObservationManager()
@@ -233,6 +235,15 @@ class Observation(models.Model):
                 value = self.properties.get(display_field.key)
 
             self.display_field = '%s:%s' % (display_field.key, value)
+
+    def update_count(self):
+        """
+        Updates the count of media files attached and comments. Should be
+        called each time a file or comment is added/deleted.
+        """
+        self.num_media = self.files_attached.count()
+        self.num_comments = self.comments.count()
+        self.save()
 
     def update_search_matches(self):
         """

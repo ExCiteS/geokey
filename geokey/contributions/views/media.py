@@ -81,6 +81,7 @@ class MediaFileListAbstractAPIView(APIView):
                 creator=user,
                 the_file=the_file
             )
+            contribution.update_count()
 
             serializer = FileSerializer(the_file, context={'user': user})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -190,6 +191,7 @@ class MediaFileSingleAbstractView(APIView):
         if (media_file.creator == user or
                 media_file.contribution.project.can_moderate(user)):
             media_file.delete()
+            media_file.contribution.update_count()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         raise PermissionDenied('You neither are the creator if this file '

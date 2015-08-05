@@ -421,6 +421,9 @@ class ContributionSerializer(BaseSerializer):
                 'display_name': obj.updator.display_name
             }
 
+        if obj.num_media is None or obj.num_comments is None:
+            obj.update_count()
+
         feature = {
             'id': obj.id,
             'properties': obj.properties,
@@ -436,8 +439,8 @@ class ContributionSerializer(BaseSerializer):
                 'updated_at': str(obj.updated_at),
                 'version': obj.version,
                 'isowner': isowner,
-                'num_comments': obj.comments.count(),
-                'num_media': obj.files_attached.count()
+                'num_media': obj.num_media,
+                'num_comments': obj.num_comments
             },
             'location': {
                 'id': location.id,

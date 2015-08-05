@@ -13,7 +13,7 @@ from geokey.categories.tests.model_factories import (
     TextFieldFactory, MultipleLookupFieldFactory, MultipleLookupValueFactory,
     NumericFieldFactory
 )
-from ..model_factories import ObservationFactory, LocationFactory
+from ..model_factories import ObservationFactory, LocationFactory, CommentFactory
 
 
 class TestContributionsPreSave(TestCase):
@@ -140,6 +140,19 @@ class ObservationTest(TestCase):
 
         ref = Observation.objects.get(pk=observation.id)
         self.assertIsNone(ref.display_field)
+
+    def test_update_count(self):
+        observation = ObservationFactory()
+        CommentFactory.create_batch(5, **{'commentto': observation})
+        CommentFactory.create(**{
+            'commentto': observation,
+            'status': 'deleted'
+        })
+        observation.update_count()
+
+        ref = Observation.objects.get(pk=observation.id)
+        self.assertEqual(red.num_media, 0)
+        self.assertEqual(red.num_comments, 5)
 
     def test_create_observation(self):
         creator = UserF()
