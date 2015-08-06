@@ -37,11 +37,19 @@
                         <div class="list-group">
                             {% for category in project.categories.all %}
                                 {% if forloop.counter == 6 %}
+
                                 <div class="list-group-item">
-                                    <strong><a href="#" class="text-primary expand">Show {% minus project.categories.count 5 %} more categories</a></strong>
+                                    <strong><a href="#" class="text-primary expand">{% more_link_text project.categories.count 'category' 'categories' %}</a></strong>
                                 </div>
+
                                 {% endif %}
-                                <a href="{% url 'admin:category_overview' project.id category.id %}" class="list-group-item {% if forloop.counter > 5 %}hidden{% endif %}"><strong>{{ category.name }}</strong><br> {{category.fields.count}} fields</a>
+
+                                <a href="{% url 'admin:category_overview' project.id category.id %}" class="list-group-item {% if forloop.counter > 5 %}hidden{% endif %}"><strong>{{ category.name }}</strong><br>
+                                {% with fields_count=category.fields.count %}
+                                    {{ fields_count }} field{{ fields_count|pluralize }}
+                                {% endwith %}
+                                </a>
+
                             {% empty %}
                             <div class="list-group-item">No categories have been created yet.</div>
                             {% endfor %}
@@ -60,8 +68,8 @@
                         <div class="list-group">
                             {% for subset in project.subsets.all %}
                                 {% if forloop.counter == 6 %}
-                                <div class="list-group-item center-block">
-                                    <strong><a href="#" class="text-primary expand">Show {% minus project.subsets.count 5 %} more subsets</a></strong>
+                                <div class="list-group-item">
+                                    <strong><a href="#" class="text-primary expand">{% more_link_text project.subsets.count 'subset' 'subsets' %}</a></strong>
                                 </div>
                                 {% endif %}
                                 <a href="{% url 'admin:subset_data' project.id subset.id %}" class="list-group-item {% if forloop.counter > 5 %}hidden{% endif %}">{{ subset.name }}</a>
@@ -85,12 +93,20 @@
 
                             {% for group in project.usergroups.all %}
                             {% if forloop.counter == 5 %}
-                            <div class="list-group-item center-block">
-                                <strong><a href="#" class="text-primary expand">Show {% minus project.usergroups.count 5 %} more user groups</a></strong>
+
+                            <div class="list-group-item">
+                                <strong><a href="#" class="text-primary expand">{% more_link_text project.usergroups.count 'user group' 'user groups' 4 %}</a></strong>
                             </div>
+
                             {% endif %}
-                            <a href="{% url 'admin:usergroup_overview' project.id group.id %}" class="list-group-item {% if forloop.counter > 4 %}hidden{% endif %}"><strong>{{ group.name }}</strong><br> {{group.users.count}} members</a>
+
+                            <a href="{% url 'admin:usergroup_overview' project.id group.id %}" class="list-group-item {% if forloop.counter > 4 %}hidden{% endif %}"><strong>{{ group.name }}</strong><br>
+                            {% with members_count=group.users.count %}
+                                {{ members_count }} member{{ members_count|pluralize }}
+                            {% endwith %}
+                            </a>
                             {% endfor %}
+
                         </div>
                         <div class="panel-footer">
                             <a href="{% url 'admin:usergroup_create' project.id %}" class="btn btn-sm btn-success">Create user group</a>
