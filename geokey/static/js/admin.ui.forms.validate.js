@@ -21,6 +21,17 @@ $(function() {
         field.parent().append('<span class="help-block">' + message  + '</span>');
     }
 
+    function parseDate(dateString) {
+        dateString = dateString.replace(' ', 'T');
+
+        // check if there are at least two digits between T and :
+        if (dateString.indexOf(':') - dateString.indexOf('T') < 3) {
+            dateString = dateString.replace('T', 'T0');
+        }
+
+        return Date.parse(dateString);
+    }
+
     function dateTimeValid(form) {
         var valid = true;
         var dateTimeFields = $(form).find('input.datetime, input.date');
@@ -31,10 +42,10 @@ $(function() {
             var min = field.attr('min');
             var max = field.attr('max');
 
-            if (min) { min = Date.parse(min.replace(' ', 'T')); }
-            if (max) { max = Date.parse(max.replace(' ', 'T')); }
+            if (min) { min = parseDate(min.replace(' ', 'T')); }
+            if (max) { max = parseDate(max.replace(' ', 'T')); }
 
-            var val = Date.parse(field.val().replace(' ', 'T'));
+            var val = parseDate(field.val().replace(' ', 'T'));
 
             if (field.val().length && !val) {
                 valid = false;
