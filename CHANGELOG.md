@@ -11,6 +11,7 @@
     - `geokey/users/templatetags/tags.py` > `geokey/users/templatetags/filter_tags.py`
 
 - Redesign of navigation elements
+- Fixes performance issues with counting number of files and comments per observation. Values are stored with the observation and updated each time either comment or file is added or removed. 
 
 ## Version 0.6
 
