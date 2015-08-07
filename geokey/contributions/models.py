@@ -5,7 +5,7 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.dispatch import receiver
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 
 from django_pgjson.fields import JsonBField
 from simple_history.models import HistoricalRecords
@@ -77,6 +77,8 @@ class Observation(models.Model):
     version = models.IntegerField(default=1)
     search_matches = models.TextField()
     display_field = models.TextField(null=True, blank=True)
+    num_media = models.IntegerField(default=0)
+    num_comments = models.IntegerField(default=0)
 
     history = HistoricalRecords()
     objects = ObservationManager()
@@ -234,9 +236,18 @@ class Observation(models.Model):
 
             self.display_field = '%s:%s' % (display_field.key, value)
 
+    def update_count(self):
+        """
+        Updates the count of media files attached and comments. Should be
+        called each time a file or comment is added/deleted.
+        """
+        self.num_media = self.files_attached.count()
+        self.num_comments = self.comments.count()
+        self.save()
+
     def update_search_matches(self):
         """
-        Updates the search_matches propertiy, which is used to filter
+        Updates the search_matches property, which is used to filter
         contributions against a query string. It reads all fields from the
         category and creates a string like 'key1:value#####key2:value2'
         """
@@ -278,20 +289,19 @@ class Observation(models.Model):
 
     def delete(self):
         """
-        Deletes the comment by setting it's status to DELETED
+        Deletes the observation by setting it's status to DELETED
         """
         self.status = OBSERVATION_STATUS.deleted
         self.save()
 
 
 @receiver(pre_save, sender=Observation)
-def pre_save_update(sender, **kwargs):
+def pre_save_observation_update(sender, **kwargs):
     """
     Receiver that is called before an observation is saved. Updates
     search_matches and display_field properties.
     """
     observation = kwargs.get('instance')
-
     observation.update_display_field()
     observation.update_search_matches()
 
@@ -334,6 +344,16 @@ class Comment(models.Model):
         self.responses.all().delete()
         self.status = COMMENT_STATUS.deleted
         self.save()
+
+
+@receiver(post_save, sender=Comment)
+def post_save_comment_update(sender, **kwargs):
+    """
+    Receiver that is called after a comment is saved. Updates num_media and
+    num_comments properties.
+    """
+    comment = kwargs.get('instance')
+    comment.commentto.update_count()
 
 
 class MediaFile(models.Model):
@@ -380,6 +400,16 @@ class MediaFile(models.Model):
         """
         self.status = MEDIA_STATUS.deleted
         self.save()
+
+
+@receiver(post_save, sender=MediaFile)
+def post_save_media_file_update(sender, **kwargs):
+    """
+    Receiver that is called after a media file is saved. Updates num_media and
+    num_comments properties.
+    """
+    media_file = kwargs.get('instance')
+    media_file.contribution.update_count()
 
 
 class ImageFile(MediaFile):

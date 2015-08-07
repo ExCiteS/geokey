@@ -18,7 +18,7 @@ class CommentAbstractAPIView(APIView):
     """
     def get_list_and_respond(self, user, observation):
         """
-        Reponsds to a GET request with a list of all comments for an
+        Responds to a GET request with a list of all comments for an
         observation
 
         Parameters
@@ -40,7 +40,7 @@ class CommentAbstractAPIView(APIView):
 
     def create_and_respond(self, request, observation):
         """
-        Reponsds to a POST request by creating a comment
+        Responds to a POST request by creating a comment
 
         Parameters
         ----------
