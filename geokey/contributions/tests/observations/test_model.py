@@ -5,7 +5,9 @@ from django.core.exceptions import ValidationError
 
 from nose.tools import raises
 
-from geokey.contributions.models import Observation, pre_save_update
+from geokey.contributions.models import (
+    Observation, pre_save_observation_update
+)
 from geokey.projects.tests.model_factories import UserF
 
 from geokey.categories.tests.model_factories import (
@@ -13,11 +15,13 @@ from geokey.categories.tests.model_factories import (
     TextFieldFactory, MultipleLookupFieldFactory, MultipleLookupValueFactory,
     NumericFieldFactory
 )
-from ..model_factories import ObservationFactory, LocationFactory, CommentFactory
+from ..model_factories import (
+    ObservationFactory, LocationFactory, CommentFactory
+)
 
 
 class TestContributionsPreSave(TestCase):
-    def test_pre_save(self):
+    def test_pre_observation_save(self):
         o_type = CategoryFactory.create()
         TextFieldFactory.create(
             **{'key': 'key', 'category': o_type, 'order': 0}
@@ -60,7 +64,7 @@ class TestContributionsPreSave(TestCase):
             'category': o_type
         })
 
-        pre_save_update(Observation, instance=o)
+        pre_save_observation_update(Observation, instance=o)
         self.assertIn('Ms Piggy', o.search_matches)
         self.assertIn('Kermit', o.search_matches)
         self.assertIn('blah', o.search_matches)
@@ -151,8 +155,8 @@ class ObservationTest(TestCase):
         observation.update_count()
 
         ref = Observation.objects.get(pk=observation.id)
-        self.assertEqual(red.num_media, 0)
-        self.assertEqual(red.num_comments, 5)
+        self.assertEqual(ref.num_media, 0)
+        self.assertEqual(ref.num_comments, 5)
 
     def test_create_observation(self):
         creator = UserF()

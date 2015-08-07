@@ -83,7 +83,6 @@ class CommentAbstractAPIView(APIView):
             creator=user,
             review_status=review_status
         )
-        observation.update_count()
 
         serializer = CommentSerializer(comment, context={'user': request.user})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -175,7 +174,6 @@ class CommentAbstractAPIView(APIView):
                 observation.project.can_moderate(request.user)):
 
             comment.delete()
-            observation.update_count()
 
             if not observation.comments.filter(review_status='open').exists():
                 observation.update(None, request.user, status='active')

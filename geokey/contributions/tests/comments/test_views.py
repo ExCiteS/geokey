@@ -132,10 +132,6 @@ class CommentAbstractAPIViewTest(TestCase):
             Comment.objects.get(pk=self.comment.id).text,
             'Updated'
         )
-        self.assertEqual(
-            self.observation.num_comments,
-            self.observation.comments.count()
-        )
 
     def test_update_comment_with_commenter(self):
         url = reverse('api:project_single_comment', kwargs={
@@ -156,10 +152,6 @@ class CommentAbstractAPIViewTest(TestCase):
             Comment.objects.get(pk=self.comment.id).text,
             'Updated'
         )
-        self.assertEqual(
-            self.observation.num_comments,
-            self.observation.comments.count()
-        )
 
     def test_update_comment_with_moderator(self):
         url = reverse('api:project_single_comment', kwargs={
@@ -179,10 +171,6 @@ class CommentAbstractAPIViewTest(TestCase):
         self.assertEqual(
             Comment.objects.get(pk=self.comment.id).text,
             'Updated'
-        )
-        self.assertEqual(
-            self.observation.num_comments,
-            self.observation.comments.count()
         )
 
     @raises(PermissionDenied)
@@ -482,18 +470,10 @@ class GetProjectComments(APITestCase):
     def test_get_comments_with_admin(self):
         response = self.get_response(self.admin)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            self.observation.num_comments,
-            self.observation.comments.count()
-        )
 
     def test_get_comments_with_contributor(self):
         response = self.get_response(self.contributor)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            self.observation.num_comments,
-            self.observation.comments.count()
-        )
 
     def test_get_comments_with_non_member(self):
         response = self.get_response(self.non_member)
@@ -532,18 +512,10 @@ class AddCommentToPrivateProjectTest(APITestCase):
     def test_add_comment_to_observation_with_admin(self):
         response = self.get_response(self.admin)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(
-            self.observation.num_comments,
-            self.observation.comments.count()
-        )
 
     def test_add_comment_to_observation_with_contributor(self):
         response = self.get_response(self.contributor)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(
-            self.observation.num_comments,
-            self.observation.comments.count()
-        )
 
     def test_add_review_comment_to_observation_with_contributor(self):
         factory = APIRequestFactory()
@@ -568,10 +540,6 @@ class AddCommentToPrivateProjectTest(APITestCase):
             Observation.objects.get(pk=self.observation.id).status,
             'review'
         )
-        self.assertEqual(
-            self.observation.num_comments,
-            self.observation.comments.count()
-        )
 
     def test_add_closed_review_comment_to_observation_with_contributor(self):
         factory = APIRequestFactory()
@@ -595,10 +563,6 @@ class AddCommentToPrivateProjectTest(APITestCase):
         self.assertEqual(
             Observation.objects.get(pk=self.observation.id).status,
             'active'
-        )
-        self.assertEqual(
-            self.observation.num_comments,
-            self.observation.comments.count()
         )
 
     def test_add_comment_to_observation_with_non_member(self):
@@ -646,34 +610,18 @@ class AddCommentToPublicProjectTest(APITestCase):
     def test_add_comment_to_observation_with_admin(self):
         response = self.get_response(self.admin)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(
-            self.observation.num_comments,
-            self.observation.comments.count()
-        )
 
     def test_add_comment_to_observation_with_contributor(self):
         response = self.get_response(self.contributor)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(
-            self.observation.num_comments,
-            self.observation.comments.count()
-        )
 
     def test_add_comment_to_observation_with_non_member(self):
         response = self.get_response(self.non_member)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(
-            self.observation.num_comments,
-            self.observation.comments.count()
-        )
 
     def test_add_comment_to_observation_with_anonymous(self):
         response = self.get_response(AnonymousUser())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(
-            self.observation.num_comments,
-            self.observation.comments.count()
-        )
 
 
 class AddCommentToWrongProjectObservation(APITestCase):
@@ -730,11 +678,6 @@ class AddResponseToProjectCommentTest(APITestCase):
         self.assertEqual(
             json.loads(response.content).get('respondsto'),
             comment.id
-        )
-
-        self.assertEqual(
-            observation.num_comments,
-            observation.comments.count()
         )
 
 
@@ -818,11 +761,6 @@ class DeleteProjectCommentTest(APITestCase):
         self.assertIn(self.comment, observation.comments.all())
         self.assertNotIn(self.comment_to_remove, observation.comments.all())
 
-        self.assertEqual(
-            observation.num_comments,
-            observation.comments.count()
-        )
-
     def test_delete_comment_with_comment_creator(self):
         response = self.get_response(self.contributor)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -830,11 +768,6 @@ class DeleteProjectCommentTest(APITestCase):
         observation = Observation.objects.get(pk=self.observation.id)
         self.assertIn(self.comment, observation.comments.all())
         self.assertNotIn(self.comment_to_remove, observation.comments.all())
-
-        self.assertEqual(
-            observation.num_comments,
-            observation.comments.count()
-        )
 
     def test_delete_review_comment_with_comment_creator(self):
         self.comment_to_remove.review_status = 'open'
@@ -850,11 +783,6 @@ class DeleteProjectCommentTest(APITestCase):
 
         self.assertIn(self.comment, observation.comments.all())
         self.assertNotIn(self.comment_to_remove, observation.comments.all())
-
-        self.assertEqual(
-            observation.num_comments,
-            observation.comments.count()
-        )
 
     def test_delete_one_review_comment_with_comment_creator(self):
         self.comment.review_status = 'open'
@@ -872,11 +800,6 @@ class DeleteProjectCommentTest(APITestCase):
 
         self.assertIn(self.comment, observation.comments.all())
         self.assertNotIn(self.comment_to_remove, observation.comments.all())
-
-        self.assertEqual(
-            observation.num_comments,
-            observation.comments.count()
-        )
 
     def test_resolve_nested_comment_with_admin(self):
         self.comment.respondsto = self.comment_to_remove
