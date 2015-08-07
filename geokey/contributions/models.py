@@ -241,8 +241,8 @@ class Observation(models.Model):
         Updates the count of media files attached and comments. Should be
         called each time a file or comment is added/deleted.
         """
-        self.num_media = self.files_attached.exclude(status='deleted').count()
-        self.num_comments = self.comments.exclude(status='deleted').count()
+        self.num_media = self.files_attached.count()
+        self.num_comments = self.comments.count()
         self.save()
 
     def update_search_matches(self):
