@@ -421,9 +421,6 @@ class ContributionSerializer(BaseSerializer):
                 'display_name': obj.updator.display_name
             }
 
-        if obj.num_media is None or obj.num_comments is None:
-            obj.update_count()
-
         feature = {
             'id': obj.id,
             'properties': obj.properties,
