@@ -11,7 +11,10 @@
     - `geokey/users/templatetags/tags.py` > `geokey/users/templatetags/filter_tags.py`
 
 - Redesign of navigation elements
-- Fixes performance issues with counting number of files and comments per observation. Values are stored with the observation and updated each time either comment or file is added or removed. 
+- Fixes performance issues with counting number of files and comments per observation. Values are stored with the observation and updated each time either comment or file is added or removed.
+- Implements editing of lookup values
+- Bug fixes:
+    - [#279](https://github.com/ExCiteS/geokey/issues/279) Fixes validation of date fields; times before 10 a.m. used to cause an error.
 
 ## Version 0.6
 
