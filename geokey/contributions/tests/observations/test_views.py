@@ -13,6 +13,7 @@ from geokey.projects.models import Project
 from geokey.categories.tests.model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory
 )
+from geokey.users.models import User
 from geokey.users.tests.model_factories import UserGroupF
 from geokey.subsets.tests.model_factories import SubsetFactory
 
@@ -236,7 +237,9 @@ class SingleContributionAPIViewTest(TestCase):
 
     @raises(PermissionDenied)
     def test_flag_with_anonymous(self):
-        UserF.create(display_name='AnonymousUser')
+        if not User.objects.filter(display_name='AnonymousUser').exists():
+            UserF.create(display_name='AnonymousUser')
+
         url = reverse('api:project_single_observation', kwargs={
             'project_id': self.project.id,
             'observation_id': self.observation.id
@@ -503,7 +506,8 @@ class ProjectPublicApiTest(TestCase):
         }
 
     def _post(self, data, user):
-        if user.is_anonymous:
+        if user.is_anonymous and not User.objects.filter(
+                display_name='AnonymousUser').exists():
             UserF.create(display_name='AnonymousUser')
         url = reverse(
             'api:project_observations',

@@ -15,6 +15,7 @@ from rest_framework.renderers import JSONRenderer
 from geokey.projects.tests.model_factories import UserF, ProjectF
 from geokey.projects.models import Project
 from geokey.contributions.models import Comment, Observation
+from geokey.users.models import User
 
 from geokey.users.tests.model_factories import UserGroupF
 from ..model_factories import ObservationFactory, CommentFactory
@@ -593,7 +594,8 @@ class AddCommentToPublicProjectTest(APITestCase):
         })
 
     def get_response(self, user):
-        if user.is_anonymous:
+        if user.is_anonymous and not User.objects.filter(
+                display_name='AnonymousUser').exists():
             UserF.create(display_name='AnonymousUser')
 
         factory = APIRequestFactory()
