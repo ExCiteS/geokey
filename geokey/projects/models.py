@@ -1,10 +1,6 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.gis.db import models as gis
-from django.core import mail
-from django.template.loader import get_template
-from django.template import Context
-from django.contrib.sites.models import Site
 
 from .manager import ProjectManager
 from .base import STATUS, EVERYONE_CONTRIB
@@ -176,8 +172,7 @@ class Project(models.Model):
                     can_contribute=True, users=user).exists() or
                 self.usergroups.filter(
                     can_moderate=True, users=user).exists())
-            )
-        )
+        ))
 
     def can_contribute(self, user):
         """
@@ -296,47 +291,6 @@ class Project(models.Model):
 
         return data.distinct()
 
-    def contact_admins(self, sender, mail_content):
-        """
-        Sends an email with `mail_content` to all admins of the project, that
-        are contact persons.
-
-        Parameters
-        ----------
-        sender : str
-            Email address of the user sending the request
-        mail_content : str
-            Email text of the request
-        """
-        messages = []
-        email_text = get_template('contact_admins_email.txt')
-
-        platform = Site.objects.get(pk=settings.SITE_ID).name
-
-        for contact_admin in Admins.objects.filter(project=self, contact=True):
-            context = Context({
-                'sender': sender,
-                'admin': contact_admin.user,
-                'email_text': mail_content,
-                'project_name': self.name,
-                'platform': platform
-            })
-            text = email_text.render(context)
-
-            email = mail.EmailMessage(
-                'Enquiry from %s' % sender.display_name,
-                text,
-                sender.email,
-                [contact_admin.user.email]
-            )
-            messages.append(email)
-
-        if len(messages) > 0:
-            connection = mail.get_connection()
-            connection.open()
-            connection.send_messages(messages)
-            connection.close()
-
 
 class Admins(models.Model):
     """
@@ -348,7 +302,6 @@ class Admins(models.Model):
         settings.AUTH_USER_MODEL,
         related_name='has_admins'
     )
-    contact = models.BooleanField(default=True)
 
     class Meta:
         ordering = ['project__name']

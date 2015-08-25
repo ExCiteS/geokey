@@ -5,22 +5,20 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpResponseRedirect
 from django.contrib.gis.geos import GEOSGeometry
-from django.core import mail
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from geokey.categories.tests.model_factories import (
     TextFieldFactory, CategoryFactory
 )
-from geokey.users.tests.model_factories import UserF, UserGroupF
+from geokey.users.tests.model_factories import UserF
 
 from .model_factories import ProjectF
 from ..models import Project
 from ..views import (
     ProjectCreate, ProjectSettings, ProjectUpdate, ProjectAdmins,
     ProjectAdminsUser, Projects, SingleProject, ProjectOverview, ProjectExtend,
-    ProjectContactAdmins, CategoriesReorderView, ProjectsInvolved,
-    ProjectDelete
+    CategoriesReorderView, ProjectsInvolved, ProjectDelete
 )
 
 # ############################################################################
@@ -1127,86 +1125,3 @@ class SingleProjectTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, project.name)
         self.assertContains(response, '"can_contribute":false')
-
-
-class ProjectContactAdminsTest(TestCase):
-    def test_with_active_project(self):
-        admin = UserF.create()
-        email_user = UserF.create()
-
-        project = ProjectF.create(
-            add_admins=[admin],
-            add_viewer=[email_user]
-        )
-
-        view = ProjectContactAdmins.as_view()
-        url = reverse(
-            'api:project_contact_admins',
-            kwargs={
-                'project_id': project.id
-            }
-        )
-        request = APIRequestFactory().post(
-            url,
-            json.dumps({'email_text': 'Blah Blah'}),
-            content_type='application/json'
-        )
-        force_authenticate(request, user=email_user)
-
-        response = view(request, project_id=project.id).render()
-        self.assertEqual(response.status_code, 204)
-        self.assertEquals(len(mail.outbox), 2)
-
-    def test_with_inactive_project(self):
-        admin = UserF.create()
-        email_user = UserF.create()
-
-        project = ProjectF.create(
-            add_admins=[admin],
-            **{'status': 'inactive'}
-        )
-
-        view = ProjectContactAdmins.as_view()
-        url = reverse(
-            'api:project_contact_admins',
-            kwargs={
-                'project_id': project.id
-            }
-        )
-        request = APIRequestFactory().post(
-            url,
-            json.dumps({'email_text': 'Blah Blah'}),
-            content_type='application/json'
-        )
-        force_authenticate(request, user=email_user)
-
-        response = view(request, project_id=project.id).render()
-        self.assertEqual(response.status_code, 404)
-        self.assertEquals(len(mail.outbox), 0)
-
-    def test_with_anonymous(self):
-        admin = UserF.create()
-        email_user = AnonymousUser()
-
-        project = ProjectF.create(
-            add_admins=[admin],
-            **{'isprivate': False}
-        )
-
-        view = ProjectContactAdmins.as_view()
-        url = reverse(
-            'api:project_contact_admins',
-            kwargs={
-                'project_id': project.id
-            }
-        )
-        request = APIRequestFactory().post(
-            url,
-            json.dumps({'email_text': 'Blah Blah'}),
-            content_type='application/json'
-        )
-        force_authenticate(request, user=email_user)
-
-        response = view(request, project_id=project.id).render()
-        self.assertEqual(response.status_code, 401)
-        self.assertEquals(len(mail.outbox), 0)

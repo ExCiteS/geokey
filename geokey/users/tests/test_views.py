@@ -19,17 +19,15 @@ from allauth.account.models import EmailAddress
 from geokey import version
 from geokey.applications.tests.model_factories import ApplicationFactory
 from geokey.projects.tests.model_factories import ProjectF
-from geokey.projects.models import Admins
 from geokey.categories.tests.model_factories import CategoryFactory
 
 from .model_factories import UserF, UserGroupF
 from ..views import (
     UserGroup, UserGroupUsers, UserGroupSingleUser,
     UserGroupCreate, UserGroupSettings, UserProfile,
-    CreateUserMixin, UserAPIView, Dashboard, UserNotifications,
-    ChangePasswordView, Index, UserGroupList, UserGroupOverview,
-    AdministratorsOverview, UserGroupPermissions, UserGroupDelete,
-    UserGroupData
+    CreateUserMixin, UserAPIView, Dashboard, ChangePasswordView, Index,
+    UserGroupList, UserGroupOverview, AdministratorsOverview,
+    UserGroupPermissions, UserGroupDelete, UserGroupData
 )
 from ..models import User, UserGroup as Group
 
@@ -41,7 +39,7 @@ from ..models import User, UserGroup as Group
 # ############################################################################
 
 class IndexTest(TestCase):
-    def get(sefl, user):
+    def get(self, user):
         factory = RequestFactory()
         view = Index.as_view()
         url = reverse('admin:index')
@@ -671,54 +669,6 @@ class UserProfileTest(TestCase):
         ref = User.objects.get(pk=user.id)
         self.assertEqual(ref.email, data.get('email'))
         self.assertEqual(ref.display_name, data.get('display_name'))
-
-
-class UserNotificationsTest(TestCase):
-    def test_with_user(self):
-        user = UserF.create()
-        view = UserNotifications.as_view()
-        url = reverse('admin:notifications')
-        request = APIRequestFactory().get(url)
-        request.user = user
-        response = view(request).render()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_with_anonymous(self):
-        user = AnonymousUser()
-        view = UserNotifications.as_view()
-        url = reverse('admin:notifications')
-        request = APIRequestFactory().get(url)
-        request.user = user
-        response = view(request)
-        self.assertTrue(isinstance(response, HttpResponseRedirect))
-
-    def test_post_with_admin(self):
-        user = UserF.create()
-        project_1 = ProjectF.create(**{'creator': user})
-        project_2 = ProjectF.create(**{'creator': user})
-        data = {
-            str(project_1.id): 'on'
-        }
-
-        view = UserNotifications.as_view()
-        url = reverse('admin:notifications')
-        request = APIRequestFactory().post(url, data)
-        request.user = user
-
-        from django.contrib.messages.storage.fallback import FallbackStorage
-        setattr(request, 'session', 'session')
-        messages = FallbackStorage(request)
-        setattr(request, '_messages', messages)
-
-        response = view(request).render()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        self.assertTrue(
-            Admins.objects.get(project=project_1, user=user).contact
-        )
-        self.assertFalse(
-            Admins.objects.get(project=project_2, user=user).contact
-        )
 
 
 # ############################################################################

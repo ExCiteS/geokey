@@ -18,10 +18,10 @@ from geokey.applications.models import Application
 from geokey.core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
-from geokey.projects.models import Project, Admins
+from geokey.projects.models import Project
 from geokey.projects.base import STATUS
 
-from .models import User, UserGroup as UserGroupModel
+from .models import User
 from .serializers import (UserSerializer, UserGroupSerializer)
 from .forms import (
     UsergroupCreateForm,
@@ -418,59 +418,6 @@ class UserProfile(LoginRequiredMixin, TemplateView):
 
         context = self.get_context_data()
         messages.success(request, 'The user information has been updated.')
-        return self.render_to_response(context)
-
-
-class UserNotifications(LoginRequiredMixin, TemplateView):
-    """
-    Displays the notifications settings page
-    `/admin/profile/notifications/`
-    """
-    template_name = 'users/notifications.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, **kwargs):
-        """
-        Returns the context to render the view. Adds projects the user is admin
-        of.
-
-        Return
-        ------
-        dict
-        """
-        user = self.request.user
-
-        context = super(UserNotifications, self).get_context_data(**kwargs)
-        context['admins'] = Admins.objects.filter(user=user)
-
-        return context
-
-    @handle_exceptions_for_admin
-    def post(self, request):
-        """
-        Updates the notification settings
-
-        Parameter
-        ---------
-        request : django.http.HttpRequest
-            Object representing the request.
-
-        Returns
-        -------
-        django.http.HttpResponse
-            Rendered template
-        """
-        context = self.get_context_data()
-        data = self.request.POST
-
-        for project in context.get('admins'):
-            new_val = data.get(str(project.project.id)) is not None
-
-            if project.contact != new_val:
-                project.contact = new_val
-                project.save()
-
-        messages.success(request, 'Notifications have been updated.')
         return self.render_to_response(context)
 
 

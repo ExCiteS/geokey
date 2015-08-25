@@ -1,5 +1,9 @@
 # GeoKey Changelog
 
+## Version 0.8
+
+- Removes `/api/projects/:project_id/get-in-touch` endpoint. Also, notifications settings are now completely removed from GeoKey, therefore `contact_admins` method is no longer available on the Project model.
+
 ## Version 0.7
 
 - Adds `core.mixins`, that provide mixins for shared functionality, e.g. creating where clauses for user groups and subsets.

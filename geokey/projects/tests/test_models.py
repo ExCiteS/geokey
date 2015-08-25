@@ -3,7 +3,6 @@ from datetime import datetime
 
 from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser
-from django.core import mail
 
 from nose.tools import raises
 
@@ -19,7 +18,7 @@ from geokey.users.tests.model_factories import UserF, UserGroupF
 from geokey.categories.models import Category
 
 from .model_factories import ProjectF
-from ..models import Project, Admins
+from ..models import Project
 
 
 class CreateProjectTest(TestCase):
@@ -78,7 +77,7 @@ class ProjectTest(TestCase):
 
         project.re_order_categories(
             [category_4.id, category_0.id, category_2.id,
-             category_1.id,  category_3.id]
+             category_1.id, category_3.id]
         )
 
         categories = project.categories.all()
@@ -102,7 +101,7 @@ class ProjectTest(TestCase):
         try:
             project.re_order_categories(
                 [category_4.id, category_0.id, category_2.id,
-                 category_1.id,  5854]
+                 category_1.id, 5854]
             )
         except Category.DoesNotExist:
             categories = project.categories.all()
@@ -394,39 +393,6 @@ class PublicProjectTest(TestCase):
 
         self.assertFalse(self.project.is_involved(self.some_dude))
         self.assertFalse(self.project.is_involved(AnonymousUser()))
-
-
-class ProjectContactAdminsTest(TestCase):
-    def test_all_contacts(self):
-        admin = UserF.create()
-        contributor = UserF.create()
-        email_user = UserF.create()
-
-        project = ProjectF.create(
-            add_admins=[admin],
-            add_contributors=[contributor]
-        )
-
-        project.contact_admins(email_user, 'Test email')
-        # Should be 2 because project creator is admin too
-        self.assertEquals(len(mail.outbox), 2)
-
-    def test_selected_contacts(self):
-        admin = UserF.create()
-        contributor = UserF.create()
-        email_user = UserF.create()
-
-        project = ProjectF.create(
-            add_admins=[admin],
-            add_contributors=[contributor]
-        )
-
-        admin_rel = Admins.objects.get(project=project, user=admin)
-        admin_rel.contact = False
-        admin_rel.save()
-
-        project.contact_admins(email_user, 'Test email')
-        self.assertEquals(len(mail.outbox), 1)
 
 
 class ProjectGetDataTest(TestCase):
