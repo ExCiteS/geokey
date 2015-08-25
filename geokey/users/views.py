@@ -21,7 +21,7 @@ from geokey.core.decorators import (
 from geokey.projects.models import Project, Admins
 from geokey.projects.base import STATUS
 
-from .models import User, UserGroup as UserGroupModel
+from .models import User
 from .serializers import (UserSerializer, UserGroupSerializer)
 from .forms import (
     UsergroupCreateForm,
@@ -60,10 +60,12 @@ class Index(TemplateView):
         django.http.HttpResponseRedirect
             to dashboard, if the user is signed in
         """
-        if request.user.is_anonymous():
-            return self.render_to_response(self.get_context_data)
-        else:
+        if not request.user.is_anonymous():
+            #     return self.render_to_response(self.get_context_data)
+            # else:
             return redirect('admin:dashboard')
+
+        return super(Index, self).get(request, *args, **kwargs)
 
 
 class Dashboard(LoginRequiredMixin, TemplateView):

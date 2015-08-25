@@ -9,13 +9,3 @@ def more_link_text(count, singular, plural, minus=5):
         more_count=count-minus,
         label=(plural if count-minus != 1 else singular)
     )
-
-
-@register.simple_tag
-def minus(count, to_sub):
-    return count - to_sub
-
-
-@register.simple_tag
-def plus(count, to_add):
-    return count + to_add
