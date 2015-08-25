@@ -355,6 +355,9 @@ class AllContributionsMediaAPIViewTest(TestCase):
         ).render()
 
     def post(self, user, data=None):
+        if user.is_anonymous:
+            UserF.create(display_name='AnonymousUser')
+
         if data is None:
             data = {
                 'name': 'A test image',

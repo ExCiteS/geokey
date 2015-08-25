@@ -593,6 +593,9 @@ class AddCommentToPublicProjectTest(APITestCase):
         })
 
     def get_response(self, user):
+        if user.is_anonymous:
+            UserF.create(display_name='AnonymousUser')
+
         factory = APIRequestFactory()
         request = factory.post(
             '/api/projects/%s/maps/all-contributions/%s/comments/' %

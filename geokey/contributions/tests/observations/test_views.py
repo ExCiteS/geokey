@@ -236,6 +236,7 @@ class SingleContributionAPIViewTest(TestCase):
 
     @raises(PermissionDenied)
     def test_flag_with_anonymous(self):
+        UserF.create(display_name='AnonymousUser')
         url = reverse('api:project_single_observation', kwargs={
             'project_id': self.project.id,
             'observation_id': self.observation.id
@@ -502,6 +503,8 @@ class ProjectPublicApiTest(TestCase):
         }
 
     def _post(self, data, user):
+        if user.is_anonymous:
+            UserF.create(display_name='AnonymousUser')
         url = reverse(
             'api:project_observations',
             kwargs={
