@@ -707,7 +707,7 @@ class CategoryUpdate(APIView):
             request.user, project_id, category_id)
 
         serializer = CategorySerializer(
-            category, data=request.DATA, partial=True,
+            category, data=request.data, partial=True,
             fields=('id', 'name', 'description', 'status'))
 
         if serializer.is_valid():
@@ -749,7 +749,7 @@ class FieldUpdate(APIView):
             request.user, project_id, category_id, field_id)
 
         serializer = FieldSerializer(
-            field, data=request.DATA, partial=True
+            field, data=request.data, partial=True
         )
 
         if serializer.is_valid():
@@ -789,7 +789,7 @@ class FieldLookups(APIView):
         """
         field = Field.objects.as_admin(
             request.user, project_id, category_id, field_id)
-        name = strip_tags(request.DATA.get('name'))
+        name = strip_tags(request.data.get('name'))
 
         if isinstance(field, LookupField):
             LookupValue.objects.create(name=name, field=field)
@@ -853,7 +853,7 @@ class FieldLookupsUpdate(APIView):
 
         if field:
             val = field.lookupvalues.get(pk=value_id)
-            val.name = strip_tags(request.DATA.get('name'))
+            val.name = strip_tags(request.data.get('name'))
             val.save()
 
             return Response({"id": val.id, "name": val.name})
@@ -925,7 +925,7 @@ class FieldsReorderView(APIView):
         category = Category.objects.as_admin(
             request.user, project_id, category_id)
         try:
-            category.re_order_fields(request.DATA.get('order'))
+            category.re_order_fields(request.data.get('order'))
 
             serializer = CategorySerializer(category)
             return Response(serializer.data)

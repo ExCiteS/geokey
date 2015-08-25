@@ -64,7 +64,7 @@ class CommentAbstractAPIViewTest(TestCase):
         })
         request = self.factory.post(url, {'text': 'Comment'})
         request.user = self.admin
-        request.DATA = {'text': 'Comment'}
+        request.data = {'text': 'Comment'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -81,7 +81,7 @@ class CommentAbstractAPIViewTest(TestCase):
             url, {'text': 'Comment', 'review_status': 'open'}
         )
         request.user = self.admin
-        request.DATA = {'text': 'Comment', 'review_status': 'open'}
+        request.data = {'text': 'Comment', 'review_status': 'open'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -103,7 +103,7 @@ class CommentAbstractAPIViewTest(TestCase):
             url, {'text': 'Comment', 'review_status': 'open'}
         )
         request.user = self.admin
-        request.DATA = {'text': 'Comment', 'review_status': 'open'}
+        request.data = {'text': 'Comment', 'review_status': 'open'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -121,7 +121,7 @@ class CommentAbstractAPIViewTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.admin
-        request.DATA = {'text': 'Updated'}
+        request.data = {'text': 'Updated'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -141,7 +141,7 @@ class CommentAbstractAPIViewTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.commenter
-        request.DATA = {'text': 'Updated'}
+        request.data = {'text': 'Updated'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -161,7 +161,7 @@ class CommentAbstractAPIViewTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.moderator
-        request.DATA = {'text': 'Updated'}
+        request.data = {'text': 'Updated'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -182,7 +182,7 @@ class CommentAbstractAPIViewTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.creator
-        request.DATA = {'text': 'Updated'}
+        request.data = {'text': 'Updated'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -262,7 +262,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.admin
-        request.DATA = {'review_status': 'resolved'}
+        request.data = {'review_status': 'resolved'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -285,7 +285,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.admin
-        request.DATA = {'review_status': 'closed'}
+        request.data = {'review_status': 'closed'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -310,7 +310,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.admin
-        request.DATA = {'review_status': 'resolved'}
+        request.data = {'review_status': 'resolved'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -333,7 +333,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.moderator
-        request.DATA = {'review_status': 'resolved'}
+        request.data = {'review_status': 'resolved'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -357,7 +357,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.creator
-        request.DATA = {'review_status': 'resolved'}
+        request.data = {'review_status': 'resolved'}
 
         view = CommentAbstractAPIView()
         view.update_and_respond(request, self.comment)
@@ -371,7 +371,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.commenter
-        request.DATA = {'review_status': 'resolved'}
+        request.data = {'review_status': 'resolved'}
 
         view = CommentAbstractAPIView()
         view.update_and_respond(request, self.comment)
@@ -385,7 +385,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = AnonymousUser()
-        request.DATA = {'review_status': 'resolved'}
+        request.data = {'review_status': 'resolved'}
 
         view = CommentAbstractAPIView()
         view.update_and_respond(request, self.comment)

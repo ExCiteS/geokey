@@ -2,7 +2,6 @@ from django.test import TestCase, TransactionTestCase
 from nose.tools import raises
 
 from ..models import User
-from .model_factories import UserF
 
 
 class TestCreateSuperUser(TestCase):

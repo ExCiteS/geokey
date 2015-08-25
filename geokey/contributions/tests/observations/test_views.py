@@ -58,7 +58,7 @@ class SingleContributionAPIViewTest(TestCase):
             'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'meta': {'status': "active"}}
+        request.data = {'meta': {'status': "active"}}
         request.user = self.admin
 
         view = SingleContributionAPIView()
@@ -78,7 +78,7 @@ class SingleContributionAPIViewTest(TestCase):
             'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'meta': {'status': "active"}}
+        request.data = {'meta': {'status': "active"}}
         request.user = self.admin
 
         view = SingleContributionAPIView()
@@ -97,7 +97,7 @@ class SingleContributionAPIViewTest(TestCase):
             'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'meta': {'status': "pending"}}
+        request.data = {'meta': {'status': "pending"}}
         request.user = self.admin
 
         view = SingleContributionAPIView()
@@ -116,7 +116,7 @@ class SingleContributionAPIViewTest(TestCase):
             'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'meta': {'status': "active"}}
+        request.data = {'meta': {'status': "active"}}
         request.user = self.moderator
 
         view = SingleContributionAPIView()
@@ -136,7 +136,7 @@ class SingleContributionAPIViewTest(TestCase):
             'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'meta': {'status': "active"}}
+        request.data = {'meta': {'status': "active"}}
         request.user = self.creator
 
         view = SingleContributionAPIView()
@@ -156,7 +156,7 @@ class SingleContributionAPIViewTest(TestCase):
             'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'meta': {'status': "active"}}
+        request.data = {'meta': {'status': "active"}}
         request.user = self.creator
 
         view = SingleContributionAPIView()
@@ -172,7 +172,7 @@ class SingleContributionAPIViewTest(TestCase):
             'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'meta': {'status': "pending"}}
+        request.data = {'meta': {'status': "pending"}}
         request.user = self.admin
 
         view = SingleContributionAPIView()
@@ -188,7 +188,7 @@ class SingleContributionAPIViewTest(TestCase):
             'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'meta': {'status': "pending"}}
+        request.data = {'meta': {'status': "pending"}}
         request.user = self.moderator
 
         view = SingleContributionAPIView()
@@ -202,7 +202,7 @@ class SingleContributionAPIViewTest(TestCase):
             'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
-        request.DATA = {
+        request.data = {
             'properties': {
                 'key': 'updated'
             },
@@ -224,7 +224,7 @@ class SingleContributionAPIViewTest(TestCase):
             'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'meta': {'status': "pending"}}
+        request.data = {'meta': {'status': "pending"}}
         request.user = self.creator
 
         view = SingleContributionAPIView()
@@ -241,7 +241,7 @@ class SingleContributionAPIViewTest(TestCase):
             'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'meta': {'status': "pending"}}
+        request.data = {'meta': {'status': "pending"}}
         request.user = AnonymousUser()
 
         view = SingleContributionAPIView()
@@ -258,7 +258,7 @@ class SingleContributionAPIViewTest(TestCase):
             'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'properies': {'text': 'blah'}}
+        request.data = {'properies': {'text': 'blah'}}
         request.user = self.viewer
 
         view = SingleContributionAPIView()
@@ -274,7 +274,7 @@ class SingleContributionAPIViewTest(TestCase):
             'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'meta': {'status': 'active'}}
+        request.data = {'meta': {'status': 'active'}}
         request.user = self.admin
 
         view = SingleContributionAPIView()
@@ -293,7 +293,7 @@ class SingleContributionAPIViewTest(TestCase):
             'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'meta': {'status': "active"}}
+        request.data = {'meta': {'status': "active"}}
         request.user = self.admin
 
         view = SingleContributionAPIView()
@@ -313,7 +313,7 @@ class SingleContributionAPIViewTest(TestCase):
             'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'meta': {'status': "active"}}
+        request.data = {'meta': {'status': "active"}}
         request.user = self.moderator
 
         view = SingleContributionAPIView()
@@ -334,7 +334,7 @@ class SingleContributionAPIViewTest(TestCase):
             'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'meta': {'status': "active"}}
+        request.data = {'meta': {'status': "active"}}
         request.user = self.creator
 
         view = SingleContributionAPIView()
@@ -353,7 +353,7 @@ class SingleContributionAPIViewTest(TestCase):
             'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
-        request.DATA = {'meta': {'status': "active"}}
+        request.data = {'meta': {'status': "active"}}
         request.user = self.creator
 
         view = SingleContributionAPIView()
@@ -372,7 +372,7 @@ class SingleContributionAPIViewTest(TestCase):
             'observation_id': self.observation.id
         })
         request = self.factory.patch(url)
-        request.DATA = {
+        request.data = {
             'properties': {
                 'key': 'updated'
             },

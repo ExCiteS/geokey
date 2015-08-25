@@ -46,7 +46,7 @@ class ProjectObservations(GeoJsonView):
         if user.is_anonymous():
             user = User.objects.get(display_name='AnonymousUser')
 
-        data = request.DATA
+        data = request.data
         project = Project.objects.as_contributor(request.user, project_id)
 
         if (not data.get('meta').get('status') == 'draft' and
@@ -144,7 +144,7 @@ class SingleContributionAPIView(GeoJsonView):
         rest_framework.response.Respone
             Contains the updated serialised observation
         """
-        data = request.DATA
+        data = request.data
         user = request.user
         if user.is_anonymous():
             user = User.objects.get(display_name='AnonymousUser')

@@ -353,7 +353,7 @@ class ProjectUpdate(APIView):
         """
         project = Project.objects.as_admin(request.user, project_id)
         serializer = ProjectSerializer(
-            project, data=request.DATA, partial=True,
+            project, data=request.data, partial=True,
             fields=(
                 'id', 'name', 'description', 'status', 'isprivate',
                 'everyone_contributes'
@@ -391,7 +391,7 @@ class ProjectAdmins(APIView):
             message.
         """
         project = Project.objects.as_admin(request.user, project_id)
-        user_id = request.DATA.get('userId')
+        user_id = request.data.get('userId')
 
         try:
             user = User.objects.get(pk=user_id)
@@ -464,7 +464,7 @@ class CategoriesReorderView(APIView):
         project = Project.objects.as_admin(request.user, project_id)
 
         try:
-            project.re_order_categories(request.DATA.get('order'))
+            project.re_order_categories(request.data.get('order'))
 
             serializer = ProjectSerializer(
                 project,
@@ -589,7 +589,7 @@ class ProjectContactAdmins(APIView):
             raise Unauthenticated('Unauthenticated users can not contact the '
                                   'administrators of the project.')
 
-        email_text = self.request.DATA.get('email_text')
+        email_text = self.request.data.get('email_text')
         project = Project.objects.get_single(request.user, project_id)
 
         project.contact_admins(user, email_text)

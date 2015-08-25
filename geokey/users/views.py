@@ -536,7 +536,7 @@ class UserGroup(APIView):
         project = Project.objects.as_admin(request.user, project_id)
         group = project.usergroups.get(pk=group_id)
         serializer = UserGroupSerializer(
-            group, data=request.DATA, partial=True)
+            group, data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()
@@ -571,7 +571,7 @@ class UserGroupUsers(APIView):
             Contains the serialised usergroup or an error message
         """
         project = Project.objects.as_admin(request.user, project_id)
-        user_id = request.DATA.get('userId')
+        user_id = request.data.get('userId')
 
         try:
             user = User.objects.get(pk=user_id)
@@ -712,7 +712,7 @@ class UserAPIView(CreateUserMixin, APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        data = request.DATA
+        data = request.data
 
         serializer = UserSerializer(user, data=data, partial=True)
         if serializer.is_valid():
@@ -753,7 +753,7 @@ class UserAPIView(CreateUserMixin, APIView):
         rest_framework.response.Response
             Containing the user info or an error message
         """
-        data = request.DATA
+        data = request.data
         form = UserRegistrationForm(data)
         client_id = data.pop('client_id', None)
 
@@ -806,7 +806,7 @@ class ChangePasswordView(APIView):
             Empty response indicating success or error message
         """
         user = request.user
-        data = request.DATA
+        data = request.data
 
         if not user.is_anonymous():
             form = CustomPasswordChangeForm(user, data)

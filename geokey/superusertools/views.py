@@ -183,7 +183,7 @@ class AddSuperUsersAjaxView(APIView):
             Contains the list of superusers or an error message
         """
         try:
-            user = User.objects.get(pk=request.DATA.get('userId'))
+            user = User.objects.get(pk=request.data.get('userId'))
             user.is_superuser = True
             user.save()
 
