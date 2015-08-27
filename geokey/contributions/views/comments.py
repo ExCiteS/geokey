@@ -175,7 +175,10 @@ class CommentAbstractAPIView(APIView):
 
             comment.delete()
 
-            if not observation.comments.filter(review_status='open').exists():
+            if (observation.status == 'review' and
+                    not observation.comments.filter(
+                        review_status='open').exists()):
+
                 observation.update(None, request.user, status='active')
 
             return Response(status=status.HTTP_204_NO_CONTENT)
