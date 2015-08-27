@@ -89,7 +89,7 @@ class CommentAbstractAPIView(APIView):
 
     def update_and_respond(self, request, comment):
         """
-        Reponsds to a PATCH request by updating a comment
+        Responds to a PATCH request by updating a comment
 
         Parameters
         ----------
@@ -149,7 +149,7 @@ class CommentAbstractAPIView(APIView):
 
     def delete_and_respond(self, request, comment):
         """
-        Reponsds to a DELETE request by deleting a comment
+        Responds to a DELETE request by deleting a comment
 
         Parameters
         ----------
