@@ -56,7 +56,7 @@ class TestSearch(TestCase):
         TextFieldFactory.create(**{'key': 'key', 'category': o_type})
 
         ObservationFactory.create_batch(5, **{
-            'properties': {'key': 'blah'},
+            'properties': {'key': 'xyz, blah, Abc'},
             'category': o_type
         })
         ObservationFactory.create_batch(5, **{
@@ -64,8 +64,12 @@ class TestSearch(TestCase):
             'category': o_type
         })
 
-    def test_bl(self):
-        result = Observation.objects.all().search('bl')
+    def test_abc_xyz(self):
+        result = Observation.objects.all().search('xyz, abc')
+        self.assertEqual(len(result), 5)
+
+    def test_blub_abc(self):
+        result = Observation.objects.all().search('blub, Abc')
         self.assertEqual(len(result), 10)
 
     def test_blah(self):
@@ -73,7 +77,7 @@ class TestSearch(TestCase):
         self.assertEqual(len(result), 5)
 
         for o in result:
-            self.assertEqual(o.properties.get('key'), 'blah')
+            self.assertEqual(o.properties.get('key'), 'xyz, blah, Abc')
 
     def test_blub(self):
         result = Observation.objects.all().search('blub')
