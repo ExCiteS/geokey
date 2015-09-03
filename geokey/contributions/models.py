@@ -1,3 +1,4 @@
+import re
 from pytz import utc
 from datetime import datetime
 
@@ -6,6 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
+from django.contrib.postgres.fields import ArrayField
 
 from django_pgjson.fields import JsonBField
 from simple_history.models import HistoricalRecords
@@ -75,7 +77,7 @@ class Observation(models.Model):
         null=True
     )
     version = models.IntegerField(default=1)
-    search_matches = models.TextField()
+    search_index = ArrayField(models.CharField(max_length=50), default=[])
     display_field = models.TextField(null=True, blank=True)
     num_media = models.IntegerField(default=0)
     num_comments = models.IntegerField(default=0)
@@ -245,47 +247,35 @@ class Observation(models.Model):
         self.num_comments = self.comments.count()
         self.save()
 
-    def update_search_matches(self):
-        """
-        Updates the search_matches property, which is used to filter
-        contributions against a query string. It reads all fields from the
-        category and creates a string like 'key1:value#####key2:value2'
-        """
-        search_matches = []
+    def create_search_index(self):
+        search_index = []
+
         for field in self.category.fields.all():
+            value = None
             if self.properties and field.key in self.properties.keys():
+                if field.fieldtype == 'TextField':
+                    value = self.properties.get(field.key)
 
                 if field.fieldtype == 'LookupField':
-                    l_id = self.properties.get(field.key)
-                    if l_id is not None:
-                        lookup = field.lookupvalues.get(pk=l_id)
-                        search_matches.append('%s:%s' % (
-                            field.key, lookup.name
-                        ))
+                    lookup_id = self.properties.get(field.key)
+                    if lookup_id:
+                        value = field.lookupvalues.get(pk=lookup_id).name
 
-                elif field.fieldtype == 'MultipleLookupField':
-                    values = self.properties.get(field.key)
-                    if values is not None:
-                        lookups = []
+                if field.fieldtype == 'MultipleLookupField':
+                    lookup_id = self.properties.get(field.key)
+                    lookupvalues = field.lookupvalues.filter(pk__in=lookup_id)
 
-                        for l_id in values:
-                            lookups.append(
-                                field.lookupvalues.get(pk=l_id).name
-                            )
+                    value = ' '.join([val.name for val in lookupvalues])
 
-                        search_matches.append('%s:%s' % (
-                            field.key,
-                            ', '.join(lookups))
-                        )
+            if value:
+                cleaned = re.sub(r'[\W_]+', ' ', value)
+                terms = cleaned.lower().split()
 
-                else:
-                    term = self.properties.get(field.key)
-                    if term is not None:
-                        search_matches.append(
-                            '%s:%s' % (field.key, term)
-                        )
+                search_index = search_index + list(
+                    set(terms) - set(search_index)
+                )
 
-        self.search_matches = '#####'.join(search_matches)
+        self.search_index = search_index
 
     def delete(self):
         """
@@ -299,11 +289,11 @@ class Observation(models.Model):
 def pre_save_observation_update(sender, **kwargs):
     """
     Receiver that is called before an observation is saved. Updates
-    search_matches and display_field properties.
+    search_index and display_field properties.
     """
     observation = kwargs.get('instance')
     observation.update_display_field()
-    observation.update_search_matches()
+    observation.create_search_index()
 
 
 class Comment(models.Model):
