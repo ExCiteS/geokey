@@ -14,10 +14,18 @@ class User(AbstractBaseUser):
     """
     A user registered in the platform.
     """
-    email = models.EmailField(unique=True)
+    email = models.EmailField(
+        unique=True,
+        error_messages={
+            'unique': 'A user is already registered with this email address.'
+        }
+    )
     display_name = models.CharField(
         max_length=50,
-        unique=True
+        unique=True,
+        error_messages={
+            'unique': 'A user is already registered with this display name.'
+        }
     )
     date_joined = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)

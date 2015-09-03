@@ -27,7 +27,7 @@ from .forms import (
     UsergroupCreateForm,
     CustomPasswordChangeForm,
     UserRegistrationForm,
-    UserProfileForm
+    UserForm
 )
 
 
@@ -386,13 +386,12 @@ class UserGroupDelete(LoginRequiredMixin, UserGroupMixin, TemplateView):
 class UserProfile(LoginRequiredMixin, TemplateView):
     """
     Displays the user profile page.
-    `/admin/profile`
     """
     template_name = 'users/profile.html'
 
     def post(self, request):
         """
-        Updates user information.
+        Updates user profile.
 
         Parameter
         ---------
@@ -404,29 +403,33 @@ class UserProfile(LoginRequiredMixin, TemplateView):
         django.http.HttpResponse
             Rendered template
         """
-        user = request.user
-        data = request.POST
-        form = UserProfileForm(user, data)
+        user = User.objects.get(pk=request.user.pk)
+        form = UserForm(request.POST, instance=user)
 
         if form.is_valid():
-            email = data.get('email')
+            if form.has_changed():
+                user.display_name = form.cleaned_data['display_name']
+                user.email = form.cleaned_data['email']
+                user.save()
 
-            if user.email != email:
-                EmailAddress.objects.get(
-                    user=user,
-                    email=user.email
-                ).change(request, email, confirm=True)
-                user.email = email
+                if user.email != request.user.email:
+                    try:
+                        EmailAddress.objects.get(user=user).change(
+                            request,
+                            user.email,
+                            confirm=True
+                        )
+                    except EmailAddress.DoesNotExist:
+                        EmailAddress.objects.create(
+                            user=user,
+                            email=user.email
+                        ).send_confirmation(request)
 
-            user.display_name = data.get('display_name')
+                messages.success(request, 'Your profile has been updated.')
+            else:
+                messages.info(request, 'Your profile has not been edited.')
 
-            user.save()
-            messages.success(request, 'User information has been updated.')
-
-        context = self.get_context_data()
-        context['form'] = form
-
-        return self.render_to_response(context)
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class UserNotifications(LoginRequiredMixin, TemplateView):
