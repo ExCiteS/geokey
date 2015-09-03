@@ -26,7 +26,8 @@ from .serializers import (UserSerializer, UserGroupSerializer)
 from .forms import (
     UsergroupCreateForm,
     CustomPasswordChangeForm,
-    UserRegistrationForm
+    UserRegistrationForm,
+    UserProfileForm
 )
 
 
@@ -384,19 +385,19 @@ class UserGroupDelete(LoginRequiredMixin, UserGroupMixin, TemplateView):
 
 class UserProfile(LoginRequiredMixin, TemplateView):
     """
-    Displays the user profile page
+    Displays the user profile page.
     `/admin/profile`
     """
     template_name = 'users/profile.html'
 
     def post(self, request):
         """
-        Updates the user information
+        Updates user information.
 
         Parameter
         ---------
         request : django.http.HttpRequest
-            Object representing the request.
+            Object representing the request
 
         Returns
         -------
@@ -404,20 +405,27 @@ class UserProfile(LoginRequiredMixin, TemplateView):
             Rendered template
         """
         user = request.user
+        data = request.POST
+        form = UserProfileForm(user, data)
 
-        user.display_name = request.POST.get('display_name')
-        new_email = request.POST.get('email')
+        if form.is_valid():
+            email = data.get('email')
 
-        if user.email != new_email:
-            email = EmailAddress.objects.get(user=user, email=user.email)
-            email.change(request, new_email, confirm=True)
+            if user.email != email:
+                EmailAddress.objects.get(
+                    user=user,
+                    email=user.email
+                ).change(request, email, confirm=True)
+                user.email = email
 
-            user.email = new_email
+            user.display_name = data.get('display_name')
 
-        user.save()
+            user.save()
+            messages.success(request, 'User information has been updated.')
 
         context = self.get_context_data()
-        messages.success(request, 'The user information has been updated.')
+        context['form'] = form
+
         return self.render_to_response(context)
 
 

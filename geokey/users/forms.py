@@ -57,6 +57,75 @@ class UserRegistrationForm(SignupForm):
         return cleaned
 
 
+class UserProfileForm(forms.ModelForm):
+    """
+    Validates inputs against the User model custom definition.
+    Used in .views.UserProfile
+    """
+    class Meta:
+        model = User
+        fields = ('email', 'display_name')
+
+    def __init__(self, user, *args, **kwargs):
+        """
+        Initialises, adds all users without current user.
+        """
+        self.users = User.objects.exclude(pk=user.pk)
+        super(UserProfileForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        """
+        Overwrites method to use custom validators.
+        """
+        return
+
+    def clean_email(self):
+        """
+        Cleans email field. Checks if it exists and raises an exception.
+
+        Returns
+        -------
+        str
+            Cleaned email
+
+        Raises
+        ------
+        ValidationError
+            If email exists
+        """
+        email = self.cleaned_data.get('email')
+
+        if self.users.filter(email__iexact=email).exists():
+            raise ValidationError(
+                'A user is already registered with this email address.'
+            )
+
+        return email
+
+    def clean_display_name(self):
+        """
+        Cleans display_name field. Checks if it exists and raises an exception.
+
+        Returns
+        -------
+        str
+            Cleaned display_name
+
+        Raises
+        ------
+        ValidationError
+            If display_name exists
+        """
+        display_name = self.cleaned_data.get('display_name')
+
+        if self.users.filter(display_name__iexact=display_name).exists():
+            raise ValidationError(
+                'A user is already registered with this display name.'
+            )
+
+        return display_name
+
+
 class UsergroupCreateForm(forms.ModelForm):
     """
     Validates the inputs against the UserGroup model definition.
