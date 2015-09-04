@@ -109,7 +109,7 @@ $(function() {
 		var password1 = $('input#password1');
 		var password2 = $('input#password2');
 
-		if (!(password1.val().length >= 6)) {
+		if (password1.val().length < 6) {
 			valid = false;
 			password1.parent().addClass('has-error');
 			password1.after('<span class="help-block">The password must be at least 6 characters long.</span>');
