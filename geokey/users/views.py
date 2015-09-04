@@ -26,7 +26,8 @@ from .serializers import (UserSerializer, UserGroupSerializer)
 from .forms import (
     UsergroupCreateForm,
     CustomPasswordChangeForm,
-    UserRegistrationForm
+    UserRegistrationForm,
+    UserForm
 )
 
 
@@ -384,41 +385,52 @@ class UserGroupDelete(LoginRequiredMixin, UserGroupMixin, TemplateView):
 
 class UserProfile(LoginRequiredMixin, TemplateView):
     """
-    Displays the user profile page
-    `/admin/profile`
+    Displays the user profile page.
     """
     template_name = 'users/profile.html'
 
     def post(self, request):
         """
-        Updates the user information
+        Updates user profile.
 
         Parameter
         ---------
         request : django.http.HttpRequest
-            Object representing the request.
+            Object representing the request
 
         Returns
         -------
         django.http.HttpResponse
             Rendered template
         """
-        user = request.user
+        user = User.objects.get(pk=request.user.pk)
+        form = UserForm(request.POST, instance=user)
 
-        user.display_name = request.POST.get('display_name')
-        new_email = request.POST.get('email')
+        if form.is_valid():
+            if form.has_changed():
+                user.display_name = form.cleaned_data['display_name']
+                user.email = form.cleaned_data['email']
+                user.save()
 
-        if user.email != new_email:
-            email = EmailAddress.objects.get(user=user, email=user.email)
-            email.change(request, new_email, confirm=True)
+                if user.email != request.user.email:
+                    try:
+                        EmailAddress.objects.get(user=user).change(
+                            request,
+                            user.email,
+                            confirm=True
+                        )
+                    except EmailAddress.DoesNotExist:
+                        EmailAddress.objects.create(
+                            user=user,
+                            email=user.email
+                        ).send_confirmation(request)
 
-            user.email = new_email
+                messages.success(request, 'Your profile has been updated.')
+                self.request.user = user
+            else:
+                messages.info(request, 'Your profile has not been edited.')
 
-        user.save()
-
-        context = self.get_context_data()
-        messages.success(request, 'The user information has been updated.')
-        return self.render_to_response(context)
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class UserNotifications(LoginRequiredMixin, TemplateView):
