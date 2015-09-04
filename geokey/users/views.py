@@ -426,6 +426,7 @@ class UserProfile(LoginRequiredMixin, TemplateView):
                         ).send_confirmation(request)
 
                 messages.success(request, 'Your profile has been updated.')
+                self.request.user = user
             else:
                 messages.info(request, 'Your profile has not been edited.')
 
