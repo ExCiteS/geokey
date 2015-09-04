@@ -71,15 +71,15 @@ $(function() {
     function emailsValid(form) {
         var valid = true;
 
-        var emailFields = $(form).find('input[type="email"]');
-        for (var i = 0, len = emailFields.length; i < len; i++) {
-            var email = emailFields[i].value;
-            if (email.split('@')[1].indexOf('.') === -1) {
+        $(form).find('input[type="email"]').each(function () {
+            var email = $(this).val().split('@');
+
+            if (email.length !== 2 || email[1].indexOf('.') === -1) {
                 valid = false;
-                $(emailFields[i]).parents('.form-group').addClass('has-error');
-                showHelp($(emailFields[i]), 'You forgot to add a top level domain to the address. Please check your input.');
+                $(this).parents('.form-group').addClass('has-error');
+                showHelp($(this), 'You forgot to add a top level domain to the address. Please check your input.');
             }
-        }
+        });
 
         return valid;
     }
