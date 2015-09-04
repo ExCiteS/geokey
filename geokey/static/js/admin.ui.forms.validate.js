@@ -74,7 +74,7 @@ $(function() {
         $(form).find('input[type="email"]').each(function () {
             var email = $(this).val().split('@');
 
-            if (email.length !== 2 || email[1].indexOf('.') === -1) {
+            if (email.length === 2 && email[1].indexOf('.') === -1) {
                 valid = false;
                 $(this).parents('.form-group').addClass('has-error');
                 showHelp($(this), 'You forgot to add a top level domain to the address. Please check your input.');
