@@ -1,5 +1,18 @@
 # GeoKey Changelog
 
+## Version 0.7.2
+
+- Bug fixes:
+    - [#283](https://github.com/ExCiteS/geokey/issues/283) When deleting a review comment, the corresponding observation is only updated, when the status changes as well.
+    - [#289](https://github.com/ExCiteS/geokey/issues/289) Adds error messages to user registration formats
+    - [#290](https://github.com/ExCiteS/geokey/issues/290) Catches integrity errors when updating user profiles
+- Further improvements to user authentication forms.
+
+
+## Version 0.7.1
+
+- Updates requirements to Django 1.7.10
+
 ## Version 0.7
 
 - Adds `core.mixins`, that provide mixins for shared functionality, e.g. creating where clauses for user groups and subsets.
