@@ -7,7 +7,6 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
-from django.contrib.postgres.fields import ArrayField
 
 from django_pgjson.fields import JsonBField
 from simple_history.models import HistoricalRecords

@@ -34,15 +34,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RemoveField(
             model_name='historicalobservation',
-            name='search_matches',
-        ),
-        migrations.RemoveField(
-            model_name='historicalobservation',
             name='updator_id',
-        ),
-        migrations.RemoveField(
-            model_name='observation',
-            name='search_matches',
         ),
         migrations.AddField(
             model_name='historicalobservation',
@@ -83,5 +75,15 @@ class Migration(migrations.Migration):
             model_name='historicalobservation',
             name='history_user',
             field=models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL, null=True),
+        ),
+        migrations.AlterField(
+            model_name='historicalobservation',
+            name='search_matches',
+            field=models.TextField(null=True, blank=True),
+        ),
+        migrations.AlterField(
+            model_name='observation',
+            name='search_matches',
+            field=models.TextField(null=True, blank=True),
         ),
     ]
