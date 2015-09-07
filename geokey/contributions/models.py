@@ -77,7 +77,7 @@ class Observation(models.Model):
         null=True
     )
     version = models.IntegerField(default=1)
-    search_index = ArrayField(models.CharField(max_length=50), default=[])
+    search_index = models.TextField(null=True, blank=True)
     display_field = models.TextField(null=True, blank=True)
     num_media = models.IntegerField(default=0)
     num_comments = models.IntegerField(default=0)
@@ -275,7 +275,7 @@ class Observation(models.Model):
                     set(terms) - set(search_index)
                 )
 
-        self.search_index = search_index
+        self.search_index = ','.join(search_index)
 
     def delete(self):
         """

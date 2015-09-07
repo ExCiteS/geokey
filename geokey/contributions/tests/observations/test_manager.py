@@ -64,6 +64,10 @@ class TestSearch(TestCase):
             'category': o_type
         })
 
+    def test_bl(self):
+        result = Observation.objects.all().search('bl')
+        self.assertEqual(len(result), 10)
+
     def test_abc_xyz(self):
         result = Observation.objects.all().search('xyz, abc')
         self.assertEqual(len(result), 5)

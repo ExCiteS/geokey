@@ -43,10 +43,7 @@ class TestContributionsPreSave(TestCase):
         o.save()
 
         reference = Observation.objects.get(pk=o.id)
-        self.assertEqual(
-            sorted(reference.search_index),
-            sorted(['blah', 'abc', 'blubb'])
-        )
+        self.assertEqual(reference.search_index, 'blah,blubb,abc')
 
     def test_create_search_index_lookup(self):
         category = CategoryFactory.create()
@@ -76,10 +73,7 @@ class TestContributionsPreSave(TestCase):
         o.save()
 
         reference = Observation.objects.get(pk=o.id)
-        self.assertEqual(
-            sorted(reference.search_index),
-            sorted(['blah', 'abc', 'kermit'])
-        )
+        self.assertEqual(reference.search_index, 'blah,abc,kermit')
 
     def test_create_search_index_multiplelookup(self):
         category = CategoryFactory.create()
@@ -113,10 +107,7 @@ class TestContributionsPreSave(TestCase):
         o.save()
 
         reference = Observation.objects.get(pk=o.id)
-        self.assertEqual(
-            sorted(reference.search_index),
-            sorted(['blah', 'abc', 'kermit', 'gonzo'])
-        )
+        self.assertEqual(reference.search_index, 'blah,abc,gonzo,kermit')
 
 
 class ObservationTest(TestCase):

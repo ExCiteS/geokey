@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import django.contrib.postgres.fields
 import django.db.models.deletion
 from django.conf import settings
 
@@ -68,7 +67,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='historicalobservation',
             name='search_index',
-            field=django.contrib.postgres.fields.ArrayField(default=[], base_field=models.CharField(max_length=50), size=None),
+            field=models.TextField(null=True, blank=True),
         ),
         migrations.AddField(
             model_name='historicalobservation',
@@ -78,7 +77,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='observation',
             name='search_index',
-            field=django.contrib.postgres.fields.ArrayField(default=[], base_field=models.CharField(max_length=50), size=None),
+            field=models.TextField(null=True, blank=True),
         ),
         migrations.AlterField(
             model_name='historicalobservation',

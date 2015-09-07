@@ -183,7 +183,14 @@ class ObservationQuerySet(models.query.QuerySet):
         """
         cleaned = re.sub(r'[\W_]+', ' ', query)
         terms = cleaned.lower().split()
-        return self.filter(search_index__overlap=terms)
+
+        queries = []
+        for term in terms:
+            term = '%%' + term + '%%'
+            q = "(search_index LIKE '%s')" % term
+            queries.append(q)
+
+        return self.extra(where=[' OR '.join(queries)])
 
 
 class ObservationManager(models.Manager):
