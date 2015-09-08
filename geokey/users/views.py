@@ -15,6 +15,7 @@ from rest_framework import status
 
 from geokey.applications.models import Application
 
+from geokey.core.views import ProjectContext
 from geokey.core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
@@ -103,31 +104,14 @@ class Dashboard(LoginRequiredMixin, TemplateView):
         }
 
 
-class UserGroupList(LoginRequiredMixin, TemplateView):
+class UserGroupList(LoginRequiredMixin, ProjectContext, TemplateView):
     """
     Displays a list of all user groups for a project.
     """
     template_name = 'users/usergroup_list.html'
 
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id):
-        """
-        Overwrites the method to add project to the context
 
-        Parameters
-        ----------
-        project_id : int
-            identifies the project in the data base
-
-        Returns
-        -------
-        dict
-        """
-        project = Project.objects.as_admin(self.request.user, project_id)
-        return super(UserGroupList, self).get_context_data(project=project)
-
-
-class UserGroupCreate(LoginRequiredMixin, CreateView):
+class UserGroupCreate(LoginRequiredMixin, ProjectContext, CreateView):
     """
     Displays the create user group page
     `/admin/projects/:project_id/usergroups/new/`
@@ -146,13 +130,7 @@ class UserGroupCreate(LoginRequiredMixin, CreateView):
         """
         project_id = self.kwargs['project_id']
 
-        context = super(
-            UserGroupCreate, self).get_context_data(**kwargs)
-
-        context['project'] = Project.objects.as_admin(
-            self.request.user, project_id
-        )
-        return context
+        return super(UserGroupCreate, self).get_context_data(project_id)
 
     def get_success_url(self):
         """
@@ -214,30 +192,12 @@ class UserGroupCreate(LoginRequiredMixin, CreateView):
         return self.render_to_response(context)
 
 
-class AdministratorsOverview(LoginRequiredMixin, TemplateView):
+class AdministratorsOverview(LoginRequiredMixin, ProjectContext, TemplateView):
     """
     Displays the list of administrators of the project
     `/admin/projects/:project_id/usergroups/:group_id/`
     """
     template_name = 'users/usergroup_admins.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id):
-        """
-        Creates the request context for rendering the page, adds the project
-        to the context
-
-        Parameters
-        ----------
-        project_id : int
-            identifies the project in the data base
-
-        Return
-        ------
-        dict
-        """
-        project = Project.objects.as_admin(self.request.user, project_id)
-        return {'project': project}
 
 
 class UserGroupMixin(object):

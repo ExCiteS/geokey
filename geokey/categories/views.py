@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from braces.views import LoginRequiredMixin
 
 from geokey.projects.models import Project
+from geokey.core.views import ProjectContext
 from geokey.core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
@@ -29,78 +30,55 @@ from .serializer import (
 from geokey.contributions.models import Observation
 
 
+class CategoryContext(object):
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, category_id, *args, **kwargs):
+        category = Category.objects.as_admin(
+            self.request.user, project_id, category_id)
+
+        return super(CategoryContext, self).get_context_data(
+            category=category,
+            *args,
+            **kwargs
+        )
+
+
+class FieldContext(object):
+    @handle_exceptions_for_admin
+    def get_context_data(self, project_id, category_id, field_id,
+                         *args, **kwargs):
+        field = Field.objects.as_admin(
+            self.request.user, project_id, category_id, field_id)
+
+        return super(FieldContext, self).get_context_data(
+            field=field,
+            *args,
+            **kwargs
+        )
+
+
 # ############################################################################
 #
 # Administration views
 #
 # ############################################################################
 
-class CategoryList(LoginRequiredMixin, TemplateView):
+class CategoryList(LoginRequiredMixin, ProjectContext, TemplateView):
     """
     Displays a list of all catgories for a given project.
     """
     template_name = 'categories/category_list.html'
 
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id):
-        """
-        Returns the context to render the view. Overwrites the method to add
-        the project.
 
-        Parameter
-        ---------
-        project_id : int
-            Identifier of the project in the database
-
-        Returns
-        -------
-        dict
-            context; {'project': <geokey.projects.models.Project>}
-        """
-        user = self.request.user
-
-        context = super(CategoryList, self).get_context_data()
-        context['project'] = Project.objects.as_admin(user, project_id)
-
-        return context
-
-
-class CategoryOverview(LoginRequiredMixin, TemplateView):
+class CategoryOverview(LoginRequiredMixin, CategoryContext, TemplateView):
     """
     Landing page when a user clicks on a category. Displays a lis of fields
     assigned to the category.
     """
     template_name = 'categories/category_overview.html'
 
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id, category_id):
-        """
-        Returns the context to render the view. Overwrites the method to add
-        the category.
 
-        Parameter
-        ---------
-        project_id : int
-            Identifier of the project in the database
-        category_id : int
-            Identifier of the category in the database
-
-        Returns
-        -------
-        dict
-            context; {'project': <geokey.categories.models.Category>}
-        """
-        user = self.request.user
-        category = Category.objects.as_admin(
-            user, project_id, category_id)
-
-        context = super(CategoryOverview, self).get_context_data()
-        context['category'] = category
-
-        return context
-
-
-class CategoryCreate(LoginRequiredMixin, CreateView):
+class CategoryCreate(LoginRequiredMixin, ProjectContext, CreateView):
     """
     Displays the create Category page and creates the Category
     when POST is requested
@@ -108,7 +86,6 @@ class CategoryCreate(LoginRequiredMixin, CreateView):
     form_class = CategoryCreateForm
     template_name = 'categories/category_create.html'
 
-    @handle_exceptions_for_admin
     def get_context_data(self, **kwargs):
         """
         Returns the context to render the view. Overwrites the method to add
@@ -121,11 +98,9 @@ class CategoryCreate(LoginRequiredMixin, CreateView):
         """
         project_id = self.kwargs['project_id']
 
-        context = super(CategoryCreate, self).get_context_data(**kwargs)
-        context['project'] = Project.objects.as_admin(
-            self.request.user, project_id
+        return super(CategoryCreate, self).get_context_data(
+            project_id, **kwargs
         )
-        return context
 
     def form_valid(self, form):
         """
@@ -157,13 +132,12 @@ class CategoryCreate(LoginRequiredMixin, CreateView):
         )
 
 
-class CategorySettings(LoginRequiredMixin, TemplateView):
+class CategorySettings(LoginRequiredMixin, CategoryContext, TemplateView):
     """
     Displays the category settings page
     """
     template_name = 'categories/category_settings.html'
 
-    @handle_exceptions_for_admin
     def get_context_data(self, project_id, category_id):
         """
         Returns the context to render the view. Overwrites the method to add
@@ -181,23 +155,21 @@ class CategorySettings(LoginRequiredMixin, TemplateView):
         dict
             {
                 'category': <geokey.categories.models.Category>
-                'admin': Boolean, indicates if the user is admin
                 'status_types': List of status types for categoies
                 'num_contributions': Number of contributions of that category
             }
         """
-        user = self.request.user
-        category = Category.objects.as_admin(
-            user, project_id, category_id)
-        num_contributions = Observation.objects.filter(
-            category=category).count()
+        context = super(CategorySettings, self).get_context_data(
+            project_id,
+            category_id,
+            status_types=STATUS,
+        )
 
-        return {
-            'category': category,
-            'admin': category.project.is_admin(user),
-            'status_types': STATUS,
-            'num_contributions': num_contributions
-        }
+        if context.get('category'):
+            context['num_contributions'] = Observation.objects.filter(
+                category=context['category']).count()
+
+        return context
 
     def post(self, request, project_id, category_id):
         """
@@ -245,38 +217,12 @@ class CategorySettings(LoginRequiredMixin, TemplateView):
         return self.render_to_response(context)
 
 
-class CategoryDisplay(LoginRequiredMixin, TemplateView):
+class CategoryDisplay(LoginRequiredMixin, CategoryContext, TemplateView):
     """
     Displat the category display settings, i.e. where colour and icon for the
     category can be set.
     """
     template_name = 'categories/category_display.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id, category_id, **kwargs):
-        """
-        Returns the context to render the view. Overwrites the method to add
-        the category.
-
-        Parameter
-        ---------
-        project_id : int
-            Identifier of the project in the database
-        category_id : int
-            Identifier of the category in the database
-
-        Returns
-        -------
-        dict
-            {
-                'category': <geokey.categories.models.Category>
-            }
-        """
-        user = self.request.user
-        category = Category.objects.as_admin(user, project_id, category_id)
-
-        return super(CategoryDisplay, self).get_context_data(
-            category=category, **kwargs)
 
     def post(self, request, project_id, category_id):
         """
@@ -318,37 +264,11 @@ class CategoryDisplay(LoginRequiredMixin, TemplateView):
         return self.render_to_response(context)
 
 
-class CategoryDelete(LoginRequiredMixin, TemplateView):
+class CategoryDelete(LoginRequiredMixin, CategoryContext, TemplateView):
     """
     Deletes a category if requesting user is admin of the project
     """
     template_name = 'base.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id, category_id, **kwargs):
-        """
-        Returns the context to render the view. Overwrites the method to add
-        the category.
-
-        Parameter
-        ---------
-        project_id : int
-            Identifier of the project in the database
-        category_id : int
-            Identifier of the category in the database
-
-        Returns
-        -------
-        dict
-            {
-                'category': <geokey.categories.models.Category>
-            }
-        """
-        user = self.request.user
-        category = Category.objects.as_admin(
-            user, project_id, category_id)
-        return super(CategoryDelete, self).get_context_data(
-            category=category, **kwargs)
 
     def get(self, request, project_id, category_id):
         """
@@ -381,14 +301,13 @@ class CategoryDelete(LoginRequiredMixin, TemplateView):
         return self.render_to_response(context)
 
 
-class FieldCreate(LoginRequiredMixin, CreateView):
+class FieldCreate(LoginRequiredMixin, CategoryContext, CreateView):
     """
     Displays the create field page
     """
     form_class = FieldCreateForm
     template_name = 'categories/field_create.html'
 
-    @handle_exceptions_for_admin
     def get_context_data(self, data=None, **kwargs):
         """
         Returns the context to render the view. Overwrites the method to add
@@ -412,11 +331,9 @@ class FieldCreate(LoginRequiredMixin, CreateView):
         project_id = self.kwargs['project_id']
         category_id = self.kwargs['category_id']
 
-        context = super(FieldCreate, self).get_context_data(**kwargs)
+        context = super(FieldCreate, self).get_context_data(
+            project_id, category_id, **kwargs)
 
-        context['category'] = Category.objects.as_admin(
-            self.request.user, project_id, category_id
-        )
         context['fieldtypes'] = Field.get_field_types()
         return context
 
@@ -490,13 +407,12 @@ class FieldCreate(LoginRequiredMixin, CreateView):
         )
 
 
-class FieldSettings(LoginRequiredMixin, TemplateView):
+class FieldSettings(LoginRequiredMixin, FieldContext, TemplateView):
     """
     Displays the field settings page
     """
     template_name = 'categories/field_settings.html'
 
-    @handle_exceptions_for_admin
     def get_context_data(self, project_id, category_id, field_id, **kwargs):
         """
         Returns the context to render the view. Overwrites the method to add
@@ -521,13 +437,13 @@ class FieldSettings(LoginRequiredMixin, TemplateView):
                     field
             }
         """
-        user = self.request.user
-        field = Field.objects.as_admin(
-            user, project_id, category_id, field_id)
-        context = super(FieldSettings, self).get_context_data(**kwargs)
-        context['field'] = field
-        context['status_types'] = STATUS
-        context['is_display_field'] = (field == field.category.display_field)
+        context = super(FieldSettings, self).get_context_data(
+            project_id, category_id, field_id)
+
+        if context.get('field'):
+            context['status_types'] = STATUS
+            context['is_display_field'] = (
+                context['field'] == context['field'].category.display_field)
 
         return context
 
@@ -579,36 +495,8 @@ class FieldSettings(LoginRequiredMixin, TemplateView):
         return self.render_to_response(context)
 
 
-class FieldDelete(LoginRequiredMixin, TemplateView):
+class FieldDelete(LoginRequiredMixin, FieldContext, TemplateView):
     template_name = 'base.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id, category_id, field_id, **kwargs):
-        """
-        Returns the context to render the view. Overwrites the method to add
-        the field and available field types
-
-        Parameter
-        ---------
-        project_id : int
-            Identifier of the project in the database
-        category_id : int
-            Identifier of the category in the database
-        field_id : int
-            Identifier of the field in the database
-
-        Returns
-        -------
-        dict
-            {
-                'field': <geokey.categories.models.Field>
-            }
-        """
-        user = self.request.user
-        field = Field.objects.as_admin(
-            user, project_id, category_id, field_id)
-        return super(FieldDelete, self).get_context_data(
-            field=field, **kwargs)
 
     def get(self, request, project_id, category_id, field_id):
         """
