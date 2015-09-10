@@ -1,35 +1,34 @@
 language: python
-
 python:
-  - "2.7"
-
+- '2.7'
 services:
-  - postgresql
-
+- postgresql
 addons:
-  postgresql: "9.4"
-
+  postgresql: '9.4'
 virtualenv:
   system_site_packages: true
-
 install:
-  - sudo rm /etc/apt/sources.list.d/ubuntugis-stable-source.list
-  - sudo apt-get update -y
-  - sudo apt-get install python-gdal gdal-bin binutils
-  - export C_INCLUDE_PATH=/usr/include/gdal
-  - export CPLUS_INCLUDE_PATH=/usr/include/gdal
-
+- sudo rm /etc/apt/sources.list.d/ubuntugis-stable-source.list
+- sudo apt-get update -y
+- sudo apt-get install python-gdal gdal-bin binutils
+- export C_INCLUDE_PATH=/usr/include/gdal
+- export CPLUS_INCLUDE_PATH=/usr/include/gdal
 before_script:
-  - psql template1 postgres -c 'create extension hstore;'
-  - psql -c 'create database geokey;' -U postgres
-  - psql -U postgres -d geokey -c "create extension postgis;"
-  - cp -r local_settings.example local_settings
-  - pip install coveralls
-  - pip install -r requirements-dev.txt
-  - pip install -e .
-  - python manage.py migrate
-
+- psql template1 postgres -c 'create extension hstore;'
+- psql -c 'create database geokey;' -U postgres
+- psql -U postgres -d geokey -c "create extension postgis;"
+- cp -r local_settings.example local_settings
+- pip install coveralls
+- pip install -r requirements-dev.txt
+- pip install -e .
+- python manage.py migrate
 script:
-  - coverage run --source=geokey.applications,geokey.projects,geokey.categories,geokey.contributions,geokey.users,geokey.superusertools,geokey.extensions manage.py test
-
+- coverage run --source=geokey.applications,geokey.projects,geokey.categories,geokey.contributions,geokey.users,geokey.superusertools,geokey.extensions manage.py test
 after_success: coveralls
+deploy:
+  provider: pypi
+  user: excites
+  password:
+    secure: EPsnf69HqWA8nT9ncgVuyhIJGZnR3Nrg8NUEzG4t1B1CTJfmwODC0Fb8Hybq25/0y6Fq3mBWE482xhscVHYvNh/7UnehU+y2riIj5iP+VYrfEuLzBN6ZkjYXOezafq6pzotwsj6JCDWKGmBE6Jy++FDsOFSzLK/R2p3HqnrnRpc=
+  on:
+    tags: true

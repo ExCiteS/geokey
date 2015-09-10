@@ -5,7 +5,6 @@ from django.core import mail
 from django.template.loader import get_template
 from django.template import Context
 from django.contrib.sites.models import Site
-from django.db.models import Count
 
 from .manager import ProjectManager
 from .base import STATUS, EVERYONE_CONTRIB

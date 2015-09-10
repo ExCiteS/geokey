@@ -789,6 +789,26 @@ class DeleteProjectCommentTest(APITestCase):
         self.assertIn(self.comment, observation.comments.all())
         self.assertNotIn(self.comment_to_remove, observation.comments.all())
 
+    def test_delete_comment_but_not_change_status_from_pending(self):
+        self.observation.status = 'pending'
+        self.observation.save()
+
+        response = self.get_response(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(observation.status, 'pending')
+
+    def test_delete_comment_and_change_status_from_review(self):
+        self.observation.status = 'review'
+        self.observation.save()
+
+        response = self.get_response(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(observation.status, 'active')
+
     def test_delete_one_review_comment_with_comment_creator(self):
         self.comment.review_status = 'open'
         self.comment.save()
