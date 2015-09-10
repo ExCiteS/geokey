@@ -11,6 +11,7 @@ from rest_framework.response import Response
 
 from braces.views import LoginRequiredMixin
 
+from geokey.core.views import ProjectContext
 from geokey.core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
@@ -93,7 +94,7 @@ class ProjectsInvolved(LoginRequiredMixin, TemplateView):
         }
 
 
-class ProjectOverview(LoginRequiredMixin, TemplateView):
+class ProjectOverview(LoginRequiredMixin, ProjectContext, TemplateView):
     """
     Displays the project overview page
     `/admin/projects/:project_id`
@@ -101,7 +102,6 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
     model = Project
     template_name = 'projects/project_overview.html'
 
-    @handle_exceptions_for_admin
     def get_context_data(self, project_id):
         """
         Returns the context to render the view. Overwrites the method to add
@@ -118,50 +118,26 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
         dict
             context
         """
-        user = self.request.user
-        project = Project.objects.as_admin(user, project_id)
-        contributions = project.observations.all()
-        comments = Comment.objects.filter(commentto=contributions).count()
-        files = MediaFile.objects.filter(contribution=contributions).count()
+        context = super(ProjectOverview, self).get_context_data(project_id)
 
-        return {
-            'project': project,
-            'allcontributions': contributions.count(),
-            'contributions': contributions.filter(
-                creator=self.request.user).count(),
-            'comments': comments,
-            'files': files
-        }
+        if context.get('project'):
+            contributions = context['project'].observations.all()
+            context['allcontributions'] = contributions.count()
+            context['contributions'] = contributions.filter(
+                creator=self.request.user).count()
+            context['comments'] = Comment.objects.filter(
+                commentto=contributions).count()
+            context['files'] = MediaFile.objects.filter(
+                contribution=contributions).count()
+
+        return context
 
 
-class ProjectExtend(LoginRequiredMixin, TemplateView):
+class ProjectExtend(LoginRequiredMixin, ProjectContext, TemplateView):
     """
     Displays the page to edit the geograhic extent of the project
     """
     template_name = 'projects/project_extend.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id):
-        """
-        Returns the context to render the view. Overwrites the method to add
-        the project to the context.
-
-        Parameters
-        ----------
-        project_id : int
-            identifies the project in the database
-
-        Returns
-        -------
-        dict
-            context
-        """
-        project = Project.objects.as_admin(self.request.user, project_id)
-
-        context = super(ProjectExtend, self).get_context_data()
-        context['project'] = project
-
-        return context
 
     def post(self, request, project_id):
         """
@@ -201,7 +177,7 @@ class ProjectExtend(LoginRequiredMixin, TemplateView):
         return self.render_to_response(context)
 
 
-class ProjectSettings(LoginRequiredMixin, TemplateView):
+class ProjectSettings(LoginRequiredMixin, ProjectContext, TemplateView):
     """
     Displays the project settings page
     `/admin/projects/:project_id/settings/`
@@ -209,7 +185,6 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
     model = Project
     template_name = 'projects/project_settings.html'
 
-    @handle_exceptions_for_admin
     def get_context_data(self, project_id):
         """
         Returns the context to render the view. Overwrites the method to add
@@ -225,11 +200,10 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
         dict
             context
         """
-        project = Project.objects.as_admin(self.request.user, project_id)
-        return {
-            'project': project,
-            'status_types': STATUS
-        }
+        return super(ProjectSettings, self).get_context_data(
+            project_id,
+            status_types=STATUS
+        )
 
     def post(self, request, project_id):
         """
@@ -263,31 +237,11 @@ class ProjectSettings(LoginRequiredMixin, TemplateView):
         return self.render_to_response(context)
 
 
-class ProjectDelete(LoginRequiredMixin, TemplateView):
+class ProjectDelete(LoginRequiredMixin, ProjectContext, TemplateView):
     """
     Deletes a project
     """
     template_name = 'base.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id, **kwargs):
-        """
-        Returns the context to render the view. Overwrites the method to add
-        the project and status types to the context.
-
-        Parameters
-        ----------
-        project_id : int
-            identifies the project in the database
-
-        Returns
-        -------
-        dict
-            context
-        """
-        project = Project.objects.as_admin(self.request.user, project_id)
-        return super(ProjectDelete, self).get_context_data(
-            project=project, **kwargs)
 
     def get(self, request, project_id):
         """
@@ -352,7 +306,7 @@ class ProjectUpdate(APIView):
         """
         project = Project.objects.as_admin(request.user, project_id)
         serializer = ProjectSerializer(
-            project, data=request.DATA, partial=True,
+            project, data=request.data, partial=True,
             fields=(
                 'id', 'name', 'description', 'status', 'isprivate',
                 'everyone_contributes'
@@ -390,7 +344,7 @@ class ProjectAdmins(APIView):
             message.
         """
         project = Project.objects.as_admin(request.user, project_id)
-        user_id = request.DATA.get('userId')
+        user_id = request.data.get('userId')
 
         try:
             user = User.objects.get(pk=user_id)
@@ -463,7 +417,7 @@ class CategoriesReorderView(APIView):
         project = Project.objects.as_admin(request.user, project_id)
 
         try:
-            project.re_order_categories(request.DATA.get('order'))
+            project.re_order_categories(request.data.get('order'))
 
             serializer = ProjectSerializer(
                 project,

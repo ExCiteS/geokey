@@ -13,6 +13,15 @@ from oauth2_provider.models import AccessToken
 from .models import User, UserGroup
 
 
+class UserForm(forms.ModelForm):
+    """
+    Validates form fields against the User model definition.
+    """
+    class Meta:
+        model = User
+        fields = ['display_name', 'email']
+
+
 class UserRegistrationForm(SignupForm):
     """
     Cleans data when users are signing up

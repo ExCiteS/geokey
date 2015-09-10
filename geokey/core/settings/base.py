@@ -17,15 +17,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 SITE_ROOT = dirname(DJANGO_ROOT)
-TEMPLATE_DIRS = (
-    normpath(join(SITE_ROOT, 'templates')),
-)
 STATICFILES_DIRS = (
     normpath(join(SITE_ROOT, 'static')),
 )
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # Application definition
 
@@ -47,6 +41,8 @@ INSTALLED_APPS = (
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'rest_framework',
+    'rest_framework_gis',
 
     # geokey apps
     'geokey.projects',
@@ -119,14 +115,24 @@ ACCOUNT_FORMS = {
     'reset_password_from_key': 'geokey.users.forms.CustomResetPasswordKeyForm'
 }
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.core.context_processors.request",
-    "django.contrib.auth.context_processors.auth",
-    "geokey.core.context_processors.project_settings",
-    "django.contrib.messages.context_processors.messages",
-    "allauth.account.context_processors.account",
-    "allauth.socialaccount.context_processors.socialaccount",
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            # insert your TEMPLATE_DIRS here
+            normpath(join(SITE_ROOT, 'templates')),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "geokey.core.context_processors.project_settings",
+                "django.contrib.messages.context_processors.messages"
+            ],
+        },
+    },
+]
 
 APPEND_SLASH = True
 

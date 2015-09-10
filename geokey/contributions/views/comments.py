@@ -63,7 +63,7 @@ class CommentAbstractAPIView(APIView):
         if user.is_anonymous():
             user = User.objects.get(display_name='AnonymousUser')
 
-        respondsto = request.DATA.get('respondsto') or None
+        respondsto = request.data.get('respondsto') or None
         if respondsto is not None:
             try:
                 respondsto = observation.comments.get(pk=respondsto)
@@ -72,12 +72,12 @@ class CommentAbstractAPIView(APIView):
                                            ' is not a comment to the '
                                            'observation.')
 
-        review_status = request.DATA.get('review_status') or None
+        review_status = request.data.get('review_status') or None
         if review_status == 'open' and observation.status != 'review':
             observation.update(None, user, status='review')
 
         comment = Comment.objects.create(
-            text=request.DATA.get('text'),
+            text=request.data.get('text'),
             respondsto=respondsto,
             commentto=observation,
             creator=user,
@@ -89,7 +89,7 @@ class CommentAbstractAPIView(APIView):
 
     def update_and_respond(self, request, comment):
         """
-        Reponsds to a PATCH request by updating a comment
+        Responds to a PATCH request by updating a comment
 
         Parameters
         ----------
@@ -110,7 +110,7 @@ class CommentAbstractAPIView(APIView):
             update the comment
         """
         user = request.user
-        data = request.DATA
+        data = request.data
 
         can_moderate = comment.commentto.project.can_moderate(request.user)
         is_owner = comment.creator == request.user
@@ -149,7 +149,7 @@ class CommentAbstractAPIView(APIView):
 
     def delete_and_respond(self, request, comment):
         """
-        Reponsds to a DELETE request by deleting a comment
+        Responds to a DELETE request by deleting a comment
 
         Parameters
         ----------
@@ -175,7 +175,10 @@ class CommentAbstractAPIView(APIView):
 
             comment.delete()
 
-            if not observation.comments.filter(review_status='open').exists():
+            if (observation.status == 'review' and
+                    not observation.comments.filter(
+                        review_status='open').exists()):
+
                 observation.update(None, request.user, status='active')
 
             return Response(status=status.HTTP_204_NO_CONTENT)

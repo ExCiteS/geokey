@@ -9,6 +9,8 @@ from django.db import IntegrityError
 from django.core import mail
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.messages import get_messages
+from django.contrib.messages.storage.fallback import FallbackStorage
 
 from nose.tools import raises
 
@@ -626,49 +628,219 @@ class UserGroupDeleteTest(TestCase):
 
 
 class UserProfileTest(TestCase):
-    def test_with_user(self):
-        user = UserF.create()
-        view = UserProfile.as_view()
-        url = reverse('admin:userprofile')
-        request = APIRequestFactory().get(url)
-        request.user = user
-        response = view(request).render()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    def setUp(self):
+        self.view = UserProfile.as_view()
+        self.request = HttpRequest()
+        self.request.META['SERVER_NAME'] = 'test-server'
+        self.request.META['SERVER_PORT'] = '80'
 
-    def test_with_anonymous(self):
-        user = AnonymousUser()
-        view = UserProfile.as_view()
-        url = reverse('admin:userprofile')
-        request = APIRequestFactory().get(url)
-        request.user = user
-        response = view(request)
-        self.assertTrue(isinstance(response, HttpResponseRedirect))
+        setattr(self.request, 'session', 'session')
+        _messages = FallbackStorage(self.request)
+        setattr(self.request, '_messages', _messages)
 
-    def test_post_with_user(self):
-        data = {
-            'email': 'blah@example.com',
-            'display_name': 'Blah Name'
+    def test_get_with_anonymous_user(self):
+        """
+        Accessing the view with anonymous user should redirect to the login
+        page.
+        """
+        self.request.method = 'GET'
+        self.request.user = AnonymousUser()
+        response = self.view(self.request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/account/login/', response['location'])
+
+    def test_get_with_regular_user(self):
+        """
+        Accessing the view with regular user should render the page.
+        """
+        self.request.method = 'GET'
+        self.request.user = UserF.create()
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            'users/profile.html',
+            {
+                'GEOKEY_VERSION': version.get_version(),
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'user': self.request.user
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+    def test_post_with_anonymous_user(self):
+        """
+        Updating user profile with anonymous user should redirect to the login
+        page.
+        """
+        self.request.method = 'POST'
+        self.request.user = AnonymousUser()
+        self.request.POST = {
+            'display_name': 'Test User',
+            'email': 'test-user@example.com'
         }
-        user = UserF.create()
+        response = self.view(self.request)
 
-        EmailAddress.objects.create(user=user, email=user.email)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/account/login/', response['location'])
 
-        view = UserProfile.as_view()
-        url = reverse('admin:userprofile')
-        request = APIRequestFactory().post(url, data)
-        request.user = user
+    def test_post_with_regular_user(self):
+        """
+        Updating user profile with regular user should change the information
+        and show success message.
+        """
+        self.request.method = 'POST'
+        self.request.user = UserF.create()
+        self.request.POST = {
+            'display_name': 'Test User',
+            'email': 'test-user@example.com'
+        }
+        EmailAddress.objects.create(
+            user=self.request.user,
+            email=self.request.user.email,
+            verified=True
+        )
+        response = self.view(self.request).render()
 
-        from django.contrib.messages.storage.fallback import FallbackStorage
-        setattr(request, 'session', 'session')
-        messages = FallbackStorage(request)
-        setattr(request, '_messages', messages)
+        rendered = render_to_string(
+            'users/profile.html',
+            {
+                'GEOKEY_VERSION': version.get_version(),
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'user': self.request.user,
+                'messages': get_messages(self.request)
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
 
-        response = view(request).render()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        reference = User.objects.get(pk=self.request.user.id)
+        self.assertEqual(
+            reference.display_name,
+            self.request.POST.get('display_name')
+        )
+        self.assertEqual(
+            reference.email,
+            self.request.POST.get('email')
+        )
 
-        ref = User.objects.get(pk=user.id)
-        self.assertEqual(ref.email, data.get('email'))
-        self.assertEqual(ref.display_name, data.get('display_name'))
+        reference = EmailAddress.objects.get(user=self.request.user)
+        self.assertEqual(
+            reference.email,
+            self.request.POST.get('email')
+        )
+        self.assertEqual(reference.verified, False)
+
+    def test_post_with_regular_user_when_information_has_not_changed(self):
+        """
+        Updating user profile with regular user should not change the
+        information if it has not been changed. It should also show info
+        message.
+        """
+        self.request.method = 'POST'
+        self.request.user = UserF.create()
+        self.request.POST = {
+            'display_name': self.request.user.display_name,
+            'email': self.request.user.email
+        }
+        EmailAddress.objects.create(
+            user=self.request.user,
+            email=self.request.user.email,
+            verified=True
+        )
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            'users/profile.html',
+            {
+                'GEOKEY_VERSION': version.get_version(),
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'user': self.request.user,
+                'messages': get_messages(self.request)
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+        reference = EmailAddress.objects.get(user=self.request.user)
+        self.assertEqual(reference.verified, True)
+
+    def test_post_with_regular_user_when_email_has_not_changed(self):
+        """
+        Updating user profile with regular user should change the display name,
+        but not update the email if it has not been changed. It should also
+        show success message.
+        """
+        self.request.method = 'POST'
+        self.request.user = UserF.create()
+        self.request.POST = {
+            'display_name': 'Test User',
+            'email': self.request.user.email,
+        }
+        EmailAddress.objects.create(
+            user=self.request.user,
+            email=self.request.user.email,
+            verified=True
+        )
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            'users/profile.html',
+            {
+                'GEOKEY_VERSION': version.get_version(),
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'user': self.request.user,
+                'messages': get_messages(self.request)
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+        reference = User.objects.get(pk=self.request.user.id)
+        self.assertEqual(
+            reference.display_name,
+            self.request.POST.get('display_name')
+        )
+
+        reference = EmailAddress.objects.get(user=self.request.user)
+        self.assertEqual(reference.verified, True)
+
+    def test_post_with_regular_user_when_email_address_object_not_found(self):
+        """
+        Updating user profile with regular user should create EmailAddress
+        object, if it does not exist.
+        """
+        self.request.method = 'POST'
+        self.request.user = UserF.create()
+        self.request.POST = {
+            'display_name': 'Test User',
+            'email': 'test-user@example.com'
+        }
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            'users/profile.html',
+            {
+                'GEOKEY_VERSION': version.get_version(),
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'user': self.request.user,
+                'messages': get_messages(self.request)
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+        self.assertEqual(
+            EmailAddress.objects.filter(user=self.request.user).exists(),
+            True
+        )
+        reference = EmailAddress.objects.get(user=self.request.user)
+        self.assertEqual(
+            reference.email,
+            self.request.POST.get('email')
+        )
+        self.assertEqual(reference.verified, False)
 
 
 # ############################################################################

@@ -86,7 +86,7 @@
                 <div class="col-sm-4">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <h4 class="panel-title">User groups <a href="{% url 'admin:usergroup_list' project.id %}" class="badge pull-right">{% plus project.usergroups.count 1 %} &raquo;</a></span></h4>
+                            <h4 class="panel-title">User groups <a href="{% url 'admin:usergroup_list' project.id %}" class="badge pull-right">{{ project.usergroups.count|add:"1"}} &raquo;</a></span></h4>
                         </div>
                         <div class="list-group">
                             <a href="{% url 'admin:admins_overview' project.id %}" class="list-group-item"><strong>Administators</strong><br> {{project.admins.count}} members</a>

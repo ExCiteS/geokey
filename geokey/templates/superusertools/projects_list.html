@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load project_attributes %}
+
 {% block title %} | Superuser tools{% endblock %}
 
 {% block main %}
@@ -30,6 +32,8 @@
             <li>
                 <h4><a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a></h4>
                 {% if project.description %}<p>{{ project.description }}</p>{% endif %}
+                {% project_attributes project %}
+
             </li>
 
             {% if forloop.last %}

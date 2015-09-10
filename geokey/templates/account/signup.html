@@ -4,65 +4,57 @@
 {% block bodydata %} class="login" {% endblock %}
 
 {% block main %}
+<div class="container">
+	<div class="row">
+		<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+			<h3 class="header">Sign up</h3>
+			{% include 'snippets/messages.html' %}
+
 			{% if form.errors %}
-			<div class="page-header">
-				<div class="container">
-					<h1>Registration error</h1>
+                <div class="alert alert-danger">
+                    <p>An error occurred. Please try again.</p>
+                </div>
+            {% endif %}
+
+			<form role="form" action="{% url 'account_signup' %}" method="POST" novalidate>
+				{% csrf_token %}
+
+				<div class="form-group {% if form.email.errors %}has-error{% endif %}">
+					<label for="email">Your email address</label>
+					<input type="email" class="form-control input-lg" id="email" name="email" value="{{ form.data.email }}" required />
+					{% if form.email.errors %}<span class="help-block">{{ form.email.errors|striptags }}</span>{% endif %}
 				</div>
-			</div>
-			<div class="container">
-				<div class="row">
 
-					<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-						<div class="alert alert-danger">
-							<strong>We were not able to register you as a new user, because: </strong>
-							{{ form.email.errors }}
-							{{ form.display_name.errors }}
-                			{{ form.password1.errors }}
-							{{ form.password2.errors }}
-						</div>
-					</div>
+				<div class="form-group {% if form.password1.errors %}has-error{% endif %}">
+					<label for="password1">Password</label>
+					<input type="password" class="form-control input-lg" id="password1" name="password1" value="{{ form.data.password1 }}" required />
+					{% if form.password1.errors %}<span class="help-block">{{ form.password1.errors|striptags }}</span>{% endif %}
 				</div>
-			</div>
-			{% endif %}
 
-			<div class="container">
-				<div class="row">
-					<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-
-						<h3 class="header">Sign up</h3>
-						{% include 'snippets/messages.html' %}
-						<form role="form" action="{% url 'account_signup' %}" method="POST" novalidate>
-							{% csrf_token %}
-							<div class="form-group">
-								<label for="email">Email</label>
-								<input type="email" class="form-control input-lg" id="email" name="email" value="{{ form.data.email }}" required>
-							</div>
-							<div class="form-group">
-								<label for="password1">Password</label>
-								<input type="password" class="form-control input-lg" id="password1" name="password1" value="{{ form.data.password1 }}" required>
-							</div>
-							<div class="form-group">
-								<label for="password2">Password (again)</label>
-								<input type="password" class="form-control input-lg" id="password2" name="password2" value="{{ form.data.password2 }}" required>
-							</div>
-							<div class="form-group">
-								<label for="display_name">Choose a display name</label>
-								<input type="text" class="form-control input-lg" id="display_name" name="display_name" maxlength="50"  value="{{ form.data.display_name }}" required>
-							</div>
-							<div class="form-group">
-								<button type="submit" class="btn btn-primary">Sign up</button>
-							</div>
-						</form>
-
-						<div class="well text-center">Already signed up? Please <a href="/admin/account/login/">sign in here</a> &bull; <a href="{% url 'account_reset_password' %}">Forgot password?</a></div>
-					</div>
+				<div class="form-group {% if form.password2.errors or form.non_field_errors %}has-error{% endif %}">
+					<label for="password2">Password (again)</label>
+					<input type="password" class="form-control input-lg" id="password2" name="password2" value="{{ form.data.password2 }}" required />
+					{% if form.password2.errors %}<span class="help-block">{{ form.password2.errors|striptags }}</span>{% endif %}
+					{% if form.non_field_errors %}<span class="help-block">{{ form.non_field_errors|striptags }}</span>{% endif %}
 				</div>
-			</div>
+
+				<div class="form-group {% if form.display_name.errors %}has-error{% endif %}">
+					<label for="display_name">Choose a display name</label>
+					<input type="text" class="form-control input-lg" id="display_name" name="display_name" maxlength="50"  value="{{ form.data.display_name }}" required />
+					{% if form.display_name.errors %}<span class="help-block">{{ form.display_name.errors|striptags }}</span>{% endif %}
+				</div>
+
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary">Sign up</button>
+				</div>
+			</form>
+
+			<div class="well text-center">Already signed up? Please <a href="{% url 'account_login' %}">sign in here</a> &bull; <a href="{% url 'account_reset_password' %}">Forgot password?</a></div>
+		</div>
+	</div>
+</div>
 {% endblock %}
 
 {% block libraries %}
-			<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.js"></script>
-			<script>window.jQuery || document.write('<script src="/static/lib/jquery/jquery-1.10.1.js"><\/script>')</script>
-			<script src="/static/js/admin.ui.forms.validate.js"></script>
+<script src="/static/js/admin.ui.forms.validate.js"></script>
 {% endblock %}

@@ -15,6 +15,7 @@ from rest_framework.renderers import JSONRenderer
 from geokey.projects.tests.model_factories import UserF, ProjectF
 from geokey.projects.models import Project
 from geokey.contributions.models import Comment, Observation
+from geokey.users.models import User
 
 from geokey.users.tests.model_factories import UserGroupF
 from ..model_factories import ObservationFactory, CommentFactory
@@ -64,7 +65,7 @@ class CommentAbstractAPIViewTest(TestCase):
         })
         request = self.factory.post(url, {'text': 'Comment'})
         request.user = self.admin
-        request.DATA = {'text': 'Comment'}
+        request.data = {'text': 'Comment'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -81,7 +82,7 @@ class CommentAbstractAPIViewTest(TestCase):
             url, {'text': 'Comment', 'review_status': 'open'}
         )
         request.user = self.admin
-        request.DATA = {'text': 'Comment', 'review_status': 'open'}
+        request.data = {'text': 'Comment', 'review_status': 'open'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -103,7 +104,7 @@ class CommentAbstractAPIViewTest(TestCase):
             url, {'text': 'Comment', 'review_status': 'open'}
         )
         request.user = self.admin
-        request.DATA = {'text': 'Comment', 'review_status': 'open'}
+        request.data = {'text': 'Comment', 'review_status': 'open'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -121,7 +122,7 @@ class CommentAbstractAPIViewTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.admin
-        request.DATA = {'text': 'Updated'}
+        request.data = {'text': 'Updated'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -141,7 +142,7 @@ class CommentAbstractAPIViewTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.commenter
-        request.DATA = {'text': 'Updated'}
+        request.data = {'text': 'Updated'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -161,7 +162,7 @@ class CommentAbstractAPIViewTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.moderator
-        request.DATA = {'text': 'Updated'}
+        request.data = {'text': 'Updated'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -182,7 +183,7 @@ class CommentAbstractAPIViewTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.creator
-        request.DATA = {'text': 'Updated'}
+        request.data = {'text': 'Updated'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -262,7 +263,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.admin
-        request.DATA = {'review_status': 'resolved'}
+        request.data = {'review_status': 'resolved'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -285,7 +286,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.admin
-        request.DATA = {'review_status': 'closed'}
+        request.data = {'review_status': 'closed'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -310,7 +311,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.admin
-        request.DATA = {'review_status': 'resolved'}
+        request.data = {'review_status': 'resolved'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -333,7 +334,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.moderator
-        request.DATA = {'review_status': 'resolved'}
+        request.data = {'review_status': 'resolved'}
 
         view = CommentAbstractAPIView()
         response = self.render(
@@ -357,7 +358,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.creator
-        request.DATA = {'review_status': 'resolved'}
+        request.data = {'review_status': 'resolved'}
 
         view = CommentAbstractAPIView()
         view.update_and_respond(request, self.comment)
@@ -371,7 +372,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = self.commenter
-        request.DATA = {'review_status': 'resolved'}
+        request.data = {'review_status': 'resolved'}
 
         view = CommentAbstractAPIView()
         view.update_and_respond(request, self.comment)
@@ -385,7 +386,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         })
         request = self.factory.patch(url, {'text': 'Updated'})
         request.user = AnonymousUser()
-        request.DATA = {'review_status': 'resolved'}
+        request.data = {'review_status': 'resolved'}
 
         view = CommentAbstractAPIView()
         view.update_and_respond(request, self.comment)
@@ -593,6 +594,10 @@ class AddCommentToPublicProjectTest(APITestCase):
         })
 
     def get_response(self, user):
+        if user.is_anonymous and not User.objects.filter(
+                display_name='AnonymousUser').exists():
+            UserF.create(display_name='AnonymousUser')
+
         factory = APIRequestFactory()
         request = factory.post(
             '/api/projects/%s/maps/all-contributions/%s/comments/' %
@@ -783,6 +788,26 @@ class DeleteProjectCommentTest(APITestCase):
 
         self.assertIn(self.comment, observation.comments.all())
         self.assertNotIn(self.comment_to_remove, observation.comments.all())
+
+    def test_delete_comment_but_not_change_status_from_pending(self):
+        self.observation.status = 'pending'
+        self.observation.save()
+
+        response = self.get_response(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(observation.status, 'pending')
+
+    def test_delete_comment_and_change_status_from_review(self):
+        self.observation.status = 'review'
+        self.observation.save()
+
+        response = self.get_response(self.contributor)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        observation = Observation.objects.get(pk=self.observation.id)
+        self.assertEqual(observation.status, 'active')
 
     def test_delete_one_review_comment_with_comment_creator(self):
         self.comment.review_status = 'open'

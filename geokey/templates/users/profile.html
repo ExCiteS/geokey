@@ -3,49 +3,43 @@
 {% block title %} | Your profile{% endblock %}
 
 {% block main %}
-        <div class="page-header">
-            <div class="container">
-                <h1>Your profile</h1>
-            </div>
-        </div>
-
+    <div class="page-header">
         <div class="container">
-            {% include 'snippets/messages.html' %}
+            <h1>Your profile</h1>
+        </div>
+    </div>
 
-            <div class="row">
-                <div class="col-sm-4">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h6 class="item-info">User profile</h6>
-                            <h3>{{ user.display_name }}</h3>
-                        </div>
-                        <div class="list-group">
-                            <a href="{% url 'admin:userprofile' %}" class="list-group-item active">Edit profile</a>
-                        </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+                <h3 class="header">Edit profile</h3>
+                {% include 'snippets/messages.html' %}
+
+                <form role="form" action="{% url 'admin:userprofile' %}" method="POST" novalidate>
+                    {% csrf_token %}
+
+                    <div class="form-group {% if form.email.errors %}has-error{% endif %}">
+                        <label for="email">Email address</label>
+                        <input type="email" class="form-control input-lg" id="email" name="email" value="{% if form.data.email %}{{ form.data.email }}{% else %}{{ user.email }}{% endif %}" required />
+                        {% if form.email.errors %}<span class="help-block">{{ form.email.errors|striptags }}</span>{% endif %}
                     </div>
-                </div>
-                <div class="col-sm-8">
-                    <h3 class="header">Edit profile</h3>
-                    <form role="form" action="{% url 'admin:userprofile' %}" method="POST" novalidate>
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" class="form-control input-lg" id="email" name="email" placeholder="Your email address" value="{{user.email}}" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="display_name">Display name</label>
-                            <input type="text" class="form-control input-lg" id="display_name" name="display_name" maxlength="50" placeholder="Choose a user name" value="{{user.display_name}}" required>
-                        </div>
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary">Update profile</button>
-                            <a href="{% url 'account_change_password' %}" class="btn btn-link">Change password</button>
-                        </div>
-                    </form>
-                </div>
+
+                    <div class="form-group {% if form.display_name.errors %}has-error{% endif %}">
+                        <label for="display_name">Display name</label>
+                        <input type="text" class="form-control input-lg" id="display_name" name="display_name" maxlength="50" value="{% if form.data.display_name %}{{ form.data.display_name }}{% else %}{{ user.display_name }}{% endif %}" required />
+                        {% if form.display_name.errors %}<span class="help-block">{{ form.display_name.errors|striptags }}</span>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Update profile</button>
+                        <a type="button" href="{% url 'account_change_password' %}" class="btn btn-link">Change password</button>
+                    </div>
+                </form>
             </div>
         </div>
+    </div>
 {% endblock %}
 
 {% block libraries %}
-            <script src="/static/js/admin.ui.forms.validate.js"></script>
+    <script src="/static/js/admin.ui.forms.validate.js"></script>
 {% endblock %}
