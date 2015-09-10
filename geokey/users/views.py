@@ -15,13 +15,14 @@ from rest_framework import status
 
 from geokey.applications.models import Application
 
+from geokey.core.views import ProjectContext
 from geokey.core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
 from geokey.projects.models import Project, Admins
 from geokey.projects.base import STATUS
 
-from .models import User, UserGroup as UserGroupModel
+from .models import User
 from .serializers import (UserSerializer, UserGroupSerializer)
 from .forms import (
     UsergroupCreateForm,
@@ -61,10 +62,12 @@ class Index(TemplateView):
         django.http.HttpResponseRedirect
             to dashboard, if the user is signed in
         """
-        if request.user.is_anonymous():
-            return self.render_to_response(self.get_context_data)
-        else:
+        if not request.user.is_anonymous():
+            #     return self.render_to_response(self.get_context_data)
+            # else:
             return redirect('admin:dashboard')
+
+        return super(Index, self).get(request, *args, **kwargs)
 
 
 class Dashboard(LoginRequiredMixin, TemplateView):
@@ -102,31 +105,14 @@ class Dashboard(LoginRequiredMixin, TemplateView):
         }
 
 
-class UserGroupList(LoginRequiredMixin, TemplateView):
+class UserGroupList(LoginRequiredMixin, ProjectContext, TemplateView):
     """
     Displays a list of all user groups for a project.
     """
     template_name = 'users/usergroup_list.html'
 
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id):
-        """
-        Overwrites the method to add project to the context
 
-        Parameters
-        ----------
-        project_id : int
-            identifies the project in the data base
-
-        Returns
-        -------
-        dict
-        """
-        project = Project.objects.as_admin(self.request.user, project_id)
-        return super(UserGroupList, self).get_context_data(project=project)
-
-
-class UserGroupCreate(LoginRequiredMixin, CreateView):
+class UserGroupCreate(LoginRequiredMixin, ProjectContext, CreateView):
     """
     Displays the create user group page
     `/admin/projects/:project_id/usergroups/new/`
@@ -145,13 +131,7 @@ class UserGroupCreate(LoginRequiredMixin, CreateView):
         """
         project_id = self.kwargs['project_id']
 
-        context = super(
-            UserGroupCreate, self).get_context_data(**kwargs)
-
-        context['project'] = Project.objects.as_admin(
-            self.request.user, project_id
-        )
-        return context
+        return super(UserGroupCreate, self).get_context_data(project_id)
 
     def get_success_url(self):
         """
@@ -213,30 +193,12 @@ class UserGroupCreate(LoginRequiredMixin, CreateView):
         return self.render_to_response(context)
 
 
-class AdministratorsOverview(LoginRequiredMixin, TemplateView):
+class AdministratorsOverview(LoginRequiredMixin, ProjectContext, TemplateView):
     """
     Displays the list of administrators of the project
     `/admin/projects/:project_id/usergroups/:group_id/`
     """
     template_name = 'users/usergroup_admins.html'
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id):
-        """
-        Creates the request context for rendering the page, adds the project
-        to the context
-
-        Parameters
-        ----------
-        project_id : int
-            identifies the project in the data base
-
-        Return
-        ------
-        dict
-        """
-        project = Project.objects.as_admin(self.request.user, project_id)
-        return {'project': project}
 
 
 class UserGroupMixin(object):
@@ -548,7 +510,7 @@ class UserGroup(APIView):
         project = Project.objects.as_admin(request.user, project_id)
         group = project.usergroups.get(pk=group_id)
         serializer = UserGroupSerializer(
-            group, data=request.DATA, partial=True)
+            group, data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()
@@ -583,7 +545,7 @@ class UserGroupUsers(APIView):
             Contains the serialised usergroup or an error message
         """
         project = Project.objects.as_admin(request.user, project_id)
-        user_id = request.DATA.get('userId')
+        user_id = request.data.get('userId')
 
         try:
             user = User.objects.get(pk=user_id)
@@ -724,7 +686,7 @@ class UserAPIView(CreateUserMixin, APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        data = request.DATA
+        data = request.data
 
         serializer = UserSerializer(user, data=data, partial=True)
         if serializer.is_valid():
@@ -765,7 +727,7 @@ class UserAPIView(CreateUserMixin, APIView):
         rest_framework.response.Response
             Containing the user info or an error message
         """
-        data = request.DATA
+        data = request.data
         form = UserRegistrationForm(data)
         client_id = data.pop('client_id', None)
 
@@ -818,7 +780,7 @@ class ChangePasswordView(APIView):
             Empty response indicating success or error message
         """
         user = request.user
-        data = request.DATA
+        data = request.data
 
         if not user.is_anonymous():
             form = CustomPasswordChangeForm(user, data)

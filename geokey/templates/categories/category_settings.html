@@ -117,7 +117,6 @@
 {% endblock %}
 
 {% block modals %}
-	{% if admin %}
 		<div class="modal fade" id="make-inactive-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content panel-warning">
@@ -183,11 +182,9 @@
                 </div>
             </div>
         </div>
-	{% endif %}
 {% endblock %}
 
 {% block libraries %}
-	{% if admin %}
 			<script src="/static/js/admin.ui.updater.js"></script>
             <script src="/static/js/admin.ui.forms.validate.js"></script>
 			<script src="/static/js/admin.control.ajax.js"></script>
@@ -196,5 +193,4 @@
 					$('[rel="tooltip"]').tooltip();
 				});
 			</script>
-	{% endif %}
 {% endblock %}

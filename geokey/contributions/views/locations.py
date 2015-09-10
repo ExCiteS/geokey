@@ -74,7 +74,7 @@ class SingleLocation(APIView):
         location = Location.objects.get_single(
             request.user, project_id, location_id)
         serializer = LocationSerializer(
-            location, data=request.DATA, partial=True)
+            location, data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()

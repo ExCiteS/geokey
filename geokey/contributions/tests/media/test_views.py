@@ -19,6 +19,7 @@ from rest_framework.renderers import JSONRenderer
 from geokey.core.exceptions import MalformedRequestData
 from geokey.projects.tests.model_factories import UserF, ProjectF
 from geokey.contributions.models import MediaFile
+from geokey.users.models import User
 
 from geokey.contributions.views.media import (
     MediaFileListAbstractAPIView, AllContributionsMediaAPIView,
@@ -355,6 +356,10 @@ class AllContributionsMediaAPIViewTest(TestCase):
         ).render()
 
     def post(self, user, data=None):
+        if user.is_anonymous and not User.objects.filter(
+                display_name='AnonymousUser').exists():
+            UserF.create(display_name='AnonymousUser')
+
         if data is None:
             data = {
                 'name': 'A test image',

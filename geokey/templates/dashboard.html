@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load project_attributes %}
+
 {% block title %} | Dashboard{% endblock %}
 
 {% block main %}
@@ -23,13 +25,9 @@
                     {% endif %}
 
                     <li>
-                        <h3>
-                            <a href="{% url 'admin:project_overview' project.id %}">{{project.name}}</a>
-                            {% if project.isprivate %}<span class="label label-info">Private</span>{% else %}<span class="label label-info">Public</span>{% endif %}
-                            {% if project.status == status_types.inactive %}<span class="label label-default">Inactive</span>{% endif %}
-                        </h3>
+                        <h3><a href="{% url 'admin:project_overview' project.id %}">{{project.name}}</a></h3>
                         {% if project.description %}<p>{{project.description}}</p>{% endif %}
-                        <p class="meta">Created by {{ project.creator.display_name }}</p>
+                        {% project_attributes project %}
                     </li>
 
                     {% if forloop.last %}
