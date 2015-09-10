@@ -21,14 +21,37 @@ from ..model_factories import (
 
 
 class TestContributionsPreSave(TestCase):
-    def test_pre_observation_save(self):
-        o_type = CategoryFactory.create()
+    def test_create_search_index(self):
+        category = CategoryFactory.create()
         TextFieldFactory.create(
-            **{'key': 'key', 'category': o_type, 'order': 0}
+            **{'key': 'text_1', 'category': category, 'order': 0}
         )
+        TextFieldFactory.create(
+            **{'key': 'text_2', 'category': category, 'order': 0}
+        )
+        TextFieldFactory.create(
+            **{'key': 'text_3', 'category': category, 'order': 0}
+        )
+        o = ObservationFactory.create(**{
+            'properties': {
+                'text_1': 'Blah, abc',
+                'text_2': 'blubb blah'
+            },
+            'category': category
+        })
+        o.create_search_index()
+        o.save()
 
+        reference = Observation.objects.get(pk=o.id)
+        self.assertEqual(reference.search_index, 'blah,blubb,abc')
+
+    def test_create_search_index_lookup(self):
+        category = CategoryFactory.create()
+        TextFieldFactory.create(
+            **{'key': 'text_1', 'category': category, 'order': 0}
+        )
         lookup = LookupFieldFactory.create(
-            **{'category': o_type, 'key': 'lookup', 'order': 1}
+            **{'category': category, 'key': 'lookup', 'order': 1}
         )
         kermit = LookupValueFactory.create(**{
             'field': lookup,
@@ -39,35 +62,52 @@ class TestContributionsPreSave(TestCase):
             'name': 'Gonzo'
         })
 
-        m_lookup = MultipleLookupFieldFactory.create(
-            **{'category': o_type, 'key': 'm_lookup', 'order': 2}
-        )
-        m_kermit = MultipleLookupValueFactory.create(**{
-            'field': m_lookup,
-            'name': 'Kermit'
+        o = ObservationFactory.create(**{
+            'properties': {
+                'text_1': 'blah, abc',
+                'lookup': kermit.id
+            },
+            'category': category
         })
-        MultipleLookupValueFactory.create(**{
-            'field': m_lookup,
+        o.create_search_index()
+        o.save()
+
+        reference = Observation.objects.get(pk=o.id)
+        self.assertEqual(reference.search_index, 'blah,abc,kermit')
+
+    def test_create_search_index_multiplelookup(self):
+        category = CategoryFactory.create()
+        TextFieldFactory.create(
+            **{'key': 'text_1', 'category': category, 'order': 0}
+        )
+        lookup = MultipleLookupFieldFactory.create(
+            **{'category': category, 'key': 'lookup', 'order': 2}
+        )
+        gonzo = MultipleLookupValueFactory.create(**{
+            'field': lookup,
             'name': 'Gonzo'
         })
         m_piggy = MultipleLookupValueFactory.create(**{
-            'field': m_lookup,
+            'field': lookup,
             'name': 'Ms Piggy'
+        })
+        kermit = MultipleLookupValueFactory.create(**{
+            'field': lookup,
+            'name': 'Kermit'
         })
 
         o = ObservationFactory.create(**{
             'properties': {
-                'key': 'blah',
-                'lookup': kermit.id,
-                'm_lookup': [m_kermit.id, m_piggy.id]
+                'text_1': 'blah, abc',
+                'lookup': [kermit.id, gonzo.id]
             },
-            'category': o_type
+            'category': category
         })
+        o.create_search_index()
+        o.save()
 
-        pre_save_observation_update(Observation, instance=o)
-        self.assertIn('Ms Piggy', o.search_matches)
-        self.assertIn('Kermit', o.search_matches)
-        self.assertIn('blah', o.search_matches)
+        reference = Observation.objects.get(pk=o.id)
+        self.assertEqual(reference.search_index, 'blah,abc,gonzo,kermit')
 
 
 class ObservationTest(TestCase):
