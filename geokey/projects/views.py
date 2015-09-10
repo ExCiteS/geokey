@@ -12,9 +12,8 @@ from rest_framework.response import Response
 from braces.views import LoginRequiredMixin
 
 from geokey.core.views import ProjectContext
-from geokey.core.decorators import (
-    handle_exceptions_for_ajax, handle_exceptions_for_admin
-)
+from geokey.core.decorators import handle_exceptions_for_ajax
+
 from geokey.users.serializers import UserSerializer
 from geokey.users.models import User
 from geokey.categories.models import Category

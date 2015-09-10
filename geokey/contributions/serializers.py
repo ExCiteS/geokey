@@ -363,37 +363,6 @@ class ContributionSerializer(BaseSerializer):
         else:
             return None
 
-    def get_search_result(self, obj, q):
-        """
-        Returns all fields which values have matched a search query
-
-        Parameter
-        ---------
-        obj : geokey.contributions.models.Observation
-            The instance that is serialised
-        q : str
-            The query string of the search
-
-        Return
-        ------
-        dict
-            the field that matched the query, e.g.
-            {
-                'field_key_1': 'value 1',
-                'field_key_2': 'value 2',
-            }
-        """
-        search_matches = {}
-
-        matcher = obj.search_matches.split('#####')
-
-        for field in matcher:
-            match = field.split(':', 1)
-            if q.lower() in match[1].lower():
-                search_matches[match[0]] = match[1]
-
-        return search_matches
-
     def to_representation(self, obj):
         """
         Returns the native representation of a contribution
@@ -457,9 +426,6 @@ class ContributionSerializer(BaseSerializer):
                 'colour': cat.colour
             }
 
-            q = self.context.get('search')
-            if q is not None:
-                feature['search_matches'] = self.get_search_result(obj, q)
         else:
             category_serializer = CategorySerializer(
                 obj.category, context=self.context)

@@ -4,7 +4,7 @@ from django.test import TestCase, TransactionTestCase
 from django.core.urlresolvers import reverse, resolve
 from django.test import RequestFactory
 from django.contrib.auth.models import AnonymousUser
-from django.http import HttpResponseRedirect, HttpRequest
+from django.http import HttpRequest
 from django.db import IntegrityError
 from django.core import mail
 from django.template.loader import render_to_string
@@ -835,6 +835,35 @@ class UserProfileTest(TestCase):
             EmailAddress.objects.filter(user=self.request.user).exists(),
             True
         )
+        reference = EmailAddress.objects.get(user=self.request.user)
+        self.assertEqual(
+            reference.email,
+            self.request.POST.get('email')
+        )
+        self.assertEqual(reference.verified, False)
+
+        rendered = render_to_string(
+            'users/profile.html',
+            {
+                'GEOKEY_VERSION': version.get_version(),
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'user': self.request.user,
+                'messages': get_messages(self.request)
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+        reference = User.objects.get(pk=self.request.user.id)
+        self.assertEqual(
+            reference.display_name,
+            self.request.POST.get('display_name')
+        )
+        self.assertEqual(
+            reference.email,
+            self.request.POST.get('email')
+        )
+
         reference = EmailAddress.objects.get(user=self.request.user)
         self.assertEqual(
             reference.email,
