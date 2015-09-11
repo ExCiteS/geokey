@@ -1,0 +1,4 @@
+<div class="form-group">
+    <label for="{{ field.key }}" class="control-label">{{ field.name }}</label>
+    <input class="form-control {{ classes }}" type="{{ field_type }}" name="{{ field.key }}" id="{{ field.key }}" {% if field.required %}required{% endif %} value="{{ value }}" {% if field.minval %}min="{{ field.minval }}"{% endif %} {% if field.maxval %}max="{{ field.maxval }}"{% endif %} {{ add_on|safe }}>
+</div>
