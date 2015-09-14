@@ -13,14 +13,15 @@ def create_search_index(apps, schema_editor):
 
         fields = o.search_matches.split('#####')
         for field in fields:
-            value = field.split(':')[1]
+            if field:
+                value = field.split(':')[1]
 
-            cleaned = re.sub(r'[\W_]+', ' ', value)
-            terms = cleaned.lower().split()
+                cleaned = re.sub(r'[\W_]+', ' ', value)
+                terms = cleaned.lower().split()
 
-            search_index = search_index + list(
-                set(terms) - set(search_index)
-            )
+                search_index = search_index + list(
+                    set(terms) - set(search_index)
+                )
 
         o.search_index = ','.join(search_index)
         o.save()
