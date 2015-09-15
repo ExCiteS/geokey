@@ -508,7 +508,7 @@ class NumericField(Field):
 
             if maxval is not None:
                 return ('(cast(properties ->> \'%s\' as double '
-                        'precision) <= %s)' % (self.key,  maxval))
+                        'precision) <= %s)' % (self.key, maxval))
 
 
 class DateTimeField(Field):

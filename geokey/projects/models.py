@@ -176,8 +176,7 @@ class Project(models.Model):
                     can_contribute=True, users=user).exists() or
                 self.usergroups.filter(
                     can_moderate=True, users=user).exists())
-            )
-        )
+        ))
 
     def can_contribute(self, user):
         """
