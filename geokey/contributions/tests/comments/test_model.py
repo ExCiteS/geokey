@@ -2,12 +2,12 @@ from django.test import TestCase
 
 from nose.tools import raises
 
-from geokey.contributions.models import Comment, post_save_comment_update
+from geokey.contributions.models import Comment, post_save_comment_count_update
 from ..model_factories import ObservationFactory, CommentFactory
 
 
 class TestCommentPostSave(TestCase):
-    def test_post_comment_save(self):
+    def test_post_save_comment_count_update(self):
         observation = ObservationFactory()
         CommentFactory.create_batch(5, **{'commentto': observation})
         comment = CommentFactory.create(**{
@@ -15,7 +15,7 @@ class TestCommentPostSave(TestCase):
             'status': 'deleted'
         })
 
-        post_save_comment_update(Comment, instance=comment)
+        post_save_comment_count_update(Comment, instance=comment)
         self.assertEqual(comment.commentto.num_media, 0)
         self.assertEqual(comment.commentto.num_comments, 5)
 
