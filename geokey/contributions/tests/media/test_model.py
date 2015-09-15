@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from geokey.contributions.models import (
     ImageFile, VideoFile,
-    post_save_media_file_update
+    post_save_media_file_count_update
 )
 from geokey.contributions.tests.model_factories import ObservationFactory
 from geokey.users.tests.model_factories import UserF
@@ -11,7 +11,7 @@ from .model_factories import get_image
 
 
 class TestImageFilePostSave(TestCase):
-    def test_post_image_file_save(self):
+    def test_post_save_image_file_count_update(self):
         observation = ObservationFactory()
         image_file = ImageFile.objects.create(
             name='Test name',
@@ -29,7 +29,7 @@ class TestImageFilePostSave(TestCase):
             image=get_image()
         )
 
-        post_save_media_file_update(ImageFile, instance=image_file)
+        post_save_media_file_count_update(ImageFile, instance=image_file)
         self.assertEqual(image_file.contribution.num_media, 1)
         self.assertEqual(image_file.contribution.num_comments, 0)
 
@@ -58,7 +58,7 @@ class ImageFileTest(TestCase):
 
 
 class TestVideoFilePostSave(TestCase):
-    def test_post_image_file_save(self):
+    def test_post_save_video_file_count_update(self):
         observation = ObservationFactory()
         video_file = VideoFile.objects.create(
             name='Test name',
@@ -80,7 +80,7 @@ class TestVideoFilePostSave(TestCase):
             swf_link='http://example.com/1122323.swf'
         )
 
-        post_save_media_file_update(VideoFile, instance=video_file)
+        post_save_media_file_count_update(VideoFile, instance=video_file)
         self.assertEqual(video_file.contribution.num_media, 1)
         self.assertEqual(video_file.contribution.num_comments, 0)
 

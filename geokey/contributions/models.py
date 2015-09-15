@@ -336,7 +336,7 @@ class Comment(models.Model):
 
 
 @receiver(post_save, sender=Comment)
-def post_save_comment_update(sender, **kwargs):
+def post_save_comment_count_update(sender, **kwargs):
     """
     Receiver that is called after a comment is saved. Updates num_media and
     num_comments properties.
@@ -391,16 +391,6 @@ class MediaFile(models.Model):
         self.save()
 
 
-@receiver(post_save, sender=MediaFile)
-def post_save_media_file_update(sender, **kwargs):
-    """
-    Receiver that is called after a media file is saved. Updates num_media and
-    num_comments properties.
-    """
-    media_file = kwargs.get('instance')
-    media_file.contribution.update_count()
-
-
 class ImageFile(MediaFile):
     """
     Stores images uploaded by users.
@@ -448,3 +438,14 @@ class VideoFile(MediaFile):
             'VideoFile'
         """
         return 'VideoFile'
+
+
+@receiver(post_save)
+def post_save_media_file_count_update(sender, **kwargs):
+    """
+    Receiver that is called after a media file is saved. Updates num_media and
+    num_comments properties.
+    """
+    if sender.__name__ in ['ImageFile', 'VideoFile']:
+        media_file = kwargs.get('instance')
+        media_file.contribution.update_count()
