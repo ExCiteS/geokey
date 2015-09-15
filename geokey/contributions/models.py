@@ -255,6 +255,9 @@ class Observation(models.Model):
                 if field.fieldtype == 'TextField':
                     value = self.properties.get(field.key)
 
+                if field.fieldtype == 'NumericField':
+                    value = str(self.properties.get(field.key))
+
                 if field.fieldtype == 'LookupField':
                     lookup_id = self.properties.get(field.key)
                     if lookup_id:

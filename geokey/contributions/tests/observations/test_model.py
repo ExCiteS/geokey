@@ -5,9 +5,7 @@ from django.core.exceptions import ValidationError
 
 from nose.tools import raises
 
-from geokey.contributions.models import (
-    Observation, pre_save_observation_update
-)
+from geokey.contributions.models import Observation
 from geokey.projects.tests.model_factories import UserF
 
 from geokey.categories.tests.model_factories import (
@@ -43,12 +41,15 @@ class TestContributionsPreSave(TestCase):
         o.save()
 
         reference = Observation.objects.get(pk=o.id)
-        self.assertEqual(reference.search_index, 'blah,blubb,abc')
+        self.assertEqual(reference.search_index, 'blah,abc,blubb')
 
     def test_create_search_index_lookup(self):
         category = CategoryFactory.create()
         TextFieldFactory.create(
             **{'key': 'text_1', 'category': category, 'order': 0}
+        )
+        NumericFieldFactory(
+            **{'key': 'number', 'category': category, 'order': 0}
         )
         lookup = LookupFieldFactory.create(
             **{'category': category, 'key': 'lookup', 'order': 1}
@@ -65,6 +66,7 @@ class TestContributionsPreSave(TestCase):
         o = ObservationFactory.create(**{
             'properties': {
                 'text_1': 'blah, abc',
+                'number': 12,
                 'lookup': kermit.id
             },
             'category': category
@@ -73,7 +75,7 @@ class TestContributionsPreSave(TestCase):
         o.save()
 
         reference = Observation.objects.get(pk=o.id)
-        self.assertEqual(reference.search_index, 'blah,abc,kermit')
+        self.assertEqual(reference.search_index, 'blah,abc,12,kermit')
 
     def test_create_search_index_multiplelookup(self):
         category = CategoryFactory.create()
