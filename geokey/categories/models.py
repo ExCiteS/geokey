@@ -139,7 +139,7 @@ class Field(models.Model):
         unique_together = ('key', 'category')
 
     @classmethod
-    def create(self, name, key, description, required, category, field_type):
+    def create(cls, name, key, description, required, category, field_type):
         """
         Creates a new field based on the field type provided.
 

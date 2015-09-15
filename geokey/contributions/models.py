@@ -88,7 +88,7 @@ class Observation(models.Model):
         ordering = ['-updated_at', 'id']
 
     @classmethod
-    def validate_partial(self, category, data):
+    def validate_partial(cls, category, data):
         """
         Validates the data against the category field definition. This is a
         partial validation, which is used to validate drafts, field values
@@ -121,7 +121,7 @@ class Observation(models.Model):
             raise ValidationError(error_messages)
 
     @classmethod
-    def validate_full(self, category, data):
+    def validate_full(cls, category, data):
         """
         Validates the data against the category field definition. This is a
         full validation.
