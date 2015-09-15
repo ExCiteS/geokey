@@ -78,4 +78,3 @@ class AdminsFactory(factory.django.DjangoModelFactory):
 
     project = factory.SubFactory(ProjectF)
     user = factory.SubFactory(UserF)
-    contact = True

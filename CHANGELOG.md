@@ -1,5 +1,9 @@
 # GeoKey Changelog
 
+## Version 0.8
+
+- Removes `/api/projects/:project_id/get-in-touch` endpoint. Also, notifications settings are now completely removed from GeoKey, therefore `contact_admins` method is no longer available on the Project model.
+
 ## Version 0.7.2
 
 - Bug fixes:
@@ -7,7 +11,6 @@
     - [#289](https://github.com/ExCiteS/geokey/issues/289) Adds error messages to user registration formats
     - [#290](https://github.com/ExCiteS/geokey/issues/290) Catches integrity errors when updating user profiles
 - Further improvements to user authentication forms.
-
 
 ## Version 0.7.1
 

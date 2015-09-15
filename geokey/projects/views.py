@@ -12,10 +12,8 @@ from rest_framework.response import Response
 from braces.views import LoginRequiredMixin
 
 from geokey.core.views import ProjectContext
-from geokey.core.decorators import (
-    handle_exceptions_for_ajax, handle_exceptions_for_admin
-)
-from geokey.core.exceptions import Unauthenticated
+from geokey.core.decorators import handle_exceptions_for_ajax
+
 from geokey.users.serializers import UserSerializer
 from geokey.users.models import User
 from geokey.categories.models import Category
@@ -507,44 +505,3 @@ class SingleProject(APIView):
 
         raise PermissionDenied('The project is inactive and therefore '
                                'not accessable through the public API.')
-
-
-class ProjectContactAdmins(APIView):
-    """
-    API Endpoint for single project in the public API.
-    /api/projects/:project_id/get-in-touch/
-    """
-    @handle_exceptions_for_ajax
-    def post(self, request, project_id):
-        """
-        Sends an email to all admins that are contact persons for the given
-        project.
-
-        Parameter
-        ---------
-        request : rest_framework.request.Request
-            Object representing the request.
-        project_id : int
-            identifies the project in the database
-
-        Returns
-        -------
-        rest_framework.reponse.Response
-            Empty reponse indicating success
-
-        Raises
-        ------
-        Unauthenticated
-            if the user is anonymous; is handled in the
-            handle_exceptions_for_ajax decorator
-        """
-        user = request.user
-        if user.is_anonymous():
-            raise Unauthenticated('Unauthenticated users can not contact the '
-                                  'administrators of the project.')
-
-        email_text = self.request.data.get('email_text')
-        project = Project.objects.get_single(request.user, project_id)
-
-        project.contact_admins(user, email_text)
-        return Response(status=status.HTTP_204_NO_CONTENT)

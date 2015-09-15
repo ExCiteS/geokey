@@ -140,7 +140,6 @@ urlpatterns = patterns(
     # ###########################
     # APPS
     # ###########################
-
     url(
         r'^apps/$',
         app_views.ApplicationOverview.as_view(),
@@ -172,9 +171,6 @@ urlpatterns = patterns(
     url(r'^profile/$',
         login_views.UserProfile.as_view(),
         name="userprofile"),
-    url(r'^profile/notifications/$',
-        login_views.UserNotifications.as_view(),
-        name="notifications"),
 
     # ###########################
     # SUPER-USER TOOLS
