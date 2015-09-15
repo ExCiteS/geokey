@@ -1,14 +1,14 @@
-class MalformedRequestData(BaseException):
+class MalformedRequestData(Exception):
     pass
 
 
-class InputError(BaseException):
+class InputError(Exception):
     pass
 
 
-class FileTypeError(BaseException):
+class FileTypeError(Exception):
     pass
 
 
-class Unauthenticated(BaseException):
+class Unauthenticated(Exception):
     pass
