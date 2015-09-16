@@ -120,6 +120,31 @@ class TestContributionsPreSave(TestCase):
             'blah,abc,gonzo,kermit'.split(',').sort()
         )
 
+    def test_create_search_index_null_multiplelookup(self):
+        category = CategoryFactory.create()
+        TextFieldFactory.create(
+            **{'key': 'text_1', 'category': category, 'order': 0}
+        )
+        MultipleLookupFieldFactory.create(
+            **{'category': category, 'key': 'lookup', 'order': 2}
+        )
+
+        o = ObservationFactory.create(**{
+            'properties': {
+                'text_1': 'blah, abc',
+                'lookup': None
+            },
+            'category': category
+        })
+        o.create_search_index()
+        o.save()
+
+        reference = Observation.objects.get(pk=o.id)
+        self.assertEqual(
+            reference.search_index.split(',').sort(),
+            'blah,abc'.split(',').sort()
+        )
+
 
 class ObservationTest(TestCase):
     @raises(Observation.DoesNotExist)

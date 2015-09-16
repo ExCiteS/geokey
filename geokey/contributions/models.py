@@ -265,9 +265,12 @@ class Observation(models.Model):
 
                 if field.fieldtype == 'MultipleLookupField':
                     lookup_id = self.properties.get(field.key)
-                    lookupvalues = field.lookupvalues.filter(pk__in=lookup_id)
+                    if lookup_id:
+                        lookupvalues = field.lookupvalues.filter(
+                            pk__in=lookup_id
+                        )
 
-                    value = ' '.join([val.name for val in lookupvalues])
+                        value = ' '.join([val.name for val in lookupvalues])
 
             if value:
                 cleaned = re.sub(r'[\W_]+', ' ', value)
