@@ -4,9 +4,9 @@ import time
 from iso8601 import parse_date
 from iso8601.iso8601 import ParseError
 
+from django.apps import apps
 from django.conf import settings
 from django.db import models
-from django.db.models.loading import get_model
 
 from geokey.core.exceptions import InputError
 
@@ -170,7 +170,7 @@ class Field(models.Model):
         geokey.categories.models.Field
             Intance of the newly created field
         """
-        model_class = get_model('categories', field_type)
+        model_class = apps.get_model('categories', field_type)
         order = category.fields.count()
 
         field = model_class.objects.create(
