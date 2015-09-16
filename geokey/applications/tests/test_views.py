@@ -65,7 +65,7 @@ class ApplicationDisconnectTest(TestCase):
             application=self.app,
             token='df0af6a395b4cd072445b3832e9379bfee257da0',
             scope=1,
-            expires='2030-12-31 23:59'
+            expires='2030-12-31T23:59:01+00:00'
         )
 
     @raises(AccessToken.DoesNotExist)
