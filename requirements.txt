@@ -9,7 +9,7 @@ django-pgjson==0.3.1
 django-simple-history==1.6.3
 django-youtube==0.2
 djangorestframework==3.2.3
-djangorestframework-gis==0.9.3
+djangorestframework-gis==0.9.4
 easy-thumbnails==2.2
 gdata==2.0.18
 iso8601==0.1.10
