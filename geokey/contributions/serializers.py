@@ -5,6 +5,7 @@ from django.core import files
 from django.core.exceptions import PermissionDenied, ValidationError
 
 from easy_thumbnails.files import get_thumbnailer
+from easy_thumbnails.exceptions import InvalidImageFormatError
 
 from rest_framework import serializers
 from rest_framework_gis import serializers as geoserializers
@@ -630,6 +631,7 @@ class FileSerializer(serializers.ModelSerializer):
             try:
                 return self._get_thumb(obj.image).url
             except IOError:
+            except InvalidImageFormatError:
                 return ''
 
         elif isinstance(obj, VideoFile):
