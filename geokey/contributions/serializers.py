@@ -630,8 +630,10 @@ class FileSerializer(serializers.ModelSerializer):
             # read is caught here.
             try:
                 return self._get_thumb(obj.image).url
-            except IOError:
-            except InvalidImageFormatError:
+            except (
+                IOError,
+                InvalidImageFormatError
+            ):
                 return ''
 
         elif isinstance(obj, VideoFile):
