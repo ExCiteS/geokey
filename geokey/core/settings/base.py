@@ -2,27 +2,42 @@
 Django settings for opencomap project.
 
 For more information on this file, see
-https://docs.djangoproject.com/en/1.6/topics/settings/
+https://docs.djangoproject.com/en/1.8/topics/settings/
 
 For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.6/ref/settings/
+https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
 from os.path import abspath, dirname, join, normpath
 from django.contrib import messages
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+# The ID of the current site in the django_site database table
+# see: https://docs.djangoproject.com/en/1.8/ref/settings/#site-id
+SITE_ID = 1
 
-DJANGO_ROOT = dirname(dirname(abspath(__file__)))
-SITE_ROOT = dirname(DJANGO_ROOT)
-STATICFILES_DIRS = (
-    normpath(join(SITE_ROOT, 'static')),
-)
+# Ensures that a trailing slash is always present in URLs
+# see: https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-APPEND_SLASH
+APPEND_SLASH = True
 
-# Application definition
+# Sets the default time zone
+TIME_ZONE = 'UTC'
 
+# Disbles Django's translation engine
+# see: https://docs.djangoproject.com/en/1.8/ref/settings/#use-i18n
+USE_I18N = False
+
+# Enables localised date formatting
+# see: https://docs.djangoproject.com/en/1.8/ref/settings/#use-l10n
+USE_L10N = True
+
+# A boolean that specifies if datetimes will be timezone-aware by default or not.
+# see: A boolean that specifies if datetimes will be timezone-aware by default or not.
+USE_TZ = True
+
+# All Django applications installed. Includes Django modules, third-party
+# packages and GeoKey modules. New third-party packages and GeoKey modules
+# should be added here.
+# see: https://docs.djangoproject.com/en/1.8/ref/settings/#installed-apps
 INSTALLED_APPS = (
     # Django apps
     'django.contrib.admin',
@@ -55,6 +70,9 @@ INSTALLED_APPS = (
     'geokey.subsets',
 )
 
+# Middleware that is used with GeoKey to process HTTP requests and responses.
+# see: https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-MIDDLEWARE_CLASSES
+# Learn about Middleware: https://docs.djangoproject.com/en/1.8/topics/http/middleware/
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -63,24 +81,27 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'geokey.core.middleware.XsSharing',
-    # 'core.middleware.TerminalLogging',
 )
 
+# Settings for django-oauth-toolkit
+# see: https://django-oauth-toolkit.readthedocs.org/en/latest/settings.html
 OAUTH2_PROVIDER = {
-    # this is the list of available scopes
     'SCOPES': {'read': 'Read scope', 'write': 'Write scope'},
     'CLIENT_SECRET_GENERATOR_LENGTH': 40
 }
 OAUTH2_PROVIDER_APPLICATION_MODEL = 'applications.Application'
 
+# Settings for Django REST Framework
+# see: http://www.django-rest-framework.org/api-guide/settings/
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'oauth2_provider.ext.rest_framework.OAuth2Authentication',
     ),
 }
 
+# Avaiable message tags; for use with Django's messages Framework
+# see: https://docs.djangoproject.com/en/1.8/ref/settings/#message-tags
 MESSAGE_TAGS = {
     messages.DEBUG: 'debug',
     messages.INFO: 'info',
@@ -89,17 +110,21 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger'
 }
 
-AUTH_USER_MODEL = 'users.User'
+# Settings for django.contrib.auth, used for user authentication
+# see: https://docs.djangoproject.com/en/1.8/ref/settings/#auth
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
     "django.contrib.auth.backends.ModelBackend",
     # `allauth` specific authentication methods, such as login by e-mail
     "allauth.account.auth_backends.AuthenticationBackend"
 )
-
-SITE_ID = 1
+AUTH_USER_MODEL = 'users.User'
 LOGIN_REDIRECT_URL = '/admin/dashboard/'
 LOGIN_URL = '/admin/account/login/'
+
+
+# django-allauth settings
+# see: http://django-allauth.readthedocs.org/en/latest/configuration.html
 ACCOUNT_LOGOUT_REDIRECT_URL = '/admin/account/login/'
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'display_name'
 ACCOUNT_EMAIL_REQUIRED = True
@@ -115,6 +140,9 @@ ACCOUNT_FORMS = {
     'reset_password_from_key': 'geokey.users.forms.CustomResetPasswordKeyForm'
 }
 
+SITE_ROOT = dirname(dirname(dirname(abspath(__file__))))
+# Settings for Django's template engine
+# see: https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-TEMPLATES
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -134,19 +162,6 @@ TEMPLATES = [
     },
 ]
 
-APPEND_SLASH = True
-
-# Internationalization
-# https://docs.djangoproject.com/en/1.6/topics/i18n/
-
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
-USE_L10N = True
-
-USE_TZ = True
-
+# Custom GeoKey settings, enables video upload. Disabled by default, can be
+# endabled by overwriting in local settings
 ENABLE_VIDEO = False
