@@ -377,7 +377,7 @@ class TextField(Field):
     def get_filter(self, rule):
         """
         Returns the SQL where clause for the given field based on the rule.
-        Used to filter data for a data grouping.
+        Used to filter data for user groups and subsets.
 
         Parameter
         ---------
@@ -491,7 +491,7 @@ class NumericField(Field):
     def get_filter(self, rule):
         """
         Returns the SQL where clause for the given field based on the rule.
-        Used to filter data for a data grouping.
+        Used to filter data for user groups and subsets.
 
         Parameter
         ---------
@@ -581,7 +581,7 @@ class DateTimeField(Field):
     def get_filter(self, rule):
         """
         Returns the SQL where clause for the given field based on the rule.
-        Used to filter data for a data grouping.
+        Used to filter data for user groups and subsets.
 
         Parameter
         ---------
@@ -674,7 +674,7 @@ class DateField(Field):
     def get_filter(self, rule):
         """
         Returns the SQL where clause for the given field based on the rule.
-        Used to filter data for a data grouping.
+        Used to filter data for user groups and subsets.
 
         Parameter
         ---------
@@ -763,7 +763,7 @@ class TimeField(Field):
     def get_filter(self, rule):
         """
         Returns the SQL where clause for the given field based on the rule.
-        Used to filter data for a data grouping.
+        Used to filter data for a user groups and subsets.
 
         Parameter
         ---------
@@ -874,7 +874,7 @@ class LookupField(Field):
     def get_filter(self, rule):
         """
         Returns the SQL where clause for the given field based on the rule.
-        Used to filter data for a data grouping.
+        Used to filter data for a user groups and subsets.
 
         Parameter
         ---------
@@ -989,7 +989,7 @@ class MultipleLookupField(Field):
     def get_filter(self, rule):
         """
         Returns the SQL where clause for the given field based on the rule.
-        Used to filter data for a data grouping.
+        Used to filter data for user groups and subsets.
 
         Parameter
         ---------
