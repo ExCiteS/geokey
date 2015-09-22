@@ -6,6 +6,11 @@ TEMPLATE_DEBUG = DEBUG
 LOGGING_OUTPUT_ENABLED = DEBUG
 LOGGING_LOG_SQL = DEBUG
 
+STATICFILES_DIRS = (
+    normpath(join(SITE_ROOT, 'static')),
+)
+
+
 # Output email on the console
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 

@@ -304,6 +304,26 @@ class UserGroupPermissions(LoginRequiredMixin, UserGroupMixin, TemplateView):
     """
     template_name = 'users/usergroup_permissions.html'
 
+    def post(self, request, project_id, group_id):
+        context = self.get_context_data(project_id, group_id)
+        group = context.pop('group', None)
+
+        if group is not None:
+            data = request.POST
+
+            if data['permission'] == 'can_moderate':
+                group.can_moderate = True
+            elif data['permission'] == 'can_contribute':
+                group.can_contribute = True
+            else:
+                group.can_moderate = False
+                group.can_contribute = False
+
+            group.save()
+            context['group'] = group
+
+        return self.render_to_response(context)
+
 
 class UserGroupDelete(LoginRequiredMixin, UserGroupMixin, TemplateView):
     """
