@@ -45,7 +45,7 @@ class Project(models.Model):
     def create(cls, name, description, isprivate, everyone_contributes,
                creator):
         """
-        Creates a new project. Creates two usergroups and adds the creator to
+        Creates a new project and adds the creator to
         the administrators user group.
 
         name : str
