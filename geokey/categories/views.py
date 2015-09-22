@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from braces.views import LoginRequiredMixin
 
 from geokey.projects.models import Project
-from geokey.core.views import ProjectContext
+from geokey.projects.views import ProjectContext
 from geokey.core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )

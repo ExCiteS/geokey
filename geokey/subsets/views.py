@@ -8,7 +8,7 @@ from django.contrib import messages
 from braces.views import LoginRequiredMixin
 
 from geokey.core.decorators import handle_exceptions_for_admin
-from geokey.core.views import ProjectContext
+from geokey.projects.views import ProjectContext
 from geokey.projects.models import Project
 
 from .models import Subset

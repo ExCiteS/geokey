@@ -15,7 +15,7 @@ from rest_framework import status
 
 from geokey.applications.models import Application
 
-from geokey.core.views import ProjectContext
+from geokey.projects.views import ProjectContext
 from geokey.core.decorators import (
     handle_exceptions_for_ajax, handle_exceptions_for_admin
 )
