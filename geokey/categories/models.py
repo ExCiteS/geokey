@@ -219,19 +219,6 @@ class Field(models.Model):
         if self.status == STATUS.active and self.required and (value is None):
             raise InputError('The field %s is required.' % self.name)
 
-    def convert_from_string(self, value):
-        """
-        Converts the given value of an Observation's field from String
-        to the proper data type. By default returns simply the value in
-        String format. Needs to be overridden in order to support other data
-        types.
-
-        Notes
-        -----
-        Deprecated from version 0.6 on.
-        """
-        return value
-
     @property
     def fieldtype(self):
         """
@@ -449,32 +436,6 @@ class NumericField(Field):
                         raise InputError('The value provided for field %s must'
                                          ' be lower than %s.'
                                          % (self.name, self.maxval))
-
-    def convert_from_string(self, value):
-        """
-        Returns the `value` of the field either as float or int.
-
-        Parameters
-        ----------
-        value : str
-            The value to be converted
-
-        Return
-        ------
-        int or float
-            Value of the field
-
-        Notes
-        -----
-        Deprecated from version 0.6 on.
-        """
-        if value is None or len(value) == 0:
-            return None
-
-        try:
-            return int(value)
-        except ValueError:
-            return float(value)
 
     @property
     def type_name(self):
@@ -836,29 +797,6 @@ class LookupField(Field):
             raise InputError('The value for lookup field %s is not an '
                              'accepted value for the field.' % self.name)
 
-    def convert_from_string(self, value):
-        """
-        Returns the `value` of the field int.
-
-        Parameters
-        ----------
-        value : str
-            The value to be converted
-
-        Return
-        ------
-        int
-            Value of the field
-
-        Notes
-        -----
-        Deprecated from version 0.6 on.
-        """
-        if value is None or len(value) == 0:
-            return None
-
-        return int(value)
-
     @property
     def type_name(self):
         """
@@ -950,29 +888,6 @@ class MultipleLookupField(Field):
             raise InputError('One or more values for the multiple select '
                              'field %s is not an accepted value for the '
                              'field.' % self.name)
-
-    def convert_from_string(self, value):
-        """
-        Returns the `value` of the field as List.
-
-        Parameters
-        ----------
-        value : str
-            The value to be converted
-
-        Return
-        ------
-        List
-            List of lookup value IDs
-
-        Notes
-        -----
-        Deprecated from version 0.6 on.
-        """
-        if value is None or len(value) == 0:
-            return None
-
-        return json.loads(value)
 
     @property
     def type_name(self):

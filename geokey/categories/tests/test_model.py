@@ -291,10 +291,6 @@ class TextFieldTest(TestCase):
         textfield = TextFieldFactory.create(**{'required': True})
         textfield.validate_input(None)
 
-    def test_textfield_convert_from_String(self):
-        textfield = TextFieldFactory()
-        self.assertEqual('Bla', textfield.convert_from_string('Bla'))
-
     def test_get_filter(self):
         textfield = TextFieldFactory(**{'key': 'key'})
         self.assertEqual(
@@ -437,15 +433,6 @@ class NumericFieldTest(TestCase):
         })
         numeric_field.validate_input(21)
 
-    def test_numericfield_convert_from_string(self):
-        numeric_field = NumericFieldFactory()
-        self.assertEqual(100, numeric_field.convert_from_string('100'))
-        self.assertEqual(1.2, numeric_field.convert_from_string('1.2'))
-
-    def test_numericfield_convert_from_empty_string(self):
-        numeric_field = NumericFieldFactory()
-        self.assertEqual(None, numeric_field.convert_from_string(''))
-
     def test_get_filter(self):
         numeric_field = NumericFieldFactory(**{'key': 'key'})
         self.assertEqual(
@@ -538,19 +525,6 @@ class SingleLookupFieldTest(TestCase):
             'field': lookup_field
         })
         lookup_field.validate_input('blah')
-
-    def test_lookupfield_convert_from_string(self):
-        lookup_field = LookupFieldFactory()
-        lookup_value = LookupValueFactory(**{
-            'name': 'Ms. Piggy',
-            'field': lookup_field
-        })
-        self.assertEqual(
-            lookup_value.id,
-            lookup_field.convert_from_string(str(lookup_value.id))
-        )
-        self.assertIsNone(lookup_field.convert_from_string(''))
-        self.assertIsNone(lookup_field.convert_from_string(None))
 
     def test_get_filter(self):
         lookup_field = LookupFieldFactory(**{'key': 'key'})
@@ -818,12 +792,6 @@ class MultipleLookupTest(TestCase):
         field = MultipleLookupFieldFactory.create()
         self.assertEqual(field.type_name, 'Multiple select')
         self.assertEqual(field.fieldtype, 'MultipleLookupField')
-
-    def test_convert_from_string(self):
-        field = MultipleLookupFieldFactory.create()
-
-        self.assertEqual(None, field.convert_from_string(''))
-        self.assertEqual([1, 2, 3], field.convert_from_string('[1, 2, 3]'))
 
     def test_validate_required(self):
         field = MultipleLookupFieldFactory.create(**{'required': True})
