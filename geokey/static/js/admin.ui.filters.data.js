@@ -1,3 +1,11 @@
+/* ***********************************************
+ * Functionality to define filters for user groups and subsets.
+ *
+ * Used in:
+ * - templates/subsets/subsets_data.html
+ * - templates/users/usergroups_data.html
+ * ***********************************************/
+
 (function () {
     'use strict';
 
@@ -5,6 +13,10 @@
         projectId = $('body').attr('data-project-id'),
         groupId = $('body').attr('data-group-id');
 
+    /**
+     * Handles changes to general permissions (all data vs. selected data).
+     * Hides the filter settings and empties input[name="filters"]' if users can access all data
+     */
     function handlePermissionChange() {
         $('#filter').toggleClass('hidden');
         if ($(this).val() === 'all') {
@@ -15,11 +27,25 @@
         }
     }
 
+    /**
+     * Returns the value for a standard field, i.e. text, selects
+     * @return {Object} undefined, if field is empty
+     */
     function getValue(field) {
         var value = field.find('#reference-value').val();
         return (value && value.length > 0 ? value : undefined);
     }
 
+    /**
+     * Returns the value for a range field, i.e. numbers, dates.
+     * Returned object:
+     * {
+     *    minval: 1,
+     *    maxval: 10
+     * }
+     *
+     * @return {Object} undefined, if field is empty
+     */
     function getRangeValue(field) {
         var key = field.attr('data-key');
         var value = {};
@@ -32,18 +58,25 @@
         return (value.minval || value.maxval ? value : undefined);
     }
 
+    /**
+     * Is called after any field has been edited. Collects values of all fields
+     * and updates input[name="filters"]
+     */
     function handleEdit() {
         filters = {}
         var categories = $('div.category');
+
+        // Iterate over all categories
         for (var catIterator = 0, len = categories.length; catIterator < len; catIterator++) {
             var category = $(categories[catIterator]);
             var catId = category.find('input.cat').val();
 
-            if (category.find('input.cat').prop( "checked" )) {
+            if (category.find('input.cat').prop( "checked" )) { // include only categories that are activated
                 filters[catId] = {};
 
                 var filterFields = category.find('div.field-filter');
 
+                // iterate over all field filters per category and get the value for the field
                 for (var i = 0; i < filterFields.length; i++) {
                     var field = $(filterFields[i]);
 
@@ -72,9 +105,17 @@
             }
         }
 
+        // set the value of input[name="filters"] to the stringified version of filters
+        // the value of input[name="filters"] is evaluated on server side and stored accordingly
         $('input[name="filters"]').val(JSON.stringify(filters));
     }
 
+    /**
+     * Is called after range fields (e.g. numbers, dates) and updated. It updates
+     * the minimum or maximum value of the corresponding field, for better form
+     * field validation. That means of you update the minimum value of a numeric
+     * field the min attribute of the maximum value field is updated.
+     */
     function handleRangeFieldEdit(event) {
         var target = $(event.target),
             container = target.parents('.field-filter');
@@ -86,6 +127,9 @@
         }
     }
 
+    /**
+     * Is called when the selects or unselects a category.
+     */
     function handleCategorySelect() {
         if ($(this).prop( "checked" )) {
             var detailLink = $('<a href="#" class="text-danger activate-detailed">Restrict further</a>');
@@ -98,12 +142,17 @@
         handleEdit();
     }
 
+    /**
+     * Adds form fields to add a new filter for a category.
+     */
     function addFilter(container, category) {
         container.find('a.activate-detailed').remove();
 
+        // Adds select field for a fields in the category
         var fieldselect = $(Templates.fieldselect(category));
         container.find('.list-group').append(fieldselect);
 
+        // user selects a field, form fields to define the filter for the field is added
         fieldselect.find('select').change(function () {
             fieldselect.remove();
 
@@ -136,6 +185,9 @@
         });
     }
 
+    /**
+     * Removes a filter from a category
+     */
     function removeFilter(event) {
         event.preventDefault();
 
@@ -143,7 +195,10 @@
             field_options = $(this).parents('div.field-filter');
 
         if (field_options.siblings().length === 0) {
+            // Remove all field filter forms
             container.find('.field-options').remove();
+
+            // Add the "Restrict further link"
             var detailLink = $('<a href="#" class="text-danger activate-detailed">Restrict further</a>');
             container.children('label').append(detailLink);
             detailLink.click(handleActivateDetailed);
@@ -153,6 +208,9 @@
         handleEdit();
     }
 
+    /**
+     * Is called when the user clicks "Add another filter". Adds a new field filter.
+     */
     function handleAddMore(event) {
         event.preventDefault();
         var container = $(this).parents('.category');
@@ -167,6 +225,9 @@
         );
     }
 
+    /**
+     * Is called when the user clicks "Restrict further".
+     */
     function handleActivateDetailed(event) {
         event.preventDefault();
         var container = $(this).parent().parent();
@@ -190,16 +251,30 @@
         );
     }
 
+    // handle when the general permissions (all data vs. selected data) are changed
     $('form#data-access input[name="permission"]').change(handlePermissionChange);
+
+    // user selects a category to be included in the filter
     $('div.category input.cat').change(handleCategorySelect);
+
+    // users clicks "Restrict further" to select filters for attribute values
     $('a.activate-detailed').click(handleActivateDetailed);
+
+    // user wants to add another filter
     $('button#add-more').click(handleAddMore);
 
+    // activate datetime picker for date/time fields
     $('input.datetime').datetimepicker();
     $('input.date').datetimepicker({ pickTime: false });
     $('input.time').datetimepicker({ pickDate: false });
+
+    // registers eventhandle on value change for numbers and dates
+    // handleRangeFieldEdit sets min/max values of corresponding fields for validation
     $('input[type="number"], input.datetime, input.date').change(handleRangeFieldEdit);
+
+    // handle value change in any form field to update the filter string that is sent to the server
     $('#filter :input').change(handleEdit);
 
+    // user removes a filter
     $('button.remove').click(removeFilter);
 }());

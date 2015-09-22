@@ -1,8 +1,10 @@
 /* ***********************************************
- * Mangages the members of user groups.
+ * Adds and removes members to and from user grouos.
  *
- * @author Oliver Roick (http://github.com/oliverroick)
- * @version 0.1
+ * Used in:
+ * - templates/users/usergroup_users.html
+ * - templates/users/usergroup_admins.html
+ * - templates/superusertools/manage_users.html
  * ***********************************************/
 
 (function (global) {
@@ -138,7 +140,7 @@
     }
 
     /**
-     * Handles the reponse the the request for the user list failed.
+     * Handles the response the the request for the user list failed.
      */
     function handleError() {
         numberOfRequests--;
@@ -157,34 +159,45 @@
     function handleFormType(event) {
         var activeLink = typeAwayResults.find('li.active');
         if (event.keyCode === 13) {
+            // if user pressed ENTER, programmatically clicks the currently
+            // active link in the list of users that match the query
             if (activeLink.length > 0) {
                 activeLink.children().click();
             }
         }
         else if ((event.keyCode === 40 || event.keyCode === 38) && typeAwayResults.is(":visible")) {
+            // if user pressed arrow up (keycode == 38) or arrow down (keycode == 40)
+            // programmatically activates the previous or next link in the list
+            // of users that match the query
             event.preventDefault();
             if (activeLink.length > 0) {
-                if (event.keyCode === 38) {
-                    // move up
+                if (event.keyCode === 38) { // user pressed arrow up
+                    // activates the previous link in the list
+                    // of users that match the query
                     if (activeLink.prev().not('.dropdown-header').length) {
                         activeLink.removeClass('active');
                         activeLink.prev().addClass('active');
                     }
                 }
-                if (event.keyCode === 40) {
-                    // move down
+                if (event.keyCode === 40) { // user pressed arrow down
+                    // activates the next link in the list
+                    // of users that match the query
                     if (activeLink.next().length) {
                         activeLink.removeClass('active');
                         activeLink.next().addClass('active');
                     }
                 }
             } else {
+                // if now link in the list of users that match the query was active
+                // activate the first item in the list
                 typeAwayResults.find('li').not('.dropdown-header').first().addClass('active');
             }
-        } else {
+        } else { // all other key strokes
             if (event.target.value.length === 1) {
+                // hide the list of users
                 typeAwayResults.hide();
             } else if (event.target.value.length >= 2) {
+                // get users that match the query
                 formField.addClass('loading');
                 numberOfRequests++;
                 Control.Ajax.get('users/?query=' + event.target.value, handleSuccess, handleError);

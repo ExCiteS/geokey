@@ -2,8 +2,8 @@
  * Module to add and remove values from lookup fields.
  * Needs to be instancieted using new Ui.LookupPanel()
  *
- * @author Oliver Roick (http://github.com/oliverroick)
- * @version 0.1
+ * Used in:
+ * - templates/categories/field_settings.html
  * ***********************************************/
 
 (function (global) {
@@ -21,6 +21,7 @@
         this.formField = this.panel.find('input[name="new-value"]');
         this.addButton = this.panel.find('.panel-footer button');
 
+        // register event handlers
         this.addButton.click(this.handleAddValue.bind(this));
         this.lookuplist.find('button.edit-lookup').click(this.toggleEditForm.bind(this));
         this.lookuplist.find('button.save-edit').click(this.handleEditValue.bind(this));
@@ -29,30 +30,64 @@
         this.lookuplist.find('input[name="value"]').keyup(this.handleEditType.bind(this));
     }
 
+    /**
+     * Is called after every key stroke in input[name="new-value"]. It checks,
+     * whether the ENTER key was pressed and programmatically clicks the add
+     * button to save the value.
+     * @param {Object} event keyup event
+     */
     LookupPanel.prototype.handleFormType = function handleFormType(event) {
         if (event.keyCode === 13) {
             this.addButton.click();
         }
     };
 
+    /**
+     * Is called after every key stroke in input[name="value"], when a user
+     * updates the name of an exisiting field. It checks, whether the ENTER
+     * key was pressed and programmatically clicks the add button to save the
+     * value.
+     * @param {Object} event keyup event
+     */
     LookupPanel.prototype.handleEditType = function handleEditType(event) {
         if (event.keyCode === 13) {
             $(event.target).parents('.list-group-item').find('button.save-edit').click();
         }
     };
 
+    /**
+     * Displays an status message after a lookup has been added, updated or
+     * removed.
+     * @param {String} msg The message to be displayed, in plain English.
+     * @param {String} type Either success or danger, indicates the message type (success or error)
+     * @param {String} glyphicon an icon class to prepended to the message (See: http://getbootstrap.com/components/#glyphicons)
+     */
     LookupPanel.prototype.displayMessage = function displayMessage(msg, type, glyphicon) {
         var target = this.panel.find('.panel-heading');
         var html = $('<div class="panel-body message bg-' + type + ' text-' + type + '"><span class="glyphicon glyphicon-' + glyphicon + '"></span> ' + msg + '</div>');
+
+        // remove exisiting messages
         target.siblings('.message').remove();
+
+        // add the message
         target.after(html);
+
+        // automatically remove the message after 5 sec
         setTimeout(function () { html.remove(); }, 5000);
     };
 
+    /**
+     * Displays a success message.
+     * @param {String} msg The message to be displayed, in plain English.
+     */
     LookupPanel.prototype.displaySuccess = function displaySuccess(msg) {
         this.displayMessage(msg, 'success', 'ok');
     };
 
+    /**
+     * Displays a error message.
+     * @param {String} msg The message to be displayed, in plain English.
+     */
     LookupPanel.prototype.displayError = function displayError(msg) {
         this.displayMessage(msg, 'danger', 'remove');
     };
@@ -152,6 +187,7 @@
             this.lookuplist.empty();
             this.lookuplist.append(Templates.lookupvalues(response));
 
+            // register event handlers
             this.lookuplist.find('button.edit-lookup').click(this.toggleEditForm.bind(this));
             this.lookuplist.find('button.save-edit').click(this.handleEditValue.bind(this));
             this.lookuplist.find('button.delete-lookup').click(this.handleRemoveValue.bind(this));

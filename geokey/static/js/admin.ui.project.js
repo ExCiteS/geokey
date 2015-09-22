@@ -1,3 +1,12 @@
+/* ***********************************************
+ * Changes the display of radio buttons for contributing permissions on a
+ * project. Based on changes of input[name="isprivate"]'), specific radio buttons
+ * are shown or hidden.
+ *
+ * Used in:
+ * - templates/projects/project_create.html
+ * ***********************************************/
+
 $(function() {
     'use strict';
 

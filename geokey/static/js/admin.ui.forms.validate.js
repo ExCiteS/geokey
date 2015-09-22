@@ -21,6 +21,10 @@ $(function() {
         field.parent().append('<span class="help-block">' + message  + '</span>');
     }
 
+    /**
+     * Parse a time stamp string and returns a date object
+     * @param  {String} dateString time stamp that is parsed
+     */
     function parseDate(dateString) {
         dateString = dateString.replace(' ', 'T');
 
@@ -32,6 +36,12 @@ $(function() {
         return Date.parse(dateString);
     }
 
+    /**
+     * Validates date time fields and displays error hint if values are not
+     * valid.
+     * @param  {Object} Form that is validated
+     * @return {Boolean} True if all dates are valid
+     */
     function dateTimeValid(form) {
         var valid = true;
         var dateTimeFields = $(form).find('input.datetime, input.date');
@@ -47,11 +57,11 @@ $(function() {
 
             var val = parseDate(field.val().replace(' ', 'T'));
 
-            if (field.val().length && !val) {
+            if (field.val().length && !val) { // the entered value is not a date
                 valid = false;
                 field.parents('.form-group').addClass('has-error');
                 showHelp(field, 'The date entered could not be validated. Please check the entry.');
-            } else {
+            } else { // for date ranges, check if val > min and val < max
                 if (!(min && val ? (val > min): true)) {
                     valid = false;
                     field.parents('.form-group').addClass('has-error');
@@ -68,6 +78,12 @@ $(function() {
         return valid;
     }
 
+    /**
+     * Validates email fields and displays error hint if values are not
+     * valid.
+     * @param  {Object} Form that is validated
+     * @return {Boolean} True if all dates are valid
+     */
     function emailsValid(form) {
         var valid = true;
 
@@ -84,6 +100,12 @@ $(function() {
         return valid;
     }
 
+    /**
+     * Validates URL fields and displays error hint if values are not
+     * valid.
+     * @param  {Object} Form that is validated
+     * @return {Boolean} True if all dates are valid
+     */
     function urlsValid(form) {
         var valid = true;
         var urlFields = $(form).find('input[type="url"]');
@@ -104,6 +126,12 @@ $(function() {
         return valid;
     }
 
+    /**
+     * Validates password fields and displays error hint if values are not
+     * valid. Checks if both provided passwords are equal.
+     * @param  {Object} Form that is validated
+     * @return {Boolean} True if passwords are equal
+     */
 	function passwordsValid(form) {
 		var valid = true;
 		var password1 = $('input#password1');
@@ -127,6 +155,11 @@ $(function() {
 		return valid;
 	}
 
+    /**
+     * Validates emails, dates, URLs and passwords
+     * @param  {Object} Form that is validated
+     * @return {Boolean} True if all are valid
+     */
 	function allValid(form) {
 		return emailsValid(form) && dateTimeValid(form) && urlsValid(form) && passwordsValid(form);
 	}
@@ -154,7 +187,9 @@ $(function() {
 			var validFields = $(formSubmitted).find(':valid');
 			var invalidFields = $(formSubmitted).find(':invalid');
 
-			// Iterate through all invlaid fields and display an error message
+			// Iterate through all invalid fields and display an error message.
+            // It heavily uses HTML5 contraint validation of form fields:
+            // https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5/Constraint_validation
 			for (var i = 0, len = invalidFields.length; i < len; i++) {
 				var field = $(invalidFields[i]);
 				var validity = invalidFields[i].validity;

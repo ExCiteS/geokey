@@ -1,9 +1,19 @@
 /* ***********************************************
- * Module to send asychronous requests to the backend.
- * Singleton, does not net to instancated. Simply call for instance Control.Ajax.get()
+ * This module is a wrapper aroung jQuery's $.ajax method. It simplifies sending
+ * asychronous requests to the AJAX API.
+ * To use it call: Control.Ajax.get(), Control.Ajax.put(), etc.
  *
- * @author Oliver Roick (http://github.com/oliverroick)
- * @version 0.1
+ * Used in:
+ * - templates/categories/category_list.html
+ * - templates/categories/category_overview.html
+ * - templates/categories/category_settings.html
+ * - templates/categories/field_settings.html
+ * - templates/projects/project_settings.html
+ * - templates/subsets/subset_data.html
+ * - templates/superusertools/manageusers.html
+ * - templates/users/usergroup_admins.html
+ * - templates/users/usergroup_data.html
+ * - templates/users/usergroup_overview.html
  * ***********************************************/
 
 (function (global) {

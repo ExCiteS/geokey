@@ -1,10 +1,11 @@
 /* ***********************************************
- * Connects the user inferface for updating teh settings of a project with the AJAX backend.
- * Sends requests using admin.control.ajax and handles the responses by update the interface
- * accordingly.
+ * Updates the settings of projects, categories and fields.
+ * Updates private/public and active/inactive.
  *
- * @author Oliver Roick (http://github.com/oliverroick)
- * @version 0.1
+ * Used in:
+ * - templates/projects/project_settings.html
+ * - templates/categories/category_settings.html
+ * - templates/categories/field_settings.html
  * ***********************************************/
 
 $(function (global) {
@@ -18,9 +19,6 @@ $(function (global) {
         var projectId = $('body').attr('data-project-id');
         var categoryId = $('body').attr('data-category-id');
         var fieldId = $('body').attr('data-field-id');
-        var groupingId = $('body').attr('data-grouping-id');
-        var groupId = $('body').attr('data-group-id');
-        var appId = $('body').attr('data-app-id');
 
         /*
         The url to send the requests to update the object
@@ -45,18 +43,6 @@ $(function (global) {
         if (projectId && categoryId && fieldId) {
             url += '/fields/' + fieldId;
             name = 'field';
-        }
-        if (projectId && groupingId) {
-            url += '/views/' + groupingId;
-            name = 'map';
-        }
-        if (projectId && groupId) {
-            url += '/usergroups/' + groupId;
-            name = 'user group';
-        }
-        if (appId) {
-            url = 'apps/' + appId;
-            name = 'application';
         }
     }
 
@@ -157,6 +143,8 @@ $(function (global) {
         Control.Ajax.put(url, handleSuccess, handleError, {'isprivate': isPrivate});
     }
 
+    // register event handlers, the buttons can be found and the corresponding
+    // modals
     $('#make-inactive-confirm button[name="confirm"]').click(updateActive);
     $('#make-active-confirm button[name="confirm"]').click(updateActive);
     $('#make-public-confirm button[name="confirm"]').click(updatePrivate);

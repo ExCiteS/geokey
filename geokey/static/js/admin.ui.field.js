@@ -1,10 +1,11 @@
 /* ***********************************************
  * Module to edit field properties. Is currently only responsible
- * for setting minimim and maximum values of numeric fields.
+ * for setting minimum and maximum values of numeric fields and initialising
+ * lookup field edits.
  * Is automatically loaded when included in a page.
- *
- * @author Oliver Roick (http://github.com/oliverroick)
- * @version 0.1
+
+ * Used in:
+ * - templates/categories/field_settings.html
  * ***********************************************/
 
 $(function() {
@@ -16,14 +17,19 @@ $(function() {
         url = 'projects/' + projectId + '/categories/' + categoryId + '/fields/' + fieldId;
 
     // Initialize the lookup panel functionality if the field is a lookup
+    // (see admin.ui.field.lookup.js)
     var lookupPanel = ($('#lookupValuesPanel').length !== 0 ? new Ui.LookupPanel('#lookupValuesPanel', url) : undefined);
 
+    // Set the min and maximum values for numeric fields, so they can be
+    // validated
     function handleNumericFieldEdit(event) {
         var target = $(event.target);
 
         if (target.attr('id') === 'minval') {
+            // set the current minval as minimum value for maxval field
             $('form input#maxval').attr('min', target.val());
         } else if (target.attr('id') === 'maxval') {
+            // set the current maxval as minimum value for minval field
             $('form input#minval').attr('max', target.val());
         }
     }
