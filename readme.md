@@ -54,7 +54,7 @@ GeoKey is a platform for participatory mapping that is currently developed at [E
     ```
 
 
-Setting up GeoKey
+#### Setting up GeoKey
 
 1. Clone the repository (you should use your own fork)
 
