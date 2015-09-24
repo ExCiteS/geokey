@@ -100,11 +100,12 @@ GeoKey is a platform for participatory mapping that is currently developed at [E
     git clone https://github.com/ExCiteS/geokey.git
     ```
 
-2. Install the package
+2. Install the package and development requirements
 
     ```
     cd geokey
     pip install -e .
+    pip install -r requirements-dev.txt
     ```
 
 3. Copy the directory `local_settings.example` to `local_settings`
