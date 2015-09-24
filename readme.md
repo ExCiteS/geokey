@@ -34,23 +34,61 @@ GeoKey is a platform for participatory mapping that is currently developed at [E
 
 #### Setup the database
 
-1. Create the user
+1. For simplicity, switch to user postgres:
+
+    ```
+    sudo su - postgres
+    ```
+
+2. Install postgis in template1 (only required for running tests):
+
+    ```
+    psql -d template1 -c 'create extension hstore;'
+    ```
+
+3. Log in to the database
+
+    ```
+    psql
+    ```
+
+4. Create the user
 
     ```
     postgres=# CREATE USER django WITH PASSWORD 'django123';
     ```
 
-2. Create the database
+5. Make _django_ super user on your data base (this is required for tests only and shouldn't be done in production):
+
+    ```
+    ALTER ROLE django WITH superuser;
+    ```
+
+6. Create the database
 
     ```
     postgres=# CREATE DATABASE geokey OWNER django;
     ```
+    
+7. Log out and connect to database geokey:
 
-3. Install the extensions on database geokey
+    ```
+    postgres=# \q
+    $ psql -d geokey
+    ```
+
+8. Install the extensions on database geokey
 
     ```
     geokey=# CREATE EXTENSION postgis;
     geokey=# CREATE EXTENSION hstore;
+    ```
+    
+9. Logout of database geokey and logout user postgres
+
+    ```
+    geokey=# \q
+    $ logout
     ```
 
 
