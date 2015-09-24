@@ -61,7 +61,7 @@ GeoKey is a platform for participatory mapping that is currently developed at [E
 5. Make _django_ super user on your data base (this is required for tests only and shouldn't be done in production):
 
     ```
-    ALTER ROLE django WITH superuser;
+    postgres=# ALTER ROLE django WITH superuser;
     ```
 
 6. Create the database
