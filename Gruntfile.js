@@ -36,6 +36,14 @@ module.exports = function(grunt) {
             }
         },
 
+        uglify: {
+            handlebars: {
+                src: ['geokey/static/js/templates.js'],
+                // the location of the resulting JS file
+                dest: 'geokey/static/js/templates.js'
+            }
+        },
+
         watch: {
             options: {
                 livereload: true,
@@ -63,7 +71,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-handlebars');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
 
     // 4. Where we tell Grunt what to do when we type "grunt" into the terminal.
-    grunt.registerTask('default', ['handlebars', 'concat', 'watch']);
+    grunt.registerTask('default', ['handlebars', 'concat', 'uglify', 'watch']);
 };
