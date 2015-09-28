@@ -181,7 +181,10 @@ urlpatterns = patterns(
     url(r'^superuser-tools/projects/$',
         superuser.ProjectsList.as_view(),
         name="superuser_projects"),
-    url(r'^superuser-tools/manage-users/$',
+    url(r'^superuser-tools/manage-superusers/$',
         superuser.ManageSuperUsers.as_view(),
         name="superuser_manage_users"),
+    url(r'^superuser-tools/manage-inactive-users/$',
+        superuser.ManageInactiveUsers.as_view(),
+        name="superuser_manage_inactiveusers"),
 )

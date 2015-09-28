@@ -1,11 +1,14 @@
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AnonymousUser
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpRequest, QueryDict
 from django.contrib.sites.models import Site
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
+from geokey import version
 from geokey.users.tests.model_factories import UserF
 from geokey.users.models import User
 from geokey.projects.tests.model_factories import ProjectF
@@ -14,6 +17,7 @@ from ..views import (
     PlatformSettings,
     ProjectsList,
     ManageSuperUsers,
+    ManageInactiveUsers,
     AddSuperUsersAjaxView,
     DeleteSuperUsersAjaxView
 )
@@ -187,6 +191,124 @@ class ManageSuperUsersTest(TestCase):
         request.user = AnonymousUser()
         response = view(request)
         self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+
+class ManageInactiveUsersTest(TestCase):
+    def setUp(self):
+        self.view = ManageInactiveUsers.as_view()
+        self.request = HttpRequest()
+        self.request.method = 'GET'
+        self.request.user = AnonymousUser()
+
+    def create_inactive(self):
+        self.inactive_1 = UserF.create(**{'is_active': False})
+        self.inactive_2 = UserF.create(**{'is_active': False})
+        self.inactive_3 = UserF.create(**{'is_active': False})
+
+    def test_get_with_anonymous(self):
+        response = self.view(self.request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/account/login/', response['location'])
+
+    def test_post_with_anonymous(self):
+        self.create_inactive()
+        self.request.POST = QueryDict(
+            'activate_users=%s&activate_users=%s' % (
+                self.inactive_1.id, self.inactive_2.id))
+        self.request.method = 'POST'
+        response = self.view(self.request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/account/login/', response['location'])
+        self.assertEqual(User.objects.filter(is_active=False).count(), 3)
+
+    def test_get_with_user(self):
+        user = UserF.create()
+        self.request.user = user
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            'superusertools/manage_inactiveusers.html',
+            {
+                'error_description': 'Superuser tools are for superusers only.'
+                                     ' You are not a superuser.',
+                'error': 'Permission denied.',
+                'user': user,
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+    def test_post_with_user(self):
+        user = UserF.create()
+        self.create_inactive()
+        self.request.POST = QueryDict(
+            'activate_users=%s&activate_users=%s' % (
+                self.inactive_1.id, self.inactive_2.id))
+        self.request.method = 'POST'
+        self.request.user = user
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            'superusertools/manage_inactiveusers.html',
+            {
+                'error_description': 'Superuser tools are for superusers only.'
+                                     ' You are not a superuser.',
+                'error': 'Permission denied.',
+                'user': user,
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+        self.assertEqual(User.objects.filter(is_active=False).count(), 3)
+
+    def test_get_with_superuser(self):
+        user = UserF.create(**{'is_superuser': True})
+        inactive_users = UserF.create_batch(3, **{'is_active': False})
+
+        self.request.user = user
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            'superusertools/manage_inactiveusers.html',
+            {
+                'inactive_users': inactive_users,
+                'user': user,
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+    def test_post_with_superuser(self):
+        user = UserF.create(**{'is_superuser': True})
+        self.create_inactive()
+        self.request.POST = QueryDict(
+            'activate_users=%s&activate_users=%s' % (
+                self.inactive_1.id, self.inactive_2.id))
+        self.request.method = 'POST'
+        self.request.user = user
+
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            'superusertools/manage_inactiveusers.html',
+            {
+                'inactive_users': [self.inactive_3],
+                'user': user,
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+        self.assertEqual(User.objects.filter(is_active=False).count(), 1)
 
 
 class AddSuperUsersAjaxViewTest(TestCase):

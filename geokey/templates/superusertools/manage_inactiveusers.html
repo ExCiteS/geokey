@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %} | Superuser tools{% endblock %}
+
+{% block main %}
+<div class="page-header">
+    <div class="container">
+        <h1>Superuser tools</h1>
+
+        <ul class="nav nav-tabs header-nav">
+            <li role="presentation"><a href="{% url 'admin:superuser_index' %}">Platform settings</a></li>
+            <li role="presentation" class="active"><a href="{% url 'admin:superuser_manage_users' %}">Manage super users</a></li>
+            <li role="presentation"><a href="{% url 'admin:superuser_projects' %}">Manage all projects</a></li>
+        </ul>
+    </div>
+</div>
+
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+    <div class="row">
+        <form class="col-sm-8 col-sm-offset-2"  method="POST" action="{% url 'admin:superuser_manage_inactiveusers' %}">
+            {% csrf_token %}
+            <h3 class="header">Manage inactive users</h3>
+            <p>Select users you want to activate.</p>
+            <table class="table table-striped">
+                <tbody>
+                    {% for user in inactive_users %}
+                    <tr>
+                        <td><input type="checkbox" name="activate_users" value="{{ user.id }}"></td>
+                        <td>{{ user.display_name }}</td>
+                    </td>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2">No iactive users were found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-primary">Activate selected</button>
+
+        </form>
+    </div>
+</div>
+{% endblock %}
