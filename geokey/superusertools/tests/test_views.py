@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect, HttpRequest, QueryDict
 from django.contrib.sites.models import Site
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.messages import get_messages
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
@@ -200,6 +201,11 @@ class ManageInactiveUsersTest(TestCase):
         self.request.method = 'GET'
         self.request.user = AnonymousUser()
 
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        setattr(self.request, 'session', 'session')
+        messages = FallbackStorage(self.request)
+        setattr(self.request, '_messages', messages)
+
     def create_inactive(self):
         self.inactive_1 = UserF.create(**{'is_active': False})
         self.inactive_2 = UserF.create(**{'is_active': False})
@@ -303,7 +309,8 @@ class ManageInactiveUsersTest(TestCase):
                 'inactive_users': [self.inactive_3],
                 'user': user,
                 'PLATFORM_NAME': get_current_site(self.request).name,
-                'GEOKEY_VERSION': version.get_version()
+                'GEOKEY_VERSION': version.get_version(),
+                'messages': get_messages(self.request)
             }
         )
         self.assertEqual(response.status_code, 200)
