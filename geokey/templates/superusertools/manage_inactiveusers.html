@@ -23,7 +23,8 @@
         <form class="col-sm-8 col-sm-offset-2"  method="POST" action="{% url 'admin:superuser_manage_inactiveusers' %}">
             {% csrf_token %}
             <h3 class="header">Manage inactive users</h3>
-            <p>Select users you want to activate.</p>
+            {% if inactive_users|length %}<p>Select users you want to activate:</p>{% endif %}
+
             <table class="table table-striped">
                 <tbody>
                     {% for user in inactive_users %}
@@ -38,7 +39,7 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <button type="submit" class="btn btn-primary">Activate selected</button>
+            {% if inactive_users|length %}<button type="submit" class="btn btn-primary">Activate selected</button>{% endif %}
 
         </form>
     </div>
