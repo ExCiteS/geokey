@@ -1,4 +1,5 @@
 from django.core.exceptions import PermissionDenied
+from django.views.decorators.gzip import gzip_page
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -15,12 +16,23 @@ from .base import SingleAllContribution
 from ..serializers import ContributionSerializer
 
 
+class GZipView(object):
+    def dispatch(self, request, *args, **kwargs):
+        if not hasattr(self, 'META'):
+            setattr(self, 'META', {})
+
+        if request.META.get('HTTP_ACCEPT_ENCODING'):
+            self.META['HTTP_ACCEPT_ENCODING'] = request.META['HTTP_ACCEPT_ENCODING']
+
+        return super(GZipView, self).dispatch(request, *args, **kwargs)
+
+
 class GeoJsonView(APIView):
     renderer_classes = (GeoJsonRenderer,)
     parser_classes = (GeoJsonParser,)
 
 
-class ProjectObservations(GeoJsonView):
+class ProjectObservations(GZipView, GeoJsonView):
     """
     Public API endpoint to add new contributions to a project
     /api/projects/:project_id/contributions
@@ -61,6 +73,7 @@ class ProjectObservations(GeoJsonView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    @gzip_page
     @handle_exceptions_for_ajax
     def get(self, request, project_id):
         """
