@@ -369,29 +369,21 @@ class ProjectAdmins(APIView):
             message.
         """
         project = Project.objects.as_admin(request.user, project_id)
-        user_id = request.data.get('userId')
-
-        try:
-            user = User.objects.get(pk=user_id)
-        except User.DoesNotExist:
-            return Response(
-                'The user you are trying to add to the user group does ' +
-                'not exist',
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        user = User.objects.get(pk=request.data.get('userId'))
 
         try:
             Admins.objects.create(project=project, user=user)
         except IntegrityError:
             return Response(
-                'The user you are trying to add to the user group already ' +
-                'exists',
+                'The user is already an administrator of this project.',
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         serializer = UserSerializer(project.admins.all(), many=True)
         return Response(
-            {'users': serializer.data}, status=status.HTTP_201_CREATED)
+            {'users': serializer.data},
+            status=status.HTTP_201_CREATED
+        )
 
 
 class ProjectAdminsUser(APIView):
