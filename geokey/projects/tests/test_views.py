@@ -14,7 +14,7 @@ from geokey.categories.tests.model_factories import (
 from geokey.users.tests.model_factories import UserF
 
 from .model_factories import ProjectF
-from ..models import Project
+from ..models import Project, Admins
 from ..views import (
     ProjectCreate, ProjectSettings, ProjectUpdate, ProjectAdmins,
     ProjectAdminsUser, Projects, SingleProject, ProjectOverview, ProjectExtend,
@@ -567,6 +567,21 @@ class ProjectAdminsTest(TestCase):
         request = self.factory.post(
             '/ajax/projects/%s/admins/' % (self.project.id) + '/',
             {'userId': 468476351545643131}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectAdmins.as_view()
+        response = view(
+            request,
+            project_id=self.project.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_add_when_user_alread_admin(self):
+        Admins.objects.create(project=self.project, user=self.user_to_add)
+        request = self.factory.post(
+            '/ajax/projects/%s/admins/' % (self.project.id) + '/',
+            {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
         view = ProjectAdmins.as_view()

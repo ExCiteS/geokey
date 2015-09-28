@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.views.generic import CreateView, TemplateView
 from django.shortcuts import redirect
 from django.core.exceptions import PermissionDenied
@@ -379,7 +380,14 @@ class ProjectAdmins(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        Admins.objects.create(project=project, user=user)
+        try:
+            Admins.objects.create(project=project, user=user)
+        except IntegrityError:
+            return Response(
+                'The user you are trying to add to the user group already ' +
+                'exists',
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         serializer = UserSerializer(project.admins.all(), many=True)
         return Response(
