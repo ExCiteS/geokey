@@ -16,31 +16,45 @@
     </div>
 </div>
 
-
 <div class="container">
     {% include 'snippets/messages.html' %}
+
     <div class="row">
-        <form class="col-sm-8 col-sm-offset-2"  method="POST" action="{% url 'admin:superuser_manage_inactiveusers' %}">
+        <form class="col-sm-8 col-sm-offset-2" method="POST" action="{% url 'admin:superuser_manage_inactiveusers' %}">
             {% csrf_token %}
             <h3 class="header">Manage inactive users</h3>
-            {% if inactive_users|length %}<p>Select users you want to activate:</p>{% endif %}
 
-            <table class="table table-striped">
-                <tbody>
-                    {% for user in inactive_users %}
-                    <tr>
-                        <td><input type="checkbox" name="activate_users" value="{{ user.id }}"></td>
-                        <td>{{ user.display_name }}</td>
-                    </td>
-                    {% empty %}
-                    <tr>
-                        <td colspan="2">No inactive users were found.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% if inactive_users|length %}<button type="submit" class="btn btn-primary">Activate selected</button>{% endif %}
+            {% if inactive_users|length %}
+                <p>Select users you would like to activate:</p>
 
+                <div class="form-group">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Display name</th>
+                                <th>Email address</th>
+                                <th>Date joined</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for user in inactive_users %}
+                            <tr>
+                                <td class="text-center"><input type="checkbox" name="activate_users" value="{{ user.id }}"></td>
+                                <td>{{ user.display_name }}</td>
+                                <td>{{ user.email|urlize }}</td>
+                                <td>{{ user.date_joined|date:'d F, Y' }}</td>
+                            </td>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Activate selected</button>
+            {% else %}
+                <p>No inactive users were found.</p>
+            {% endif %}
         </form>
     </div>
 </div>
