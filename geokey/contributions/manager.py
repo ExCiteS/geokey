@@ -181,16 +181,19 @@ class ObservationQuerySet(models.query.QuerySet):
         django.db.models.Queryset
             List of search results matching the query
         """
-        cleaned = re.sub(r'[\W_]+', ' ', query)
-        terms = cleaned.lower().split()
+        if query:
+            cleaned = re.sub(r'[\W_]+', ' ', query)
+            terms = cleaned.lower().split()
 
-        queries = []
-        for term in terms:
-            term = '%%' + term + '%%'
-            q = "(search_index LIKE '%s')" % term
-            queries.append(q)
+            queries = []
+            for term in terms:
+                term = '%%' + term + '%%'
+                q = "(search_index LIKE '%s')" % term
+                queries.append(q)
 
-        return self.extra(where=[' OR '.join(queries)])
+            return self.extra(where=[' OR '.join(queries)])
+
+        return self
 
 
 class ObservationManager(models.Manager):
