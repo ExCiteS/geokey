@@ -68,6 +68,10 @@ class TestSearch(TestCase):
         result = Observation.objects.all().search('')
         self.assertEqual(len(result), 10)
 
+    def test_period(self):
+        result = Observation.objects.all().search('.')
+        self.assertEqual(len(result), 10)
+
     def test_bl(self):
         result = Observation.objects.all().search('bl')
         self.assertEqual(len(result), 10)

@@ -185,13 +185,14 @@ class ObservationQuerySet(models.query.QuerySet):
             cleaned = re.sub(r'[\W_]+', ' ', query)
             terms = cleaned.lower().split()
 
-            queries = []
-            for term in terms:
-                term = '%%' + term + '%%'
-                q = "(search_index LIKE '%s')" % term
-                queries.append(q)
+            if terms:
+                queries = []
+                for term in terms:
+                    term = '%%' + term + '%%'
+                    q = "(search_index LIKE '%s')" % term
+                    queries.append(q)
 
-            return self.extra(where=[' OR '.join(queries)])
+                return self.extra(where=[' OR '.join(queries)])
 
         return self
 
