@@ -14,7 +14,7 @@ from geokey.categories.tests.model_factories import (
 from geokey.users.tests.model_factories import UserF
 
 from .model_factories import ProjectF
-from ..models import Project
+from ..models import Project, Admins
 from ..views import (
     ProjectCreate, ProjectSettings, ProjectUpdate, ProjectAdmins,
     ProjectAdminsUser, Projects, SingleProject, ProjectOverview, ProjectExtend,
@@ -563,10 +563,41 @@ class ProjectAdminsTest(TestCase):
             add_contributors=[self.contributor]
         )
 
-    def test_add_not_existing_user(self):
+    def test_add_when_project_does_not_exist(self):
+        project_id = 156564541545445421
         request = self.factory.post(
-            '/ajax/projects/%s/admins/' % (self.project.id) + '/',
-            {'userId': 468476351545643131}
+            '/ajax/projects/%s/admins/' % project_id,
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectAdmins.as_view()
+        response = view(
+            request,
+            project_id=project_id
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_add_when_user_does_not_exist(self):
+        user_id = 468476351545643131
+        request = self.factory.post(
+            '/ajax/projects/%s/admins/' % self.project.id,
+            {'userId': user_id}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectAdmins.as_view()
+        response = view(
+            request,
+            project_id=self.project.id
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_add_when_user_already_an_admin(self):
+        Admins.objects.create(project=self.project, user=self.user_to_add)
+        request = self.factory.post(
+            '/ajax/projects/%s/admins/' % self.project.id,
+            {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
         view = ProjectAdmins.as_view()
@@ -577,9 +608,9 @@ class ProjectAdminsTest(TestCase):
 
         self.assertEqual(response.status_code, 400)
 
-    def test_add_admin_with_admin(self):
+    def test_add_with_admin(self):
         request = self.factory.post(
-            '/ajax/projects/%s/admins/' % (self.project.id) + '/',
+            '/ajax/projects/%s/admins/' % self.project.id,
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
@@ -595,9 +626,9 @@ class ProjectAdminsTest(TestCase):
             Project.objects.get(pk=self.project.id).admins.all()
         )
 
-    def test_add_admin_with_contributor(self):
+    def test_add_with_contributor(self):
         request = self.factory.post(
-            '/ajax/projects/%s/admins/' % (self.project.id) + '/',
+            '/ajax/projects/%s/admins/' % self.project.id,
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.contributor)
@@ -613,9 +644,9 @@ class ProjectAdminsTest(TestCase):
             Project.objects.get(pk=self.project.id).admins.all()
         )
 
-    def test_add_admin_with_non_member(self):
+    def test_add_with_non_member(self):
         request = self.factory.post(
-            '/ajax/projects/%s/admins/' % (self.project.id) + '/',
+            '/ajax/projects/%s/admins/' % self.project.id,
             {'userId': self.user_to_add.id}
         )
         force_authenticate(request, user=self.non_member)
