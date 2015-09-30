@@ -132,6 +132,37 @@ class ManageSuperUsers(LoginRequiredMixin, SuperuserMixin, TemplateView):
         return {'superusers': User.objects.filter(is_superuser=True)}
 
 
+class ManageInactiveUsers(LoginRequiredMixin, SuperuserMixin, TemplateView):
+    template_name = 'superusertools/manage_inactiveusers.html'
+
+    def get_context_data(self):
+        """
+        Returns the context to render the view, adds list of inactive users to
+        context
+
+        Returns
+        -------
+        dict
+        """
+        return {'inactive_users': User.objects.filter(is_active=False)}
+
+    def post(self, request):
+        context = self.get_context_data()
+
+        if context.get('inactive_users'):
+            activate_users = request.POST.getlist('activate_users')
+            to_activate = User.objects.filter(id__in=activate_users)
+            to_activate.update(is_active=True)
+
+            messages.success(
+                self.request,
+                '%s users have been activated.' % len(activate_users)
+            )
+
+            context['inactive_users'] = User.objects.filter(is_active=False)
+
+        return self.render_to_response(context)
+
 # #############################################################################
 #
 # ADMIN AJAX VIEWS
