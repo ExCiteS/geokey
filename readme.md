@@ -29,7 +29,7 @@ GeoKey is a platform for participatory mapping that is currently developed at [E
 3. Setup all other dependencies
 
     ```
-    sudo apt-get install python-pip python-virtualenv python-dev libjpeg-dev
+    sudo apt-get install python-pip python-virtualenv python-dev libjpeg-dev binutils libproj-dev gdal-bin python-gdal
     ```
 
 #### Setup the database
