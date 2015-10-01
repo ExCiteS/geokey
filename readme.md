@@ -109,7 +109,7 @@ GeoKey is a platform for participatory mapping that is currently developed at [E
     pip install -r requirements-dev.txt
     ```
     
-    You may need to add `sudo ` before the `pip` commands if you are not logged in as root or working within a virtual environment.
+    You may need to add `sudo ` before the `pip` commands, unless you are logged in as root or working within a virtual environment.
 
 3. Copy the directory `local_settings.example` to `local_settings`
 
