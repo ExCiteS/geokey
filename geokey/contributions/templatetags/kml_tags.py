@@ -2,6 +2,8 @@ from django import template
 
 from osgeo import ogr
 
+from geokey.categories.models import Field
+
 register = template.Library()
 
 
@@ -26,15 +28,24 @@ def kml_desc(place):
 
     if geojson_properties:
         for key in geojson_properties:
+            name = key
+            try:
+                field = Field.objects.get(key=key, category_id=place.get('meta').get('category').get('id'))
+
+                name = field.name.encode('utf-8')
+
+            except Field.DoesNotExist:
+                pass
+
             value = geojson_properties[key]
 
             if type(value) in [str, unicode]:
                 value = value.encode('utf-8')
 
             if geojson_properties[key] is not None:
-                geojson_desc = '{desc}<tr><td>{key}</td><td>{value}</td></tr>'.format(
+                geojson_desc = '{desc}<tr><td>{name}</td><td>{value}</td></tr>'.format(
                     desc=geojson_desc,
-                    key=key,
+                    name=name,
                     value=value
                 )
 

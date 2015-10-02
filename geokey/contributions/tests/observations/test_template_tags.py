@@ -2,6 +2,8 @@ from django.test import TestCase
 
 from geokey.contributions.templatetags import kml_tags
 
+from geokey.categories.tests.model_factories import CategoryFactory
+
 
 class TemplateTagsTest(TestCase):
     def test_kml_name(self):
@@ -21,10 +23,16 @@ class TemplateTagsTest(TestCase):
         )
 
     def test_description(self):
+        category = CategoryFactory.create()
         data = {
             'properties': {
                 'key_1': 1,
                 'key_2': 'value'
+            },
+            'meta': {
+                'category': {
+                    'id': 1,
+                }
             }
         }
         description = kml_tags.kml_desc(data)
