@@ -53,7 +53,7 @@ To install run:
     sudo apt-get install binutils libproj-dev gdal-bin python-gdal
     ```
 
-For virtual env:
+... and for virtual env also run these commands:
 
     ```
     sudo apt-get install libgdal-dev
