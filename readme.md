@@ -29,7 +29,7 @@ GeoKey is a platform for participatory mapping that is currently developed at [E
 3. Setup all other dependencies
 
     ```
-    sudo apt-get install python-pip python-virtualenv python-dev libjpeg-dev
+    sudo apt-get install python-pip python-virtualenv python-dev libjpeg-dev binutils libproj-dev gdal-bin python-gdal
     ```
 
 #### Setup the database
@@ -105,8 +105,11 @@ GeoKey is a platform for participatory mapping that is currently developed at [E
     ```
     cd geokey
     pip install -e .
+    pip install -r requirements.txt
     pip install -r requirements-dev.txt
     ```
+    
+    You may need to add `sudo ` before the `pip` commands, unless you are logged in as root or working within a virtual environment.
 
 3. Copy the directory `local_settings.example` to `local_settings`
 
