@@ -4,6 +4,8 @@ from django.contrib import messages
 
 from braces.views import LoginRequiredMixin
 
+from allauth.account.models import EmailAddress
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import BasePermission
@@ -153,6 +155,11 @@ class ManageInactiveUsers(LoginRequiredMixin, SuperuserMixin, TemplateView):
             activate_users = request.POST.getlist('activate_users')
             to_activate = User.objects.filter(id__in=activate_users)
             to_activate.update(is_active=True)
+
+            for email in EmailAddress.objects.filter(user__in=to_activate):
+                email.verified = True
+                email.set_as_primary(conditional=True)
+                email.save()
 
             messages.success(
                 self.request,

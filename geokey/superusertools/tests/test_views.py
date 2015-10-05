@@ -7,6 +7,8 @@ from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.messages import get_messages
 
+from allauth.account.models import EmailAddress
+
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from geokey import version
@@ -208,8 +210,23 @@ class ManageInactiveUsersTest(TestCase):
 
     def create_inactive(self):
         self.inactive_1 = UserF.create(**{'is_active': False})
+        EmailAddress(
+            user=self.inactive_1,
+            email=self.inactive_1.email,
+            verified=False
+        ).save()
         self.inactive_2 = UserF.create(**{'is_active': False})
+        EmailAddress(
+            user=self.inactive_2,
+            email=self.inactive_2.email,
+            verified=False
+        ).save()
         self.inactive_3 = UserF.create(**{'is_active': False})
+        EmailAddress(
+            user=self.inactive_3,
+            email=self.inactive_3.email,
+            verified=False
+        ).save()
 
     def test_get_with_anonymous(self):
         response = self.view(self.request)
@@ -315,7 +332,12 @@ class ManageInactiveUsersTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
-        self.assertEqual(User.objects.filter(is_active=False).count(), 1)
+        self.assertEqual(
+            User.objects.filter(is_active=False).count(), 1
+        )
+        self.assertEqual(
+            EmailAddress.objects.filter(verified=False).count(), 1
+        )
 
 
 class AddSuperUsersAjaxViewTest(TestCase):
