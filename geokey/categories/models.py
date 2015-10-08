@@ -525,7 +525,8 @@ class DateTimeField(Field):
                 parse_date(value)
             except ParseError:
                 raise InputError('The value for DateField %s is not a '
-                                 'valid date.' % self.name)
+                                 'valid date. Please provide date and time as '
+                                 'YYYY-MM-DD HH:MM' % self.name)
 
     @property
     def type_name(self):
@@ -618,7 +619,8 @@ class DateField(Field):
                 parse_date(value)
             except ParseError:
                 raise InputError('The value for DateField %s is not a '
-                                 'valid date.' % self.name)
+                                 'valid date. Please provide date as '
+                                 'YYYY-MM-DD.' % self.name)
 
     @property
     def type_name(self):
@@ -719,7 +721,8 @@ class TimeField(Field):
                 time.strptime(value, '%H:%M')
             except ValueError:
                 raise InputError('The value for TimeField %s is not a '
-                                 'valid time.' % self.name)
+                                 'valid time. Please provide time as '
+                                 'HH:MM' % self.name)
 
     def get_filter(self, rule):
         """
