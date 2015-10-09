@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models import Q
-from aggregate_if import Count
 from django.core.exceptions import PermissionDenied
 
 from .base import STATUS
@@ -38,16 +37,18 @@ class ProjectQuerySet(models.query.QuerySet):
                     Q(status=STATUS.active) & Q(isprivate=False)
                 ).distinct()
         else:
-            projects = self.filter(
-                Q(admins=user) |
-                (
-                    Q(status=STATUS.active) &
-                    (
-                        Q(isprivate=False) |
-                        Q(usergroups__users=user)
-                    )
-                )
-            ).distinct()
+            projects = (self
+                        .filter(
+                            Q(admins=user) |
+                            (
+                                Q(status=STATUS.active) &
+                                (
+                                    Q(isprivate=False) |
+                                    Q(usergroups__users=user)
+                                )
+                            )
+                        ).distinct())
+
             return projects
 
 
@@ -66,7 +67,10 @@ class ProjectManager(models.Manager):
         django.db.models.query.QuerySet
             List of geokey.projects.models.Project
         """
-        return ProjectQuerySet(self.model).exclude(status=STATUS.deleted)
+        return (ProjectQuerySet(self.model)
+                .prefetch_related('admins')
+                .select_related('creator')
+                .exclude(status=STATUS.deleted))
 
     def get_list(self, user):
         """
