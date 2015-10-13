@@ -1,3 +1,7 @@
+include readme.md
+include CHANGELOG.md
+include LICENSE
 include *.txt
-recursive-include geokey *
+recursive-include geokey static *
+recursive-include geokey templates *
 recursive-exclude * *.pyc
