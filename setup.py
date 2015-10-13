@@ -27,7 +27,7 @@ setup(
     download_url='https://github.com/excites/geokey/releases',
     author="Oliver Roick",
     author_email="o.roick@ucl.ac.uk",
-    packages=find_packages(exclude=['tests', 'tests.*']),
+    packages=find_packages(exclude=['*.tests', '*.tests.*', 'tests.*']),
     install_requires=get_install_requires(),
     include_package_data=True,
 )
