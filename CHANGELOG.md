@@ -2,6 +2,8 @@
 
 ## Version 0.8
 
+- Requirements are updated, most notably to Django 1.8
+- Search has been improved. Search index is now more flexible, it ignores order of terms searched.
 - Removes `/api/projects/:project_id/get-in-touch` endpoint. Also, notifications settings are now completely removed from GeoKey, therefore `contact_admins` method is no longer available on the Project model.
 
 ## Version 0.7.2
