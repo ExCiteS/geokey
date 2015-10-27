@@ -105,6 +105,7 @@ class ProjectObservations(GZipView, GeoJsonView):
             many=True,
             context={'user': request.user, 'project': project, 'search': q}
         )
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

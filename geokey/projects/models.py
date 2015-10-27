@@ -164,7 +164,6 @@ class Project(models.Model):
         Boolean
             Indicating if user is can access
         """
-
         return self.status == STATUS.active and (self.is_admin(user) or (
             not self.isprivate) or (
             not user.is_anonymous() and (
