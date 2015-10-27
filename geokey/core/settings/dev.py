@@ -33,11 +33,12 @@ INSTALLED_APPS += (
 # set up django-devserver if installed
 try:
     import devserver
-    INSTALLED_APPS += (
+    INSTALLED_APPS = (
         'devserver',
-    )
+    ) + INSTALLED_APPS
     # more details at https://github.com/dcramer/django-devserver#configuration
     DEVSERVER_DEFAULT_ADDR = '0.0.0.0'
+    DEVSERVER_DEFAULT_ADDR
     DEVSERVER_DEFAULT_PORT = '8000'
     DEVSERVER_AUTO_PROFILE = False  # use decorated functions
     DEVSERVER_TRUNCATE_SQL = True  # squash verbose output, show from/where
