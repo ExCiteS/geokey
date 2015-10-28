@@ -379,7 +379,8 @@ class ProjectAdmins(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        serializer = UserSerializer(project.admins.all(), many=True)
+        refreshed_admins = Project.objects.get(pk=project_id).admins.all()
+        serializer = UserSerializer(refreshed_admins, many=True)
         return Response(
             {'users': serializer.data},
             status=status.HTTP_201_CREATED
