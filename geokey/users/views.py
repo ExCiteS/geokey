@@ -311,13 +311,13 @@ class UserGroupPermissions(LoginRequiredMixin, UserGroupMixin, TemplateView):
         if group is not None:
             data = request.POST
 
+            group.can_moderate = False
+            group.can_contribute = False
+
             if data['permission'] == 'can_moderate':
                 group.can_moderate = True
             elif data['permission'] == 'can_contribute':
                 group.can_contribute = True
-            else:
-                group.can_moderate = False
-                group.can_contribute = False
 
             group.save()
 
