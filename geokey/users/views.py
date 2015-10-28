@@ -320,6 +320,9 @@ class UserGroupPermissions(LoginRequiredMixin, UserGroupMixin, TemplateView):
                 group.can_contribute = False
 
             group.save()
+
+            messages.success(self.request, "The user group permissions have "
+                                           "been updated.")
             context['group'] = group
 
         return self.render_to_response(context)
