@@ -397,6 +397,29 @@ class MediaFile(models.Model):
         self.save()
 
 
+class AudioFile(MediaFile):
+    """
+    Stores audio files uploaded by users.
+    """
+    audio = models.FileField(upload_to='user-uploads/audio')
+
+    class Meta:
+        ordering = ['id']
+        app_label = 'contributions'
+
+    @property
+    def type_name(self):
+        """
+        Returns file type name
+
+        Returns
+        -------
+        str
+            'AudioFile'
+        """
+        return 'AudioFile'
+
+
 class ImageFile(MediaFile):
     """
     Stores images uploaded by users.
