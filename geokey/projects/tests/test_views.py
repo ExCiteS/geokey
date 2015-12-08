@@ -11,9 +11,9 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from geokey.categories.tests.model_factories import (
     TextFieldFactory, CategoryFactory
 )
-from geokey.users.tests.model_factories import UserF
+from geokey.users.tests.model_factories import UserFactory
 
-from .model_factories import ProjectF
+from .model_factories import ProjectFactory
 from ..models import Project, Admins
 from ..views import (
     ProjectCreate, ProjectSettings, ProjectUpdate, ProjectAdmins,
@@ -33,7 +33,7 @@ class ProjectCreateTest(TestCase):
         view = ProjectCreate.as_view()
         url = reverse('admin:project_create')
         request = APIRequestFactory().get(url)
-        request.user = UserF.create()
+        request.user = UserFactory.create()
         response = view(request).render()
         self.assertEqual(response.status_code, 200)
 
@@ -55,7 +55,7 @@ class ProjectCreateTest(TestCase):
         view = ProjectCreate.as_view()
         url = reverse('admin:project_create')
         request = APIRequestFactory().post(url, data)
-        request.user = UserF.create()
+        request.user = UserFactory.create()
 
         from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
@@ -85,8 +85,8 @@ class ProjectCreateTest(TestCase):
 
 class ProjectsInvolvedTest(TestCase):
     def test_get_with_user(self):
-        user = UserF.create()
-        ProjectF.create(add_contributors=[user])
+        user = UserFactory.create()
+        ProjectFactory.create(add_contributors=[user])
         view = ProjectsInvolved.as_view()
         url = reverse('admin:projects_involved')
         request = APIRequestFactory().get(url)
@@ -105,11 +105,11 @@ class ProjectsInvolvedTest(TestCase):
 
 class ProjectExtendTest(TestCase):
     def setUp(self):
-        self.creator = UserF.create()
-        self.admin = UserF.create()
-        self.view_member = UserF.create()
-        self.contributor = UserF.create()
-        self.project = ProjectF.create(
+        self.creator = UserFactory.create()
+        self.admin = UserFactory.create()
+        self.view_member = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor],
             **{
@@ -252,11 +252,11 @@ class ProjectExtendTest(TestCase):
 
 class ProjectSettingsTest(TestCase):
     def setUp(self):
-        self.creator = UserF.create()
-        self.admin = UserF.create()
-        self.view_member = UserF.create()
-        self.contributor = UserF.create()
-        self.project = ProjectF.create(
+        self.creator = UserFactory.create()
+        self.admin = UserFactory.create()
+        self.view_member = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor],
             **{'creator': self.creator}
@@ -344,11 +344,11 @@ class ProjectSettingsTest(TestCase):
 
 class ProjectOverviewTest(TestCase):
     def setUp(self):
-        self.creator = UserF.create()
-        self.admin = UserF.create()
-        self.view_member = UserF.create()
-        self.contributor = UserF.create()
-        self.project = ProjectF.create(
+        self.creator = UserFactory.create()
+        self.admin = UserFactory.create()
+        self.view_member = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor],
             **{
@@ -406,8 +406,8 @@ class ProjectOverviewTest(TestCase):
 
 class ProjectDeleteTest(TestCase):
     def test_delete_with_admin(self):
-        user = UserF.create()
-        project = ProjectF.create(add_admins=[user])
+        user = UserFactory.create()
+        project = ProjectFactory.create(add_admins=[user])
 
         view = ProjectDelete.as_view()
         url = reverse('admin:project_delete',
@@ -425,8 +425,8 @@ class ProjectDeleteTest(TestCase):
         self.assertEqual(Project.objects.count(), 0)
 
     def test_delete_with_contributor(self):
-        user = UserF.create()
-        project = ProjectF.create(add_contributors=[user])
+        user = UserFactory.create()
+        project = ProjectFactory.create(add_contributors=[user])
 
         view = ProjectDelete.as_view()
         url = reverse('admin:project_delete',
@@ -438,7 +438,7 @@ class ProjectDeleteTest(TestCase):
         self.assertEqual(Project.objects.count(), 1)
 
     def test_delete_with_anonymous(self):
-        project = ProjectF.create()
+        project = ProjectFactory.create()
 
         view = ProjectDelete.as_view()
         url = reverse('admin:project_delete',
@@ -459,11 +459,11 @@ class ProjectDeleteTest(TestCase):
 class ProjectUpdateTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -553,12 +553,12 @@ class ProjectUpdateTest(TestCase):
 class ProjectAdminsTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
-        self.user_to_add = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
+        self.user_to_add = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -666,18 +666,18 @@ class ProjectAdminsTest(TestCase):
 class ProjectAdminsUserTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
-        self.admin_to_remove = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
+        self.admin_to_remove = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin, self.admin_to_remove],
             add_contributors=[self.contributor]
         )
 
     def test_delete_not_existing_admin(self):
-        user = UserF.create()
+        user = UserFactory.create()
         request = self.factory.delete(
             '/ajax/projects/%s/admins/%s/' %
             (self.project.id, user.id)
@@ -752,7 +752,7 @@ class ProjectAdminsUserTest(TestCase):
 class ReorderCategoriesTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.project = ProjectF.create()
+        self.project = ProjectFactory.create()
 
         self.category_0 = CategoryFactory.create(**{'project': self.project})
         self.category_1 = CategoryFactory.create(**{'project': self.project})
@@ -835,11 +835,11 @@ class ReorderCategoriesTest(TestCase):
 class ProjectsTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.public_project = ProjectF.create(
+        self.public_project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor],
             **{
@@ -847,12 +847,12 @@ class ProjectsTest(TestCase):
             }
         )
 
-        self.private_project = ProjectF.create(
+        self.private_project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
 
-        self.inactive_project = ProjectF.create(
+        self.inactive_project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor],
             **{
@@ -860,7 +860,7 @@ class ProjectsTest(TestCase):
             }
         )
 
-        self.deleted_project = ProjectF.create(
+        self.deleted_project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor],
             **{'isprivate': False}
@@ -921,9 +921,9 @@ class SingleProjectTest(TestCase):
         self.factory = APIRequestFactory()
 
     def test_category_serialization(self):
-        user = UserF.create()
+        user = UserFactory.create()
 
-        project = ProjectF.create(
+        project = ProjectFactory.create(
             add_admins=[user]
         )
         CategoryFactory.create(**{'project': project})
@@ -948,9 +948,9 @@ class SingleProjectTest(TestCase):
         )
 
     def test_get_deleted_project_with_admin(self):
-        user = UserF.create()
+        user = UserFactory.create()
 
-        project = ProjectF.create(
+        project = ProjectFactory.create(
             add_admins=[user]
         )
         project.delete()
@@ -964,9 +964,9 @@ class SingleProjectTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_get_private_project_with_admin(self):
-        user = UserF.create()
+        user = UserFactory.create()
 
-        project = ProjectF.create(
+        project = ProjectFactory.create(
             add_admins=[user]
         )
 
@@ -982,9 +982,9 @@ class SingleProjectTest(TestCase):
         self.assertContains(response, '"geographic_extent"')
 
     def test_get_inactive_project_with_admin(self):
-        user = UserF.create()
+        user = UserFactory.create()
 
-        project = ProjectF.create(
+        project = ProjectFactory.create(
             add_admins=[user],
             **{'status': 'inactive'}
         )
@@ -998,9 +998,9 @@ class SingleProjectTest(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_get_public_project_with_admin(self):
-        user = UserF.create()
+        user = UserFactory.create()
 
-        project = ProjectF.create(
+        project = ProjectFactory.create(
             add_admins=[user],
             **{'isprivate': False}
         )
@@ -1016,9 +1016,9 @@ class SingleProjectTest(TestCase):
         self.assertContains(response, '"can_contribute":true')
 
     def test_get_deleted_project_with_contributor(self):
-        user = UserF.create()
+        user = UserFactory.create()
 
-        project = ProjectF.create(
+        project = ProjectFactory.create(
             add_contributors=[user]
         )
         project.delete()
@@ -1032,9 +1032,9 @@ class SingleProjectTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_get_private_project_with_contributor(self):
-        user = UserF.create()
+        user = UserFactory.create()
 
-        project = ProjectF.create(
+        project = ProjectFactory.create(
             add_contributors=[user]
         )
 
@@ -1049,9 +1049,9 @@ class SingleProjectTest(TestCase):
         self.assertContains(response, '"can_contribute":true')
 
     def test_get_inactive_project_with_contributor(self):
-        user = UserF.create()
+        user = UserFactory.create()
 
-        project = ProjectF.create(
+        project = ProjectFactory.create(
             add_contributors=[user],
             **{'status': 'inactive'}
         )
@@ -1065,9 +1065,9 @@ class SingleProjectTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_get_public_project_with_contributor(self):
-        user = UserF.create()
+        user = UserFactory.create()
 
-        project = ProjectF.create(
+        project = ProjectFactory.create(
             add_contributors=[user],
             **{'isprivate': False}
         )
@@ -1083,9 +1083,9 @@ class SingleProjectTest(TestCase):
         self.assertContains(response, '"can_contribute":true')
 
     def test_get_deleted_project_with_non_member(self):
-        user = UserF.create()
+        user = UserFactory.create()
 
-        project = ProjectF.create()
+        project = ProjectFactory.create()
         project.delete()
 
         request = self.factory.get(
@@ -1097,9 +1097,9 @@ class SingleProjectTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_get_private_project_with_non_member(self):
-        user = UserF.create()
+        user = UserFactory.create()
 
-        project = ProjectF.create()
+        project = ProjectFactory.create()
 
         request = self.factory.get(
             '/api/projects/%s/' % project.id)
@@ -1110,9 +1110,9 @@ class SingleProjectTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_get_inactive_project_with_non_member(self):
-        user = UserF.create()
+        user = UserFactory.create()
 
-        project = ProjectF.create(**{
+        project = ProjectFactory.create(**{
             'status': 'inactive'
         })
 
@@ -1125,9 +1125,9 @@ class SingleProjectTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_get_public_project_with_non_member(self):
-        user = UserF.create()
+        user = UserFactory.create()
 
-        project = ProjectF.create(**{
+        project = ProjectFactory.create(**{
             'isprivate': False
         })
 
@@ -1144,7 +1144,7 @@ class SingleProjectTest(TestCase):
     def test_get_public_project_with_anonymous(self):
         user = AnonymousUser()
 
-        project = ProjectF.create(**{
+        project = ProjectFactory.create(**{
             'isprivate': False
         })
 

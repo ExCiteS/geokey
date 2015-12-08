@@ -12,9 +12,9 @@ from allauth.account.models import EmailAddress
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from geokey import version
-from geokey.users.tests.model_factories import UserF
+from geokey.users.tests.model_factories import UserFactory
 from geokey.users.models import User
-from geokey.projects.tests.model_factories import ProjectF
+from geokey.projects.tests.model_factories import ProjectFactory
 
 from ..views import (
     PlatformSettings,
@@ -39,7 +39,7 @@ class SiteSettingsTest(TestCase):
         view = PlatformSettings.as_view()
         url = reverse('admin:superuser_index')
         request = APIRequestFactory().get(url)
-        request.user = UserF.create(**{'is_superuser': True})
+        request.user = UserFactory.create(**{'is_superuser': True})
         response = view(request).render()
         self.assertEqual(response.status_code, 200)
 
@@ -47,7 +47,7 @@ class SiteSettingsTest(TestCase):
         view = PlatformSettings.as_view()
         url = reverse('admin:superuser_index')
         request = APIRequestFactory().get(url)
-        request.user = UserF.create(**{'is_superuser': False})
+        request.user = UserFactory.create(**{'is_superuser': False})
         view.request = request
         response = view(request).render()
         self.assertEqual(response.status_code, 200)
@@ -73,7 +73,7 @@ class SiteSettingsTest(TestCase):
         view = PlatformSettings.as_view()
         url = reverse('admin:superuser_index')
         request = APIRequestFactory().post(url, data)
-        request.user = UserF.create(**{'is_superuser': True})
+        request.user = UserFactory.create(**{'is_superuser': True})
 
         from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
@@ -98,7 +98,7 @@ class SiteSettingsTest(TestCase):
         view = PlatformSettings.as_view()
         url = reverse('admin:superuser_index')
         request = APIRequestFactory().post(url, data)
-        request.user = UserF.create(**{'is_superuser': False})
+        request.user = UserFactory.create(**{'is_superuser': False})
         view.request = request
         response = view(request).render()
         self.assertEqual(response.status_code, 200)
@@ -123,9 +123,9 @@ class SiteSettingsTest(TestCase):
 
 class ProjectsListTest(TestCase):
     def test_get_context_data(self):
-        user = UserF.create(**{'is_superuser': True})
-        ProjectF.create_batch(5, add_admins=[user])
-        ProjectF.create_batch(5)
+        user = UserFactory.create(**{'is_superuser': True})
+        ProjectFactory.create_batch(5, add_admins=[user])
+        ProjectFactory.create_batch(5)
         view = ProjectsList()
         context = view.get_context_data()
         self.assertEqual(len(context.get('projects')), 10)
@@ -134,7 +134,7 @@ class ProjectsListTest(TestCase):
         view = ProjectsList.as_view()
         url = reverse('admin:superuser_projects')
         request = APIRequestFactory().get(url)
-        request.user = UserF.create(**{'is_superuser': True})
+        request.user = UserFactory.create(**{'is_superuser': True})
         response = view(request).render()
         self.assertEqual(response.status_code, 200)
 
@@ -142,7 +142,7 @@ class ProjectsListTest(TestCase):
         view = ProjectsList.as_view()
         url = reverse('admin:superuser_projects')
         request = APIRequestFactory().get(url)
-        request.user = UserF.create(**{'is_superuser': False})
+        request.user = UserFactory.create(**{'is_superuser': False})
         response = view(request).render()
         self.assertEqual(response.status_code, 200)
         self.assertContains(
@@ -161,8 +161,8 @@ class ProjectsListTest(TestCase):
 
 class ManageSuperUsersTest(TestCase):
     def test_get_context_data(self):
-        UserF.create_batch(2, **{'is_superuser': True})
-        UserF.create_batch(2, **{'is_superuser': False})
+        UserFactory.create_batch(2, **{'is_superuser': True})
+        UserFactory.create_batch(2, **{'is_superuser': False})
         view = ManageSuperUsers()
         context = view.get_context_data()
         self.assertEqual(len(context.get('superusers')), 2)
@@ -171,7 +171,7 @@ class ManageSuperUsersTest(TestCase):
         view = ManageSuperUsers.as_view()
         url = reverse('admin:superuser_manage_users')
         request = APIRequestFactory().get(url)
-        request.user = UserF.create(**{'is_superuser': True})
+        request.user = UserFactory.create(**{'is_superuser': True})
         response = view(request).render()
         self.assertEqual(response.status_code, 200)
 
@@ -179,7 +179,7 @@ class ManageSuperUsersTest(TestCase):
         view = ManageSuperUsers.as_view()
         url = reverse('admin:superuser_manage_users')
         request = APIRequestFactory().get(url)
-        request.user = UserF.create(**{'is_superuser': False})
+        request.user = UserFactory.create(**{'is_superuser': False})
         response = view(request).render()
         self.assertEqual(response.status_code, 200)
         self.assertContains(
@@ -209,19 +209,19 @@ class ManageInactiveUsersTest(TestCase):
         setattr(self.request, '_messages', messages)
 
     def create_inactive(self):
-        self.inactive_1 = UserF.create(**{'is_active': False})
+        self.inactive_1 = UserFactory.create(**{'is_active': False})
         EmailAddress(
             user=self.inactive_1,
             email=self.inactive_1.email,
             verified=False
         ).save()
-        self.inactive_2 = UserF.create(**{'is_active': False})
+        self.inactive_2 = UserFactory.create(**{'is_active': False})
         EmailAddress(
             user=self.inactive_2,
             email=self.inactive_2.email,
             verified=False
         ).save()
-        self.inactive_3 = UserF.create(**{'is_active': False})
+        self.inactive_3 = UserFactory.create(**{'is_active': False})
         EmailAddress(
             user=self.inactive_3,
             email=self.inactive_3.email,
@@ -247,7 +247,7 @@ class ManageInactiveUsersTest(TestCase):
         self.assertEqual(User.objects.filter(is_active=False).count(), 3)
 
     def test_get_with_user(self):
-        user = UserF.create()
+        user = UserFactory.create()
         self.request.user = user
         response = self.view(self.request).render()
 
@@ -266,7 +266,7 @@ class ManageInactiveUsersTest(TestCase):
         self.assertEqual(response.content.decode('utf-8'), rendered)
 
     def test_post_with_user(self):
-        user = UserF.create()
+        user = UserFactory.create()
         self.create_inactive()
         self.request.POST = QueryDict(
             'activate_users=%s&activate_users=%s' % (
@@ -291,8 +291,8 @@ class ManageInactiveUsersTest(TestCase):
         self.assertEqual(User.objects.filter(is_active=False).count(), 3)
 
     def test_get_with_superuser(self):
-        user = UserF.create(**{'is_superuser': True})
-        inactive_users = UserF.create_batch(3, **{'is_active': False})
+        user = UserFactory.create(**{'is_superuser': True})
+        inactive_users = UserFactory.create_batch(3, **{'is_active': False})
 
         self.request.user = user
         response = self.view(self.request).render()
@@ -310,7 +310,7 @@ class ManageInactiveUsersTest(TestCase):
         self.assertEqual(response.content.decode('utf-8'), rendered)
 
     def test_post_with_superuser(self):
-        user = UserF.create(**{'is_superuser': True})
+        user = UserFactory.create(**{'is_superuser': True})
         self.create_inactive()
         self.request.POST = QueryDict(
             'activate_users=%s&activate_users=%s' % (
@@ -343,8 +343,8 @@ class ManageInactiveUsersTest(TestCase):
 class AddSuperUsersAjaxViewTest(TestCase):
     def test_post_with_superuser(self):
         factory = APIRequestFactory()
-        user = UserF.create(**{'is_superuser': True})
-        user_to_add = UserF.create(**{'is_superuser': False})
+        user = UserFactory.create(**{'is_superuser': True})
+        user_to_add = UserFactory.create(**{'is_superuser': False})
         request = factory.post(
             reverse('ajax:superusers_adduser'),
             {'userId': user_to_add.id}
@@ -358,8 +358,8 @@ class AddSuperUsersAjaxViewTest(TestCase):
 
     def test_post_with_user(self):
         factory = APIRequestFactory()
-        user = UserF.create(**{'is_superuser': False})
-        user_to_add = UserF.create(**{'is_superuser': False})
+        user = UserFactory.create(**{'is_superuser': False})
+        user_to_add = UserFactory.create(**{'is_superuser': False})
         request = factory.post(
             reverse('ajax:superusers_adduser'),
             {'userId': user_to_add.id}
@@ -373,7 +373,7 @@ class AddSuperUsersAjaxViewTest(TestCase):
 
     def test_post_non_existing_user(self):
         factory = APIRequestFactory()
-        user = UserF.create(**{'is_superuser': True})
+        user = UserFactory.create(**{'is_superuser': True})
         request = factory.post(
             reverse('ajax:superusers_adduser'),
             {'userId': 78463857934859}
@@ -389,8 +389,8 @@ class AddSuperUsersAjaxViewTest(TestCase):
 class DeleteSuperUsersAjaxViewTest(TestCase):
     def test_delete_with_superuser(self):
         factory = APIRequestFactory()
-        user = UserF.create(**{'is_superuser': True})
-        user_to_remove = UserF.create(**{'is_superuser': True})
+        user = UserFactory.create(**{'is_superuser': True})
+        user_to_remove = UserFactory.create(**{'is_superuser': True})
         request = factory.delete(
             reverse('ajax:superusers_deleteuser', kwargs={
                 'user_id': user_to_remove.id
@@ -405,8 +405,8 @@ class DeleteSuperUsersAjaxViewTest(TestCase):
 
     def test_delete_with_user(self):
         factory = APIRequestFactory()
-        user = UserF.create(**{'is_superuser': False})
-        user_to_remove = UserF.create(**{'is_superuser': True})
+        user = UserFactory.create(**{'is_superuser': False})
+        user_to_remove = UserFactory.create(**{'is_superuser': True})
         request = factory.delete(
             reverse('ajax:superusers_deleteuser', kwargs={
                 'user_id': user_to_remove.id
@@ -421,7 +421,7 @@ class DeleteSuperUsersAjaxViewTest(TestCase):
 
     def test_delete_not_existing_user(self):
         factory = APIRequestFactory()
-        user = UserF.create(**{'is_superuser': True})
+        user = UserFactory.create(**{'is_superuser': True})
         request = factory.delete(
             reverse('ajax:superusers_deleteuser', kwargs={
                 'user_id': 84774358734

@@ -1,7 +1,7 @@
 import factory
 
-from geokey.users.tests.model_factories import UserF
-from geokey.projects.tests.model_factories import ProjectF
+from geokey.users.tests.model_factories import UserFactory
+from geokey.projects.tests.model_factories import ProjectFactory
 
 from ..models import Subset
 
@@ -12,5 +12,5 @@ class SubsetFactory(factory.django.DjangoModelFactory):
 
     name = factory.Sequence(lambda n: 'project %d' % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
-    creator = factory.SubFactory(UserF)
-    project = factory.SubFactory(ProjectF)
+    creator = factory.SubFactory(UserFactory)
+    project = factory.SubFactory(ProjectFactory)

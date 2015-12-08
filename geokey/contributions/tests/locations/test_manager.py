@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from nose.tools import raises
 
-from geokey.projects.tests.model_factories import ProjectF, UserF
+from geokey.projects.tests.model_factories import ProjectFactory, UserFactory
 
 from ..model_factories import LocationFactory
 from geokey.contributions.models import Location
@@ -11,10 +11,10 @@ from geokey.contributions.models import Location
 
 class LocationTest(TestCase):
     def setUp(self):
-        self.admin = UserF.create()
+        self.admin = UserFactory.create()
 
-        self.project1 = ProjectF(add_admins=[self.admin])
-        self.project2 = ProjectF(add_admins=[self.admin])
+        self.project1 = ProjectFactory(add_admins=[self.admin])
+        self.project2 = ProjectFactory(add_admins=[self.admin])
         self.public_location = LocationFactory(**{
             'private': False
         })

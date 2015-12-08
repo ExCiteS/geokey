@@ -14,8 +14,8 @@ from .model_factories import (
     MultipleLookupValueFactory, DateFieldFactory
 )
 
-from geokey.projects.tests.model_factories import ProjectF
-from geokey.users.tests.model_factories import UserGroupF
+from geokey.projects.tests.model_factories import ProjectFactory
+from geokey.users.tests.model_factories import UserGroupFactory
 from geokey.contributions.tests.model_factories import ObservationFactory
 from geokey.contributions.models import Observation
 from geokey.users.models import UserGroup
@@ -32,7 +32,7 @@ class CategoryTest(TestCase):
         field_4 = TextFieldFactory.create(**{'category': category})
 
         category.re_order_fields(
-            [field_4.id, field_0.id, field_2.id, field_1.id,  field_3.id]
+            [field_4.id, field_0.id, field_2.id, field_1.id, field_3.id]
         )
 
         fields = category.fields.all()
@@ -55,7 +55,7 @@ class CategoryTest(TestCase):
 
         try:
             category.re_order_fields(
-                [field_4.id, field_0.id, field_2.id, field_1.id,  5854]
+                [field_4.id, field_0.id, field_2.id, field_1.id, 5854]
             )
         except Field.DoesNotExist:
             fields = category.fields.all()
@@ -85,11 +85,11 @@ class CategoryTest(TestCase):
         Observation.objects.get(pk=observation.id)
 
     def test_delete_with_category_filter(self):
-        project = ProjectF.create()
+        project = ProjectFactory.create()
         category = CategoryFactory.create(**{'project': project})
         category_2 = CategoryFactory.create(**{'project': project})
 
-        group = UserGroupF.create(
+        group = UserGroupFactory.create(
             **{
                 'project': project,
                 'filters': {category.id: {}, category_2.id: {}}
@@ -206,14 +206,14 @@ class FieldTest(TestCase):
         Field.objects.get(pk=f.id)
 
     def test_delete_with_field_filter(self):
-        project = ProjectF.create()
+        project = ProjectFactory.create()
         category = CategoryFactory.create(**{'project': project})
         field = Field.create(
             'name', 'key', 'description', False, category,
             'TextField'
         )
 
-        group = UserGroupF.create(
+        group = UserGroupFactory.create(
             **{
                 'project': project,
                 'filters': {

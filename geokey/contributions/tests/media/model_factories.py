@@ -4,7 +4,7 @@ from StringIO import StringIO
 
 from django.core.files.base import ContentFile
 
-from geokey.users.tests.model_factories import UserF
+from geokey.users.tests.model_factories import UserFactory
 from geokey.contributions.tests.model_factories import ObservationFactory
 from geokey.contributions.models import ImageFile, VideoFile
 
@@ -27,7 +27,7 @@ class ImageFileFactory(factory.django.DjangoModelFactory):
 
     name = factory.Sequence(lambda n: 'name_%d' % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
-    creator = factory.SubFactory(UserF)
+    creator = factory.SubFactory(UserFactory)
     contribution = factory.SubFactory(ObservationFactory)
     image = get_image()
 
@@ -38,7 +38,7 @@ class VideoFileFactory(factory.django.DjangoModelFactory):
 
     name = factory.Sequence(lambda n: 'name_%d' % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
-    creator = factory.SubFactory(UserF)
+    creator = factory.SubFactory(UserFactory)
     contribution = factory.SubFactory(ObservationFactory)
     youtube_id = 'qb2Cd1--YvY'
     youtube_link = 'http://example.com/98aishfijh'

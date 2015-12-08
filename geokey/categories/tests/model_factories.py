@@ -1,7 +1,7 @@
 import factory
 
-from geokey.projects.tests.model_factories import ProjectF
-from geokey.users.tests.model_factories import UserF
+from geokey.projects.tests.model_factories import ProjectFactory
+from geokey.users.tests.model_factories import UserFactory
 
 from ..models import (
     Category, TextField, NumericField, DateTimeField, DateField, TimeField,
@@ -13,10 +13,10 @@ class CategoryFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Category
 
-    creator = factory.SubFactory(UserF)
+    creator = factory.SubFactory(UserFactory)
     name = factory.Sequence(lambda n: "category %s" % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
-    project = factory.SubFactory(ProjectF)
+    project = factory.SubFactory(ProjectFactory)
     status = 'active'
 
 
