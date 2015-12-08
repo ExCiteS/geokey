@@ -2,14 +2,14 @@ from django.test import TestCase
 
 from rest_framework.serializers import ValidationError
 
-from .model_factories import UserF
+from .model_factories import UserFactory
 from ..serializers import UserSerializer
 
 
 class UserSerializerTest(TestCase):
     def test_validate_display_name(self):
-        UserF.create(**{'display_name': 'name'})
-        user = UserF.create()
+        UserFactory.create(**{'display_name': 'name'})
+        user = UserFactory.create()
         serializer = UserSerializer(user)
 
         try:
@@ -20,8 +20,8 @@ class UserSerializerTest(TestCase):
             self.fail('validate_display_name did not raise ValidationError')
 
     def test_validate_email(self):
-        UserF.create(**{'email': 'name@example.com'})
-        user = UserF.create()
+        UserFactory.create(**{'email': 'name@example.com'})
+        user = UserFactory.create()
         serializer = UserSerializer(user)
 
         try:

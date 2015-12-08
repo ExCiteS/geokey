@@ -5,7 +5,7 @@ from geokey.contributions.models import (
     post_save_media_file_count_update
 )
 from geokey.contributions.tests.model_factories import ObservationFactory
-from geokey.users.tests.model_factories import UserF
+from geokey.users.tests.model_factories import UserFactory
 
 from .model_factories import get_image
 
@@ -17,7 +17,7 @@ class TestImageFilePostSave(TestCase):
             name='Test name',
             description='Test Description',
             contribution=observation,
-            creator=UserF.create(),
+            creator=UserFactory.create(),
             image=get_image()
         )
         ImageFile.objects.create(
@@ -25,7 +25,7 @@ class TestImageFilePostSave(TestCase):
             name='Test name',
             description='Test Description',
             contribution=observation,
-            creator=UserF.create(),
+            creator=UserFactory.create(),
             image=get_image()
         )
 
@@ -40,7 +40,7 @@ class ImageFileTest(TestCase):
             name='Test name',
             description='Test Description',
             contribution=ObservationFactory.create(),
-            creator=UserF.create(),
+            creator=UserFactory.create(),
             image=get_image()
         )
         self.assertEqual(image_file.type_name, 'ImageFile')
@@ -50,7 +50,7 @@ class ImageFileTest(TestCase):
             name='Test name',
             description='Test Description',
             contribution=ObservationFactory.create(),
-            creator=UserF.create(),
+            creator=UserFactory.create(),
             image=get_image()
         )
         image_file.delete()
@@ -64,7 +64,7 @@ class TestVideoFilePostSave(TestCase):
             name='Test name',
             description='Test Description',
             contribution=observation,
-            creator=UserF.create(),
+            creator=UserFactory.create(),
             video=get_image(),
             youtube_link='http://example.com/1122323',
             swf_link='http://example.com/1122323.swf'
@@ -74,7 +74,7 @@ class TestVideoFilePostSave(TestCase):
             name='Test name',
             description='Test Description',
             contribution=observation,
-            creator=UserF.create(),
+            creator=UserFactory.create(),
             video=get_image(),
             youtube_link='http://example.com/1122323',
             swf_link='http://example.com/1122323.swf'
@@ -91,7 +91,7 @@ class VideoFileTest(TestCase):
             name='Test name',
             description='Test Description',
             contribution=ObservationFactory.create(),
-            creator=UserF.create(),
+            creator=UserFactory.create(),
             video=get_image(),
             youtube_link='http://example.com/1122323',
             swf_link='http://example.com/1122323.swf'

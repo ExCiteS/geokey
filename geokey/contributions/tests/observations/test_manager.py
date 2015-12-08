@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from geokey.contributions.models import Observation
 
-from geokey.projects.tests.model_factories import ProjectF, UserF
+from geokey.projects.tests.model_factories import ProjectFactory, UserFactory
 from geokey.categories.tests.model_factories import (
     CategoryFactory, LookupFieldFactory, LookupValueFactory,
     TextFieldFactory, MultipleLookupFieldFactory, MultipleLookupValueFactory
@@ -12,7 +12,7 @@ from ..model_factories import ObservationFactory
 
 class ObservationTest(TestCase):
     def setUp(self):
-        self.creator = UserF.create()
+        self.creator = UserFactory.create()
         ObservationFactory.create_batch(
             5, **{'status': 'active', 'creator': self.creator})
         ObservationFactory.create_batch(
@@ -32,7 +32,8 @@ class ObservationTest(TestCase):
             )
 
     def test_for_moderator(self):
-        observations = Observation.objects.all().for_moderator(UserF.create())
+        observations = Observation.objects.all().for_moderator(
+            UserFactory.create())
         self.assertEqual(len(observations), 10)
         for observation in observations:
             self.assertNotIn(
@@ -41,7 +42,8 @@ class ObservationTest(TestCase):
             )
 
     def test_for_viewer(self):
-        observations = Observation.objects.all().for_viewer(UserF.create())
+        observations = Observation.objects.all().for_viewer(
+            UserFactory.create())
         self.assertEqual(len(observations), 5)
         for observation in observations:
             self.assertNotIn(
@@ -99,7 +101,7 @@ class TestSearch(TestCase):
             self.assertEqual(o.properties.get('key'), 'blub')
 
     def test_single_lookup(self):
-        project = ProjectF.create()
+        project = ProjectFactory.create()
         category = CategoryFactory.create(**{'project': project})
         lookup = LookupFieldFactory.create(
             **{'category': category, 'key': 'lookup'}
@@ -130,7 +132,7 @@ class TestSearch(TestCase):
             self.assertEqual(o.properties.get('lookup'), kermit.id)
 
     def test_multiple_lookup(self):
-        project = ProjectF.create()
+        project = ProjectFactory.create()
         category = CategoryFactory.create(**{'project': project})
         lookup = MultipleLookupFieldFactory.create(
             **{'category': category, 'key': 'lookup'}

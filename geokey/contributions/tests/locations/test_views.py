@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from geokey.projects.tests.model_factories import UserF, ProjectF
+from geokey.projects.tests.model_factories import UserFactory, ProjectFactory
 
 from ..model_factories import LocationFactory
 from geokey.contributions.views.locations import Locations, SingleLocation
@@ -15,15 +15,15 @@ from geokey.contributions.models import Location
 class LocationApiTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF(
+        self.project = ProjectFactory(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
-        self.other_project = ProjectF.create()
+        self.other_project = ProjectFactory.create()
 
         # Create 20 locations, 10 should be accessible for the project
         for x in range(0, 5):
@@ -74,7 +74,7 @@ class LocationApiTest(TestCase):
 class LocationQueryTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.project = ProjectF()
+        self.project = ProjectFactory()
         LocationFactory.create(**{'name': 'Hyde Park'})
         LocationFactory.create(**{'description': 'hyde'})
         LocationFactory.create(**{'name': 'hyde park'})
@@ -122,12 +122,12 @@ class LocationQueryTest(TestCase):
 class LocationUpdateApiTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.view_member = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.view_member = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF(
+        self.project = ProjectFactory(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )

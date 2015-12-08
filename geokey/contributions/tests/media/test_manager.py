@@ -14,7 +14,7 @@ from geokey.core.exceptions import FileTypeError
 from geokey.contributions.models import MediaFile
 
 from geokey.contributions.tests.model_factories import ObservationFactory
-from geokey.users.tests.model_factories import UserF
+from geokey.users.tests.model_factories import UserFactory
 from .model_factories import ImageFileFactory, get_image
 
 
@@ -40,7 +40,7 @@ class ModelManagerTest(TestCase):
             name='Test name',
             description='Test Description',
             contribution=ObservationFactory.create(),
-            creator=UserF.create(),
+            creator=UserFactory.create(),
             the_file=get_image()
         )
 
@@ -61,7 +61,7 @@ class ModelManagerTest(TestCase):
             name='Test name',
             description='Test Description',
             contribution=ObservationFactory.create(),
-            creator=UserF.create(),
+            creator=UserFactory.create(),
             the_file=the_file
         )
 

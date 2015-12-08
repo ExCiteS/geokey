@@ -2,16 +2,16 @@ from django.test import TestCase
 
 from oauth2_provider.models import AccessToken
 from geokey.applications.tests.model_factories import ApplicationFactory
-from geokey.projects.tests.model_factories import ProjectF
+from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.categories.tests.model_factories import CategoryFactory
 
-from .model_factories import UserGroupF, UserF
+from .model_factories import UserGroupFactory, UserFactory
 from ..models import UserGroup
 
 
 class UserTest(TestCase):
     def test_reset_password(self):
-        user = UserF.create()
+        user = UserFactory.create()
         app = ApplicationFactory.create()
         AccessToken.objects.create(
             user=user,
@@ -28,10 +28,10 @@ class UserTest(TestCase):
 
 class UserGroupTest(TestCase):
     def test_update_where_clause(self):
-        project = ProjectF.create()
+        project = ProjectFactory.create()
         cat_1 = CategoryFactory.create(**{'project': project})
         cat_2 = CategoryFactory.create(**{'project': project})
-        usergroup = UserGroupF.create(**{'project': project})
+        usergroup = UserGroupFactory.create(**{'project': project})
         usergroup.filters = {
             cat_1.id: {},
             cat_2.id: {}
@@ -58,9 +58,8 @@ class UserGroupTest(TestCase):
             'FALSE'
         )
 
-
     def test_contribute_and_moderate(self):
-        usergroup = UserGroupF.create()
+        usergroup = UserGroupFactory.create()
 
         usergroup.can_moderate = True
         usergroup.save()
@@ -70,7 +69,7 @@ class UserGroupTest(TestCase):
         self.assertTrue(ref_group.can_moderate)
 
     def test_not_contribute_and_moderate(self):
-        usergroup = UserGroupF.create()
+        usergroup = UserGroupFactory.create()
 
         usergroup.can_contribute = False
         usergroup.can_moderate = True
@@ -81,7 +80,7 @@ class UserGroupTest(TestCase):
         self.assertTrue(ref_group.can_moderate)
 
     def test_contribute_and_not_moderate(self):
-        usergroup = UserGroupF.create()
+        usergroup = UserGroupFactory.create()
 
         usergroup.can_contribute = True
         usergroup.can_moderate = False
@@ -92,7 +91,7 @@ class UserGroupTest(TestCase):
         self.assertFalse(ref_group.can_moderate)
 
     def test_not_contribute_and_not_moderate(self):
-        usergroup = UserGroupF.create()
+        usergroup = UserGroupFactory.create()
 
         usergroup.can_contribute = False
         usergroup.can_moderate = False

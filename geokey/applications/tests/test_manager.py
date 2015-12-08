@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 
 from nose.tools import raises
 
-from geokey.projects.tests.model_factories import UserF
+from geokey.projects.tests.model_factories import UserFactory
 
 from .model_factories import ApplicationFactory
 
@@ -12,8 +12,8 @@ from ..models import Application
 
 class ApplicationManagerTest(TestCase):
     def setUp(self):
-        self.user1 = UserF.create()
-        self.user2 = UserF.create()
+        self.user1 = UserFactory.create()
+        self.user2 = UserFactory.create()
         self.app1 = ApplicationFactory(**{
             'user': self.user1
         })

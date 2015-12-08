@@ -17,7 +17,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework.renderers import JSONRenderer
 
 from geokey.core.exceptions import MalformedRequestData
-from geokey.projects.tests.model_factories import UserF, ProjectF
+from geokey.projects.tests.model_factories import UserFactory, ProjectFactory
 from geokey.contributions.models import MediaFile
 from geokey.users.models import User
 
@@ -33,9 +33,9 @@ from .model_factories import ImageFileFactory, get_image
 class MediaFileAbstractListAPIViewTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.creator = UserF.create()
-        self.project = ProjectF(
+        self.admin = UserFactory.create()
+        self.creator = UserFactory.create()
+        self.project = ProjectFactory(
             add_admins=[self.admin],
             add_contributors=[self.creator]
         )
@@ -206,9 +206,9 @@ class MediaFileAbstractListAPIViewTest(TestCase):
 class MediaFileSingleAbstractViewTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.creator = UserF.create()
-        self.project = ProjectF(
+        self.admin = UserFactory.create()
+        self.creator = UserFactory.create()
+        self.project = ProjectFactory(
             add_admins=[self.admin],
             add_contributors=[self.creator]
         )
@@ -309,16 +309,16 @@ class MediaFileSingleAbstractViewTest(TestCase):
         view = MediaFileSingleAbstractView()
         view.request = request
 
-        view.delete_and_respond(UserF.create(), self.image_file)
+        view.delete_and_respond(UserFactory.create(), self.image_file)
 
 
 class AllContributionsMediaAPIViewTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.creator = UserF.create()
-        self.viewer = UserF.create()
-        self.project = ProjectF(
+        self.admin = UserFactory.create()
+        self.creator = UserFactory.create()
+        self.viewer = UserFactory.create()
+        self.project = ProjectFactory(
             add_admins=[self.admin],
             add_contributors=[self.creator]
         )
@@ -358,7 +358,7 @@ class AllContributionsMediaAPIViewTest(TestCase):
     def post(self, user, data=None):
         if user.is_anonymous and not User.objects.filter(
                 display_name='AnonymousUser').exists():
-            UserF.create(display_name='AnonymousUser')
+            UserFactory.create(display_name='AnonymousUser')
 
         if data is None:
             data = {
@@ -393,7 +393,7 @@ class AllContributionsMediaAPIViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_get_images_with_some_dude(self):
-        response = self.get(UserF.create())
+        response = self.get(UserFactory.create())
         self.assertEqual(response.status_code, 404)
 
     def test_get_images_with_anonymous(self):
@@ -409,7 +409,7 @@ class AllContributionsMediaAPIViewTest(TestCase):
         self.assertEqual(response.status_code, 201)
 
     def test_upload_image_with_some_dude(self):
-        response = self.post(UserF.create())
+        response = self.post(UserFactory.create())
         self.assertEqual(response.status_code, 404)
 
     def test_upload_image_with_anonymous(self):
@@ -455,10 +455,10 @@ class AllContributionsMediaAPIViewTest(TestCase):
 class AllContributionsSingleMediaApiViewTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.creator = UserF.create()
-        self.viewer = UserF.create()
-        self.project = ProjectF(
+        self.admin = UserFactory.create()
+        self.creator = UserFactory.create()
+        self.viewer = UserFactory.create()
+        self.project = ProjectFactory(
             add_admins=[self.admin],
             add_contributors=[self.creator]
         )
@@ -531,7 +531,7 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_get_image_with_some_dude(self):
-        response = self.get(UserF.create())
+        response = self.get(UserFactory.create())
         self.assertEqual(response.status_code, 404)
 
     def test_get_image_with_anonymous(self):
@@ -551,7 +551,7 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
         self.assertEqual(response.status_code, 204)
 
     def test_delete_image_with_some_dude(self):
-        response = self.delete(UserF.create())
+        response = self.delete(UserFactory.create())
         self.assertEqual(response.status_code, 404)
 
     def test_delete_image_with_anonymous(self):

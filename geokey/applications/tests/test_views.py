@@ -8,7 +8,7 @@ from nose.tools import raises
 from oauth2_provider.models import AccessToken
 from rest_framework.test import APIRequestFactory
 
-from geokey.projects.tests.model_factories import UserF
+from geokey.projects.tests.model_factories import UserFactory
 
 from ..views import (
     ApplicationOverview, ApplicationCreate, ApplicationSettings,
@@ -24,7 +24,7 @@ class ApplicationOverviewTest(TestCase):
         view = ApplicationOverview.as_view()
         url = reverse('admin:app_overview')
         request = APIRequestFactory().get(url)
-        request.user = UserF.create()
+        request.user = UserFactory.create()
         response = view(request).render()
         self.assertEqual(response.status_code, 200)
 
@@ -43,7 +43,7 @@ class ApplicationConnectedTest(TestCase):
         url = reverse('admin:app_connected')
         request = APIRequestFactory().get(url)
 
-        request.user = UserF.create()
+        request.user = UserFactory.create()
         response = view(request).render()
         self.assertEqual(response.status_code, 200)
 
@@ -58,7 +58,7 @@ class ApplicationConnectedTest(TestCase):
 
 class ApplicationDisconnectTest(TestCase):
     def setUp(self):
-        self.user = UserF.create()
+        self.user = UserFactory.create()
         self.app = ApplicationFactory.create()
         self.token = AccessToken.objects.create(
             user=self.user,
@@ -97,7 +97,7 @@ class ApplicationDisconnectTest(TestCase):
         view = ApplicationDisconnect.as_view()
         url = reverse('admin:app_disconnect', kwargs={'app_id': self.app.id})
         request = APIRequestFactory().get(url)
-        request.user = UserF.create()
+        request.user = UserFactory.create()
         response = view(request, app_id=self.app.id)
         self.assertTrue(isinstance(response, HttpResponseRedirect))
 
@@ -107,7 +107,7 @@ class ApplicationCreateTest(TestCase):
         view = ApplicationCreate.as_view()
         url = reverse('admin:app_register')
         request = APIRequestFactory().get(url)
-        request.user = UserF.create()
+        request.user = UserFactory.create()
         response = view(request).render()
         self.assertEqual(response.status_code, 200)
 
@@ -130,7 +130,7 @@ class ApplicationCreateTest(TestCase):
         view = ApplicationCreate.as_view()
         url = reverse('admin:app_register')
         request = APIRequestFactory().post(url, data)
-        request.user = UserF.create()
+        request.user = UserFactory.create()
 
         from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
@@ -161,7 +161,7 @@ class ApplicationCreateTest(TestCase):
 
 class ApplicationSettingsTest(TestCase):
     def setUp(self):
-        self.creator = UserF.create()
+        self.creator = UserFactory.create()
         self.app = ApplicationFactory.create(**{'user': self.creator})
 
     def test_get_with_creator(self):
@@ -181,7 +181,7 @@ class ApplicationSettingsTest(TestCase):
         view = ApplicationSettings.as_view()
         url = reverse('admin:app_settings', kwargs={'app_id': self.app.id})
         request = APIRequestFactory().get(url)
-        request.user = UserF.create()
+        request.user = UserFactory.create()
         response = view(request, app_id=self.app.id).render()
         self.assertEqual(response.status_code, 200)
         self.assertContains(
@@ -246,7 +246,7 @@ class ApplicationSettingsTest(TestCase):
         view = ApplicationSettings.as_view()
         url = reverse('admin:app_settings', kwargs={'app_id': self.app.id})
         request = APIRequestFactory().post(url, data)
-        request.user = UserF.create()
+        request.user = UserFactory.create()
         response = view(request, app_id=self.app.id).render()
         self.assertEqual(response.status_code, 200)
         self.assertContains(
@@ -294,7 +294,7 @@ class ApplicationSettingsTest(TestCase):
 
 class ApplicationDeleteTest(TestCase):
     def setUp(self):
-        self.creator = UserF.create()
+        self.creator = UserFactory.create()
         self.app = ApplicationFactory.create(**{'user': self.creator})
 
     def test_get_with_creator(self):
@@ -315,7 +315,7 @@ class ApplicationDeleteTest(TestCase):
         view = ApplicationDelete.as_view()
         url = reverse('admin:app_delete', kwargs={'app_id': self.app.id})
         request = APIRequestFactory().get(url)
-        request.user = UserF.create()
+        request.user = UserFactory.create()
         response = view(request, app_id=self.app.id).render()
 
         self.assertEqual(response.status_code, 200)

@@ -3,12 +3,12 @@ import factory
 
 from django.contrib.gis.geos import GEOSGeometry
 
-from geokey.users.tests.model_factories import UserF
+from geokey.users.tests.model_factories import UserFactory, UserGroupFactory
 
 from geokey.projects.models import Project, Admins
 
 
-class ProjectF(factory.django.DjangoModelFactory):
+class ProjectFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Project
 
@@ -17,7 +17,7 @@ class ProjectF(factory.django.DjangoModelFactory):
     isprivate = True
     everyone_contributes = 'false'
     created_at = datetime.date(2014, 11, 11)
-    creator = factory.SubFactory(UserF)
+    creator = factory.SubFactory(UserFactory)
     status = 'active'
     geographic_extend = GEOSGeometry(
         '{"type": "Polygon","coordinates": [[[-0.508,51.682],[-0.53,51.327],'
@@ -36,36 +36,33 @@ class ProjectF(factory.django.DjangoModelFactory):
 
     @factory.post_generation
     def add_moderators(self, create, extracted, **kwargs):
-        from geokey.users.tests.model_factories import UserGroupF
         if not create:
             return
 
         if extracted:
-            UserGroupF(add_users=extracted, **{
+            UserGroupFactory(add_users=extracted, **{
                 'project': self,
                 'can_moderate': True
             })
 
     @factory.post_generation
     def add_contributors(self, create, extracted, **kwargs):
-        from geokey.users.tests.model_factories import UserGroupF
         if not create:
             return
 
         if extracted:
-            UserGroupF(add_users=extracted, **{
+            UserGroupFactory(add_users=extracted, **{
                 'project': self,
                 'can_contribute': True
             })
 
     @factory.post_generation
     def add_viewer(self, create, extracted, **kwargs):
-        from geokey.users.tests.model_factories import UserGroupF
         if not create:
             return
 
         if extracted:
-            UserGroupF(add_users=extracted, **{
+            UserGroupFactory(add_users=extracted, **{
                 'project': self,
                 'can_contribute': False,
                 'can_moderate': False,
@@ -76,5 +73,5 @@ class AdminsFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Admins
 
-    project = factory.SubFactory(ProjectF)
-    user = factory.SubFactory(UserF)
+    project = factory.SubFactory(ProjectFactory)
+    user = factory.SubFactory(UserFactory)

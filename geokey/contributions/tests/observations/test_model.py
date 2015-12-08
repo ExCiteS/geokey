@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from nose.tools import raises
 
 from geokey.contributions.models import Observation
-from geokey.projects.tests.model_factories import UserF
+from geokey.projects.tests.model_factories import UserFactory
 
 from geokey.categories.tests.model_factories import (
     CategoryFactory, LookupFieldFactory, LookupValueFactory,
@@ -95,7 +95,7 @@ class TestContributionsPreSave(TestCase):
             'field': lookup,
             'name': 'Gonzo'
         })
-        m_piggy = MultipleLookupValueFactory.create(**{
+        MultipleLookupValueFactory.create(**{
             'field': lookup,
             'name': 'Ms Piggy'
         })
@@ -235,7 +235,7 @@ class ObservationTest(TestCase):
         self.assertEqual(ref.num_comments, 5)
 
     def test_create_observation(self):
-        creator = UserF()
+        creator = UserFactory()
         location = LocationFactory()
         category = CategoryFactory()
         TextFieldFactory(**{
@@ -256,7 +256,7 @@ class ObservationTest(TestCase):
         self.assertEqual(observation.properties, data)
 
     def test_create_observation_with_polish_chars(self):
-        creator = UserF()
+        creator = UserFactory()
         location = LocationFactory()
         category = CategoryFactory()
         TextFieldFactory(**{
@@ -278,7 +278,7 @@ class ObservationTest(TestCase):
         self.assertEqual(observation.properties, data)
 
     def test_create_observation_active_default(self):
-        creator = UserF()
+        creator = UserFactory()
         location = LocationFactory()
         category = CategoryFactory(**{
             'default_status': 'active'
@@ -341,7 +341,7 @@ class ObservationTest(TestCase):
             'project': category.project
         })
 
-        updater = UserF()
+        updater = UserFactory()
         update = {'text': 'Udpated Text', 'number': 13}
         observation.update(properties=update, updator=updater)
 
@@ -378,7 +378,7 @@ class ObservationTest(TestCase):
             'project': category.project
         })
 
-        updater = UserF()
+        updater = UserFactory()
         update = {'text': 'Udpated Text', 'number': 13}
         Observation.validate_full(category=category, data=update)
         observation.update(properties=update, updator=updater)
@@ -391,7 +391,7 @@ class ObservationTest(TestCase):
 
     @raises(ValidationError)
     def test_validate_full_invalid(self):
-        creator = UserF()
+        creator = UserFactory()
         location = LocationFactory()
         category = CategoryFactory()
         TextFieldFactory.create(**{
@@ -410,7 +410,7 @@ class ObservationTest(TestCase):
             category=category, project=category.project, status='active'
         )
 
-        updater = UserF()
+        updater = UserFactory()
         update = {'text': 'Udpated Text', 'number': 'abc', 'version': 1}
         Observation.validate_full(category=category, data=update)
         observation.update(properties=update, updator=updater)
@@ -469,7 +469,7 @@ class ObservationTest(TestCase):
         Observation.validate_full(data=data, category=category)
 
     def test_update_draft_observation(self):
-        creator = UserF()
+        creator = UserFactory()
         location = LocationFactory()
         category = CategoryFactory()
         TextFieldFactory.create(**{
@@ -490,7 +490,7 @@ class ObservationTest(TestCase):
             status='draft'
         )
 
-        updater = UserF()
+        updater = UserFactory()
         update = {'number': 13}
         observation.update(properties=update, updator=updater, status='draft')
 
