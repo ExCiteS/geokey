@@ -1,5 +1,7 @@
 from django.conf.urls import patterns, url
 
+from geokey.core.views import InfoAPIView
+
 from geokey.projects import views as project_views
 from geokey.categories import views as category_views
 
@@ -9,6 +11,11 @@ from geokey.users.views import UserAPIView, ChangePasswordView
 
 urlpatterns = patterns(
     '',
+    # ###########################
+    # CORE
+    # ###########################
+    url(r'^info/$', InfoAPIView.as_view(), name='info_api'),
+
     # ###########################
     # USER
     # ###########################
