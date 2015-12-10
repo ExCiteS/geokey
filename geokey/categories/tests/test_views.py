@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 
-from geokey.projects.tests.model_factories import UserF, ProjectF
+from geokey.projects.tests.model_factories import UserFactory, ProjectFactory
 from geokey.contributions.tests.media.model_factories import get_image
 
 from .model_factories import (
@@ -36,11 +36,11 @@ from ..views import (
 class CategoryListTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -84,11 +84,11 @@ class CategoryListTest(TestCase):
 class CategoryOverviewTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -138,11 +138,11 @@ class CategoryOverviewTest(TestCase):
 class CategoryCreateTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -201,11 +201,11 @@ class CategoryCreateTest(TestCase):
 class CategoryDisplayTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -326,11 +326,11 @@ class CategoryDisplayTest(TestCase):
 class CategorySettingsTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -469,11 +469,11 @@ class CategorySettingsTest(TestCase):
 class CategoryDeleteTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -543,11 +543,11 @@ class CategoryDeleteTest(TestCase):
 class FieldCreateTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -675,11 +675,11 @@ class FieldCreateTest(TestCase):
 class FieldSettingsTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -817,11 +817,11 @@ class FieldSettingsTest(TestCase):
 class FieldDeleteTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -900,11 +900,11 @@ class FieldDeleteTest(TestCase):
 class CategoryAjaxTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -1143,11 +1143,11 @@ class ReorderFieldsTest(TestCase):
 class UpdateFieldTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -1259,11 +1259,11 @@ class UpdateFieldTest(TestCase):
 class UpdateNumericField(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -1310,9 +1310,9 @@ class UpdateNumericField(TestCase):
 class AddLookupValueTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
+        self.admin = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin]
         )
 
@@ -1397,9 +1397,9 @@ class AddLookupValueTest(TestCase):
 class UpdateLookupValues(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
+        self.admin = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin]
         )
 
@@ -1645,9 +1645,9 @@ class UpdateLookupValues(TestCase):
 class AddMutipleLookupValueTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
+        self.admin = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin]
         )
 
@@ -1687,9 +1687,9 @@ class AddMutipleLookupValueTest(TestCase):
 class RemoveMultipleLookupValues(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
+        self.admin = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin]
         )
 
@@ -1824,11 +1824,11 @@ class RemoveMultipleLookupValues(TestCase):
 class ObservationTypePublicApiTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )

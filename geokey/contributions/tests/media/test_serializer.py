@@ -5,7 +5,7 @@ from django.test import TestCase
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 
-from geokey.users.tests.model_factories import UserF
+from geokey.users.tests.model_factories import UserFactory
 
 from .model_factories import ImageFileFactory, VideoFileFactory
 from geokey.contributions.serializers import FileSerializer
@@ -26,7 +26,8 @@ class FileSerializerTest(TestCase):
         serializer = FileSerializer(image, context={'user': image.creator})
         self.assertTrue(serializer.get_isowner(image))
 
-        serializer = FileSerializer(image, context={'user': UserF.create()})
+        serializer = FileSerializer(
+            image, context={'user': UserFactory.create()})
         self.assertFalse(serializer.get_isowner(image))
 
         serializer = FileSerializer(image, context={'user': AnonymousUser()})

@@ -7,13 +7,13 @@ from allauth.account.models import EmailAddress, EmailConfirmation
 
 from ..models import User
 from ..management.commands.check_confirm import Command as CheckConfirm
-from ..tests.model_factories import UserF
+from ..tests.model_factories import UserFactory
 
 
 class CheckConfirmTest(TestCase):
     def test_check_confirm(self):
-        confirmed_user = UserF.create()
-        unconfirmed_user = UserF.create()
+        confirmed_user = UserFactory.create()
+        unconfirmed_user = UserFactory.create()
 
         confirmed_email = EmailAddress.objects.create(
             user=confirmed_user,

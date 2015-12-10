@@ -14,16 +14,16 @@ from geokey.categories.tests.model_factories import (
 from geokey.contributions.tests.model_factories import ObservationFactory
 from geokey.subsets.tests.model_factories import SubsetFactory
 
-from geokey.users.tests.model_factories import UserF, UserGroupF
+from geokey.users.tests.model_factories import UserFactory, UserGroupFactory
 from geokey.categories.models import Category
 
-from .model_factories import ProjectF
+from .model_factories import ProjectFactory
 from ..models import Project
 
 
 class CreateProjectTest(TestCase):
     def test_create_project(self):
-        creator = UserF.create()
+        creator = UserFactory.create()
 
         project = Project.create(
             'Test', 'Test desc', True, True, creator
@@ -34,12 +34,12 @@ class CreateProjectTest(TestCase):
 class ProjectTest(TestCase):
     @raises(Project.DoesNotExist)
     def test_delete_project(self):
-        project = ProjectF.create()
+        project = ProjectFactory.create()
         project.delete()
         Project.objects.get(pk=project.id)
 
     def test_str(self):
-        project = ProjectF.create(**{
+        project = ProjectFactory.create(**{
             'name': 'Name',
             'status': 'inactive',
             'isprivate': False
@@ -50,12 +50,12 @@ class ProjectTest(TestCase):
         )
 
     def test_get_role(self):
-        admin = UserF.create()
-        moderator = UserF.create()
-        contributor = UserF.create()
-        other = UserF.create()
+        admin = UserFactory.create()
+        moderator = UserFactory.create()
+        contributor = UserFactory.create()
+        other = UserFactory.create()
 
-        project = ProjectF.create(
+        project = ProjectFactory.create(
             add_admins=[admin],
             add_moderators=[moderator],
             add_contributors=[contributor]
@@ -67,7 +67,7 @@ class ProjectTest(TestCase):
         self.assertEqual('watcher', project.get_role(other))
 
     def test_re_order_categories(self):
-        project = ProjectF.create()
+        project = ProjectFactory.create()
 
         category_0 = CategoryFactory.create(**{'project': project})
         category_1 = CategoryFactory.create(**{'project': project})
@@ -90,7 +90,7 @@ class ProjectTest(TestCase):
         self.assertEqual(categories[4], category_3)
 
     def test_re_order_categories_with_false_category(self):
-        project = ProjectF.create()
+        project = ProjectFactory.create()
 
         category_0 = CategoryFactory.create(**{'project': project})
         category_1 = CategoryFactory.create(**{'project': project})
@@ -116,31 +116,31 @@ class ProjectTest(TestCase):
 
 class PrivateProjectTest(TestCase):
     def setUp(self):
-        self.moderator_view = UserF.create()
-        self.moderator = UserF.create()
-        self.contributor_view = UserF.create()
-        self.contributor = UserF.create()
-        self.viewer_view = UserF.create()
-        self.viewer = UserF.create()
-        self.some_dude = UserF.create()
+        self.moderator_view = UserFactory.create()
+        self.moderator = UserFactory.create()
+        self.contributor_view = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.viewer_view = UserFactory.create()
+        self.viewer = UserFactory.create()
+        self.some_dude = UserFactory.create()
 
-        self.project = ProjectF.create(**{
+        self.project = ProjectFactory.create(**{
             'isprivate': True,
             'everyone_contributes': 'false'
         })
-        self.moderators_view = UserGroupF(
+        self.moderators_view = UserGroupFactory(
             add_users=[self.moderator_view],
             **{
                 'project': self.project,
                 'can_moderate': True
             })
-        self.contributors_view = UserGroupF(
+        self.contributors_view = UserGroupFactory(
             add_users=[self.contributor_view],
             **{
                 'project': self.project,
                 'can_contribute': True
             })
-        self.viewers_view = UserGroupF(
+        self.viewers_view = UserGroupFactory(
             add_users=[self.viewer_view],
             **{
                 'project': self.project,
@@ -148,19 +148,19 @@ class PrivateProjectTest(TestCase):
                 'can_moderate': False
             })
 
-        self.moderators = UserGroupF(
+        self.moderators = UserGroupFactory(
             add_users=[self.moderator],
             **{
                 'project': self.project,
                 'can_moderate': True
             })
-        self.contributors = UserGroupF(
+        self.contributors = UserGroupFactory(
             add_users=[self.contributor],
             **{
                 'project': self.project,
                 'can_contribute': True
             })
-        self.viewers = UserGroupF(
+        self.viewers = UserGroupFactory(
             add_users=[self.viewer],
             **{
                 'project': self.project,
@@ -247,51 +247,51 @@ class PrivateProjectTest(TestCase):
 
 class EveryoneContributesTest(TestCase):
     def test(self):
-        project = ProjectF.create(**{
+        project = ProjectFactory.create(**{
             'isprivate': False,
             'everyone_contributes': 'auth'
         })
 
-        self.assertTrue(project.can_contribute(UserF.create()))
+        self.assertTrue(project.can_contribute(UserFactory.create()))
         self.assertFalse(project.can_contribute(AnonymousUser()))
 
-        project = ProjectF.create(**{
+        project = ProjectFactory.create(**{
             'isprivate': False,
             'everyone_contributes': 'true'
         })
 
-        self.assertTrue(project.can_contribute(UserF.create()))
+        self.assertTrue(project.can_contribute(UserFactory.create()))
         self.assertTrue(project.can_contribute(AnonymousUser()))
 
 
 class PublicProjectTest(TestCase):
     def setUp(self):
-        self.moderator_view = UserF.create()
-        self.moderator = UserF.create()
-        self.contributor_view = UserF.create()
-        self.contributor = UserF.create()
-        self.viewer_view = UserF.create()
-        self.viewer = UserF.create()
-        self.some_dude = UserF.create()
+        self.moderator_view = UserFactory.create()
+        self.moderator = UserFactory.create()
+        self.contributor_view = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.viewer_view = UserFactory.create()
+        self.viewer = UserFactory.create()
+        self.some_dude = UserFactory.create()
 
-        self.project = ProjectF.create(**{
+        self.project = ProjectFactory.create(**{
             'isprivate': False,
             'everyone_contributes': 'false'
         })
 
-        self.moderators_view = UserGroupF(
+        self.moderators_view = UserGroupFactory(
             add_users=[self.moderator_view],
             **{
                 'project': self.project,
                 'can_moderate': True
             })
-        self.contributors_view = UserGroupF(
+        self.contributors_view = UserGroupFactory(
             add_users=[self.contributor_view],
             **{
                 'project': self.project,
                 'can_contribute': True
             })
-        self.viewers_view = UserGroupF(
+        self.viewers_view = UserGroupFactory(
             add_users=[self.viewer_view],
             **{
                 'project': self.project,
@@ -299,19 +299,19 @@ class PublicProjectTest(TestCase):
                 'can_moderate': False
             })
 
-        self.moderators = UserGroupF(
+        self.moderators = UserGroupFactory(
             add_users=[self.moderator],
             **{
                 'project': self.project,
                 'can_moderate': True
             })
-        self.contributors = UserGroupF(
+        self.contributors = UserGroupFactory(
             add_users=[self.contributor],
             **{
                 'project': self.project,
                 'can_contribute': True
             })
-        self.viewers = UserGroupF(
+        self.viewers = UserGroupFactory(
             add_users=[self.viewer],
             **{
                 'project': self.project,
@@ -397,13 +397,13 @@ class PublicProjectTest(TestCase):
 
 class ProjectGetDataTest(TestCase):
     def test_get_data_with_none_rule(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
         category_1 = CategoryFactory(**{'project': project})
         category_2 = CategoryFactory(**{'project': project})
         category_3 = CategoryFactory(**{'project': project})
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{'project': project, 'filters': None}
         )
@@ -424,13 +424,13 @@ class ProjectGetDataTest(TestCase):
         self.assertEqual(project.get_all_contributions(user).count(), 15)
 
     def test_get_data_category_filter(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
 
         category_1 = CategoryFactory(**{'project': project})
         category_2 = CategoryFactory(**{'project': project})
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
@@ -462,8 +462,8 @@ class ProjectGetDataTest(TestCase):
         self.assertEqual(project.get_all_contributions(user).count(), 10)
 
     def test_get_data_subset(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
 
         category_1 = CategoryFactory(**{'project': project})
         TextFieldFactory.create(**{'key': 'text', 'category': category_1})
@@ -501,14 +501,14 @@ class ProjectGetDataTest(TestCase):
         )
 
     def test_get_data_subset_user_group_filter(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
 
         category_1 = CategoryFactory(**{'project': project})
         TextFieldFactory.create(**{'key': 'text', 'category': category_1})
         category_2 = CategoryFactory(**{'project': project})
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
@@ -548,14 +548,14 @@ class ProjectGetDataTest(TestCase):
         )
 
     def test_get_data_category_filter_and_search(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
 
         category_1 = CategoryFactory(**{'project': project})
         TextFieldFactory.create(**{'key': 'text', 'category': category_1})
         category_2 = CategoryFactory(**{'project': project})
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
@@ -592,8 +592,8 @@ class ProjectGetDataTest(TestCase):
         )
 
     def test_get_data_text_filter(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
 
         category_1 = CategoryFactory(**{'project': project})
         TextFieldFactory(**{
@@ -606,7 +606,7 @@ class ProjectGetDataTest(TestCase):
             'category': category_2
         })
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
@@ -643,8 +643,8 @@ class ProjectGetDataTest(TestCase):
         self.assertEqual(project.get_all_contributions(user).count(), 5)
 
     def test_get_data_min_number_filter(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
         category_1 = CategoryFactory(**{'project': project})
         NumericFieldFactory.create(**{
             'key': 'number',
@@ -656,7 +656,7 @@ class ProjectGetDataTest(TestCase):
             'category': category_2
         })
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
@@ -686,8 +686,8 @@ class ProjectGetDataTest(TestCase):
         self.assertEqual(project.get_all_contributions(user).count(), 5)
 
     def test_get_data_max_number_filter(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
         category_1 = CategoryFactory(**{'project': project})
         NumericFieldFactory.create(**{
             'key': 'number',
@@ -699,7 +699,7 @@ class ProjectGetDataTest(TestCase):
             'category': category_2
         })
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
@@ -729,8 +729,8 @@ class ProjectGetDataTest(TestCase):
         self.assertEqual(project.get_all_contributions(user).count(), 5)
 
     def test_get_data_min_max_number_filter(self):
-            user = UserF.create()
-            project = ProjectF.create()
+            user = UserFactory.create()
+            project = ProjectFactory.create()
             category_1 = CategoryFactory(**{'project': project})
             NumericFieldFactory.create(**{
                 'key': 'number',
@@ -742,7 +742,7 @@ class ProjectGetDataTest(TestCase):
                 'category': category_2
             })
 
-            UserGroupF.create(
+            UserGroupFactory.create(
                 add_users=[user],
                 **{
                     'project': project,
@@ -789,8 +789,8 @@ class ProjectGetDataTest(TestCase):
             self.assertEqual(project.get_all_contributions(user).count(), 10)
 
     def test_get_data_lookup_filter(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
         category_1 = CategoryFactory(**{'project': project})
 
         lookup_field = LookupFieldFactory(**{
@@ -815,7 +815,7 @@ class ProjectGetDataTest(TestCase):
             'field': lookup_field_2
         })
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
@@ -846,8 +846,8 @@ class ProjectGetDataTest(TestCase):
         self.assertEqual(project.get_all_contributions(user).count(), 10)
 
     def test_get_data_min_max_datetime_filter(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
         category_1 = CategoryFactory(**{'project': project})
         DateTimeFieldFactory(**{
             'key': 'date',
@@ -859,7 +859,7 @@ class ProjectGetDataTest(TestCase):
             'category': category_2
         })
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
@@ -893,8 +893,8 @@ class ProjectGetDataTest(TestCase):
         self.assertEqual(project.get_all_contributions(user).count(), 5)
 
     def test_get_data_min_max_date_filter(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
         category_1 = CategoryFactory(**{'project': project})
         DateFieldFactory(**{
             'key': 'date',
@@ -906,7 +906,7 @@ class ProjectGetDataTest(TestCase):
             'category': category_2
         })
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
@@ -940,8 +940,8 @@ class ProjectGetDataTest(TestCase):
         self.assertEqual(project.get_all_contributions(user).count(), 5)
 
     def test_get_data_min_date_filter(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
         category_1 = CategoryFactory(**{'project': project})
         DateFieldFactory(**{
             'key': 'date',
@@ -953,7 +953,7 @@ class ProjectGetDataTest(TestCase):
             'category': category_2
         })
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
@@ -986,8 +986,8 @@ class ProjectGetDataTest(TestCase):
         self.assertEqual(project.get_all_contributions(user).count(), 5)
 
     def test_get_data_max_date_filter(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
         category_1 = CategoryFactory(**{'project': project})
         DateFieldFactory(**{
             'key': 'date',
@@ -999,7 +999,7 @@ class ProjectGetDataTest(TestCase):
             'category': category_2
         })
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
@@ -1032,8 +1032,8 @@ class ProjectGetDataTest(TestCase):
         self.assertEqual(project.get_all_contributions(user).count(), 5)
 
     def test_get_data_min_max_time_filter(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
         category_1 = CategoryFactory(**{'project': project})
         TimeFieldFactory(**{
             'key': 'time',
@@ -1045,7 +1045,7 @@ class ProjectGetDataTest(TestCase):
             'category': category_2
         })
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
@@ -1078,8 +1078,8 @@ class ProjectGetDataTest(TestCase):
         self.assertEqual(project.get_all_contributions(user).count(), 5)
 
     def test_get_data_min_max_inverse_time_filter(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
         category_1 = CategoryFactory(**{'project': project})
         TimeFieldFactory(**{
             'key': 'time',
@@ -1091,7 +1091,7 @@ class ProjectGetDataTest(TestCase):
             'category': category_2
         })
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
@@ -1124,8 +1124,8 @@ class ProjectGetDataTest(TestCase):
         self.assertEqual(project.get_all_contributions(user).count(), 5)
 
     def test_get_data_min_time_filter(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
         category_1 = CategoryFactory(**{'project': project})
         TimeFieldFactory(**{
             'key': 'time',
@@ -1137,7 +1137,7 @@ class ProjectGetDataTest(TestCase):
             'category': category_2
         })
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
@@ -1170,8 +1170,8 @@ class ProjectGetDataTest(TestCase):
         self.assertEqual(project.get_all_contributions(user).count(), 5)
 
     def test_get_data_max_time_filter(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
         category_1 = CategoryFactory(**{'project': project})
         TimeFieldFactory(**{
             'key': 'time',
@@ -1183,7 +1183,7 @@ class ProjectGetDataTest(TestCase):
             'category': category_2
         })
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
@@ -1216,11 +1216,11 @@ class ProjectGetDataTest(TestCase):
         self.assertEqual(project.get_all_contributions(user).count(), 5)
 
     def test_get_created_after(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
         category_1 = CategoryFactory(**{'project': project})
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
@@ -1261,11 +1261,11 @@ class ProjectGetDataTest(TestCase):
         self.assertEqual(project.get_all_contributions(user).count(), 10)
 
     def test_get_created_before(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
         category_1 = CategoryFactory(**{'project': project})
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
@@ -1306,11 +1306,11 @@ class ProjectGetDataTest(TestCase):
         self.assertEqual(project.get_all_contributions(user).count(), 5)
 
     def test_get_created_before_and_after(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
         category_1 = CategoryFactory(**{'project': project})
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
@@ -1352,8 +1352,8 @@ class ProjectGetDataTest(TestCase):
         self.assertEqual(project.get_all_contributions(user).count(), 5)
 
     def test_get_data_multiple_lookup_filter(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
         category_1 = CategoryFactory(**{'project': project})
         lookup_field = MultipleLookupFieldFactory(**{
             'key': 'lookup',
@@ -1381,7 +1381,7 @@ class ProjectGetDataTest(TestCase):
             'field': lookup_field_2
         })
 
-        UserGroupF.create(
+        UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,

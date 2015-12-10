@@ -12,7 +12,7 @@ from rest_framework_gis import serializers as geoserializers
 
 from rest_framework.serializers import BaseSerializer
 
-from geokey.categories.serializer import CategorySerializer
+from geokey.categories.serializers import CategorySerializer
 from geokey.categories.models import Category
 from geokey.users.serializers import UserSerializer
 

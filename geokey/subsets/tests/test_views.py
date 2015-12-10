@@ -9,8 +9,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.messages import get_messages
 
 from geokey import version
-from geokey.users.tests.model_factories import UserF
-from geokey.projects.tests.model_factories import ProjectF
+from geokey.users.tests.model_factories import UserFactory
+from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.categories.tests.model_factories import CategoryFactory
 
 from .model_factories import SubsetFactory
@@ -51,8 +51,8 @@ class SubsetOverviewTest(TestCase):
         Accessing the view with normal user should render the page with an
         error message
         """
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
 
         self.request.user = user
         response = self.view(self.request, project_id=project.id).render()
@@ -74,7 +74,7 @@ class SubsetOverviewTest(TestCase):
         """
         Accessing the view with project admin should render the page
         """
-        project = ProjectF.create()
+        project = ProjectFactory.create()
         user = project.creator
 
         self.request.user = user
@@ -135,8 +135,8 @@ class SubsetCreateTest(TestCase):
         Accessing the view with normal user should render the page with an
         error message
         """
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
 
         self.request.user = user
         response = self.view(self.request, project_id=project.id).render()
@@ -165,8 +165,8 @@ class SubsetCreateTest(TestCase):
             'description': 'Description',
         }
 
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
 
         self.request.user = user
         response = self.view(self.request, project_id=project.id).render()
@@ -189,7 +189,7 @@ class SubsetCreateTest(TestCase):
         """
         Accessing the view with project admin should render the page
         """
-        project = ProjectF.create()
+        project = ProjectFactory.create()
         user = project.creator
 
         self.request.user = user
@@ -218,7 +218,7 @@ class SubsetCreateTest(TestCase):
             'description': 'Description',
         }
 
-        project = ProjectF.create()
+        project = ProjectFactory.create()
         user = project.creator
 
         self.request.user = user
@@ -291,7 +291,7 @@ class SubsetSettingsTest(TestCase):
         Accessing the view with normal user should render the page with an
         error message
         """
-        user = UserF.create()
+        user = UserFactory.create()
         subset = SubsetFactory.create()
 
         self.request.user = user
@@ -317,7 +317,7 @@ class SubsetSettingsTest(TestCase):
         """
         Updating with normal user should render the page with an error message
         """
-        user = UserF.create()
+        user = UserFactory.create()
         subset = SubsetFactory.create()
 
         self.request.user = user
@@ -414,7 +414,7 @@ class SubsetSettingsTest(TestCase):
         """
         Accessing the view with project admin should render an error message
         """
-        project = ProjectF.create()
+        project = ProjectFactory.create()
         user = project.creator
 
         self.request.user = user
@@ -440,7 +440,7 @@ class SubsetSettingsTest(TestCase):
         """
         Update the view with project admin should render an error message
         """
-        project = ProjectF.create()
+        project = ProjectFactory.create()
         user = project.creator
 
         self.request.user = user
@@ -525,7 +525,7 @@ class SubsetDataTest(TestCase):
         error message
         """
         subset = SubsetFactory.create()
-        user = UserF.create()
+        user = UserFactory.create()
 
         self.request.user = user
         response = self.view(
@@ -552,7 +552,7 @@ class SubsetDataTest(TestCase):
         update the filter
         """
         subset = SubsetFactory.create()
-        user = UserF.create()
+        user = UserFactory.create()
 
         category = CategoryFactory.create(**{'project': subset.project})
 
@@ -680,7 +680,7 @@ class SubsetDeleteTest(TestCase):
         error message
         """
         subset = SubsetFactory.create()
-        user = UserF.create()
+        user = UserFactory.create()
 
         self.request.user = user
         response = self.view(

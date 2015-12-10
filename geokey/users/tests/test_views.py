@@ -20,10 +20,10 @@ from allauth.account.models import EmailAddress
 
 from geokey import version
 from geokey.applications.tests.model_factories import ApplicationFactory
-from geokey.projects.tests.model_factories import ProjectF
+from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.categories.tests.model_factories import CategoryFactory
 
-from .model_factories import UserF, UserGroupF
+from .model_factories import UserFactory, UserGroupFactory
 from ..views import (
     UserGroup, UserGroupUsers, UserGroupSingleUser,
     UserGroupCreate, UserGroupSettings, UserProfile,
@@ -50,7 +50,7 @@ class IndexTest(TestCase):
         return view(request)
 
     def test_with_user(self):
-        request = self.get(UserF.create())
+        request = self.get(UserFactory.create())
         self.assertEqual(request.status_code, 302)
 
     def test_with_anonymous(self):
@@ -60,16 +60,16 @@ class IndexTest(TestCase):
 
 class DashboardTest(TestCase):
     def setUp(self):
-        self.creator = UserF.create()
-        self.admin = UserF.create()
-        self.view_member = UserF.create()
-        self.contributor = UserF.create()
-        ProjectF.create(
+        self.creator = UserFactory.create()
+        self.admin = UserFactory.create()
+        self.view_member = UserFactory.create()
+        self.contributor = UserFactory.create()
+        ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
 
-        ProjectF.create(
+        ProjectFactory.create(
             add_admins=[self.admin, self.contributor]
         )
 
@@ -100,8 +100,8 @@ class DashboardTest(TestCase):
 
 class UserGroupListTest(TestCase):
     def test(self):
-        project = ProjectF.create()
-        UserGroupF.create_batch(3, **{'project': project})
+        project = ProjectFactory.create()
+        UserGroupFactory.create_batch(3, **{'project': project})
 
         view = UserGroupList()
         url = reverse(
@@ -138,7 +138,7 @@ class CreateUserMixinTest(TransactionTestCase):
     @raises(IntegrityError)
     def test_create_user_with_taken_email(self):
         create_mixin = CreateUserMixin()
-        UserF.create(**{'email': 'user-1@example.com'})
+        UserFactory.create(**{'email': 'user-1@example.com'})
 
         user = create_mixin.create_user(self.data)
         self.assertTrue(isinstance(user, User))
@@ -149,11 +149,11 @@ class CreateUserMixinTest(TransactionTestCase):
 class UserGroupCreateTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -238,8 +238,8 @@ class UserGroupCreateTest(TestCase):
 
 class UserGroupOverviewTest(TestCase):
     def test(self):
-        project = ProjectF.create()
-        group = UserGroupF.create(**{'project': project})
+        project = ProjectFactory.create()
+        group = UserGroupFactory.create(**{'project': project})
 
         view = UserGroupOverview()
         url = reverse(
@@ -258,7 +258,7 @@ class UserGroupOverviewTest(TestCase):
 
 class AdministratorsOverviewTest(TestCase):
     def test(self):
-        project = ProjectF.create()
+        project = ProjectFactory.create()
 
         view = AdministratorsOverview()
         url = reverse(
@@ -278,15 +278,15 @@ class AdministratorsOverviewTest(TestCase):
 class UserGroupSettingTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
-        self.usergroup = UserGroupF(**{'project': self.project})
+        self.usergroup = UserGroupFactory(**{'project': self.project})
 
     def get(self, user):
         view = UserGroupSettings.as_view()
@@ -391,8 +391,8 @@ class UserGroupSettingTest(TestCase):
 
 class UserGroupPermissionsTest(TestCase):
     def test(self):
-        project = ProjectF.create()
-        group = UserGroupF.create(**{'project': project})
+        project = ProjectFactory.create()
+        group = UserGroupFactory.create(**{'project': project})
 
         view = UserGroupPermissions()
         url = reverse(
@@ -425,7 +425,7 @@ class UserGroupDataTest(TestCase):
         self.assertEqual(resolved.func.func_name, UserGroupData.__name__)
 
     def test_views_with_admin(self):
-        group = UserGroupF.create()
+        group = UserGroupFactory.create()
         view = UserGroupData.as_view()
 
         request = HttpRequest()
@@ -504,8 +504,8 @@ class UserGroupDataTest(TestCase):
         )
 
     def test_views_with_other_user(self):
-        user = UserF.create()
-        group = UserGroupF.create()
+        user = UserFactory.create()
+        group = UserGroupFactory.create()
         view = UserGroupData.as_view()
 
         request = HttpRequest()
@@ -559,13 +559,13 @@ class UserGroupDataTest(TestCase):
 
 class UserGroupDeleteTest(TestCase):
     def setUp(self):
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.project = ProjectF.create(
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
-        self.group = UserGroupF.create(**{'project': self.project})
+        self.group = UserGroupFactory.create(**{'project': self.project})
 
     def test_delete_with_admin(self):
         view = UserGroupDelete.as_view()
@@ -655,7 +655,7 @@ class UserProfileTest(TestCase):
         Accessing the view with regular user should render the page.
         """
         self.request.method = 'GET'
-        self.request.user = UserF.create()
+        self.request.user = UserFactory.create()
         response = self.view(self.request).render()
 
         rendered = render_to_string(
@@ -691,7 +691,7 @@ class UserProfileTest(TestCase):
         and show success message.
         """
         self.request.method = 'POST'
-        self.request.user = UserF.create()
+        self.request.user = UserFactory.create()
         self.request.POST = {
             'display_name': 'Test User',
             'email': 'test-user@example.com'
@@ -739,7 +739,7 @@ class UserProfileTest(TestCase):
         message.
         """
         self.request.method = 'POST'
-        self.request.user = UserF.create()
+        self.request.user = UserFactory.create()
         self.request.POST = {
             'display_name': self.request.user.display_name,
             'email': self.request.user.email
@@ -773,7 +773,7 @@ class UserProfileTest(TestCase):
         show success message.
         """
         self.request.method = 'POST'
-        self.request.user = UserF.create()
+        self.request.user = UserFactory.create()
         self.request.POST = {
             'display_name': 'Test User',
             'email': self.request.user.email,
@@ -812,7 +812,7 @@ class UserProfileTest(TestCase):
         object, if it does not exist.
         """
         self.request.method = 'POST'
-        self.request.user = UserF.create()
+        self.request.user = UserFactory.create()
         self.request.POST = {
             'display_name': 'Test User',
             'email': 'test-user@example.com'
@@ -883,22 +883,22 @@ class QueryUsersTest(TestCase):
         return self.client.get('/ajax/users/?query=' + query)
 
     def setUp(self):
-        UserF.create(**{
+        UserFactory.create(**{
             'display_name': 'Peter Schmeichel'
         })
-        UserF.create(**{
+        UserFactory.create(**{
             'display_name': 'George Best'
         })
-        UserF.create(**{
+        UserFactory.create(**{
             'display_name': 'Luis Figo'
         })
-        UserF.create(**{
+        UserFactory.create(**{
             'display_name': 'pete23'
         })
-        UserF.create(**{
+        UserFactory.create(**{
             'display_name': 'pet48'
         })
-        UserF.create(**{
+        UserFactory.create(**{
             'display_name': 'Frank Lampard'
         })
 
@@ -926,16 +926,16 @@ class QueryUsersTest(TestCase):
 class UserGroupTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
-        self.user_to_add = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
+        self.user_to_add = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin]
         )
 
-        self.contributors = UserGroupF(
+        self.contributors = UserGroupFactory(
             add_users=[self.contributor],
             **{'project': self.project}
         )
@@ -987,16 +987,16 @@ class UserGroupTest(TestCase):
 class UserGroupUsersTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
-        self.user_to_add = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
+        self.user_to_add = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin]
         )
 
-        self.contributors = UserGroupF(
+        self.contributors = UserGroupFactory(
             add_users=[self.contributor],
             **{'project': self.project}
         )
@@ -1097,16 +1097,16 @@ class UserGroupUsersTest(TestCase):
 class UserGroupSingleUserTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
-        self.contrib_to_remove = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
+        self.contrib_to_remove = UserFactory.create()
 
-        self.project = ProjectF.create(add_admins=[
+        self.project = ProjectFactory.create(add_admins=[
             self.admin
         ])
 
-        self.contributors = UserGroupF(add_users=[
+        self.contributors = UserGroupFactory(add_users=[
             self.contributor, self.contrib_to_remove
         ], **{
             'project': self.project,
@@ -1114,7 +1114,7 @@ class UserGroupSingleUserTest(TestCase):
         })
 
     def test_delete_not_existing_user(self):
-        user = UserF.create()
+        user = UserFactory.create()
         request = self.factory.delete(
             '/ajax/projects/%s/usergroups/%s/users/%s/' %
             (self.project.id, self.contributors.id, user.id),
@@ -1208,7 +1208,7 @@ class UserGroupSingleUserTest(TestCase):
 
 class ChangePasswordTest(TestCase):
     def test_changepassword(self):
-        user = UserF.create(**{'password': '123456'})
+        user = UserFactory.create(**{'password': '123456'})
         factory = APIRequestFactory()
         url = reverse('api:changepassword')
         data = {
@@ -1239,7 +1239,7 @@ class ChangePasswordTest(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_changepassword_wrong_oldpassword(self):
-        user = UserF.create(**{'password': '123456'})
+        user = UserFactory.create(**{'password': '123456'})
         factory = APIRequestFactory()
         url = reverse('api:changepassword')
         data = {
@@ -1259,7 +1259,7 @@ class ChangePasswordTest(TestCase):
         )
 
     def test_changepassword_password_dont_match(self):
-        user = UserF.create(**{'password': '123456'})
+        user = UserFactory.create(**{'password': '123456'})
         factory = APIRequestFactory()
         url = reverse('api:changepassword')
         data = {
@@ -1294,7 +1294,7 @@ class UserAPIViewTest(TestCase):
         self.data['client_id'] = self.client.client_id
 
     def test_get_user(self):
-        user = UserF.create()
+        user = UserFactory.create()
         view = UserAPIView.as_view()
         request = self.factory.get(self.url)
         request.user = user
@@ -1309,7 +1309,7 @@ class UserAPIViewTest(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_update_user(self):
-        user = UserF.create()
+        user = UserFactory.create()
         EmailAddress.objects.create(user=user, email=user.email)
 
         view = UserAPIView.as_view()
@@ -1337,7 +1337,7 @@ class UserAPIViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_update_user_display_name(self):
-        user = UserF.create()
+        user = UserFactory.create()
         EmailAddress.objects.create(user=user, email=user.email)
 
         view = UserAPIView.as_view()
@@ -1364,7 +1364,7 @@ class UserAPIViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_update_user_display_name_with_whitespace(self):
-        user = UserF.create()
+        user = UserFactory.create()
         EmailAddress.objects.create(user=user, email=user.email)
 
         view = UserAPIView.as_view()
@@ -1391,7 +1391,7 @@ class UserAPIViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_update_old_user_email(self):
-        user = UserF.create()
+        user = UserFactory.create()
 
         view = UserAPIView.as_view()
         data = {
@@ -1413,8 +1413,8 @@ class UserAPIViewTest(TestCase):
             'display_name': 'user-1',
             'email': 'user-1@example.com'
         }
-        UserF.create(**data)
-        user = UserF.create()
+        UserFactory.create(**data)
+        user = UserFactory.create()
         view = UserAPIView.as_view()
 
         request = self.factory.patch(
@@ -1442,7 +1442,7 @@ class UserAPIViewTest(TestCase):
         self.assertEquals(len(mail.outbox), 1)
 
     def test_sign_with_existing_email(self):
-        UserF.create(**{
+        UserFactory.create(**{
             'display_name': 'USer-3',
             'email': 'user-1@example.com'}
         )
@@ -1483,7 +1483,7 @@ class UserAPIViewTest(TestCase):
         self.assertEqual(len(errors.get('errors')), 1)
 
     def test_sign_with_existing_email_and_name(self):
-        UserF.create(**{
+        UserFactory.create(**{
             'display_name': 'user 1',
             'email': 'user-1@example.com'
         })

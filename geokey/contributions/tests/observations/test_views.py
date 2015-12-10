@@ -8,13 +8,13 @@ from django.contrib.auth.models import AnonymousUser
 from nose.tools import raises
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from geokey.projects.tests.model_factories import UserF, ProjectF
+from geokey.projects.tests.model_factories import UserFactory, ProjectFactory
 from geokey.projects.models import Project
 from geokey.categories.tests.model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory
 )
 from geokey.users.models import User
-from geokey.users.tests.model_factories import UserGroupF
+from geokey.users.tests.model_factories import UserGroupFactory
 from geokey.subsets.tests.model_factories import SubsetFactory
 
 from ..model_factories import (
@@ -31,16 +31,16 @@ from geokey.contributions.models import Observation
 class SingleContributionAPIViewTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.creator = UserF.create()
-        self.moderator = UserF.create()
-        self.viewer = UserF.create()
-        self.project = ProjectF(
+        self.admin = UserFactory.create()
+        self.creator = UserFactory.create()
+        self.moderator = UserFactory.create()
+        self.viewer = UserFactory.create()
+        self.project = ProjectFactory(
             add_admins=[self.admin],
             add_contributors=[self.creator],
             add_viewer=[self.viewer]
         )
-        self.moderators = UserGroupF(add_users=[self.moderator], **{
+        self.moderators = UserGroupFactory(add_users=[self.moderator], **{
             'project': self.project,
             'can_moderate': True
         })
@@ -238,7 +238,7 @@ class SingleContributionAPIViewTest(TestCase):
     @raises(PermissionDenied)
     def test_flag_with_anonymous(self):
         if not User.objects.filter(display_name='AnonymousUser').exists():
-            UserF.create(display_name='AnonymousUser')
+            UserFactory.create(display_name='AnonymousUser')
 
         url = reverse('api:project_single_observation', kwargs={
             'project_id': self.project.id,
@@ -395,9 +395,9 @@ class SingleContributionAPIViewTest(TestCase):
 
 class SingleAllContributionAPIViewTest(TestCase):
     def setUp(self):
-        self.admin = UserF.create()
-        self.creator = UserF.create()
-        self.project = ProjectF(
+        self.admin = UserFactory.create()
+        self.creator = UserFactory.create()
+        self.project = ProjectFactory(
             add_admins=[self.admin],
             add_contributors=[self.creator]
         )
@@ -420,7 +420,7 @@ class SingleAllContributionAPIViewTest(TestCase):
 
     @raises(Project.DoesNotExist)
     def test_get_object_with_some_dude(self):
-        some_dude = UserF.create()
+        some_dude = UserFactory.create()
         view = SingleAllContributionAPIView()
         view.get_object(
             some_dude, self.observation.project.id, self.observation.id)
@@ -454,11 +454,11 @@ class SingleAllContributionAPIViewTest(TestCase):
 class ProjectPublicApiTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF(
+        self.project = ProjectFactory(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -508,7 +508,7 @@ class ProjectPublicApiTest(TestCase):
     def _post(self, data, user):
         if user.is_anonymous and not User.objects.filter(
                 display_name='AnonymousUser').exists():
-            UserF.create(display_name='AnonymousUser')
+            UserFactory.create(display_name='AnonymousUser')
         url = reverse(
             'api:project_observations',
             kwargs={
@@ -631,7 +631,7 @@ class ProjectPublicApiTest(TestCase):
         self.assertEqual(response.status_code, 201)
 
     def test_contribute_with_wrong_project_location(self):
-        project = ProjectF()
+        project = ProjectFactory()
         location = LocationFactory(**{
             'private': True,
             'private_for_project': project
@@ -767,7 +767,7 @@ class ProjectPublicApiTest(TestCase):
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 400)
 
-    def test_contribute_to_public_everyone_with_Anonymous(self):
+    def test_contribute_to_public_everyone_with_anonymous(self):
         self.project.everyone_contributes = 'true'
         self.project.isprivate = False
         self.project.save()
@@ -848,7 +848,7 @@ class ProjectPublicApiTest(TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(len(self.project.observations.all()), 0)
 
-    def test_contribute_to_inactive_with_Anonymous(self):
+    def test_contribute_to_inactive_with_anonymous(self):
         self.project.status = 'inactive'
         self.project.save()
 
@@ -888,10 +888,10 @@ class ProjectPublicApiTest(TestCase):
 class GetSingleObservationInProject(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
 
-        self.project = ProjectF(
+        self.project = ProjectFactory(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -922,7 +922,7 @@ class GetSingleObservationInProject(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_get_with_non_member(self):
-        user = UserF.create()
+        user = UserFactory.create()
         response = self._get(user)
         self.assertEqual(response.status_code, 404)
 
@@ -930,11 +930,11 @@ class GetSingleObservationInProject(TestCase):
 class UpdateObservationInProject(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF(
+        self.project = ProjectFactory(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -1105,10 +1105,10 @@ class UpdateObservationInProject(TestCase):
 class TestProjectPublicApi(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
 
-        self.project = ProjectF.create(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -1183,7 +1183,7 @@ class TestProjectPublicApi(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_get_with_some_dude(self):
-        some_dude = UserF.create()
+        some_dude = UserFactory.create()
         response = self.get(some_dude)
         self.assertEqual(response.status_code, 404)
 

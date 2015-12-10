@@ -5,7 +5,7 @@ from django.utils import timezone
 from ..models import User, UserGroup
 
 
-class UserF(factory.django.DjangoModelFactory):
+class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
@@ -22,7 +22,7 @@ class UserF(factory.django.DjangoModelFactory):
     @classmethod
     def _prepare(cls, create, **kwargs):
         password = kwargs.pop('password', None)
-        user = super(UserF, cls)._prepare(create, **kwargs)
+        user = super(UserFactory, cls)._prepare(create, **kwargs)
         if password:
             user.set_password(password)
             if create:
@@ -30,14 +30,14 @@ class UserF(factory.django.DjangoModelFactory):
         return user
 
 
-class UserGroupF(factory.django.DjangoModelFactory):
+class UserGroupFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = UserGroup
 
     name = factory.Sequence(lambda n: 'name_%d' % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     project = factory.SubFactory(
-        'geokey.projects.tests.model_factories.ProjectF')
+        'geokey.projects.tests.model_factories.ProjectFactory')
     can_contribute = True
     can_moderate = False
 

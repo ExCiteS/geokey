@@ -4,7 +4,7 @@ from django.db.models import Q
 from rest_framework import serializers
 
 from geokey.core.serializers import FieldSelectorSerializer
-from geokey.categories.serializer import CategorySerializer
+from geokey.categories.serializers import CategorySerializer
 from geokey.subsets.serializers import SubsetSerializer
 from geokey.contributions.models import Location
 

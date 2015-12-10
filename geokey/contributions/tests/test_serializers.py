@@ -6,7 +6,7 @@ from django.contrib.auth.models import AnonymousUser
 
 from nose.tools import raises
 
-from geokey.projects.tests.model_factories import UserF, ProjectF
+from geokey.projects.tests.model_factories import UserFactory, ProjectFactory
 from geokey.categories.tests.model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory
 )
@@ -23,8 +23,8 @@ from .model_factories import (
 
 class LocationContributionSerializerTest(TestCase):
     def test_create_new_full_location(self):
-        user = UserF.create()
-        project = ProjectF.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
         data = {
             "name": "Location",
             "description": "Location description",
@@ -44,7 +44,7 @@ class LocationContributionSerializerTest(TestCase):
         self.assertEqual(Location.objects.all()[0].creator, user)
 
     def test_create_geometry_only(self):
-        user = UserF.create()
+        user = UserFactory.create()
         data = {
             "geometry": '{ "type": "Point","coordinates": [ '
                         '-0.144415497779846, 51.54671869005856] }',
@@ -60,7 +60,7 @@ class LocationContributionSerializerTest(TestCase):
         self.assertEqual(Location.objects.all()[0].creator, user)
 
     def test_update_full_location(self):
-        user = UserF.create()
+        user = UserFactory.create()
         location = LocationFactory.create()
         data = {
             "name": "Private Location",
@@ -85,7 +85,7 @@ class LocationContributionSerializerTest(TestCase):
         self.assertEqual(ref.private, data.get('private'))
 
     def test_update_geometry_only(self):
-        user = UserF.create()
+        user = UserFactory.create()
         location = LocationFactory.create()
         data = {
             "geometry": '{"type": "Point","coordinates": [ '
@@ -123,20 +123,20 @@ class ContributionSerializerTest(TestCase):
         self.assertEqual(result.get('text'), properties.get('text'))
 
     def test_validate_location(self):
-        project = ProjectF.create()
+        project = ProjectFactory.create()
         serializer = ContributionSerializer(context={'user': project.creator})
         serializer._errors = {}
         serializer.validate_location(project, 8271839172)
         self.assertIsNotNone(serializer._errors.get('location'))
 
-        project = ProjectF.create()
+        project = ProjectFactory.create()
         location = LocationFactory.create(**{'private': True})
         serializer = ContributionSerializer(context={'user': project.creator})
         serializer._errors = {}
         serializer.validate_location(project, location.id)
         self.assertIsNotNone(serializer._errors.get('location'))
 
-        project = ProjectF.create()
+        project = ProjectFactory.create()
         location = LocationFactory.create()
         serializer = ContributionSerializer(context={'user': project.creator})
         serializer._errors = {}
@@ -156,11 +156,11 @@ class ContributionSerializerTest(TestCase):
 
 class ContributionSerializerIntegrationTests(TestCase):
     def setUp(self):
-        self.admin = UserF.create()
-        self.contributor = UserF.create()
-        self.non_member = UserF.create()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
 
-        self.project = ProjectF(
+        self.project = ProjectFactory(
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
@@ -321,7 +321,7 @@ class ContributionSerializerIntegrationTests(TestCase):
 
     @raises(ValidationError)
     def test_create_with_wrong_location(self):
-        project = ProjectF()
+        project = ProjectFactory()
         location = LocationFactory(**{
             'private': True,
             'private_for_project': project
@@ -571,14 +571,14 @@ class ContributionSerializerIntegrationTests(TestCase):
 
 class CommendSerializerTest(TestCase):
     def test_get_isowner(self):
-        user = UserF.create()
+        user = UserFactory.create()
         comment = CommentFactory.create(**{'creator': user})
 
         serializer = CommentSerializer(comment, context={'user': user})
         self.assertTrue(serializer.get_isowner(comment))
 
         serializer = CommentSerializer(
-            comment, context={'user': UserF.create()})
+            comment, context={'user': UserFactory.create()})
         self.assertFalse(serializer.get_isowner(comment))
 
         serializer = CommentSerializer(

@@ -24,7 +24,7 @@ from .models import (
     MultipleLookupField, MultipleLookupValue
 )
 from .forms import CategoryCreateForm, FieldCreateForm
-from .serializer import (
+from .serializers import (
     CategorySerializer, FieldSerializer, LookupFieldSerializer
 )
 from geokey.contributions.models import Observation

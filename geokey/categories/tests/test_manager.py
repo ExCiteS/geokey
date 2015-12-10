@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 
 from nose.tools import raises
 
-from geokey.projects.tests.model_factories import UserF, ProjectF
+from geokey.projects.tests.model_factories import UserFactory, ProjectFactory
 from geokey.projects.models import Project
 
 from ..models import Field, Category, LookupValue
@@ -15,9 +15,9 @@ from .model_factories import (
 
 class CategoryManagerTest(TestCase):
     def test_access_with_projct_admin(self):
-        admin = UserF.create()
+        admin = UserFactory.create()
 
-        project = ProjectF.create(
+        project = ProjectFactory.create(
             add_admins=[admin],
             **{'isprivate': True}
         )
@@ -36,9 +36,9 @@ class CategoryManagerTest(TestCase):
         )
 
     def test_access_with_projct_contributor(self):
-        contributor = UserF.create()
+        contributor = UserFactory.create()
 
-        project = ProjectF.create(
+        project = ProjectFactory.create(
             add_contributors=[contributor],
             **{'isprivate': True}
         )
@@ -58,9 +58,9 @@ class CategoryManagerTest(TestCase):
 
     @raises(Project.DoesNotExist)
     def test_access_with_projct_non_member(self):
-        contributor = UserF.create()
+        contributor = UserFactory.create()
 
-        project = ProjectF.create()
+        project = ProjectFactory.create()
 
         CategoryFactory(**{
             'project': project,
@@ -73,9 +73,9 @@ class CategoryManagerTest(TestCase):
         Category.objects.get_list(contributor, project.id)
 
     def test_access_active_with_admin(self):
-        admin = UserF.create()
+        admin = UserFactory.create()
 
-        project = ProjectF.create(
+        project = ProjectFactory.create(
             add_admins=[admin],
             **{'isprivate': True}
         )
@@ -89,8 +89,8 @@ class CategoryManagerTest(TestCase):
             admin, project.id, active_type.id))
 
     def test_access_inactive_with_admin(self):
-        admin = UserF.create()
-        project = ProjectF.create(
+        admin = UserFactory.create()
+        project = ProjectFactory.create(
             add_admins=[admin],
             **{'isprivate': True}
         )
@@ -102,9 +102,9 @@ class CategoryManagerTest(TestCase):
             admin, project.id, inactive_type.id))
 
     def test_access_active_with_contributor(self):
-        contributor = UserF.create()
+        contributor = UserFactory.create()
 
-        project = ProjectF.create(
+        project = ProjectFactory.create(
             add_contributors=[contributor],
             **{'isprivate': True}
         )
@@ -119,9 +119,9 @@ class CategoryManagerTest(TestCase):
 
     @raises(PermissionDenied)
     def test_access_inactive_with_contributor(self):
-        contributor = UserF.create()
+        contributor = UserFactory.create()
 
-        project = ProjectF.create(
+        project = ProjectFactory.create(
             add_contributors=[contributor],
             **{'isprivate': True}
         )
@@ -134,9 +134,9 @@ class CategoryManagerTest(TestCase):
 
     @raises(Project.DoesNotExist)
     def test_access_active_with_non_member(self):
-        contributor = UserF.create()
+        contributor = UserFactory.create()
 
-        project = ProjectF.create(**{
+        project = ProjectFactory.create(**{
             'isprivate': True,
         })
 
@@ -150,9 +150,9 @@ class CategoryManagerTest(TestCase):
 
     @raises(Project.DoesNotExist)
     def test_access_inactive_with_non_member(self):
-        contributor = UserF.create()
+        contributor = UserFactory.create()
 
-        project = ProjectF.create(**{
+        project = ProjectFactory.create(**{
             'isprivate': True,
         })
         inactive_type = CategoryFactory(**{
@@ -163,9 +163,9 @@ class CategoryManagerTest(TestCase):
             contributor, project.id, inactive_type.id)
 
     def test_admin_access_with_admin(self):
-        admin = UserF.create()
+        admin = UserFactory.create()
 
-        project = ProjectF.create(
+        project = ProjectFactory.create(
             add_admins=[admin],
             **{'isprivate': True}
         )
@@ -179,9 +179,9 @@ class CategoryManagerTest(TestCase):
 
     @raises(PermissionDenied)
     def test_admin_access_with_contributor(self):
-        user = UserF.create()
+        user = UserFactory.create()
 
-        project = ProjectF.create(
+        project = ProjectFactory.create(
             add_contributors=[user],
             **{'isprivate': True}
         )
@@ -194,9 +194,9 @@ class CategoryManagerTest(TestCase):
 
     @raises(Project.DoesNotExist)
     def test_admin_access_with_non_member(self):
-        user = UserF.create()
+        user = UserFactory.create()
 
-        project = ProjectF.create(**{
+        project = ProjectFactory.create(**{
             'isprivate': True
         })
 
@@ -209,8 +209,8 @@ class CategoryManagerTest(TestCase):
 
 class FieldManagerTest(TestCase):
     def test_access_fields_with_admin(self):
-        admin = UserF.create()
-        project = ProjectF.create(
+        admin = UserFactory.create()
+        project = ProjectFactory.create(
             add_admins=[admin],
             **{'isprivate': True}
         )
@@ -232,8 +232,8 @@ class FieldManagerTest(TestCase):
         )
 
     def test_access_active_field_with_admin(self):
-        user = UserF.create()
-        project = ProjectF.create(
+        user = UserFactory.create()
+        project = ProjectFactory.create(
             add_admins=[user],
             **{'isprivate': True}
         )
@@ -250,8 +250,8 @@ class FieldManagerTest(TestCase):
                 user, project.id, category.id, field.id))
 
     def test_access_inactive_field_with_admin(self):
-        user = UserF.create()
-        project = ProjectF.create(
+        user = UserFactory.create()
+        project = ProjectFactory.create(
             add_admins=[user],
             **{'isprivate': True}
         )
@@ -268,8 +268,8 @@ class FieldManagerTest(TestCase):
                 user, project.id, category.id, field.id))
 
     def test_admin_access_active_field_with_admin(self):
-        user = UserF.create()
-        project = ProjectF.create(
+        user = UserFactory.create()
+        project = ProjectFactory.create(
             add_admins=[user],
             **{'isprivate': True}
         )
@@ -286,8 +286,8 @@ class FieldManagerTest(TestCase):
                 user, project.id, category.id, field.id))
 
     def test_access_fields_with_contributor(self):
-        user = UserF.create()
-        project = ProjectF.create(
+        user = UserFactory.create()
+        project = ProjectFactory.create(
             add_contributors=[user],
             **{'isprivate': True}
         )
@@ -308,8 +308,8 @@ class FieldManagerTest(TestCase):
         self.assertNotIn(inactive, fields)
 
     def test_access_active_field_with_contributor(self):
-        user = UserF.create()
-        project = ProjectF.create(
+        user = UserFactory.create()
+        project = ProjectFactory.create(
             add_contributors=[user],
             **{'isprivate': True}
         )
@@ -327,8 +327,8 @@ class FieldManagerTest(TestCase):
 
     @raises(PermissionDenied)
     def test_access_active_field_inactive_cat_with_contributor(self):
-        user = UserF.create()
-        project = ProjectF.create(
+        user = UserFactory.create()
+        project = ProjectFactory.create(
             add_contributors=[user],
             **{'isprivate': True}
         )
@@ -344,8 +344,8 @@ class FieldManagerTest(TestCase):
 
     @raises(PermissionDenied)
     def test_access_inactive_field_with_contributor(self):
-        user = UserF.create()
-        project = ProjectF.create(
+        user = UserFactory.create()
+        project = ProjectFactory.create(
             add_contributors=[user],
             **{'isprivate': True}
         )
@@ -362,8 +362,8 @@ class FieldManagerTest(TestCase):
 
     @raises(PermissionDenied)
     def test_admin_access_active_field_with_contributor(self):
-        user = UserF.create()
-        project = ProjectF.create(
+        user = UserFactory.create()
+        project = ProjectFactory.create(
             add_contributors=[user],
             **{'isprivate': True}
         )
@@ -380,8 +380,8 @@ class FieldManagerTest(TestCase):
 
     @raises(Project.DoesNotExist)
     def test_access_fields_with_non_member(self):
-        user = UserF.create()
-        project = ProjectF.create(**{'isprivate': True})
+        user = UserFactory.create()
+        project = ProjectFactory.create(**{'isprivate': True})
         category = CategoryFactory(**{
             'project': project,
             'status': 'active'
@@ -398,8 +398,8 @@ class FieldManagerTest(TestCase):
 
     @raises(Project.DoesNotExist)
     def test_access_active_field_with_non_member(self):
-        user = UserF.create()
-        project = ProjectF.create(**{'isprivate': True})
+        user = UserFactory.create()
+        project = ProjectFactory.create(**{'isprivate': True})
         category = CategoryFactory(**{
             'project': project,
             'status': 'active'
@@ -413,8 +413,8 @@ class FieldManagerTest(TestCase):
 
     @raises(Project.DoesNotExist)
     def test_access_inactive_field_with_non_member(self):
-        user = UserF.create()
-        project = ProjectF.create(**{'isprivate': True})
+        user = UserFactory.create()
+        project = ProjectFactory.create(**{'isprivate': True})
         category = CategoryFactory(**{
             'project': project,
             'status': 'active'
@@ -428,8 +428,8 @@ class FieldManagerTest(TestCase):
 
     @raises(Project.DoesNotExist)
     def test_admin_access_active_field_with_non_member(self):
-        user = UserF.create()
-        project = ProjectF.create(**{'isprivate': True})
+        user = UserFactory.create()
+        project = ProjectFactory.create(**{'isprivate': True})
         category = CategoryFactory(**{
             'project': project,
             'status': 'active'
