@@ -31,4 +31,6 @@ class InfoAPIViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         
         response_json = json.loads(response.content)
-        self.assertEqual(response_json.get('geokey_version'), get_version())
+        self.assertIn('geokey', response_json)
+        geokey_json = response_json.get('geokey')
+        self.assertEqual(geokey_json.get('version'), get_version())

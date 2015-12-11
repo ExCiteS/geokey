@@ -9,7 +9,7 @@ class ExtensionExists(BaseException):
     pass
 
 
-def register(ext_id, name, display_admin=False, superuser=False):
+def register(ext_id, name, display_admin=False, superuser=False, version=''):
     """
     Registeres a new extension to the system.
 
@@ -23,6 +23,8 @@ def register(ext_id, name, display_admin=False, superuser=False):
         Indicates if the extension provides pages for the admin interface
     superuser : Boolean
         Indicates if the extentsion is available for superusers only
+    version : str
+        Version of the extension (optional)
 
     Raises
     ------
@@ -37,6 +39,7 @@ def register(ext_id, name, display_admin=False, superuser=False):
     extensions[ext_id] = {
         'ext_id': ext_id,
         'name': name,
+        'version': version,
         'display_admin': display_admin,
         'superuser': superuser,
         'index_url': ext_id + ':index'

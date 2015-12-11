@@ -30,11 +30,13 @@ class InfoAPIView(APIView):
             Containing the GeoKey server information
         """
         info = {}
+        gk_info = info['geokey'] = {}
         # GeoKey version:
-        info['geokey_version'] = get_version()
-        # Installed extensions (only the ids):
-        info['installed_extensions'] = map(lambda ext: ext, extensions)
-        # TODO Add extension versions?
+        gk_info['version'] = get_version()
+        # Installed extensions (with their version):
+        gk_info['installed_extensions'] = map(
+            lambda (ext_id, ext): {ext_id: {'version': ext['version']}},
+            extensions.iteritems())
         # TODO Add more info later?
         
         # Return info:
