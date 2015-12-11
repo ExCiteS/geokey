@@ -9,9 +9,9 @@ class ExtensionExists(BaseException):
     pass
 
 
-def register(ext_id, name, display_admin=False, superuser=False, version=''):
+def register(ext_id, name, display_admin=False, superuser=False, version=None):
     """
-    Registeres a new extension to the system.
+    Registers a new extension to the system.
 
     Parameters
     ----------
@@ -44,3 +44,14 @@ def register(ext_id, name, display_admin=False, superuser=False, version=''):
         'superuser': superuser,
         'index_url': ext_id + ':index'
     }
+
+def deregister(ext_id):
+    """
+    De-registers an extension to the system. Only to be used for testing.
+
+    Parameters
+    ----------
+    ext_id : str
+        Unique identifier for the extension
+    """
+    extensions.pop(ext_id, None)
