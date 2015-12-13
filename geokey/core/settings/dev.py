@@ -2,7 +2,9 @@ from .base import *
 
 # Set debug to True for development
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+# Note: setting TEMPLATE_DEBUG is deprecated, this is the new way:
+TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
+# (see http://docs.djangoproject.com/en/1.8/ref/settings/#template-debug)
 LOGGING_OUTPUT_ENABLED = DEBUG
 LOGGING_LOG_SQL = DEBUG
 
