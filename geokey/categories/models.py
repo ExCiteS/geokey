@@ -40,7 +40,7 @@ class Category(models.Model):
         max_length=20
     )
     colour = models.TextField(default='#0033ff')
-    symbol = models.ImageField(upload_to='symbols', null=True)
+    symbol = models.ImageField(upload_to='symbols', null=True, max_length=500)
 
     objects = CategoryManager()
 
@@ -837,6 +837,7 @@ class LookupValue(models.Model):
     Stores a single lookup value.
     """
     name = models.CharField(max_length=100)
+    symbol = models.ImageField(upload_to='symbols', null=True, max_length=500)
     field = models.ForeignKey(LookupField, related_name='lookupvalues')
     status = models.CharField(
         choices=STATUS,
