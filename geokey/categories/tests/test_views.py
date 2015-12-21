@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import json
 
 from django.test import TestCase, RequestFactory
@@ -10,7 +11,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 
 from geokey.projects.tests.model_factories import UserFactory, ProjectFactory
-from geokey.contributions.tests.media.model_factories import get_image
+from geokey.core.tests.helpers.image_helpers import get_image
 
 from .model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory,
@@ -212,9 +213,29 @@ class CategoryDisplayTest(TestCase):
         self.category = CategoryFactory.create(
             **{
                 'project': self.project,
-                'symbol': get_image()
+                'symbol': get_image(file_name='test_category_symbol.png')
             }
         )
+
+    def delete_symbol(self, category):
+        # No idea why this has to be so hard, but this is the only way I got it
+        # to work. Doing category.symbol.delete() does *not* work consistently.
+        symbol = category.symbol
+        try:
+            symbol.file.close()
+        except BaseException:
+            pass
+        try:
+           symbol.storage.delete(symbol.path)
+        except BaseException:
+            pass
+
+    def tearDown(self):
+        self.delete_symbol(self.category)
+        try:
+            self.delete_symbol(Category.objects.get(pk=self.category.id))
+        except Category.DoesNotExist:
+            pass
 
     def get(self, user):
         view = CategoryDisplay.as_view()
@@ -232,7 +253,7 @@ class CategoryDisplayTest(TestCase):
     def post(self, user, clear_symbol='false'):
         self.data = {
             'colour': '#222222',
-            'symbol': get_image() if clear_symbol == 'false' else None,
+            'symbol': get_image(file_name='test_category_symbol.png') if clear_symbol == 'false' else None,
             'clear-symbol': clear_symbol
         }
         view = CategoryDisplay.as_view()
@@ -1308,6 +1329,13 @@ class UpdateNumericField(TestCase):
 
 
 class AddLookupValueTest(TestCase):
+    def tearDown(self):
+        for lookup_value in LookupValue.objects.all():
+            try:
+                lookup_value.symbol.delete()
+            except BaseException, e:
+                pass
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserFactory.create()
@@ -1407,6 +1435,13 @@ class UpdateLookupValues(TestCase):
             'project': self.project,
             'status': 'active'
         })
+
+    def tearDown(self):
+        for lookup_value in LookupValue.objects.all():
+            try:
+                lookup_value.symbol.delete()
+            except BaseException, e:
+                pass
 
     def test_update_lookupvalue_with_admin(self):
         lookup_field = LookupFieldFactory(**{
@@ -1874,6 +1909,13 @@ class ObservationTypePublicApiTest(TestCase):
             'key': 'key_6',
             'category': self.category
         })
+
+    def tearDown(self):
+        for lookup_value in LookupValue.objects.all():
+            try:
+                lookup_value.symbol.delete()
+            except BaseException, e:
+                pass
 
     def _get(self, user):
         url = reverse(
