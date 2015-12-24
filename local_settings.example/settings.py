@@ -53,6 +53,7 @@ ROOT_URLCONF = 'local_settings.urls'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
+STATIC_ROOT = '/some/path/' # CHANGE THIS!
 STATIC_URL = '/static/'
 
 MEDIA_ROOT = normpath(join(dirname(dirname(abspath(__file__))), 'assets'))
