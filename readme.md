@@ -3,7 +3,7 @@
 [![PyPi version](https://img.shields.io/pypi/v/geokey.svg)](https://pypi.python.org/pypi/geokey/)
 [![Build Status](https://travis-ci.org/ExCiteS/geokey.svg?branch=master)](https://travis-ci.org/ExCiteS/geokey) [![Coverage Status](https://coveralls.io/repos/ExCiteS/geokey/badge.png)](https://coveralls.io/r/ExCiteS/geokey) [![Requirements Status](https://requires.io/github/ExCiteS/geokey/requirements.svg?branch=master)](https://requires.io/github/ExCiteS/geokey/requirements/?branch=master) [![Code Health](https://landscape.io/github/ExCiteS/geokey/master/landscape.svg?style=plastic)](https://landscape.io/github/ExCiteS/geokey/master)
 
-GeoKey is a platform for participatory mapping that is currently developed at [Extreme Citizen Science Research Group](http://ucl.ac.uk/excites) at University College London.
+GeoKey is a platform for participatory mapping that is currently developed by [Extreme Citizen Science](http://ucl.ac.uk/excites) research group at University College London.
 
 ## Developing
 
