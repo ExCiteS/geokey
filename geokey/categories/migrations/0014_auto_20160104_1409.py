@@ -11,11 +11,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='lookupvalue',
-            name='symbol',
-            field=models.ImageField(max_length=500, null=True, upload_to=b'symbols'),
-        ),
         migrations.AlterField(
             model_name='category',
             name='symbol',

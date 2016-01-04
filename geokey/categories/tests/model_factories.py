@@ -2,7 +2,6 @@ import factory
 
 from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.users.tests.model_factories import UserFactory
-from geokey.core.tests.helpers.image_helpers import get_image
 
 from ..models import (
     Category, TextField, NumericField, DateTimeField, DateField, TimeField,
@@ -111,7 +110,6 @@ class LookupValueFactory(factory.django.DjangoModelFactory):
         model = LookupValue
 
     name = factory.Sequence(lambda n: "lookupfield %s" % n)
-    symbol = get_image(file_name='test_lookup_value_symbol.png')
     field = factory.SubFactory(LookupFieldFactory)
     status = 'active'
 
