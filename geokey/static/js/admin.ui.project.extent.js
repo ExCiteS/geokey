@@ -57,7 +57,6 @@ $(function () {
 
     // handle deleted geometry
     map.on('draw:deleted', function() {
-        console.log('deleted');
         geometryField.val('');
     });
 }());
