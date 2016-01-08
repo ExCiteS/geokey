@@ -161,48 +161,6 @@ class MediaFileAbstractListAPIViewTest(TestCase):
 
         view.create_and_respond(self.admin, self.contribution)
 
-    # def test_create_video_and_respond(self):
-    #     url = reverse(
-    #         'api:project_media',
-    #         kwargs={
-    #             'project_id': self.project.id,
-    #             'contribution_id': self.contribution.id
-    #         }
-    #     )
-    #
-    #     video = open(
-    #         '/home/oroick/opencomap/contributions/tests/media/video.MOV'
-    #     )
-    #
-    #     data = {
-    #         'name': 'A test image',
-    #         'description': 'Test image description',
-    #         'file': video
-    #     }
-    #
-    #     request = self.factory.post(url, data)
-    #     request.user = self.admin
-    #     view = MediaFileListAbstractAPIView()
-    #     view.request = request
-    #
-    #     response = self.render(
-    #         view.create_and_respond(self.admin, self.contribution)
-    #     )
-    #
-    #     response_json = json.loads(response.content)
-    #     self.assertEqual(
-    #         response_json.get('name'),
-    #         data.get('name')
-    #     )
-    #     self.assertEqual(
-    #         response_json.get('description'),
-    #         data.get('description')
-    #     )
-    #     self.assertEqual(
-    #         response_json.get('creator').get('display_name'),
-    #         request.user.display_name
-    #     )
-
 
 class MediaFileSingleAbstractViewTest(TestCase):
     def setUp(self):

@@ -65,13 +65,3 @@ class ModelManagerTest(TestCase):
             creator=UserFactory.create(),
             the_file=the_file
         )
-
-    # def test_upload_youtube(self):
-    #     from geokey.contributions.manager import MediaFileManager
-    #     path = '/home/oroick/opencomap/contributions/tests/media/video.MOV'
-    #     video_id, swf_link = MediaFileManager()._upload_to_youtube(
-    #         'Test video',
-    #         path
-    #     )
-    #     self.assertIsNotNone(video_id)
-    #     self.assertIsNotNone(swf_link)

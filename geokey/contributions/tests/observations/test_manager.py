@@ -3,6 +3,7 @@ from django.test import TestCase
 from geokey.contributions.models import Observation
 
 from geokey.projects.tests.model_factories import ProjectFactory, UserFactory
+from geokey.categories.models import LookupValue
 from geokey.categories.tests.model_factories import (
     CategoryFactory, LookupFieldFactory, LookupValueFactory,
     TextFieldFactory, MultipleLookupFieldFactory, MultipleLookupValueFactory
@@ -65,6 +66,11 @@ class TestSearch(TestCase):
             'properties': {'key': 'blub'},
             'category': o_type
         })
+
+    def tearDown(self):
+        for lookup_value in LookupValue.objects.all():
+            if lookup_value.symbol is not None:
+                lookup_value.symbol.delete()
 
     def test_empty_string(self):
         result = Observation.objects.all().search('')
