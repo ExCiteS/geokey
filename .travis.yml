@@ -17,7 +17,7 @@ before_script:
 - psql template1 postgres -c "CREATE EXTENSION hstore;"
 - psql -c "CREATE USER django WITH PASSWORD 'django123';" -U postgres
 - psql -c "ALTER ROLE django WITH superuser;" -U postgres
-- psql -c '" DATABASE geokey OWNER django;" -U postgres
+- psql -c "CREATE DATABASE geokey OWNER django;" -U postgres
 - psql -d geokey -c "CREATE EXTENSION postgis;" -U postgres
 - psql -d geokey -c "CREATE EXTENSION hstore;" -U postgres
 - cp -r local_settings.example local_settings
