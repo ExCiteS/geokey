@@ -475,6 +475,6 @@ def post_save_media_file_count_update(sender, **kwargs):
     Receiver that is called after a media file is saved. Updates num_media and
     num_comments properties.
     """
-    if sender.__name__ in ['ImageFile', 'VideoFile']:
+    if sender.__name__ in ['ImageFile', 'VideoFile', 'AudioFile']:
         media_file = kwargs.get('instance')
         media_file.contribution.update_count()
