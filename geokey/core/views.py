@@ -35,10 +35,9 @@ class InfoAPIView(APIView):
         gk_info['version'] = get_version()
         # Installed extensions (with their version):
         gk_info['installed_extensions'] = map(
-            lambda (ext_id, ext):
-                {ext_id:
-                    {'version':
-                        (ext['version'] if 'version' in ext else None)}},
+            lambda (ext_id, ext): {
+                'name': ext_id,
+                'version': (ext['version'] if 'version' in ext else None)},
             filter(
                 lambda (ext_id, ext):
                     request.user.is_superuser or not ext['superuser'],
