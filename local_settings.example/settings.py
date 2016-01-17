@@ -15,9 +15,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'geokey',
-        'USER': 'postgres',
-        'PASSWORD': '',
-        'HOST': '',
+        'USER': 'django',
+        'PASSWORD': 'django123',
+        'HOST': 'localhost',
         'PORT': '',
     }
 }
@@ -40,7 +40,7 @@ YOUTUBE_CLIENT_ID = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleus
 # Adds django packages to default INSTALLED_APPS, use it to register GeoKey
 # extensions
 INSTALLED_APPS += (
-
+    # Add here (separated with commas)...
 )
 
 # Python path to WSGI application, used by Django's build in server
@@ -52,7 +52,7 @@ WSGI_APPLICATION = 'local_settings.wsgi.application'
 ROOT_URLCONF = 'local_settings.urls'
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.6/howto/static-files/
+# https://docs.djangoproject.com/en/1.8/howto/static-files/
 STATIC_ROOT = '/some/path/' # CHANGE THIS!
 STATIC_URL = '/static/'
 

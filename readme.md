@@ -118,33 +118,47 @@ GeoKey is a platform for participatory mapping that is currently developed by [E
   cp -r local_settings.example local_settings
   ```
 
-4. Inside `local_settings` open `settings.py` in a text editor and add your database settings:
-
+4. Inside `local_settings` open `settings.py` in a text editor and ...
+  * Add your [database settings](https://docs.djangoproject.com/en/1.8/ref/settings/#databases):
   ```
   DATABASES = {
         'default': {
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
             'NAME': 'geokey',
             'USER': 'django',
-            'PASSWORD': 'django123',
-            'HOST': 'localhost',
+            'PASSWORD': 'xxxxxxxxx',
+            'HOST': 'some_host', # usually 'localhost'
             'PORT': '',
         }
     }
-
-    SECRET_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
   ```
-
-5. Migrate the database
+  
+  * Set the [secret key](https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-SECRET_KEY):
+  ```
+  SECRET_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+  ```
+  
+  * Set the [`STATIC_ROOT` directory](https://docs.djangoproject.com/en/1.8/howto/static-files/#deployment):
+  ```
+  STATIC_ROOT = '/some/path/'
+  ```
+  
+5. Migrate the database:
 
     ```
     python manage.py migrate
     ```
 
-6. Add yourself as super user. You can use the same email and password to log into the system later.
+6. Add yourself as super user. You can use the same email and password to log into the system later:
 
     ```
     python manage.py createsuperuser
+    ```
+
+7. Run the [`collectstatic` management command](https://docs.djangoproject.com/en/1.8/howto/static-files/#deployment):
+
+    ```
+    python manage.py collectstatic
     ```
 
 ### Run the test server
