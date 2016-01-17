@@ -397,6 +397,29 @@ class MediaFile(models.Model):
         self.save()
 
 
+class AudioFile(MediaFile):
+    """
+    Stores audio files uploaded by users.
+    """
+    audio = models.FileField(upload_to='user-uploads/audio')
+
+    class Meta:
+        ordering = ['id']
+        app_label = 'contributions'
+
+    @property
+    def type_name(self):
+        """
+        Returns file type name
+
+        Returns
+        -------
+        str
+            'AudioFile'
+        """
+        return 'AudioFile'
+
+
 class ImageFile(MediaFile):
     """
     Stores images uploaded by users.
@@ -452,6 +475,6 @@ def post_save_media_file_count_update(sender, **kwargs):
     Receiver that is called after a media file is saved. Updates num_media and
     num_comments properties.
     """
-    if sender.__name__ in ['ImageFile', 'VideoFile']:
+    if sender.__name__ in ['ImageFile', 'VideoFile', 'AudioFile']:
         media_file = kwargs.get('instance')
         media_file.contribution.update_count()

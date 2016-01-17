@@ -16,7 +16,7 @@ from geokey.projects.models import Project
 
 from .base import (
     OBSERVATION_STATUS, COMMENT_STATUS, ACCEPTED_IMAGE_FORMATS,
-    ACCEPTED_VIDEO_FORMATS, MEDIA_STATUS
+    ACCEPTED_AUDIO_FORMATS, ACCEPTED_VIDEO_FORMATS, MEDIA_STATUS
 )
 
 FILE_NAME_TRUNC = 60 - len(settings.MEDIA_URL)
@@ -330,6 +330,43 @@ class MediaFileManager(InheritanceManager):
             image=the_file
         )
 
+    def _create_audio_file(self, name, description, creator, contribution,
+                           the_file):
+        """
+        Creates an AudioFile and returns the instance.
+
+        Parameter
+        ---------
+        name : str
+            Name of the file (short caption)
+        description : str
+            Long-form description (or caption) for the file
+        creator : geokey.users.models.User
+            User who created the file
+        contribution : geokey.contributions.models.Observation
+            Observation the file is assigned to
+        the_file : django.core.files.File
+            The actual file
+
+        Return
+        ------
+        geokey.contributions.models.AudioFile
+            File created
+        """
+        from geokey.contributions.models import AudioFile
+
+        filename, extension = os.path.splitext(the_file.name)
+        filename = self._normalise_filename(filename)
+        the_file.name = filename[:FILE_NAME_TRUNC] + extension
+
+        return AudioFile.objects.create(
+            name=name,
+            description=description,
+            creator=creator,
+            contribution=contribution,
+            audio=the_file
+        )
+
     def _upload_to_youtube(self, name, path):
         """
         Uploads the file from the given path to youtube
@@ -424,6 +461,7 @@ class MediaFileManager(InheritanceManager):
         Returns
         -------
         geokey.contributions.models.ImageFile or
+        geokey.contributions.models.AudioFile or
         geokey.contributions.models.VideoFile
             File created
 
@@ -442,6 +480,16 @@ class MediaFileManager(InheritanceManager):
         if (content_type[0] == 'image' and
                 content_type[1] in ACCEPTED_IMAGE_FORMATS):
             return self._create_image_file(
+                name,
+                description,
+                creator,
+                contribution,
+                the_file
+            )
+
+        elif (content_type[0] == 'audio' and
+                content_type[1] in ACCEPTED_AUDIO_FORMATS):
+            return self._create_audio_file(
                 name,
                 description,
                 creator,
