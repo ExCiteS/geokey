@@ -37,7 +37,7 @@ class InfoAPIViewTest(TestCase):
 
     def contains_extension(self, ext_id, exts_json):
         for ext in exts_json:
-            if ext_id in ext:
+            if 'name' in ext and ext['name'] == ext_id:
                 return True
         return False
 
