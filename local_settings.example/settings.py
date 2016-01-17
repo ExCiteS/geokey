@@ -15,9 +15,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'geokey',
-        'USER': 'postgres',
-        'PASSWORD': '',
-        'HOST': '',
+        'USER': 'django',
+        'PASSWORD': 'django123',
+        'HOST': 'localhost',
         'PORT': '',
     }
 }
