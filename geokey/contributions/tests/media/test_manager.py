@@ -11,11 +11,12 @@ from django.conf import settings
 from nose.tools import raises
 
 from geokey.core.exceptions import FileTypeError
+from geokey.core.tests.helpers.image_helpers import get_image
 from geokey.contributions.models import MediaFile
 
 from geokey.contributions.tests.model_factories import ObservationFactory
 from geokey.users.tests.model_factories import UserFactory
-from .model_factories import ImageFileFactory, get_image
+from .model_factories import ImageFileFactory
 
 
 class ModelManagerTest(TestCase):

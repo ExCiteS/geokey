@@ -10,7 +10,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 
 from geokey.projects.tests.model_factories import UserFactory, ProjectFactory
-from geokey.contributions.tests.media.model_factories import get_image
+from geokey.core.tests.helpers.image_helpers import get_image
 
 from .model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory,
@@ -212,7 +212,7 @@ class CategoryDisplayTest(TestCase):
         self.category = CategoryFactory.create(
             **{
                 'project': self.project,
-                'symbol': get_image()
+                'symbol': get_image(file_name='test_category_symbol.png')
             }
         )
 
@@ -232,7 +232,9 @@ class CategoryDisplayTest(TestCase):
     def post(self, user, clear_symbol='false'):
         self.data = {
             'colour': '#222222',
-            'symbol': get_image() if clear_symbol == 'false' else None,
+            'symbol': get_image(
+                file_name='test_category_symbol.png'
+            ) if clear_symbol == 'false' else None,
             'clear-symbol': clear_symbol
         }
         view = CategoryDisplay.as_view()

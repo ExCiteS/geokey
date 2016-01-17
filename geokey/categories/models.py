@@ -40,7 +40,7 @@ class Category(models.Model):
         max_length=20
     )
     colour = models.TextField(default='#0033ff')
-    symbol = models.ImageField(upload_to='symbols', null=True)
+    symbol = models.ImageField(upload_to='symbols', null=True, max_length=500)
 
     objects = CategoryManager()
 

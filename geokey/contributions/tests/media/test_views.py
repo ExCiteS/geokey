@@ -17,6 +17,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework.renderers import JSONRenderer
 
 from geokey.core.exceptions import MalformedRequestData
+from geokey.core.tests.helpers.image_helpers import get_image
 from geokey.projects.tests.model_factories import UserFactory, ProjectFactory
 from geokey.contributions.models import MediaFile
 from geokey.users.models import User
@@ -27,7 +28,7 @@ from geokey.contributions.views.media import (
 )
 
 from ..model_factories import ObservationFactory
-from .model_factories import ImageFileFactory, get_image
+from .model_factories import ImageFileFactory
 
 
 class MediaFileAbstractListAPIViewTest(TestCase):

@@ -1,6 +1,6 @@
 include LICENSE
 include *.md
 include *.txt
-recursive-include geokey static *
-recursive-include geokey templates *
+recursive-include geokey/static *
+recursive-include geokey/templates *
 recursive-exclude * *.pyc

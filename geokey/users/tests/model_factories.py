@@ -1,7 +1,14 @@
+import datetime
 import factory
+import string
+
+from factory.fuzzy import FuzzyText
 
 from django.utils import timezone
 
+from oauth2_provider.models import AccessToken
+
+import geokey
 from ..models import User, UserGroup
 
 
@@ -28,6 +35,21 @@ class UserFactory(factory.django.DjangoModelFactory):
             if create:
                 user.save()
         return user
+
+
+# don't move this import to the top of the file! (it would cause an import cycle):
+from geokey.applications.tests.model_factories import ApplicationFactory
+
+class AccessTokenFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = AccessToken
+        django_get_or_create = ('user', 'application')
+    
+    user=factory.SubFactory(UserFactory)
+    application=factory.SubFactory(ApplicationFactory)
+    token=FuzzyText(length=30, chars=string.ascii_uppercase + string.digits)
+    expires=timezone.now() + datetime.timedelta(days=1)
+    scope='read write'
 
 
 class UserGroupFactory(factory.django.DjangoModelFactory):

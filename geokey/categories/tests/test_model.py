@@ -1,4 +1,5 @@
 import json
+
 from django.test import TestCase
 
 from nose.tools import raises
