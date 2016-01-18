@@ -2,12 +2,15 @@ import json
 import os
 import glob
 
+from os.path import dirname, normpath, abspath, join
+
 from PIL import Image
 from StringIO import StringIO
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AnonymousUser
+from django.core.files import File
 from django.core.files.base import ContentFile
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
@@ -79,7 +82,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         )
         self.assertEqual(len(json.loads(response.content)), 5)
 
-    def test_create_and_respond(self):
+    def test_create_image_and_respond(self):
         url = reverse(
             'api:project_media',
             kwargs={
@@ -116,9 +119,14 @@ class MediaFileAbstractListAPIViewTest(TestCase):
             response_json.get('creator').get('display_name'),
             request.user.display_name
         )
+        self.assertEqual(
+            response_json.get('file_type'),
+            'ImageFile'
+        )
+        self.assertIsNotNone(response_json.get('url'))
 
     @raises(MalformedRequestData)
-    def test_create_and_respond_without_file(self):
+    def test_create_image_and_respond_without_file(self):
         url = reverse(
             'api:project_media',
             kwargs={
@@ -140,7 +148,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         view.create_and_respond(self.admin, self.contribution)
 
     @raises(MalformedRequestData)
-    def test_create_and_respond_without_name(self):
+    def test_create_image_and_respond_without_name(self):
         url = reverse(
             'api:project_media',
             kwargs={
@@ -161,47 +169,95 @@ class MediaFileAbstractListAPIViewTest(TestCase):
 
         view.create_and_respond(self.admin, self.contribution)
 
-    # def test_create_video_and_respond(self):
-    #     url = reverse(
-    #         'api:project_media',
-    #         kwargs={
-    #             'project_id': self.project.id,
-    #             'contribution_id': self.contribution.id
-    #         }
-    #     )
-    #
-    #     video = open(
-    #         '/home/oroick/opencomap/contributions/tests/media/video.MOV'
-    #     )
-    #
-    #     data = {
-    #         'name': 'A test image',
-    #         'description': 'Test image description',
-    #         'file': video
-    #     }
-    #
-    #     request = self.factory.post(url, data)
-    #     request.user = self.admin
-    #     view = MediaFileListAbstractAPIView()
-    #     view.request = request
-    #
-    #     response = self.render(
-    #         view.create_and_respond(self.admin, self.contribution)
-    #     )
-    #
-    #     response_json = json.loads(response.content)
-    #     self.assertEqual(
-    #         response_json.get('name'),
-    #         data.get('name')
-    #     )
-    #     self.assertEqual(
-    #         response_json.get('description'),
-    #         data.get('description')
-    #     )
-    #     self.assertEqual(
-    #         response_json.get('creator').get('display_name'),
-    #         request.user.display_name
-    #     )
+    #def test_create_video_and_respond(self):
+    #    url = reverse(
+    #        'api:project_media',
+    #        kwargs={
+    #            'project_id': self.project.id,
+    #            'contribution_id': self.contribution.id
+    #        }
+    #    )
+    #    
+    #    video_file = File(open(normpath(join(dirname(abspath(__file__)), 'files/video.MOV')), 'rb'))
+    #    
+    #    data = {
+    #        'name': 'A test video',
+    #        'description': 'Test video description',
+    #        'file': video_file
+    #    }
+    #    
+    #    request = self.factory.post(url, data)
+    #    request.user = self.admin
+    #    view = MediaFileListAbstractAPIView()
+    #    view.request = request
+    #    
+    #    response = self.render(
+    #        view.create_and_respond(self.admin, self.contribution)
+    #    )
+    #    
+    #    response_json = json.loads(response.content)
+    #    self.assertEqual(
+    #        response_json.get('name'),
+    #        data.get('name')
+    #    )
+    #    self.assertEqual(
+    #        response_json.get('description'),
+    #        data.get('description')
+    #    )
+    #    self.assertEqual(
+    #        response_json.get('creator').get('display_name'),
+    #        request.user.display_name
+    #    )
+    #    self.assertEqual(
+    #        response_json.get('file_type'),
+    #        'VideoFile'
+    #    )
+    #    self.assertIsNotNone(response_json.get('url'))
+
+    def test_create_audio_and_respond(self):
+        url = reverse(
+            'api:project_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id
+            }
+        )
+        
+        audio_file = File(open(normpath(join(dirname(abspath(__file__)), 'files/audio.mp3')), 'rb'))
+        
+        data = {
+            'name': 'A test sound',
+            'description': 'Test sound description',
+            'file': audio_file
+        }
+        
+        request = self.factory.post(url, data)
+        request.user = self.admin
+        view = MediaFileListAbstractAPIView()
+        view.request = request
+        
+        response = self.render(
+            view.create_and_respond(self.admin, self.contribution)
+        )
+        
+        response_json = json.loads(response.content)
+        self.assertEqual(
+            response_json.get('name'),
+            data.get('name')
+        )
+        self.assertEqual(
+            response_json.get('description'),
+            data.get('description')
+        )
+        self.assertEqual(
+            response_json.get('creator').get('display_name'),
+            request.user.display_name
+        )
+        self.assertEqual(
+            response_json.get('file_type'),
+            'AudioFile'
+        )
+        self.assertIsNotNone(response_json.get('url'))
 
 
 class MediaFileSingleAbstractViewTest(TestCase):
