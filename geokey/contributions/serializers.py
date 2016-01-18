@@ -18,7 +18,7 @@ from geokey.users.serializers import UserSerializer
 
 from .models import Observation, Comment
 from .models import Location
-from .models import MediaFile, ImageFile, VideoFile
+from .models import MediaFile, ImageFile, VideoFile, AudioFile
 
 
 class LocationSerializer(geoserializers.GeoFeatureModelSerializer):
@@ -585,6 +585,8 @@ class FileSerializer(serializers.ModelSerializer):
             return obj.image.url
         elif isinstance(obj, VideoFile):
             return obj.youtube_link
+        elif isinstance(obj, AudioFile):
+            return obj.audio.url
 
     def _get_thumb(self, image, size=(300, 300)):
         """
