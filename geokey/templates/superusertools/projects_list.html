@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% load project_attributes %}
 
@@ -21,33 +21,59 @@
 
 <div class="container">
     {% include 'snippets/messages.html' %}
+
     <div class="row">
-        <div class="col-md-8 col-md-offset-2">
+        <div class="col-sm-12 col-md-12 col-lg-12">
             <h3 class="header">Manage all projects</h3>
-            {% for project in projects %}
 
-            {% if forloop.first %}
-            <ul class="list-unstyled overview-list">
+            {% if projects|length %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Creator</th>
+                        <th>Date created</th>
+                        <th>Contributions</th>
+                        <th>Comments</th>
+                        <th>Files</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for project in projects %}
+                        <tr>
+                            <td>
+                                <h4>
+                                    <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
+                                </h4>
+                            </td>
+
+                            <td>{{ project.creator }}</td>
+                            <td>{{ project.created_at|timesince }} ago</td>
+
+                            <td class="text-center">{{ project.contributions_count }}</td>
+                            <td class="text-center">{{ project.comments_count }}</td>
+                            <td class="text-center">{{ project.files_count }}</td>
+
+                            <td>
+                                {% if not project.isprivate %}
+                                    <span class="label label-info">Public</span>
+                                {% else %}
+                                    <span class="label label-info">Private</span>
+                                {% endif %}
+
+                                {% if project.status == 'inactive' %}
+                                    <span class="label label-warning">Archived</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p>No projects were found.</p>
             {% endif %}
-
-            <li>
-                <h4><a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a></h4>
-                {% if project.description %}<p>{{ project.description }}</p>{% endif %}
-                {% project_attributes project %}
-
-            </li>
-
-            {% if forloop.last %}
-            </ul>
-            {% endif %}
-
-            {% empty %}
-            <div class="well empty-list">
-                <p class="lead">We couldn't find any projects.</p>
-                <p>You can create a new project if you want to start your own community map.</p>
-                <a href="{% url 'admin:project_create' %}" class="btn btn-success btn-lg">Create a new project</a>
-            </div>
-            {% endfor %}
         </div>
     </div>
 </div>
