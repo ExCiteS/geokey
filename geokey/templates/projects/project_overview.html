@@ -137,18 +137,17 @@
 {% endblock %}
 
 {% block libraries %}
-    <script type="text/javascript">
-        $('#help-link').click(function (event) {
-            $('#help-block').removeClass('hidden');
-            $('#overview-block').addClass('hidden');
-            event.preventDefault();
-        });
+<script type="text/javascript">
+    $('#help-link').click(function (event) {
+        $('#help-block').removeClass('hidden');
+        $('#overview-block').addClass('hidden');
+        event.preventDefault();
+    });
 
-        $('a.expand').click(function(event) {
-            event.preventDefault();
-            $(this).parents('.list-group').find('a.hidden').removeClass('hidden');
-            $(this).parents('.list-group-item').remove();
-        });
-    </script>
-
+    $('a.expand').click(function(event) {
+        event.preventDefault();
+        $(this).parents('.list-group').find('a.hidden').removeClass('hidden');
+        $(this).parents('.list-group-item').remove();
+    });
+</script>
 {% endblock %}
