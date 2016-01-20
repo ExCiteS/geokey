@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %} | Superuser tools{% endblock %}
+{% block title %} | Superuser tools: Activate inactive users{% endblock %}
 
 {% block main %}
 <div class="page-header">
@@ -20,9 +20,10 @@
     {% include 'snippets/messages.html' %}
 
     <div class="row">
-        <form class="col-sm-8 col-sm-offset-2" method="POST" action="{% url 'admin:superuser_manage_inactiveusers' %}">
+        <form class="col-sm-12 col-md-12 col-lg-12" method="POST" action="{% url 'admin:superuser_manage_inactiveusers' %}">
             {% csrf_token %}
-            <h3 class="header">Manage inactive users</h3>
+            
+            <h3 class="header">Activate inactive users</h3>
 
             {% if inactive_users|length %}
                 <p>Select users you would like to activate by manually confirming their email addresses:</p>
@@ -40,12 +41,12 @@
 
                         <tbody>
                             {% for user in inactive_users %}
-                            <tr>
-                                <td class="text-center"><input type="checkbox" name="activate_users" value="{{ user.id }}"></td>
-                                <td>{{ user.display_name }}</td>
-                                <td>{{ user.email|urlize }}</td>
-                                <td>{{ user.date_joined|date:'d F, Y' }}</td>
-                            </td>
+                                <tr>
+                                    <td class="text-center"><input type="checkbox" name="activate_users" value="{{ user.id }}"></td>
+                                    <td>{{ user.display_name }}</td>
+                                    <td>{{ user.email|urlize }}</td>
+                                    <td>{{ user.date_joined|date:'d F, Y' }}</td>
+                                </td>
                             {% endfor %}
                         </tbody>
                     </table>
