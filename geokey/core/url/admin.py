@@ -173,7 +173,7 @@ urlpatterns = patterns(
         name="userprofile"),
 
     # ###########################
-    # SUPER-USER TOOLS
+    # SUPERUSER TOOLS
     # ###########################
     url(r'^superuser-tools/$',
         superuser.PlatformSettings.as_view(),
