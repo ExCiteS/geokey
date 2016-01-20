@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %} | Superuser tools{% endblock %}
+{% block title %} | Superuser tools: Platform settings{% endblock %}
 
 {% block main %}
 <div class="page-header">
@@ -16,23 +16,24 @@
     </div>
 </div>
 
-
 <div class="container">
     {% include 'snippets/messages.html' %}
+
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
-            <h3 class="header">Platform Settings</h3>
+            <h3 class="header">Platform settings</h3>
 
             <form method="POST" action="{% url 'admin:superuser_index' %}" novalidate>
                 {% csrf_token %}
+
                 <div class="form-group">
                     <label for="name">Name</label>
-                    <input type="text" class="form-control input-lg" id="name" name="name" maxlength="50" value="{{ site.name }}" required>
+                    <input type="text" id="name" class="form-control input-lg" name="name" maxlength="50" value="{{ site.name }}" required />
                 </div>
 
                 <div class="form-group">
                     <label for="name">Domain</label>
-                    <input type="url" class="form-control input-lg" id="domain" name="domain" maxlength="100" value="{{ site.domain }}" required>
+                    <input type="url" id="domain" class="form-control input-lg" name="domain" maxlength="100" value="{{ site.domain }}" required />
                 </div>
 
                 <div class="form-group">
@@ -46,5 +47,5 @@
 {% endblock %}
 
 {% block libraries %}
-            <script src="/static/js/admin.ui.forms.validate.js"></script>
+<script src="/static/js/admin.ui.forms.validate.js"></script>
 {% endblock %}
