@@ -12,6 +12,7 @@ from rest_framework.permissions import BasePermission
 from rest_framework import status
 
 from geokey.projects.models import Project
+from geokey.contributions.models import Comment, MediaFile
 from geokey.users.models import User
 from geokey.users.serializers import UserSerializer
 
@@ -113,7 +114,18 @@ class ProjectsList(LoginRequiredMixin, SuperuserMixin, TemplateView):
         -------
         dict
         """
-        return {'projects': Project.objects.all()}
+        projects = Project.objects.all()
+
+        for project in projects:
+            contributions = project.observations.all()
+
+            project.contributions_count = len(contributions)
+            project.comments_count = Comment.objects.filter(
+                commentto=contributions).count()
+            project.files_count = MediaFile.objects.filter(
+                contribution=contributions).count()
+
+        return {'projects': projects}
 
 
 class ManageSuperUsers(LoginRequiredMixin, SuperuserMixin, TemplateView):
