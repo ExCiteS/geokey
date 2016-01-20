@@ -443,6 +443,11 @@ class FieldManagerTest(TestCase):
 
 
 class LookupManagerTest(TestCase):
+    def tearDown(self):
+        for lookup_value in LookupValue.objects.all():
+            if lookup_value.symbol is not None:
+                lookup_value.symbol.delete()
+
     def test(self):
         LookupValueFactory.create_batch(5, **{'status': 'active'})
         LookupValueFactory.create_batch(5, **{'status': 'deleted'})

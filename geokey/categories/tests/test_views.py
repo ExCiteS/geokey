@@ -212,9 +212,17 @@ class CategoryDisplayTest(TestCase):
         self.category = CategoryFactory.create(
             **{
                 'project': self.project,
-                'symbol': get_image(file_name='test_category_symbol.png')
+                'symbol': get_image(file_name='test_category_symbol_1.png')
             }
         )
+        self.file = self.category.symbol.path
+
+    def tearDown(self):
+        self.category.symbol.storage.delete(self.file)
+
+        for category in Category.objects.all():
+            if category.symbol is not None:
+                category.symbol.delete()
 
     def get(self, user):
         view = CategoryDisplay.as_view()
@@ -233,7 +241,7 @@ class CategoryDisplayTest(TestCase):
         self.data = {
             'colour': '#222222',
             'symbol': get_image(
-                file_name='test_category_symbol.png'
+                file_name='test_category_symbol_2.png'
             ) if clear_symbol == 'false' else None,
             'clear-symbol': clear_symbol
         }
@@ -1323,6 +1331,11 @@ class AddLookupValueTest(TestCase):
             'status': 'active'
         })
 
+    def tearDown(self):
+        for lookup_value in LookupValue.objects.all():
+            if lookup_value.symbol is not None:
+                lookup_value.symbol.delete()
+
     def test_add_lookupvalue_with_admin(self):
         lookup_field = LookupFieldFactory(**{
             'category': self.active_type
@@ -1409,6 +1422,11 @@ class UpdateLookupValues(TestCase):
             'project': self.project,
             'status': 'active'
         })
+
+    def tearDown(self):
+        for lookup_value in LookupValue.objects.all():
+            if lookup_value.symbol is not None:
+                lookup_value.symbol.delete()
 
     def test_update_lookupvalue_with_admin(self):
         lookup_field = LookupFieldFactory(**{
@@ -1876,6 +1894,11 @@ class ObservationTypePublicApiTest(TestCase):
             'key': 'key_6',
             'category': self.category
         })
+
+    def tearDown(self):
+        for lookup_value in LookupValue.objects.all():
+            if lookup_value.symbol is not None:
+                lookup_value.symbol.delete()
 
     def _get(self, user):
         url = reverse(
