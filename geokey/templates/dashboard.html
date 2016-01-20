@@ -57,11 +57,14 @@
                         </div>
                         <div class="list-group">
                             {% for extension in extensions %}
-                                <a href="{% url extension.index_url %}" class="list-group-item">{{ extension.name }}</a>
+                                <a href="{% url extension.index_url %}" class="list-group-item clearfix">
+                                    {{ extension.name }}
+                                    {% if extension.version %}<span class="text-muted pull-right">v{{ extension.version }}</span>{% endif %}
+                                </a>
                             {% empty %}
-                            <div class="list-group-item">
-                                No extensions have been installed.
-                            </div>
+                                <div class="list-group-item">
+                                    No extensions have been installed.
+                                </div>
                             {% endfor %}
                         </div>
                     </div>
