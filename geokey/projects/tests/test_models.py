@@ -6,7 +6,7 @@ from django.contrib.auth.models import AnonymousUser
 
 from nose.tools import raises
 
-from geokey.categories.models import LookupValue
+from geokey.categories.models import LookupValue, MultipleLookupValue
 from geokey.categories.tests.model_factories import (
     CategoryFactory, TextFieldFactory, NumericFieldFactory, LookupFieldFactory,
     LookupValueFactory, DateTimeFieldFactory, DateFieldFactory,
@@ -399,6 +399,10 @@ class PublicProjectTest(TestCase):
 class ProjectGetDataTest(TestCase):
     def tearDown(self):
         for lookup_value in LookupValue.objects.all():
+            if lookup_value.symbol is not None:
+                lookup_value.symbol.delete()
+
+        for lookup_value in MultipleLookupValue.objects.all():
             if lookup_value.symbol is not None:
                 lookup_value.symbol.delete()
 

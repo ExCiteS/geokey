@@ -3,7 +3,7 @@ from django.test import TestCase
 from geokey.contributions.models import Observation
 
 from geokey.projects.tests.model_factories import ProjectFactory, UserFactory
-from geokey.categories.models import LookupValue
+from geokey.categories.models import LookupValue, MultipleLookupValue
 from geokey.categories.tests.model_factories import (
     CategoryFactory, LookupFieldFactory, LookupValueFactory,
     TextFieldFactory, MultipleLookupFieldFactory, MultipleLookupValueFactory
@@ -69,6 +69,10 @@ class TestSearch(TestCase):
 
     def tearDown(self):
         for lookup_value in LookupValue.objects.all():
+            if lookup_value.symbol is not None:
+                lookup_value.symbol.delete()
+
+        for lookup_value in MultipleLookupValue.objects.all():
             if lookup_value.symbol is not None:
                 lookup_value.symbol.delete()
 

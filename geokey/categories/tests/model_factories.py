@@ -133,5 +133,6 @@ class MultipleLookupValueFactory(factory.django.DjangoModelFactory):
         model = MultipleLookupValue
 
     name = factory.Sequence(lambda n: 'lookupfield %s' % n)
+    symbol = get_image(file_name='test_lookup_value_symbol.png')
     field = factory.SubFactory(MultipleLookupFieldFactory)
     status = 'active'

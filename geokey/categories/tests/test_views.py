@@ -18,7 +18,7 @@ from .model_factories import (
     MultipleLookupValueFactory, DateTimeFieldFactory
 )
 
-from ..models import Category, Field, LookupValue
+from ..models import Category, Field, LookupValue, MultipleLookupValue
 from ..views import (
     CategoryOverview, CategoryDelete, FieldSettings, FieldDelete,
     CategoryUpdate, FieldUpdate, FieldLookupsUpdate, FieldLookups,
@@ -1717,6 +1717,11 @@ class RemoveMultipleLookupValues(TestCase):
             'project': self.project,
             'status': 'active'
         })
+
+    def tearDown(self):
+        for lookup_value in MultipleLookupValue.objects.all():
+            if lookup_value.symbol is not None:
+                lookup_value.symbol.delete()
 
     def test_remove_lookupvalue_with_admin(self):
         lookup_field = MultipleLookupFieldFactory(**{

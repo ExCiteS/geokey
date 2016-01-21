@@ -6,7 +6,7 @@ from nose.tools import raises
 
 from geokey.core.exceptions import InputError
 
-from ..models import Field, Category, LookupValue
+from ..models import Field, Category, LookupValue, MultipleLookupValue
 
 from .model_factories import (
     TextFieldFactory, NumericFieldFactory, DateTimeFieldFactory,
@@ -787,7 +787,7 @@ class DateFieldTest(TestCase):
 
 class MultipleLookupTest(TestCase):
     def tearDown(self):
-        for lookup_value in LookupValue.objects.all():
+        for lookup_value in MultipleLookupValue.objects.all():
             if lookup_value.symbol is not None:
                 lookup_value.symbol.delete()
 

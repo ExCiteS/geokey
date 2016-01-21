@@ -930,6 +930,7 @@ class MultipleLookupValue(models.Model):
     Stores a multiple lookup value.
     """
     name = models.CharField(max_length=100)
+    symbol = models.ImageField(upload_to='symbols', null=True, max_length=500)
     field = models.ForeignKey(MultipleLookupField, related_name='lookupvalues')
     status = models.CharField(
         choices=STATUS,

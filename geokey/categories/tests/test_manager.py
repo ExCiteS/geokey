@@ -6,10 +6,13 @@ from nose.tools import raises
 from geokey.projects.tests.model_factories import UserFactory, ProjectFactory
 from geokey.projects.models import Project
 
-from ..models import Field, Category, LookupValue
+from ..models import Field, Category, LookupValue, MultipleLookupValue
 
 from .model_factories import (
-    TextFieldFactory, CategoryFactory, LookupValueFactory
+    TextFieldFactory,
+    CategoryFactory,
+    LookupValueFactory,
+    MultipleLookupValueFactory
 )
 
 
@@ -448,9 +451,20 @@ class LookupManagerTest(TestCase):
             if lookup_value.symbol is not None:
                 lookup_value.symbol.delete()
 
-    def test(self):
+        for lookup_value in MultipleLookupValue.objects.all():
+            if lookup_value.symbol is not None:
+                lookup_value.symbol.delete()
+
+    def test_with_lookup_value(self):
         LookupValueFactory.create_batch(5, **{'status': 'active'})
         LookupValueFactory.create_batch(5, **{'status': 'deleted'})
 
         values = LookupValue.objects.active()
+        self.assertEqual(len(values), 5)
+
+    def test_with_multiple_lookup_value(self):
+        MultipleLookupValueFactory.create_batch(5, **{'status': 'active'})
+        MultipleLookupValueFactory.create_batch(5, **{'status': 'deleted'})
+
+        values = MultipleLookupValue.objects.active()
         self.assertEqual(len(values), 5)
