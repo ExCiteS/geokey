@@ -18,15 +18,15 @@
             <h3 class="header">
                 Manage your projects
                 {% if admin_projects %}
-                <a href="{% url 'admin:project_create' %}" class="pull-right btn btn-sm btn-success">
-                    <span class="glyphicon glyphicon-plus"></span>
-                    Create new Project
-                </a>
+                    <a href="{% url 'admin:project_create' %}" class="pull-right btn btn-sm btn-success">
+                        <span class="glyphicon glyphicon-plus"></span>
+                        Create new Project
+                    </a>
                 {% endif %}
             </h3>
             {% for project in admin_projects %}
                 {% if forloop.first %}
-                <ul class="list-unstyled overview-list">
+                    <ul class="list-unstyled overview-list">
                 {% endif %}
 
                 <li>
@@ -40,7 +40,7 @@
                 </li>
 
                 {% if forloop.last %}
-                </ul>
+                    </ul>
                 {% endif %}
             {% empty %}
                 <div class="well empty-list">
