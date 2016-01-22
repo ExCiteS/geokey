@@ -1,33 +1,37 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"><![endif]-->
+<!--[if IE 7]><html class="no-js lt-ie9 lt-ie8"><![endif]-->
+<!--[if IE 8]><html class="no-js lt-ie9"><![endif]-->
+<!--[if gt IE 8]><html class="no-js"><![endif]-->
     <head>
 		<title>{{ PLATFORM_NAME }}</title>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title></title>
-        <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
 
         <link rel="stylesheet" href="/static/lib/bootstrap/css/bootstrap.min.css">
         <link rel="stylesheet" href="/static/css/admin.css">
         <script src="/static/lib/modernizr/modernizr-2.6.2-respond-1.1.0.min.js"></script>
     </head>
-    <body id="home">
 
-    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <body id="home">
         <div class="jumbotron">
             <div class="container">
-                <div class="credit">Background image by <a href="https://www.flickr.com/photos/trotaparamos/14192351262/">David Rodriguez Martin</a> (<a href="https://creativecommons.org/licenses/by-nc-sa/2.0/">CC BY-NC-SA 2.0</a>)</div>
+                <div class="credit">
+                    Background image by
+                    <a href="https://www.flickr.com/photos/trotaparamos/14192351262/">David Rodriguez Martin</a>
+                    (<a href="https://creativecommons.org/licenses/by-nc-sa/2.0/">CC BY-NC-SA 2.0</a>)
+                </div>
+
                 <div class="row">
                     <div class="col-sm-12 super-heading">
                         <h1>{{ PLATFORM_NAME }}</h1>
                     </div>
-                    <div class="col-sm-12 col-md-7 super-heading"> <!-- Info -->
+
+                    <div class="col-sm-12 col-md-7 super-heading">
                         <p>{{ PLATFORM_NAME }} is an open platform for participatory mapping. It enables your community to record, view and discuss local knowledge using digital maps.</p>
-                    </div> <!-- / Info -->
+                    </div>
 
                     <div class="col-sm-12 col-md-5">
                         <div class="row">
@@ -35,19 +39,24 @@
                                 <div class="panel panel-default">
                                     <div class="panel-body">
                                         <h3>Sign in</h3>
+
                                         <form method="POST" action="/admin/account/login/">
                                             {% csrf_token %}
+
                                             <div class="form-group">
-                                                <input type="text" placeholder="E-mail" name="login" class="form-control">
+                                                <input type="text" class="form-control" id="login" name="login" placeholder="Email address" />
                                             </div>
+
                                             <div class="form-group">
-                                                <input type="password" placeholder="Password"  name="password" class="form-control">
+                                                <input type="password" class="form-control" id="password" name="password" placeholder="Password" />
                                             </div>
+
                                             <button type="submit" class="btn btn-success">Sign in</button>
                                         </form>
                                     </div>
                                 </div>
                             </div>
+
                             <div class="col-sm-6 col-md-12">
                                 <div class="panel panel-default">
                                     <div class="panel-body">
@@ -59,10 +68,11 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="row">
                     <div class="col-sm-12 footer">
                         <div class="panel panel-default">
-                            <div class="panel-body">Created by <a href="http://www.ucl.ac.uk/excites">ExCiteS Research Group</a> &bull; <a href="https://groups.google.com/d/forum/opencommunitymaps">Join our mailing list</a> &bull; <a href="https://github.com/ExCiteS/opencommunitymaps">Contribute on Github</a></div>
+                            <div class="panel-body">Created by <a href="http://www.ucl.ac.uk/excites">ExCiteS research group</a> &bull; <a href="https://github.com/ExCiteS/geokey">Contribute on Github</a></div>
                         </div>
                     </div>
                 </div>
