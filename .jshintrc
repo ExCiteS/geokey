@@ -1,0 +1,8 @@
+{
+  "indent": 4,
+  "browser": true,
+  "globals": {
+    "console": false,
+    "L": false
+  }
+}
