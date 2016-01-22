@@ -10,4 +10,5 @@ class ProjectCreateForm(forms.ModelForm):
     """
     class Meta:
         model = Project
-        fields = ('name', 'description', 'isprivate', 'everyone_contributes')
+        fields = ('name', 'description', 'isprivate', 'islocked',
+                  'everyone_contributes')

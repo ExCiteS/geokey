@@ -13,6 +13,7 @@ def project_attributes(project):
             'creator': project.creator.display_name,
             'created_at': project.created_at.strftime("%d %B %Y, %H:%M"),
             'private_label': ('Private' if project.isprivate else 'Public'),
-            'inactive': project.status == 'inactive'
+            'inactive': project.status == 'inactive',
+            'locked': project.islocked
         }
     )

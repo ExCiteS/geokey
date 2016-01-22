@@ -29,6 +29,7 @@ from .serializers import ProjectSerializer
 
 
 class ProjectContext(object):
+
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, *args, **kwargs):
         """
@@ -37,13 +38,16 @@ class ProjectContext(object):
         Parameters
         ----------
         project_id : int
-            identifies the project in the data base
+            Identifies the project in the database
 
         Returns
         -------
         dict
+            Context
         """
+
         project = Project.objects.as_admin(self.request.user, project_id)
+
         return super(ProjectContext, self).get_context_data(
             project=project,
             *args,
@@ -58,35 +62,40 @@ class ProjectContext(object):
 # ############################################################################
 
 class ProjectCreate(LoginRequiredMixin, CreateView):
+
     """
-    Displays the create project page
-    `/admin/projects/new`
+    Displays the create project page.
     """
     form_class = ProjectCreateForm
     template_name = 'projects/project_create.html'
 
     def form_valid(self, form):
         """
-        Creates the project and redirects to the project overview page
+        Creates the project and redirects to the project overview page.
 
         Parameters
         ----------
         form : geokey.projects.forms.ProjectCreateForm
             Represents the user input
         """
+
         data = form.cleaned_data
+
         project = Project.create(
             strip_tags(data.get('name')),
             strip_tags(data.get('description')),
             data.get('isprivate'),
+            False,  # Project is never locked when creating it
             data.get('everyone_contributes'),
             self.request.user
         )
-        messages.success(self.request, "The project has been created.")
+
+        messages.success(self.request, 'The project has been created.')
         return redirect('admin:project_overview', project_id=project.id)
 
 
 class ProjectsInvolved(LoginRequiredMixin, TemplateView):
+
     """
     Displays a list of all projects the user is involved in
     """
@@ -100,112 +109,120 @@ class ProjectsInvolved(LoginRequiredMixin, TemplateView):
         Returns
         -------
         dict
-            context
+            Context
         """
+
         projects = Project.objects.get_list(self.request.user).exclude(
             admins=self.request.user)
-        project_list = []
+        projects_list = []
 
         for project in projects:
-            project_list.append({
+            projects_list.append({
                 'name': project.name,
                 'role': project.get_role(self.request.user),
                 'contributions': project.observations.filter(
                     creator=self.request.user).count(),
             })
 
-        return {
-            'projects': project_list
-        }
+        return {'projects': projects_list}
 
 
 class ProjectOverview(LoginRequiredMixin, ProjectContext, TemplateView):
+
     """
-    Displays the project overview page
-    `/admin/projects/:project_id`
+    Displays the project overview page.
     """
-    model = Project
     template_name = 'projects/project_overview.html'
 
     def get_context_data(self, project_id):
         """
         Returns the context to render the view. Overwrites the method to add
-        the project, number of contributions and number of user contributions
-        to the context.
+        the project, number of contributions, comments and media files in
+        total.
 
         Parameters
         ----------
         project_id : int
-            identifies the project in the database
+            Identifies the project in the database
 
         Returns
         -------
         dict
-            context
+            Context
         """
-        context = super(ProjectOverview, self).get_context_data(project_id)
 
-        if context.get('project'):
-            contributions = context['project'].observations.all()
-            context['allcontributions'] = contributions.count()
-            context['contributions'] = contributions.filter(
-                creator=self.request.user).count()
-            context['comments'] = Comment.objects.filter(
+        context = super(ProjectOverview, self).get_context_data(project_id)
+        project = context.get('project', None)
+
+        if project is not None:
+            contributions = project.observations.all()
+
+            context['all_contributions'] = contributions.count()
+            context['all_comments'] = Comment.objects.filter(
                 commentto=contributions).count()
-            context['files'] = MediaFile.objects.filter(
+            context['all_mediafiles'] = MediaFile.objects.filter(
                 contribution=contributions).count()
 
         return context
 
 
-class ProjectExtend(LoginRequiredMixin, ProjectContext, TemplateView):
+class ProjectGeographicExtent(LoginRequiredMixin, ProjectContext,
+                              TemplateView):
+
     """
-    Displays the page to edit the geograhic extent of the project
+    Displays the page to edit the geograhic extent of the project.
     """
-    template_name = 'projects/project_extend.html'
+    template_name = 'projects/project_geographic_extent.html'
 
     def post(self, request, project_id):
         """
         Adds or updates the geographic extent of the project.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         request : django.http.HttpRequest
-            Object representing the request.
+            Object representing the request
         project_id : int
-            identifies the project in the database
+            Identifies the project in the database
 
         Returns
         -------
         django.http.HttpResponse
             Rendered template
         """
+
         data = request.POST
         context = self.get_context_data(project_id)
-        project = context.pop('project', None)
+        project = context.get('project', None)
         geometry = data.get('geometry')
 
         if project is not None:
-            if geometry is not None and len(geometry) > 0:
-                project.geographic_extend = GEOSGeometry(data.get('geometry'))
+            if not project.islocked:
+                if geometry is not None and len(geometry) > 0:
+                    project.geographic_extent = GEOSGeometry(geometry)
+                else:
+                    project.geographic_extent = None
+
+                project.save()
+                context['project'] = project
+
+                messages.success(
+                    self.request,
+                    'The geographic extent has been updated.'
+                )
             else:
-                project.geographic_extend = None
+                messages.error(
+                    self.request,
+                    'The project is locked. Its structure cannot be edited.'
+                )
 
-            project.save()
-
-            messages.success(
-                self.request,
-                'The geographic extent has been updated successfully.'
-            )
-
-            context['project'] = project
         return self.render_to_response(context)
 
 
 class ProjectSettings(LoginRequiredMixin, ProjectContext, TemplateView):
+
     """
-    Displays the project settings page
-    `/admin/projects/:project_id/settings/`
+    Displays the project settings page.
     """
     model = Project
     template_name = 'projects/project_settings.html'
@@ -218,13 +235,14 @@ class ProjectSettings(LoginRequiredMixin, ProjectContext, TemplateView):
         Parameters
         ----------
         project_id : int
-            identifies the project in the database
+            Identifies the project in the database
 
         Returns
         -------
         dict
-            context
+            Context
         """
+
         return super(ProjectSettings, self).get_context_data(
             project_id,
             status_types=STATUS
@@ -232,22 +250,23 @@ class ProjectSettings(LoginRequiredMixin, ProjectContext, TemplateView):
 
     def post(self, request, project_id):
         """
-        Updates the project settings
+        Updates the project settings.
 
         Parameter
         ---------
         request : django.http.HttpRequest
-            Object representing the request.
+            Object representing the request
         project_id : int
-            identifies the project in the database
+            Identifies the project in the database
 
         Returns
         -------
         django.http.HttpResponse
             Rendered template
         """
+
         context = self.get_context_data(project_id)
-        project = context.pop('project')
+        project = context.get('project', None)
 
         if project is not None:
             data = request.POST
@@ -256,48 +275,57 @@ class ProjectSettings(LoginRequiredMixin, ProjectContext, TemplateView):
             project.description = strip_tags(data.get('description'))
             project.everyone_contributes = data.get('everyone_contributes')
             project.save()
-
-            messages.success(self.request, "The project has been updated.")
             context['project'] = project
+
+            messages.success(self.request, 'The project has been updated.')
+
         return self.render_to_response(context)
 
 
 class ProjectDelete(LoginRequiredMixin, ProjectContext, TemplateView):
+
     """
-    Deletes a project
+    Deletes the project.
     """
     template_name = 'base.html'
 
     def get(self, request, project_id):
         """
-        Deletes the project
+        Deletes the project.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         request : django.http.HttpRequest
-            Object representing the request.
+            Object representing the request
         project_id : int
-            identifies the project in the database
+            Identifies the project in the database
 
         Returns
         -------
         django.http.HttpResponseRedirect
-            redirecting to the dashboard
-
+            Redirecting to the dashboard
         django.http.HttpResponse
             If user is not administrator of the project, the error message is
-            rendered.
+            rendered
         """
+
         context = self.get_context_data(project_id)
-        project = context.pop('project', None)
+        project = context.get('project', None)
 
         if project is not None:
-            project.delete()
+            if not project.islocked:
+                project.delete()
+                messages.success(self.request, 'The project has been deleted.')
+                return redirect('admin:dashboard')
+            else:
+                messages.error(
+                    self.request,
+                    'The project is locked. It cannot be deleted.'
+                )
+                return redirect(
+                    'admin:project_settings', project_id=project.id)
 
-            messages.success(self.request, "The project has been deleted.")
-            return redirect('admin:dashboard')
-
-        return self.render_to_response(context)
+        return redirect('admin:dashboard')
 
 
 # ############################################################################
@@ -307,6 +335,7 @@ class ProjectDelete(LoginRequiredMixin, ProjectContext, TemplateView):
 # ############################################################################
 
 class ProjectUpdate(APIView):
+
     """
     AJAX Endpoint for a project update.
     /ajax/projects/:project_id
@@ -329,11 +358,12 @@ class ProjectUpdate(APIView):
         rest_framework.reponse.Response
             Response containing the serialised project or an error message
         """
+
         project = Project.objects.as_admin(request.user, project_id)
         serializer = ProjectSerializer(
             project, data=request.data, partial=True,
             fields=(
-                'id', 'name', 'description', 'status', 'isprivate',
+                'id', 'name', 'description', 'status', 'isprivate', 'islocked',
                 'everyone_contributes'
             )
         )
@@ -345,6 +375,7 @@ class ProjectUpdate(APIView):
 
 
 class ProjectAdmins(APIView):
+
     """
     AJAX Endpoint for project administrators.
     /ajax/projects/:project_id/admins
@@ -368,6 +399,7 @@ class ProjectAdmins(APIView):
             Response containing the serialised list of admins or an error
             message.
         """
+
         project = Project.objects.as_admin(request.user, project_id)
         user = User.objects.get(pk=request.data.get('userId'))
 
@@ -381,6 +413,7 @@ class ProjectAdmins(APIView):
 
         refreshed_admins = Project.objects.get(pk=project_id).admins.all()
         serializer = UserSerializer(refreshed_admins, many=True)
+
         return Response(
             {'users': serializer.data},
             status=status.HTTP_201_CREATED
@@ -388,6 +421,7 @@ class ProjectAdmins(APIView):
 
 
 class ProjectAdminsUser(APIView):
+
     """
     AJAX Endpoint for a single project administrator.
     /ajax/projects/:project_id/admins
@@ -411,17 +445,21 @@ class ProjectAdminsUser(APIView):
             Empty response if successful or response containing an error
             message.
         """
+
         project = Project.objects.as_admin(request.user, project_id)
         user = project.admins.get(pk=user_id)
         Admins.objects.get(project=project, user=user).delete()
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CategoriesReorderView(APIView):
+
     """
     AJAX Endpoint to re-order categories in a project.
     /ajax/projects/:project_id/cotegories/re-order
     """
+
     @handle_exceptions_for_ajax
     def post(self, request, project_id):
         """
@@ -439,6 +477,7 @@ class CategoriesReorderView(APIView):
         rest_framework.reponse.Response
             Contains the serialised project or an error message
         """
+
         project = Project.objects.as_admin(request.user, project_id)
 
         try:
@@ -448,7 +487,7 @@ class CategoriesReorderView(APIView):
                 project,
                 fields=(
                     'id', 'name', 'description', 'status', 'isprivate',
-                    'everyone_contributes'
+                    'islocked', 'everyone_contributes'
                 )
             )
             return Response(serializer.data)
@@ -466,10 +505,12 @@ class CategoriesReorderView(APIView):
 # ############################################################################
 
 class Projects(APIView):
+
     """
     API Endpoint for project list in the public API.
     /api/projects/
     """
+
     @handle_exceptions_for_ajax
     def get(self, request):
         """
@@ -485,20 +526,24 @@ class Projects(APIView):
         rest_framework.reponse.Response
             Contains serialised list of projects
         """
+
         projects = Project.objects.get_list(
             request.user).filter(status='active')
         serializer = ProjectSerializer(
             projects, many=True, context={'user': request.user},
             fields=('id', 'name', 'description', 'user_info')
         )
+
         return Response(serializer.data)
 
 
 class SingleProject(APIView):
+
     """
     API Endpoint for single project in the public API.
     /api/projects/:project_id/
     """
+
     @handle_exceptions_for_ajax
     def get(self, request, project_id):
         """
@@ -522,7 +567,9 @@ class SingleProject(APIView):
             if the project is inactive, is handled in the
             handle_exceptions_for_ajax decorator
         """
+
         project = Project.objects.get_single(request.user, project_id)
+
         if project.status == 'active':
             serializer = ProjectSerializer(
                 project, context={'user': request.user}

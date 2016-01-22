@@ -15,11 +15,12 @@ class ProjectFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: 'project %d' % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     isprivate = True
+    islocked = False
     everyone_contributes = 'false'
     created_at = datetime.date(2014, 11, 11)
     creator = factory.SubFactory(UserFactory)
     status = 'active'
-    geographic_extend = GEOSGeometry(
+    geographic_extent = GEOSGeometry(
         '{"type": "Polygon","coordinates": [[[-0.508,51.682],[-0.53,51.327],'
         '[0.225,51.323],[0.167,51.667],[-0.508,51.682]]]}'
     )

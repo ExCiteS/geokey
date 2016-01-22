@@ -29,9 +29,9 @@ urlpatterns = patterns(
         project_views.ProjectOverview.as_view(),
         name='project_overview'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/geographic-extent/$',
-        project_views.ProjectExtend.as_view(),
-        name='project_extend'),
+        r'^projects/(?P<project_id>[0-9]+)/geographicextent/$',
+        project_views.ProjectGeographicExtent.as_view(),
+        name='project_geographicextent'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/settings/$',
         project_views.ProjectSettings.as_view(),

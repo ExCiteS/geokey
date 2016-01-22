@@ -13,6 +13,7 @@ class Project(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
     isprivate = models.BooleanField(default=False)
+    islocked = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     everyone_contributes = models.CharField(
@@ -30,7 +31,7 @@ class Project(models.Model):
         related_name='admins',
         through='Admins'
     )
-    geographic_extend = gis.PolygonField(null=True, geography=True)
+    geographic_extent = gis.PolygonField(null=True, geography=True)
 
     objects = ProjectManager()
 
@@ -42,8 +43,8 @@ class Project(models.Model):
             self.name, self.status, self.isprivate)
 
     @classmethod
-    def create(cls, name, description, isprivate, everyone_contributes,
-               creator):
+    def create(cls, name, description, isprivate, islocked,
+               everyone_contributes, creator):
         """
         Creates a new project and adds the creator to
         the administrators user group.
@@ -54,6 +55,8 @@ class Project(models.Model):
             Long-form description of the project
         isprivate : Boolean
             Indicates if the project should be private
+        islocked : Boolean
+            Indicates if the project should be locked
         everyone_contributes : str
             Indicates if all you users who have access can contribute to the
             project
@@ -71,6 +74,7 @@ class Project(models.Model):
             name=name,
             description=description,
             isprivate=isprivate,
+            islocked=islocked,
             creator=creator,
             everyone_contributes=everyone_contributes
         )

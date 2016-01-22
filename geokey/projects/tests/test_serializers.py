@@ -15,7 +15,7 @@ class SerializerTest(TestCase):
         self.assertIsNotNone(serializer.get_subsets(project))
 
     def test_get_geographic_extent(self):
-        project = ProjectFactory.create(**{'geographic_extend': None})
+        project = ProjectFactory.create(**{'geographic_extent': None})
         serializer = ProjectSerializer(project)
         self.assertIsNone(serializer.get_geographic_extent(project))
 

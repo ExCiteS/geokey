@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpResponseRedirect
 from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.messages.storage.fallback import FallbackStorage
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
@@ -17,8 +18,9 @@ from .model_factories import ProjectFactory
 from ..models import Project, Admins
 from ..views import (
     ProjectCreate, ProjectSettings, ProjectUpdate, ProjectAdmins,
-    ProjectAdminsUser, Projects, SingleProject, ProjectOverview, ProjectExtend,
-    CategoriesReorderView, ProjectsInvolved, ProjectDelete
+    ProjectAdminsUser, Projects, SingleProject, ProjectOverview,
+    ProjectGeographicExtent, CategoriesReorderView, ProjectsInvolved,
+    ProjectDelete
 )
 
 # ############################################################################
@@ -57,7 +59,6 @@ class ProjectCreateTest(TestCase):
         request = APIRequestFactory().post(url, data)
         request.user = UserFactory.create()
 
-        from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
@@ -103,7 +104,7 @@ class ProjectsInvolvedTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
 
-class ProjectExtendTest(TestCase):
+class ProjectGeographicExtentTest(TestCase):
     def setUp(self):
         self.creator = UserFactory.create()
         self.admin = UserFactory.create()
@@ -119,7 +120,7 @@ class ProjectExtendTest(TestCase):
 
     def test_get_with_creator(self):
         view = ProjectSettings.as_view()
-        url = reverse('admin:project_extend',
+        url = reverse('admin:project_geographicextent',
                       kwargs={'project_id': self.project.id})
         request = APIRequestFactory().get(url)
         request.user = self.creator
@@ -127,8 +128,8 @@ class ProjectExtendTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_get_with_admin(self):
-        view = ProjectExtend.as_view()
-        url = reverse('admin:project_extend',
+        view = ProjectGeographicExtent.as_view()
+        url = reverse('admin:project_geographicextent',
                       kwargs={'project_id': self.project.id})
         request = APIRequestFactory().get(url)
         request.user = self.admin
@@ -136,8 +137,8 @@ class ProjectExtendTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_get_with_contributor(self):
-        view = ProjectExtend.as_view()
-        url = reverse('admin:project_extend',
+        view = ProjectGeographicExtent.as_view()
+        url = reverse('admin:project_geographicextent',
                       kwargs={'project_id': self.project.id})
         request = APIRequestFactory().get(url)
         request.user = self.contributor
@@ -145,9 +146,9 @@ class ProjectExtendTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_get_with_view_member(self):
-        view = ProjectExtend.as_view()
+        view = ProjectGeographicExtent.as_view()
         url = reverse(
-            'admin:project_extend',
+            'admin:project_geographicextent',
             kwargs={'project_id': self.project.id}
         )
         request = APIRequestFactory().get(url)
@@ -156,9 +157,9 @@ class ProjectExtendTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_get_with_anonymous(self):
-        view = ProjectExtend.as_view()
+        view = ProjectGeographicExtent.as_view()
         url = reverse(
-            'admin:project_extend',
+            'admin:project_geographicextent',
             kwargs={'project_id': self.project.id}
         )
         request = APIRequestFactory().get(url)
@@ -168,8 +169,8 @@ class ProjectExtendTest(TestCase):
 
     def test_get_deleted_project(self):
         self.project.delete()
-        view = ProjectExtend.as_view()
-        url = reverse('admin:project_extend',
+        view = ProjectGeographicExtent.as_view()
+        url = reverse('admin:project_geographicextent',
                       kwargs={'project_id': self.project.id})
         request = APIRequestFactory().get(url)
         request.user = self.admin
@@ -181,13 +182,12 @@ class ProjectExtendTest(TestCase):
         data = {'geometry': '{"type": "Polygon","coordinates": [['
                             '[-0.508,51.682],[-0.53,51.327],[0.225,51.323],'
                             '[0.167,51.667],[-0.508,51.682]]]}'}
-        view = ProjectExtend.as_view()
-        url = reverse('admin:project_extend',
+        view = ProjectGeographicExtent.as_view()
+        url = reverse('admin:project_geographicextent',
                       kwargs={'project_id': self.project.id})
         request = APIRequestFactory().post(url, data)
         request.user = self.admin
 
-        from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
@@ -195,25 +195,24 @@ class ProjectExtendTest(TestCase):
         response = view(request, project_id=self.project.id).render()
         self.assertEqual(response.status_code, 200)
         self.assertContains(
-            response, 'The geographic extent has been updated successfully.')
+            response, 'The geographic extent has been updated.')
 
         updated = Project.objects.get(pk=self.project.id)
 
-        self.assertEqual(updated.geographic_extend.geom_type, 'Polygon')
+        self.assertEqual(updated.geographic_extent.geom_type, 'Polygon')
         self.assertEqual(
-            updated.geographic_extend.json,
+            updated.geographic_extent.json,
             GEOSGeometry(data.get('geometry')).json
         )
 
     def test_update_with_none(self):
         data = None
-        view = ProjectExtend.as_view()
-        url = reverse('admin:project_extend',
+        view = ProjectGeographicExtent.as_view()
+        url = reverse('admin:project_geographicextent',
                       kwargs={'project_id': self.project.id})
         request = APIRequestFactory().post(url, data)
         request.user = self.admin
 
-        from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
@@ -221,21 +220,20 @@ class ProjectExtendTest(TestCase):
         response = view(request, project_id=self.project.id).render()
         self.assertEqual(response.status_code, 200)
         self.assertContains(
-            response, 'The geographic extent has been updated successfully.')
+            response, 'The geographic extent has been updated.')
 
         updated = Project.objects.get(pk=self.project.id)
 
-        self.assertEqual(updated.geographic_extend, None)
+        self.assertEqual(updated.geographic_extent, None)
 
     def test_update_with_empty_string(self):
         data = {'geometry': ''}
-        view = ProjectExtend.as_view()
-        url = reverse('admin:project_extend',
+        view = ProjectGeographicExtent.as_view()
+        url = reverse('admin:project_geographicextent',
                       kwargs={'project_id': self.project.id})
         request = APIRequestFactory().post(url, data)
         request.user = self.admin
 
-        from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
@@ -243,11 +241,38 @@ class ProjectExtendTest(TestCase):
         response = view(request, project_id=self.project.id).render()
         self.assertEqual(response.status_code, 200)
         self.assertContains(
-            response, 'The geographic extent has been updated successfully.')
+            response, 'The geographic extent has been updated.')
 
         updated = Project.objects.get(pk=self.project.id)
 
-        self.assertEqual(updated.geographic_extend, None)
+        self.assertEqual(updated.geographic_extent, None)
+
+    def test_update_with_locked_project(self):
+        self.project.islocked = True
+        self.project.geographic_extent = None
+        self.project.save()
+
+        data = {'geometry': '{"type": "Polygon","coordinates": [['
+                            '[-0.508,51.682],[-0.53,51.327],[0.225,51.323],'
+                            '[0.167,51.667],[-0.508,51.682]]]}'}
+        view = ProjectGeographicExtent.as_view()
+        url = reverse('admin:project_geographicextent',
+                      kwargs={'project_id': self.project.id})
+        request = APIRequestFactory().post(url, data)
+        request.user = self.admin
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = view(request, project_id=self.project.id).render()
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, 'The project is locked. Its structure cannot be edited.')
+
+        updated = Project.objects.get(pk=self.project.id)
+
+        self.assertEqual(updated.geographic_extent, None)
 
 
 class ProjectSettingsTest(TestCase):
@@ -301,7 +326,7 @@ class ProjectSettingsTest(TestCase):
     def test_get_with_anonymous(self):
         view = ProjectSettings.as_view()
         url = reverse(
-            'admin:project_extend',
+            'admin:project_geographicextent',
             kwargs={'project_id': self.project.id}
         )
         request = APIRequestFactory().get(url)
@@ -333,7 +358,6 @@ class ProjectSettingsTest(TestCase):
         request = APIRequestFactory().post(url, data)
         request.user = self.creator
 
-        from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
@@ -415,7 +439,6 @@ class ProjectDeleteTest(TestCase):
         request = APIRequestFactory().get(url)
         request.user = user
 
-        from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
@@ -423,6 +446,41 @@ class ProjectDeleteTest(TestCase):
         response = view(request, project_id=project.id)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Project.objects.count(), 0)
+
+    def test_delete_non_existing_project(self):
+        user = UserFactory.create()
+
+        view = ProjectDelete.as_view()
+        url = reverse('admin:project_delete',
+                      kwargs={'project_id': 1514})
+        request = APIRequestFactory().get(url)
+        request.user = user
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = view(request, project_id=1514)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Project.objects.count(), 0)
+
+    def test_delete_locked_project(self):
+        user = UserFactory.create()
+        project = ProjectFactory.create(islocked=True, add_admins=[user])
+
+        view = ProjectDelete.as_view()
+        url = reverse('admin:project_delete',
+                      kwargs={'project_id': project.id})
+        request = APIRequestFactory().get(url)
+        request.user = user
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = view(request, project_id=project.id)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Project.objects.count(), 1)
 
     def test_delete_with_contributor(self):
         user = UserFactory.create()
@@ -434,7 +492,7 @@ class ProjectDeleteTest(TestCase):
         request = APIRequestFactory().get(url)
         request.user = user
         response = view(request, project_id=project.id)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(Project.objects.count(), 1)
 
     def test_delete_with_anonymous(self):

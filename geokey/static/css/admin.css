@@ -413,7 +413,7 @@ form#permissions .message {
 	padding: 15px;
 }
 
-#stats, .contributions {
+#statistics, .contributions {
 	color: #428bca;
 	text-transform: uppercase;
 	font-weight: bold;
@@ -444,7 +444,7 @@ form#permissions .message {
 	text-align: left;
 }
 
-	#stats .number {
+	#statistics .number {
 		font-size: 4em;
 		min-width: 86px;
 		padding: 15px;

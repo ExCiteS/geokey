@@ -5,6 +5,7 @@ import json
 from django.test import TestCase, RequestFactory
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.contrib.messages.storage.fallback import FallbackStorage
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
@@ -163,7 +164,6 @@ class CategoryCreateTest(TestCase):
         })
         request = self.factory.post(url, data, follow=True)
 
-        from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
@@ -253,7 +253,6 @@ class CategoryDisplayTest(TestCase):
         request = self.factory.post(url, self.data)
         request.user = user
 
-        from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
@@ -375,7 +374,6 @@ class CategorySettingsTest(TestCase):
         request = self.factory.post(url, self.data)
         request.user = user
 
-        from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
@@ -499,7 +497,6 @@ class CategoryDeleteTest(TestCase):
         request = self.factory.get(url)
         request.user = user
 
-        from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
@@ -586,7 +583,6 @@ class FieldCreateTest(TestCase):
         request = self.factory.post(url, data)
         request.user = user
 
-        from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
@@ -728,7 +724,6 @@ class FieldSettingsTest(TestCase):
         request = self.factory.post(url, self.data)
         request.user = user
 
-        from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
@@ -849,7 +844,6 @@ class FieldDeleteTest(TestCase):
         request = self.factory.get(url)
         request.user = user
 
-        from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)

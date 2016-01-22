@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block bodydata %}
+data-project-id="{{ project.id }}"
+data-project-locked="{{ project.islocked }}"
+{% endblock %}
+
+{% block title %} | Project: {{ project.name }} - Geographic extent{% endblock %}
+
+{% block main %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="smaller">
+            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+            <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
+        </h1>
+
+        {% include 'project_navigation.html' %}
+    </div>
+</div>
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+
+    <h3 class="header">
+        {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+        Geographic extent
+    </h3>
+
+    <div id="map"></div>
+
+    <form method="POST" action="{% url 'admin:project_geographicextent' project.id %}" novalidate>
+        {% csrf_token %}
+
+        <input type="hidden" id="geometry" name="geometry" value="{{ project.geographic_extent.json }}">
+
+        {% if not project.islocked %}
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="reset" class="btn btn-link">Reset</button>
+            </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}
+
+{% block libraries %}
+<script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css">
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.2.3/leaflet.draw.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.2.3/leaflet.draw.css">
+
+<script src="/static/js/admin.ui.project.geographicextent.js"></script>
+{% endblock %}

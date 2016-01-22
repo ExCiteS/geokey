@@ -12,7 +12,7 @@
                     <li role="presentation" class="active"><a href="{% url 'admin:category_list' field.category.project.id %}">Categories</a></li>
                     <li role="presentation"><a href="{% url 'admin:usergroup_list' field.category.project.id %}">User groups</a></li>
                     <li role="presentation"><a href="{% url 'admin:subset_list' field.category.project.id %}">Subsets</a></li>
-                    <li role="presentation"><a href="{% url 'admin:project_extend' field.category.project.id %}">Geographic extent</a></li>
+                    <li role="presentation"><a href="{% url 'admin:project_geographicextent' field.category.project.id %}">Geographic extent</a></li>
                     <li role="presentation"><a href="{% url 'admin:project_settings' field.category.project.id %}">Settings</a></li>
                 </ul>
             </div>

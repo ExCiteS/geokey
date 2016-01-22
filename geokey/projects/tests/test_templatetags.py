@@ -35,6 +35,7 @@ class ProjectAttributesTest(TestCase):
         user = User(display_name='Test Name')
         project = Project(
             isprivate=True,
+            islocked=False,
             creator=user,
             created_at=datetime.datetime.now(),
             status='active'
@@ -48,11 +49,19 @@ class ProjectAttributesTest(TestCase):
             ),
             html
         )
-        self.assertIn('<span class="label label-primary">Private</span>', html)
-        self.assertNotIn('Archived', html)
+        self.assertNotIn(
+            'Locked',
+            html)
+        self.assertIn(
+            '<span class="label label-primary">Private</span>',
+            html)
+        self.assertNotIn(
+            'Archived',
+            html)
 
         project = Project(
             isprivate=False,
+            islocked=True,
             creator=user,
             created_at=datetime.datetime.now(),
             status='inactive'
@@ -66,5 +75,12 @@ class ProjectAttributesTest(TestCase):
             ),
             html
         )
-        self.assertIn('<span class="label label-primary">Public</span>', html)
-        self.assertIn('<span class="label label-warning">Archived</span>', html)
+        self.assertIn(
+            '<span class="label label-default">Locked</span>',
+            html)
+        self.assertIn(
+            '<span class="label label-primary">Public</span>',
+            html)
+        self.assertIn(
+            '<span class="label label-warning">Archived</span>',
+            html)

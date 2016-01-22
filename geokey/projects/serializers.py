@@ -25,8 +25,8 @@ class ProjectSerializer(FieldSelectorSerializer):
     class Meta:
         model = Project
         depth = 1
-        fields = ('id', 'name', 'description', 'isprivate', 'status',
-                  'created_at', 'categories', 'subsets',
+        fields = ('id', 'name', 'description', 'isprivate', 'islocked',
+                  'status', 'created_at', 'categories', 'subsets',
                   'contribution_info', 'user_info', 'num_locations',
                   'geographic_extent')
         read_only_fields = ('id', 'name')
@@ -80,8 +80,8 @@ class ProjectSerializer(FieldSelectorSerializer):
         dict
             serialised geometry of the extent
         """
-        if project.geographic_extend is not None:
-            return json.loads(project.geographic_extend.json)
+        if project.geographic_extent is not None:
+            return json.loads(project.geographic_extent.json)
         else:
             return None
 

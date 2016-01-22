@@ -1,153 +1,186 @@
-{% extends "base.html" %}
-
+{% extends 'base.html' %}
 {% load count %}
 
-{% block bodydata %} data-project-id="{{project.id}}"{% endblock %}
-{% block title %} | Project: {{project.name}}{% endblock %}
+{% block bodydata %}
+data-project-id="{{ project.id }}"
+data-project-locked="{{ project.islocked }}"
+{% endblock %}
+
+{% block title %} | Project: {{ project.name }} - Overview{% endblock %}
 
 {% block main %}
-    {% csrf_token %}
-        <div class="page-header">
-            <div class="container">
-                <h1>{{project.name}}</h1>
+<div class="page-header">
+    <div class="container">
+        <h1>
+            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+            {{ project.name }}
+        </h1>
 
-                <ul class="nav nav-tabs header-nav">
-                    <li role="presentation" class="active"><a href="{% url 'admin:project_overview' project.id %}">Project home</a></li>
-                    <li role="presentation"><a href="{% url 'admin:category_list' project.id %}">Categories</a></li>
-                    <li role="presentation"><a href="{% url 'admin:usergroup_list' project.id %}">User groups</a></li>
-                    <li role="presentation"><a href="{% url 'admin:subset_list' project.id %}">Subsets</a></li>
-                    <li role="presentation"><a href="{% url 'admin:project_extend' project.id %}">Geographic extent</a></li>
-                    <li role="presentation"><a href="{% url 'admin:project_settings' project.id %}">Settings</a></li>
-                </ul>
-            </div>
-        </div>
+        {% include 'project_navigation.html' %}
+    </div>
+</div>
 
-        <div class="container">
-            {% include 'snippets/messages.html' %}
+<div class="container">
+    {% include 'snippets/messages.html' %}
 
-            <div class="row" id="overview-block">
-                <div class="col-sm-12">
-                    <h3 class="header">Overview <small><a href="#" id="help-link">Click here for help</a></small></h3>
-                </div>
-                <div class="col-sm-4">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">Categories <a href="{% url 'admin:category_list' project.id %}" class="badge pull-right">{{ project.categories.count }} &raquo;</a></h4>
-                        </div>
-                        <div class="list-group">
-                            {% for category in project.categories.all %}
-                                {% if forloop.counter == 6 %}
+    <div id="overview-block">
+        <h3 class="header">
+            Overview
+            {% if not project.islocked %}<small><a href="#" id="help-link" class="pull-right">Click here for help</a></small>{% endif %}
+        </h3>
 
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                            Categories
+                            <a href="{% url 'admin:category_list' project.id %}" class="badge pull-right">{{ project.categories.count }} &raquo;</a>
+                        </h4>
+                    </div>
+
+                    <div class="list-group">
+                        {% for category in project.categories.all %}
+                            {% if forloop.counter == 6 %}
                                 <div class="list-group-item">
                                     <strong><a href="#" class="text-primary expand">{% more_link_text project.categories.count 'category' 'categories' %}</a></strong>
                                 </div>
+                            {% endif %}
 
-                                {% endif %}
-
-                                <a href="{% url 'admin:category_overview' project.id category.id %}" class="list-group-item {% if forloop.counter > 5 %}hidden{% endif %}"><strong>{{ category.name }}</strong><br>
+                            <a href="{% url 'admin:category_overview' project.id category.id %}" class="list-group-item {% if forloop.counter > 5 %}hidden{% endif %}">
+                                <strong>{{ category.name }}</strong><br>
                                 {% with fields_count=category.fields.count %}
                                     {{ fields_count }} field{{ fields_count|pluralize }}
                                 {% endwith %}
-                                </a>
+                            </a>
 
-                            {% empty %}
+                        {% empty %}
                             <div class="list-group-item">No categories have been created yet.</div>
-                            {% endfor %}
-                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if not project.islocked %}
                         <div class="panel-footer">
                             <a href="{% url 'admin:category_create' project.id %}" class="btn btn-sm btn-success">Create category</a>
                         </div>
-                    </div>
+                    {% endif %}
                 </div>
+            </div>
 
-                <div class="col-sm-4">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">Subsets <a href="{% url 'admin:subset_list' project.id %}" class="badge pull-right">{{ project.subsets.count }} &raquo;</a></h4>
-                        </div>
-                        <div class="list-group">
-                            {% for subset in project.subsets.all %}
-                                {% if forloop.counter == 6 %}
+            <div class="col-sm-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                            Subsets
+                            <a href="{% url 'admin:subset_list' project.id %}" class="badge pull-right">{{ project.subsets.count }} &raquo;</a>
+                        </h4>
+                    </div>
+
+                    <div class="list-group">
+                        {% for subset in project.subsets.all %}
+                            {% if forloop.counter == 6 %}
                                 <div class="list-group-item">
                                     <strong><a href="#" class="text-primary expand">{% more_link_text project.subsets.count 'subset' 'subsets' %}</a></strong>
                                 </div>
-                                {% endif %}
-                                <a href="{% url 'admin:subset_data' project.id subset.id %}" class="list-group-item {% if forloop.counter > 5 %}hidden{% endif %}">{{ subset.name }}</a>
-                            {% empty %}
+                            {% endif %}
+
+                            <a href="{% url 'admin:subset_data' project.id subset.id %}" class="list-group-item {% if forloop.counter > 5 %}hidden{% endif %}">{{ subset.name }}</a>
+                        {% empty %}
                             <div class="list-group-item">No subsets have been created yet.</div>
-                            {% endfor %}
-                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if not project.islocked %}
                         <div class="panel-footer">
                             <a href="{% url 'admin:subset_create' project.id %}" class="btn btn-sm btn-success">Create subset</a>
                         </div>
-                    </div>
+                    {% endif %}
                 </div>
+            </div>
 
-                <div class="col-sm-4">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">User groups <a href="{% url 'admin:usergroup_list' project.id %}" class="badge pull-right">{{ project.usergroups.count|add:"1"}} &raquo;</a></span></h4>
-                        </div>
-                        <div class="list-group">
-                            <a href="{% url 'admin:admins_overview' project.id %}" class="list-group-item"><strong>Administators</strong><br> {{project.admins.count}} members</a>
+            <div class="col-sm-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                            User groups
+                            <a href="{% url 'admin:usergroup_list' project.id %}" class="badge pull-right">{{ project.usergroups.count|add:'1' }} &raquo;</a>
+                        </h4>
+                    </div>
 
-                            {% for group in project.usergroups.all %}
+                    <div class="list-group">
+                        <a href="{% url 'admin:admins_overview' project.id %}" class="list-group-item">
+                            <strong>Administators</strong><br>
+                            {% with admins_count=project.admins.count %}
+                                {{ admins_count }} member{{ admins_count|pluralize }}
+                            {% endwith %}
+                        </a>
+
+                        {% for group in project.usergroups.all %}
                             {% if forloop.counter == 5 %}
-
-                            <div class="list-group-item">
-                                <strong><a href="#" class="text-primary expand">{% more_link_text project.usergroups.count 'user group' 'user groups' 4 %}</a></strong>
-                            </div>
-
+                                <div class="list-group-item">
+                                    <strong><a href="#" class="text-primary expand">{% more_link_text project.usergroups.count 'user group' 'user groups' 4 %}</a></strong>
+                                </div>
                             {% endif %}
 
-                            <a href="{% url 'admin:usergroup_overview' project.id group.id %}" class="list-group-item {% if forloop.counter > 4 %}hidden{% endif %}"><strong>{{ group.name }}</strong><br>
-                            {% with members_count=group.users.count %}
-                                {{ members_count }} member{{ members_count|pluralize }}
-                            {% endwith %}
+                            <a href="{% url 'admin:usergroup_overview' project.id group.id %}" class="list-group-item {% if forloop.counter > 4 %}hidden{% endif %}">
+                                <strong>{{ group.name }}</strong><br>
+                                {% with members_count=group.users.count %}
+                                    {{ members_count }} member{{ members_count|pluralize }}
+                                {% endwith %}
                             </a>
-                            {% endfor %}
+                        {% endfor %}
+                    </div>
 
-                        </div>
+                    {% if not project.islocked %}
                         <div class="panel-footer">
                             <a href="{% url 'admin:usergroup_create' project.id %}" class="btn btn-sm btn-success">Create user group</a>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            {% include 'snippets/project-help.html' %}
-
-            <div class="row">
-                <div class="col-sm-8" id="stats-bock">
-                    <h3 class="header">Activity</h3>
-                    <div class="row" id="stats">
-                        <div class="col-sm-4">
-                            <span class="number">{{ allcontributions }}</span><br>contributions
-                        </div>
-                        <div class="col-sm-4">
-                            <span class="number">{{ comments }}</span><br>comments
-                        </div>
-                        <div class="col-sm-4">
-                            <span class="number">{{ files }}</span><br>files
-                        </div>
-                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
+    </div>
+
+    {% include 'snippets/project-help.html' %}
+
+    <div id="statistics-bock">
+        <h3 class="header">Statistics</h3>
+
+        <div id="statistics" class="row">
+            <div class="col-sm-4">
+                <span class="number">{{ all_contributions }}</span>
+                <p>contributions</p>
+            </div>
+
+            <div class="col-sm-4">
+                <span class="number">{{ all_comments }}</span>
+                <p>comments</p>
+            </div>
+
+            <div class="col-sm-4">
+                <span class="number">{{ all_mediafiles }}</span>
+                <p>media files</p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block libraries %}
-<script type="text/javascript">
-    $('#help-link').click(function (event) {
-        $('#help-block').removeClass('hidden');
-        $('#overview-block').addClass('hidden');
-        event.preventDefault();
-    });
+<script>
+$('#help-link').click(function(event) {
+    event.preventDefault();
+    $('#help-block').removeClass('hidden');
+    $('#overview-block').addClass('hidden');
+});
 
-    $('a.expand').click(function(event) {
-        event.preventDefault();
-        $(this).parents('.list-group').find('a.hidden').removeClass('hidden');
-        $(this).parents('.list-group-item').remove();
-    });
+$('a.expand').click(function(event) {
+    event.preventDefault();
+    $(this).parents('.list-group').find('a.hidden').removeClass('hidden');
+    $(this).parents('.list-group-item').remove();
+});
 </script>
 {% endblock %}

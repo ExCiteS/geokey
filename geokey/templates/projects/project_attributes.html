@@ -1,5 +1,7 @@
 <p>
+    {% if locked %}<span class="label label-default">Locked</span>{% endif %}
     <span class="label label-primary">{{ private_label }}</span>
     {% if inactive %}<span class="label label-warning">Archived</span>{% endif %}
 </p>
+
 <p class="meta">Created by {{ creator }} on {{ created_at }}</p>

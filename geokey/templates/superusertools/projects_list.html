@@ -40,7 +40,7 @@
                             <tr>
                                 <td>
                                     <h4><a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a></h4>
-                                    {% project_attributes project %}
+
                                 </td>
 
                                 <td class="text-center {% if project.contributions_count == 0 %}text-muted{% endif %}">{{ project.contributions_count }}</td>
