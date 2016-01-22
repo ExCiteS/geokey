@@ -1,0 +1,17 @@
+<ul class="nav nav-tabs header-nav">
+    <li role="presentation" class="{% if request.resolver_match.url_name == 'superuser_index' %}active{% endif %}">
+        <a href="{% url 'admin:superuser_index' %}">Platform settings</a>
+    </li>
+
+    <li role="presentation" class="{% if request.resolver_match.url_name == 'superuser_manage_users' %}active{% endif %}">
+        <a href="{% url 'admin:superuser_manage_users' %}">Manage superusers</a>
+    </li>
+
+    <li role="presentation" class="{% if request.resolver_match.url_name == 'superuser_manage_inactiveusers' %}active{% endif %}">
+        <a href="{% url 'admin:superuser_manage_inactiveusers' %}">Activate inactive users</a>
+    </li>
+
+    <li role="presentation" class="{% if request.resolver_match.url_name == 'superuser_projects' %}active{% endif %}">
+        <a href="{% url 'admin:superuser_projects' %}">Manage all projects</a>
+    </li>
+</ul>

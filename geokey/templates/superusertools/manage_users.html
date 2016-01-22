@@ -7,12 +7,7 @@
     <div class="container">
         <h1>Superuser tools</h1>
 
-        <ul class="nav nav-tabs header-nav">
-            <li role="presentation"><a href="{% url 'admin:superuser_index' %}">Platform settings</a></li>
-            <li role="presentation" class="active"><a href="{% url 'admin:superuser_manage_users' %}">Manage superusers</a></li>
-            <li role="presentation"><a href="{% url 'admin:superuser_manage_inactiveusers' %}">Activate inactive users</a></li>
-            <li role="presentation"><a href="{% url 'admin:superuser_projects' %}">Manage all projects</a></li>
-        </ul>
+        {% include 'superusertools_navigation.html' %}
     </div>
 </div>
 
