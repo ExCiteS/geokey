@@ -3,15 +3,15 @@
         <a href="{% url 'admin:project_overview' project.id %}">Overview</a>
     </li>
 
-    <li role="presentation" class="{% if 'category_list' in request.resolver_match.url_name %}active{% endif %}">
+    <li role="presentation" class="{% if 'category' in request.resolver_match.url_name %}active{% endif %}">
         <a href="{% url 'admin:category_list' project.id %}">Categories</a>
     </li>
 
-    <li role="presentation" class="{% if 'usergroup_list' in request.resolver_match.url_name %}active{% endif %}">
+    <li role="presentation" class="{% if 'usergroup' in request.resolver_match.url_name %}active{% endif %}">
         <a href="{% url 'admin:usergroup_list' project.id %}">User groups</a>
     </li>
 
-    <li role="presentation" class="{% if 'subset_list' in request.resolver_match.url_name %}active{% endif %}">
+    <li role="presentation" class="{% if 'subset' in request.resolver_match.url_name %}active{% endif %}">
         <a href="{% url 'admin:subset_list' project.id %}">Subsets</a>
     </li>
 

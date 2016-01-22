@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block bodydata %}
+data-project-id="{{ project.id }}"
+data-project-locked="{{ project.islocked }}"
+{% endblock %}
+
+{% block title %} | Project: {{ project.name }} - Subsets{% endblock %}
+
+{% block main %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="smaller">
+            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+            <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
+        </h1>
+
+        {% include 'projects_navigation.html' %}
+    </div>
+</div>
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+
+    <div class="row">
+        <div class="col-md-4 col-md-push-8">
+            <div class="alert alert-info">
+                <p>Create subsets to dynamically generate and output data based on set criterias.</p>
+            </div>
+        </div>
+
+        <div class="col-md-8 col-md-pull-4">
+            <h3 class="header">
+                {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                <span>Subsets</span>
+
+                {% if project.subsets.all and not project.islocked %}
+                    <a href="{% url 'admin:subset_create' project.id %}" class="btn btn-success btn-sm pull-right">
+                        <span class="glyphicon glyphicon-plus"></span>
+                        Create new subset
+                    </a>
+                {% endif %}
+            </h3>
+
+            {% for subset in project.subsets.all %}
+                {% if forloop.first %}
+                    <ul class="list-unstyled overview-list">
+                {% endif %}
+
+                <li>
+                    <h4>
+                        {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                        <a href="{% url 'admin:subset_data' project.id subset.id %}">{{ subset.name }}</a>
+                    </h4>
+
+                    {% if subset.description %}<p>{{ subset.description }}</p>{% endif %}
+                </li>
+
+                {% if forloop.last %}
+                    </ul>
+                {% endif %}
+            {% empty %}
+                <div class="well empty-list">
+                    <p class="lead">We couldn't find any subsets for this project.</p>
+
+                    {% if project.islocked %}
+                        <p>Unfortunately, you cannot create new subsets when the project is locked.</p>
+                    {% else %}
+                        <a href="{% url 'admin:subset_create' project.id %}" class="btn btn-success btn-lg">Create new subset</a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
