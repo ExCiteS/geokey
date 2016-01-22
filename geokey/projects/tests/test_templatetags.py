@@ -76,9 +76,6 @@ class ProjectAttributesTest(TestCase):
             html
         )
         self.assertIn(
-            '<span class="label label-default">Locked</span>',
-            html)
-        self.assertIn(
             '<span class="label label-primary">Public</span>',
             html)
         self.assertIn(
