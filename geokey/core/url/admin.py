@@ -122,7 +122,7 @@ urlpatterns = patterns(
     # SUBSETS
     # ###########################
     url(r'^projects/(?P<project_id>[0-9]+)/subsets/$',
-        subsets.SubsetOverview.as_view(),
+        subsets.SubsetList.as_view(),
         name='subset_list'),
     url(r'^projects/(?P<project_id>[0-9]+)/subsets/new/$',
         subsets.SubsetCreate.as_view(),

@@ -17,7 +17,7 @@ from geokey.categories.tests.model_factories import CategoryFactory
 from .model_factories import SubsetFactory
 from ..models import Subset
 from ..views import (
-    SubsetOverview,
+    SubsetList,
     SubsetCreate,
     SubsetSettings,
     SubsetData,
@@ -25,11 +25,11 @@ from ..views import (
 )
 
 
-class SubsetOverviewTest(TestCase):
+class SubsetListTest(TestCase):
 
     def setUp(self):
 
-        self.view = SubsetOverview.as_view()
+        self.view = SubsetList.as_view()
         self.request = HttpRequest()
         self.request.method = 'GET'
         self.request.user = AnonymousUser()
@@ -62,7 +62,7 @@ class SubsetOverviewTest(TestCase):
         response = self.view(self.request, project_id=project.id).render()
 
         rendered = render_to_string(
-            'subsets/subset_overview.html',
+            'subsets/subset_list.html',
             {
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
@@ -86,7 +86,7 @@ class SubsetOverviewTest(TestCase):
         response = self.view(self.request, project_id=project.id).render()
 
         rendered = render_to_string(
-            'subsets/subset_overview.html',
+            'subsets/subset_list.html',
             {
                 'project': project,
                 'user': user,

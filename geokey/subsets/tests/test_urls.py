@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse, resolve
 
 from ..views import (
-    SubsetOverview,
+    SubsetList,
     SubsetCreate,
     SubsetSettings,
     SubsetData,
@@ -19,7 +19,7 @@ class UrlsTest(TestCase):
 
     def test_resolve_subset_list(self):
         resolved = resolve('/admin/projects/3/subsets/')
-        self.assertEqual(resolved.func.__name__, SubsetOverview.__name__)
+        self.assertEqual(resolved.func.__name__, SubsetList.__name__)
         self.assertEqual(resolved.kwargs['project_id'], '3')
 
     def test_reverse_subset_create(self):

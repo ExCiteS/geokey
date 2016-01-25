@@ -14,12 +14,12 @@ from geokey.projects.views import ProjectContext
 from .models import Subset
 
 
-class SubsetOverview(LoginRequiredMixin, ProjectContext, TemplateView):
+class SubsetList(LoginRequiredMixin, ProjectContext, TemplateView):
 
     """
     Displays the list of subsets in the project.
     """
-    template_name = 'subsets/subset_overview.html'
+    template_name = 'subsets/subset_list.html'
 
 
 class SubsetCreate(LoginRequiredMixin, ProjectContext, TemplateView):
@@ -43,8 +43,8 @@ class SubsetCreate(LoginRequiredMixin, ProjectContext, TemplateView):
         Returns
         -------
         django.http.HttpResponseRedirect
-            Redirects to subset data if subset is created, project overview if
-            project is locked
+            Redirects to subset data if subset is created, subset list if
+            project is locked or it does not have any categories
         django.http.HttpResponse
             Rendered template, if project does not exist
         """
