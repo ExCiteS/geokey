@@ -10,7 +10,6 @@
 
     <div class="list-group">
         <a href="{% url 'admin:subset_data' subset.project.id subset.id %}" class="list-group-item {% if request.resolver_match.url_name == 'subset_data' %}active{% endif %}">Data</a>
-
         <a href="{% url 'admin:subset_settings' subset.project.id subset.id %}" class="list-group-item {% if request.resolver_match.url_name == 'subset_settings' %}active{% endif %}">Settings</a>
     </div>
 </div>
