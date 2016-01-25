@@ -1,10 +1,11 @@
 {
-  "name": "GeoKey",
-  "devDependencies": {
-    "grunt": "*",
-    "grunt-contrib-concat": "*",
-    "grunt-contrib-handlebars": "*",
-    "grunt-contrib-uglify": "*",
-    "grunt-contrib-watch": "*"
-  }
+    "name": "GeoKey",
+    "version": "0.0.0",
+    "devDependencies": {
+        "grunt": "*",
+        "grunt-contrib-concat": "*",
+        "grunt-contrib-handlebars": "*",
+        "grunt-contrib-uglify": "*",
+        "grunt-contrib-watch": "*"
+    }
 }
