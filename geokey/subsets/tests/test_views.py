@@ -197,8 +197,9 @@ class SubsetCreateTest(TestCase):
             'description': 'Description',
         }
 
-        user = UserFactory.create()
         project = ProjectFactory.create()
+        CategoryFactory.create(project=project)
+        user = UserFactory.create()
 
         self.request.user = user
         response = self.view(self.request, project_id=project.id).render()
@@ -230,6 +231,7 @@ class SubsetCreateTest(TestCase):
         }
 
         project = ProjectFactory.create()
+        CategoryFactory.create(project=project)
         user = project.creator
 
         self.request.user = user
@@ -251,7 +253,33 @@ class SubsetCreateTest(TestCase):
     def test_post_on_locked_project_with_admin(self):
         """
         Updating with project admin when the project is locked should redirect
-        to project overview page
+        to subset list page
+        """
+
+        self.request.method = 'POST'
+        self.request.POST = {
+            'name': 'Name',
+            'description': 'Description',
+        }
+
+        project = ProjectFactory.create(islocked=True)
+        CategoryFactory.create(project=project)
+        user = project.creator
+
+        self.request.user = user
+        response = self.view(self.request, project_id=project.id)
+
+        self.assertEqual(0, Subset.objects.count())
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(
+            '/admin/projects/%s/subsets/' % (project.id),
+            response['location']
+        )
+
+    def test_post_on_project_when_no_categories_with_admin(self):
+        """
+        Updating with project admin when the project has no categories should
+        redirect to subset list page
         """
 
         self.request.method = 'POST'
@@ -269,7 +297,7 @@ class SubsetCreateTest(TestCase):
         self.assertEqual(0, Subset.objects.count())
         self.assertEqual(response.status_code, 302)
         self.assertIn(
-            '/admin/projects/%s/' % (project.id),
+            '/admin/projects/%s/subsets/' % (project.id),
             response['location']
         )
 
@@ -632,9 +660,8 @@ class SubsetDataTest(TestCase):
         """
 
         subset = SubsetFactory.create()
-        user = UserFactory.create()
-
         category = CategoryFactory.create(**{'project': subset.project})
+        user = UserFactory.create()
 
         self.request.user = user
         self.request.method = 'POST'
@@ -669,9 +696,8 @@ class SubsetDataTest(TestCase):
         """
 
         subset = SubsetFactory.create()
-        user = subset.project.creator
-
         category = CategoryFactory.create(**{'project': subset.project})
+        user = subset.project.creator
 
         self.request.user = user
         self.request.method = 'POST'
@@ -706,14 +732,13 @@ class SubsetDataTest(TestCase):
 
     def test_post_non_existing_with_admin(self):
         """
-        Update the view with project admin when subset does not exist should
-        render the page withh an error message
+        Updating with project admin when subset does not exist should render
+        the page withh an error message
         """
 
         project = ProjectFactory.create()
-        user = project.creator
-
         category = CategoryFactory.create(**{'project': project})
+        user = project.creator
 
         self.request.user = user
         self.request.method = 'POST'
@@ -740,17 +765,16 @@ class SubsetDataTest(TestCase):
 
     def test_post_on_locked_project_with_admin(self):
         """
-        Update the view with project admin when the project is locked should
-        render the page withh an error message
+        Updating with project admin when the project is locked should render
+        the page withh an error message
         """
 
         subset = SubsetFactory.create()
         subset.project.islocked = True
         subset.project.save()
 
-        user = subset.project.creator
-
         category = CategoryFactory.create(**{'project': subset.project})
+        user = subset.project.creator
 
         self.request.user = user
         self.request.method = 'POST'
@@ -766,6 +790,49 @@ class SubsetDataTest(TestCase):
         self.assertNotEqual(
             reference.filters,
             json.loads('{ "%s": { } }' % category.id)
+        )
+
+        rendered = render_to_string(
+            'subsets/subset_data.html',
+            {
+                'project': reference.project,
+                'subset': reference,
+                'user': user,
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'messages': get_messages(self.request),
+                'GEOKEY_VERSION': version.get_version()
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+    def test_post_on_project_when_no_categories_with_admin(self):
+        """
+        Updating with project admin when the project has no categories should
+        render the page withh an error message
+        """
+
+        subset = SubsetFactory.create()
+        subset.project.islocked = True
+        subset.project.save()
+
+        user = subset.project.creator
+
+        self.request.user = user
+        self.request.method = 'POST'
+        self.request.POST = {
+            'filters': '{ "%s": { } }' % 154515
+        }
+        response = self.view(
+            self.request,
+            project_id=subset.project.id,
+            subset_id=subset.id).render()
+
+        reference = Subset.objects.get(pk=subset.id)
+        self.assertNotEqual(
+            reference.filters,
+            json.loads('{ "%s": { } }' % 154515)
         )
 
         rendered = render_to_string(

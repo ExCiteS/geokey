@@ -34,7 +34,7 @@ data-project-locked="{{ project.islocked }}"
                 {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
                 <span>Subsets</span>
 
-                {% if project.subsets.all and not project.islocked %}
+                {% if project.categories.all and project.subsets.all and not project.islocked %}
                     <a href="{% url 'admin:subset_create' project.id %}" class="btn btn-success btn-sm pull-right">
                         <span class="glyphicon glyphicon-plus"></span>
                         Create new subset
@@ -65,6 +65,8 @@ data-project-locked="{{ project.islocked }}"
 
                     {% if project.islocked %}
                         <p>Unfortunately, you cannot create new subsets when the project is locked.</p>
+                    {% elif not project.categories.all %}
+                        <p>Unfortunately, you cannot create new subsets when there are no categories added to the project.</p>
                     {% else %}
                         <a href="{% url 'admin:subset_create' project.id %}" class="btn btn-success btn-lg">Create new subset</a>
                     {% endif %}

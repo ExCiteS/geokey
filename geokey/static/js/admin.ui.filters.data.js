@@ -69,9 +69,9 @@
         // Iterate over all categories
         for (var catIterator = 0, len = categories.length; catIterator < len; catIterator++) {
             var category = $(categories[catIterator]);
-            var catId = category.find('input.cat').val();
+            var catId = category.find('input.category').val();
 
-            if (category.find('input.cat').prop( "checked" )) { // include only categories that are activated
+            if (category.find('input.category').prop("checked")) { // include only categories that are activated
                 filters[catId] = {};
 
                 var filterFields = category.find('div.field-filter');
@@ -220,7 +220,7 @@
         }
 
         Control.Ajax.get(
-            'projects/' + projectId + '/categories/' + container.find('input.cat').val(),
+            'projects/' + projectId + '/categories/' + container.find('input.category').val(),
             handleTypeSuccess
         );
     }
@@ -246,7 +246,7 @@
         }
 
         Control.Ajax.get(
-            'projects/' + projectId + '/categories/' + container.find('input.cat').val(),
+            'projects/' + projectId + '/categories/' + container.find('input.category').val(),
             handleTypeSuccess
         );
     }
@@ -255,7 +255,7 @@
     $('form#data-access input[name="permission"]').change(handlePermissionChange);
 
     // user selects a category to be included in the filter
-    $('div.category input.cat').change(handleCategorySelect);
+    $('div.category input.category').change(handleCategorySelect);
 
     // users clicks "Restrict further" to select filters for attribute values
     $('a.activate-detailed').click(handleActivateDetailed);

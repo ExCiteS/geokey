@@ -36,15 +36,16 @@ def show_fields(filters, category):
         cat_rules = filters.get(str(category.id))
 
         context = {
+            'locked': category.project.islocked,
             'min_date': cat_rules.pop('min_date', None),
             'max_date': cat_rules.pop('max_date', None)
         }
 
         context['fields'] = [{
-                'category_id': category.id,
-                'field': category.fields.get_subclass(key=key),
-                'rule': cat_rules[key]
-            } for key in cat_rules]
+            'category_id': category.id,
+            'field': category.fields.get_subclass(key=key),
+            'rule': cat_rules[key]
+        } for key in cat_rules]
 
         return context
 

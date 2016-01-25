@@ -54,13 +54,24 @@ class SubsetCreate(LoginRequiredMixin, ProjectContext, TemplateView):
         project = context.get('project')
 
         if project:
+            cannot_create = 'New subsets cannot be created.'
+
             if project.islocked:
                 messages.error(
                     self.request,
-                    'The project is locked. New subsets cannot be created.'
+                    'The project is locked. %s' % cannot_create
                 )
                 return redirect(
-                    'admin:project_overview',
+                    'admin:subset_list',
+                    project_id=project_id
+                )
+            elif project.categories.count() == 0:
+                messages.error(
+                    self.request,
+                    'The project has no categories. %s' % cannot_create
+                )
+                return redirect(
+                    'admin:subset_list',
                     project_id=project_id
                 )
             else:
@@ -192,10 +203,17 @@ class SubsetData(LoginRequiredMixin, SubsetContext, TemplateView):
         subset = context.get('subset')
 
         if subset:
+            cannot_modify = 'Subset data cannot be modified.'
+
             if subset.project.islocked:
                 messages.error(
                     self.request,
-                    'The project is locked. Subsets cannot be edited.'
+                    'The project is locked. %s' % cannot_modify
+                )
+            elif subset.project.categories.count() == 0:
+                messages.error(
+                    self.request,
+                    'The project has no categories. %s' % cannot_modify
                 )
             else:
                 if data['filters'] != '-1':
@@ -246,7 +264,7 @@ class SubsetDelete(LoginRequiredMixin, SubsetContext, TemplateView):
             if subset.project.islocked:
                 messages.error(
                     self.request,
-                    'The project is locked. Subsets cannot be deleted.'
+                    'The project is locked. Subset cannot be deleted.'
                 )
                 return redirect(
                     'admin:subset_settings',

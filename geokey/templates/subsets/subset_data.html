@@ -7,7 +7,7 @@ data-project-locked="{{ project.islocked }}"
 data-subset-id="{{ subset.id }}"
 {% endblock %}
 
-{% block title %} | Project: {{ project.name }} - Subset: subset.name - Data{% endblock %}
+{% block title %} | Project: {{ project.name }} - Subset: {{ subset.name }} - Data{% endblock %}
 
 {% block main %}
 <div class="page-header">
@@ -29,33 +29,44 @@ data-subset-id="{{ subset.id }}"
             {% include 'subsets/subset_navigation.html' %}
         </div>
 
-        <form role="form" id="data-access" class="col-sm-8" method="POST" action="{% url 'admin:subset_data' subset.project.id subset.id %}" novalidate>
+        <form role="form" id="data-access" class="col-sm-8" method="POST" action="{% url 'admin:subset_data' project.id subset.id %}" novalidate>
             {% csrf_token %}
 
             <input type="hidden" name="filters" value="-1">
 
-            <h3 class="header">Subset data</h3>
+            <h3 class="header">
+                {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                Subset data
+            </h3>
 
-            <fieldset id="filter">
-                <legend>Select categories that will be accessible through the subset</legend>
+            {% if not project.categories.all %}
+                <p>Unfortunately, you cannot modify subset data when there are no categories added to the project.</p>
+            {% else %}
+                <fieldset id="filter">
+                    {% if not project.islocked %}<p>Select categories that will be accessible through the subset:</p>{% endif %}
 
-                {% for category in subset.project.categories.all %}
-                    <div class="category checkbox">
-                        <label>
-                            <input type="checkbox" name="category" class="cat" value="{{ category.id }}" {% if subset.filters|is_in:category.id %}checked="checked"{% endif%}> {{ category.name }} {% show_restrict subset.filters category %}
-                        </label>
+                    {% for category in project.categories.all %}
+                        <div class="category checkbox">
+                            <label>
+                                <input type="checkbox" class="category" name="category" value="{{ category.id }}" {% if subset.filters|is_in:category.id %}checked="checked"{% endif %} {% if project.islocked %}disabled{% endif %} />
+                                {{ category.name }}
+                                {% if not project.islocked %}{% show_restrict subset.filters category %}{% endif %}
+                            </label>
 
-                        {% if subset.filters|is_in:category.id %}
-                            {% show_fields subset.filters category %}
-                        {% endif%}
-                    </div>
-                {% endfor %}
-            </fieldset>
+                            {% if subset.filters|is_in:category.id %}
+                                {% show_fields subset.filters category %}
+                            {% endif%}
+                        </div>
+                    {% endfor %}
+                </fieldset>
 
-            {% if not project.islocked %}
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary">Save</button>
-            </div>
+                <div class="form-group">
+                    {% if not project.islocked %}
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    {% else %}
+                       <p class="lead text-center">The project is locked, therefore subset data cannot be modified.</p>
+                    {% endif %}
+                </div>
             {% endif %}
         </form>
     </div>
@@ -63,11 +74,14 @@ data-subset-id="{{ subset.id }}"
 {% endblock %}
 
 {% block libraries %}
-<link rel="stylesheet" href="/static/lib/bootstrap-datetime/css/bootstrap-datetimepicker.min.css">
+<script src="/static/lib/moment/moment.min.js"></script>
+
 <script src="/static/lib/handlebars/handlebars.js"></script>
 <script src="/static/js/templates.js"></script>
-<script src="/static/lib/moment/moment.min.js"></script>
-<script src="/static/lib/bootstrap-datetime/js/bootstrap-datetimepicker.min.js"></script>
+
+<link rel="stylesheet" href="/static/lib/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
+<script src="/static/lib/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+
 <script src="/static/js/admin.ui.filters.data.js"></script>
 <script src="/static/js/admin.ui.forms.validate.js"></script>
 <script src="/static/js/admin.control.ajax.js"></script>

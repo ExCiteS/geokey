@@ -7,19 +7,19 @@
 
 {% if min_date or max_date %}
 <div class="field-filter form-horizontal list-group-item" data-key="created_at" data-type="DateCreated">
-    <button type="button" class="close remove" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-    <h5>The contribution has been created</h5>
+    {% if not locked %}<button type="button" class="close remove" aria-label="Close"><span aria-hidden="true">&times;</span></button>{% endif %}
+    <h5>All contribution added</h5>
 
     <div class="form-group">
         <label for="created_at-min" class="col-sm-3 col-sm-offset-1 control-label">after</label>
         <div class="col-sm-7">
-            <input data-date-format="YYYY-MM-DD H:mm" type="text" class="form-control datetime" name="created_at-min" id="created_at-min" {% if min_date %}value="{{min_date}}"{%endif%} {% if max_date %}max="{{ max_date }}" {% endif %} data-key="created_at">
+            <input data-date-format="YYYY-MM-DD H:mm" type="text" class="form-control date" name="created_at-min" id="created_at-min" {% if min_date %}value="{{min_date}}"{%endif%} {% if max_date %}max="{{ max_date }}" {% endif %} data-key="created_at" {% if locked %}disabled{% endif %} />
         </div>
     </div>
     <div class="form-group">
         <label for="created_at-max" class="col-sm-3 col-sm-offset-1 control-label">and before</label>
         <div class="col-sm-7">
-            <input data-date-format="YYYY-MM-DD H:mm" type="text" class="form-control datetime" name="created_at-max" id="created_at-max" {% if max_date %}value="{{max_date}}"{%endif%} {% if min_date %}min="{{ min_date }}" {% endif %}  data-key="created_at">
+            <input data-date-format="YYYY-MM-DD H:mm" type="text" class="form-control date" name="created_at-max" id="created_at-max" {% if max_date %}value="{{max_date}}"{%endif%} {% if min_date %}min="{{ min_date }}" {% endif %}  data-key="created_at" {% if locked %}disabled{% endif %} />
         </div>
     </div>
 </div>
@@ -27,14 +27,14 @@
 
 {% for field in fields %}
 <div class="field-filter form-horizontal list-group-item" data-key="{{field.field.key}}" data-type="{{field.field.fieldtype}}">
-    <button type="button" class="close remove" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    {% if not locked %}<button type="button" class="close remove" aria-label="Close"><span aria-hidden="true">&times;</span></button>{% endif %}
     <h5>{{field.field.name}} ({{field.field.key}})</h5>
 
     {% if field.field.fieldtype == 'TextField' %}
         <div class="form-group">
             <label for="{{field.field.key}}-ref" class="col-sm-3 col-sm-offset-1 control-label">contains</label>
             <div class="col-sm-7">
-                <input type="text" class="form-control" name="{{field.field.key}}-ref" id="reference-value" value="{{ field.rule }}">
+                <input type="text" class="form-control" name="{{field.field.key}}-ref" id="reference-value" value="{{ field.rule }}" {% if locked %}disabled{% endif %} />
             </div>
         </div>
     {% endif %}
@@ -43,14 +43,14 @@
         <div class="form-group">
             <label for="{{field.field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is larger than</label>
             <div class="col-sm-7">
-                <input type="number" class="form-control" data-key="{{field.field.key}}" name="{{field.field.key}}-min" id="{{field.field.key}}-min" {% if not field.field.minval == None %}placeholder="{{field.field.minval}}" {% endif %} value="{{ field.rule|minval }}" max="{{ field.rule|maxval }}">
+                <input type="number" class="form-control" data-key="{{field.field.key}}" name="{{field.field.key}}-min" id="{{field.field.key}}-min" {% if not field.field.minval == None %}placeholder="{{field.field.minval}}" {% endif %} value="{{ field.rule|minval }}" max="{{ field.rule|maxval }}" {% if locked %}disabled{% endif %} />
             </div>
         </div>
 
         <div class="form-group">
             <label for="{{field.field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">is lower than</label>
             <div class="col-sm-7">
-                <input type="number" class="form-control" data-key="{{field.field.key}}" name="{{field.field.key}}-max" id="{{field.field.key}}-max" {% if not field.field.maxval == None %}placeholder="{{field.field.maxval}}" {% endif %} value="{{ field.rule|maxval }}" min="{{ field.rule|minval }}">
+                <input type="number" class="form-control" data-key="{{field.field.key}}" name="{{field.field.key}}-max" id="{{field.field.key}}-max" {% if not field.field.maxval == None %}placeholder="{{field.field.maxval}}" {% endif %} value="{{ field.rule|maxval }}" min="{{ field.rule|minval }}" {% if locked %}disabled{% endif %} />
             </div>
         </div>
     {% endif %}
@@ -59,13 +59,13 @@
         <div class="form-group">
             <label for="{{field.field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is after</label>
             <div class="col-sm-7">
-                <input data-date-format="YYYY-MM-DD H:mm" type="text" class="form-control datetime" data-key="{{field.field.key}}" name="{{field.field.key}}-min" id="{{field.field.key}}-min" value="{{ field.rule|minval }}" max="{{ field.rule|maxval }}">
+                <input data-date-format="YYYY-MM-DD H:mm" type="text" class="form-control date" data-key="{{field.field.key}}" name="{{field.field.key}}-min" id="{{field.field.key}}-min" value="{{ field.rule|minval }}" max="{{ field.rule|maxval }}" {% if locked %}disabled{% endif %} />
             </div>
         </div>
         <div class="form-group">
             <label for="{{field.field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">and before</label>
             <div class="col-sm-7">
-                <input data-date-format="YYYY-MM-DD H:mm" type="text" class="form-control datetime" data-key="{{field.field.key}}" name="{{field.field.key}}-max" id="{{field.field.key}}-max" value="{{ field.rule|maxval }}" min="{{ field.rule|minval }}">
+                <input data-date-format="YYYY-MM-DD H:mm" type="text" class="form-control date" data-key="{{field.field.key}}" name="{{field.field.key}}-max" id="{{field.field.key}}-max" value="{{ field.rule|maxval }}" min="{{ field.rule|minval }}" {% if locked %}disabled{% endif %} />
             </div>
         </div>
     {% endif %}
@@ -74,13 +74,13 @@
     <div class="form-group">
         <label for="{{field.field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is after</label>
         <div class="col-sm-7">
-            <input data-date-format="YYYY-MM-DD" type="text" class="form-control date" data-key="{{field.field.key}}" name="{{field.field.key}}-min" id="{{field.field.key}}-min" value="{{ field.rule|minval }}" max="{{ field.rule|maxval }}">
+            <input data-date-format="YYYY-MM-DD" type="text" class="form-control date" data-key="{{field.field.key}}" name="{{field.field.key}}-min" id="{{field.field.key}}-min" value="{{ field.rule|minval }}" max="{{ field.rule|maxval }}" {% if locked %}disabled{% endif %} />
         </div>
     </div>
     <div class="form-group">
         <label for="{{field.field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">and before</label>
         <div class="col-sm-7">
-            <input data-date-format="YYYY-MM-DD" type="text" class="form-control date" data-key="{{field.field.key}}" name="{{field.field.key}}-max" id="{{field.field.key}}-max" value="{{ field.rule|maxval }}" min="{{ field.rule|minval }}">
+            <input data-date-format="YYYY-MM-DD" type="text" class="form-control date" data-key="{{field.field.key}}" name="{{field.field.key}}-max" id="{{field.field.key}}-max" value="{{ field.rule|maxval }}" min="{{ field.rule|minval }}" {% if locked %}disabled{% endif %} />
         </div>
     </div>
     {% endif %}
@@ -89,13 +89,13 @@
     <div class="form-group">
         <label for="{{field.field.key}}-min" class="col-sm-3 col-sm-offset-1 control-label">is after</label>
         <div class="col-sm-7">
-            <input data-date-format="HH:mm" type="text" class="form-control time" data-key="{{field.field.key}}" name="{{field.field.key}}-min" id="{{field.field.key}}-min" value="{{ field.rule|minval }}" max="{{ field.rule|maxval }}">
+            <input data-date-format="HH:mm" type="text" class="form-control time" data-key="{{field.field.key}}" name="{{field.field.key}}-min" id="{{field.field.key}}-min" value="{{ field.rule|minval }}" max="{{ field.rule|maxval }}" {% if locked %}disabled{% endif %} />
         </div>
     </div>
     <div class="form-group">
         <label for="{{field.field.key}}-max" class="col-sm-3 col-sm-offset-1 control-label">and before</label>
         <div class="col-sm-7">
-            <input data-date-format="HH:mm" type="text" class="form-control time" data-key="{{field.field.key}}" name="{{field.field.key}}-max" id="{{field.field.key}}-max" value="{{ field.rule|maxval }}" min="{{ field.rule|minval }}">
+            <input data-date-format="HH:mm" type="text" class="form-control time" data-key="{{field.field.key}}" name="{{field.field.key}}-max" id="{{field.field.key}}-max" value="{{ field.rule|maxval }}" min="{{ field.rule|minval }}" {% if locked %}disabled{% endif %} />
         </div>
     </div>
     {% endif %}
@@ -131,6 +131,12 @@
 
 {% if min_date or max_date or fields  %}
 </div>
-<div class="panel-footer"><button id="add-more" class="btn btn-default btn-sm" type="button"><span class="text-success">Add another filter</span></button></div>
+{% if not locked %}
+    <div class="panel-footer">
+        <button id="add-more" class="btn btn-default btn-sm" type="button">
+            <span class="text-success">Add another filter</span>
+        </button>
+    </div>
+{% endif %}
 </div>
 {% endif %}
