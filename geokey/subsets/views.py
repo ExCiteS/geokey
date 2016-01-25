@@ -96,7 +96,7 @@ class SubsetContext(object):
 
     """
     Mixin that provides the context to render templates. The context contains
-    a subset instance based on project_id and subset_id
+    a subset instance based on project_id and subset_id.
     """
 
     @handle_exceptions_for_admin
@@ -179,7 +179,7 @@ class SubsetData(LoginRequiredMixin, SubsetContext, TemplateView):
 
     def post(self, request, project_id, subset_id):
         """
-        Updates the subset filter based on the data entered by the user
+        Updates the subset filter based on the data entered by the user.
 
         Parameter
         ---------
