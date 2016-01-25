@@ -34,12 +34,14 @@ data-project-locked="{{ project.islocked }}"
 
         <input type="hidden" id="geometry" name="geometry" value="{{ project.geographic_extent.json }}">
 
-        {% if not project.islocked %}
-            <div class="form-group">
+        <div class="form-group">
+            {% if not project.islocked %}
                 <button type="submit" class="btn btn-primary">Save</button>
                 <button type="reset" class="btn btn-link">Reset</button>
-            </div>
-        {% endif %}
+            {% else %}
+                <p class="lead text-center">The project is locked, therefore geographic extent cannot be edited.</p>
+            {% endif %}
+        </div>
     </form>
 </div>
 {% endblock %}
