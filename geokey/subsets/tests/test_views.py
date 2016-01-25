@@ -272,7 +272,7 @@ class SubsetCreateTest(TestCase):
         self.assertEqual(0, Subset.objects.count())
         self.assertEqual(response.status_code, 302)
         self.assertIn(
-            '/admin/projects/%s/subsets/' % (project.id),
+            '/admin/projects/%s/subsets/new/' % (project.id),
             response['location']
         )
 
@@ -297,7 +297,7 @@ class SubsetCreateTest(TestCase):
         self.assertEqual(0, Subset.objects.count())
         self.assertEqual(response.status_code, 302)
         self.assertIn(
-            '/admin/projects/%s/subsets/' % (project.id),
+            '/admin/projects/%s/subsets/new/' % (project.id),
             response['location']
         )
 

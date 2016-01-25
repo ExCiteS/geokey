@@ -43,7 +43,7 @@ class SubsetCreate(LoginRequiredMixin, ProjectContext, TemplateView):
         Returns
         -------
         django.http.HttpResponseRedirect
-            Redirects to subset data if subset is created, subset list if
+            Redirects to subset create if subset is created, subset list if
             project is locked or it does not have any categories
         django.http.HttpResponse
             Rendered template, if project does not exist
@@ -62,7 +62,7 @@ class SubsetCreate(LoginRequiredMixin, ProjectContext, TemplateView):
                     'The project is locked. %s' % cannot_create
                 )
                 return redirect(
-                    'admin:subset_list',
+                    'admin:subset_create',
                     project_id=project_id
                 )
             elif project.categories.count() == 0:
@@ -71,7 +71,7 @@ class SubsetCreate(LoginRequiredMixin, ProjectContext, TemplateView):
                     'The project has no categories. %s' % cannot_create
                 )
                 return redirect(
-                    'admin:subset_list',
+                    'admin:subset_create',
                     project_id=project_id
                 )
             else:
