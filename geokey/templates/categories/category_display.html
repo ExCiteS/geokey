@@ -1,76 +1,72 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %} | Category: {{ category.name }}{% endblock %}
-{% block bodydata %} {% if category.symbol %}data-symbol="{{ category.symbol.url }}"{% endif %}{% endblock %}
+{% block bodydata %}
+data-project-id="{{ project.id }}"
+data-project-locked="{{ project.islocked }}"
+data-category-id="{{ category.id }}"
+{% if category.symbol %}data-symbol="{{ category.symbol.url }}"{% endif %}
+{% endblock %}
 
-
+{% block title %} | Project: {{ project.name }} - Category: {{ category.name }} - Display{% endblock %}
 
 {% block main %}
-        <div class="page-header">
-            <div class="container">
-                <h1 class="smaller"><a href="{% url 'admin:project_overview' category.project.id %}">{{ category.project.name}}</a></h1>
-                <ul class="nav nav-tabs header-nav">
-                    <li role="presentation"><a href="{% url 'admin:project_overview' category.project.id %}">Project home</a></li>
-                    <li role="presentation" class="active"><a href="{% url 'admin:category_list' category.project.id %}">Categories</a></li>
-                    <li role="presentation"><a href="{% url 'admin:usergroup_list' category.project.id %}">User groups</a></li>
-                    <li role="presentation"><a href="{% url 'admin:subset_list' category.project.id %}">Subsets</a></li>
-                    <li role="presentation"><a href="{% url 'admin:project_geographicextent' category.project.id %}">Geographic extent</a></li>
-                    <li role="presentation"><a href="{% url 'admin:project_settings' category.project.id %}">Settings</a></li>
-                </ul>
-            </div>
+<div class="page-header">
+    <div class="container">
+        <h1 class="smaller">
+            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+            <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
+        </h1>
+
+        {% include 'projects_navigation.html' %}
+    </div>
+</div>
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+
+    <div class="row">
+        <div class="col-sm-4">
+            {% include 'categories/category_navigation.html' %}
         </div>
 
-        <div class="container">
-            {% include 'snippets/messages.html' %}
+        <div class="col-sm-8">
+            <h3 class="header">Category display</h3>
 
-            <div class="row">
-                <div class="col-sm-4">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h6 class="item-info">Category</h6>
-                            <h3>{{ category.name }}</h3>
-                            {% if category.description %}<p>{{ category.description|linebreaksbr }}</p>{% endif %}
-                        </div>
-                        <div class="list-group">
-                            <a href="{% url 'admin:category_overview' category.project.id category.id %}" class="list-group-item">Fields</a>
-                            <a href="{% url 'admin:category_display' category.project.id category.id %}" class="list-group-item active">Display</a>
-                            <a href="{% url 'admin:category_settings' category.project.id category.id %}" class="list-group-item">Settings</a>
-                        </div>
+            <form role="form" method="POST" action="{% url 'admin:category_display' category.project.id category.id %}" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+
+                <input type="hidden" name="clear-symbol" id="clear-symbol" value="false">
+
+                <div class="form-group">
+                    <label for="colour" class="control-label">Colour</label>
+                    <div class="input-group" id="colour">
+                        <input type="text" name="colour" value="{{ category.colour }}" class="form-control" />
+                        <span class="input-group-addon"><i></i></span>
                     </div>
                 </div>
-                <div class="col-sm-8">
-                    <h3 class="header">Display</h3>
-                    <form role="form" method="POST" action="{% url 'admin:category_display' category.project.id category.id %}" enctype="multipart/form-data" novalidate>
-                        {% csrf_token %}
-                        <input type="hidden" name="clear-symbol" id="clear-symbol" value="false">
-                        <div class="form-group">
-                            <label for="colour" class="control-label">Colour</label>
-                            <div class="input-group" id="colour">
-                                <input type="text" name="colour" value="{{ category.colour }}" class="form-control">
-                                <span class="input-group-addon"><i></i></span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="symbol" class="control-label">Symbol</label>
-                            <input type="file" name="symbol" id="symbol">
-                        </div>
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary">Save</button>
-                            <button type="reset" class="btn btn-primary btn-link">Reset</button>
-                        </div>
-                    </form>
+
+                <div class="form-group">
+                    <label for="symbol" class="control-label">Symbol</label>
+                    <input type="file" id="symbol" name="symbol" />
                 </div>
-            </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="reset" class="btn btn-primary btn-link">Reset</button>
+                </div>
+            </form>
         </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block libraries %}
-<script src="/static/js/admin.ui.forms.validate.js"></script>
-
 <link rel="stylesheet" href="/static/lib/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css">
 <script src="/static/lib/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
-<script src="/static/js/admin.ui.category.display.js"></script>
 
 <link rel="stylesheet" href="/static/lib/file-upload/css/fileinput.min.css">
 <script src="/static/lib/file-upload/js/fileinput.min.js"></script>
+
+<script src="/static/js/admin.ui.forms.validate.js"></script>
+<script src="/static/js/admin.ui.category.display.js"></script>
 {% endblock %}
