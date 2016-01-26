@@ -31,6 +31,7 @@ from geokey.contributions.models import Observation
 
 
 class CategoryContext(object):
+
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, category_id, *args, **kwargs):
         category = Category.objects.as_admin(
@@ -44,6 +45,7 @@ class CategoryContext(object):
 
 
 class FieldContext(object):
+
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, category_id, field_id,
                          *args, **kwargs):
@@ -156,6 +158,7 @@ class CategoryCreate(LoginRequiredMixin, ProjectContext, CreateView):
 
 
 class CategorySettings(LoginRequiredMixin, CategoryContext, TemplateView):
+
     """
     Displays the category settings page
     """
@@ -182,6 +185,7 @@ class CategorySettings(LoginRequiredMixin, CategoryContext, TemplateView):
                 'num_contributions': Number of contributions of that category
             }
         """
+
         context = super(CategorySettings, self).get_context_data(
             project_id,
             category_id,
@@ -196,7 +200,7 @@ class CategorySettings(LoginRequiredMixin, CategoryContext, TemplateView):
 
     def post(self, request, project_id, category_id):
         """
-        Handles the POST request and updates the category
+        Handles the POST request and updates the category.
 
         Parameters
         ----------
@@ -212,6 +216,7 @@ class CategorySettings(LoginRequiredMixin, CategoryContext, TemplateView):
         django.http.HttpResponse
             Rendered template
         """
+
         context = self.get_context_data(project_id, category_id)
         category = context.pop('category', None)
 
@@ -241,6 +246,7 @@ class CategorySettings(LoginRequiredMixin, CategoryContext, TemplateView):
 
 
 class CategoryDisplay(LoginRequiredMixin, CategoryContext, TemplateView):
+
     """
     Displat the category display settings, i.e. where colour and icon for the
     category can be set.
@@ -254,7 +260,7 @@ class CategoryDisplay(LoginRequiredMixin, CategoryContext, TemplateView):
         Parameters
         ----------
         request : django.http.HttpRequest
-            Object representing the request.
+            Object representing the request
         project_id : int
             Identifier of the project in the database
         category_id : int
@@ -265,6 +271,7 @@ class CategoryDisplay(LoginRequiredMixin, CategoryContext, TemplateView):
         django.http.HttpResponse
             Rendered template
         """
+
         context = self.get_context_data(project_id, category_id)
         category = context.pop('category', None)
 
@@ -288,9 +295,11 @@ class CategoryDisplay(LoginRequiredMixin, CategoryContext, TemplateView):
 
 
 class CategoryDelete(LoginRequiredMixin, CategoryContext, TemplateView):
+
     """
     Deletes a category if requesting user is admin of the project
     """
+
     template_name = 'base.html'
 
     def get(self, request, project_id, category_id):
@@ -307,11 +316,12 @@ class CategoryDelete(LoginRequiredMixin, CategoryContext, TemplateView):
         Returns
         -------
         django.http.HttpResponseRedirect
-            redirecting to list of categories overview.
+            Redirecting to list of categories overview
 
         django.http.HttpResponse
-            If user is not admin of the project, the error message is rendered.
+            If user is not admin of the project, the error message is rendered
         """
+
         context = self.get_context_data(project_id, category_id)
         category = context.pop('category', None)
 
@@ -325,9 +335,11 @@ class CategoryDelete(LoginRequiredMixin, CategoryContext, TemplateView):
 
 
 class FieldCreate(LoginRequiredMixin, CategoryContext, CreateView):
+
     """
-    Displays the create field page
+    Displays the create field page.
     """
+
     form_class = FieldCreateForm
     template_name = 'categories/field_create.html'
 
@@ -351,6 +363,7 @@ class FieldCreate(LoginRequiredMixin, CategoryContext, CreateView):
                 'fieldtypes': List of str, representing the field types
             }
         """
+
         project_id = self.kwargs['project_id']
         category_id = self.kwargs['category_id']
 
@@ -373,6 +386,7 @@ class FieldCreate(LoginRequiredMixin, CategoryContext, CreateView):
         ------
         Redirects to field setting page of the created field
         """
+
         project_id = self.kwargs['project_id']
         category_id = self.kwargs['category_id']
         data = form.cleaned_data
@@ -431,15 +445,17 @@ class FieldCreate(LoginRequiredMixin, CategoryContext, CreateView):
 
 
 class FieldSettings(LoginRequiredMixin, FieldContext, TemplateView):
+
     """
     Displays the field settings page
     """
+
     template_name = 'categories/field_settings.html'
 
     def get_context_data(self, project_id, category_id, field_id, **kwargs):
         """
         Returns the context to render the view. Overwrites the method to add
-        the field and available field types
+        the field and available field types.
 
         Parameter
         ---------
@@ -460,6 +476,7 @@ class FieldSettings(LoginRequiredMixin, FieldContext, TemplateView):
                     field
             }
         """
+
         context = super(FieldSettings, self).get_context_data(
             project_id, category_id, field_id)
 
@@ -472,7 +489,7 @@ class FieldSettings(LoginRequiredMixin, FieldContext, TemplateView):
 
     def post(self, request, project_id, category_id, field_id):
         """
-        Handles the POST request and updates the field
+        Handles the POST request and updates the field.
 
         Parameter
         ---------
@@ -488,6 +505,7 @@ class FieldSettings(LoginRequiredMixin, FieldContext, TemplateView):
         django.http.HttpResponse
             Rendered template
         """
+
         context = self.get_context_data(
             project_id,
             category_id,
@@ -519,11 +537,12 @@ class FieldSettings(LoginRequiredMixin, FieldContext, TemplateView):
 
 
 class FieldDelete(LoginRequiredMixin, FieldContext, TemplateView):
+
     template_name = 'base.html'
 
     def get(self, request, project_id, category_id, field_id):
         """
-        Handles the GET request and deletes the field
+        Handles the GET request and deletes the field.
 
         Parameter
         ---------
@@ -537,11 +556,12 @@ class FieldDelete(LoginRequiredMixin, FieldContext, TemplateView):
         Returns
         -------
         django.http.HttpResponseRedirect
-            redirecting to list of fields overview.
+            Redirecting to list of fields overview
 
         django.http.HttpResponse
-            If user is not admin of the project, the error message is rendered.
+            If user is not admin of the project, the error message is rendered
         """
+
         context = self.get_context_data(project_id, category_id, field_id)
         field = context.pop('field', None)
 
@@ -564,15 +584,17 @@ class FieldDelete(LoginRequiredMixin, FieldContext, TemplateView):
 #
 # ############################################################################
 
+
 class CategoryUpdate(APIView):
+
     """
-    API Endpoints for a category in the AJAX API.
-    /ajax/projects/:project_id/categories/:category_id
+    API endpoints for a category in the AJAX API.
     """
+
     @handle_exceptions_for_ajax
     def get(self, request, project_id, category_id):
         """
-        Handles the GET request
+        Handles the GET request.
 
         Parameter
         ---------
@@ -588,6 +610,7 @@ class CategoryUpdate(APIView):
         rest_framework.response.Response
             Reponse to the request
         """
+
         category = Category.objects.as_admin(
             request.user, project_id, category_id)
 
@@ -597,7 +620,7 @@ class CategoryUpdate(APIView):
     @handle_exceptions_for_ajax
     def put(self, request, project_id, category_id):
         """
-        Handles the POST request and updates the category
+        Handles the POST request and updates the category.
 
         Parameter
         ---------
@@ -629,11 +652,11 @@ class CategoryUpdate(APIView):
 
 
 class FieldUpdate(APIView):
+
     """
-    API endpoints for fields
-    /ajax/projects/:project_id/categories/:category_id/fields/
-    :field_id
+    API endpoints for fields.
     """
+
     @handle_exceptions_for_ajax
     def put(self, request, project_id, category_id, field_id,
             format=None):
@@ -656,6 +679,7 @@ class FieldUpdate(APIView):
         rest_framework.response.Response
             Reponse to the request
         """
+
         field = Field.objects.as_admin(
             request.user, project_id, category_id, field_id)
 
@@ -671,16 +695,16 @@ class FieldUpdate(APIView):
 
 
 class FieldLookups(APIView):
+
     """
-    API endpoint for lookupvalues
-    /ajax/projects/:project_id/categories/:category_id/fields/
-    :field_id/lookupvalues
+    API endpoint for lookupvalues.
     """
+
     @handle_exceptions_for_ajax
     def post(self, request, project_id, category_id, field_id,
              format=None):
         """
-        Handles the POST request and adds a lookupvalue to the field
+        Handles the POST request and adds a lookupvalue to the field.
 
         Parameter
         ---------
@@ -698,6 +722,7 @@ class FieldLookups(APIView):
         rest_framework.response.Response
             Reponse to the request
         """
+
         field = Field.objects.as_admin(
             request.user, project_id, category_id, field_id)
         name = strip_tags(request.data.get('name'))
@@ -722,11 +747,11 @@ class FieldLookups(APIView):
 
 
 class FieldLookupsUpdate(APIView):
+
     """
-    API endpoint for lookupvalues
-    /ajax/projects/:project_id/categories/:category_id/fields/
-    :field_id/lookupvalues/:value_id
+    API endpoint for lookupvalues.
     """
+
     def get_field(self, user, project_id, category_id, field_id):
         field = Field.objects.as_admin(
             user, project_id, category_id, field_id)
@@ -740,7 +765,7 @@ class FieldLookupsUpdate(APIView):
     @handle_exceptions_for_ajax
     def patch(self, request, project_id, category_id, field_id, value_id):
         """
-        Handles the PATCH request and updates the lookupvalue
+        Handles the PATCH request and updates the lookupvalue.
 
         Parameter
         ---------
@@ -760,6 +785,7 @@ class FieldLookupsUpdate(APIView):
         rest_framework.response.Response
             Reponse to the request
         """
+
         field = self.get_field(request.user, project_id, category_id, field_id)
 
         if field:
@@ -777,7 +803,7 @@ class FieldLookupsUpdate(APIView):
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, category_id, field_id, value_id):
         """
-        Handles the DELETE request and removes the lookupvalue the category
+        Handles the DELETE request and removes the lookupvalue the category.
 
         Parameter
         ---------
@@ -797,6 +823,7 @@ class FieldLookupsUpdate(APIView):
         rest_framework.response.Response
             Reponse to the request
         """
+
         field = self.get_field(request.user, project_id, category_id, field_id)
 
         if field:
@@ -810,14 +837,15 @@ class FieldLookupsUpdate(APIView):
 
 
 class FieldsReorderView(APIView):
+
     """
-    API endpoint to reorder the fields of a category
-    /ajax/projects/:project_id/categories/:category_id/fields/re-order/
+    API endpoint to reorder the fields of a category.
     """
+
     @handle_exceptions_for_ajax
     def post(self, request, project_id, category_id):
         """
-        Handles the DELETE request and removes the lookupvalue the category
+        Handles the DELETE request and removes the lookupvalue the category.
 
         Parameter
         ---------
@@ -833,6 +861,7 @@ class FieldsReorderView(APIView):
         rest_framework.response.Response
             Reponse to the request
         """
+
         category = Category.objects.as_admin(
             request.user, project_id, category_id)
         try:
@@ -854,15 +883,16 @@ class FieldsReorderView(APIView):
 # ############################################################################
 
 class SingleCategory(APIView):
+
     """
-    API endpoint for a single category
-    /api/projects/:project_id/categories/:category_id
+    API endpoint for a single category.
     """
+
     @handle_exceptions_for_ajax
     def get(self, request, project_id, category_id):
         """
         Handles the GET request and returns the complete category including
-        all fields
+        all fields.
 
         Parameter
         ---------
@@ -878,6 +908,7 @@ class SingleCategory(APIView):
         rest_framework.response.Response
             Reponse to the request
         """
+
         category = Category.objects.get_single(
             request.user, project_id, category_id)
 
