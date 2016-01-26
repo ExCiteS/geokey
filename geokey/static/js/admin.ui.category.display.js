@@ -12,16 +12,17 @@
  * - templates/categories/category_display.html
  * ***********************************************/
 
-$(function () {
+$(function() {
     'use strict';
 
     // Initialise the colorpicker
-    $("#colour").colorpicker();
-
+    $('#colour').colorpicker({
+        format: 'hex'
+    });
 
     // Initialise the file upload configuration
     var fileinputConfig = {
-        'showUpload': false
+        showUpload: false
     };
 
     // Set initial state of the file upload, if an image has been uploaded
