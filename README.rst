@@ -14,10 +14,6 @@
     :alt: Requirements Status
     :target: https://requires.io/github/ExCiteS/geokey/requirements/?branch=master
 
-.. image:: https://landscape.io/github/ExCiteS/geokey/master/landscape.svg?style=plastic
-    :alt: Code Health
-    :target: https://landscape.io/github/ExCiteS/geokey/master
-
 
 GeoKey
 ======
