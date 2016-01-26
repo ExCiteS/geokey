@@ -4,134 +4,134 @@
 {% block title %} | Application: {{application.name}}{% endblock %}
 
 {% block main %}
-    {% csrf_token %}
+{% csrf_token %}
 
-    <div class="page-header">
-        <div class="container">
-            <h1>Applications</h1>
+<div class="page-header">
+    <div class="container">
+        <h1>Applications</h1>
 
-            <ul class="nav nav-tabs header-nav">
-                <li role="presentation" class="active"><a href="{% url 'admin:app_overview' %}">Registered applications</a></li>
-                <li role="presentation"><a href="{% url 'admin:app_connected' %}">Connected applications</a></li>
-            </ul>
+        <ul class="nav nav-tabs header-nav">
+            <li role="presentation" class="active"><a href="{% url 'admin:app_overview' %}">Registered applications</a></li>
+            <li role="presentation"><a href="{% url 'admin:app_connected' %}">Connected applications</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+
+    <div class="row">
+        <div class="col-md-5 app-meta">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h6 class="item-info">Application</h6>
+                    <h3>{{ application.name }}</h3>
+                    {% if application.description %}<p>{{ application.description|linebreaksbr }}</p>{% endif %}
+                </div>
+                <div class="list-group">
+                    <div class="list-group-item" id="statistics">
+                        <span class="number">{{ users }}</span><br> users currently use this app
+                    </div>
+                    <div class="list-group-item">
+                        <p>Client ID: <code>{{ application.client_id }}</code></p>
+                        <p>Client secret: <code>{{ application.client_secret }}</code></p>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <form role="form" id="appForm" class="col-md-7" method="POST" action="{% url 'admin:app_settings' application.id %}" novalidate>
+            <h3 class="header">Settings</h3>
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="name" class="control-label">Name (required)</label>
+                <input type="text" class="form-control input-lg" id="name" name="name" value="{{ application.name }}" maxlength="100" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description" class="control-label">Description</label>
+                <textarea class="form-control input-lg" id="description" name="description" rows="5" placeholder="Add a description">{{ application.description }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="download_url" class="control-label">Download / welcome page url (required)</label>
+                <input type="url" class="form-control input-lg" id="download_url" name="download_url" value="{{ application.download_url }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description" class="control-label">Redirect URL (required)</label>
+                <input type="url" class="form-control input-lg" id="redirect_uris" value="{{ application.redirect_uris }}" name="redirect_uris" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description" class="control-label">Authorisation type</label>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="authorization_grant_type" value="implicit" {% if application.authorization_grant_type == 'implicit' %}checked{% endif %}> <strong>Implicit</strong><br>Use this authorisation type if your app is a mobile app or running in a browser.
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="authorization_grant_type" value="authorization-code" {% if application.authorization_grant_type == 'authorization-code' %}checked{% endif %}> <strong>Authorization Code</strong><br>Use this authorisation type if your app is running on a server.
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="authorization_grant_type" value="password"  {% if application.authorization_grant_type == 'password' %}checked{% endif %}> <strong>Password</strong><br>Use this authorisation type if you want to obtain the access token simply by exchanging username and password. This should only be used by apps created by the service itself.
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="reset" class="btn btn-link">Reset</button>
+            </div>
+        </form>
     </div>
 
-        <div class="container">
-            {% include 'snippets/messages.html' %}
-
-            <div class="row">
-                <div class="col-md-5 app-meta">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h6 class="item-info">Application</h6>
-                            <h3>{{ application.name }}</h3>
-                            {% if application.description %}<p>{{ application.description|linebreaksbr }}</p>{% endif %}
-                        </div>
-                        <div class="list-group">
-                            <div class="list-group-item" id="stats">
-                                <span class="number">{{ users }}</span><br> users currently use this app
-                            </div>
-                            <div class="list-group-item">
-                                <p>Client ID: <code>{{ application.client_id }}</code></p>
-                                <p>Client secret: <code>{{ application.client_secret }}</code></p>
-                            </div>
-                        </div>
-                    </div>
+    <div class="row">
+        <div class="col-sm-7 col-sm-offset-5">
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    <h2 class="panel-title">Be careful!</h2>
                 </div>
-
-                <form role="form" id="appForm" class="col-md-7" method="POST" action="{% url 'admin:app_settings' application.id %}" novalidate>
-                    <h3 class="header">Settings</h3>
-                    {% csrf_token %}
-
-                    <div class="form-group">
-                        <label for="name" class="control-label">Name (required)</label>
-                        <input type="text" class="form-control input-lg" id="name" name="name" value="{{ application.name }}" maxlength="100" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="description" class="control-label">Description</label>
-                        <textarea class="form-control input-lg" id="description" name="description" rows="5" placeholder="Add a description">{{ application.description }}</textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="download_url" class="control-label">Download / welcome page url (required)</label>
-                        <input type="url" class="form-control input-lg" id="download_url" name="download_url" value="{{ application.download_url }}" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="description" class="control-label">Redirect URL (required)</label>
-                        <input type="url" class="form-control input-lg" id="redirect_uris" value="{{ application.redirect_uris }}" name="redirect_uris" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="description" class="control-label">Authorisation type</label>
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="authorization_grant_type" value="implicit" {% if application.authorization_grant_type == 'implicit' %}checked{% endif %}> <strong>Implicit</strong><br>Use this authorisation type if your app is a mobile app or running in a browser.
-                            </label>
-                        </div>
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="authorization_grant_type" value="authorization-code" {% if application.authorization_grant_type == 'authorization-code' %}checked{% endif %}> <strong>Authorization Code</strong><br>Use this authorisation type if your app is running on a server.
-                            </label>
-                        </div>
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="authorization_grant_type" value="password"  {% if application.authorization_grant_type == 'password' %}checked{% endif %}> <strong>Password</strong><br>Use this authorisation type if you want to obtain the access token simply by exchanging username and password. This should only be used by apps created by the service itself.
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Save</button>
-                        <button type="reset" class="btn btn-default">Reset</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="row">
-                <div class="col-sm-7 col-sm-offset-5">
-                    <div class="panel panel-danger">
-                        <div class="panel-heading">
-                            <h2 class="panel-title">Be careful!</h2>
-                        </div>
-                        <div class="panel-body becareful">
+                <div class="panel-body becareful">
 
 
-                            <div>
-                                <strong>Delete application</strong>
-                                <p>If you delete the application there's no way back.</p>
-                                <a href="#" class="text-danger" data-toggle="modal" data-target="#delete-confirm">Delete this application</a>
-                            </div>
-                        </div>
+                    <div>
+                        <strong>Delete application</strong>
+                        <p>If you delete the application there's no way back.</p>
+                        <a href="#" class="text-danger" data-toggle="modal" data-target="#delete-confirm">Delete this application</a>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block modals %}
-        <div class="modal fade" id="delete-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content panel-danger">
-                    <div class="modal-header panel-heading">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
-                    </div>
-                    <div class="modal-body panel-body">
-                        <p><strong>Before you delete the application please read through the consequences of this action:</strong></p>
-                        <ul>
-                            <li>All information about the application will be removed from the database. This can not be undone.</li>
-                            <li>Users of your application will no longer be able to use your application to contribute data.</li>
-                        </ul>
-                    </div>
-                    <div class="modal-footer panel-footer">
-                        <a href="{% url 'admin:app_delete' application.id %}" class="btn btn-danger">Yes, delete the application.</a>
-                    </div>
-                </div>
+<div class="modal fade" id="delete-confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content panel-danger">
+            <div class="modal-header panel-heading">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+            </div>
+            <div class="modal-body panel-body">
+                <p><strong>Before you delete the application please read through the consequences of this action:</strong></p>
+                <ul>
+                    <li>All information about the application will be removed from the database. This can not be undone.</li>
+                    <li>Users of your application will no longer be able to use your application to contribute data.</li>
+                </ul>
+            </div>
+            <div class="modal-footer panel-footer">
+                <a href="{% url 'admin:app_delete' application.id %}" class="btn btn-danger">Yes, delete the application.</a>
             </div>
         </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block libraries %}
