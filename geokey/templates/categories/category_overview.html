@@ -61,11 +61,6 @@ data-category-id="{{ category.id }}"
                 {% if forloop.last %}
                     </ul>
                 {% endif %}
-
-                {% if project.islocked %}
-                    <hr />
-                    <p class="lead text-center">The project is locked, therefore category fields cannot be modified.</p>
-                {% endif %}
             {% empty %}
                 <div class="well empty-list">
                     <p class="lead">We couldn't find any fields for this category.</p>
@@ -77,6 +72,11 @@ data-category-id="{{ category.id }}"
                     {% endif %}
                 </div>
             {% endfor %}
+
+            {% if project.islocked %}
+                <hr />
+                <p class="lead text-center">The project is locked, therefore category fields cannot be modified.</p>
+            {% endif %}
         </div>
     </div>
 </div>
