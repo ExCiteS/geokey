@@ -1,0 +1,16 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h6 class="item-info">Category</h6>
+
+        <h3>
+            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+            {{ category.name }}
+        </h3>
+    </div>
+
+    <div class="list-group">
+        <a href="{% url 'admin:category_overview' category.project.id category.id %}" class="list-group-item {% if request.resolver_match.url_name == 'category_overview' %}active{% endif %}">Fields</a>
+        <a href="{% url 'admin:category_display' category.project.id category.id %}" class="list-group-item {% if request.resolver_match.url_name == 'category_display' %}active{% endif %}">Display</a>
+        <a href="{% url 'admin:category_settings' category.project.id category.id %}" class="list-group-item {% if request.resolver_match.url_name == 'category_settings' %}active{% endif %}">Settings</a>
+    </div>
+</div>

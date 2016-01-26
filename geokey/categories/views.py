@@ -35,9 +35,11 @@ class CategoryContext(object):
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, category_id, *args, **kwargs):
         category = Category.objects.as_admin(
-            self.request.user, project_id, category_id)
+            self.request.user, project_id, category_id
+        )
 
         return super(CategoryContext, self).get_context_data(
+            project=category.project,
             category=category,
             *args,
             **kwargs
@@ -297,39 +299,55 @@ class CategoryDisplay(LoginRequiredMixin, CategoryContext, TemplateView):
 class CategoryDelete(LoginRequiredMixin, CategoryContext, TemplateView):
 
     """
-    Deletes a category if requesting user is admin of the project
+    Deletes the category.
     """
-
     template_name = 'base.html'
 
     def get(self, request, project_id, category_id):
         """
-        Handles the GET request and deletes the category
+        Deletes the subset.
 
         Parameter
         ---------
+        request : django.http.HttpRequest
+            Object representing the request
         project_id : int
-            Identifier of the project in the database
+            Identifies the project in the database
         category_id : int
-            Identifier of the category in the database
+            Identifies the category in the database
 
         Returns
         -------
         django.http.HttpResponseRedirect
-            Redirecting to list of categories overview
-
+            Redirects to category list if category is deleted, category
+            settings if project is locked
         django.http.HttpResponse
-            If user is not admin of the project, the error message is rendered
+            Rendered template, if project or subset does not exist
         """
 
         context = self.get_context_data(project_id, category_id)
-        category = context.pop('category', None)
+        category = context.get('category')
 
-        if category is not None:
-            category.delete()
+        if category:
+            if category.project.islocked:
+                messages.error(
+                    self.request,
+                    'The project is locked. Category cannot be deleted.'
+                )
+                return redirect(
+                    'admin:category_settings',
+                    project_id=project_id,
+                    category_id=category_id
+                )
+            else:
+                category.delete()
 
-            messages.success(self.request, "The category has been deleted.")
-            return redirect('admin:category_list', project_id=project_id)
+                messages.success(
+                    self.request,
+                    'The category has been deleted.'
+                )
+
+                return redirect('admin:category_list', project_id=project_id)
 
         return self.render_to_response(context)
 
