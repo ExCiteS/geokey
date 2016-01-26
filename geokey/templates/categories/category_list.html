@@ -55,7 +55,7 @@ data-project-locked="{{ project.islocked }}"
                         {% if category.status == 'inactive' %}<small><span class="label label-default">Inactive</span></small>{% endif %}
                     </h4>
 
-                    {% if category.description %}<p>{{category.description}}</p>{% endif %}
+                    {% if category.description %}<p>{{ category.description }}</p>{% endif %}
                 </li>
 
                 {% if forloop.last %}
