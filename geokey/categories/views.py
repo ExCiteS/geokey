@@ -55,6 +55,8 @@ class FieldContext(object):
             self.request.user, project_id, category_id, field_id)
 
         return super(FieldContext, self).get_context_data(
+            project=field.category.project,
+            category=field.category,
             field=field,
             *args,
             **kwargs
@@ -305,7 +307,7 @@ class CategoryDelete(LoginRequiredMixin, CategoryContext, TemplateView):
 
     def get(self, request, project_id, category_id):
         """
-        Deletes the subset.
+        Deletes the category.
 
         Parameter
         ---------
@@ -322,7 +324,7 @@ class CategoryDelete(LoginRequiredMixin, CategoryContext, TemplateView):
             Redirects to category list if category is deleted, category
             settings if project is locked
         django.http.HttpResponse
-            Rendered template, if project or subset does not exist
+            Rendered template, if project or category does not exist
         """
 
         context = self.get_context_data(project_id, category_id)
@@ -560,7 +562,7 @@ class FieldSettings(LoginRequiredMixin, FieldContext, TemplateView):
 
             field.save()
 
-            messages.success(self.request, "The field has been updated.")
+            messages.success(self.request, 'The field has been updated.')
             context['field'] = field
 
         return self.render_to_response(context)
@@ -568,42 +570,59 @@ class FieldSettings(LoginRequiredMixin, FieldContext, TemplateView):
 
 class FieldDelete(LoginRequiredMixin, FieldContext, TemplateView):
 
+    """
+    Deletes the field.
+    """
     template_name = 'base.html'
 
     def get(self, request, project_id, category_id, field_id):
         """
-        Handles the GET request and deletes the field.
+        Deletes the field.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
+        request : django.http.HttpRequest
+            Object representing the request
         project_id : int
-            Identifier of the project in the database
+            Identifies the project in the database
         category_id : int
-            Identifier of the category in the database
+            Identifies the category in the database
         field_id : int
-            Identifier of the field in the database
+            Identifies the field in the database
 
         Returns
         -------
         django.http.HttpResponseRedirect
-            Redirecting to list of fields overview
-
+            Redirects to category overview if field is deleted, field
+            settings if project is locked
         django.http.HttpResponse
-            If user is not admin of the project, the error message is rendered
+            Rendered template, if project, category or field does not exist
         """
 
         context = self.get_context_data(project_id, category_id, field_id)
-        field = context.pop('field', None)
+        field = context.get('field')
 
-        if field is not None:
-            field.delete()
+        if field:
+            if field.category.project.islocked:
+                messages.error(
+                    self.request,
+                    'The project is locked. Field cannot be deleted.'
+                )
+                return redirect(
+                    'admin:category_field_settings',
+                    project_id=project_id,
+                    category_id=category_id,
+                    field_id=field_id
+                )
+            else:
+                field.delete()
 
-            messages.success(self.request, "The field has been deleted.")
-            return redirect(
-                'admin:category_overview',
-                project_id=project_id,
-                category_id=category_id
-            )
+                messages.success(self.request, 'The field has been deleted.')
+                return redirect(
+                    'admin:category_overview',
+                    project_id=project_id,
+                    category_id=category_id
+                )
 
         return self.render_to_response(context)
 

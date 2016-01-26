@@ -903,6 +903,18 @@ class FieldDeleteTest(TestCase):
         else:
             self.fail('Field not deleted.')
 
+    def test_delete_with_admin_on_locked_project(self):
+        self.project.islocked = True
+        self.project.save()
+
+        response = self.get(self.admin)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+        try:
+            Field.objects.get(pk=self.field.id)
+        except Field.DoesNotExist:
+            self.fail('Field has been deleted.')
+
     def test_delete_with_contributor(self):
         response = self.get(self.contributor).render()
         self.assertEqual(response.status_code, 200)
