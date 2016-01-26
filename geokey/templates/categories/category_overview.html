@@ -1,79 +1,85 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block bodydata %} data-project-id="{{category.project.id}}" data-category-id="{{category.id}}"{% endblock %}
-{% block title %} | Category: {{ category.name }}{% endblock %}
+{% block bodydata %}
+data-project-id="{{ project.id }}"
+data-project-locked="{{ project.islocked }}"
+data-category-id="{{ category.id }}"
+{% endblock %}
+
+{% block title %} | Project: {{ project.name }} - Category: {{ category.name }} - Overview{% endblock %}
 
 {% block main %}
-        <div class="page-header">
-            <div class="container">
-                <h1 class="smaller"><a href="{% url 'admin:project_overview' category.project.id %}">{{ category.project.name}}</a></h1>
-                <ul class="nav nav-tabs header-nav">
-                    <li role="presentation"><a href="{% url 'admin:project_overview' category.project.id %}">Project home</a></li>
-                    <li role="presentation" class="active"><a href="{% url 'admin:category_list' category.project.id %}">Categories</a></li>
-                    <li role="presentation"><a href="{% url 'admin:usergroup_list' category.project.id %}">User groups</a></li>
-                    <li role="presentation"><a href="{% url 'admin:subset_list' category.project.id %}">Subsets</a></li>
-                    <li role="presentation"><a href="{% url 'admin:project_geographicextent' category.project.id %}">Geographic extent</a></li>
-                    <li role="presentation"><a href="{% url 'admin:project_settings' category.project.id %}">Settings</a></li>
-                </ul>
-            </div>
+<div class="page-header">
+    <div class="container">
+        <h1 class="smaller">
+            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+            <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
+        </h1>
+
+        {% include 'projects_navigation.html' %}
+    </div>
+</div>
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+
+    <div class="row">
+        <div class="col-sm-4">
+            {% include 'categories/category_navigation.html' %}
         </div>
 
-        <div class="container">
-            {% include 'snippets/messages.html' %}
+        <div class="col-sm-8">
+            <h3 class="header">
+                {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                <span>Category fields</span>
 
-            <div class="row">
-                <div class="col-sm-4">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h6 class="item-info">Category</h6>
-                            <h3>{{ category.name }}</h3>
-                            {% if category.description %}<p>{{ category.description|linebreaksbr }}</p>{% endif %}
-                        </div>
-                        <div class="list-group">
-                            <a href="{% url 'admin:category_overview' category.project.id category.id %}" class="list-group-item active">Fields</a>
-                            <a href="{% url 'admin:category_display' category.project.id category.id %}" class="list-group-item">Display</a>
-                            <a href="{% url 'admin:category_settings' category.project.id category.id %}" class="list-group-item">Settings</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-8">
-                    <h3 class="header">
-                        Fields
-                        {% if category.fields.all %}
-                            <a href="{% url 'admin:category_field_create' category.project.id category.id %}" class="btn btn-success btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create new field</a>
-                        {% endif %}
-                    </h3>
-                    {% if category.fields.all %}
-                        {% for field in category.fields.all %}
-                            {% if forloop.first %}
-                            <ul class="list-unstyled overview-list" id="sortable">
-                            {% endif %}
+                {% if category.fields.all and not project.islocked %}
+                    <a href="{% url 'admin:category_field_create' category.project.id category.id %}" class="btn btn-success btn-sm pull-right">
+                        <span class="glyphicon glyphicon-plus"></span>
+                        Create new field
+                    </a>
+                {% endif %}
+            </h3>
 
-                            <li class="sort-item" data-item-id="{{ field.id }}">
-                                <h4><small><span class="glyphicon glyphicon-sort"></span></small> <a href="{% url 'admin:category_field_settings' category.project.id category.id field.id %}">{{field.name}}</a> {% if field.status == 'inactive' %}<small><span class="label label-default">INACTIVE</span></small>{% endif %}</h4>
-                                {% if field.description %}<p>{{field.description}}</p>{% endif %}
-                                <p class="meta"><strong>Key:</strong> {{ field.key }} &mdash; <strong>Type:</strong> {{ field.type_name }}</p>
-                            </li>
+            {% for field in category.fields.all %}
+                {% if forloop.first %}
+                    <ul id="sortable" class="list-unstyled overview-list">
+                {% endif %}
 
-                            {% if forloop.last %}
-                            </ul>
-                            {% endif %}
-                        {% endfor %}
-                        </div>
+                <li class="sort-item" data-item-id="{{ field.id }}">
+                    <h4>
+                        <small><span class="glyphicon glyphicon-sort"></span></small>
+                        {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                        <a href="{% url 'admin:category_field_settings' category.project.id category.id field.id %}">{{ field.name }}</a>
+                        {% if field.status == 'inactive' %}<small><span class="label label-default">Inactive</span></small>{% endif %}
+                    </h4>
+
+                    {% if field.description %}<p>{{ field.description }}</p>{% endif %}
+                    <p class="meta"><strong>Key:</strong> {{ field.key }} &mdash; <strong>Type:</strong> {{ field.type_name }}</p>
+                </li>
+
+                {% if forloop.last %}
+                    </ul>
+                {% endif %}
+            {% empty %}
+                <div class="well empty-list">
+                    <p class="lead">We couldn't find any fields for this category.</p>
+
+                    {% if project.islocked %}
+                        <p>Unfortunately, you cannot create new fields when the project is locked.</p>
                     {% else %}
-                        <div class="well empty-list">
-                            <p class="lead">We couldn't find any fields for this category.</p>
-                            <p>You can use fields to define what data should be collected for the category. For example, if your category is Restaurants, you might want to store a name, an address, the number of seats and which couisine they serve. </p>
-                            <a href="{% url 'admin:category_field_create' category.project.id category.id %}" class="btn btn-success btn-lg">Create new field</a>
-                        </div>
+                        <a href="{% url 'admin:category_field_create' category.project.id category.id %}" class="btn btn-success btn-lg">Create new field</a>
                     {% endif %}
                 </div>
-            </div>
+            {% endfor %}
         </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block libraries %}
 <script src="/static/lib/jquery/jquery-ui.min.js"></script>
-<script src="/static/js/admin.control.ajax.js"></script>
+
 <script src="/static/js/admin.ui.sort.js"></script>
+<script src="/static/js/admin.control.ajax.js"></script>
 {% endblock %}
