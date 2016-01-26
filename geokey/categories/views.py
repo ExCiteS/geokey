@@ -64,6 +64,7 @@ class FieldContext(object):
 # ############################################################################
 
 class CategoryList(LoginRequiredMixin, ProjectContext, TemplateView):
+
     """
     Displays a list of all catgories for a given project.
     """
@@ -71,6 +72,7 @@ class CategoryList(LoginRequiredMixin, ProjectContext, TemplateView):
 
 
 class CategoryOverview(LoginRequiredMixin, CategoryContext, TemplateView):
+
     """
     Landing page when a user clicks on a category. Displays a lis of fields
     assigned to the category.
@@ -79,9 +81,10 @@ class CategoryOverview(LoginRequiredMixin, CategoryContext, TemplateView):
 
 
 class CategoryCreate(LoginRequiredMixin, ProjectContext, CreateView):
+
     """
-    Displays the create Category page and creates the Category
-    when POST is requested
+    Displays the create category page and creates the category
+    when POST is requested.
     """
     form_class = CategoryCreateForm
     template_name = 'categories/category_create.html'
@@ -96,6 +99,7 @@ class CategoryCreate(LoginRequiredMixin, ProjectContext, CreateView):
         dict
             context; {'project': <geokey.projects.models.Project>}
         """
+
         project_id = self.kwargs['project_id']
 
         return super(CategoryCreate, self).get_context_data(
@@ -111,25 +115,44 @@ class CategoryCreate(LoginRequiredMixin, ProjectContext, CreateView):
         form : geokey.categories.forms.CategoryCreateForm
             Represents the user input
         """
+
         data = form.cleaned_data
 
         project_id = self.kwargs['project_id']
         project = Project.objects.as_admin(self.request.user, project_id)
 
-        category = Category.objects.create(
-            project=project,
-            creator=self.request.user,
-            name=strip_tags(data.get('name')),
-            description=strip_tags(data.get('description')),
-            default_status=data.get('default_status')
-        )
+        if project:
+            cannot_create = 'New categories cannot be created.'
 
-        messages.success(self.request, "The category has been created.")
-        return redirect(
-            'admin:category_overview',
-            project_id=project.id,
-            category_id=category.id
-        )
+            if project.islocked:
+                messages.error(
+                    self.request,
+                    'The project is locked. %s' % cannot_create
+                )
+
+                return redirect(
+                    'admin:category_create',
+                    project_id=project.id
+                )
+            else:
+                category = Category.objects.create(
+                    project=project,
+                    creator=self.request.user,
+                    name=strip_tags(data.get('name')),
+                    description=strip_tags(data.get('description')),
+                    default_status=data.get('default_status')
+                )
+
+                messages.success(
+                    self.request,
+                    'The category has been created.'
+                )
+
+                return redirect(
+                    'admin:category_overview',
+                    project_id=project.id,
+                    category_id=category.id
+                )
 
 
 class CategorySettings(LoginRequiredMixin, CategoryContext, TemplateView):

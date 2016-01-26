@@ -35,6 +35,7 @@ from ..views import (
 
 
 class CategoryListTest(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.admin = UserFactory.create()
@@ -83,6 +84,7 @@ class CategoryListTest(TestCase):
 
 
 class CategoryOverviewTest(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.admin = UserFactory.create()
@@ -137,6 +139,7 @@ class CategoryOverviewTest(TestCase):
 
 
 class CategoryCreateTest(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.admin = UserFactory.create()
@@ -199,6 +202,7 @@ class CategoryCreateTest(TestCase):
 
 
 class CategoryDisplayTest(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.admin = UserFactory.create()
@@ -333,6 +337,7 @@ class CategoryDisplayTest(TestCase):
 
 
 class CategorySettingsTest(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.admin = UserFactory.create()
@@ -475,6 +480,7 @@ class CategorySettingsTest(TestCase):
 
 
 class CategoryDeleteTest(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.admin = UserFactory.create()
@@ -548,6 +554,7 @@ class CategoryDeleteTest(TestCase):
 
 
 class FieldCreateTest(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.admin = UserFactory.create()
@@ -679,6 +686,7 @@ class FieldCreateTest(TestCase):
 
 
 class FieldSettingsTest(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.admin = UserFactory.create()
@@ -820,6 +828,7 @@ class FieldSettingsTest(TestCase):
 
 
 class FieldDeleteTest(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.admin = UserFactory.create()
@@ -902,6 +911,7 @@ class FieldDeleteTest(TestCase):
 
 
 class CategoryAjaxTest(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserFactory.create()
@@ -1058,6 +1068,7 @@ class CategoryAjaxTest(TestCase):
 
 
 class ReorderFieldsTest(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.category = CategoryFactory.create()
@@ -1145,6 +1156,7 @@ class ReorderFieldsTest(TestCase):
 
 
 class UpdateFieldTest(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserFactory.create()
@@ -1261,6 +1273,7 @@ class UpdateFieldTest(TestCase):
 
 
 class UpdateNumericField(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserFactory.create()
@@ -1312,6 +1325,7 @@ class UpdateNumericField(TestCase):
 
 
 class AddLookupValueTest(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserFactory.create()
@@ -1404,6 +1418,7 @@ class AddLookupValueTest(TestCase):
 
 
 class UpdateLookupValues(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserFactory.create()
@@ -1657,6 +1672,7 @@ class UpdateLookupValues(TestCase):
 
 
 class AddMutipleLookupValueTest(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserFactory.create()
@@ -1699,6 +1715,7 @@ class AddMutipleLookupValueTest(TestCase):
 
 
 class RemoveMultipleLookupValues(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserFactory.create()
@@ -1841,6 +1858,7 @@ class RemoveMultipleLookupValues(TestCase):
 # ############################################################################
 
 class ObservationTypePublicApiTest(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserFactory.create()
