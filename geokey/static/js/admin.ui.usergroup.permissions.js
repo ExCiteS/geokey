@@ -1,16 +1,16 @@
- /* ***********************************************
-  * Based on changes to input[name="permission"}, the script displays (or hides)
-  * a message that specific settings will be overwritten by project settings,
-  * i.e. when all users can contribute to the project.
-  *
-  * Used in:
-  * - templates/users/usergroup_permissions.html
-  * ***********************************************/
+/* ***********************************************
+ * Based on changes to input[name="permission"}, the script displays (or hides)
+ * a message that specific settings will be overwritten by project settings,
+ * i.e. when all users can contribute to the project.
+ *
+ * Used in:
+ * - templates/users/usergroup_permissions.html
+ * ***********************************************/
 
-(function () {
+(function() {
     var projectId = $('body').attr('data-project-id');
-    var projectPrivate = $('body').attr('data-project-isprivate');
-    var everyoneContributes = $('body').attr('data-everyone-contributes');
+    var projectPrivate = $('body').attr('data-project-private');
+    var everyoneContributes = $('body').attr('data-project-everyone-contributes');
 
     function handlePermissionChange(event) {
         if ($(this).val() === 'read_only' && everyoneContributes !== 'false') {

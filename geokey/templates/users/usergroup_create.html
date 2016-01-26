@@ -1,46 +1,53 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %} | Create new usergroup{% endblock %}
+{% block bodydata %}
+data-project-id="{{ project.id }}"
+data-project-locked="{{ project.islocked }}"
+{% endblock %}
+
+{% block title %} | Project: {{ project.name }} - Create new user group{% endblock %}
 
 {% block main %}
-        <div class="page-header">
-            <div class="container">
-                <h1 class="smaller"><a href="{% url 'admin:project_overview' project.id %}">{{project.name}}</a></h1>
-                <ul class="nav nav-tabs header-nav">
-                    <li role="presentation"><a href="{% url 'admin:project_overview' project.id %}">Project home</a></li>
-                    <li role="presentation"><a href="{% url 'admin:category_list' project.id %}">Categories</a></li>
-                    <li role="presentation" class="active"><a href="{% url 'admin:usergroup_list' project.id %}">User groups</a></li>
-                    <li role="presentation"><a href="{% url 'admin:subset_list' project.id %}">Subsets</a></li>
-                    <li role="presentation"><a href="{% url 'admin:project_geographicextent' project.id %}">Geographic extent</a></li>
-                    <li role="presentation"><a href="{% url 'admin:project_settings' project.id %}">Settings</a></li>
-                </ul>
-            </div>
-        </div>
+<div class="page-header">
+    <div class="container">
+        <h1 class="smaller">
+            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+            <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
+        </h1>
 
-		<div class="container">
-			<div class="row">
-				<form  role="form" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url 'admin:usergroup_create' project.id %}" novalidate>
-					<h3 class="header">Create new user group</h3>
-					{% csrf_token %}
-					<div class="form-group">
-						<label for="name" class="control-label">Name (required)</label>
-						<input type="text" class="form-control input-lg" id="name" name="name" maxlength="100" required>
-					</div>
+        {% include 'projects_navigation.html' %}
+    </div>
+</div>
 
-					<div class="form-group">
-						<label for="description" class="control-label">Description</label>
-						<textarea class="form-control input-lg" rows="5" name="description" id="description"></textarea>
-					</div>
+<div class="container">
+    {% include 'snippets/messages.html' %}
 
-					<div class="alert alert-info">You can add users after you saved the group.</div>
+	<div class="row">
+		<form role="form" class="col-md-8 col-md-offset-2" method="POST" action="{% url 'admin:usergroup_create' project.id %}" novalidate>
+            {% csrf_token %}
 
-					<div class="form-group">
-						<button type="submit" class="btn btn-primary">Save</button>
-						<a href="{% url 'admin:usergroup_list' project.id %}" class="btn btn-link" role="button">Cancel</a>
-					</div>
-				</form>
+			<h3 class="header">
+                {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                <span>Create new user group</span>
+            </h3>
+
+			<div class="form-group">
+				<label for="name" class="control-label">Name (required)</label>
+				<input type="text" class="form-control input-lg" id="name" name="name" maxlength="100" required />
 			</div>
-		</div>
+
+			<div class="form-group">
+				<label for="description" class="control-label">Description</label>
+				<textarea class="form-control input-lg" rows="5" id="description" name="description"></textarea>
+			</div>
+
+			<div class="form-group">
+				<button type="submit" class="btn btn-primary">Save</button>
+				<a href="{% url 'admin:usergroup_list' project.id %}" class="btn btn-link" role="button">Cancel</a>
+			</div>
+		</form>
+	</div>
+</div>
 {% endblock %}
 
 {% block libraries %}

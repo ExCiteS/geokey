@@ -1,0 +1,42 @@
+<h3 class="header">
+    {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+    User group members
+</h3>
+
+{% if not project.islocked %}
+    <div class="dropdown">
+        <input type="text" id="find-users" class="form-control" placeholder="Search for users to add to this user group">
+
+        <ul class="dropdown-menu type-away">
+            <li role="presentation" class="dropdown-header">Click on item to add user</li>
+        </ul>
+    </div>
+{% endif %}
+
+{% if users.all %}
+    <ul class="user-list">
+    	{% for user in users %}
+    		<li>
+    			{{ user }}
+    			{% if users|length > 1 or not admins and not project.islocked %}<a class="text-danger remove" data-user-id="{{ user.id }}" href="#"><small>remove</small></a>{% endif %}
+    		</li>
+    	{% empty %}
+    		<li>No users have been added to this user group.</li>
+    	{% endfor %}
+    </ul>
+
+    {% if project.islocked %}
+        <hr />
+        <p class="lead text-center">The project is locked, therefore user group members cannot be modified.</p>
+    {% endif %}
+{% else %}
+    <div class="well empty-list">
+        <p class="lead">We couldn't find any users assigned to this user group.</p>
+
+        {% if project.islocked %}
+            <p>Unfortunately, you cannot add new users when the project is locked.</p>
+        {% else %}
+            <p>Type a display name in the input field to find the user you want to add, then click on the name in the results list to add the user to this user group.</p>
+        {% endif %}
+    </div>
+{% endif %}

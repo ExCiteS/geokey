@@ -25,7 +25,7 @@ from geokey.categories.tests.model_factories import CategoryFactory
 
 from .model_factories import UserFactory, UserGroupFactory
 from ..views import (
-    UserGroup, UserGroupUsers, UserGroupSingleUser,
+    UserGroup, UserGroupUsers,
     UserGroupCreate, UserGroupSettings, UserProfile,
     CreateUserMixin, UserAPIView, Dashboard, ChangePasswordView, Index,
     UserGroupList, UserGroupOverview, AdministratorsOverview,
@@ -41,6 +41,7 @@ from ..models import User, UserGroup as Group
 # ############################################################################
 
 class IndexTest(TestCase):
+
     def get(self, user):
         factory = RequestFactory()
         view = Index.as_view()
@@ -59,6 +60,7 @@ class IndexTest(TestCase):
 
 
 class DashboardTest(TestCase):
+
     def setUp(self):
         self.creator = UserFactory.create()
         self.admin = UserFactory.create()
@@ -99,6 +101,7 @@ class DashboardTest(TestCase):
 
 
 class UserGroupListTest(TestCase):
+
     def test(self):
         project = ProjectFactory.create()
         UserGroupFactory.create_batch(3, **{'project': project})
@@ -117,6 +120,7 @@ class UserGroupListTest(TestCase):
 
 
 class CreateUserMixinTest(TransactionTestCase):
+
     def setUp(self):
         self.data = {
             'display_name': 'user-1',
@@ -147,6 +151,7 @@ class CreateUserMixinTest(TransactionTestCase):
 
 
 class UserGroupCreateTest(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.admin = UserFactory.create()
@@ -181,7 +186,6 @@ class UserGroupCreateTest(TestCase):
         request = self.factory.post(url, data)
         request.user = user
 
-        from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
@@ -218,6 +222,17 @@ class UserGroupCreateTest(TestCase):
         response = self.post(self.admin)
         self.assertEqual(response.status_code, 302)
 
+    def test_post_with_admin_on_locked_project(self):
+        self.project.islocked = True
+        self.project.save()
+
+        response = self.post(self.admin)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(
+            response,
+            'The project is locked. New user groups cannot be created.'
+        )
+
     def test_post_with_contributor(self):
         response = self.post(self.contributor).render()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -237,26 +252,28 @@ class UserGroupCreateTest(TestCase):
 
 
 class UserGroupOverviewTest(TestCase):
+
     def test(self):
         project = ProjectFactory.create()
-        group = UserGroupFactory.create(**{'project': project})
+        usergroup = UserGroupFactory.create(**{'project': project})
 
         view = UserGroupOverview()
         url = reverse(
             'admin:usergroup_overview',
-            kwargs={'project_id': project.id, 'group_id': group.id}
+            kwargs={'project_id': project.id, 'usergroup_id': usergroup.id}
         )
         request = APIRequestFactory().get(
-            url, project_id=project.id, group_id=group.id)
+            url, project_id=project.id, usergroup_id=usergroup.id)
 
         request.user = project.creator
         view.request = request
-        context = view.get_context_data(project.id, group.id)
+        context = view.get_context_data(project.id, usergroup.id)
 
-        self.assertEqual(context.get('group'), group)
+        self.assertEqual(context.get('usergroup'), usergroup)
 
 
 class AdministratorsOverviewTest(TestCase):
+
     def test(self):
         project = ProjectFactory.create()
 
@@ -276,6 +293,7 @@ class AdministratorsOverviewTest(TestCase):
 
 
 class UserGroupSettingTest(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.admin = UserFactory.create()
@@ -292,14 +310,14 @@ class UserGroupSettingTest(TestCase):
         view = UserGroupSettings.as_view()
         url = reverse('admin:usergroup_settings', kwargs={
             'project_id': self.project.id,
-            'group_id': self.usergroup.id
+            'usergroup_id': self.usergroup.id
         })
         request = self.factory.get(url)
         request.user = user
         return view(
             request,
             project_id=self.project.id,
-            group_id=self.usergroup.id).render()
+            usergroup_id=self.usergroup.id).render()
 
     def post(self, user):
         self.data = {
@@ -309,12 +327,11 @@ class UserGroupSettingTest(TestCase):
         view = UserGroupSettings.as_view()
         url = reverse('admin:usergroup_settings', kwargs={
             'project_id': self.project.id,
-            'group_id': self.usergroup.id
+            'usergroup_id': self.usergroup.id
         })
         request = self.factory.post(url, self.data)
         request.user = user
 
-        from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
@@ -322,7 +339,7 @@ class UserGroupSettingTest(TestCase):
         return view(
             request,
             project_id=self.project.id,
-            group_id=self.usergroup.id).render()
+            usergroup_id=self.usergroup.id).render()
 
     def test_get_settings_with_admin(self):
         response = self.get(self.admin)
@@ -390,58 +407,67 @@ class UserGroupSettingTest(TestCase):
 
 
 class UserGroupPermissionsTest(TestCase):
+
     def test(self):
         project = ProjectFactory.create()
-        group = UserGroupFactory.create(**{'project': project})
+        usergroup = UserGroupFactory.create(**{'project': project})
 
         view = UserGroupPermissions()
         url = reverse(
             'admin:usergroup_permissions',
-            kwargs={'project_id': project.id, 'group_id': group.id}
+            kwargs={'project_id': project.id, 'usergroup_id': usergroup.id}
         )
         request = APIRequestFactory().get(
-            url, project_id=project.id, group_id=group.id)
+            url, project_id=project.id, usergroup_id=usergroup.id)
 
         request.user = project.creator
         view.request = request
-        context = view.get_context_data(project.id, group.id)
+        context = view.get_context_data(project.id, usergroup.id)
 
-        self.assertEqual(context.get('group'), group)
+        self.assertEqual(context.get('usergroup'), usergroup)
 
 
 class UserGroupDataTest(TestCase):
+
     def test_url(self):
         self.assertEqual(
             reverse(
                 'admin:usergroup_data',
-                kwargs={'project_id': 1, 'group_id': 1}
+                kwargs={'project_id': 1, 'usergroup_id': 1}
             ),
             '/admin/projects/1/usergroups/1/data/'
         )
 
         resolved = resolve('/admin/projects/1/usergroups/1/data/')
         self.assertEqual(resolved.kwargs['project_id'], '1')
-        self.assertEqual(resolved.kwargs['group_id'], '1')
+        self.assertEqual(resolved.kwargs['usergroup_id'], '1')
         self.assertEqual(resolved.func.func_name, UserGroupData.__name__)
 
     def test_views_with_admin(self):
-        group = UserGroupFactory.create()
+        usergroup = UserGroupFactory.create()
         view = UserGroupData.as_view()
 
         request = HttpRequest()
         request.method = 'GET'
-        request.user = group.project.creator
+        request.user = usergroup.project.creator
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
         response = view(
             request,
-            project_id=group.project.id,
-            group_id=group.id
+            project_id=usergroup.project.id,
+            usergroup_id=usergroup.id
         ).render()
 
         rendered = render_to_string(
             'users/usergroup_data.html',
             {
-                'group': group,
-                'user': group.project.creator,
+                'project': usergroup.project,
+                'usergroup': usergroup,
+                'user': usergroup.project.creator,
+                'messages': get_messages(request),
                 'PLATFORM_NAME': get_current_site(request).name,
                 'GEOKEY_VERSION': version.get_version()
             }
@@ -450,21 +476,28 @@ class UserGroupDataTest(TestCase):
 
         request = HttpRequest()
         request.method = 'POST'
-        request.user = group.project.creator
+        request.user = usergroup.project.creator
         request.POST = {'permission': 'all', 'filters': ''}
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
         response = view(
             request,
-            project_id=group.project.id,
-            group_id=group.id
+            project_id=usergroup.project.id,
+            usergroup_id=usergroup.id
         ).render()
 
-        ref = Group.objects.get(pk=group.id)
+        ref = Group.objects.get(pk=usergroup.id)
 
         rendered = render_to_string(
             'users/usergroup_data.html',
             {
-                'group': ref,
+                'project': ref.project,
+                'usergroup': ref,
                 'user': ref.project.creator,
+                'messages': get_messages(request),
                 'PLATFORM_NAME': get_current_site(request).name,
                 'GEOKEY_VERSION': version.get_version()
             }
@@ -472,27 +505,34 @@ class UserGroupDataTest(TestCase):
         self.assertEqual(unicode(response.content), rendered)
         self.assertIsNone(ref.filters)
 
-        category = CategoryFactory.create(**{'project': group.project})
+        category = CategoryFactory.create(**{'project': usergroup.project})
         request = HttpRequest()
         request.method = 'POST'
-        request.user = group.project.creator
+        request.user = usergroup.project.creator
         request.POST = {
             'permission': 'restricted',
             'filters': '{ "%s": { } }' % category.id
         }
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
         response = view(
             request,
-            project_id=group.project.id,
-            group_id=group.id
+            project_id=usergroup.project.id,
+            usergroup_id=usergroup.id
         ).render()
 
-        ref = Group.objects.get(pk=group.id)
+        ref = Group.objects.get(pk=usergroup.id)
 
         rendered = render_to_string(
             'users/usergroup_data.html',
             {
-                'group': ref,
+                'project': ref.project,
+                'usergroup': ref,
                 'user': ref.project.creator,
+                'messages': get_messages(request),
                 'PLATFORM_NAME': get_current_site(request).name,
                 'GEOKEY_VERSION': version.get_version()
             }
@@ -503,18 +543,63 @@ class UserGroupDataTest(TestCase):
             json.loads('{ "%s": { } }' % category.id)
         )
 
+    def test_post_with_admin_on_locked_project(self):
+        usergroup = UserGroupFactory.create()
+        view = UserGroupData.as_view()
+
+        usergroup.project.islocked = True
+        usergroup.project.save()
+
+        category = CategoryFactory.create(**{'project': usergroup.project})
+        request = HttpRequest()
+        request.method = 'POST'
+        request.user = usergroup.project.creator
+        request.POST = {
+            'permission': 'restricted',
+            'filters': '{ "%s": { } }' % category.id
+        }
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = view(
+            request,
+            project_id=usergroup.project.id,
+            usergroup_id=usergroup.id
+        ).render()
+
+        rendered = render_to_string(
+            'users/usergroup_data.html',
+            {
+                'project': usergroup.project,
+                'usergroup': usergroup,
+                'user': usergroup.project.creator,
+                'messages': get_messages(request),
+                'PLATFORM_NAME': get_current_site(request).name,
+                'GEOKEY_VERSION': version.get_version()
+            }
+        )
+        self.assertEqual(unicode(response.content), rendered)
+        self.assertIsNone(Group.objects.get(pk=usergroup.id).filters)
+
     def test_views_with_other_user(self):
         user = UserFactory.create()
-        group = UserGroupFactory.create()
+        usergroup = UserGroupFactory.create()
         view = UserGroupData.as_view()
 
         request = HttpRequest()
         request.method = 'GET'
         request.user = user
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
         response = view(
             request,
-            project_id=group.project.id,
-            group_id=group.id
+            project_id=usergroup.project.id,
+            usergroup_id=usergroup.id
         ).render()
 
         rendered = render_to_string(
@@ -523,13 +608,14 @@ class UserGroupDataTest(TestCase):
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
                 'user': user,
+                'messages': get_messages(request),
                 'PLATFORM_NAME': get_current_site(request).name,
                 'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(unicode(response.content), rendered)
 
-        category = CategoryFactory.create(**{'project': group.project})
+        category = CategoryFactory.create(**{'project': usergroup.project})
         request = HttpRequest()
         request.method = 'POST'
         request.user = user
@@ -537,10 +623,15 @@ class UserGroupDataTest(TestCase):
             'permission': 'restricted',
             'filters': '{ "%s": { } }' % category.id
         }
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
         response = view(
             request,
-            project_id=group.project.id,
-            group_id=group.id
+            project_id=usergroup.project.id,
+            usergroup_id=usergroup.id
         ).render()
 
         rendered = render_to_string(
@@ -549,15 +640,17 @@ class UserGroupDataTest(TestCase):
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
                 'user': user,
+                'messages': get_messages(request),
                 'PLATFORM_NAME': get_current_site(request).name,
                 'GEOKEY_VERSION': version.get_version()
             }
         )
         self.assertEqual(unicode(response.content), rendered)
-        self.assertIsNone(Group.objects.get(pk=group.id).filters)
+        self.assertIsNone(Group.objects.get(pk=usergroup.id).filters)
 
 
 class UserGroupDeleteTest(TestCase):
+
     def setUp(self):
         self.admin = UserFactory.create()
         self.contributor = UserFactory.create()
@@ -565,19 +658,21 @@ class UserGroupDeleteTest(TestCase):
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
-        self.group = UserGroupFactory.create(**{'project': self.project})
+        self.usergroup = UserGroupFactory.create(**{'project': self.project})
 
     def test_delete_with_admin(self):
         view = UserGroupDelete.as_view()
         url = reverse(
             'admin:usergroup_delete',
-            kwargs={'project_id': self.project.id, 'group_id': self.group.id}
+            kwargs={
+                'project_id': self.project.id,
+                'usergroup_id': self.usergroup.id
+            }
         )
         request = APIRequestFactory().get(
-            url, project_id=self.project.id, group_id=self.group.id)
+            url, project_id=self.project.id, usergroup_id=self.usergroup.id)
         request.user = self.admin
 
-        from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
@@ -585,25 +680,56 @@ class UserGroupDeleteTest(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            group_id=self.group.id)
+            usergroup_id=self.usergroup.id)
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Group.objects.count(), 1)
+
+    def test_delete_on_locked_project(self):
+        self.project.islocked = True
+        self.project.save()
+
+        view = UserGroupDelete.as_view()
+        url = reverse(
+            'admin:usergroup_delete',
+            kwargs={
+                'project_id': self.project.id,
+                'usergroup_id': self.usergroup.id
+            }
+        )
+        request = APIRequestFactory().get(
+            url, project_id=self.project.id, usergroup_id=self.usergroup.id)
+        request.user = self.admin
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = view(
+            request,
+            project_id=self.project.id,
+            usergroup_id=self.usergroup.id)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Group.objects.count(), 2)
 
     def test_delete_with_contributor(self):
         view = UserGroupDelete.as_view()
         url = reverse(
             'admin:usergroup_delete',
-            kwargs={'project_id': self.project.id, 'group_id': self.group.id}
+            kwargs={
+                'project_id': self.project.id,
+                'usergroup_id': self.usergroup.id
+            }
         )
         request = APIRequestFactory().get(
-            url, project_id=self.project.id, group_id=self.group.id)
+            url, project_id=self.project.id, usergroup_id=self.usergroup.id)
         request.user = self.contributor
 
         response = view(
             request,
             project_id=self.project.id,
-            group_id=self.group.id)
+            usergroup_id=self.usergroup.id)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Group.objects.count(), 2)
@@ -612,22 +738,26 @@ class UserGroupDeleteTest(TestCase):
         view = UserGroupDelete.as_view()
         url = reverse(
             'admin:usergroup_delete',
-            kwargs={'project_id': self.project.id, 'group_id': self.group.id}
+            kwargs={
+                'project_id': self.project.id,
+                'usergroup_id': self.usergroup.id
+            }
         )
         request = APIRequestFactory().get(
-            url, project_id=self.project.id, group_id=self.group.id)
+            url, project_id=self.project.id, usergroup_id=self.usergroup.id)
         request.user = self.contributor
 
         response = view(
             request,
             project_id=self.project.id,
-            group_id=self.group.id)
+            usergroup_id=self.usergroup.id)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Group.objects.count(), 2)
 
 
 class UserProfileTest(TestCase):
+
     def setUp(self):
         self.view = UserProfile.as_view()
         self.request = HttpRequest()
@@ -879,6 +1009,7 @@ class UserProfileTest(TestCase):
 # ############################################################################
 
 class QueryUsersTest(TestCase):
+
     def _get(self, query):
         return self.client.get('/ajax/users/?query=' + query)
 
@@ -924,6 +1055,7 @@ class QueryUsersTest(TestCase):
 
 
 class UserGroupTest(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserFactory.create()
@@ -943,7 +1075,7 @@ class UserGroupTest(TestCase):
     def put(self, user, data):
         url = reverse('ajax:usergroup', kwargs={
             'project_id': self.project.id,
-            'group_id': self.contributors.id
+            'usergroup_id': self.contributors.id
         })
         request = self.factory.put(
             url, json.dumps(data), content_type='application/json')
@@ -953,12 +1085,22 @@ class UserGroupTest(TestCase):
         return view(
             request,
             project_id=self.project.id,
-            group_id=self.contributors.id).render()
+            usergroup_id=self.contributors.id).render()
 
     def test_update_with_admin(self):
         response = self.put(self.admin, {'can_contribute': False})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(
+            Group.objects.get(pk=self.contributors.id).can_contribute,
+        )
+
+    def test_when_project_is_locked(self):
+        self.project.islocked = True
+        self.project.save()
+
+        response = self.put(self.admin, {'can_contribute': False})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue(
             Group.objects.get(pk=self.contributors.id).can_contribute,
         )
 
@@ -985,6 +1127,7 @@ class UserGroupTest(TestCase):
 
 
 class UserGroupUsersTest(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserFactory.create()
@@ -1012,7 +1155,7 @@ class UserGroupUsersTest(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            group_id=6545454844545648
+            usergroup_id=6545454844545648
         ).render()
 
         self.assertEqual(response.status_code, 404)
@@ -1028,7 +1171,26 @@ class UserGroupUsersTest(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            group_id=self.contributors.id
+            usergroup_id=self.contributors.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_add_on_locked_project(self):
+        self.project.islocked = True
+        self.project.save()
+
+        request = self.factory.post(
+            '/ajax/projects/%s/usergroups/%s/users/' %
+            (self.project.id, self.contributors.id),
+            {'userId': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.admin)
+        view = UserGroupUsers.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            usergroup_id=self.contributors.id
         ).render()
 
         self.assertEqual(response.status_code, 400)
@@ -1044,7 +1206,7 @@ class UserGroupUsersTest(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            group_id=self.contributors.id
+            usergroup_id=self.contributors.id
         ).render()
 
         self.assertEqual(response.status_code, 201)
@@ -1064,7 +1226,7 @@ class UserGroupUsersTest(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            group_id=self.contributors.id
+            usergroup_id=self.contributors.id
         ).render()
 
         self.assertEqual(response.status_code, 403)
@@ -1084,7 +1246,7 @@ class UserGroupUsersTest(TestCase):
         response = view(
             request,
             project_id=self.project.id,
-            group_id=self.contributors.id
+            usergroup_id=self.contributors.id
         ).render()
 
         self.assertEqual(response.status_code, 404)
@@ -1094,119 +1256,8 @@ class UserGroupUsersTest(TestCase):
         )
 
 
-class UserGroupSingleUserTest(TestCase):
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.admin = UserFactory.create()
-        self.contributor = UserFactory.create()
-        self.non_member = UserFactory.create()
-        self.contrib_to_remove = UserFactory.create()
-
-        self.project = ProjectFactory.create(add_admins=[
-            self.admin
-        ])
-
-        self.contributors = UserGroupFactory(add_users=[
-            self.contributor, self.contrib_to_remove
-        ], **{
-            'project': self.project,
-            'can_contribute': True
-        })
-
-    def test_delete_not_existing_user(self):
-        user = UserFactory.create()
-        request = self.factory.delete(
-            '/ajax/projects/%s/usergroups/%s/users/%s/' %
-            (self.project.id, self.contributors.id, user.id),
-        )
-        force_authenticate(request, user=self.admin)
-        view = UserGroupSingleUser.as_view()
-        response = view(
-            request,
-            project_id=self.project.id,
-            group_id=self.contributors.id,
-            user_id=user.id
-        ).render()
-
-        self.assertEqual(response.status_code, 404)
-
-    def test_delete_from_not_existing_usergroup(self):
-        request = self.factory.delete(
-            '/ajax/projects/%s/usergroups/%s/users/%s/' %
-            (self.project.id, 455646445484545, self.contrib_to_remove.id),
-        )
-        force_authenticate(request, user=self.admin)
-        view = UserGroupSingleUser.as_view()
-        response = view(
-            request,
-            project_id=self.project.id,
-            group_id=455646445484545,
-            user_id=self.contrib_to_remove.id
-        ).render()
-
-        self.assertEqual(response.status_code, 404)
-
-    def test_delete_contributor_with_admin(self):
-        request = self.factory.delete(
-            '/ajax/projects/%s/usergroups/%s/users/%s/' %
-            (self.project.id, self.contributors.id, self.contrib_to_remove.id),
-        )
-        force_authenticate(request, user=self.admin)
-        view = UserGroupSingleUser.as_view()
-        response = view(
-            request,
-            project_id=self.project.id,
-            group_id=self.contributors.id,
-            user_id=self.contrib_to_remove.id
-        ).render()
-
-        self.assertEqual(response.status_code, 204)
-        self.assertNotIn(
-            self.contrib_to_remove,
-            self.contributors.users.all()
-        )
-
-    def test_delete_contributor_with_contributor(self):
-        request = self.factory.delete(
-            '/ajax/projects/%s/usergroups/%s/users/%s/' %
-            (self.project.id, self.contributors.id, self.contrib_to_remove.id)
-        )
-        force_authenticate(request, user=self.contributor)
-        view = UserGroupSingleUser.as_view()
-        response = view(
-            request,
-            project_id=self.project.id,
-            group_id=self.contributors.id,
-            user_id=self.contrib_to_remove.id
-        ).render()
-
-        self.assertEqual(response.status_code, 403)
-        self.assertIn(
-            self.contrib_to_remove,
-            self.contributors.users.all()
-        )
-
-    def test_delete_contributor_with_non_member(self):
-        request = self.factory.delete(
-            '/ajax/projects/%s/usergroups/%s/users/%s/' %
-            (self.project.id, self.contributors.id, self.contrib_to_remove.id)
-        )
-        force_authenticate(request, user=self.non_member)
-        view = UserGroupSingleUser.as_view()
-        response = view(
-            request,
-            project_id=self.project.id,
-            group_id=self.contributors.id,
-            user_id=self.contrib_to_remove.id
-        ).render()
-        self.assertEqual(response.status_code, 404)
-        self.assertIn(
-            self.contrib_to_remove,
-            self.contributors.users.all()
-        )
-
-
 class ChangePasswordTest(TestCase):
+
     def test_changepassword(self):
         user = UserFactory.create(**{'password': '123456'})
         factory = APIRequestFactory()
@@ -1280,6 +1331,7 @@ class ChangePasswordTest(TestCase):
 
 
 class UserAPIViewTest(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.url = reverse('api:user_api')

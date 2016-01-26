@@ -1,50 +1,69 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %} | User groups{% endblock %}
+{% block bodydata %}
+data-project-id="{{ project.id }}"
+data-project-locked="{{ project.islocked }}"
+{% endblock %}
+
+{% block title %} | Project: {{ project.name }} - User groups{% endblock %}
 
 {% block main %}
-        <div class="page-header">
-            <div class="container">
-                <h1 class="smaller"><a href="{% url 'admin:project_overview' project.id %}">{{project.name}}</a></h1>
-                <ul class="nav nav-tabs header-nav">
-                    <li role="presentation"><a href="{% url 'admin:project_overview' project.id %}">Project home</a></li>
-                    <li role="presentation"><a href="{% url 'admin:category_list' project.id %}">Categories</a></li>
-                    <li role="presentation" class="active"><a href="{% url 'admin:usergroup_list' project.id %}">User groups</a></li>
-                    <li role="presentation"><a href="{% url 'admin:subset_list' project.id %}">Subsets</a></li>
-                    <li role="presentation"><a href="{% url 'admin:project_geographicextent' project.id %}">Geographic extent</a></li>
-                    <li role="presentation"><a href="{% url 'admin:project_settings' project.id %}">Settings</a></li>
-                </ul>
+<div class="page-header">
+    <div class="container">
+        <h1 class="smaller">
+            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+            <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
+        </h1>
+
+        {% include 'projects_navigation.html' %}
+    </div>
+</div>
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+
+    <div class="row">
+        <div class="col-md-4 col-md-push-8">
+            <div class="alert alert-info">
+                <p>Create user groups to grant `contribute` and `moderate` permissions to a set of users, also to grant access to subsets for private projects.</p>
             </div>
         </div>
 
-        <div class="container">
-            {% include 'snippets/messages.html' %}
+        <div class="col-md-8 col-md-pull-4">
+            <h3 class="header">
+                {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                <span>User groups</span>
 
-            <div class="row">
-                <div class="col-sm-8">
-                    <h3 class="header">
-                        User groups
-                        <a href="{% url 'admin:usergroup_create' project.id %}" class="btn btn-success btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create new user group</a>
-                    </h3>
-                    <ul class="list-unstyled overview-list">
-                        <li>
-                            <h4><a href="{% url 'admin:admins_overview' project.id %}">Administrators</a></h4>
-                            <p>Administrators for the project {{ project.name }}</p>
-                        </li>
-                        {% for group in project.usergroups.all %}
-                        <li>
-                            <h4><a href="{% url 'admin:usergroup_overview' group.project.id group.id %}">{{group.name}}</a></h4>
-                            {% if group.description %}<p>{{group.description}}</p>{% endif %}
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
+                {% if not project.islocked %}
+                    <a href="{% url 'admin:usergroup_create' project.id %}" class="btn btn-success btn-sm pull-right">
+                        <span class="glyphicon glyphicon-plus"></span>
+                        Create new user group
+                    </a>
+                {% endif %}
+            </h3>
 
-                <div class="col-sm-4">
-                    <div class="alert alert-info">
-                        Add user groups to grant contribute and moderate permissions to a set of users and to grant access to data groupings.
-                    </div>
-                </div>
-            </div>
+            <ul class="list-unstyled overview-list">
+                <li>
+                    <h4>
+                        {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                        <a href="{% url 'admin:admins_overview' project.id %}">Administrators</a>
+                    </h4>
+
+                    <p>Administrators for the project {{ project.name }}.</p>
+                </li>
+
+                {% for usergroup in project.usergroups.all %}
+                    <li>
+                        <h4>
+                            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                            <a href="{% url 'admin:usergroup_overview' project.id usergroup.id %}">{{ usergroup.name }}</a>
+                        </h4>
+
+                        {% if usergroup.description %}<p>{{ usergroup.description }}</p>{% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
+    </div>
+</div>
 {% endblock %}

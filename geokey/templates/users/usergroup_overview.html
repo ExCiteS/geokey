@@ -1,53 +1,44 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %} | {{group.name}}{% endblock %}
-{% block bodydata %} data-project-id="{{group.project.id}}" data-group-id="{{group.id}}"{% endblock %}
+{% block bodydata %}
+data-project-id="{{ project.id }}"
+data-project-locked="{{ project.islocked }}"
+data-usergroup-id="{{ usergroup.id }}"
+{% endblock %}
+
+{% block title %} | Project: {{ project.name }} - User group: {{ usergroup.name }} - Overview{% endblock %}
 
 {% block main %}
-        <div class="page-header">
-            <div class="container">
-                <h1 class="smaller"><a href="{% url 'admin:project_overview' group.project.id %}">{{group.project.name}}</a></h1>
-                <ul class="nav nav-tabs header-nav">
-                    <li role="presentation"><a href="{% url 'admin:project_overview' group.project.id %}">Project home</a></li>
-                    <li role="presentation"><a href="{% url 'admin:category_list' group.project.id %}">Categories</a></li>
-                    <li role="presentation" class="active"><a href="{% url 'admin:usergroup_list' group.project.id %}">User groups</a></li>
-                    <li role="presentation"><a href="{% url 'admin:subset_list' group.project.id %}">Subsets</a></li>
-                    <li role="presentation"><a href="{% url 'admin:project_geographicextent' group.project.id %}">Geographic extent</a></li>
-                    <li role="presentation"><a href="{% url 'admin:project_settings' group.project.id %}">Settings</a></li>
-                </ul>
-            </div>
+<div class="page-header">
+    <div class="container">
+        <h1 class="smaller">
+            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+            <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
+        </h1>
+
+        {% include 'projects_navigation.html' %}
+    </div>
+</div>
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+
+    <div class="row">
+        <div class="col-sm-4">
+            {% include 'users/usergroup_navigation.html' %}
         </div>
 
-        <div class="container">
-            {% include 'snippets/messages.html' %}
-
-            <div class="row">
-                <div class="col-sm-4">
-                <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h6 class="item-info">User group</h6>
-                            <h3>{{ group.name }}</h3>
-                            {% if group.description %}<p>{{ group.description|linebreaksbr }}</p>{% endif %}
-                        </div>
-                        <div class="list-group">
-                            <a href="{% url 'admin:usergroup_overview' group.project.id group.id %}" class="list-group-item active">Members</a>
-                            <a href="{% url 'admin:usergroup_permissions' group.project.id group.id %}" class="list-group-item">Permissions</a>
-                            <a href="{% url 'admin:usergroup_data' group.project.id group.id %}" class="list-group-item">Data</a>
-                            <a href="{% url 'admin:usergroup_settings' group.project.id group.id %}" class="list-group-item">Settings</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-8" id="members">
-                    {% include 'snippets/usergroup-editor.html' with users=group.users.all %}
-                </div>
-            </div>
+        <div class="col-sm-8" id="members">
+            {% include 'snippets/usergroup_editor.html' with users=usergroup.users.all %}
         </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block libraries %}
-            <script src="/static/lib/handlebars/handlebars.js"></script>
-            <script src="/static/js/templates.js"></script>
+<script src="/static/lib/handlebars/handlebars.js"></script>
+<script src="/static/js/templates.js"></script>
 
-            <script src="/static/js/admin.control.ajax.js"></script>
-            <script src="/static/js/admin.ui.usergroup.users.js"></script>
+<script src="/static/js/admin.ui.usergroup.users.js"></script>
+<script src="/static/js/admin.control.ajax.js"></script>
 {% endblock %}

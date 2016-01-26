@@ -54,7 +54,7 @@ urlpatterns = patterns(
         login_views.UserGroupCreate.as_view(),
         name='usergroup_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<usergroup_id>[0-9]+)/$',
         login_views.UserGroupOverview.as_view(),
         name='usergroup_overview'),
     url(
@@ -62,19 +62,19 @@ urlpatterns = patterns(
         login_views.AdministratorsOverview.as_view(),
         name='admins_overview'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/permissions/$',
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<usergroup_id>[0-9]+)/permissions/$',
         login_views.UserGroupPermissions.as_view(),
         name='usergroup_permissions'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/settings/$',
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<usergroup_id>[0-9]+)/settings/$',
         login_views.UserGroupSettings.as_view(),
         name='usergroup_settings'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/delete/$',
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<usergroup_id>[0-9]+)/delete/$',
         login_views.UserGroupDelete.as_view(),
         name='usergroup_delete'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<group_id>[0-9]+)/data/$',
+        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<usergroup_id>[0-9]+)/data/$',
         login_views.UserGroupData.as_view(),
         name='usergroup_data'),
 

@@ -6,12 +6,12 @@
  * - templates/users/usergroups_data.html
  * ***********************************************/
 
-(function () {
+(function() {
     'use strict';
 
     var filters = null,
         projectId = $('body').attr('data-project-id'),
-        groupId = $('body').attr('data-group-id');
+        usergroupId = $('body').attr('data-usergroup-id');
 
     /**
      * Handles changes to general permissions (all data vs. selected data).
@@ -52,8 +52,12 @@
         var minval = field.find('#' + key + '-min').val();
         var maxval = field.find('#' + key + '-max').val();
 
-        if (minval) { value.minval = minval; }
-        if (maxval) { value.maxval = maxval; }
+        if (minval) {
+            value.minval = minval;
+        }
+        if (maxval) {
+            value.maxval = maxval;
+        }
 
         return (value.minval || value.maxval ? value : undefined);
     }
@@ -100,7 +104,9 @@
                             value = getValue(field);
                             break;
                     }
-                    if (field.attr('data-type') != 'DateCreated' && value) { filters[catId][field.attr('data-key')] = value; }
+                    if (field.attr('data-type') != 'DateCreated' && value) {
+                        filters[catId][field.attr('data-key')] = value;
+                    }
                 }
             }
         }
@@ -131,7 +137,7 @@
      * Is called when the selects or unselects a category.
      */
     function handleCategorySelect() {
-        if ($(this).prop( "checked" )) {
+        if ($(this).prop("checked")) {
             var detailLink = $('<a href="#" class="text-danger activate-detailed">Restrict further</a>');
             $(this).parent().append(detailLink);
             detailLink.click(handleActivateDetailed);
@@ -153,7 +159,7 @@
         container.find('.list-group').append(fieldselect);
 
         // user selects a field, form fields to define the filter for the field is added
-        fieldselect.find('select').change(function () {
+        fieldselect.find('select').change(function() {
             fieldselect.remove();
 
             var fieldkey = $(this).val();
@@ -176,8 +182,12 @@
             }
 
             filterForm.find('input.datetime').datetimepicker();
-            filterForm.find('input.date').datetimepicker({ pickTime: false });
-            filterForm.find('input.time').datetimepicker({ pickDate: false });
+            filterForm.find('input.date').datetimepicker({
+                pickTime: false
+            });
+            filterForm.find('input.time').datetimepicker({
+                pickDate: false
+            });
             filterForm.find('input[type="number"], input.datetime, input.date').change(handleRangeFieldEdit);
             filterForm.find(':input').change(handleEdit);
 
@@ -265,8 +275,12 @@
 
     // activate datetime picker for date/time fields
     $('input.datetime').datetimepicker();
-    $('input.date').datetimepicker({ pickTime: false });
-    $('input.time').datetimepicker({ pickDate: false });
+    $('input.date').datetimepicker({
+        pickTime: false
+    });
+    $('input.time').datetimepicker({
+        pickDate: false
+    });
 
     // registers eventhandle on value change for numbers and dates
     // handleRangeFieldEdit sets min/max values of corresponding fields for validation

@@ -7,7 +7,7 @@
  * - templates/superusertools/manage_users.html
  * ***********************************************/
 
-(function (global) {
+(function(global) {
     'use strict';
 
     var url = global.url;
@@ -19,10 +19,10 @@
 
     if (!url) {
         var projectId = $('body').attr('data-project-id');
-        var groupId = $('body').attr('data-group-id');
+        var usergroupId = $('body').attr('data-usergroup-id');
 
-        if (groupId) {
-            url = 'projects/' + projectId + '/usergroups/' + groupId + '/users/';
+        if (usergroupId) {
+            url = 'projects/' + projectId + '/usergroups/' + usergroupId + '/users/';
         } else {
             url = 'projects/' + projectId + '/admins/';
         }
@@ -44,13 +44,15 @@
         function handleRemoveUserSuccess() {
             var html = $('<li class="bg-success message"><span class="text-success"><span class="glyphicon glyphicon-ok"></span> The user has been removed from the user group.</span></li>');
             itemToRemove.before(html);
-            setTimeout(function() {html.remove(); }, 5000);
+            setTimeout(function() {
+                html.remove();
+            }, 5000);
 
             itemToRemove.remove();
 
             var numOfUsers = userList.children(':not(.message)').length;
 
-            if (!groupId &&  numOfUsers === 1) {
+            if (!usergroupId && numOfUsers === 1) {
                 userList.find('li a.remove').remove();
             }
 
@@ -66,10 +68,14 @@
         function handleRemoveUserError(response) {
             var html = $('<li class="bg-danger message"><span class="text-danger"><span class="glyphicon glyphicon-remove"></span> An error occured while removing the user. Error text was: ' + response.responseJSON.error + '</span></li>');
             itemToRemove.before(html);
-            setTimeout(function() {html.remove(); }, 5000);
+            setTimeout(function() {
+                html.remove();
+            }, 5000);
         }
 
-        Control.Ajax.del(url + userId+ '/', handleRemoveUserSuccess, handleRemoveUserError, {'userId': userId});
+        Control.Ajax.del(url + userId + '/', handleRemoveUserSuccess, handleRemoveUserError, {
+            'userId': userId
+        });
         event.preventDefault();
     }
 
@@ -88,7 +94,9 @@
 
         var html = $('<li class="bg-success message"><span class="text-success"><span class="glyphicon glyphicon-ok"></span> The user has been added to the user group.</span></li>');
         userList.append(html);
-        setTimeout(function() {html.remove(); }, 5000);
+        setTimeout(function() {
+            html.remove();
+        }, 5000);
 
         userList.append(Templates.usergroupusers(response));
         userList.find('li a.remove').click(handleRemoveUser);
@@ -112,7 +120,9 @@
         var userId = $(event.target).attr('data-user-id');
 
         typeAwayResults.hide();
-        Control.Ajax.post(url, handleAddUserSucess, handleAddUserError, {'userId': userId});
+        Control.Ajax.post(url, handleAddUserSucess, handleAddUserError, {
+            'userId': userId
+        });
         event.preventDefault();
     }
 
@@ -164,8 +174,7 @@
             if (activeLink.length > 0) {
                 activeLink.children().click();
             }
-        }
-        else if ((event.keyCode === 40 || event.keyCode === 38) && typeAwayResults.is(":visible")) {
+        } else if ((event.keyCode === 40 || event.keyCode === 38) && typeAwayResults.is(":visible")) {
             // if user pressed arrow up (keycode == 38) or arrow down (keycode == 40)
             // programmatically activates the previous or next link in the list
             // of users that match the query

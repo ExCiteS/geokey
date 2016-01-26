@@ -1,0 +1,17 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h6 class="item-info">User group</h6>
+
+        <h3>
+            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+            {{ usergroup.name }}
+        </h3>
+    </div>
+
+    <div class="list-group">
+        <a href="{% url 'admin:usergroup_overview' usergroup.project.id usergroup.id %}" class="list-group-item {% if request.resolver_match.url_name == 'usergroup_overview' %}active{% endif %}">Members</a>
+        <a href="{% url 'admin:usergroup_data' usergroup.project.id usergroup.id %}" class="list-group-item {% if request.resolver_match.url_name == 'usergroup_data' %}active{% endif %}">Data</a>
+        <a href="{% url 'admin:usergroup_permissions' usergroup.project.id usergroup.id %}" class="list-group-item {% if request.resolver_match.url_name == 'usergroup_permissions' %}active{% endif %}">Permissions</a>
+        <a href="{% url 'admin:usergroup_settings' usergroup.project.id usergroup.id %}" class="list-group-item {% if request.resolver_match.url_name == 'usergroup_settings' %}active{% endif %}">Settings</a>
+    </div>
+</div>

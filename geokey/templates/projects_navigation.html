@@ -7,7 +7,7 @@
         <a href="{% url 'admin:category_list' project.id %}">Categories</a>
     </li>
 
-    <li role="presentation" class="{% if 'usergroup' in request.resolver_match.url_name %}active{% endif %}">
+    <li role="presentation" class="{% if 'usergroup' in request.resolver_match.url_name or request.resolver_match.url_name == 'admins_overview' %}active{% endif %}">
         <a href="{% url 'admin:usergroup_list' project.id %}">User groups</a>
     </li>
 
