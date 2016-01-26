@@ -629,6 +629,7 @@ class FieldCreateTest(TestCase):
         }
         response = self.post(self.admin, data)
         self.assertEquals(type(response), HttpResponseRedirect)
+        self.assertEquals(Field.objects.count(), 1)
 
     def test_post_create_with_hebrew_field_name(self):
         data = {
@@ -639,8 +640,23 @@ class FieldCreateTest(TestCase):
         }
         response = self.post(self.admin, data)
         self.assertEquals(type(response), HttpResponseRedirect)
+        self.assertEquals(Field.objects.count(), 1)
         field = self.category.fields.all()[0]
         self.assertEquals(field.key, 'key')
+
+    def test_post_create_with_admin_on_locked_projects(self):
+        self.project.islocked = True
+        self.project.save()
+
+        data = {
+            'name': 'Test name',
+            'description': 'Test description',
+            'required': False,
+            'type': 'TextField'
+        }
+        response = self.post(self.admin, data)
+        self.assertEquals(type(response), HttpResponseRedirect)
+        self.assertEquals(Field.objects.count(), 0)
 
     def test_post_create_with_existing_name(self):
         TextFieldFactory.create(**{
@@ -657,6 +673,7 @@ class FieldCreateTest(TestCase):
         }
         response = self.post(self.admin, data)
         self.assertEquals(type(response), HttpResponseRedirect)
+        self.assertEquals(Field.objects.count(), 2)
 
     def test_post_create_numeric_field(self):
         data = {

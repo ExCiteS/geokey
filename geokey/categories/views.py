@@ -357,17 +357,16 @@ class FieldCreate(LoginRequiredMixin, CategoryContext, CreateView):
     """
     Displays the create field page.
     """
-
     form_class = FieldCreateForm
     template_name = 'categories/field_create.html'
 
     def get_context_data(self, data=None, **kwargs):
         """
         Returns the context to render the view. Overwrites the method to add
-        the category and available field types
+        the category and available field types.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         project_id : int
             Identifier of the project in the database
         category_id : int
@@ -405,61 +404,74 @@ class FieldCreate(LoginRequiredMixin, CategoryContext, CreateView):
         Redirects to field setting page of the created field
         """
 
+        data = form.cleaned_data
+
         project_id = self.kwargs['project_id']
         category_id = self.kwargs['category_id']
-        data = form.cleaned_data
         category = Category.objects.as_admin(
             self.request.user, project_id, category_id)
 
-        proposed_key = slugify(strip_tags(data.get('name')))
-        if len(proposed_key) < 1:
-            proposed_key = 'key'
-        suggested_key = proposed_key
+        if category.project.islocked:
+            messages.error(
+                self.request,
+                'The project is locked. New fields cannot be created.'
+            )
 
-        count = 1
-        while category.fields.filter(key=suggested_key).exists():
-            suggested_key = '%s-%s' % (proposed_key, count)
-            count = count + 1
+            return redirect(
+                'admin:category_field_create',
+                project_id=category.project.id,
+                category_id=category_id
+            )
+        else:
+            proposed_key = slugify(strip_tags(data.get('name')))
+            if len(proposed_key) < 1:
+                proposed_key = 'key'
+            suggested_key = proposed_key
 
-        field = Field.create(
-            strip_tags(data.get('name')),
-            suggested_key,
-            strip_tags(data.get('description')),
-            data.get('required'),
-            category,
-            self.request.POST.get('type')
-        )
+            count = 1
+            while category.fields.filter(key=suggested_key).exists():
+                suggested_key = '%s-%s' % (proposed_key, count)
+                count = count + 1
 
-        if isinstance(field, TextField):
-            field.textarea = self.request.POST.get('textarea') or False
-            field.maxlength = self.request.POST.get('maxlength') or None
+            field = Field.create(
+                strip_tags(data.get('name')),
+                suggested_key,
+                strip_tags(data.get('description')),
+                data.get('required'),
+                category,
+                self.request.POST.get('type')
+            )
 
-        elif isinstance(field, NumericField):
-            field.minval = self.request.POST.get('minval') or None
-            field.maxval = self.request.POST.get('maxval') or None
+            if isinstance(field, TextField):
+                field.textarea = self.request.POST.get('textarea') or False
+                field.maxlength = self.request.POST.get('maxlength') or None
 
-        field.save()
+            elif isinstance(field, NumericField):
+                field.minval = self.request.POST.get('minval') or None
+                field.maxval = self.request.POST.get('maxval') or None
 
-        field_create_url = reverse(
-            'admin:category_field_create',
-            kwargs={
-                'project_id': project_id,
-                'category_id': category_id
-            }
-        )
+            field.save()
 
-        messages.success(
-            self.request,
-            mark_safe('The field has been created. <a href="%s">Add another '
-                      'field.</a>' % field_create_url)
-        )
+            field_create_url = reverse(
+                'admin:category_field_create',
+                kwargs={
+                    'project_id': project_id,
+                    'category_id': category_id
+                }
+            )
 
-        return redirect(
-            'admin:category_field_settings',
-            project_id=category.project.id,
-            category_id=category.id,
-            field_id=field.id
-        )
+            messages.success(
+                self.request,
+                mark_safe('The field has been created. <a href="%s">Add '
+                          'another field.</a>' % field_create_url)
+            )
+
+            return redirect(
+                'admin:category_field_settings',
+                project_id=category.project.id,
+                category_id=category.id,
+                field_id=field.id
+            )
 
 
 class FieldSettings(LoginRequiredMixin, FieldContext, TemplateView):
