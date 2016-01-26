@@ -22,7 +22,7 @@
 GeoKey
 ======
 
-GeoKey is a platform for participatory mapping that is currently developed by `Extreme Citizen Science <http://ucl.ac.uk/excites>`_ research group at University College London.
+GeoKey is a platform for participatory mapping, that is currently developed by `Extreme Citizen Science <http://ucl.ac.uk/excites>`_ research group at University College London.
 
 
 Install for development
@@ -54,7 +54,7 @@ Install for development
 Setup the database
 ------------------
 
-1. For simplicity, switch to user postgres
+1. For simplicity, switch to user `postgres`
 
 .. code-block:: console
 
@@ -78,7 +78,7 @@ Setup the database
 
     postgres=# CREATE USER django WITH PASSWORD 'django123';
 
-5. Make `django` a superuser on your database (this is required for tests only and shouldn't be done in production)
+5. Make created user a superuser on your database (this is required for tests only and shouldn't be done in production)
 
 .. code-block:: console
 
@@ -90,7 +90,7 @@ Setup the database
 
     postgres=# CREATE DATABASE geokey OWNER django;
 
-7. Log out and connect to database `geokey`
+7. Log out and connect to database
 
 .. code-block:: console
 
@@ -104,7 +104,7 @@ Setup the database
     geokey=# CREATE EXTENSION postgis;
     geokey=# CREATE EXTENSION hstore;
 
-9. Logout of database `geokey` and logout of user `postgres`
+9. Logout of database and user
 
 .. code-block:: console
 
@@ -130,7 +130,7 @@ Setting up GeoKey
     pip install -r requirements.txt
     pip install -r requirements-dev.txt
 
-You may need to add `sudo ` before the `pip` commands, unless you are logged in as root or working within a virtual environment.
+You may need to add *sudo* before the pip commands, unless you are logged in as root or working within a virtual environment.
 
 3. Copy the directory `local_settings.example` to `local_settings`
 
@@ -140,7 +140,7 @@ You may need to add `sudo ` before the `pip` commands, unless you are logged in 
 
 4. Inside the `local_settings` open `settings.py` in a text editor and...
 
-Add your [database settings](https://docs.djangoproject.com/en/1.8/ref/settings/#databases)
+Add your `database settings <https://docs.djangoproject.com/en/1.8/ref/settings/#databases>`_
 
 .. code-block:: console
 
@@ -155,7 +155,7 @@ Add your [database settings](https://docs.djangoproject.com/en/1.8/ref/settings/
         }
     }
 
-Set the [secret key](https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-SECRET_KEY)
+Set the `secret key <https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-SECRET_KEY>`_
 
 .. code-block:: console
 
@@ -192,7 +192,7 @@ Run the test server
 
 .. code-block:: console
 
-python manage.py runserver 0.0.0.0:8000
+    python manage.py runserver 0.0.0.0:8000
 
 
 Run tests
@@ -200,7 +200,7 @@ Run tests
 
 .. code-block:: console
 
-python manage.py test
+    python manage.py test
 
 
 We use open-source technologies
