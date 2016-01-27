@@ -112,11 +112,11 @@ data-field-id="{{ field.id }}"
     </div>
 
     {% if field.lookupfield %}
-        {% include 'snippets/lookup-values.html' with field=field.lookupfield %}
+        {% include 'snippets/lookup_values.html' with field=field.lookupfield %}
     {% endif %}
 
     {% if field.multiplelookupfield %}
-        {% include 'snippets/lookup-values.html' with values=field.multiplelookupfield %}
+        {% include 'snippets/lookup_values.html' with values=field.multiplelookupfield %}
     {% endif %}
 
     <div class="row">
