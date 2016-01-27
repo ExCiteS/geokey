@@ -45,22 +45,30 @@ data-project-locked="{{ project.islocked }}"
                     <div class="radio public {% if project.isprivate %}hidden{% endif %}">
                         <label>
                             <input type="radio" name="everyone_contributes" value="true" {% if project.everyone_contributes == 'true' %}checked{% endif %} />
-                            <strong>All users</strong><br>All users can contribute. This includes anonymous contributions from users, who are not logged in.
+                            <strong>All users</strong>
+                            <p>All users can contribute. This includes anonymous contributions from users, who are not logged in.</p>
                         </label>
                     </div>
 
                     <div class="radio">
                         <label>
                             <input type="radio" name="everyone_contributes" value="auth" {% if project.everyone_contributes == 'auth' %}checked{% endif %} />
-                            <span class="private {% if not project.isprivate %}hidden{% endif %}"><strong>All users</strong><br>All users that have access to the project can contribute.</span>
-                            <span class="public {% if project.isprivate %}hidden{% endif %}"><strong>All authenticated users</strong><br>Users have to be logged in to contribute.</span>
+                            <span class="private {% if not project.isprivate %}hidden{% endif %}">
+                                <strong>All users</strong>
+                                <p>All users that have access to the project can contribute.</p>
+                            </span>
+                            <span class="public {% if project.isprivate %}hidden{% endif %}">
+                                <strong>All authenticated users</strong>
+                                <p>Users have to be logged in to contribute.</p>
+                            </span>
                         </label>
                     </div>
 
                     <div class="radio">
                         <label>
                             <input type="radio" name="everyone_contributes" value="false" {% if project.everyone_contributes == 'false' %}checked{% endif %} />
-                            <strong>Only members of contributor groups can cantribute</strong><br>Only users, who are members of a user groups that has been granted contribute permissions, can contribute.
+                            <strong>Only members of contributor groups can contribute</strong>
+                            <p>Only users, who are members of a user groups that have been granted contribute permissions, can contribute.</p>
                         </label>
                     </div>
                 </div>
