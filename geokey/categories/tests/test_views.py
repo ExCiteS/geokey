@@ -1457,6 +1457,36 @@ class AddLookupValueTest(TestCase):
         ).render()
         self.assertEqual(response.status_code, 404)
 
+    def test_add_lookupvalue_when_project_is_locked(self):
+        self.project.islocked = True
+        self.project.save()
+
+        lookup_field = LookupFieldFactory(**{
+            'category': self.active_type
+        })
+
+        url = reverse(
+            'ajax:category_lookupvalues',
+            kwargs={
+                'project_id': self.project.id,
+                'category_id': self.active_type.id,
+                'field_id': lookup_field.id
+            }
+        )
+        request = self.factory.post(url, {'name': 'Ms. Piggy'})
+        force_authenticate(request, user=self.admin)
+        view = FieldLookups.as_view()
+
+        response = view(
+            request,
+            project_id=self.project.id,
+            category_id=self.active_type.id,
+            field_id=lookup_field.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(len(lookup_field.lookupvalues.all()), 0)
+
 
 class UpdateLookupValues(TestCase):
 
@@ -1595,6 +1625,40 @@ class UpdateLookupValues(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    def test_update_lookupvalue_when_project_is_locked(self):
+        self.project.islocked = True
+        self.project.save()
+
+        lookup_field = LookupFieldFactory(**{
+            'category': self.active_type
+        })
+        lookup_value = LookupValueFactory(**{
+            'field': lookup_field
+        })
+
+        url = reverse(
+            'ajax:category_lookupvalues_detail',
+            kwargs={
+                'project_id': self.project.id,
+                'category_id': self.active_type.id,
+                'field_id': lookup_field.id,
+                'value_id': lookup_value.id
+            }
+        )
+        request = self.factory.patch(url, {'name': 'New Name'})
+        force_authenticate(request, user=self.admin)
+        view = FieldLookupsUpdate.as_view()
+
+        response = view(
+            request,
+            project_id=self.project.id,
+            category_id=self.active_type.id,
+            field_id=lookup_field.id,
+            value_id=lookup_value.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
+
     def test_remove_lookupvalue_with_admin(self):
         lookup_field = LookupFieldFactory(**{
             'category': self.active_type
@@ -1711,6 +1775,41 @@ class UpdateLookupValues(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    def test_remove_lookupvalue_when_project_is_locked(self):
+        self.project.islocked = True
+        self.project.save()
+
+        lookup_field = LookupFieldFactory(**{
+            'category': self.active_type
+        })
+        lookup_value = LookupValueFactory(**{
+            'field': lookup_field
+        })
+
+        url = reverse(
+            'ajax:category_lookupvalues_detail',
+            kwargs={
+                'project_id': self.project.id,
+                'category_id': self.active_type.id,
+                'field_id': lookup_field.id,
+                'value_id': lookup_value.id
+            }
+        )
+        request = self.factory.delete(url)
+        force_authenticate(request, user=self.admin)
+        view = FieldLookupsUpdate.as_view()
+
+        response = view(
+            request,
+            project_id=self.project.id,
+            category_id=self.active_type.id,
+            field_id=lookup_field.id,
+            value_id=lookup_value.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(len(lookup_field.lookupvalues.all()), 1)
+
 
 class AddMutipleLookupValueTest(TestCase):
 
@@ -1753,6 +1852,36 @@ class AddMutipleLookupValueTest(TestCase):
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(len(lookup_field.lookupvalues.all()), 1)
+
+    def test_add_lookupvalue_when_project_is_locked(self):
+        self.project.islocked = True
+        self.project.save()
+
+        lookup_field = MultipleLookupFieldFactory(**{
+            'category': self.active_type
+        })
+
+        url = reverse(
+            'ajax:category_lookupvalues',
+            kwargs={
+                'project_id': self.project.id,
+                'category_id': self.active_type.id,
+                'field_id': lookup_field.id
+            }
+        )
+        request = self.factory.post(url, {'name': 'Ms. Piggy'})
+        force_authenticate(request, user=self.admin)
+        view = FieldLookups.as_view()
+
+        response = view(
+            request,
+            project_id=self.project.id,
+            category_id=self.active_type.id,
+            field_id=lookup_field.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(len(lookup_field.lookupvalues.all()), 0)
 
 
 class RemoveMultipleLookupValues(TestCase):
@@ -1891,6 +2020,41 @@ class RemoveMultipleLookupValues(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    def test_remove_lookupvalue_when_project_is_locked(self):
+        self.project.islocked = True
+        self.project.save()
+
+        lookup_field = MultipleLookupFieldFactory(**{
+            'category': self.active_type
+        })
+        lookup_value = MultipleLookupValueFactory(**{
+            'field': lookup_field
+        })
+
+        url = reverse(
+            'ajax:category_lookupvalues_detail',
+            kwargs={
+                'project_id': self.project.id,
+                'category_id': self.active_type.id,
+                'field_id': lookup_field.id,
+                'value_id': lookup_value.id
+            }
+        )
+        request = self.factory.delete(url)
+        force_authenticate(request, user=self.admin)
+        view = FieldLookupsUpdate.as_view()
+
+        response = view(
+            request,
+            project_id=self.project.id,
+            category_id=self.active_type.id,
+            field_id=lookup_field.id,
+            value_id=lookup_value.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(len(lookup_field.lookupvalues.all()), 1)
+
 
 # ############################################################################
 #
@@ -1898,7 +2062,7 @@ class RemoveMultipleLookupValues(TestCase):
 #
 # ############################################################################
 
-class ObservationTypePublicApiTest(TestCase):
+class SingleCategoryApiTest(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()

@@ -784,21 +784,25 @@ class FieldLookups(APIView):
             request.user, project_id, category_id, field_id)
         name = strip_tags(request.data.get('name'))
 
+        if field.category.project.islocked:
+            return Response(
+                {'error': 'The project is locked.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         if isinstance(field, LookupField):
             LookupValue.objects.create(name=name, field=field)
 
             serializer = LookupFieldSerializer(field)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
         elif isinstance(field, MultipleLookupField):
             MultipleLookupValue.objects.create(name=name, field=field)
 
             serializer = LookupFieldSerializer(field)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
         else:
             return Response(
-                {'error': 'This field is not a lookup field'},
+                {'error': 'This field is not a lookup field.'},
                 status=status.HTTP_404_NOT_FOUND
             )
 
@@ -846,14 +850,20 @@ class FieldLookupsUpdate(APIView):
         field = self.get_field(request.user, project_id, category_id, field_id)
 
         if field:
-            val = field.lookupvalues.get(pk=value_id)
-            val.name = strip_tags(request.data.get('name'))
-            val.save()
+            if field.category.project.islocked:
+                return Response(
+                    {'error': 'The project is locked.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            else:
+                val = field.lookupvalues.get(pk=value_id)
+                val.name = strip_tags(request.data.get('name'))
+                val.save()
 
-            return Response({"id": val.id, "name": val.name})
+                return Response({'id': val.id, 'name': val.name})
         else:
             return Response(
-                {'error': 'This field is not a lookup field'},
+                {'error': 'This field is not a lookup field.'},
                 status=status.HTTP_404_NOT_FOUND
             )
 
@@ -884,11 +894,17 @@ class FieldLookupsUpdate(APIView):
         field = self.get_field(request.user, project_id, category_id, field_id)
 
         if field:
-            field.lookupvalues.get(pk=value_id).delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            if field.category.project.islocked:
+                return Response(
+                    {'error': 'The project is locked.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            else:
+                field.lookupvalues.get(pk=value_id).delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(
-                {'error': 'This field is not a lookup field'},
+                {'error': 'This field is not a lookup field.'},
                 status=status.HTTP_404_NOT_FOUND
             )
 

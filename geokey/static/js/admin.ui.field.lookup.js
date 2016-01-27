@@ -6,7 +6,7 @@
  * - templates/categories/field_settings.html
  * ***********************************************/
 
-(function (global) {
+(function(global) {
     'use strict';
 
     /**
@@ -73,7 +73,9 @@
         target.after(html);
 
         // automatically remove the message after 5 sec
-        setTimeout(function () { html.remove(); }, 5000);
+        setTimeout(function() {
+            html.remove();
+        }, 5000);
     };
 
     /**
@@ -135,7 +137,9 @@
             this.displayError('An error occurred while updating the lookup value. Error text was: ' + response.responseJSON.error);
         }
 
-        Control.Ajax.patch(this.url + '/' + lookupId, handleEditValueSucces.bind(this), handleEditValueError.bind(this), {name: value} );
+        Control.Ajax.patch(this.url + '/' + lookupId, handleEditValueSucces.bind(this), handleEditValueError.bind(this), {
+            name: value
+        });
     }
 
     /**
@@ -164,7 +168,9 @@
             this.displayError('An error occurred while removing the lookup value. Error text was: ' + response.responseJSON.error);
         }
 
-        Control.Ajax.del(this.url + '/' + lookupId, handleRemoveValueSucces.bind(this), handleRemoveValueError.bind(this), {name: this.formField.val()} );
+        Control.Ajax.del(this.url + '/' + lookupId, handleRemoveValueSucces.bind(this), handleRemoveValueError.bind(this), {
+            name: this.formField.val()
+        });
 
         event.preventDefault();
     };
@@ -202,10 +208,13 @@
          */
         function handleAddValueError(response) {
             this.displayError('An error occurred while adding the lookup value. Error text was: ' + response.responseJSON.error);
+            this.addButton.button('reset');
         }
 
         this.addButton.button('loading');
-        Control.Ajax.post(this.url, handleAddValueSuccess.bind(this), handleAddValueError.bind(this), {name: this.formField.val()});
+        Control.Ajax.post(this.url, handleAddValueSuccess.bind(this), handleAddValueError.bind(this), {
+            name: this.formField.val()
+        });
         event.preventDefault();
     };
 
