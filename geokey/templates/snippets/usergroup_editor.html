@@ -3,7 +3,11 @@
     User group members
 </h3>
 
-{% if not project.islocked %}
+{% if project.islocked %}
+    <div class="alert alert-info">
+        <p>The project is locked, therefore user group cannot be edited. If you wish to edit it, you have to unlock the project in the <a href="{% url 'admin:project_settings' project.id %}"><strong>project settings</strong></a> first.</p>
+    </div>
+{% else %}
     <div class="dropdown">
         <input type="text" id="find-users" class="form-control" placeholder="Search for users to add to this user group">
 
@@ -24,11 +28,6 @@
     		<li>No users have been added to this user group.</li>
     	{% endfor %}
     </ul>
-
-    {% if project.islocked %}
-        <hr />
-        <p class="lead text-center">The project is locked, therefore user group members cannot be modified.</p>
-    {% endif %}
 {% else %}
     <div class="well empty-list">
         <p class="lead">We couldn't find any users assigned to this user group.</p>

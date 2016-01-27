@@ -31,7 +31,7 @@ data-category-id="{{ category.id }}"
         <div class="col-sm-8">
             <h3 class="header">
                 {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
-                <span>Category fields</span>
+                Category fields
 
                 {% if category.fields.all and not project.islocked %}
                     <a href="{% url 'admin:category_field_create' category.project.id category.id %}" class="btn btn-success btn-sm pull-right">
@@ -40,6 +40,12 @@ data-category-id="{{ category.id }}"
                     </a>
                 {% endif %}
             </h3>
+
+            {% if project.islocked %}
+                <div class="alert alert-info">
+                    <p>The project is locked, therefore category fields cannot be edited. If you wish to edit them, you have to unlock the project in the <a href="{% url 'admin:project_settings' project.id %}"><strong>project settings</strong></a> first.</p>
+                </div>
+            {% endif %}
 
             {% for field in category.fields.all %}
                 {% if forloop.first %}
@@ -72,11 +78,6 @@ data-category-id="{{ category.id }}"
                     {% endif %}
                 </div>
             {% endfor %}
-
-            {% if project.islocked %}
-                <hr />
-                <p class="lead text-center">The project is locked, therefore category fields cannot be modified.</p>
-            {% endif %}
         </div>
     </div>
 </div>

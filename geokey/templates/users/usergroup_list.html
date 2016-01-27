@@ -25,7 +25,11 @@ data-project-locked="{{ project.islocked }}"
     <div class="row">
         <div class="col-md-4 col-md-push-8">
             <div class="alert alert-info">
-                <p>Create user groups to grant `contribute` and `moderate` permissions to a set of users, also to grant access to subsets for private projects.</p>
+                {% if project.islocked %}
+                    <p>The project is locked, therefore user groups cannot be edited. If you wish to edit them, you have to unlock the project in the <a href="{% url 'admin:project_settings' project.id %}"><strong>project settings</strong></a> first.</p>
+                {% else %}
+                    <p>Create user groups to grant `contribute` and `moderate` permissions to a set of users, also to grant access to subsets for private projects.</p>
+                {% endif %}
             </div>
         </div>
 

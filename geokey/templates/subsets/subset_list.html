@@ -25,7 +25,11 @@ data-project-locked="{{ project.islocked }}"
     <div class="row">
         <div class="col-md-4 col-md-push-8">
             <div class="alert alert-info">
-                <p>Create subsets to dynamically generate and output data based on set criterias.</p>
+                {% if project.islocked %}
+                    <p>The project is locked, therefore subsets cannot be edited. If you wish to edit them, you have to unlock the project in the <a href="{% url 'admin:project_settings' project.id %}"><strong>project settings</strong></a> first.</p>
+                {% else %}
+                    <p>Create subsets to dynamically generate and output data based on set criterias.</p>
+                {% endif %}
             </div>
         </div>
 

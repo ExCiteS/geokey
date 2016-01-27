@@ -25,7 +25,11 @@ data-project-locked="{{ project.islocked }}"
     <div class="row">
         <div class="col-md-4 col-md-push-8">
             <div class="alert alert-info">
-                <p>Create categories to define which data you want to collect for your project. For instance, if you want to create a map for public transport, you can create a category for each bus stop and train station.</p>
+                {% if project.islocked %}
+                    <p>The project is locked, therefore categories cannot be edited. If you wish to edit them, you have to unlock the project in the <a href="{% url 'admin:project_settings' project.id %}"><strong>project settings</strong></a> first.</p>
+                {% else %}
+                    <p>Create categories to define which data you want to collect for your project. For instance, if you want to create a map for public transport, you can create a category for each bus stop and train station.</p>
+                {% endif %}
             </div>
         </div>
 

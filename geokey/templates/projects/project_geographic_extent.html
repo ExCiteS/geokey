@@ -22,6 +22,12 @@ data-project-locked="{{ project.islocked }}"
 <div class="container">
     {% include 'snippets/messages.html' %}
 
+    {% if project.islocked %}
+        <div class="alert alert-info">
+            <p>The project is locked, therefore geographic extent cannot be edited. If you wish to edit it, you have to unlock the project in the <a href="{% url 'admin:project_settings' project.id %}"><strong>project settings</strong></a> first.</p>
+        </div>
+    {% endif %}
+
     <h3 class="header">
         {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
         Geographic extent
@@ -34,14 +40,12 @@ data-project-locked="{{ project.islocked }}"
 
         <input type="hidden" id="geometry" name="geometry" value="{{ project.geographic_extent.json }}">
 
-        <div class="form-group">
-            {% if not project.islocked %}
+        {% if not project.islocked %}
+            <div class="form-group">
                 <button type="submit" class="btn btn-primary">Save</button>
                 <button type="reset" class="btn btn-link">Reset</button>
-            {% else %}
-                <p class="lead text-center">The project is locked, therefore geographic extent cannot be edited.</p>
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
     </form>
 </div>
 {% endblock %}

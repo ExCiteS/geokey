@@ -35,15 +35,23 @@ data-usergroup-id="{{ usergroup.id }}"
                 User group data
             </h3>
 
+            {% if project.islocked %}
+                <div class="alert alert-info">
+                    <p>The project is locked, therefore user group data cannot be edited. If you wish to edit it, you have to unlock the project in the <a href="{% url 'admin:project_settings' project.id %}"><strong>project settings</strong></a> first.</p>
+                </div>
+            {% elif not project.categories.all %}
+                <div class="alert alert-info">
+                    <p>The project has no categories, therefore subset data cannot be edited. If you wish to edit it, you have to <a href="{% url 'admin:category_create' project.id %}"><strong>create a new category</strong></a> first.</p>
+                </div>
+            {% endif %}
+
             {% if usergroup.project.isprivate %}
-                <form role="form" id="data-access" method="POST" action="{% url 'admin:usergroup_data' project.id usergroup.id %}" novalidate>
-                    {% csrf_token %}
+                {% if project.categories.all %}
+                    <form role="form" id="data-access" method="POST" action="{% url 'admin:usergroup_data' project.id usergroup.id %}" novalidate>
+                        {% csrf_token %}
 
-                    <input type="hidden" name="filters" value="-1">
+                        <input type="hidden" name="filters" value="-1">
 
-                    {% if not project.categories.all %}
-                        <p>Unfortunately, you cannot modify user group data when there are no categories added to the project.</p>
-                    {% else %}
                         <fieldset>
                             <div class="radio">
                                 <label>
@@ -62,39 +70,34 @@ data-usergroup-id="{{ usergroup.id }}"
                             </div>
                         </fieldset>
 
-                        {% if project.categories.all %}
-                            <fieldset id="filter" {% if not usergroup.filters %}class="hidden"{% endif %}>
-                                {% if not project.islocked %}<p>Select categories that will be accessible through the user group:</p>{% endif %}
+                        <fieldset id="filter" {% if not usergroup.filters %}class="hidden"{% endif %}>
+                            {% if not project.islocked %}<p>Select categories that will be accessible through the user group:</p>{% endif %}
 
-                                {% for category in project.categories.all %}
-                                    <div class="category checkbox">
-                                        <label>
-                                            <input type="checkbox" class="category" name="category" value="{{ category.id }}" {% if usergroup.filters|is_in:category.id %}checked="checked"{% endif %} {% if project.islocked %}disabled{% endif %} />
-                                            {{ category.name }}
-                                            {% if not project.islocked %}{% show_restrict usergroup.filters category %}{% endif %}
-                                        </label>
+                            {% for category in project.categories.all %}
+                                <div class="category checkbox">
+                                    <label>
+                                        <input type="checkbox" class="category" name="category" value="{{ category.id }}" {% if usergroup.filters|is_in:category.id %}checked="checked"{% endif %} {% if project.islocked %}disabled{% endif %} />
+                                        {{ category.name }}
+                                        {% if not project.islocked %}{% show_restrict usergroup.filters category %}{% endif %}
+                                    </label>
 
-                                        {% if usergroup.filters|is_in:category.id %}
-                                            {% show_fields usergroup.filters category %}
-                                        {% endif%}
-                                    </div>
-                                {% endfor %}
-                            </fieldset>
-                        {% endif %}
+                                    {% if usergroup.filters|is_in:category.id %}
+                                        {% show_fields usergroup.filters category %}
+                                    {% endif%}
+                                </div>
+                            {% endfor %}
+                        </fieldset>
 
-                        <div class="form-group">
-                            {% if not project.islocked %}
+                        {% if not project.islocked %}
+                            <div class="form-group">
                                 <button type="submit" class="btn btn-primary">Save</button>
-                            {% else %}
-                                {% if not usergroup.filters %}<hr />{% endif %}
-                                <p class="lead text-center">The project is locked, therefore user group data cannot be modified.</p>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                </form>
+                            </div>
+                        {% endif %}
+                    </form>
+                {% endif %}
             {% else %}
-                <div class="alert alert-info">
-                    <p>This project is public, therefore all data of the project is public too. To restrict access make the project private under <a href="{% url 'admin:project_settings' project.id %}" class="alert-link">Project Settings</a> first.</p>
+                <div class="alert alert-warning">
+                    <p>This project is public, therefore all data of the project is public too. To restrict access make the project private under <a href="{% url 'admin:project_settings' project.id %}" class="alert-link">project settings</a> first.</p>
                 </div>
             {% endif %}
         </div>

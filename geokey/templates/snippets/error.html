@@ -1,17 +1,17 @@
-
-	<div class="page-header">
-		<div class="container">
-			{% if error == 'unauthorized_client' %}
-			<h1>Unauthorised client</h1>
-			{% else %}
-			<h1>{{ error }}</h1>
-			{% endif %}
-		</div>
-	</div>
+<div class="page-header">
 	<div class="container">
-		<div class="row">
-			<div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
-				<div class="alert alert-danger">{{ error_description }}</div>
-			</div>
+		{% if error == 'unauthorized_client' %}
+		    <h1>Unauthorised client</h1>
+		{% else %}
+		    <h1>{{ error }}</h1>
+		{% endif %}
+	</div>
+</div>
+
+<div class="container">
+	<div class="row">
+		<div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+			<div class="alert alert-danger">{{ error_description }}</div>
 		</div>
 	</div>
+</div>

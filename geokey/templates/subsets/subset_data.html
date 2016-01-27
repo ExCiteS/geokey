@@ -35,14 +35,22 @@ data-subset-id="{{ subset.id }}"
                 Subset data
             </h3>
 
-            <form role="form" id="data-access" method="POST" action="{% url 'admin:subset_data' project.id subset.id %}" novalidate>
-                {% csrf_token %}
+            {% if project.islocked %}
+                <div class="alert alert-info">
+                    <p>The project is locked, therefore subset data cannot be edited. If you wish to edit it, you have to unlock the project in the <a href="{% url 'admin:project_settings' project.id %}"><strong>project settings</strong></a> first.</p>
+                </div>
+            {% elif not project.categories.all %}
+                <div class="alert alert-info">
+                    <p>The project has no categories, therefore subset data cannot be edited. If you wish to edit it, you have to <a href="{% url 'admin:category_create' project.id %}"><strong>create a new category</strong></a> first.</p>
+                </div>
+            {% endif %}
 
-                <input type="hidden" name="filters" value="-1">
+            {% if project.categories.all %}
+                <form role="form" id="data-access" method="POST" action="{% url 'admin:subset_data' project.id subset.id %}" novalidate>
+                    {% csrf_token %}
 
-                {% if not project.categories.all %}
-                    <p>Unfortunately, you cannot modify subset data when there are no categories added to the project.</p>
-                {% else %}
+                    <input type="hidden" name="filters" value="-1">
+
                     <fieldset id="filter">
                         {% if not project.islocked %}<p>Select categories that will be accessible through the subset:</p>{% endif %}
 
@@ -61,15 +69,13 @@ data-subset-id="{{ subset.id }}"
                         {% endfor %}
                     </fieldset>
 
-                    <div class="form-group">
-                        {% if not project.islocked %}
+                    {% if not project.islocked %}
+                        <div class="form-group">
                             <button type="submit" class="btn btn-primary">Save</button>
-                        {% else %}
-                           <p class="lead text-center">The project is locked, therefore subset data cannot be modified.</p>
-                        {% endif %}
-                    </div>
-                {% endif %}
-            </form>
+                        </div>
+                    {% endif %}
+                </form>
+            {% endif %}
         </div>
     </div>
 </div>

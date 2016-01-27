@@ -1,45 +1,45 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block title %} | Your profile{% endblock %}
 
 {% block main %}
-    <div class="page-header">
-        <div class="container">
-            <h1>Your profile</h1>
-        </div>
-    </div>
-
+<div class="page-header">
     <div class="container">
-        <div class="row">
-            <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-                <h3 class="header">Edit profile</h3>
-                {% include 'snippets/messages.html' %}
+        <h1>Your profile</h1>
+    </div>
+</div>
 
-                <form role="form" action="{% url 'admin:userprofile' %}" method="POST" novalidate>
-                    {% csrf_token %}
+<div class="container">
+    <div class="row">
+        <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+            <h3 class="header">Edit profile</h3>
+            {% include 'snippets/messages.html' %}
 
-                    <div class="form-group {% if form.email.errors %}has-error{% endif %}">
-                        <label for="email">Email address</label>
-                        <input type="email" class="form-control input-lg" id="email" name="email" value="{% if form.data.email %}{{ form.data.email }}{% else %}{{ user.email }}{% endif %}" required />
-                        {% if form.email.errors %}<span class="help-block">{{ form.email.errors|striptags }}</span>{% endif %}
-                    </div>
+            <form role="form" action="{% url 'admin:userprofile' %}" method="POST" novalidate>
+                {% csrf_token %}
 
-                    <div class="form-group {% if form.display_name.errors %}has-error{% endif %}">
-                        <label for="display_name">Display name</label>
-                        <input type="text" class="form-control input-lg" id="display_name" name="display_name" maxlength="50" value="{% if form.data.display_name %}{{ form.data.display_name }}{% else %}{{ user.display_name }}{% endif %}" required />
-                        {% if form.display_name.errors %}<span class="help-block">{{ form.display_name.errors|striptags }}</span>{% endif %}
-                    </div>
+                <div class="form-group {% if form.email.errors %}has-error{% endif %}">
+                    <label for="email">Email address</label>
+                    <input type="email" class="form-control input-lg" id="email" name="email" value="{% if form.data.email %}{{ form.data.email }}{% else %}{{ user.email }}{% endif %}" required />
+                    {% if form.email.errors %}<span class="help-block">{{ form.email.errors|striptags }}</span>{% endif %}
+                </div>
 
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Update profile</button>
-                        <a type="button" href="{% url 'account_change_password' %}" class="btn btn-link">Change password</a>
-                    </div>
-                </form>
-            </div>
+                <div class="form-group {% if form.display_name.errors %}has-error{% endif %}">
+                    <label for="display_name">Display name</label>
+                    <input type="text" class="form-control input-lg" id="display_name" name="display_name" maxlength="50" value="{% if form.data.display_name %}{{ form.data.display_name }}{% else %}{{ user.display_name }}{% endif %}" required />
+                    {% if form.display_name.errors %}<span class="help-block">{{ form.display_name.errors|striptags }}</span>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Update profile</button>
+                    <a type="button" href="{% url 'account_change_password' %}" class="btn btn-link">Change password</a>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 {% endblock %}
 
 {% block libraries %}
-    <script src="/static/js/admin.ui.forms.validate.js"></script>
+<script src="/static/js/admin.ui.forms.validate.js"></script>
 {% endblock %}
