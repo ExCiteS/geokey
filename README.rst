@@ -226,7 +226,12 @@ GeoKey was built using some amazing open-source technology. We would like to tha
 - `moment <https://github.com/zachwill/moment>`_
 - `requests <http://docs.python-requests.org/en/latest/>`_
 - `factory-boy <http://factoryboy.readthedocs.org/en/latest/>`_
+- `Handlebars <http://handlebarsjs.com>`_
+- `Modernizr <https://modernizr.com>`_
 - `Leaflet <http://leafletjs.com/>`_
 - `Leaflet Draw <https://github.com/Leaflet/Leaflet.draw>`_
 - `jQuery <http://jquery.com/>`_
 - `Bootstrap <http://getbootstrap.com/>`_
+- `bootstrap-colorpicker <https://mjolnic.com/bootstrap-colorpicker/>`_
+- `bootstrap-datetimepicker <https://eonasdan.github.io/bootstrap-datetimepicker/>`_
+- `bootstrap-fileinput <https://github.com/kartik-v/bootstrap-fileinput>`_
