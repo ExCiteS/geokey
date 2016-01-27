@@ -2,9 +2,9 @@ from django.views.generic import CreateView, TemplateView
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from django.utils.safestring import mark_safe
 from django.template.defaultfilters import slugify
 from django.utils.html import strip_tags
+from django.utils.safestring import mark_safe
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -149,9 +149,17 @@ class CategoryCreate(LoginRequiredMixin, ProjectContext, CreateView):
                     default_status=data.get('default_status')
                 )
 
+                add_another_url = reverse(
+                    'admin:category_create',
+                    kwargs={
+                        'project_id': project_id
+                    }
+                )
+
                 messages.success(
                     self.request,
-                    'The category has been created.'
+                    mark_safe('The category has been created. <a href="%s"> '
+                              'Add another category.</a>' % add_another_url)
                 )
 
                 return redirect(
@@ -454,7 +462,7 @@ class FieldCreate(LoginRequiredMixin, CategoryContext, CreateView):
 
             field.save()
 
-            field_create_url = reverse(
+            add_another_url = reverse(
                 'admin:category_field_create',
                 kwargs={
                     'project_id': project_id,
@@ -465,7 +473,7 @@ class FieldCreate(LoginRequiredMixin, CategoryContext, CreateView):
             messages.success(
                 self.request,
                 mark_safe('The field has been created. <a href="%s">Add '
-                          'another field.</a>' % field_create_url)
+                          'another field.</a>' % add_another_url)
             )
 
             return redirect(

@@ -4,6 +4,7 @@ from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.utils.html import strip_tags
+from django.utils.safestring import mark_safe
 
 from braces.views import LoginRequiredMixin
 
@@ -166,7 +167,19 @@ class UserGroupCreate(LoginRequiredMixin, ProjectContext, CreateView):
         project = Project.objects.as_admin(self.request.user, project_id)
 
         form.instance.project = project
-        messages.success(self.request, 'The user group has been created.')
+
+        add_another_url = reverse(
+            'admin:usergroup_create',
+            kwargs={
+                'project_id': project_id
+            }
+        )
+
+        messages.success(
+            self.request,
+            mark_safe('The user group has been created. <a href="%s">Add '
+                      'another user group.</a>' % add_another_url)
+        )
 
         return super(UserGroupCreate, self).form_valid(form)
 

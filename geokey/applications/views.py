@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.utils.html import strip_tags
+from django.utils.safestring import mark_safe
 
 from braces.views import LoginRequiredMixin
 
@@ -135,7 +136,17 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
             Represents the user input
         """
         form.instance.user = self.request.user
-        messages.success(self.request, "The application has been created.")
+
+        add_another_url = reverse(
+            'admin:app_register'
+        )
+
+        messages.success(
+            self.request,
+            mark_safe('The application has been created. <a href="%s">Add '
+                      'another application.</a>' % add_another_url)
+        )
+
         return super(ApplicationCreate, self).form_valid(form)
 
 

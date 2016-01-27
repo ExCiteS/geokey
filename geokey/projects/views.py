@@ -1,9 +1,11 @@
 from django.db import IntegrityError
 from django.views.generic import CreateView, TemplateView
 from django.shortcuts import redirect
+from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.utils.html import strip_tags
+from django.utils.safestring import mark_safe
 from django.contrib.gis.geos import GEOSGeometry
 
 from rest_framework import status
@@ -90,7 +92,16 @@ class ProjectCreate(LoginRequiredMixin, CreateView):
             self.request.user
         )
 
-        messages.success(self.request, 'The project has been created.')
+        add_another_url = reverse(
+            'admin:project_create'
+        )
+
+        messages.success(
+            self.request,
+            mark_safe('The project has been created. <a href="%s">Add '
+                      'another project.</a>' % add_another_url)
+        )
+
         return redirect('admin:project_overview', project_id=project.id)
 
 

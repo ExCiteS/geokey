@@ -1,7 +1,9 @@
 from json import loads as json_loads
 
+from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView
 from django.utils.html import strip_tags
+from django.utils.safestring import mark_safe
 from django.shortcuts import redirect
 from django.contrib import messages
 
@@ -82,7 +84,19 @@ class SubsetCreate(LoginRequiredMixin, ProjectContext, TemplateView):
                     project=project
                 )
 
-                messages.success(self.request, 'The subset has been created.')
+                add_another_url = reverse(
+                    'admin:subset_create',
+                    kwargs={
+                        'project_id': project_id
+                    }
+                )
+
+                messages.success(
+                    self.request,
+                    mark_safe('The subset has been created. <a href="%s">Add '
+                              'another subset.</a>' % add_another_url)
+                )
+
                 return redirect(
                     'admin:subset_data',
                     project_id=project_id,
