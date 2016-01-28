@@ -11,8 +11,8 @@
 
     /**
      * Constructor
-     * @param {String} panelId The HTML element id of the lookup panel.
-     * @param {String} url     The base url for AJAX request to update the field on server side.
+     * @param {String} panelId The HTML element id of the lookup panel
+     * @param {String} url The base url for AJAX request to update the field on server side
      */
     function LookupPanel(panelId, url) {
         this.panel = $(panelId);
@@ -21,11 +21,13 @@
         this.formField = this.panel.find('input[name="new-value"]');
         this.addButton = this.panel.find('.panel-footer button');
 
-        // register event handlers
+        // Register event handlers
         this.addButton.click(this.handleAddValue.bind(this));
-        this.lookuplist.find('button.edit-lookup').click(this.toggleEditForm.bind(this));
-        this.lookuplist.find('button.save-edit').click(this.handleEditValue.bind(this));
-        this.lookuplist.find('button.delete-lookup').click(this.handleRemoveValue.bind(this));
+        this.lookuplist.find('button.edit-value').click(this.toggleEditValueForm.bind(this));
+        this.lookuplist.find('button.save-value').click(this.handleSaveValue.bind(this));
+        this.lookuplist.find('button.delete-value').click(this.handleRemoveValue.bind(this));
+        this.lookuplist.find('button.edit-symbol').click(this.toggleEditSymbolForm.bind(this));
+        this.lookuplist.find('button.save-symbol').click(this.handleSaveSymbol.bind(this));
         this.formField.keyup(this.handleFormType.bind(this));
         this.lookuplist.find('input[name="value"]').keyup(this.handleEditType.bind(this));
     }
@@ -58,7 +60,7 @@
     /**
      * Displays an status message after a lookup has been added, updated or
      * removed.
-     * @param {String} msg The message to be displayed, in plain English.
+     * @param {String} msg The message to be displayed, in plain English
      * @param {String} type Either success or danger, indicates the message type (success or error)
      * @param {String} glyphicon an icon class to prepended to the message (See: http://getbootstrap.com/components/#glyphicons)
      */
@@ -66,13 +68,13 @@
         var target = this.panel.find('.panel-heading');
         var html = $('<div class="panel-body message bg-' + type + ' text-' + type + '"><span class="glyphicon glyphicon-' + glyphicon + '"></span> ' + msg + '</div>');
 
-        // remove exisiting messages
+        // Remove exisiting messages
         target.siblings('.message').remove();
 
-        // add the message
+        // Add the message
         target.after(html);
 
-        // automatically remove the message after 5 sec
+        // Automatically remove the message after 5 sec
         setTimeout(function() {
             html.remove();
         }, 5000);
@@ -80,7 +82,7 @@
 
     /**
      * Displays a success message.
-     * @param {String} msg The message to be displayed, in plain English.
+     * @param {String} msg The message to be displayed, in plain English
      */
     LookupPanel.prototype.displaySuccess = function displaySuccess(msg) {
         this.displayMessage(msg, 'success', 'ok');
@@ -88,7 +90,7 @@
 
     /**
      * Displays a error message.
-     * @param {String} msg The message to be displayed, in plain English.
+     * @param {String} msg The message to be displayed, in plain English
      */
     LookupPanel.prototype.displayError = function displayError(msg) {
         this.displayMessage(msg, 'danger', 'remove');
@@ -98,53 +100,57 @@
      * Toggles display of update form of a lookup value.
      * @param  {Event} event Click event fired by the link
      */
-    LookupPanel.prototype.toggleEditForm = function toggleEditForm(event) {
+    LookupPanel.prototype.toggleEditValueForm = function toggleEditValueForm(event) {
         var container = $(event.target).parents('.list-group-item');
-        container.find('.value-display').toggleClass('hidden');
-        container.find('.value-edit').toggleClass('hidden');
 
-        if (container.find('.value-edit').hasClass('hidden')) {
-            container.find('.cancel').off('click', toggleEditForm);
+        container.find('.value-display').toggleClass('hidden');
+
+        if (container.find('.value-display').hasClass('hidden')) {
+            container.find('.value-edit').removeClass('hidden');
+            container.find('.symbol-edit').addClass('hidden');
+
+            container.find('.cancel-value').click(toggleEditValueForm);
         } else {
-            container.find('.cancel').click(toggleEditForm);
+            container.find('.value-edit').addClass('hidden');
+            container.find('.symbol-edit').addClass('hidden');
+
+            container.find('.cancel-value').off('click', toggleEditValueForm);
         }
     }
 
     /**
-     * Handles the update of a lookup. Is called when the user clicks save next
-     * to the form field.
+     * Handles the update of a lookup value.
      * @param  {Event} event Click event fired by the link
      */
-    LookupPanel.prototype.handleEditValue = function handleEditValue(event) {
+    LookupPanel.prototype.handleSaveValue = function handleSaveValue(event) {
         var container = $(event.target).parents('.list-group-item');
         var lookupId = event.target.value;
-        var value = container.find('input').val();
+        var value = container.find('input[name="value"]').val();
 
         /**
          * Handles succesfull update of the lookup value.
          */
-        function handleEditValueSucces() {
+        function handleSaveValueSucces() {
             this.displaySuccess('The value has been updated.');
-            this.toggleEditForm(event);
-            container.find('span.value-label').text(value)
+            this.toggleEditValueForm(event);
+            container.find('span.value-label').text(value);
         }
 
         /**
          * Handles the response after the update of a lookup value failed.
          * @param  {Object} response JSON object of the response
          */
-        function handleEditValueError(response) {
+        function handleSaveValueError(response) {
             this.displayError('An error occurred while updating the lookup value. Error text was: ' + response.responseJSON.error);
         }
 
-        Control.Ajax.patch(this.url + '/' + lookupId, handleEditValueSucces.bind(this), handleEditValueError.bind(this), {
+        Control.Ajax.post(this.url + '/' + lookupId, handleSaveValueSucces.bind(this), handleSaveValueError.bind(this), {
             name: value
         });
     }
 
     /**
-     * Handles the removal of a lookup value from the lookup field. Is called
-     * when the user clicks on the remove link next to the value.
+     * Handles the removal of a lookup value from the lookup field.
      * @param  {Event} event Click event fired by the link
      */
     LookupPanel.prototype.handleRemoveValue = function handleRemoveValue(event) {
@@ -176,6 +182,65 @@
     };
 
     /**
+     * Handles the update of a lookup symbol.
+     * @param  {Event} event Click event fired by the link
+     */
+    LookupPanel.prototype.handleSaveSymbol = function handleSavesymbol(event) {
+        var container = $(event.target).parents('.list-group-item');
+        var lookupId = event.target.value;
+
+        /**
+         * Handles succesfull update of the lookup value.
+         */
+        function handleSaveValueSucces(response) {
+            this.displaySuccess('The symbol has been updated.');
+            this.toggleEditSymbolForm(event);
+
+            if (response.symbol) {
+                container.find('.btn-value-edit-symbol').text('edit symbol').removeClass('text-success').addClass('text-primary');
+            } else {
+                container.find('.btn-value-edit-symbol').text('add symbol').removeClass('text-primary').addClass('text-success');;
+            }
+        }
+
+        /**
+         * Handles the response after the update of a lookup value failed.
+         * @param  {Object} response JSON object of the response
+         */
+        function handleSaveValueError(response) {
+            this.displayError('An error occurred while updating the lookup value. Error text was: ' + response.responseJSON.error);
+        }
+
+        var data = new FormData();
+        data.append('symbol', container.find('input[name="symbol"]').prop('files')[0]);
+        data.append('clear-symbol', container.find('input[name="clear-symbol"]').val());
+
+        Control.Ajax.postFiles(this.url + '/' + lookupId, handleSaveValueSucces.bind(this), handleSaveValueError.bind(this), data);
+    }
+
+    /**
+     * Toggles display of update form of a lookup symbol.
+     * @param  {Event} event Click event fired by the link
+     */
+    LookupPanel.prototype.toggleEditSymbolForm = function toggleEditSymbolForm(event) {
+        var container = $(event.target).parents('.list-group-item');
+
+        container.find('.value-display').toggleClass('hidden');
+
+        if (container.find('.value-display').hasClass('hidden')) {
+            container.find('.symbol-edit').removeClass('hidden');
+            container.find('.value-edit').addClass('hidden');
+
+            container.find('.cancel-symbol').click(toggleEditSymbolForm);
+        } else {
+            container.find('.symbol-edit').addClass('hidden');
+            container.find('.value-edit').addClass('hidden');
+
+            container.find('.cancel-symbol').off('click', toggleEditSymbolForm);
+        }
+    }
+
+    /**
      * Handles the addition of a lookup value to the lookup field. Is called when
      * the user clicks the 'Add' button next the bottom text field of the panel.
      */
@@ -189,14 +254,23 @@
         function handleAddValueSuccess(response) {
             var lookupValues = response.lookupvalues;
 
+            response.locked = $('body').data('project-locked');
+
             this.formField.val(null);
             this.lookuplist.empty();
             this.lookuplist.append(Templates.lookupvalues(response));
 
-            // register event handlers
-            this.lookuplist.find('button.edit-lookup').click(this.toggleEditForm.bind(this));
-            this.lookuplist.find('button.save-edit').click(this.handleEditValue.bind(this));
-            this.lookuplist.find('button.delete-lookup').click(this.handleRemoveValue.bind(this));
+            // Initialise file upload for each field
+            $('input:file').each(function() {
+                Ui.FileInput.init($(this));
+            });
+
+            // Register event handlers
+            this.lookuplist.find('button.edit-value').click(this.toggleEditValueForm.bind(this));
+            this.lookuplist.find('button.save-value').click(this.handleSaveValue.bind(this));
+            this.lookuplist.find('button.delete-value').click(this.handleRemoveValue.bind(this));
+            this.lookuplist.find('button.edit-symbol').click(this.toggleEditSymbolForm.bind(this));
+            this.lookuplist.find('button.save-symbol').click(this.handleSaveSymbol.bind(this));
             this.lookuplist.find('input[name="value"]').keyup(this.handleEditType.bind(this));
             this.addButton.button('reset');
             this.displaySuccess('The value has been added.');
@@ -215,6 +289,7 @@
         Control.Ajax.post(this.url, handleAddValueSuccess.bind(this), handleAddValueError.bind(this), {
             name: this.formField.val()
         });
+
         event.preventDefault();
     };
 

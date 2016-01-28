@@ -16,7 +16,7 @@
  * - templates/users/usergroup_overview.html
  * ***********************************************/
 
-(function (global) {
+(function(global) {
     'use strict';
     var baseUrl = '/ajax/';
 
@@ -50,11 +50,24 @@
     }
 
     /**
-     * Sets the request header
+     * Sets the request header.
      * @param {Object} xhr XmlHttpRequest object
      */
     function setHeader(xhr) {
         xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+    }
+
+    /**
+     * Append a forward slash to the URL if not present. Needed for POST requests to Django as the
+     * forward to the corrent URL drops the POST data.
+     * @param {Object} xhr XmlHttpRequest object
+     */
+    function fixUrl(url) {
+        if (url.indexOf('?') === -1 && url[url.length - 1] !== '/') {
+            url = url + '/';
+        }
+
+        return url;
     }
 
     /**
@@ -66,12 +79,7 @@
      * @param  {Object}   data            Optional. Data to be send with the request body
      */
     function request(url, method, successCallback, errorCallback, data) {
-        // Append a forward slash to the URL if not present. Needed for POST
-        // requests to Django as the forward to the corrent URL drops the POST
-        // data.
-        if (url.indexOf('?') === -1 && url[url.length -1] !== '/') {
-            url = url + '/';
-        }
+        url = fixUrl(url);
 
         $.ajax({
             url: baseUrl + url,
@@ -104,8 +112,8 @@
      * @param  {Function} errorCallback   Function to be called after request failed
      * @param  {Object}   data            Data to be send with the request body
      */
-    Ajax.prototype.post = function put(url, successCallback, errorCallback, data) {
-        request(url, 'post', successCallback, errorCallback, data);
+    Ajax.prototype.post = function post(url, successCallback, errorCallback, data) {
+        request(url, 'POST', successCallback, errorCallback, data);
     };
 
     /**
@@ -138,6 +146,32 @@
      */
     Ajax.prototype.del = function del(url, successCallback, errorCallback) {
         request(url, 'DELETE', successCallback, errorCallback);
+    };
+
+    /**
+     * Request using HTTP POST (specificly for files)
+     * @param  {String}   url             URL the called.
+     * @param  {Function} successCallback Function to be called after successful request
+     * @param  {Function} errorCallback   Function to be called after request failed
+     * @param  {Object}   data            Data to be send with the request body
+     */
+    Ajax.prototype.postFiles = function postFiles(url, successCallback, errorCallback, data) {
+        url = fixUrl(url);
+
+        $.ajax({
+            url: baseUrl + url,
+            method: 'POST',
+            xhrFields: {
+                withCredentials: true
+            },
+            success: successCallback,
+            error: errorCallback,
+            data: data,
+            beforeSend: setHeader,
+            contentType: false,
+            processData: false,
+            cache: false
+        });
     };
 
     // Initialize

@@ -288,17 +288,69 @@ this["Templates"]["fieldselect"] = Handlebars.template({"1":function(container,d
 },"useData":true});
 
 this["Templates"]["lookupvalues"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
-    var helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
+    var stack1, helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 
   return "    <li class=\"list-group-item\">\n        <div class=\"value-display\">\n            <span class=\"value-label\">"
     + alias4(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data}) : helper)))
-    + "</span>\n            <span class=\"btn-group\">\n                <button type=\"button\" class=\"edit-lookup btn btn-default btn-xs\"><span class=\"text-primary\">edit</span></button>\n                <button type=\"button\" class=\"delete-lookup btn btn-default btn-xs\" value=\""
+    + "</span>\n\n            <span class=\"btn-group\">\n"
+    + ((stack1 = helpers.unless.call(alias1,(depth0 != null ? depth0.locked : depth0),{"name":"unless","hash":{},"fn":container.program(2, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + "\n                <button type=\"button\" class=\"btn btn-default btn-xs edit-symbol\">\n"
+    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.locked : depth0),{"name":"if","hash":{},"fn":container.program(4, data, 0),"inverse":container.program(6, data, 0),"data":data})) != null ? stack1 : "")
+    + "                </button>\n\n"
+    + ((stack1 = helpers.unless.call(alias1,(depth0 != null ? depth0.locked : depth0),{"name":"unless","hash":{},"fn":container.program(11, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + "            </span>\n        </div>\n\n"
+    + ((stack1 = helpers.unless.call(alias1,(depth0 != null ? depth0.locked : depth0),{"name":"unless","hash":{},"fn":container.program(13, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + "\n        <div class=\"symbol-edit hidden\">\n            <input type=\"hidden\" name=\"clear-symbol\" id=\""
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\"><span class=\"text-danger\">delete</span></button>\n            </span>\n        </div>\n        <div class=\"input-group value-edit hidden\">\n            <input type=\"text\" name=\"value\" class=\"form-control\" value=\""
+    + "-clear\" value=\"false\">\n\n            <div class=\"form-group\">\n                <label class=\"control-label\">Symbol</label>\n                <input type=\"file\" name=\"symbol\" data-target=\""
+    + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
+    + "\" "
+    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.symbol : depth0),{"name":"if","hash":{},"fn":container.program(15, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + " "
+    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.locked : depth0),{"name":"if","hash":{},"fn":container.program(17, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + " />\n            </div>\n\n"
+    + ((stack1 = helpers.unless.call(alias1,(depth0 != null ? depth0.locked : depth0),{"name":"unless","hash":{},"fn":container.program(19, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + "        </div>\n    </li>\n";
+},"2":function(container,depth0,helpers,partials,data) {
+    return "                    <button type=\"button\" class=\"btn btn-default btn-xs edit-value\">\n                        <span class=\"text-primary\">edit value</span>\n                    </button>\n";
+},"4":function(container,depth0,helpers,partials,data) {
+    return "                        <span class=\"text-primary btn-value-edit-symbol\">show symbol</span>\n";
+},"6":function(container,depth0,helpers,partials,data) {
+    var stack1;
+
+  return ((stack1 = helpers["if"].call(depth0 != null ? depth0 : {},(depth0 != null ? depth0.symbol : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.program(9, data, 0),"data":data})) != null ? stack1 : "");
+},"7":function(container,depth0,helpers,partials,data) {
+    return "                        <span class=\"text-primary btn-value-edit-symbol\">edit symbol</span>\n";
+},"9":function(container,depth0,helpers,partials,data) {
+    return "                        <span class=\"text-success btn-value-edit-symbol\">add symbol</span>\n                    ";
+},"11":function(container,depth0,helpers,partials,data) {
+    var helper;
+
+  return "                    <button type=\"button\" class=\"btn btn-default btn-xs delete-value\" value=\""
+    + container.escapeExpression(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},{"name":"id","hash":{},"data":data}) : helper)))
+    + "\">\n                        <span class=\"text-danger\">delete</span>\n                    </button>\n";
+},"13":function(container,depth0,helpers,partials,data) {
+    var helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
+
+  return "            <div class=\"value-edit hidden\">\n                <div class=\"form-group\">\n                    <label class=\"control-label\">Value</label>\n                    <input type=\"text\" name=\"value\" class=\"form-control\" value=\""
     + alias4(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data}) : helper)))
-    + "\">\n            <span class=\"input-group-btn\">\n                <button class=\"btn btn-primary save-edit\" type=\"button\" value=\""
+    + "\" />\n                </div>\n\n                 <div class=\"form-group\">\n                    <button type=\"button\" class=\"btn btn-primary save-value\" value=\""
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" data-loading-text=\"Saving...\">Save</button>\n                <button class=\"btn btn-default cancel\" type=\"button\">Cancel</button>\n            </span>\n        </div>\n    </li>\n";
+    + "\" data-loading-text=\"Saving...\">Save</button>\n                    <button type=\"button\" class=\"btn btn-default cancel-value\">Cancel</button>\n                </div>\n            </div>\n";
+},"15":function(container,depth0,helpers,partials,data) {
+    var helper;
+
+  return "data-preview=\""
+    + container.escapeExpression(((helper = (helper = helpers.symbol || (depth0 != null ? depth0.symbol : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},{"name":"symbol","hash":{},"data":data}) : helper)))
+    + "\"";
+},"17":function(container,depth0,helpers,partials,data) {
+    return "disabled";
+},"19":function(container,depth0,helpers,partials,data) {
+    var helper;
+
+  return "                <div class=\"form-group\">\n                    <button type=\"button\" class=\"btn btn-primary save-symbol\" value=\""
+    + container.escapeExpression(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},{"name":"id","hash":{},"data":data}) : helper)))
+    + "\" data-loading-text=\"Saving...\">Save</button>\n                    <button type=\"button\" class=\"btn btn-default cancel-symbol\">Cancel</button>\n                </div>\n";
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1;
 

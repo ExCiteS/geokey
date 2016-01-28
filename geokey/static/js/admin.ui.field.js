@@ -3,7 +3,7 @@
  * for setting minimum and maximum values of numeric fields and initialising
  * lookup field edits.
  * Is automatically loaded when included in a page.
-
+ 
  * Used in:
  * - templates/categories/field_settings.html
  * ***********************************************/
@@ -17,8 +17,14 @@ $(function() {
         url = 'projects/' + projectId + '/categories/' + categoryId + '/fields/' + fieldId;
 
     // Initialize the lookup panel functionality if the field is a lookup
-    // (see admin.ui.field.lookup.js)
-    var lookupPanel = ($('#lookupValuesPanel').length !== 0 ? new Ui.LookupPanel('#lookupValuesPanel', url) : undefined);
+    if ($('#lookupValuesPanel').length !== 0) {
+        new Ui.LookupPanel('#lookupValuesPanel', url);
+
+        // Initialise file upload for each field
+        $('input:file').each(function() {
+            Ui.FileInput.init($(this));
+        });
+    }
 
     // Set the min and maximum values for numeric fields, so they can be
     // validated

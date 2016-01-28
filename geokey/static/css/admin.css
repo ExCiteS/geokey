@@ -523,7 +523,6 @@ h6.item-info + h3 {
 
 .message {
 	padding: 15px;
-	margin-bottom: 15px;
 }
 
 #map {
@@ -548,4 +547,8 @@ p.meta {
 
 p.meta span.lower-case {
 	text-transform: none;
+}
+
+.value-symbol {
+    padding-top: 15px;
 }

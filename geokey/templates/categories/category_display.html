@@ -4,7 +4,6 @@
 data-project-id="{{ project.id }}"
 data-project-locked="{{ project.islocked }}"
 data-category-id="{{ category.id }}"
-{% if category.symbol %}data-symbol="{{ category.symbol.url }}"{% endif %}
 {% endblock %}
 
 {% block title %} | Project: {{ project.name }} - Category: {{ category.name }} - Display{% endblock %}
@@ -35,7 +34,7 @@ data-category-id="{{ category.id }}"
             <form role="form" method="POST" action="{% url 'admin:category_display' category.project.id category.id %}" enctype="multipart/form-data" novalidate>
                 {% csrf_token %}
 
-                <input type="hidden" name="clear-symbol" id="clear-symbol" value="false">
+                <input type="hidden" name="clear-symbol" id="symbol-clear" value="false">
 
                 <div class="form-group">
                     <label for="colour" class="control-label">Colour</label>
@@ -47,7 +46,7 @@ data-category-id="{{ category.id }}"
 
                 <div class="form-group">
                     <label for="symbol" class="control-label">Symbol</label>
-                    <input type="file" id="symbol" name="symbol" />
+                    <input type="file" id="symbol" name="symbol" data-target="symbol" {% if category.symbol %}data-preview="{{ category.symbol.url }}"{% endif %} />
                 </div>
 
                 <div class="form-group">
@@ -67,6 +66,7 @@ data-category-id="{{ category.id }}"
 <link rel="stylesheet" href="/static/lib/bootstrap-fileinput/css/bootstrap-fileinput.min.css">
 <script src="/static/lib/bootstrap-fileinput/js/bootstrap-fileinput.min.js"></script>
 
+<script src="/static/js/admin.ui.fileinput.js"></script>
 <script src="/static/js/admin.ui.forms.validate.js"></script>
 <script src="/static/js/admin.ui.category.display.js"></script>
 {% endblock %}

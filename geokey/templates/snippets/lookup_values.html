@@ -13,23 +13,61 @@
                 <li class="list-group-item">
                     <div class="value-display">
                         <span class="value-label">{{ lookupvalue.name }}</span>
-                        {% if not project.islocked %}
-                            <span class="btn-group">
-                                <button type="button" class="edit-lookup btn btn-default btn-xs"><span class="text-primary">edit</span></button>
-                                <button type="button" class="delete-lookup btn btn-default btn-xs" value="{{ lookupvalue.id }}"><span class="text-danger">delete</span></button>
-                            </span>
-                        {% endif %}
+
+                        <span class="btn-group">
+                            {% if not project.islocked %}
+                                <button type="button" class="btn btn-default btn-xs edit-value">
+                                    <span class="text-primary">edit value</span>
+                                </button>
+                            {% endif %}
+
+                            <button type="button" class="btn btn-default btn-xs edit-symbol">
+                                {% if project.islocked %}
+                                    <span class="text-primary btn-value-edit-symbol">show symbol</span>
+                                {% elif lookupvalue.symbol %}
+                                    <span class="text-primary btn-value-edit-symbol">edit symbol</span>
+                                {% else %}
+                                    <span class="text-success btn-value-edit-symbol">add symbol</span>
+                                {% endif %}
+                            </button>
+
+                            {% if not project.islocked %}
+                                <button type="button" class="btn btn-default btn-xs delete-value" value="{{ lookupvalue.id }}">
+                                    <span class="text-danger">delete</span>
+                                </button>
+                            {% endif %}
+                        </span>
                     </div>
 
                     {% if not project.islocked %}
-                        <div class="input-group value-edit hidden">
-                            <input type="text" name="value" class="form-control" value="{{ lookupvalue.name }}">
-                            <span class="input-group-btn">
-                                <button class="btn btn-primary save-edit" type="button" value="{{ lookupvalue.id }}" data-loading-text="Saving...">Save</button>
-                                <button class="btn btn-default cancel" type="button">Cancel</button>
-                            </span>
+                        <div class="value-edit hidden">
+                            <div class="form-group">
+                                <label class="control-label">Value</label>
+                                <input type="text" name="value" class="form-control" value="{{ lookupvalue.name }}" />
+                            </div>
+
+                             <div class="form-group">
+                                <button type="button" class="btn btn-primary save-value" value="{{ lookupvalue.id }}" data-loading-text="Saving...">Save</button>
+                                <button type="button" class="btn btn-default cancel-value">Cancel</button>
+                            </div>
                         </div>
                     {% endif %}
+
+                    <div class="symbol-edit hidden">
+                        <input type="hidden" name="clear-symbol" id="{{ lookupvalue.id }}-clear" value="false">
+
+                        <div class="form-group">
+                            <label class="control-label">Symbol</label>
+                            <input type="file" name="symbol" data-target="{{ lookupvalue.id }}" {% if lookupvalue.symbol %}data-preview="{{ lookupvalue.symbol.url }}"{% endif %} {% if project.islocked %}disabled{% endif %} />
+                        </div>
+
+                        {% if not project.islocked %}
+                            <div class="form-group">
+                                <button type="button" class="btn btn-primary save-symbol" value="{{ lookupvalue.id }}" data-loading-text="Saving...">Save</button>
+                                <button type="button" class="btn btn-default cancel-symbol">Cancel</button>
+                            </div>
+                        {% endif %}
+                    </div>
                 </li>
             {% empty %}
                 <li class="list-group-item">No values have been added yet.</li>

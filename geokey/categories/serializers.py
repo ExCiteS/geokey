@@ -68,7 +68,7 @@ class LookupValueSerializer(ModelSerializer):
     """
     class Meta:
         model = LookupValue
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'symbol')
 
 
 class MultipleLookupValueSerializer(ModelSerializer):
@@ -78,7 +78,7 @@ class MultipleLookupValueSerializer(ModelSerializer):
     """
     class Meta:
         model = MultipleLookupValue
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'symbol')
 
 
 class BaseLookupSerializer(object):

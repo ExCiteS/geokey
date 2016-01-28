@@ -219,11 +219,8 @@ class CategoryDisplayTest(TestCase):
                 'symbol': get_image(file_name='test_category_symbol_1.png')
             }
         )
-        self.file = self.category.symbol.path
 
     def tearDown(self):
-        self.category.symbol.storage.delete(self.file)
-
         for category in Category.objects.all():
             if category.symbol is not None:
                 category.symbol.delete()
@@ -1525,7 +1522,7 @@ class UpdateLookupValues(TestCase):
                 'value_id': lookup_value.id
             }
         )
-        request = self.factory.patch(url, {'name': 'New Name'})
+        request = self.factory.post(url, {'name': 'New Name'})
         force_authenticate(request, user=self.admin)
         view = FieldLookupsUpdate.as_view()
 
@@ -1543,6 +1540,88 @@ class UpdateLookupValues(TestCase):
             'New Name'
         )
 
+    def test_update_lookupvalue_when_adding_a_symbol(self):
+        lookup_field = LookupFieldFactory(**{
+            'category': self.active_type
+        })
+        lookup_value = LookupValueFactory(**{
+            'field': lookup_field,
+            'symbol': None
+        })
+
+        url = reverse(
+            'ajax:category_lookupvalues_detail',
+            kwargs={
+                'project_id': self.project.id,
+                'category_id': self.active_type.id,
+                'field_id': lookup_field.id,
+                'value_id': lookup_value.id
+            }
+        )
+
+        data = {
+            'symbol': get_image(
+                file_name='test_lookupvalue_symbol.png'
+            ),
+            'clear-symbol': 'false'
+        }
+
+        request = self.factory.post(url, data)
+        force_authenticate(request, user=self.admin)
+        view = FieldLookupsUpdate.as_view()
+
+        response = view(
+            request,
+            project_id=self.project.id,
+            category_id=self.active_type.id,
+            field_id=lookup_field.id,
+            value_id=lookup_value.id
+        ).render()
+
+        self.assertEqual(response.status_code, 200)
+        ref = LookupValue.objects.get(pk=lookup_value.id)
+        self.assertNotEqual(ref.symbol, lookup_value.symbol)
+        ref.symbol.delete()
+
+    def test_update_lookupvalue_when_removing_a_symbol(self):
+        lookup_field = LookupFieldFactory(**{
+            'category': self.active_type
+        })
+        lookup_value = LookupValueFactory(**{
+            'field': lookup_field
+        })
+
+        url = reverse(
+            'ajax:category_lookupvalues_detail',
+            kwargs={
+                'project_id': self.project.id,
+                'category_id': self.active_type.id,
+                'field_id': lookup_field.id,
+                'value_id': lookup_value.id
+            }
+        )
+
+        data = {
+            'symbol': None,
+            'clear-symbol': 'true'
+        }
+
+        request = self.factory.post(url, data)
+        force_authenticate(request, user=self.admin)
+        view = FieldLookupsUpdate.as_view()
+
+        response = view(
+            request,
+            project_id=self.project.id,
+            category_id=self.active_type.id,
+            field_id=lookup_field.id,
+            value_id=lookup_value.id
+        ).render()
+
+        self.assertEqual(response.status_code, 200)
+        ref = LookupValue.objects.get(pk=lookup_value.id)
+        self.assertFalse(bool(ref.symbol))
+
     def test_update_lookupvalue_from_not_existing_field(self):
         lookup_value = LookupValueFactory()
 
@@ -1555,7 +1634,7 @@ class UpdateLookupValues(TestCase):
                 'value_id': lookup_value.id
             }
         )
-        request = self.factory.patch(url, {'name': 'New Name'})
+        request = self.factory.post(url, {'name': 'New Name'})
         force_authenticate(request, user=self.admin)
         view = FieldLookupsUpdate.as_view()
 
@@ -1583,7 +1662,7 @@ class UpdateLookupValues(TestCase):
                 'value_id': 65645445444
             }
         )
-        request = self.factory.patch(url, {'name': 'New Name'})
+        request = self.factory.post(url, {'name': 'New Name'})
         force_authenticate(request, user=self.admin)
         view = FieldLookupsUpdate.as_view()
 
@@ -1611,7 +1690,7 @@ class UpdateLookupValues(TestCase):
                 'value_id': 65645445444
             }
         )
-        request = self.factory.patch(url, {'name': 'New Name'})
+        request = self.factory.post(url, {'name': 'New Name'})
         force_authenticate(request, user=self.admin)
         view = FieldLookupsUpdate.as_view()
 
@@ -1645,7 +1724,7 @@ class UpdateLookupValues(TestCase):
                 'value_id': lookup_value.id
             }
         )
-        request = self.factory.patch(url, {'name': 'New Name'})
+        request = self.factory.post(url, {'name': 'New Name'})
         force_authenticate(request, user=self.admin)
         view = FieldLookupsUpdate.as_view()
 

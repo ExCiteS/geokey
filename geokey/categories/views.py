@@ -181,8 +181,8 @@ class CategorySettings(LoginRequiredMixin, CategoryContext, TemplateView):
         Returns the context to render the view. Overwrites the method to add
         the category.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         project_id : int
             Identifier of the project in the database
         category_id : int
@@ -289,12 +289,15 @@ class CategoryDisplay(LoginRequiredMixin, CategoryContext, TemplateView):
 
         if category is not None:
             data = request.POST
+
             symbol = request.FILES.get('symbol')
             category.colour = data.get('colour')
 
             if symbol is not None:
+                category.symbol.delete()
                 category.symbol = symbol
             elif data.get('clear-symbol') == 'true':
+                category.symbol.delete()
                 category.symbol = None
 
             category.save()
@@ -317,8 +320,8 @@ class CategoryDelete(LoginRequiredMixin, CategoryContext, TemplateView):
         """
         Deletes the category.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         request : django.http.HttpRequest
             Object representing the request
         project_id : int
@@ -489,7 +492,6 @@ class FieldSettings(LoginRequiredMixin, FieldContext, TemplateView):
     """
     Displays the field settings page
     """
-
     template_name = 'categories/field_settings.html'
 
     def get_context_data(self, project_id, category_id, field_id, **kwargs):
@@ -497,8 +499,8 @@ class FieldSettings(LoginRequiredMixin, FieldContext, TemplateView):
         Returns the context to render the view. Overwrites the method to add
         the field and available field types.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         project_id : int
             Identifier of the project in the database
         category_id : int
@@ -531,8 +533,8 @@ class FieldSettings(LoginRequiredMixin, FieldContext, TemplateView):
         """
         Handles the POST request and updates the field.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         project_id : int
             Identifier of the project in the database
         category_id : int
@@ -653,8 +655,8 @@ class CategoryUpdate(APIView):
         """
         Handles the GET request.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         request : rest_framework.request.Request
             Object reprensting the request
         project_id : int
@@ -679,8 +681,8 @@ class CategoryUpdate(APIView):
         """
         Handles the POST request and updates the category.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         request : rest_framework.request.Request
             Object reprensting the request
         project_id : int
@@ -720,8 +722,8 @@ class FieldUpdate(APIView):
         """
         Handles the POST request and updates the category
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         request : rest_framework.request.Request
             Object reprensting the request
         project_id : int
@@ -763,8 +765,8 @@ class FieldLookups(APIView):
         """
         Handles the POST request and adds a lookupvalue to the field.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         request : rest_framework.request.Request
             Object reprensting the request
         project_id : int
@@ -824,12 +826,12 @@ class FieldLookupsUpdate(APIView):
             return None
 
     @handle_exceptions_for_ajax
-    def patch(self, request, project_id, category_id, field_id, value_id):
+    def post(self, request, project_id, category_id, field_id, value_id):
         """
-        Handles the PATCH request and updates the lookupvalue.
+        Handles the POST request and updates the lookupvalue symbol.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         request : rest_framework.request.Request
             Object reprensting the request
         project_id : int
@@ -856,11 +858,29 @@ class FieldLookupsUpdate(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             else:
-                val = field.lookupvalues.get(pk=value_id)
-                val.name = strip_tags(request.data.get('name'))
-                val.save()
+                value = field.lookupvalues.get(pk=value_id)
 
-                return Response({'id': val.id, 'name': val.name})
+                name = request.data.get('name')
+
+                if name:
+                    value.name = strip_tags(name)
+
+                symbol = request.FILES.get('symbol')
+
+                if symbol:
+                    value.symbol.delete()
+                    value.symbol = symbol
+                elif request.POST.get('clear-symbol') == 'true':
+                    value.symbol.delete()
+                    value.symbol = None
+
+                value.save()
+
+                return Response({
+                    'id': value.id,
+                    'name': value.name,
+                    'symbol': value.symbol.url if value.symbol else None
+                })
         else:
             return Response(
                 {'error': 'This field is not a lookup field.'},
@@ -872,8 +892,8 @@ class FieldLookupsUpdate(APIView):
         """
         Handles the DELETE request and removes the lookupvalue the category.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         request : rest_framework.request.Request
             Object reprensting the request
         project_id : int
@@ -920,8 +940,8 @@ class FieldsReorderView(APIView):
         """
         Handles the DELETE request and removes the lookupvalue the category.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         request : rest_framework.request.Request
             Object reprensting the request
         project_id : int
@@ -967,8 +987,8 @@ class SingleCategory(APIView):
         Handles the GET request and returns the complete category including
         all fields.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         request : rest_framework.request.Request
             Object reprensting the request
         project_id : int
