@@ -85,6 +85,10 @@ body.login div.page-header {
 	background-position: right 10px top 10px;
 }
 
+.panel-default .message {
+    margin-bottom: 0;
+}
+
 .success {
 	background: url(/static/img/success.png) no-repeat;
 	background-position: right 10px top 50%;
@@ -523,6 +527,7 @@ h6.item-info + h3 {
 
 .message {
 	padding: 15px;
+    margin-bottom: 15px;
 }
 
 #map {
