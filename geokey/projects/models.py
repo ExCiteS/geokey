@@ -195,9 +195,9 @@ class Project(models.Model):
             Indicating if user can contribute
         """
         return self.status == STATUS.active and (
-            (self.everyone_contributes != 'false' and (
+            (self.everyone_contributes != EVERYONE_CONTRIB.false and (
                 not user.is_anonymous() or
-                not self.everyone_contributes == 'auth')
+                not self.everyone_contributes == EVERYONE_CONTRIB.auth)
              ) or self.is_admin(user) or (
                 not user.is_anonymous() and (
                     self.usergroups.filter(
