@@ -70,47 +70,41 @@ Setup database
 
 4. Create the user (replace *django* with your user):
 
-.. code-block:: sql
+.. code-block:: console
 
     postgres=# CREATE USER django WITH PASSWORD 'django123';
 
 5. Make created user a superuser on your database (this is required for tests only and shouldn't be done in production):
 
-.. code-block:: sql
+.. code-block:: console
 
     postgres=# ALTER ROLE django WITH superuser;
 
 6. Create the database (replace *django* with your user and *geokey* with a desired name for the database):
 
-.. code-block:: sql
+.. code-block:: console
 
     postgres=# CREATE DATABASE geokey OWNER django;
 
 7. Log out and connect to the database:
 
-.. code-block:: sql
-
-    postgres=# \q
-
 .. code-block:: console
 
+    postgres=# \q
     psql -d geokey
 
 8. Install the required extensions:
 
-.. code-block:: sql
+.. code-block:: console
 
     geokey=# CREATE EXTENSION postgis;
     geokey=# CREATE EXTENSION hstore;
 
 9. Logout of the database and a user:
 
-.. code-block:: sql
-
-    geokey=# \q
-
 .. code-block:: console
 
+    geokey=# \q
     logout
 
 
