@@ -1,7 +1,3 @@
-======
-GeoKey
-======
-
 .. image:: https://img.shields.io/pypi/v/geokey.svg
     :alt: PyPI Package
     :target: https://pypi.python.org/pypi/geokey
@@ -18,6 +14,10 @@ GeoKey
     :alt: Requirements Status
     :target: https://requires.io/github/ExCiteS/geokey/requirements/?branch=master
 
+
+======
+GeoKey
+======
 
 GeoKey is a platform for participatory mapping, that is developed by `Extreme Citizen Science <http://ucl.ac.uk/excites>`_ research group at University College London.
 
