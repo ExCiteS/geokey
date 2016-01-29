@@ -204,6 +204,8 @@ Run tests
 
     python manage.py test
 
+Running tests will remove all uploaded images of contributions from the assets directory. If you require to keep them, please use custom test settings with a *--settings* flag.
+
 
 We use open-source technologies
 ===============================
