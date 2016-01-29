@@ -1,3 +1,7 @@
+======
+GeoKey
+======
+
 .. image:: https://img.shields.io/pypi/v/geokey.svg
     :alt: PyPI Package
     :target: https://pypi.python.org/pypi/geokey
@@ -15,22 +19,19 @@
     :target: https://requires.io/github/ExCiteS/geokey/requirements/?branch=master
 
 
-GeoKey
-======
-
-GeoKey is a platform for participatory mapping, that is currently developed by `Extreme Citizen Science <http://ucl.ac.uk/excites>`_ research group at University College London.
+GeoKey is a platform for participatory mapping, that is developed by `Extreme Citizen Science <http://ucl.ac.uk/excites>`_ research group at University College London.
 
 
 Install for development
------------------------
+=======================
 
-1. Update your system
+1. Update your system:
 
 .. code-block:: console
 
     sudo apt-get update && sudo apt-get upgrade
 
-2. Install Postgres and PostGIS (we follow the `official guides <http://trac.osgeo.org/postgis/wiki/UsersWikiPostGIS21UbuntuPGSQL93Apt>`_)
+2. Install Postgres and PostGIS (we follow the `official guides <http://trac.osgeo.org/postgis/wiki/UsersWikiPostGIS21UbuntuPGSQL93Apt>`_):
 
 .. code-block:: console
 
@@ -39,85 +40,90 @@ Install for development
     sudo apt-get update
     sudo apt-get install postgresql-9.4-postgis-2.1 postgresql-contrib postgresql-server-dev-9.4
 
-
-3. Setup all other dependencies
+3. Setup all other dependencies:
 
 .. code-block:: console
 
     sudo apt-get install python-pip python-virtualenv python-dev libjpeg-dev binutils libproj-dev gdal-bin python-gdal
 
 
-Setup the database
-------------------
+Setup database
+==============
 
-1. For simplicity, switch to user `postgres`
+1. For simplicity, switch to user *postgres*:
 
 .. code-block:: console
 
     sudo su - postgres
 
-2. Install postgis in template1 (only required for running tests)
+2. Install postgis in template1 (only required for running tests):
 
 .. code-block:: console
 
     psql -d template1 -c 'create extension hstore;'
 
-3. Log in to the database
+3. Log in to the database:
 
 .. code-block:: console
 
     psql
 
-4. Create the user
+4. Create the user (replace *django* with your user):
 
-.. code-block:: console
+.. code-block:: sql
 
     postgres=# CREATE USER django WITH PASSWORD 'django123';
 
-5. Make created user a superuser on your database (this is required for tests only and shouldn't be done in production)
+5. Make created user a superuser on your database (this is required for tests only and shouldn't be done in production):
 
-.. code-block:: console
+.. code-block:: sql
 
     postgres=# ALTER ROLE django WITH superuser;
 
-6. Create the database
+6. Create the database (replace *django* with your user and *geokey* with a desired name for the database):
 
-.. code-block:: console
+.. code-block:: sql
 
     postgres=# CREATE DATABASE geokey OWNER django;
 
-7. Log out and connect to database
+7. Log out and connect to the database:
 
-.. code-block:: console
+.. code-block:: sql
 
     postgres=# \q
-    $ psql -d geokey
-
-8. Install the extensions on database
 
 .. code-block:: console
+
+    psql -d geokey
+
+8. Install the required extensions:
+
+.. code-block:: sql
 
     geokey=# CREATE EXTENSION postgis;
     geokey=# CREATE EXTENSION hstore;
 
-9. Logout of database and user
+9. Logout of the database and a user:
+
+.. code-block:: sql
+
+    geokey=# \q
 
 .. code-block:: console
 
-    geokey=# \q
-    $ logout
+    logout
 
 
-Setting up GeoKey
------------------
+Setup GeoKey
+============
 
-1. Clone the repository
+1. Clone the repository:
 
 .. code-block:: console
 
     git clone https://github.com/ExCiteS/geokey.git
 
-2. Install the package and development requirements
+2. Install the package and development requirements:
 
 .. code-block:: console
 
@@ -128,17 +134,17 @@ Setting up GeoKey
 
 You may need to add *sudo* before the pip commands, unless you are logged in as root or working within a virtual environment.
 
-3. Copy the directory `local_settings.example` to `local_settings`
+3. Copy the directory *local_settings.example* to *local_settings*
 
 .. code-block:: console
 
   cp -r local_settings.example local_settings
 
-4. Inside the `local_settings` open `settings.py` in a text editor and...
+4. Inside the *local_settings* open *settings.py* in a text editor and...
 
-Add your `database settings <https://docs.djangoproject.com/en/1.8/ref/settings/#databases>`_
+Add your `database settings <https://docs.djangoproject.com/en/1.8/ref/settings/#databases>`_:
 
-.. code-block:: console
+.. code-block:: python
 
     DATABASES = {
         'default': {
@@ -146,37 +152,37 @@ Add your `database settings <https://docs.djangoproject.com/en/1.8/ref/settings/
             'NAME': 'geokey',
             'USER': 'django',
             'PASSWORD': 'xxxxxxxxx',
-            'HOST': 'some_host', # usually 'localhost'
-            'PORT': '',
+            'HOST': 'host',  # usually 'localhost'
+            'PORT': ''
         }
     }
 
-Set the `secret key <https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-SECRET_KEY>`_
+Set the `secret key <https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-SECRET_KEY>`_:
 
-.. code-block:: console
+.. code-block:: python
 
     SECRET_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
 
-Set the `STATIC_ROOT directory <https://docs.djangoproject.com/en/1.8/howto/static-files/#deployment>`_
+Set the `STATIC_ROOT directory <https://docs.djangoproject.com/en/1.8/howto/static-files/#deployment>`_:
 
-.. code-block:: console
+.. code-block:: python
 
   STATIC_ROOT = '/some/path/'
 
-5. Migrate the database
+5. Migrate the database:
 
 .. code-block:: console
 
     python manage.py migrate
 
-6. Add yourself as superuser (you can use the same email and password to log into the system later)
+6. Add yourself as a superuser (you can use the same email and password to log into the system later):
 
 .. code-block:: console
 
     python manage.py createsuperuser
 
-7. Run the `collectstatic` management command
+7. Run the *collectstatic* management command:
 
 .. code-block:: console
 
@@ -200,22 +206,22 @@ Run tests
 
 
 We use open-source technologies
--------------------------------
+===============================
 
 GeoKey was built using some amazing open-source technology. We would like to thank all contributors to these projects:
 
 - `Django <https://www.djangoproject.com/>`_
-- `django-hstore <https://github.com/djangonauts/django-hstore>`_
 - `django-rest-framework <http://www.django-rest-framework.org/>`_
 - `django-rest-framework-gis <https://github.com/djangonauts/django-rest-framework-gis>`_
+- `django-hstore <https://github.com/djangonauts/django-hstore>`_
+- `django-braces <https://github.com/brack3t/django-braces>`_
+- `django-pgjson <https://github.com/djangonauts/django-pgjson>`_
 - `django-allauth <https://github.com/pennersr/django-allauth>`_
 - `django-oauth-toolkit <https://github.com/evonove/django-oauth-toolkit>`_
 - `django-model-utils <https://github.com/carljm/django-model-utils>`_
 - `django-simple-history <https://github.com/treyhunner/django-simple-history>`_
 - `django-aggregate-if <https://github.com/henriquebastos/django-aggregate-if>`_
 - `django-youtube <https://github.com/laplacesdemon/django-youtube>`_
-- `django-braces <https://github.com/brack3t/django-braces>`_
-- `django-pgjson <https://github.com/djangonauts/django-pgjson>`_
 - `psycopg2 <http://initd.org/psycopg/>`_
 - `iso8601 <https://bitbucket.org/micktwomey/pyiso8601>`_
 - `pillow <http://python-pillow.github.io/>`_
@@ -229,7 +235,7 @@ GeoKey was built using some amazing open-source technology. We would like to tha
 - `Handlebars <http://handlebarsjs.com>`_
 - `Modernizr <https://modernizr.com>`_
 - `Leaflet <http://leafletjs.com/>`_
-- `Leaflet Draw <https://github.com/Leaflet/Leaflet.draw>`_
+- `Leaflet.Draw <https://github.com/Leaflet/Leaflet.draw>`_
 - `jQuery <http://jquery.com/>`_
 - `Bootstrap <http://getbootstrap.com/>`_
 - `bootstrap-colorpicker <https://mjolnic.com/bootstrap-colorpicker/>`_
