@@ -23,8 +23,6 @@ $(function(global) {
         for (var key in additionalSettings) {
             settings[key] = additionalSettings[key];
         }
-        console.log(additionalSettings);
-        console.log(settings);
 
         if (field.attr('data-preview')) {
             settings.initialPreview = '<img src="' + field.attr('data-preview') + '" class="file-preview-image">';
