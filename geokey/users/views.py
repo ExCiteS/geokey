@@ -573,14 +573,19 @@ class QueryUsers(APIView):
             Contains the list of users
         """
 
-        q = request.GET.get('query').lower()
-        users = User.objects.filter(
-            display_name__icontains=q).exclude(pk=1)[:10]
+        q = request.GET.get('query')
 
-        serializer = UserSerializer(
-            users, many=True, fields=('id', 'display_name')
-        )
-        return Response(serializer.data)
+        if q is None:
+            return Response([])
+        else:
+            users = User.objects.filter(
+                display_name__icontains=q.lower()
+            ).exclude(pk=1)[:10]
+
+            serializer = UserSerializer(
+                users, many=True, fields=('id', 'display_name')
+            )
+            return Response(serializer.data)
 
 
 class UserGroup(APIView):

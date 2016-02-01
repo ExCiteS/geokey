@@ -1053,6 +1053,11 @@ class QueryUsersTest(TestCase):
         result_set = json.loads(response.content)
         self.assertEqual(len(result_set), 0)
 
+    def test_no_query(self):
+        response = self.client.get('/ajax/users/')
+        result_set = json.loads(response.content)
+        self.assertEqual(len(result_set), 0)
+
 
 class UserGroupTest(TestCase):
 
