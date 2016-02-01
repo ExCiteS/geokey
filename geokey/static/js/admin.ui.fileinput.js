@@ -12,13 +12,19 @@ $(function(global) {
 
     function FileInput() {}
 
-    FileInput.prototype.init = function(field) {
+    FileInput.prototype.init = function(field, additionalSettings) {
         var settings = {
             showUpload: false,
             showCancel: false,
             browseLabel: 'Browse...',
             msgLoading: 'Loading file {index} of {files}...'
         };
+
+        for (var key in additionalSettings) {
+            settings[key] = additionalSettings[key];
+        }
+        console.log(additionalSettings);
+        console.log(settings);
 
         if (field.attr('data-preview')) {
             settings.initialPreview = '<img src="' + field.attr('data-preview') + '" class="file-preview-image">';
