@@ -8,6 +8,7 @@ django-oauth-toolkit==0.10.0
 django-pgjson==0.3.1
 django-simple-history==1.7.0
 django-youtube==0.2
+django_nose==1.4.3
 djangorestframework==3.3.2
 djangorestframework-gis==0.10.1
 easy-thumbnails==2.3
