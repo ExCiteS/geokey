@@ -1,32 +1,47 @@
 language: python
-python:
-- '2.7'
+
 services:
-- postgresql
+  - postgresql
+
+python:
+  - '2.7'
+
 addons:
   postgresql: '9.4'
+
+env:
+  - DJANGO='>=1.8,<1.9'
+  - DJANGO='>=1.9,<1.10'
+
 virtualenv:
   system_site_packages: true
+
 install:
-- sudo rm /etc/apt/sources.list.d/ubuntugis-stable-source.list
-- sudo apt-get update -y
-- sudo apt-get install python-gdal gdal-bin binutils
-- export C_INCLUDE_PATH=/usr/include/gdal
-- export CPLUS_INCLUDE_PATH=/usr/include/gdal
+  - sudo rm /etc/apt/sources.list.d/ubuntugis-stable-source.list
+  - sudo apt-get update -y
+  - sudo apt-get install python-gdal gdal-bin binutils
+  - export C_INCLUDE_PATH=/usr/include/gdal
+  - export CPLUS_INCLUDE_PATH=/usr/include/gdal
+
 before_script:
-- psql template1 postgres -c "CREATE EXTENSION hstore;"
-- psql -c "CREATE USER django WITH PASSWORD 'django123';" -U postgres
-- psql -c "ALTER ROLE django WITH superuser;" -U postgres
-- psql -c "CREATE DATABASE geokey OWNER django;" -U postgres
-- psql -d geokey -c "CREATE EXTENSION postgis;" -U postgres
-- cp -r local_settings.example local_settings
-- pip install coveralls
-- pip install -r requirements-dev.txt
-- pip install -e .
-- python manage.py migrate
+  - psql template1 postgres -c "CREATE EXTENSION hstore;"
+  - psql -c "CREATE USER django WITH PASSWORD 'django123';" -U postgres
+  - psql -c "ALTER ROLE django WITH superuser;" -U postgres
+  - psql -c "CREATE DATABASE geokey OWNER django;" -U postgres
+  - psql -d geokey -c "CREATE EXTENSION postgis;" -U postgres
+  - cp -r local_settings.example local_settings
+  - pip install coveralls
+  - pip install -r requirements-dev.txt
+  - pip install -e .
+  - pip install django$DJANGO
+  - python manage.py migrate
+
 script:
-- coverage run --source=geokey.applications,geokey.projects,geokey.categories,geokey.contributions,geokey.users,geokey.superusertools,geokey.extensions manage.py test
-after_success: coveralls
+  - coverage run --source=geokey.applications,geokey.projects,geokey.categories,geokey.contributions,geokey.users,geokey.superusertools,geokey.extensions manage.py test
+
+after_success:
+  - coveralls
+
 deploy:
   provider: pypi
   user: excites
