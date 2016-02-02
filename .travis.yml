@@ -30,6 +30,7 @@ before_script:
   - psql -c "CREATE DATABASE geokey OWNER django;" -U postgres
   - psql -d geokey -c "CREATE EXTENSION postgis;" -U postgres
   - cp -r local_settings.example local_settings
+  - pip install --upgrade pip
   - pip install coveralls
   - pip install -r requirements-dev.txt
   - pip install -e .
