@@ -19,6 +19,7 @@ from rest_framework import status
 from allauth.account.models import EmailAddress
 
 from geokey import version
+from geokey.core.tests.helpers import render_helpers
 from geokey.applications.tests.model_factories import ApplicationFactory
 from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.categories.tests.model_factories import CategoryFactory
@@ -460,6 +461,7 @@ class UserGroupDataTest(TestCase):
             project_id=usergroup.project.id,
             usergroup_id=usergroup.id
         ).render()
+        response = render_helpers.remove_csrf(unicode(response.content))
 
         rendered = render_to_string(
             'users/usergroup_data.html',
@@ -472,7 +474,7 @@ class UserGroupDataTest(TestCase):
                 'GEOKEY_VERSION': version.get_version()
             }
         )
-        self.assertEqual(unicode(response.content), rendered)
+        self.assertEqual(response, rendered)
 
         request = HttpRequest()
         request.method = 'POST'
@@ -488,6 +490,7 @@ class UserGroupDataTest(TestCase):
             project_id=usergroup.project.id,
             usergroup_id=usergroup.id
         ).render()
+        response = render_helpers.remove_csrf(unicode(response.content))
 
         ref = Group.objects.get(pk=usergroup.id)
 
@@ -502,7 +505,7 @@ class UserGroupDataTest(TestCase):
                 'GEOKEY_VERSION': version.get_version()
             }
         )
-        self.assertEqual(unicode(response.content), rendered)
+        self.assertEqual(response, rendered)
         self.assertIsNone(ref.filters)
 
         category = CategoryFactory.create(**{'project': usergroup.project})
@@ -523,6 +526,7 @@ class UserGroupDataTest(TestCase):
             project_id=usergroup.project.id,
             usergroup_id=usergroup.id
         ).render()
+        response = render_helpers.remove_csrf(unicode(response.content))
 
         ref = Group.objects.get(pk=usergroup.id)
 
@@ -537,7 +541,7 @@ class UserGroupDataTest(TestCase):
                 'GEOKEY_VERSION': version.get_version()
             }
         )
-        self.assertEqual(unicode(response.content), rendered)
+        self.assertEqual(response, rendered)
         self.assertEqual(
             ref.filters,
             json.loads('{ "%s": { } }' % category.id)
@@ -568,6 +572,7 @@ class UserGroupDataTest(TestCase):
             project_id=usergroup.project.id,
             usergroup_id=usergroup.id
         ).render()
+        response = render_helpers.remove_csrf(unicode(response.content))
 
         rendered = render_to_string(
             'users/usergroup_data.html',
@@ -580,7 +585,7 @@ class UserGroupDataTest(TestCase):
                 'GEOKEY_VERSION': version.get_version()
             }
         )
-        self.assertEqual(unicode(response.content), rendered)
+        self.assertEqual(response, rendered)
         self.assertIsNone(Group.objects.get(pk=usergroup.id).filters)
 
     def test_views_with_other_user(self):
@@ -601,6 +606,7 @@ class UserGroupDataTest(TestCase):
             project_id=usergroup.project.id,
             usergroup_id=usergroup.id
         ).render()
+        response = render_helpers.remove_csrf(unicode(response.content))
 
         rendered = render_to_string(
             'users/usergroup_data.html',
@@ -613,7 +619,7 @@ class UserGroupDataTest(TestCase):
                 'GEOKEY_VERSION': version.get_version()
             }
         )
-        self.assertEqual(unicode(response.content), rendered)
+        self.assertEqual(response, rendered)
 
         category = CategoryFactory.create(**{'project': usergroup.project})
         request = HttpRequest()
@@ -633,6 +639,7 @@ class UserGroupDataTest(TestCase):
             project_id=usergroup.project.id,
             usergroup_id=usergroup.id
         ).render()
+        response = render_helpers.remove_csrf(unicode(response.content))
 
         rendered = render_to_string(
             'users/usergroup_data.html',
@@ -645,7 +652,7 @@ class UserGroupDataTest(TestCase):
                 'GEOKEY_VERSION': version.get_version()
             }
         )
-        self.assertEqual(unicode(response.content), rendered)
+        self.assertEqual(response, rendered)
         self.assertIsNone(Group.objects.get(pk=usergroup.id).filters)
 
 
@@ -797,7 +804,8 @@ class UserProfileTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_post_with_anonymous_user(self):
         """
@@ -843,7 +851,8 @@ class UserProfileTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
         reference = User.objects.get(pk=self.request.user.id)
         self.assertEqual(
@@ -891,7 +900,8 @@ class UserProfileTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
         reference = EmailAddress.objects.get(user=self.request.user)
         self.assertEqual(reference.verified, True)
@@ -925,7 +935,8 @@ class UserProfileTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
         reference = User.objects.get(pk=self.request.user.id)
         self.assertEqual(
@@ -959,7 +970,10 @@ class UserProfileTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        self.assertEqual(
+            render_helpers.remove_csrf(response.content.decode('utf-8')),
+            rendered
+        )
 
         self.assertEqual(
             EmailAddress.objects.filter(user=self.request.user).exists(),
@@ -982,7 +996,10 @@ class UserProfileTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        self.assertEqual(
+            render_helpers.remove_csrf(response.content.decode('utf-8')),
+            rendered
+        )
 
         reference = User.objects.get(pk=self.request.user.id)
         self.assertEqual(
