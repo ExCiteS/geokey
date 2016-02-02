@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from geokey.core.views import InfoAPIView
 
@@ -9,8 +9,7 @@ from geokey.contributions.views import observations, comments, locations, media
 from geokey.users.views import UserAPIView, ChangePasswordView
 
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     # ###########################
     # CORE
     # ###########################
@@ -89,4 +88,4 @@ urlpatterns = patterns(
         r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/$',
         category_views.SingleCategory.as_view(),
         name='category'),
-)
+]

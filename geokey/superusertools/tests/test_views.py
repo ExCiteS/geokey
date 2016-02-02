@@ -12,6 +12,7 @@ from allauth.account.models import EmailAddress
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from geokey import version
+from geokey.core.tests.helpers import render_helpers
 from geokey.users.tests.model_factories import UserFactory
 from geokey.users.models import User
 from geokey.projects.tests.model_factories import ProjectFactory
@@ -307,7 +308,8 @@ class ManageInactiveUsersTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_post_with_superuser(self):
         user = UserFactory.create(**{'is_superuser': True})
@@ -331,7 +333,8 @@ class ManageInactiveUsersTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
         self.assertEqual(
             User.objects.filter(is_active=False).count(), 1
         )

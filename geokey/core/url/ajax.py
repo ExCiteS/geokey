@@ -1,12 +1,11 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from geokey.projects import views as project_views
 from geokey.categories import views as category_views
 from geokey.users import views as user_views
 from geokey.superusertools import views as superuser_views
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     # ###########################
     # PROJECTS
     # ###########################
@@ -69,4 +68,4 @@ urlpatterns = patterns(
     # ###########################
     url(r'^superusers/$', superuser_views.AddSuperUsersAjaxView.as_view(), name='superusers_adduser'),
     url(r'^superusers/(?P<user_id>[0-9]+)/$', superuser_views.DeleteSuperUsersAjaxView.as_view(), name='superusers_deleteuser'),
-)
+]
