@@ -35,6 +35,8 @@ before_script:
   - pip install -r requirements-dev.txt
   - pip install -e .
   - pip install django$DJANGO
+  - python -c 'import django; print("DJANGO VERSION: %s " % django.get_version())'
+  - python -c 'from geokey.version import get_version; print("GEOKEY VERSION: %s" % get_version())'
   - python manage.py migrate
 
 script:
