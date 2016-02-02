@@ -1,10 +1,10 @@
 from django.conf import settings
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
+from django.conf.urls.static import static
 from django.views.generic.base import RedirectView
 
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^ajax/', include('geokey.core.url.ajax', namespace="ajax")),
     url(r'^admin/', include('geokey.core.url.admin', namespace="admin")),
     url(r'^api/', include('geokey.core.url.api', namespace="api")),
@@ -12,11 +12,4 @@ urlpatterns = patterns(
     url(r'^admin/account/', include('allauth.urls')),
     url(r'^$', RedirectView.as_view(url='/admin/', permanent=True)),
     url(r'^', include('geokey.extensions.urls')),
-)
-
-urlpatterns += patterns(
-    '',
-    (r'^media/(?P<path>.*)$',
-        'django.views.static.serve',
-        {'document_root': settings.MEDIA_ROOT}),
-)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

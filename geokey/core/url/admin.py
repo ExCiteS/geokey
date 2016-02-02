@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from geokey.projects import views as project_views
 from geokey.categories import views as category_views
@@ -8,8 +8,7 @@ from geokey.superusertools import views as superuser
 from geokey.subsets import views as subsets
 
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^$', login_views.Index.as_view(), name='index'),
     url(r'^dashboard/$', login_views.Dashboard.as_view(), name='dashboard'),
 
@@ -187,4 +186,4 @@ urlpatterns = patterns(
     url(r'^superuser-tools/manage-inactive-users/$',
         superuser.ManageInactiveUsers.as_view(),
         name="superuser_manage_inactiveusers"),
-)
+]
