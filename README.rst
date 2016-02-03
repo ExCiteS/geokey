@@ -25,7 +25,7 @@ GeoKey is a platform for participatory mapping, that is developed by `Extreme Ci
 Install for development
 =======================
 
-GeoKey can be run on Python 2.7 only. The latest Django 1.8 version is installed by default, although 1.9 can be used too.
+GeoKey can be run on Python 2.7 only.
 
 1. Update your system:
 
