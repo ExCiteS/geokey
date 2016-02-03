@@ -88,8 +88,10 @@ class Dashboard(LoginRequiredMixin, TemplateView):
         projects = Project.objects.get_list(self.request.user)
 
         from geokey.extensions.base import extensions
+
         ext = []
-        for ext_id in extensions.keys():
+
+        for ext_id in sorted(extensions):
             extension = extensions.get(ext_id)
 
             if extension.get('display_admin') and (
