@@ -64,8 +64,6 @@ class Index(TemplateView):
             to dashboard, if the user is signed in
         """
         if not request.user.is_anonymous():
-            #     return self.render_to_response(self.get_context_data)
-            # else:
             return redirect('admin:dashboard')
 
         return super(Index, self).get(request, *args, **kwargs)
