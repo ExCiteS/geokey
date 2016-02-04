@@ -10,6 +10,14 @@ class TemplateTagsTest(TestCase):
         name = kml_tags.kml_name({'display_field': {'value': 'Awesome pub'}})
         self.assertEqual(name, 'Awesome pub')
 
+    def test_kml_name_when_no_display_field(self):
+        name = kml_tags.kml_name(None)
+        self.assertEqual(name, '')
+
+    def test_kml_name_when_display_field_is_empty(self):
+        name = kml_tags.kml_name({'display_field': {}})
+        self.assertEqual(name, '')
+
     def test_geom(self):
         data = {
             "location": {
@@ -23,7 +31,7 @@ class TemplateTagsTest(TestCase):
         )
 
     def test_description(self):
-        category = CategoryFactory.create()
+        CategoryFactory.create()
         data = {
             'properties': {
                 'key_1': 1,

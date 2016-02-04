@@ -1,61 +1,71 @@
-from django import template
-
 from osgeo import ogr
 
+from django import template
+
 from geokey.categories.models import Field
+
 
 register = template.Library()
 
 
 @register.filter(name='kml_geom')
 def kml_geom(place):
-    geojson_geom = place.get('location').get('geometry')
-    json_geom = ogr.CreateGeometryFromJson(str(geojson_geom))
+    geometry = place.get('location').get('geometry')
+    json_geom = ogr.CreateGeometryFromJson(str(geometry))
     kml_geom = json_geom.ExportToKML()
     return kml_geom
 
 
 @register.filter(name='kml_name')
 def kml_name(place):
-    geojson_name = place.get('display_field').get('value')
-    return geojson_name
+    name = ''  # Name will always be available, even it's empty
+
+    if place:
+        display_field = place.get('display_field')
+
+        if display_field:
+            name = display_field.get('value')
+
+    return name
 
 
 @register.filter(name='kml_desc')
 def kml_desc(place):
-    geojson_properties = place.get('properties')
-    geojson_desc = '<![CDATA[<table>'
+    properties = place.get('properties')
+    description = '<![CDATA[<table>'
 
-    if geojson_properties:
-        for key in geojson_properties:
+    if properties:
+        for key in properties:
             name = key
+
             try:
-                field = Field.objects.get(key=key, category_id=place.get('meta').get('category').get('id'))
-
+                field = Field.objects.get(
+                    key=key,
+                    category_id=place.get('meta').get('category').get('id')
+                )
                 name = field.name.encode('utf-8')
-
             except Field.DoesNotExist:
                 pass
 
-            value = geojson_properties[key]
+            value = properties[key]
 
             if type(value) in [str, unicode]:
                 value = value.encode('utf-8')
 
-            if geojson_properties[key] is not None:
-                geojson_desc = '{desc}<tr><td>{name}</td><td>{value}</td></tr>'.format(
-                    desc=geojson_desc,
+            if properties[key] is not None:
+                description = '{desc}<tr><td>{name}</td><td>{value}</td></tr>'.format(
+                    desc=description,
                     name=name,
                     value=value
                 )
 
-    geojson_desc = geojson_desc + '</table>]]>'
+    description = description + '</table>]]>'
 
-    return geojson_desc
+    return description
 
 
 @register.filter(name='kml_style')
 def kml_style(place):
-    geojson_colour = place.get('meta').get('category').get('colour')
-    geojson_colour = geojson_colour.replace('#', '')
-    return geojson_colour
+    colour = place.get('meta').get('category').get('colour')
+    colour = colour.replace('#', '')
+    return colour
