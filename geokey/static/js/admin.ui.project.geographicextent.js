@@ -35,7 +35,7 @@ $(function() {
     }
 
     // Initialise draw control (only if project is not locked)
-    if (!$('body').data('project-locked')) {
+    if ($('body').data('project-locked') != 'True') {
         new L.Control.Draw({
             draw: {
                 marker: false,
