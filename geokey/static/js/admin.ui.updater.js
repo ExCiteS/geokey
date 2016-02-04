@@ -65,6 +65,10 @@ $(function(global) {
             }
         }
 
+        if (toToggle == 'everyone_contributes') {
+            $('input[name="everyone_contributes"][value="' + result + '"]').prop('checked', true);
+        }
+
         if (toToggle === 'locked') {
             if (result === 'locked') {
                 $('.glyphicon-lock').removeClass('hidden');
@@ -136,6 +140,7 @@ $(function(global) {
             var result = (response.isprivate ? 'private' : 'public');
 
             updateUi('private', result);
+            updateUi('everyone_contributes', response.everyone_contributes);
             displaySuccess('private', 'The ' + name + ' is now ' + result + '.');
         }
 

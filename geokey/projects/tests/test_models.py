@@ -265,6 +265,19 @@ class EveryoneContributesTest(TestCase):
         self.assertTrue(project.can_contribute(AnonymousUser()))
 
 
+class PublicToPrivateWithEveryoneContributesTest(TestCase):
+    def test(self):
+        project = ProjectFactory.create(**{
+            'isprivate': False,
+            'everyone_contributes': 'true'
+        })
+
+        project.isprivate = True
+        project.save()
+
+        self.assertEqual(project.everyone_contributes, 'auth')
+
+
 class PublicProjectTest(TestCase):
     def setUp(self):
         self.moderator_view = UserFactory.create()

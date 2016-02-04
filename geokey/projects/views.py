@@ -371,6 +371,7 @@ class ProjectUpdate(APIView):
         """
 
         project = Project.objects.as_admin(request.user, project_id)
+
         serializer = ProjectSerializer(
             project, data=request.data, partial=True,
             fields=(
@@ -378,9 +379,12 @@ class ProjectUpdate(APIView):
                 'everyone_contributes'
             )
         )
+
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            data = serializer.data
+            data['everyone_contributes'] = project.everyone_contributes
+            return Response(data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

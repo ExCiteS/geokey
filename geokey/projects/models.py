@@ -84,6 +84,19 @@ class Project(models.Model):
 
         return project
 
+    def save(self, *args, **kwargs):
+        """
+        Checks if project is set to private, but everyone_contributes is set
+        to `TRUE` and makes the option set to `AUTH`.
+
+        We are not allowing anonymous contributions for private projects.
+        """
+        if (self.isprivate and
+                self.everyone_contributes == EVERYONE_CONTRIB.true):
+            self.everyone_contributes = EVERYONE_CONTRIB.auth
+
+        super(Project, self).save(*args, **kwargs)
+
     def delete(self):
         """
         Deletes the project by setting its status to `DELETED`. Also deletes
