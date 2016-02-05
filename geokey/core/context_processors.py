@@ -5,8 +5,14 @@ from geokey import version
 
 
 def project_settings(request):
+    GOOGLE_ANALYTICS = None
+
+    if hasattr(settings, 'GOOGLE_ANALYTICS'):
+        GOOGLE_ANALYTICS = settings.GOOGLE_ANALYTICS
+
     return {
-        'PLATFORM_NAME': get_current_site(request).name,
         'DEBUG': settings.DEBUG,
-        'GEOKEY_VERSION': version.get_version()
+        'PLATFORM_NAME': get_current_site(request).name,
+        'GEOKEY_VERSION': version.get_version(),
+        'GOOGLE_ANALYTICS': GOOGLE_ANALYTICS
     }

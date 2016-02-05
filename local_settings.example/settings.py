@@ -26,6 +26,9 @@ DATABASES = {
 # see: https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-SECRET_KEY
 SECRET_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
+# Google Analytics tracking code
+GOOGLE_ANALYTICS = ''
+
 # Set this to true, if you want to enable video upload. Make sure you set the
 # Youtube settings
 ENABLE_VIDEO = False
