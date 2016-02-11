@@ -32,9 +32,13 @@ def kml_name(place):
 @register.filter(name='kml_desc')
 def kml_desc(place):
     properties = place.get('properties')
-    description = '<![CDATA[<table>'
+    media = place.get('media')
+
+    description = '<![CDATA['
 
     if properties:
+        description += '<table>'
+
         for key in properties:
             name = key
 
@@ -59,7 +63,32 @@ def kml_desc(place):
                     value=value
                 )
 
-    description = description + '</table>]]>'
+        description = description + '</table>'
+
+    if media:
+        description += '<table>'
+
+        for file in media:
+            if file['file_type'] == 'ImageFile' or file['file_type'] == 'VideoFile':
+                if file['file_type'] == 'VideoFile':
+                    file['url'] = file['url'].replace('embed/', 'watch?v=')
+
+                description += '<tr><td><strong>{name}</strong>{desc}<br /><a href="{url}"><img src="{thumbnail_url}" /></a></td></tr>'.format(
+                    name=file['name'],
+                    desc='<br /> %s' % file['description'] if file['description'] else '',
+                    url=file['url'],
+                    thumbnail_url=file['thumbnail_url']
+                )
+            elif file['file_type'] == 'AudioFile':
+                description += '<tr><td><a href="{url}">{name}</a>{desc}</td></tr>'.format(
+                    name=file['name'],
+                    desc='<br /> %s' % file['description'] if file['description'] else '',
+                    url=file['url']
+                )
+
+        description = description + '</table>'
+
+    description += ']]>'
 
     return description
 
