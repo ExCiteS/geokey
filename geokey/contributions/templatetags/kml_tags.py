@@ -33,6 +33,7 @@ def kml_name(place):
 def kml_desc(place):
     properties = place.get('properties')
     media = place.get('media')
+    comments = place.get('comments')
 
     description = '<![CDATA['
 
@@ -63,7 +64,7 @@ def kml_desc(place):
                     value=value
                 )
 
-        description = description + '</table>'
+        description += '</table>'
 
     if media:
         description += '<table>'
@@ -75,18 +76,39 @@ def kml_desc(place):
 
                 description += '<tr><td><strong>{name}</strong>{desc}<br /><a href="{url}"><img src="{thumbnail_url}" /></a></td></tr>'.format(
                     name=file['name'],
-                    desc='<br /> %s' % file['description'] if file['description'] else '',
+                    desc='<br />%s' % file['description'] if file['description'] else '',
                     url=file['url'],
                     thumbnail_url=file['thumbnail_url']
                 )
             elif file['file_type'] == 'AudioFile':
-                description += '<tr><td><a href="{url}">{name}</a>{desc}</td></tr>'.format(
+                description += '<tr><td><a href="{url}"><strong>{name}</strong></a>{desc}</td></tr>'.format(
                     name=file['name'],
-                    desc='<br /> %s' % file['description'] if file['description'] else '',
+                    desc='<br />%s' % file['description'] if file['description'] else '',
                     url=file['url']
                 )
 
-        description = description + '</table>'
+        description += '</table>'
+
+    if comments:
+        def render_comments(comments):
+            description = '<table>'
+
+            for comment in comments:
+                description += '<tr><td><strong>{name}</strong>{text}'.format(
+                    name=comment['creator']['display_name'],
+                    text='<br />%s' % comment['text'] if comment['text'] else ''
+                )
+
+                if len(comment['responses']) > 0:
+                    description += render_comments(comment['responses'])
+
+                description += '</td></tr>'
+
+            description += '</table>'
+
+            return description
+
+        description += render_comments(comments)
 
     description += ']]>'
 
