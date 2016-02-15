@@ -2,7 +2,7 @@ from osgeo import ogr
 
 from django import template
 
-from geokey.categories.models import Field
+from geokey.categories.models import Field, LookupField, MultipleLookupField
 
 
 register = template.Library()
@@ -42,6 +42,7 @@ def kml_desc(place):
 
         for key in properties:
             name = key
+            value = properties[key]
 
             try:
                 field = Field.objects.get(
@@ -49,10 +50,17 @@ def kml_desc(place):
                     category_id=place.get('meta').get('category').get('id')
                 )
                 name = field.name.encode('utf-8')
+
+                if value is not None:
+                    if isinstance(field, LookupField):
+                        value = field.lookupvalues.get(pk=value).name
+                    elif isinstance(field, MultipleLookupField):
+                        values = field.lookupvalues.filter(
+                            pk__in=value
+                        )
+                        value = '<br />'.join([v.name for v in values])
             except Field.DoesNotExist:
                 pass
-
-            value = properties[key]
 
             if type(value) in [str, unicode]:
                 value = value.encode('utf-8')
