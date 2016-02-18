@@ -177,24 +177,24 @@ class MediaFileAbstractListAPIViewTest(TestCase):
     #            'contribution_id': self.contribution.id
     #        }
     #    )
-    #    
+    #
     #    video_file = File(open(normpath(join(dirname(abspath(__file__)), 'files/video.MOV')), 'rb'))
-    #    
+    #
     #    data = {
     #        'name': 'A test video',
     #        'description': 'Test video description',
     #        'file': video_file
     #    }
-    #    
+    #
     #    request = self.factory.post(url, data)
     #    request.user = self.admin
     #    view = MediaFileListAbstractAPIView()
     #    view.request = request
-    #    
+    #
     #    response = self.render(
     #        view.create_and_respond(self.admin, self.contribution)
     #    )
-    #    
+    #
     #    response_json = json.loads(response.content)
     #    self.assertEqual(
     #        response_json.get('name'),
@@ -222,24 +222,30 @@ class MediaFileAbstractListAPIViewTest(TestCase):
                 'contribution_id': self.contribution.id
             }
         )
-        
-        audio_file = File(open(normpath(join(dirname(abspath(__file__)), 'files/audio.mp3')), 'rb'))
-        
+
+        audio_file = File(open(
+            normpath(join(
+                dirname(abspath(__file__)),
+                'files/audio_1.mp3'
+            )),
+            'rb'
+        ))
+
         data = {
             'name': 'A test sound',
             'description': 'Test sound description',
             'file': audio_file
         }
-        
+
         request = self.factory.post(url, data)
         request.user = self.admin
         view = MediaFileListAbstractAPIView()
         view.request = request
-        
+
         response = self.render(
             view.create_and_respond(self.admin, self.contribution)
         )
-        
+
         response_json = json.loads(response.content)
         self.assertEqual(
             response_json.get('name'),
