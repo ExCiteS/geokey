@@ -263,7 +263,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
             response_json.get('file_type'),
             'AudioFile'
         )
-        self.assertIsNotNone(response_json.get('url'))
+        self.assertIn('audio_1.mp3', response_json.get('url'))
 
 
 class MediaFileSingleAbstractViewTest(TestCase):
