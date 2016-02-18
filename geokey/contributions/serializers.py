@@ -674,3 +674,6 @@ class FileSerializer(serializers.ModelSerializer):
             obj.thumbnail.save(file_name, thumb)
 
             return self._get_thumb(obj.thumbnail).url
+
+        elif isinstance(obj, AudioFile):
+            return '/static/img/play.png'

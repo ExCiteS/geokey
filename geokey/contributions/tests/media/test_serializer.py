@@ -7,7 +7,11 @@ from django.contrib.auth.models import AnonymousUser
 
 from geokey.users.tests.model_factories import UserFactory
 
-from .model_factories import ImageFileFactory, VideoFileFactory
+from .model_factories import (
+    ImageFileFactory,
+    VideoFileFactory,
+    AudioFileFactory
+)
 from geokey.contributions.serializers import FileSerializer
 
 
@@ -78,3 +82,12 @@ class FileSerializerTest(TestCase):
 
         serializer = FileSerializer(video, context={'user': video.creator})
         self.assertEqual(serializer.get_file_type(video), 'VideoFile')
+
+    def test_get_audio(self):
+        audio = AudioFileFactory.create()
+
+        serializer = FileSerializer(audio, context={'user': audio.creator})
+        self.assertEqual(
+            serializer.get_thumbnail_url(audio),
+            '/static/img/play.png'
+        )
