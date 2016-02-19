@@ -46,7 +46,9 @@ GeoKey can be run on Python 2.7 only.
 
 .. code-block:: console
 
-    sudo apt-get install python-pip python-virtualenv python-dev libjpeg-dev binutils libproj-dev gdal-bin python-gdal
+    sudo apt-get install python-pip python-virtualenv python-dev libjpeg-dev binutils libproj-dev libav-tools gdal-bin python-gdal
+
+For Ubuntu you might also need to install *libavcodec-extra-52* or *libavcodec-extra-53*.
 
 
 Setup database
