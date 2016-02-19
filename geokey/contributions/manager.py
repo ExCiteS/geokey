@@ -422,7 +422,6 @@ class MediaFileManager(InheritanceManager):
         from django.core.files.base import ContentFile
 
         filename, extension = os.path.splitext(the_file.name)
-
         filename = self._normalise_filename(filename)
 
         path = default_storage.save(
@@ -451,7 +450,9 @@ class MediaFileManager(InheritanceManager):
     def create(self, the_file=None, **kwargs):
         """
         Create a new file. Evaluates the file's content type and creates either
-        an ImageFile or VideoFile
+        an ImageFile, AudioFile or VideoFile.
+
+        3gpp/3gpp2 audio files are converted to mp3 by default using avconv.
 
         Parameters
         ----------
@@ -476,6 +477,61 @@ class MediaFileManager(InheritanceManager):
         contribution = kwargs.get('contribution')
 
         content_type = the_file.content_type.split('/')
+        converted_file = None
+
+        # Using avconv to scan and convert 3gpp/3gpp2 audio files to mp3
+        if content_type[1] in ['3gpp', '3gpp2']:
+            import time
+            import shlex
+            import subprocess
+            from django.core.files import File
+            from django.core.files.storage import default_storage
+            from django.core.files.base import ContentFile
+
+            filename, extension = os.path.splitext(the_file.name)
+            filename = self._normalise_filename(filename)
+
+            path = default_storage.save(
+                'tmp/' + filename + extension,
+                ContentFile(the_file.read())
+            )
+            tmp_file = os.path.join(settings.MEDIA_ROOT, path)
+
+            cmd = shlex.split('avconv -i %s' % tmp_file)
+            pipe = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
+            output, error = pipe.communicate()
+
+            video_stream = re.compile(
+                r"Stream #\d*\.\d*.*\:\s*Video",
+                re.MULTILINE
+            )
+
+            # Using error because output file is not specified
+            if not video_stream.search(error):
+                content_type[0] = 'audio'
+
+                converted_file = os.path.join(
+                    settings.MEDIA_ROOT,
+                    'tmp',
+                    '%s_%s.mp3' % (filename, int(time.time()))
+                )
+
+                cmd = shlex.split(
+                    'avconv -nostats -loglevel 0 -y -i %s -c:a libmp3lame -q:a 4 -ar 44100 %s' % (
+                        tmp_file,
+                        converted_file
+                    )
+                )
+                subprocess.call(cmd)
+
+                the_file = File(open(converted_file, 'rb'))
+                the_file.name = '%s.mp3' % filename
+
+            os.remove(tmp_file)
 
         if (content_type[0] == 'image' and
                 content_type[1] in ACCEPTED_IMAGE_FORMATS):
@@ -486,10 +542,9 @@ class MediaFileManager(InheritanceManager):
                 contribution,
                 the_file
             )
-
         elif (content_type[0] == 'audio' and
                 content_type[1] in ACCEPTED_AUDIO_FORMATS):
-            return self._create_audio_file(
+            audio_file = self._create_audio_file(
                 name,
                 description,
                 creator,
@@ -497,6 +552,10 @@ class MediaFileManager(InheritanceManager):
                 the_file
             )
 
+            if converted_file is not None and os.path.isfile(converted_file):
+                os.remove(converted_file)
+
+            return audio_file
         elif (content_type[0] == 'video' and
                 settings.ENABLE_VIDEO and
                 content_type[1] in ACCEPTED_VIDEO_FORMATS):
