@@ -521,7 +521,7 @@ class MediaFileManager(InheritanceManager):
                 )
 
                 cmd = shlex.split(
-                    'avconv -nostats -loglevel 0 -y -i %s -c:a libmp3lame -q:a 4 -ar 44100 %s' % (
+                    'avconv -y -i %s -c:a libmp3lame -q:a 4 -ar 44100 %s' % (
                         tmp_file,
                         converted_file
                     )
@@ -532,6 +532,9 @@ class MediaFileManager(InheritanceManager):
                     stderr=subprocess.PIPE
                 )
                 output, error = pipe.communicate()
+
+                print output
+                print error
 
                 if not error:
                     the_file = File(open(converted_file, 'rb'))
