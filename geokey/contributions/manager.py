@@ -526,10 +526,16 @@ class MediaFileManager(InheritanceManager):
                         converted_file
                     )
                 )
-                subprocess.call(cmd)
+                pipe = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE
+                )
+                output, error = pipe.communicate()
 
-                the_file = File(open(converted_file, 'rb'))
-                the_file.name = '%s.mp3' % filename
+                if not error:
+                    the_file = File(open(converted_file, 'rb'))
+                    the_file.name = '%s.mp3' % filename
 
             os.remove(tmp_file)
 
