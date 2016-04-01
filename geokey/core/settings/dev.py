@@ -1,8 +1,8 @@
 from .base import *
 
-# Set debug to True for development
+# Development environment should have debugging enabled
 DEBUG = True
-# Note: setting TEMPLATE_DEBUG is deprecated, this is the new way:
+DEBUG_TOOLBAR = True
 TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 # (see http://docs.djangoproject.com/en/1.8/ref/settings/#template-debug)
 LOGGING_OUTPUT_ENABLED = DEBUG
@@ -11,7 +11,6 @@ LOGGING_LOG_SQL = DEBUG
 STATICFILES_DIRS = (
     normpath(join(SITE_ROOT, 'static')),
 )
-
 
 # Output email on the console
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -26,6 +25,14 @@ CACHES = {
 INSTALLED_APPS += (
     'django_nose',
 )
+
+# Django Debug Toolbar (see http://django-debug-toolbar.readthedocs.org)
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
+INSTALLED_APPS += ('debug_toolbar',)
+MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': 'geokey.core.middleware.show_debug_toolbar'
+}
 
 # TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 

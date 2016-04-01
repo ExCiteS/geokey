@@ -13,3 +13,10 @@ urlpatterns = [
     url(r'^$', RedirectView.as_view(url='/admin/', permanent=True)),
     url(r'^', include('geokey.extensions.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+if settings.DEBUG and settings.DEBUG_TOOLBAR:
+    import debug_toolbar
+    urlpatterns += [
+        url(r'^debug-toolbar/', include(debug_toolbar.urls)),
+    ]

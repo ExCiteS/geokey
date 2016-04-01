@@ -53,3 +53,14 @@ class TerminalLogging(object):
                 print "\033[1;31m[%s]\033[0m \033[1m%s\033[0m" % (query['time'],
                     " ".join(query['sql'].split()))
         return response
+
+
+def show_debug_toolbar(request):
+    """Custom function to determine whether to show the debug toolbar."""
+    from django.conf import settings
+
+    # Do not include the debug toolbar on Ajax requests
+    if request.is_ajax():
+        return False
+
+    return bool(settings.DEBUG and settings.DEBUG_TOOLBAR)
