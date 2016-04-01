@@ -11,7 +11,7 @@ urlpatterns = [
     url(r'^oauth2/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^admin/account/', include('allauth.urls')),
     url(r'^', include('geokey.extensions.urls')),
-    url(r'$', RedirectView.as_view(url='/admin/', permanent=True)),
+    url(r'^$', RedirectView.as_view(url='/admin/', permanent=True)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
