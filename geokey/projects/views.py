@@ -1,3 +1,5 @@
+"""All views for projects."""
+
 from django.db import IntegrityError
 from django.views.generic import CreateView, TemplateView
 from django.shortcuts import redirect
@@ -139,39 +141,36 @@ class ProjectsInvolved(LoginRequiredMixin, TemplateView):
 
 
 class ProjectOverview(LoginRequiredMixin, ProjectContext, TemplateView):
+    """Project overview page."""
 
-    """
-    Displays the project overview page.
-    """
     template_name = 'projects/project_overview.html'
 
     def get_context_data(self, project_id):
         """
-        Returns the context to render the view. Overwrites the method to add
-        the project, number of contributions, comments and media files in
-        total.
+        Return the context to render the view.
+
+        Overwrite the method to add the project, number of contributions,
+        comments and media files in total.
 
         Parameters
         ----------
         project_id : int
-            Identifies the project in the database
+            Identifies the project in the database.
 
         Returns
         -------
         dict
             Context
         """
-
         context = super(ProjectOverview, self).get_context_data(project_id)
-        project = context.get('project', None)
+        project = context.get('project')
 
-        if project is not None:
+        if project:
             contributions = project.observations.all()
-
-            context['all_contributions'] = contributions.count()
-            context['all_comments'] = Comment.objects.filter(
+            project.contributions_count = len(contributions)
+            project.comments_count = Comment.objects.filter(
                 commentto=contributions).count()
-            context['all_mediafiles'] = MediaFile.objects.filter(
+            project.media_count = MediaFile.objects.filter(
                 contribution=contributions).count()
 
         return context
