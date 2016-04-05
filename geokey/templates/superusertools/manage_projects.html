@@ -1,14 +1,13 @@
 {% extends 'base.html' %}
 {% load project_attributes %}
 
-{% block title %} | Superuser tools: Manage all projects{% endblock %}
+{% block title %} | Superuser tools: Manage projects{% endblock %}
 
 {% block main %}
 <div class="page-header">
     <div class="container">
         <h1>Superuser tools</h1>
-
-        {% include 'superusertools_navigation.html' %}
+        {% include 'superusertools/navigation.html' %}
     </div>
 </div>
 
@@ -17,7 +16,7 @@
 
     <div class="row">
         <div class="col-sm-12 col-md-12 col-lg-12">
-            <h3 class="header">Manage all projects</h3>
+            <h3 class="header">Manage projects</h3>
 
             {% if projects|length %}
                 <table class="table table-striped">
@@ -26,7 +25,7 @@
                             <th>Name</th>
                             <th class="text-center">Contributions</th>
                             <th class="text-center">Comments</th>
-                            <th class="text-center">Files</th>
+                            <th class="text-center">Media files</th>
                         </tr>
                     </thead>
 
@@ -44,7 +43,7 @@
 
                                 <td class="text-center {% if project.contributions_count == 0 %}text-muted{% endif %}">{{ project.contributions_count }}</td>
                                 <td class="text-center {% if project.comments_count == 0 %}text-muted{% endif %}">{{ project.comments_count }}</td>
-                                <td class="text-center {% if project.files_count == 0 %}text-muted{% endif %}">{{ project.files_count }}</td>
+                                <td class="text-center {% if project.media_count == 0 %}text-muted{% endif %}">{{ project.media_count }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

@@ -6,11 +6,9 @@
 <div class="page-header">
     <div class="container">
         <h1>Superuser tools</h1>
-
-        {% include 'superusertools_navigation.html' %}
+        {% include 'superusertools/navigation.html' %}
     </div>
 </div>
-
 
 <div class="container">
     {% include 'snippets/messages.html' %}
@@ -51,7 +49,7 @@
 
 {% block libraries %}
 <script>
-url = 'superusers/';
+url = 'superusertools/';
 </script>
 
 <script src="/static/lib/handlebars/handlebars.js"></script>

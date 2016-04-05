@@ -1,20 +1,22 @@
+"""All views for superusertools."""
+
+from django.db.models import Q, Case, When, Sum, IntegerField
 from django.views.generic import TemplateView
-from django.contrib.sites.shortcuts import get_current_site
 from django.contrib import messages
+from django.contrib.sites.shortcuts import get_current_site
 
 from braces.views import LoginRequiredMixin
-
 from allauth.account.models import EmailAddress
 
+from rest_framework import status
+from rest_framework.permissions import BasePermission
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import BasePermission
-from rest_framework import status
 
-from geokey.projects.models import Project
-from geokey.contributions.models import Comment, MediaFile
 from geokey.users.models import User
 from geokey.users.serializers import UserSerializer
+from geokey.projects.models import Project
+from geokey.contributions.base import OBSERVATION_STATUS
 
 
 # #############################################################################
@@ -23,15 +25,15 @@ from geokey.users.serializers import UserSerializer
 #
 # #############################################################################
 
-
 class SuperuserMixin(object):
-    """
-    Mixin to check if the user is a super user
-    """
+    """Mixin to check if user is a superuser."""
+
     def dispatch(self, request, *args, **kwargs):
         """
-        Dispatches the request. Either responds with an Error message or calls
-        View's dispatch method.
+        Dispatch the request.
+
+        Responds either with an error message, or calls a dispatch method of a
+        view.
 
         Parameters
         ----------
@@ -41,37 +43,54 @@ class SuperuserMixin(object):
         Returns
         -------
         django.http.HttpResponse
-
         """
         if not request.user.is_superuser:
             return self.render_to_response({
-                'error_description': 'Superuser tools are for superusers only.'
-                                     ' You are not a superuser.',
-                'error': 'Permission denied.'
+                'error': 'Permission denied.',
+                'error_description': 'No rights to access superuser tools.'
             })
 
         return super(SuperuserMixin, self).dispatch(request, *args, **kwargs)
 
 
-class PlatformSettings(LoginRequiredMixin, SuperuserMixin, TemplateView):
-    """
-    Change the settings of the platform
-    """
-    template_name = 'superusertools/platform_settings.html'
+class ManageSuperusers(LoginRequiredMixin, SuperuserMixin, TemplateView):
+    """Manage superusers page."""
+
+    template_name = 'superusertools/manage_superusers.html'
 
     def get_context_data(self):
         """
-        Returns the context to render the view, adds current site to context
+        Return the context to render the view.
+
+        Adds a list of superusers to the context.
 
         Returns
         -------
         dict
         """
-        return {'site': get_current_site(self.request)}
+        return {'superusers': User.objects.filter(is_superuser=True)}
+
+
+class ManageInactiveUsers(LoginRequiredMixin, SuperuserMixin, TemplateView):
+    """Manage inactive users page."""
+
+    template_name = 'superusertools/manage_inactive_users.html'
+
+    def get_context_data(self):
+        """
+        Return the context to render the view.
+
+        Add a list of inactive users to the context.
+
+        Returns
+        -------
+        dict
+        """
+        return {'inactive_users': User.objects.filter(is_active=False)}
 
     def post(self, request):
         """
-        Updates the platform settings
+        Activate inactive users.
 
         Parameters
         ----------
@@ -84,156 +103,158 @@ class PlatformSettings(LoginRequiredMixin, SuperuserMixin, TemplateView):
         """
         data = request.POST
         context = self.get_context_data()
-        site = context.pop('site', None)
+        inactive_users = context.get('inactive_users')
 
-        if site is not None:
+        if inactive_users:
+            active_users = inactive_users.filter(
+                id__in=data.getlist('activate_users'))
+
+            for email in EmailAddress.objects.filter(user__in=active_users):
+                email.verified = True
+                email.set_as_primary(conditional=True)
+                email.save()
+
+            active_users.update(is_active=True)
+            messages.success(
+                self.request,
+                '%s users were activated.' % len(active_users)
+            )
+            context['inactive_users'] = User.objects.filter(is_active=False)
+
+        return self.render_to_response(context)
+
+
+class ManageProjects(LoginRequiredMixin, SuperuserMixin, TemplateView):
+    """Manage projects page."""
+
+    template_name = 'superusertools/manage_projects.html'
+
+    def get_context_data(self):
+        """
+        Return the context to render the view.
+
+        Add a list of projects to the context (with numbers in total for
+        contributions, comments, media files).
+
+        Returns
+        -------
+        dict
+        """
+        return {'projects': Project.objects.all().annotate(
+            contributions_count=Sum(Case(When(
+                ~Q(observations__status=OBSERVATION_STATUS.deleted) &
+                Q(observations__isnull=False),
+                then=1
+            ), default=0, output_field=IntegerField()), distinct=True),
+            comments_count=Sum(Case(When(
+                ~Q(observations__status=OBSERVATION_STATUS.deleted) &
+                Q(observations__isnull=False),
+                then='observations__num_comments'
+            ), default=0, output_field=IntegerField()), distinct=True),
+            media_count=Sum(Case(When(
+                ~Q(observations__status=OBSERVATION_STATUS.deleted) &
+                Q(observations__isnull=False),
+                then='observations__num_media'
+            ), default=0, output_field=IntegerField()), distinct=True)
+        )}
+
+
+class PlatformSettings(LoginRequiredMixin, SuperuserMixin, TemplateView):
+    """Platform settings page."""
+
+    template_name = 'superusertools/platform_settings.html'
+
+    def get_context_data(self):
+        """
+        Return the context to render the view.
+
+        Add a current site to the context.
+
+        Returns
+        -------
+        dict
+        """
+        return {'site': get_current_site(self.request)}
+
+    def post(self, request):
+        """
+        Update the platform settings.
+
+        Parameters
+        ----------
+        request : django.http.HttpRequest
+            Object representing the request.
+
+        Returns
+        -------
+        django.http.HttpResponse
+        """
+        data = request.POST
+        context = self.get_context_data()
+        site = context.get('site')
+
+        if site:
             site.name = data.get('name')
             site.domain = data.get('domain')
             site.save()
             messages.success(
                 self.request,
-                "The platform settings have been updated."
+                'Platform settings have been updated.'
             )
+            context['site'] = site
 
-        context['site'] = site
         return self.render_to_response(context)
 
 
-class ProjectsList(LoginRequiredMixin, SuperuserMixin, TemplateView):
-    """
-    Displays a list of all projects
-    """
-    template_name = 'superusertools/projects_list.html'
-
-    def get_context_data(self):
-        """
-        Returns the context to render the view, adds list of projects to
-        context
-
-        Returns
-        -------
-        dict
-        """
-        projects = Project.objects.all()
-
-        for project in projects:
-            contributions = project.observations.all()
-
-            project.contributions_count = len(contributions)
-            project.comments_count = Comment.objects.filter(
-                commentto=contributions).count()
-            project.files_count = MediaFile.objects.filter(
-                contribution=contributions).count()
-
-        return {'projects': projects}
-
-
-class ManageSuperUsers(LoginRequiredMixin, SuperuserMixin, TemplateView):
-    """
-    View to add and remove superusers
-    """
-    template_name = 'superusertools/manage_users.html'
-
-    def get_context_data(self):
-        """
-        Returns the context to render the view, adds list of superusers to
-        context
-
-        Returns
-        -------
-        dict
-        """
-        return {'superusers': User.objects.filter(is_superuser=True)}
-
-
-class ManageInactiveUsers(LoginRequiredMixin, SuperuserMixin, TemplateView):
-    template_name = 'superusertools/manage_inactiveusers.html'
-
-    def get_context_data(self):
-        """
-        Returns the context to render the view, adds list of inactive users to
-        context
-
-        Returns
-        -------
-        dict
-        """
-        return {'inactive_users': User.objects.filter(is_active=False)}
-
-    def post(self, request):
-        context = self.get_context_data()
-
-        if context.get('inactive_users'):
-            activate_users = request.POST.getlist('activate_users')
-            to_activate = User.objects.filter(id__in=activate_users)
-            to_activate.update(is_active=True)
-
-            for email in EmailAddress.objects.filter(user__in=to_activate):
-                email.verified = True
-                email.set_as_primary(conditional=True)
-                email.save()
-
-            messages.success(
-                self.request,
-                '%s users have been activated.' % len(activate_users)
-            )
-
-            context['inactive_users'] = User.objects.filter(is_active=False)
-
-        return self.render_to_response(context)
-
 # #############################################################################
 #
-# ADMIN AJAX VIEWS
+# AJAX VIEWS
 #
 # #############################################################################
 
+class IsSuperuser(BasePermission):
+    """A permission to check if user is a superuser."""
 
-class IsSuperUser(BasePermission):
-    """
-    Checks whether the authenticated user is a superiser
-    """
     def has_permission(self, request, view):
         """
-        Returns True if the user is a superuser
+        Check whether user has superuser permission.
 
         Parameters
         ----------
         request : rest_framework.request.Request
-            Object representing the request
+            Object representing the request.
         view : rest_framework.views.APIView
-            View that called the permission
+            View that called the permission.
 
-        Return
-        ------
+        Returns
+        -------
         Boolean
-            indicating if user is a super user
+            Indicating if user is a superuser.
         """
         return request.user and request.user.is_superuser
 
 
-class AddSuperUsersAjaxView(APIView):
-    """
-    AJAX API endpoint to add superusers
-    """
-    permission_classes = (IsSuperUser,)
+class SuperusersAjaxView(APIView):
+    """Ajax API for all superusers."""
+
+    permission_classes = (IsSuperuser,)
 
     def post(self, request):
         """
-        Adds a new superuser
+        Add a new superuser.
 
         Parameters
         ----------
         request : rest_framework.request.Request
-            Object representing the request
+            Object representing the request.
 
         Returns
         -------
         rest_framework.response.Response
-            Contains the list of superusers or an error message
+            Contains a list of superusers or an error message.
         """
         try:
-            user = User.objects.get(pk=request.data.get('userId'))
+            user = User.objects.get(pk=request.data.get('user_id'))
             user.is_superuser = True
             user.save()
 
@@ -243,44 +264,42 @@ class AddSuperUsersAjaxView(APIView):
                 {'users': serializer.data},
                 status=status.HTTP_201_CREATED
             )
-
         except User.DoesNotExist:
             return Response(
-                'The user you are trying to add to the user group does ' +
-                'not exist',
+                'The user does not exist.',
                 status=status.HTTP_400_BAD_REQUEST
             )
 
 
-class DeleteSuperUsersAjaxView(APIView):
-    """
-    AJAX API endpoint to remove superusers
-    """
-    permission_classes = (IsSuperUser,)
+class SingleSuperuserAjaxView(APIView):
+    """Ajax API for a single superuser."""
+
+    permission_classes = (IsSuperuser,)
 
     def delete(self, request, user_id):
         """
-        Deletes a superuser
+        Delete a superuser.
 
         Parameters
         ----------
         request : rest_framework.request.Request
-            Object representing the request
+            Object representing the request.
+        user_id : int
+            Identifies the user in the database.
 
         Returns
         -------
         rest_framework.response.Response
-            Empty response indicating success an error message
+            Empty response indicating success or an error message.
         """
         try:
-            user = User.objects.filter(is_superuser=True).get(pk=user_id)
+            user = User.objects.get(pk=user_id, is_superuser=True)
             user.is_superuser = False
             user.save()
 
             return Response(status=status.HTTP_204_NO_CONTENT)
-
         except User.DoesNotExist:
             return Response(
-                'Superuser does not exist.',
+                'The user does not exist.',
                 status=status.HTTP_404_NOT_FOUND
             )

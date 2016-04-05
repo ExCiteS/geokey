@@ -74,7 +74,7 @@
         }
 
         Control.Ajax.del(url + userId + '/', handleRemoveUserSuccess, handleRemoveUserError, {
-            'userId': userId
+            'user_id': userId
         });
         event.preventDefault();
     }
@@ -121,7 +121,7 @@
 
         typeAwayResults.hide();
         Control.Ajax.post(url, handleAddUserSucess, handleAddUserError, {
-            'userId': userId
+            'user_id': userId
         });
         event.preventDefault();
     }

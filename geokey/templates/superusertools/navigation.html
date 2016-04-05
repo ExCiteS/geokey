@@ -1,0 +1,17 @@
+<ul class="nav nav-tabs header-nav">
+    <li role="presentation" class="{% if request.resolver_match.url_name == 'superusertools_manage_superusers' %}active{% endif %}">
+        <a href="{% url 'admin:superusertools_manage_superusers' %}">Manage superusers</a>
+    </li>
+
+    <li role="presentation" class="{% if request.resolver_match.url_name == 'superusertools_manage_inactive_users' %}active{% endif %}">
+        <a href="{% url 'admin:superusertools_manage_inactive_users' %}">Manage inactive users</a>
+    </li>
+
+    <li role="presentation" class="{% if request.resolver_match.url_name == 'superusertools_manage_projects' %}active{% endif %}">
+        <a href="{% url 'admin:superusertools_manage_projects' %}">Manage projects</a>
+    </li>
+
+    <li role="presentation" class="{% if request.resolver_match.url_name == 'superusertools_platform_settings' %}active{% endif %}">
+        <a href="{% url 'admin:superusertools_platform_settings' %}">Platform settings</a>
+    </li>
+</ul>

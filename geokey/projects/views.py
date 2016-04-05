@@ -416,7 +416,7 @@ class ProjectAdmins(APIView):
         """
 
         project = Project.objects.as_admin(request.user, project_id)
-        user = User.objects.get(pk=request.data.get('userId'))
+        user = User.objects.get(pk=request.data.get('user_id'))
 
         try:
             Admins.objects.create(project=project, user=user)

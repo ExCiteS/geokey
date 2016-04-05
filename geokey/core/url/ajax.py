@@ -3,7 +3,7 @@ from django.conf.urls import url
 from geokey.projects import views as project_views
 from geokey.categories import views as category_views
 from geokey.users import views as user_views
-from geokey.superusertools import views as superuser_views
+from geokey.superusertools import views as superusertools
 
 urlpatterns = [
     # ###########################
@@ -64,8 +64,12 @@ urlpatterns = [
     url(r'^users/$', user_views.QueryUsers.as_view(), name='users_users'),
 
     # ###########################
-    # SUPER USER
+    # SUPERUSER TOOLS
     # ###########################
-    url(r'^superusers/$', superuser_views.AddSuperUsersAjaxView.as_view(), name='superusers_adduser'),
-    url(r'^superusers/(?P<user_id>[0-9]+)/$', superuser_views.DeleteSuperUsersAjaxView.as_view(), name='superusers_deleteuser'),
+    url(r'^superusertools/$',
+        superusertools.SuperusersAjaxView.as_view(),
+        name='superusertools_superusers'),
+    url(r'^superusertools/(?P<user_id>[0-9]+)/$',
+        superusertools.SingleSuperuserAjaxView.as_view(),
+        name='superusertools_single_superuser'),
 ]

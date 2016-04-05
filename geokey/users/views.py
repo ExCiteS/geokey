@@ -1,3 +1,5 @@
+"""All views for users."""
+
 from json import loads as json_loads
 from django.views.generic import TemplateView, CreateView
 from django.shortcuts import redirect
@@ -670,7 +672,7 @@ class UserGroupUsers(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         else:
-            user_id = request.data.get('userId')
+            user_id = request.data.get('user_id')
 
             try:
                 user = User.objects.get(pk=user_id)

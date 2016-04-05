@@ -1170,7 +1170,7 @@ class UserGroupUsersTest(TestCase):
         request = self.factory.post(
             '/ajax/projects/%s/usergroups/%s/users/' %
             (self.project.id, 6545454844545648),
-            {'userId': self.user_to_add.id}
+            {'user_id': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
         view = UserGroupUsers.as_view()
@@ -1186,7 +1186,7 @@ class UserGroupUsersTest(TestCase):
         request = self.factory.post(
             '/ajax/projects/%s/usergroups/%s/users/' %
             (self.project.id, self.contributors.id),
-            {'userId': 4445468756454}
+            {'user_id': 4445468756454}
         )
         force_authenticate(request, user=self.admin)
         view = UserGroupUsers.as_view()
@@ -1205,7 +1205,7 @@ class UserGroupUsersTest(TestCase):
         request = self.factory.post(
             '/ajax/projects/%s/usergroups/%s/users/' %
             (self.project.id, self.contributors.id),
-            {'userId': self.user_to_add.id}
+            {'user_id': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
         view = UserGroupUsers.as_view()
@@ -1221,7 +1221,7 @@ class UserGroupUsersTest(TestCase):
         request = self.factory.post(
             '/ajax/projects/%s/usergroups/%s/users/' %
             (self.project.id, self.contributors.id),
-            {'userId': self.user_to_add.id}
+            {'user_id': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
         view = UserGroupUsers.as_view()
@@ -1241,7 +1241,7 @@ class UserGroupUsersTest(TestCase):
         request = self.factory.post(
             '/ajax/projects/%s/usergroups/%s/users/' %
             (self.project.id, self.contributors.id),
-            {'userId': self.user_to_add.id}
+            {'user_id': self.user_to_add.id}
         )
         force_authenticate(request, user=self.contributor)
         view = UserGroupUsers.as_view()
@@ -1261,7 +1261,7 @@ class UserGroupUsersTest(TestCase):
         request = self.factory.post(
             '/ajax/projects/%s/usergroups/%s/users/' %
             (self.project.id, self.contributors.id),
-            {'userId': self.user_to_add.id}
+            {'user_id': self.user_to_add.id}
         )
         force_authenticate(request, user=self.non_member)
         view = UserGroupUsers.as_view()

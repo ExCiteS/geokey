@@ -1,10 +1,12 @@
 from django.conf.urls import url
+from django.core.urlresolvers import reverse_lazy
+from django.views.generic.base import RedirectView
 
 from geokey.projects import views as project_views
 from geokey.categories import views as category_views
 from geokey.users import views as login_views
 from geokey.applications import views as app_views
-from geokey.superusertools import views as superuser
+from geokey.superusertools import views as superusertools
 from geokey.subsets import views as subsets
 
 
@@ -174,16 +176,21 @@ urlpatterns = [
     # ###########################
     # SUPERUSER TOOLS
     # ###########################
-    url(r'^superuser-tools/$',
-        superuser.PlatformSettings.as_view(),
-        name="superuser_index"),
-    url(r'^superuser-tools/projects/$',
-        superuser.ProjectsList.as_view(),
-        name="superuser_projects"),
-    url(r'^superuser-tools/manage-superusers/$',
-        superuser.ManageSuperUsers.as_view(),
-        name="superuser_manage_users"),
-    url(r'^superuser-tools/manage-inactive-users/$',
-        superuser.ManageInactiveUsers.as_view(),
-        name="superuser_manage_inactiveusers"),
+    url(r'^superusertools/$',
+        RedirectView.as_view(
+            url=reverse_lazy('admin:superusertools_manage_superusers'),
+            permanent=False),
+        name='superusertools_index'),
+    url(r'^superusertools/manage-superusers/$',
+        superusertools.ManageSuperusers.as_view(),
+        name='superusertools_manage_superusers'),
+    url(r'^superusertools/manage-inactive-users/$',
+        superusertools.ManageInactiveUsers.as_view(),
+        name='superusertools_manage_inactive_users'),
+    url(r'^superusertools/manage-projects/$',
+        superusertools.ManageProjects.as_view(),
+        name='superusertools_manage_projects'),
+    url(r'^superuser-tools/platform-settings/$',
+        superusertools.PlatformSettings.as_view(),
+        name='superusertools_platform_settings'),
 ]
