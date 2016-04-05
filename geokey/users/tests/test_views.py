@@ -61,8 +61,10 @@ class IndexTest(TestCase):
 
 
 class DashboardTest(TestCase):
+    """Test dashboard page."""
 
     def setUp(self):
+        """Set up tests."""
         self.creator = UserFactory.create()
         self.admin = UserFactory.create()
         self.view_member = UserFactory.create()
@@ -77,6 +79,7 @@ class DashboardTest(TestCase):
         )
 
     def test_get_context_data_with_admin(self):
+        """Test GET with admin."""
         dashboard_view = Dashboard()
         url = reverse('admin:dashboard')
         request = APIRequestFactory().get(url)
@@ -85,10 +88,10 @@ class DashboardTest(TestCase):
         dashboard_view.request = request
         context = dashboard_view.get_context_data()
 
-        self.assertEqual(len(context.get('admin_projects')), 2)
-        self.assertFalse(context.get('involved_projects'))
+        self.assertEqual(len(context.get('projects')), 2)
 
     def test_get_context_data_with_contributor(self):
+        """Test GET with contributor."""
         dashboard_view = Dashboard()
         url = reverse('admin:dashboard')
         request = APIRequestFactory().get(url)
@@ -97,8 +100,7 @@ class DashboardTest(TestCase):
         dashboard_view.request = request
         context = dashboard_view.get_context_data()
 
-        self.assertEqual(len(context.get('admin_projects')), 1)
-        self.assertTrue(context.get('involved_projects'))
+        self.assertEqual(len(context.get('projects')), 1)
 
 
 class UserGroupListTest(TestCase):
