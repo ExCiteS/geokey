@@ -28,57 +28,59 @@ data-category-id="{{ category.id }}"
             {% include 'categories/category_navigation.html' %}
         </div>
 
-        <div class="col-sm-8">
-            <h3 class="header">
-                {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
-                Category fields
+        {% with fields=category.fields.all %}
+            <div class="col-sm-8">
+                <h3 class="header">
+                    {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                    <span>Category fields</span>
 
-                {% if category.fields.all and not project.islocked %}
-                    <a href="{% url 'admin:category_field_create' category.project.id category.id %}" class="btn btn-success btn-sm pull-right">
-                        <span class="glyphicon glyphicon-plus"></span>
-                        Create new field
-                    </a>
-                {% endif %}
-            </h3>
-
-            {% if project.islocked %}
-                <div class="alert alert-info">
-                    <p>The project is locked, therefore category fields cannot be edited. If you wish to edit them, you have to unlock the project in the <a href="{% url 'admin:project_settings' project.id %}"><strong>project settings</strong></a> first.</p>
-                </div>
-            {% endif %}
-
-            {% for field in category.fields.all %}
-                {% if forloop.first %}
-                    <ul id="sortable" class="list-unstyled overview-list">
-                {% endif %}
-
-                <li class="sort-item" data-item-id="{{ field.id }}">
-                    <h4>
-                        <small><span class="glyphicon glyphicon-sort"></span></small>
-                        {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
-                        <a href="{% url 'admin:category_field_settings' category.project.id category.id field.id %}">{{ field.name }}</a>
-                        {% if field.status == 'inactive' %}<small><span class="label label-default">Inactive</span></small>{% endif %}
-                    </h4>
-
-                    {% if field.description %}<p>{{ field.description }}</p>{% endif %}
-                    <p class="meta"><strong>Key:</strong> {{ field.key }} &mdash; <strong>Type:</strong> {{ field.type_name }}</p>
-                </li>
-
-                {% if forloop.last %}
-                    </ul>
-                {% endif %}
-            {% empty %}
-                <div class="well empty-list">
-                    <p class="lead">We couldn't find any fields for this category.</p>
-
-                    {% if project.islocked %}
-                        <p>Unfortunately, you cannot create new fields when the project is locked.</p>
-                    {% else %}
-                        <a href="{% url 'admin:category_field_create' category.project.id category.id %}" class="btn btn-success btn-lg">Create new field</a>
+                    {% if fields and not project.islocked %}
+                        <a href="{% url 'admin:category_field_create' category.project.id category.id %}" class="btn btn-success btn-sm pull-right">
+                            <span class="glyphicon glyphicon-plus"></span>
+                            <span>Create new field</span>
+                        </a>
                     {% endif %}
-                </div>
-            {% endfor %}
-        </div>
+                </h3>
+
+                {% if project.islocked %}
+                    <div class="alert alert-info">
+                        <p>The project is locked, therefore category fields cannot be edited. If you wish to edit them, you have to unlock the project in the <a href="{% url 'admin:project_settings' project.id %}"><strong>project settings</strong></a> first.</p>
+                    </div>
+                {% endif %}
+
+                {% for field in fields %}
+                    {% if forloop.first %}
+                        <ul id="sortable" class="list-unstyled overview-list">
+                    {% endif %}
+
+                    <li class="sort-item" data-item-id="{{ field.id }}">
+                        <h4>
+                            <small><span class="glyphicon glyphicon-sort"></span></small>
+                            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                            <a href="{% url 'admin:category_field_settings' category.project.id category.id field.id %}">{{ field.name }}</a>
+                            {% if field.status == 'inactive' %}<small><span class="label label-default">Inactive</span></small>{% endif %}
+                        </h4>
+
+                        {% if field.description %}<p>{{ field.description }}</p>{% endif %}
+                        <p class="meta"><strong>Key:</strong> {{ field.key }} &mdash; <strong>Type:</strong> {{ field.type_name }}</p>
+                    </li>
+
+                    {% if forloop.last %}
+                        </ul>
+                    {% endif %}
+                {% empty %}
+                    <div class="well empty-list">
+                        <p class="lead">We couldn't find any fields for this category.</p>
+
+                        {% if project.islocked %}
+                            <p>Unfortunately, you cannot create new fields when the project is locked.</p>
+                        {% else %}
+                            <a href="{% url 'admin:category_field_create' category.project.id category.id %}" class="btn btn-success btn-lg">Create new field</a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endwith %}
     </div>
 </div>
 {% endblock %}

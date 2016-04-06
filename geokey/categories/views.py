@@ -1,3 +1,5 @@
+"""All views for categories."""
+
 from django.views.generic import CreateView, TemplateView
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
@@ -30,14 +32,33 @@ from .serializers import (
 from geokey.contributions.models import Observation
 
 
+# #############################################################################
+#
+# CONTEXTS
+#
+# #############################################################################
+
 class CategoryContext(object):
+    """Context for a single category."""
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, category_id, *args, **kwargs):
-        category = Category.objects.as_admin(
-            self.request.user, project_id, category_id
-        )
+        """
+        Return the context to render the view.
 
+        Overwrite the method to add the project and the category to the
+        context.
+
+        Returns
+        -------
+        dict
+            Context.
+        """
+        category = Category.objects.as_admin(
+            self.request.user,
+            project_id,
+            category_id
+        )
         return super(CategoryContext, self).get_context_data(
             project=category.project,
             category=category,
@@ -47,13 +68,28 @@ class CategoryContext(object):
 
 
 class FieldContext(object):
+    """Context for a single field."""
 
     @handle_exceptions_for_admin
     def get_context_data(self, project_id, category_id, field_id,
                          *args, **kwargs):
-        field = Field.objects.as_admin(
-            self.request.user, project_id, category_id, field_id)
+        """
+        Return the context to render the view.
 
+        Overwrite the method to add the project, the category and the field to
+        the context.
+
+        Returns
+        -------
+        dict
+            Context.
+        """
+        field = Field.objects.as_admin(
+            self.request.user,
+            project_id,
+            category_id,
+            field_id
+        )
         return super(FieldContext, self).get_context_data(
             project=field.category.project,
             category=field.category,
@@ -63,82 +99,64 @@ class FieldContext(object):
         )
 
 
-# ############################################################################
+# #############################################################################
 #
-# Administration views
+# ADMIN VIEWS
 #
-# ############################################################################
+# #############################################################################
 
 class CategoryList(LoginRequiredMixin, ProjectContext, TemplateView):
+    """A list of all categories page."""
 
-    """
-    Displays a list of all catgories for a given project.
-    """
     template_name = 'categories/category_list.html'
 
 
-class CategoryOverview(LoginRequiredMixin, CategoryContext, TemplateView):
-
-    """
-    Landing page when a user clicks on a category. Displays a lis of fields
-    assigned to the category.
-    """
-    template_name = 'categories/category_overview.html'
-
-
 class CategoryCreate(LoginRequiredMixin, ProjectContext, CreateView):
+    """Create category page."""
 
-    """
-    Displays the create category page and creates the category
-    when POST is requested.
-    """
-    form_class = CategoryCreateForm
     template_name = 'categories/category_create.html'
+    form_class = CategoryCreateForm
 
     def get_context_data(self, **kwargs):
         """
-        Returns the context to render the view. Overwrites the method to add
-        the project.
+        Return the context to render the view.
+
+        Overwrite the method to add the project to the context.
 
         Returns
         -------
         dict
-            context; {'project': <geokey.projects.models.Project>}
+            Context.
         """
-
-        project_id = self.kwargs['project_id']
-
         return super(CategoryCreate, self).get_context_data(
-            project_id, **kwargs
+            self.kwargs['project_id'],
+            **kwargs
         )
 
     def form_valid(self, form):
         """
-        Is called when the POSTed data is valid and creates the category.
+        Create a new category when form is valid.
 
         Parameters
         ----------
         form : geokey.categories.forms.CategoryCreateForm
-            Represents the user input
+            Represents the user input.
         """
-
         data = form.cleaned_data
-
-        project_id = self.kwargs['project_id']
-        project = Project.objects.as_admin(self.request.user, project_id)
+        project = Project.objects.as_admin(
+            self.request.user,
+            self.kwargs['project_id']
+        )
 
         if project:
-            cannot_create = 'New categories cannot be created.'
-
             if project.islocked:
                 messages.error(
                     self.request,
-                    'The project is locked. %s' % cannot_create
+                    'The project is locked. New categories cannot be created.'
                 )
-
                 return redirect(
                     'admin:category_create',
-                    project_id=project.id
+                    project_id=self.kwargs['project_id']
                 )
             else:
                 category = Category.objects.create(
@@ -151,90 +169,89 @@ class CategoryCreate(LoginRequiredMixin, ProjectContext, CreateView):
 
                 add_another_url = reverse(
                     'admin:category_create',
-                    kwargs={
-                        'project_id': project_id
-                    }
+                    kwargs={'project_id': self.kwargs['project_id']}
                 )
-
                 messages.success(
                     self.request,
                     mark_safe('The category has been created. <a href="%s"> '
                               'Add another category.</a>' % add_another_url)
                 )
-
                 return redirect(
                     'admin:category_overview',
-                    project_id=project.id,
+                    project_id=self.kwargs['project_id'],
                     category_id=category.id
                 )
 
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class CategoryOverview(LoginRequiredMixin, CategoryContext, TemplateView):
+    """Category overview page."""
+
+    template_name = 'categories/category_overview.html'
+
 
 class CategorySettings(LoginRequiredMixin, CategoryContext, TemplateView):
+    """Category settings page."""
 
-    """
-    Displays the category settings page
-    """
     template_name = 'categories/category_settings.html'
 
     def get_context_data(self, project_id, category_id):
         """
-        Returns the context to render the view. Overwrites the method to add
-        the category.
+        Return the context to render the view.
+
+        Overwrites the method to a number of contributions for the category and
+        available status types to the context.
 
         Parameters
         ----------
         project_id : int
-            Identifier of the project in the database
+            Identifies the project in the database.
         category_id : int
-            Identifier of the category in the database
+            Identifies the category in the database.
 
         Returns
         -------
         dict
-            {
-                'category': <geokey.categories.models.Category>
-                'status_types': List of status types for categoies
-                'num_contributions': Number of contributions of that category
-            }
+            Context.
         """
-
         context = super(CategorySettings, self).get_context_data(
             project_id,
             category_id,
             status_types=STATUS,
         )
+        category = context.get('category')
 
-        if context.get('category'):
+        if category:
             context['num_contributions'] = Observation.objects.filter(
-                category=context['category']).count()
+                category=category
+            ).count()
 
         return context
 
     def post(self, request, project_id, category_id):
         """
-        Handles the POST request and updates the category.
+        Update category settings.
 
         Parameters
         ----------
         request : django.http.HttpRequest
             Object representing the request.
         project_id : int
-            Identifier of the project in the database
+            Identifies the project in the database.
         category_id : int
-            Identifier of the category in the database
+            Identifies the category in the database.
 
         Returns
         -------
         django.http.HttpResponse
-            Rendered template
+            Rendered template.
         """
-
+        data = request.POST
         context = self.get_context_data(project_id, category_id)
-        category = context.pop('category', None)
+        category = context.get('category')
 
-        if category is not None:
-            data = request.POST
-
+        if category:
             category.name = strip_tags(data.get('name'))
             category.description = strip_tags(data.get('description'))
             category.default_status = data.get('default_status')
@@ -246,50 +263,45 @@ class CategorySettings(LoginRequiredMixin, CategoryContext, TemplateView):
 
                 if category.display_field != display_field:
                     category.display_field = display_field
-                    for obs in category.observation_set.all():
-                        obs.update_display_field()
-                        obs.save()
+                    for observation in category.observation_set.all():
+                        observation.update_display_field()
+                        observation.save()
 
             category.save()
-
-            messages.success(self.request, "The category has been updated.")
+            messages.success(self.request, 'The category has been updated.')
             context['category'] = category
+
         return self.render_to_response(context)
 
 
 class CategoryDisplay(LoginRequiredMixin, CategoryContext, TemplateView):
+    """Category display page."""
 
-    """
-    Displat the category display settings, i.e. where colour and icon for the
-    category can be set.
-    """
     template_name = 'categories/category_display.html'
 
     def post(self, request, project_id, category_id):
         """
-        Handles the POST request and updates the category display settings
+        Update category display.
 
         Parameters
         ----------
         request : django.http.HttpRequest
-            Object representing the request
+            Object representing the request.
         project_id : int
-            Identifier of the project in the database
+            Identifies the project in the database.
         category_id : int
-            Identifier of the category in the database
+            Identifies the category in the database.
 
         Returns
         -------
         django.http.HttpResponse
-            Rendered template
+            Rendered template.
         """
-
+        data = request.POST
         context = self.get_context_data(project_id, category_id)
-        category = context.pop('category', None)
+        category = context.get('category')
 
-        if category is not None:
-            data = request.POST
-
+        if category:
             symbol = request.FILES.get('symbol')
             category.colour = data.get('colour')
 
@@ -301,43 +313,41 @@ class CategoryDisplay(LoginRequiredMixin, CategoryContext, TemplateView):
                 category.symbol = None
 
             category.save()
-
             messages.success(
-                self.request, 'The display settings have been updated')
+                self.request,
+                'The display settings have been updated'
+            )
             context['category'] = category
 
         return self.render_to_response(context)
 
 
 class CategoryDelete(LoginRequiredMixin, CategoryContext, TemplateView):
+    """Delete category page."""
 
-    """
-    Deletes the category.
-    """
     template_name = 'base.html'
 
     def get(self, request, project_id, category_id):
         """
-        Deletes the category.
+        Delete the category.
 
         Parameters
         ----------
         request : django.http.HttpRequest
-            Object representing the request
+            Object representing the request.
         project_id : int
-            Identifies the project in the database
+            Identifies the project in the database.
         category_id : int
-            Identifies the category in the database
+            Identifies the category in the database.
 
         Returns
         -------
         django.http.HttpResponseRedirect
             Redirects to category list if category is deleted, category
-            settings if project is locked
+            settings if project is locked.
         django.http.HttpResponse
-            Rendered template, if project or category does not exist
+            Rendered template, if project or category does not exist.
         """
-
         context = self.get_context_data(project_id, category_id)
         category = context.get('category')
 
@@ -354,173 +364,157 @@ class CategoryDelete(LoginRequiredMixin, CategoryContext, TemplateView):
                 )
             else:
                 category.delete()
-
                 messages.success(
                     self.request,
                     'The category has been deleted.'
                 )
-
                 return redirect('admin:category_list', project_id=project_id)
 
         return self.render_to_response(context)
 
 
 class FieldCreate(LoginRequiredMixin, CategoryContext, CreateView):
+    """Creat field page."""
 
-    """
-    Displays the create field page.
-    """
-    form_class = FieldCreateForm
     template_name = 'categories/field_create.html'
+    form_class = FieldCreateForm
 
     def get_context_data(self, data=None, **kwargs):
         """
-        Returns the context to render the view. Overwrites the method to add
-        the category and available field types.
+        Return the context to render the view.
+
+        Overwrite the method to add available field types the context.
 
         Parameters
         ----------
         project_id : int
-            Identifier of the project in the database
+            Identifies the project in the database.
         category_id : int
-            Identifier of the category in the database
+            Identifies the category in the database.
 
         Returns
         -------
         dict
-            {
-                'category': <geokey.categories.models.Category>
-                'fieldtypes': List of str, representing the field types
-            }
+            Context.
         """
-
-        project_id = self.kwargs['project_id']
-        category_id = self.kwargs['category_id']
-
         context = super(FieldCreate, self).get_context_data(
-            project_id, category_id, **kwargs)
-
+            self.kwargs['project_id'],
+            self.kwargs['category_id'],
+            **kwargs
+        )
         context['fieldtypes'] = Field.get_field_types()
         return context
 
     def form_valid(self, form):
         """
-        Is called when the POSTed data is valid and creates the field.
+        Create a new field when form is valid.
 
         Parameters
         ----------
         form : geokey.categories.forms.FieldCreateForm
-            Represents the user input
-
-        Return
-        ------
-        Redirects to field setting page of the created field
+            Represents the user input.
         """
-
+        request = self.request
         data = form.cleaned_data
-
-        project_id = self.kwargs['project_id']
-        category_id = self.kwargs['category_id']
         category = Category.objects.as_admin(
-            self.request.user, project_id, category_id)
+            self.request.user,
+            self.kwargs['project_id'],
+            self.kwargs['category_id']
+        )
 
-        if category.project.islocked:
-            messages.error(
-                self.request,
-                'The project is locked. New fields cannot be created.'
-            )
+        if category:
+            if category.project.islocked:
+                messages.error(
+                    self.request,
+                    'The project is locked. New fields cannot be created.'
+                )
+                return redirect(
+                    'admin:category_field_create',
+                    project_id=self.kwargs['project_id'],
+                    category_id=self.kwargs['category_id']
+                )
+            else:
+                proposed_key = slugify(strip_tags(data.get('name')))
+                if len(proposed_key) < 1:
+                    proposed_key = 'key'
+                suggested_key = proposed_key
 
-            return redirect(
-                'admin:category_field_create',
-                project_id=category.project.id,
-                category_id=category_id
-            )
-        else:
-            proposed_key = slugify(strip_tags(data.get('name')))
-            if len(proposed_key) < 1:
-                proposed_key = 'key'
-            suggested_key = proposed_key
+                count = 1
+                while category.fields.filter(key=suggested_key).exists():
+                    suggested_key = '%s-%s' % (proposed_key, count)
+                    count = count + 1
 
-            count = 1
-            while category.fields.filter(key=suggested_key).exists():
-                suggested_key = '%s-%s' % (proposed_key, count)
-                count = count + 1
+                field = Field.create(
+                    strip_tags(data.get('name')),
+                    suggested_key,
+                    strip_tags(data.get('description')),
+                    data.get('required'),
+                    category,
+                    request.POST.get('type')
+                )
 
-            field = Field.create(
-                strip_tags(data.get('name')),
-                suggested_key,
-                strip_tags(data.get('description')),
-                data.get('required'),
-                category,
-                self.request.POST.get('type')
-            )
+                if isinstance(field, TextField):
+                    field.textarea = request.POST.get('textarea') or False
+                    field.maxlength = request.POST.get('maxlength') or None
 
-            if isinstance(field, TextField):
-                field.textarea = self.request.POST.get('textarea') or False
-                field.maxlength = self.request.POST.get('maxlength') or None
+                elif isinstance(field, NumericField):
+                    field.minval = request.POST.get('minval') or None
+                    field.maxval = request.POST.get('maxval') or None
 
-            elif isinstance(field, NumericField):
-                field.minval = self.request.POST.get('minval') or None
-                field.maxval = self.request.POST.get('maxval') or None
+                field.save()
 
-            field.save()
+                add_another_url = reverse(
+                    'admin:category_field_create',
+                    kwargs={
+                        'project_id': self.kwargs['project_id'],
+                        'category_id': self.kwargs['category_id']
+                    }
+                )
+                messages.success(
+                    self.request,
+                    mark_safe('The field has been created. <a href="%s">Add '
+                              'another field.</a>' % add_another_url)
+                )
+                return redirect(
+                    'admin:category_field_settings',
+                    project_id=self.kwargs['project_id'],
+                    category_id=self.kwargs['category_id'],
+                    field_id=field.id
+                )
 
-            add_another_url = reverse(
-                'admin:category_field_create',
-                kwargs={
-                    'project_id': project_id,
-                    'category_id': category_id
-                }
-            )
-
-            messages.success(
-                self.request,
-                mark_safe('The field has been created. <a href="%s">Add '
-                          'another field.</a>' % add_another_url)
-            )
-
-            return redirect(
-                'admin:category_field_settings',
-                project_id=category.project.id,
-                category_id=category.id,
-                field_id=field.id
-            )
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class FieldSettings(LoginRequiredMixin, FieldContext, TemplateView):
+    """Field settings page."""
 
-    """
-    Displays the field settings page
-    """
     template_name = 'categories/field_settings.html'
 
     def get_context_data(self, project_id, category_id, field_id, **kwargs):
         """
-        Returns the context to render the view. Overwrites the method to add
-        the field and available field types.
+        Return the context to render the view.
+
+        Overwrites the method to add available field types to the context.
 
         Parameters
         ----------
         project_id : int
-            Identifier of the project in the database
+            Identifies the project in the database.
         category_id : int
-            Identifier of the category in the database
+            Identifies the category in the database.
         field_id : int
-            Identifier of the field in the database
+            Identifies the field in the database.
 
         Returns
         -------
         dict
-            {
-                'field': <geokey.categories.models.Field>
-                'status_types': List of str, representing the status types
-                'is_display_field : Boolean, indicates if field is display
-                    field
-            }
+            Context
         """
-
         context = super(FieldSettings, self).get_context_data(
-            project_id, category_id, field_id)
+            project_id,
+            category_id,
+            field_id
+        )
 
         if context.get('field'):
             context['status_types'] = STATUS
@@ -531,33 +525,33 @@ class FieldSettings(LoginRequiredMixin, FieldContext, TemplateView):
 
     def post(self, request, project_id, category_id, field_id):
         """
-        Handles the POST request and updates the field.
+        Update field settings.
 
         Parameters
         ----------
+        request : django.http.HttpRequest
+            Object representing the request.
         project_id : int
-            Identifier of the project in the database
+            Identifies the project in the database.
         category_id : int
-            Identifier of the category in the database
+            Identifies the category in the database.
         field_id : int
-            Identifier of the field in the database
+            Identifies the field in the database.
 
         Returns
         -------
         django.http.HttpResponse
-            Rendered template
+            Rendered template.
         """
-
+        data = request.POST
         context = self.get_context_data(
             project_id,
             category_id,
             field_id
         )
-        field = context.pop('field', None)
+        field = context.get('field')
 
-        if field is not None:
-            data = request.POST
-
+        if field:
             field.name = strip_tags(data.get('name'))
             field.description = strip_tags(data.get('description'))
             field.required = data.get('required') or False
@@ -565,13 +559,11 @@ class FieldSettings(LoginRequiredMixin, FieldContext, TemplateView):
             if isinstance(field, TextField):
                 field.textarea = data.get('textarea') or False
                 field.maxlength = data.get('maxlength') or None
-
             elif isinstance(field, NumericField):
                 field.minval = data.get('minval') or None
                 field.maxval = data.get('maxval') or None
 
             field.save()
-
             messages.success(self.request, 'The field has been updated.')
             context['field'] = field
 
@@ -579,36 +571,33 @@ class FieldSettings(LoginRequiredMixin, FieldContext, TemplateView):
 
 
 class FieldDelete(LoginRequiredMixin, FieldContext, TemplateView):
+    """Delete field page."""
 
-    """
-    Deletes the field.
-    """
     template_name = 'base.html'
 
     def get(self, request, project_id, category_id, field_id):
         """
-        Deletes the field.
+        Delete the field.
 
         Parameters
         ----------
         request : django.http.HttpRequest
-            Object representing the request
+            Object representing the request.
         project_id : int
-            Identifies the project in the database
+            Identifies the project in the database.
         category_id : int
-            Identifies the category in the database
+            Identifies the category in the database.
         field_id : int
-            Identifies the field in the database
+            Identifies the field in the database.
 
         Returns
         -------
         django.http.HttpResponseRedirect
             Redirects to category overview if field is deleted, field
-            settings if project is locked
+            settings if project is locked.
         django.http.HttpResponse
-            Rendered template, if project, category or field does not exist
+            Rendered template, if project, category or field does not exist.
         """
-
         context = self.get_context_data(project_id, category_id, field_id)
         field = context.get('field')
 
@@ -626,7 +615,6 @@ class FieldDelete(LoginRequiredMixin, FieldContext, TemplateView):
                 )
             else:
                 field.delete()
-
                 messages.success(self.request, 'The field has been deleted.')
                 return redirect(
                     'admin:category_overview',
@@ -637,12 +625,11 @@ class FieldDelete(LoginRequiredMixin, FieldContext, TemplateView):
         return self.render_to_response(context)
 
 
-# ############################################################################
+# #############################################################################
 #
-# AJAX API views
+# AJAX VIEWS
 #
-# ############################################################################
-
+# #############################################################################
 
 class CategoryUpdate(APIView):
 
@@ -660,9 +647,9 @@ class CategoryUpdate(APIView):
         request : rest_framework.request.Request
             Object reprensting the request
         project_id : int
-            Identifier of the project in the database
+            Identifies the project in the database
         category_id : int
-            Identifier of the category in the database
+            Identifies the category in the database
 
         Return
         ------
@@ -686,9 +673,9 @@ class CategoryUpdate(APIView):
         request : rest_framework.request.Request
             Object reprensting the request
         project_id : int
-            Identifier of the project in the database
+            Identifies the project in the database
         category_id : int
-            Identifier of the category in the database
+            Identifies the category in the database
 
         Return
         ------
@@ -727,11 +714,11 @@ class FieldUpdate(APIView):
         request : rest_framework.request.Request
             Object reprensting the request
         project_id : int
-            Identifier of the project in the database
+            Identifies the project in the database
         category_id : int
-            Identifier of the category in the database
+            Identifies the category in the database
         field_id : int
-            Identifier of the field in the database
+            Identifies the field in the database
 
         Return
         ------
@@ -770,11 +757,11 @@ class FieldLookups(APIView):
         request : rest_framework.request.Request
             Object reprensting the request
         project_id : int
-            Identifier of the project in the database
+            Identifies the project in the database
         category_id : int
-            Identifier of the category in the database
+            Identifies the category in the database
         field_id : int
-            Identifier of the field in the database
+            Identifies the field in the database
 
         Return
         ------
@@ -835,13 +822,13 @@ class FieldLookupsUpdate(APIView):
         request : rest_framework.request.Request
             Object reprensting the request
         project_id : int
-            Identifier of the project in the database
+            Identifies the project in the database
         category_id : int
-            Identifier of the category in the database
+            Identifies the category in the database
         field_id : int
-            Identifier of the field in the database
+            Identifies the field in the database
         value_id : int
-            Identifier of the lookupvalue in the database
+            Identifies the lookupvalue in the database
 
         Return
         ------
@@ -897,13 +884,13 @@ class FieldLookupsUpdate(APIView):
         request : rest_framework.request.Request
             Object reprensting the request
         project_id : int
-            Identifier of the project in the database
+            Identifies the project in the database
         category_id : int
-            Identifier of the category in the database
+            Identifies the category in the database
         field_id : int
-            Identifier of the field in the database
+            Identifies the field in the database
         value_id : int
-            Identifier of the lookupvalue in the database
+            Identifies the lookupvalue in the database
 
         Return
         ------
@@ -945,9 +932,9 @@ class FieldsReorderView(APIView):
         request : rest_framework.request.Request
             Object reprensting the request
         project_id : int
-            Identifier of the project in the database
+            Identifies the project in the database
         category_id : int
-            Identifier of the category in the database
+            Identifies the category in the database
 
         Return
         ------
@@ -971,7 +958,7 @@ class FieldsReorderView(APIView):
 
 # ############################################################################
 #
-# Public API views
+# PUBLIC API
 #
 # ############################################################################
 
@@ -992,9 +979,9 @@ class SingleCategory(APIView):
         request : rest_framework.request.Request
             Object reprensting the request
         project_id : int
-            Identifier of the project in the database
+            Identifies the project in the database
         category_id : int
-            Identifier of the category in the database
+            Identifies the category in the database
 
         Return
         ------
