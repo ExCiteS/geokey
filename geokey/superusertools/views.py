@@ -21,7 +21,7 @@ from geokey.contributions.base import OBSERVATION_STATUS
 
 # #############################################################################
 #
-# ADMIN VIEWS
+# MIXINS
 #
 # #############################################################################
 
@@ -52,6 +52,12 @@ class SuperuserMixin(object):
 
         return super(SuperuserMixin, self).dispatch(request, *args, **kwargs)
 
+
+# #############################################################################
+#
+# ADMIN VIEWS
+#
+# #############################################################################
 
 class ManageSuperusers(LoginRequiredMixin, SuperuserMixin, TemplateView):
     """Manage superusers page."""
