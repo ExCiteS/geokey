@@ -106,7 +106,7 @@ class Project(models.Model):
         self.status = STATUS.deleted
         self.save()
 
-    def re_order_categories(self, order):
+    def reorder_categories(self, order):
         """
         Reorders the categories according to the order given in `order`
 

@@ -495,7 +495,7 @@ class CategoriesReorderView(APIView):
         project = Project.objects.as_admin(request.user, project_id)
 
         try:
-            project.re_order_categories(request.data.get('order'))
+            project.reorder_categories(request.data.get('order'))
 
             serializer = ProjectSerializer(
                 project,

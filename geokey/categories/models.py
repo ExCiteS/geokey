@@ -47,7 +47,7 @@ class Category(models.Model):
     class Meta:
         ordering = ['order']
 
-    def re_order_fields(self, order):
+    def reorder_fields(self, order):
         """
         Changes the order in which fields are displayed on client side.
 

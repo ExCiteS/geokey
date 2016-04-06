@@ -23,7 +23,7 @@ from geokey.users.models import UserGroup
 
 
 class CategoryTest(TestCase):
-    def test_re_order_fields(self):
+    def test_reorder_fields(self):
         category = CategoryFactory.create()
 
         field_0 = TextFieldFactory.create(**{'category': category})
@@ -32,7 +32,7 @@ class CategoryTest(TestCase):
         field_3 = TextFieldFactory.create(**{'category': category})
         field_4 = TextFieldFactory.create(**{'category': category})
 
-        category.re_order_fields(
+        category.reorder_fields(
             [field_4.id, field_0.id, field_2.id, field_1.id, field_3.id]
         )
 
@@ -45,7 +45,7 @@ class CategoryTest(TestCase):
         self.assertEqual(fields[3], field_1)
         self.assertEqual(fields[4], field_3)
 
-    def test_re_order_fields_with_false_field(self):
+    def test_reorder_fields_with_false_field(self):
         category = CategoryFactory.create()
 
         field_0 = TextFieldFactory.create(**{'category': category})
@@ -55,7 +55,7 @@ class CategoryTest(TestCase):
         field_4 = TextFieldFactory.create(**{'category': category})
 
         try:
-            category.re_order_fields(
+            category.reorder_fields(
                 [field_4.id, field_0.id, field_2.id, field_1.id, 5854]
             )
         except Field.DoesNotExist:
