@@ -166,6 +166,11 @@ class ManageProjects(LoginRequiredMixin, SuperuserMixin, TemplateView):
                 Q(observations__isnull=False),
                 then='observations__num_media'
             ), default=0, output_field=IntegerField()), distinct=True)
+        ).defer(
+            'description',
+            'everyone_contributes',
+            'admins',
+            'geographic_extent'
         )}
 
 
