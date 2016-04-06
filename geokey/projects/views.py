@@ -514,79 +514,76 @@ class CategoriesReorderView(APIView):
 
 # ############################################################################
 #
-# Public API views
+# PUBLIC API
 #
 # ############################################################################
 
 class Projects(APIView):
-
-    """
-    API Endpoint for project list in the public API.
-    /api/projects/
-    """
+    """Public API for all projects."""
 
     @handle_exceptions_for_ajax
     def get(self, request):
         """
-        Returns a list a all projects accessible to the user.
+        Handle GET request.
 
-        Parameter
-        ---------
+        Return a list a all projects accessible to the user.
+
+        Parameters
+        ----------
         request : rest_framework.request.Request
             Object representing the request.
 
         Returns
         -------
         rest_framework.response.Response
-            Contains serialised list of projects
+            Contains serialized list of projects.
         """
-
-        projects = Project.objects.get_list(
-            request.user).filter(status='active')
+        user = request.user
+        projects = Project.objects.get_list(user).filter(status='active')
         serializer = ProjectSerializer(
-            projects, many=True, context={'user': request.user},
+            projects,
+            many=True,
+            context={'user': user},
             fields=('id', 'name', 'description', 'user_info')
         )
-
         return Response(serializer.data)
 
 
 class SingleProject(APIView):
-
-    """
-    API Endpoint for single project in the public API.
-    /api/projects/:project_id/
-    """
+    """Public API for a single project."""
 
     @handle_exceptions_for_ajax
     def get(self, request, project_id):
         """
-        Returns a single project.
+        Handle GET request.
 
-        Parameter
-        ---------
+        Return a single project.
+
+        Parameters
+        ----------
         request : rest_framework.request.Request
             Object representing the request.
         project_id : int
-            identifies the project in the database
+            Identifies the project in the database.
 
         Returns
         -------
         rest_framework.response.Response
-            Contains the serialised project
+            Contains the serialized project.
 
         Raises
         ------
         PermissionDenied
-            if the project is inactive, is handled in the
-            handle_exceptions_for_ajax decorator
+            When the project is inactive (handled in the
+            handle_exceptions_for_ajax decorator).
         """
-
-        project = Project.objects.get_single(request.user, project_id)
+        user = request.user
+        project = Project.objects.get_single(user, project_id)
 
         if project.status == 'active':
             serializer = ProjectSerializer(
-                project, context={'user': request.user}
+                project,
+                context={'user': user}
             )
             return Response(serializer.data)
 
