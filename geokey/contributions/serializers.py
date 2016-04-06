@@ -471,7 +471,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def to_representation(self, obj):
         """
-        Returns native represenation of the Comment. Adds reponses to comment
+        Returns native represenation of the Comment. Adds responses to comment
 
         Parameter
         ---------

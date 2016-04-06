@@ -365,7 +365,7 @@ class ProjectUpdate(APIView):
 
         Returns
         -------
-        rest_framework.reponse.Response
+        rest_framework.response.Response
             Response containing the serialised project or an error message
         """
 
@@ -409,7 +409,7 @@ class ProjectAdmins(APIView):
 
         Returns
         -------
-        rest_framework.reponse.Response
+        rest_framework.response.Response
             Response containing the serialised list of admins or an error
             message.
         """
@@ -455,7 +455,7 @@ class ProjectAdminsUser(APIView):
 
         Returns
         -------
-        rest_framework.reponse.Response
+        rest_framework.response.Response
             Empty response if successful or response containing an error
             message.
         """
@@ -488,7 +488,7 @@ class CategoriesReorderView(APIView):
 
         Returns
         -------
-        rest_framework.reponse.Response
+        rest_framework.response.Response
             Contains the serialised project or an error message
         """
 
@@ -537,7 +537,7 @@ class Projects(APIView):
 
         Returns
         -------
-        rest_framework.reponse.Response
+        rest_framework.response.Response
             Contains serialised list of projects
         """
 
@@ -572,7 +572,7 @@ class SingleProject(APIView):
 
         Returns
         -------
-        rest_framework.reponse.Response
+        rest_framework.response.Response
             Contains the serialised project
 
         Raises

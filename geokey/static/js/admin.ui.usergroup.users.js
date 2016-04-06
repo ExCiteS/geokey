@@ -129,7 +129,7 @@
 
 
     /**
-     * Handles the reponse the the request for the user list was successful. Updates the dropdown list.
+     * Handles the response the the request for the user list was successful. Updates the dropdown list.
      * @param  {Object} response JSON object of the response
      */
     function handleSuccess(response) {
