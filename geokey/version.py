@@ -1,7 +1,17 @@
+"""Version of GeoKey."""
+
 VERSION = (0, 10, 1, 'final', 0)
 
 
 def get_version():
+    """
+    Return current version.
+
+    Returns
+    -------
+    str
+        Current version.
+    """
     version = '%s.%s' % (VERSION[0], VERSION[1])
     if VERSION[2]:
         version = '%s.%s' % (version, VERSION[2])
