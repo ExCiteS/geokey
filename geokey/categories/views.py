@@ -627,7 +627,7 @@ class FieldDelete(LoginRequiredMixin, FieldContext, TemplateView):
 
 # #############################################################################
 #
-# AJAX VIEWS
+# AJAX API
 #
 # #############################################################################
 
@@ -645,7 +645,7 @@ class CategoryUpdate(APIView):
         Parameters
         ----------
         request : rest_framework.request.Request
-            Object reprensting the request
+            Object representing the request
         project_id : int
             Identifies the project in the database
         category_id : int
@@ -654,7 +654,7 @@ class CategoryUpdate(APIView):
         Return
         ------
         rest_framework.response.Response
-            Reponse to the request
+            Response to the request
         """
 
         category = Category.objects.as_admin(
@@ -671,7 +671,7 @@ class CategoryUpdate(APIView):
         Parameters
         ----------
         request : rest_framework.request.Request
-            Object reprensting the request
+            Object representing the request
         project_id : int
             Identifies the project in the database
         category_id : int
@@ -680,7 +680,7 @@ class CategoryUpdate(APIView):
         Return
         ------
         rest_framework.response.Response
-            Reponse to the request
+            Response to the request
         """
 
         category = Category.objects.as_admin(
@@ -712,7 +712,7 @@ class FieldUpdate(APIView):
         Parameters
         ----------
         request : rest_framework.request.Request
-            Object reprensting the request
+            Object representing the request
         project_id : int
             Identifies the project in the database
         category_id : int
@@ -723,7 +723,7 @@ class FieldUpdate(APIView):
         Return
         ------
         rest_framework.response.Response
-            Reponse to the request
+            Response to the request
         """
 
         field = Field.objects.as_admin(
@@ -755,7 +755,7 @@ class FieldLookups(APIView):
         Parameters
         ----------
         request : rest_framework.request.Request
-            Object reprensting the request
+            Object representing the request
         project_id : int
             Identifies the project in the database
         category_id : int
@@ -766,7 +766,7 @@ class FieldLookups(APIView):
         Return
         ------
         rest_framework.response.Response
-            Reponse to the request
+            Response to the request
         """
 
         field = Field.objects.as_admin(
@@ -820,7 +820,7 @@ class FieldLookupsUpdate(APIView):
         Parameters
         ----------
         request : rest_framework.request.Request
-            Object reprensting the request
+            Object representing the request
         project_id : int
             Identifies the project in the database
         category_id : int
@@ -833,7 +833,7 @@ class FieldLookupsUpdate(APIView):
         Return
         ------
         rest_framework.response.Response
-            Reponse to the request
+            Response to the request
         """
 
         field = self.get_field(request.user, project_id, category_id, field_id)
@@ -882,7 +882,7 @@ class FieldLookupsUpdate(APIView):
         Parameters
         ----------
         request : rest_framework.request.Request
-            Object reprensting the request
+            Object representing the request
         project_id : int
             Identifies the project in the database
         category_id : int
@@ -895,7 +895,7 @@ class FieldLookupsUpdate(APIView):
         Return
         ------
         rest_framework.response.Response
-            Reponse to the request
+            Response to the request
         """
 
         field = self.get_field(request.user, project_id, category_id, field_id)
@@ -917,41 +917,42 @@ class FieldLookupsUpdate(APIView):
 
 
 class FieldsReorderView(APIView):
-
-    """
-    API endpoint to reorder the fields of a category.
-    """
+    """Ajax API to reorder fields of a category."""
 
     @handle_exceptions_for_ajax
     def post(self, request, project_id, category_id):
         """
-        Handles the DELETE request and removes the lookupvalue the category.
+        Handle POST request.
+
+        Reorder fields of the category.
 
         Parameters
         ----------
         request : rest_framework.request.Request
-            Object reprensting the request
+            Object representing the request.
         project_id : int
-            Identifies the project in the database
+            Identifies the project in the database.
         category_id : int
-            Identifies the category in the database
+            Identifies the category in the database.
 
-        Return
-        ------
+        Returns
+        -------
         rest_framework.response.Response
-            Reponse to the request
+            Response to the request.
         """
-
         category = Category.objects.as_admin(
-            request.user, project_id, category_id)
-        try:
-            category.re_order_fields(request.data.get('order'))
+            request.user,
+            project_id,
+            category_id
+        )
 
+        try:
+            category.reorder_fields(request.data.get('order'))
             serializer = CategorySerializer(category)
             return Response(serializer.data)
         except Field.DoesNotExist:
             return Response(
-                {'error': 'One or more field ids where not found.'},
+                {'error': 'One or more field IDs were not found.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -963,34 +964,33 @@ class FieldsReorderView(APIView):
 # ############################################################################
 
 class SingleCategory(APIView):
-
-    """
-    API endpoint for a single category.
-    """
+    """Public API for a single category."""
 
     @handle_exceptions_for_ajax
     def get(self, request, project_id, category_id):
         """
-        Handles the GET request and returns the complete category including
-        all fields.
+        Handle GET request.
+
+        Return the complete category (including all fields).
 
         Parameters
         ----------
         request : rest_framework.request.Request
-            Object reprensting the request
+            Object representing the request.
         project_id : int
-            Identifies the project in the database
+            Identifies the project in the database.
         category_id : int
-            Identifies the category in the database
+            Identifies the category in the database.
 
-        Return
-        ------
+        Returns
+        -------
         rest_framework.response.Response
-            Reponse to the request
+            Response to the request.
         """
-
         category = Category.objects.get_single(
-            request.user, project_id, category_id)
-
+            request.user,
+            project_id,
+            category_id
+        )
         serializer = CategorySerializer(category)
         return Response(serializer.data)
