@@ -74,7 +74,10 @@ class ManageSuperusers(LoginRequiredMixin, SuperuserMixin, TemplateView):
         -------
         dict
         """
-        return {'superusers': User.objects.filter(is_superuser=True)}
+        return {
+            'superusers': User.objects.filter(
+                is_superuser=True).only('display_name')
+        }
 
 
 class ManageInactiveUsers(LoginRequiredMixin, SuperuserMixin, TemplateView):
@@ -92,7 +95,8 @@ class ManageInactiveUsers(LoginRequiredMixin, SuperuserMixin, TemplateView):
         -------
         dict
         """
-        return {'inactive_users': User.objects.filter(is_active=False)}
+        return {'inactive_users': User.objects.filter(
+            is_active=False).defer('is_superuser')}
 
     def post(self, request):
         """

@@ -34,12 +34,12 @@
                         </thead>
 
                         <tbody>
-                            {% for inactive_user in inactive_users %}
+                            {% for user in inactive_users %}
                                 <tr>
-                                    <td class="text-center"><input type="checkbox" name="activate_users" value="{{ inactive_user.id }}"></td>
-                                    <td>{{ inactive_user.display_name }}</td>
-                                    <td>{{ inactive_user.email|urlize }}</td>
-                                    <td>{{ inactive_user.date_joined|date:'d F, Y' }}</td>
+                                    <td class="text-center"><input type="checkbox" name="activate_users" value="{{ user.id }}"></td>
+                                    <td>{{ user.display_name }}</td>
+                                    <td>{{ user.email|urlize }}</td>
+                                    <td>{{ user.date_joined|date:'d F, Y' }}</td>
                                 </td>
                             {% endfor %}
                         </tbody>
