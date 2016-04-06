@@ -223,7 +223,7 @@ class PlatformSettings(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
 # #############################################################################
 #
-# AJAX VIEWS
+# AJAX API
 #
 # #############################################################################
 
@@ -256,7 +256,9 @@ class SuperusersAjaxView(APIView):
 
     def post(self, request):
         """
-        Add a new superuser.
+        Handle POST request.
+
+        Add the user to superusers.
 
         Parameters
         ----------
@@ -293,7 +295,9 @@ class SingleSuperuserAjaxView(APIView):
 
     def delete(self, request, user_id):
         """
-        Delete a superuser.
+        Handle DELETE request.
+
+        Remove the user from superusers.
 
         Parameters
         ----------
@@ -305,7 +309,7 @@ class SingleSuperuserAjaxView(APIView):
         Returns
         -------
         rest_framework.response.Response
-            Empty response indicating success or an error message.
+            Response to the request.
         """
         try:
             user = User.objects.get(pk=user_id, is_superuser=True)
