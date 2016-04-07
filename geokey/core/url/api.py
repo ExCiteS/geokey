@@ -16,7 +16,7 @@ urlpatterns = [
     url(r'^info/$', InfoAPIView.as_view(), name='info_api'),
 
     # ###########################
-    # USER
+    # USERS
     # ###########################
     url(r'^user/$', UserAPIView.as_view(), name='user_api'),
     url(r'^user/password/change/$', ChangePasswordView.as_view(), name='changepassword'),
