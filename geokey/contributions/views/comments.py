@@ -264,7 +264,7 @@ class CommentsAPIView(SingleAllContribution, CommentAbstractAPIView):
         Returns
         -------
         rest_framework.response.Respone
-            Contains the serialised comments
+            Contains the serialised comments.
         """
         contribution = self.get_contribution(
             request.user,
@@ -293,7 +293,7 @@ class CommentsAPIView(SingleAllContribution, CommentAbstractAPIView):
         Returns
         -------
         rest_framework.response.Respone
-            Contains the serialised comment
+            Contains the serialised comment.
         """
         contribution = self.get_contribution(
             request.user,
