@@ -1,23 +1,23 @@
+"""Base for views of contributions."""
+
 from geokey.projects.models import Project
-from geokey.contributions.models import Observation
 
 
 class SingleAllContribution(object):
-    """
-    Base class for single contributions on the all contributions endpoints
-    """
-    def get_object(self, user, project_id, observation_id):
+    """Base class for a single contribution of all contributions."""
+
+    def get_object(self, user, project_id, contribution_id):
         """
-        Returns a single Obervation
+        Get a single contribution.
 
         Parameters
         ----------
         user : geokey.users.models.User
-            User requesting the contribution
+            User requesting the request.
         project_id : int
-            identifies the project in the data base
-        observation_id : int
-            identifies the observation in the data base
+            Identifies the project in the database.
+        contribution_id : int
+            Identifies the contribution in the database.
 
         Returns
         -------
@@ -26,13 +26,13 @@ class SingleAllContribution(object):
         Raises
         ------
         Observation.DoesNotExist
-            If the observations was not found or is not accessible by the user
+            If the object was not found or is not accessible by the user.
         """
         project = Project.objects.get_single(user, project_id)
 
         if project.can_moderate(user):
             return project.get_all_contributions(
-                user).for_moderator(user).get(pk=observation_id)
+                user).for_moderator(user).get(pk=contribution_id)
         else:
             return project.get_all_contributions(
-                user).for_viewer(user).get(pk=observation_id)
+                user).for_viewer(user).get(pk=contribution_id)
