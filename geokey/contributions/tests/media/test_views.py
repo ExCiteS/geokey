@@ -26,8 +26,9 @@ from geokey.contributions.models import MediaFile
 from geokey.users.models import User
 
 from geokey.contributions.views.media import (
-    MediaFileListAbstractAPIView, AllContributionsMediaAPIView,
-    MediaFileSingleAbstractView, AllContributionsSingleMediaApiView
+    MediaAbstractAPIView,
+    MediaAPIView,
+    SingleMediaAPIView
 )
 
 from ..model_factories import ObservationFactory
@@ -74,11 +75,12 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         )
 
         request = self.factory.get(url)
-        view = MediaFileListAbstractAPIView()
+        request.user = self.admin
+        view = MediaAbstractAPIView()
         view.request = request
 
         response = self.render(
-            view.get_list_and_respond(self.admin, self.contribution)
+            view.get_list_and_respond(request, self.contribution)
         )
         self.assertEqual(len(json.loads(response.content)), 5)
 
@@ -99,11 +101,11 @@ class MediaFileAbstractListAPIViewTest(TestCase):
 
         request = self.factory.post(url, data)
         request.user = self.admin
-        view = MediaFileListAbstractAPIView()
+        view = MediaAbstractAPIView()
         view.request = request
 
         response = self.render(
-            view.create_and_respond(self.admin, self.contribution)
+            view.create_and_respond(request, self.contribution)
         )
 
         response_json = json.loads(response.content)
@@ -142,10 +144,10 @@ class MediaFileAbstractListAPIViewTest(TestCase):
 
         request = self.factory.post(url, data)
         request.user = self.admin
-        view = MediaFileListAbstractAPIView()
+        view = MediaAbstractAPIView()
         view.request = request
 
-        view.create_and_respond(self.admin, self.contribution)
+        view.create_and_respond(request, self.contribution)
 
     @raises(MalformedRequestData)
     def test_create_image_and_respond_without_name(self):
@@ -164,10 +166,10 @@ class MediaFileAbstractListAPIViewTest(TestCase):
 
         request = self.factory.post(url, data)
         request.user = self.admin
-        view = MediaFileListAbstractAPIView()
+        view = MediaAbstractAPIView()
         view.request = request
 
-        view.create_and_respond(self.admin, self.contribution)
+        view.create_and_respond(request, self.contribution)
 
     #def test_create_video_and_respond(self):
     #    url = reverse(
@@ -188,11 +190,11 @@ class MediaFileAbstractListAPIViewTest(TestCase):
     #
     #    request = self.factory.post(url, data)
     #    request.user = self.admin
-    #    view = MediaFileListAbstractAPIView()
+    #    view = MediaAbstractAPIView()
     #    view.request = request
     #
     #    response = self.render(
-    #        view.create_and_respond(self.admin, self.contribution)
+    #        view.create_and_respond(request, self.contribution)
     #    )
     #
     #    response_json = json.loads(response.content)
@@ -239,11 +241,11 @@ class MediaFileAbstractListAPIViewTest(TestCase):
 
         request = self.factory.post(url, data)
         request.user = self.admin
-        view = MediaFileListAbstractAPIView()
+        view = MediaAbstractAPIView()
         view.request = request
 
         response = self.render(
-            view.create_and_respond(self.admin, self.contribution)
+            view.create_and_respond(request, self.contribution)
         )
 
         response_json = json.loads(response.content)
@@ -290,11 +292,11 @@ class MediaFileAbstractListAPIViewTest(TestCase):
 
         request = self.factory.post(url, data)
         request.user = self.admin
-        view = MediaFileListAbstractAPIView()
+        view = MediaAbstractAPIView()
         view.request = request
 
         response = self.render(
-            view.create_and_respond(self.admin, self.contribution)
+            view.create_and_respond(request, self.contribution)
         )
 
         response_json = json.loads(response.content)
@@ -317,7 +319,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         self.assertIn('audio_2.mp3', response_json.get('url'))
 
 
-class MediaFileSingleAbstractViewTest(TestCase):
+class MediaAbstractAPIViewTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserFactory.create()
@@ -349,7 +351,7 @@ class MediaFileSingleAbstractViewTest(TestCase):
         response.renderer_context = {'blah': 'blubb'}
         return response.render()
 
-    def test_get_and_respond(self):
+    def test_get_single_and_respond(self):
         url = reverse(
             'api:project_single_media',
             kwargs={
@@ -360,12 +362,13 @@ class MediaFileSingleAbstractViewTest(TestCase):
         )
 
         request = self.factory.get(url)
-        view = MediaFileSingleAbstractView()
+        request.user = self.admin
+        view = MediaAbstractAPIView()
         view.request = request
 
         response = self.render(
-            view.get_and_respond(
-                self.admin,
+            view.get_single_and_respond(
+                request,
                 self.image_file
             )
         )
@@ -384,10 +387,11 @@ class MediaFileSingleAbstractViewTest(TestCase):
         )
 
         request = self.factory.delete(url)
-        view = MediaFileSingleAbstractView()
+        request.user = self.admin
+        view = MediaAbstractAPIView()
         view.request = request
 
-        view.delete_and_respond(self.admin, self.image_file)
+        view.delete_and_respond(request, self.contribution, self.image_file)
         MediaFile.objects.get(pk=self.image_file.id)
 
     @raises(MediaFile.DoesNotExist)
@@ -402,10 +406,11 @@ class MediaFileSingleAbstractViewTest(TestCase):
         )
 
         request = self.factory.delete(url)
-        view = MediaFileSingleAbstractView()
+        request.user = self.creator
+        view = MediaAbstractAPIView()
         view.request = request
 
-        view.delete_and_respond(self.creator, self.image_file)
+        view.delete_and_respond(request, self.contribution, self.image_file)
         MediaFile.objects.get(pk=self.image_file.id)
 
     @raises(PermissionDenied)
@@ -420,13 +425,14 @@ class MediaFileSingleAbstractViewTest(TestCase):
         )
 
         request = self.factory.delete(url)
-        view = MediaFileSingleAbstractView()
+        request.user = UserFactory.create()
+        view = MediaAbstractAPIView()
         view.request = request
 
-        view.delete_and_respond(UserFactory.create(), self.image_file)
+        view.delete_and_respond(request, self.contribution, self.image_file)
 
 
-class AllContributionsMediaAPIViewTest(TestCase):
+class MediaAPIViewTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.admin = UserFactory.create()
@@ -462,7 +468,7 @@ class AllContributionsMediaAPIViewTest(TestCase):
 
         request = self.factory.get(url)
         force_authenticate(request, user)
-        view = AllContributionsMediaAPIView.as_view()
+        view = MediaAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -491,7 +497,7 @@ class AllContributionsMediaAPIViewTest(TestCase):
 
         request = self.factory.post(url, data)
         force_authenticate(request, user)
-        view = AllContributionsMediaAPIView.as_view()
+        view = MediaAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -605,7 +611,7 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
 
         request = self.factory.get(url)
         force_authenticate(request, user)
-        view = AllContributionsSingleMediaApiView.as_view()
+        view = SingleMediaAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -628,7 +634,7 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
 
         request = self.factory.delete(url)
         force_authenticate(request, user)
-        view = AllContributionsSingleMediaApiView.as_view()
+        view = SingleMediaAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
