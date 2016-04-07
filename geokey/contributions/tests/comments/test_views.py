@@ -21,8 +21,8 @@ from geokey.users.tests.model_factories import UserGroupFactory
 from ..model_factories import ObservationFactory, CommentFactory
 
 from geokey.contributions.views.comments import (
-    AllContributionsSingleCommentAPIView,
-    AllContributionsCommentsAPIView,
+    CommentsAPIView,
+    SingleCommentAPIView,
     CommentAbstractAPIView
 )
 
@@ -212,7 +212,7 @@ class CommentAbstractAPIViewTest(TestCase):
         )
         force_authenticate(request, user=self.commenter)
 
-        view = AllContributionsSingleCommentAPIView.as_view()
+        view = SingleCommentAPIView.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -392,7 +392,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         view.update_and_respond(request, self.contribution, self.comment)
 
 
-class AllContributionsSingleCommentAPIViewTest(TestCase):
+class SingleCommentAPIViewTest(TestCase):
     def setUp(self):
         self.admin = UserFactory.create()
         self.creator = UserFactory.create()
@@ -406,13 +406,13 @@ class AllContributionsSingleCommentAPIViewTest(TestCase):
         })
 
     def test_get_contribution_with_admin(self):
-        view = AllContributionsSingleCommentAPIView()
+        view = SingleCommentAPIView()
         contribution = view.get_contribution(
             self.admin, self.project.id, self.contribution.id)
         self.assertEqual(contribution, self.contribution)
 
     def test_get_contribution_with_creator(self):
-        view = AllContributionsSingleCommentAPIView()
+        view = SingleCommentAPIView()
         view.get_contribution(
             self.creator,
             self.project.id,
@@ -422,7 +422,7 @@ class AllContributionsSingleCommentAPIViewTest(TestCase):
     @raises(Project.DoesNotExist)
     def test_get_contribution_with_some_dude(self):
         some_dude = UserFactory.create()
-        view = AllContributionsSingleCommentAPIView()
+        view = SingleCommentAPIView()
         view.get_contribution(
             some_dude,
             self.project.id,
@@ -469,7 +469,7 @@ class GetProjectComments(APITestCase):
             (self.project.id, self.contribution.id)
         )
         force_authenticate(request, user=user)
-        view = AllContributionsCommentsAPIView.as_view()
+        view = CommentsAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -511,7 +511,7 @@ class AddCommentToPrivateProjectTest(APITestCase):
             {'text': 'A comment to the contribution.'}
         )
         force_authenticate(request, user=user)
-        view = AllContributionsCommentsAPIView.as_view()
+        view = CommentsAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -537,7 +537,7 @@ class AddCommentToPrivateProjectTest(APITestCase):
             }
         )
         force_authenticate(request, user=self.contributor)
-        view = AllContributionsCommentsAPIView.as_view()
+        view = CommentsAPIView.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -561,7 +561,7 @@ class AddCommentToPrivateProjectTest(APITestCase):
             }
         )
         force_authenticate(request, user=self.contributor)
-        view = AllContributionsCommentsAPIView.as_view()
+        view = CommentsAPIView.as_view()
         response = view(
             request,
             project_id=self.project.id,
@@ -613,7 +613,7 @@ class AddCommentToPublicProjectTest(APITestCase):
             {'text': 'A comment to the contribution.'}
         )
         force_authenticate(request, user=user)
-        view = AllContributionsCommentsAPIView.as_view()
+        view = CommentsAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -650,7 +650,7 @@ class AddCommentToWrongProjectContribution(APITestCase):
             {'text': 'A comment to the contribution.'}
         )
         force_authenticate(request, user=admin)
-        view = AllContributionsCommentsAPIView.as_view()
+        view = CommentsAPIView.as_view()
         response = view(
             request,
             project_id=project.id,
@@ -680,7 +680,7 @@ class AddResponseToProjectCommentTest(APITestCase):
             }
         )
         force_authenticate(request, user=admin)
-        view = AllContributionsCommentsAPIView.as_view()
+        view = CommentsAPIView.as_view()
         response = view(
             request,
             project_id=project.id,
@@ -713,7 +713,7 @@ class AddResponseToWrongProjectCommentTest(APITestCase):
             }
         )
         force_authenticate(request, user=admin)
-        view = AllContributionsCommentsAPIView.as_view()
+        view = CommentsAPIView.as_view()
         response = view(
             request,
             project_id=project.id,
@@ -758,7 +758,7 @@ class DeleteProjectCommentTest(APITestCase):
             {'text': 'A comment to the contribution.'}
         )
         force_authenticate(request, user=user)
-        view = AllContributionsSingleCommentAPIView.as_view()
+        view = SingleCommentAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
@@ -870,7 +870,7 @@ class DeleteWrongProjectComment(APITestCase):
             {'text': 'A comment to the contribution.'}
         )
         force_authenticate(request, user=admin)
-        view = AllContributionsSingleCommentAPIView.as_view()
+        view = SingleCommentAPIView.as_view()
         response = view(
             request,
             project_id=project.id,

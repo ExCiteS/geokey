@@ -64,13 +64,13 @@ urlpatterns = [
         r'^projects/(?P<project_id>[0-9]+)/'
         r'contributions/(?P<contribution_id>[0-9]+)/'
         r'comments/$',
-        comments.AllContributionsCommentsAPIView.as_view(),
+        comments.CommentsAPIView.as_view(),
         name='project_comments'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/'
         r'contributions/(?P<contribution_id>[0-9]+)/'
         r'comments/(?P<comment_id>[0-9]+)/$',
-        comments.AllContributionsSingleCommentAPIView.as_view(),
+        comments.SingleCommentAPIView.as_view(),
         name='project_single_comment'),
 
     # ###########################

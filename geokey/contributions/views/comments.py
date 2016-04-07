@@ -242,8 +242,7 @@ class CommentAbstractAPIView(APIView):
             )
 
 
-class AllContributionsCommentsAPIView(
-        CommentAbstractAPIView, SingleAllContribution):
+class CommentsAPIView(SingleAllContribution, CommentAbstractAPIView):
     """Public API for all comments."""
 
     @handle_exceptions_for_ajax
@@ -305,8 +304,7 @@ class AllContributionsCommentsAPIView(
         return self.create_and_respond(request, contribution)
 
 
-class AllContributionsSingleCommentAPIView(
-        CommentAbstractAPIView, SingleAllContribution):
+class SingleCommentAPIView(SingleAllContribution, CommentAbstractAPIView):
     """Public API for a single comment."""
 
     @handle_exceptions_for_ajax
