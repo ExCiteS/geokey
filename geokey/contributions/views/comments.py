@@ -360,7 +360,7 @@ class SingleCommentAPIView(SingleAllContribution, CommentAbstractAPIView):
         Returns
         -------
         rest_framework.response.Respone
-            Contains the serialized comment.
+            Empty response indicating success.
         """
         contribution = self.get_contribution(
             request.user,
