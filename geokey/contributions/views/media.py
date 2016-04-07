@@ -114,7 +114,7 @@ class AllContributionsMediaAPIView(
         rest_framework.response.Respone
             Contains the serialised comments
         """
-        contribution = self.get_object(
+        contribution = self.get_contribution(
             request.user,
             project_id,
             contribution_id
@@ -140,7 +140,7 @@ class AllContributionsMediaAPIView(
         rest_framework.response.Respone
             Contains the serialised comments
         """
-        contribution = self.get_object(
+        contribution = self.get_contribution(
             request.user,
             project_id,
             contribution_id
@@ -222,7 +222,7 @@ class AllContributionsSingleMediaApiView(
         -------
         geokey.contributions.models.MediaFile
         """
-        contribution = self.get_object(user, project_id, contribution_id)
+        contribution = self.get_contribution(user, project_id, contribution_id)
         return contribution.files_attached.get(pk=file_id)
 
     @handle_exceptions_for_ajax

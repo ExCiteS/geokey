@@ -61,11 +61,15 @@ urlpatterns = [
     # COMMENTS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/comments/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'contributions/(?P<contribution_id>[0-9]+)/'
+        r'comments/$',
         comments.AllContributionsCommentsAPIView.as_view(),
         name='project_comments'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/comments/(?P<comment_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'contributions/(?P<contribution_id>[0-9]+)/'
+        r'comments/(?P<comment_id>[0-9]+)/$',
         comments.AllContributionsSingleCommentAPIView.as_view(),
         name='project_single_comment'),
 

@@ -265,8 +265,13 @@ class SingleAllContributionAPIView(
         rest_framework.response.Respone
             Contains the serialised observation
         """
-        observation = self.get_object(request.user, project_id, observation_id)
-        return self.get_and_respond(request, observation)
+        contribution = self.get_contribution(
+            request.user,
+            project_id,
+            observation_id
+        )
+
+        return self.get_and_respond(request, contribution)
 
     @handle_exceptions_for_ajax
     def patch(self, request, project_id, observation_id):
@@ -287,8 +292,13 @@ class SingleAllContributionAPIView(
         rest_framework.response.Respone
             Contains the updated serialised observation
         """
-        observation = self.get_object(request.user, project_id, observation_id)
-        return self.update_and_respond(request, observation)
+        contribution = self.get_contribution(
+            request.user,
+            project_id,
+            observation_id
+        )
+
+        return self.update_and_respond(request, contribution)
 
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, observation_id):
@@ -309,5 +319,10 @@ class SingleAllContributionAPIView(
         rest_framework.response.Respone
             Empty response indicating successful delete
         """
-        observation = self.get_object(request.user, project_id, observation_id)
-        return self.delete_and_respond(request, observation)
+        contribution = self.get_contribution(
+            request.user,
+            project_id,
+            observation_id
+        )
+
+        return self.delete_and_respond(request, contribution)

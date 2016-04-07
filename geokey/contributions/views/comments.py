@@ -1,125 +1,179 @@
+"""All views for comments of contributions."""
+
 from django.core.exceptions import PermissionDenied
 
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
 
 from geokey.core.decorators import handle_exceptions_for_ajax
 from geokey.core.exceptions import MalformedRequestData
 from geokey.users.models import User
+
 from .base import SingleAllContribution
 from ..models import Comment
 from ..serializers import CommentSerializer
 
 
 class CommentAbstractAPIView(APIView):
-    """
-    Abstract class for Comments views
-    """
-    def get_list_and_respond(self, user, observation):
+    """Abstract class for comments."""
+
+    def get_user(self, request):
         """
-        Responds to a GET request with a list of all comments for an
-        observation
+        Get user of a request.
 
         Parameters
         ----------
-        user : geokey.users.models.User
-            User authenticated with the request
-        observation : geokey.contributions.models.Observation
-            Observation the comments are requested for
+        request : rest_framework.request.Request
+            Object representing the request.
+
+        Returns
+        -------
+        geokey.users.models.User
+            User of a request.
+        """
+        user = request.user
+
+        if user.is_anonymous():
+            user = User.objects.get(display_name='AnonymousUser')
+
+        return user
+
+    def get_comment(self, contribution, comment_id):
+        """
+        Get comment of a contribution.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Object representing the request.
+        contribution : geokey.contributions.models.Observation
+            Contribution to retrieve the comment from.
+        comment_id : int
+            Identifies the comment in the database.
+
+        Returns
+        -------
+        geokey.contributions.models.Comment
+            Comment of a contribution.
+        """
+        return contribution.comments\
+            .select_related('creator')\
+            .prefetch_related('responses')\
+            .get(pk=comment_id)
+
+    def get_list_and_respond(self, request, contribution):
+        """
+        Respond to a GET request with a list of all comments.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Object representing the request.
+        contribution : geokey.contributions.models.Observation
+            Contribution the comments are requested for.
 
         Returns
         -------
         rest_framework.response.Respones
-            Contains the serialised comments
+            Contains the serialized comments.
         """
-        comments = observation.comments.filter(respondsto=None)
         serializer = CommentSerializer(
-            comments, many=True, context={'user': user})
+            contribution.comments.filter(respondsto=None),
+            many=True,
+            context={'user': self.get_user(request)}
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def create_and_respond(self, request, observation):
+    def create_and_respond(self, request, contribution):
         """
-        Responds to a POST request by creating a comment
+        Respond to a POST request by creating a comment.
 
         Parameters
         ----------
         request : rest_framework.request.Request
-            User authenticated with the request
-        observation : geokey.contributions.models.Observation
-            Observation the comments are requested for
+            Object representing the request.
+        contribution : geokey.contributions.models.Observation
+            Contribution the comment should be added to.
 
         Returns
         -------
         rest_framework.response.Respone
-            Contains the serialised comment
+            Contains the serialized comment.
+
+        Raises
+        ------
+        MalformedRequestData
+            When contribution is a draft or comment does not belong to the
+            contribution.
         """
-        if observation.status == 'draft':
+        user = self.get_user(request)
+
+        if contribution.status == 'draft':
             raise MalformedRequestData(
                 'This contribution is a draft. You may not comment on drafts.'
             )
 
-        user = request.user
-        if user.is_anonymous():
-            user = User.objects.get(display_name='AnonymousUser')
-
         respondsto = request.data.get('respondsto') or None
-        if respondsto is not None:
+        if respondsto:
             try:
-                respondsto = observation.comments.get(pk=respondsto)
+                respondsto = contribution.comments.get(pk=respondsto)
             except Comment.DoesNotExist:
-                raise MalformedRequestData('The comment you try to respond to'
-                                           ' is not a comment to the '
-                                           'observation.')
+                raise MalformedRequestData(
+                    'The comment you try to respond to is not a comment '
+                    'to the contribution.'
+                )
 
         review_status = request.data.get('review_status') or None
-        if review_status == 'open' and observation.status != 'review':
-            observation.update(None, user, status='review')
+        if review_status == 'open' and contribution.status != 'review':
+            contribution.update(None, user, status='review')
 
         comment = Comment.objects.create(
             text=request.data.get('text'),
+            commentto=contribution,
             respondsto=respondsto,
-            commentto=observation,
             creator=user,
             review_status=review_status
         )
 
-        serializer = CommentSerializer(comment, context={'user': request.user})
+        serializer = CommentSerializer(comment, context={'user': user})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def update_and_respond(self, request, comment):
+    def update_and_respond(self, request, contribution, comment):
         """
-        Responds to a PATCH request by updating a comment
+        Respond to a PATCH request by updating the comment.
 
         Parameters
         ----------
         request : rest_framework.request.Request
-            User authenticated with the request
+            Object representing the request.
+        contribution : geokey.contributions.models.Observation
+            Contribution of a comment.
         comment : geokey.contributions.models.Comment
-            Comment to be updated
+            Comment to be updated.
 
         Returns
         -------
         rest_framework.response.Respone
-            Contains the serialised comment
+            Contains the serialized comment.
 
         Raises
         ------
         PermissionDenied
-            if the user authenticated with the request is not allowed to
-            update the comment
+            When user is not allowed to update the comment.
         """
-        user = request.user
+        user = self.get_user(request)
         data = request.data
 
-        can_moderate = comment.commentto.project.can_moderate(request.user)
-        is_owner = comment.creator == request.user
+        is_owner = comment.creator == user
+        can_moderate = contribution.project.can_moderate(user)
 
-        if (is_owner or can_moderate):
+        if is_owner or can_moderate:
             if data.get('review_status') == 'resolved' and not can_moderate:
-                raise PermissionDenied('You are not a project moderator and '
-                                       'therefore not eligable to resolve this'
-                                       ' comment.')
+                raise PermissionDenied(
+                    'You are not a project moderator and therefore not '
+                    'eligable to resolve this comment.'
+                )
 
             serializer = CommentSerializer(
                 comment,
@@ -131,9 +185,9 @@ class CommentAbstractAPIView(APIView):
             if serializer.is_valid():
                 serializer.save()
 
-                if (not comment.commentto.comments.filter(
+                if (not contribution.comments.filter(
                         review_status='open').exists()):
-                    comment.commentto.update(None, user, status='active')
+                    contribution.update(None, user, status='active')
 
                 return Response(serializer.data)
             else:
@@ -141,146 +195,180 @@ class CommentAbstractAPIView(APIView):
                     serializer.errors,
                     status=status.HTTP_400_BAD_REQUEST
                 )
-
         else:
-            raise PermissionDenied('You are neither the author if this comment'
-                                   ' nor a project moderator and therefore'
-                                   ' not eligable to edit this comment.')
+            raise PermissionDenied(
+                'You are neither the author if this comment nor a project '
+                'moderator and therefore not eligable to edit it.'
+            )
 
-    def delete_and_respond(self, request, comment):
+    def delete_and_respond(self, request, contribution, comment):
         """
-        Responds to a DELETE request by deleting a comment
+        Respond to a DELETE request by deleting the comment.
 
         Parameters
         ----------
         request : rest_framework.request.Request
-            User authenticated with the request
+            Object representing the request.
+        contribution : geokey.contributions.models.Observation
+            Contribution of a comment.
         comment : geokey.contributions.models.Comment
-            Comment to be updated
+            Comment to be deleted.
 
         Returns
         -------
         rest_framework.response.Respone
-            Empty response indicating success
+            Empty response indicating success.
 
         Raises
         ------
         PermissionDenied
-            if the user authenticated with the request is not allowed to
-            delete the comment
+            When user is not allowed to delete the comment.
         """
-        observation = comment.commentto
-        if (comment.creator == request.user or
-                observation.project.can_moderate(request.user)):
+        user = self.get_user(request)
 
+        if comment.creator == user or contribution.project.can_moderate(user):
             comment.delete()
 
-            if (observation.status == 'review' and
-                    not observation.comments.filter(
+            if (contribution.status == 'review' and
+                    not contribution.comments.filter(
                         review_status='open').exists()):
-
-                observation.update(None, request.user, status='active')
+                contribution.update(None, user, status='active')
 
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
-            raise PermissionDenied('You are neither the author if this comment'
-                                   ' nor a project moderator and therefore'
-                                   ' not eligable to delete this comment.')
+            raise PermissionDenied(
+                'You are neither the author if this comment nor a project '
+                'moderator and therefore not eligable to delete it.'
+            )
 
 
 class AllContributionsCommentsAPIView(
         CommentAbstractAPIView, SingleAllContribution):
+    """Public API for all comments."""
 
     @handle_exceptions_for_ajax
-    def get(self, request, project_id, observation_id):
+    def get(self, request, project_id, contribution_id):
         """
-        Returns a list of all comments of the observation
+        Handle GET request.
+
+        Return a list of all comments of the contribution.
 
         Parameters
         ----------
         request : rest_framework.request.Request
-            User authenticated with the request
+            Object representing the request.
         project_id : int
-            identifies the project in the data base
-        observation_id : int
-            identifies the observation in the data base
+            Identifies the project in the database.
+        contribution_id : int
+            Identifies the contribution in the database.
 
         Returns
         -------
         rest_framework.response.Respone
             Contains the serialised comments
         """
-        observation = self.get_object(request.user, project_id, observation_id)
-        return self.get_list_and_respond(request.user, observation)
+        contribution = self.get_contribution(
+            request.user,
+            project_id,
+            contribution_id
+        )
+
+        return self.get_list_and_respond(request, contribution)
 
     @handle_exceptions_for_ajax
-    def post(self, request, project_id, observation_id):
+    def post(self, request, project_id, contribution_id):
         """
-        Adds a new comment to the observation
+        Handle POST request.
+
+        Add a new comment to the contribution.
 
         Parameters
         ----------
         request : rest_framework.request.Request
-            User authenticated with the request
+            Object representing the request.
         project_id : int
-            identifies the project in the data base
-        observation_id : int
-            identifies the observation in the data base
+            Identifies the project in the database.
+        contribution_id : int
+            Identifies the contribution in the database.
 
         Returns
         -------
         rest_framework.response.Respone
             Contains the serialised comment
         """
-        observation = self.get_object(request.user, project_id, observation_id)
-        return self.create_and_respond(request, observation)
+        contribution = self.get_contribution(
+            request.user,
+            project_id,
+            contribution_id
+        )
+
+        return self.create_and_respond(request, contribution)
 
 
 class AllContributionsSingleCommentAPIView(
         CommentAbstractAPIView, SingleAllContribution):
+    """Public API for a single comment."""
 
     @handle_exceptions_for_ajax
-    def patch(self, request, project_id, observation_id, comment_id):
+    def patch(self, request, project_id, contribution_id, comment_id):
         """
-        Updates a comment
+        Handle PATCH request.
+
+        Update the comment.
 
         Parameters
         ----------
         request : rest_framework.request.Request
-            User authenticated with the request
+            Object representing the request.
         project_id : int
-            identifies the project in the data base
-        observation_id : int
-            identifies the observation in the data base
+            Identifies the project in the database.
+        contribution_id : int
+            Identifies the contribution in the database.
+        comment_id : int
+            Identifies the comment in the database.
 
         Returns
         -------
         rest_framework.response.Respone
-            Contains the serialised comment
+            Contains the serialized comment.
         """
-        observation = self.get_object(request.user, project_id, observation_id)
-        comment = observation.comments.get(pk=comment_id)
-        return self.update_and_respond(request, comment)
+        contribution = self.get_contribution(
+            request.user,
+            project_id,
+            contribution_id
+        )
+        comment = self.get_comment(contribution, comment_id)
+
+        return self.update_and_respond(request, contribution, comment)
 
     @handle_exceptions_for_ajax
-    def delete(self, request, project_id, observation_id, comment_id):
+    def delete(self, request, project_id, contribution_id, comment_id):
         """
-        Deletes a comment from the observation
+        Handle DELETE request.
+
+        Delete the comment.
 
         Parameters
         ----------
         request : rest_framework.request.Request
-            User authenticated with the request
+            Object representing the request.
         project_id : int
-            identifies the project in the data base
-        observation_id : int
-            identifies the observation in the data base
+            Identifies the project in the database.
+        contribution_id : int
+            Identifies the contribution in the database.
+        comment_id : int
+            Identifies the comment in the database.
 
         Returns
         -------
         rest_framework.response.Respone
-            Contains the serialised comment
+            Contains the serialized comment.
         """
-        observation = self.get_object(request.user, project_id, observation_id)
-        comment = observation.comments.get(pk=comment_id)
-        return self.delete_and_respond(request, comment)
+        contribution = self.get_contribution(
+            request.user,
+            project_id,
+            contribution_id
+        )
+        comment = self.get_comment(contribution, comment_id)
+
+        return self.delete_and_respond(request, contribution, comment)
