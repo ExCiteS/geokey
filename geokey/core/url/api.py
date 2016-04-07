@@ -34,7 +34,7 @@ urlpatterns = [
         name='project_single'),
 
     # ###########################
-    # OBSERVATIONS
+    # CONTRIBUTIONS
     # ###########################
     url(
         r'^projects/(?P<project_id>[0-9]+)/contributions/$',
