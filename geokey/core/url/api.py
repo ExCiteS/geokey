@@ -34,6 +34,14 @@ urlpatterns = [
         name='project_single'),
 
     # ###########################
+    # CATEGORIES
+    # ###########################
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/$',
+        category_views.SingleCategory.as_view(),
+        name='category'),
+
+    # ###########################
     # CONTRIBUTIONS
     # ###########################
     url(
@@ -86,12 +94,4 @@ urlpatterns = [
         r'^projects/(?P<project_id>[0-9]+)/contributions/(?P<contribution_id>[0-9]+)/media/(?P<file_id>[0-9]+)/$',
         media.AllContributionsSingleMediaApiView.as_view(),
         name='project_single_media'),
-
-    # ###########################
-    # CATEGORIES
-    # ###########################
-    url(
-        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/$',
-        category_views.SingleCategory.as_view(),
-        name='category'),
 ]
