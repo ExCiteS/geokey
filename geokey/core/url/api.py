@@ -49,12 +49,14 @@ urlpatterns = [
     # LOCATIONS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/locations/$',
-        locations.Locations.as_view(),
+        r'^projects/(?P<project_id>[0-9]+)'
+        r'/locations/$',
+        locations.LocationsAPIView.as_view(),
         name='project_locations'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/locations/(?P<location_id>[0-9]+)/$',
-        locations.SingleLocation.as_view(),
+        r'^projects/(?P<project_id>[0-9]+)'
+        r'/locations/(?P<location_id>[0-9]+)/$',
+        locations.SingleLocationAPIView.as_view(),
         name='project_single_location'),
 
     # ###########################
