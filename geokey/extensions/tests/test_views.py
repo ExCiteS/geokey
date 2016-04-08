@@ -7,7 +7,7 @@ from django.views.generic.base import TemplateResponseMixin
 from rest_framework.test import APIRequestFactory
 
 from geokey.users.tests.model_factories import UserFactory
-from geokey.extensions.views import SuperuserMixin
+from geokey.extensions.mixins import SuperuserMixin
 
 
 class ExampleView(SuperuserMixin, TemplateResponseMixin, View):
