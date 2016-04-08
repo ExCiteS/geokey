@@ -1,3 +1,5 @@
+"""All public API URLs."""
+
 from django.conf.urls import url
 
 from geokey.core.views import InfoAPIView
@@ -13,13 +15,22 @@ urlpatterns = [
     # ###########################
     # CORE
     # ###########################
-    url(r'^info/$', InfoAPIView.as_view(), name='info_api'),
+    url(
+        r'^info/$',
+        InfoAPIView.as_view(),
+        name='info'),
 
     # ###########################
     # USERS
     # ###########################
-    url(r'^user/$', UserAPIView.as_view(), name='user_api'),
-    url(r'^user/password/change/$', ChangePasswordView.as_view(), name='changepassword'),
+    url(
+        r'^user/$',
+        UserAPIView.as_view(),
+        name='user_api'),
+    url(
+        r'^user/password/change/$',
+        ChangePasswordView.as_view(),
+        name='changepassword'),
 
     # ###########################
     # PROJECTS
@@ -37,7 +48,8 @@ urlpatterns = [
     # CATEGORIES
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'categories/(?P<category_id>[0-9]+)/$',
         category_views.SingleCategory.as_view(),
         name='category'),
 
@@ -45,11 +57,13 @@ urlpatterns = [
     # CONTRIBUTIONS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/contributions/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'contributions/$',
         observations.ProjectObservations.as_view(),
         name='project_observations'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/contributions/(?P<observation_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'contributions/(?P<observation_id>[0-9]+)/$',
         observations.SingleAllContributionAPIView.as_view(),
         name='project_single_observation'),
 

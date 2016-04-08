@@ -1,3 +1,5 @@
+"""All core decorators."""
+
 from django.core.exceptions import PermissionDenied, ValidationError
 
 from rest_framework import status

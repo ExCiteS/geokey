@@ -1,3 +1,4 @@
+"""All core middleware."""
 # https://gist.github.com/barrabinfc/426829
 
 from django import http
@@ -16,19 +17,17 @@ except:
 
 class XsSharing(object):
     """
-        This middleware allows cross-domain XHR using the html5 postMessage API.
+    This middleware allows cross-domain XHR using the HTML5 postMessage API.
 
-        Access-Control-Allow-Origin: http://foo.example
-        Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE
+    Access-Control-Allow-Origin: http://foo.example
+    Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE
     """
     def process_request(self, request):
-
         if 'HTTP_ACCESS_CONTROL_REQUEST_METHOD' in request.META:
             response = http.HttpResponse()
             response['Access-Control-Allow-Origin'] = XS_SHARING_ALLOWED_ORIGINS
-            response['Access-Control-Allow-Methods'] = ",".join( XS_SHARING_ALLOWED_METHODS )
-            response['Access-Control-Allow-Headers'] = ",".join( XS_SHARING_ALLOWED_HEADERS )
-
+            response['Access-Control-Allow-Methods'] = ",".join(XS_SHARING_ALLOWED_METHODS)
+            response['Access-Control-Allow-Headers'] = ",".join(XS_SHARING_ALLOWED_HEADERS)
             return response
 
         return None
@@ -39,8 +38,8 @@ class XsSharing(object):
             return response
 
         response['Access-Control-Allow-Origin'] = XS_SHARING_ALLOWED_ORIGINS
-        response['Access-Control-Allow-Methods'] = ",".join( XS_SHARING_ALLOWED_METHODS )
-        response['Access-Control-Allow-Headers'] = ",".join( XS_SHARING_ALLOWED_HEADERS )
+        response['Access-Control-Allow-Methods'] = ",".join(XS_SHARING_ALLOWED_METHODS)
+        response['Access-Control-Allow-Headers'] = ",".join(XS_SHARING_ALLOWED_HEADERS)
 
         return response
 
