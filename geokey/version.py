@@ -5,7 +5,7 @@ VERSION = (0, 10, 1, 'final', 0)
 
 def get_version():
     """
-    Return current version.
+    Return current version of GeoKey.
 
     Returns
     -------
