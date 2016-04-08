@@ -1,6 +1,9 @@
+"""Tests for views."""
+
 from django.test import TestCase
 from django.views.generic import View
 from django.views.generic.base import TemplateResponseMixin
+
 from rest_framework.test import APIRequestFactory
 
 from geokey.users.tests.model_factories import UserFactory
@@ -9,33 +12,43 @@ from ..views import SuperuserMixin
 
 
 class ExampleView(SuperuserMixin, TemplateResponseMixin, View):
+    """Setup example view."""
+
     template_name = 'base.html'
 
     def get(self, request):
+        """Setup GET."""
         return self.render_to_response({
-            'success': 'yes'
+            'country': 'United Kingdom'
         })
 
 
 class SuperuserMixinTest(TestCase):
-    def test_user(self):
-        view = ExampleView.as_view()
-        request = APIRequestFactory().get('http://example.com')
-        request.user = UserFactory.create()
-        response = view(request).render()
+    """Test superuser mixin."""
+
+    def setUp(self):
+        """Set up test."""
+        self.view = ExampleView.as_view()
+        self.request = APIRequestFactory().get('http://example.com')
+
+    def test_with_user(self):
+        """Test with user."""
+        self.request.user = UserFactory.create(**{'is_superuser': False})
+        response = self.view(self.request).render()
+
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            'This extension is for super users only.'
+            'This extension is for superusers only.'
         )
 
-    def test_superuser(self):
-        view = ExampleView.as_view()
-        request = APIRequestFactory().get('http://example.com')
-        request.user = UserFactory.create(**{'is_superuser': True})
-        response = view(request).render()
+    def test_with_superuser(self):
+        """Test with superuser."""
+        self.request.user = UserFactory.create(**{'is_superuser': True})
+        response = self.view(self.request).render()
+
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(
             response,
-            'This extension is for super users only.'
+            'This extension is for superusers only.'
         )
