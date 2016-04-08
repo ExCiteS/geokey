@@ -468,7 +468,7 @@ class PlatformSettingsTest(TestCase):
 # #############################################################################
 
 class SuperusersAjaxViewTest(TestCase):
-    """Ajax API for all superusers."""
+    """Test Ajax API for all superusers."""
 
     def setUp(self):
         """Set up test."""
