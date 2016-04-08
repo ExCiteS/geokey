@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.gis.db import models as gis
 
 from .manager import ProjectManager
-from .base import STATUS, EVERYONE_CONTRIB
+from .base import STATUS, EVERYONE_CONTRIBUTES
 
 
 class Project(models.Model):
@@ -17,8 +17,8 @@ class Project(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     everyone_contributes = models.CharField(
-        choices=EVERYONE_CONTRIB,
-        default=EVERYONE_CONTRIB.auth,
+        choices=EVERYONE_CONTRIBUTES,
+        default=EVERYONE_CONTRIBUTES.auth,
         max_length=20
     )
     status = models.CharField(
@@ -92,8 +92,8 @@ class Project(models.Model):
         We are not allowing anonymous contributions for private projects.
         """
         if (self.isprivate and
-                self.everyone_contributes == EVERYONE_CONTRIB.true):
-            self.everyone_contributes = EVERYONE_CONTRIB.auth
+                self.everyone_contributes == EVERYONE_CONTRIBUTES.true):
+            self.everyone_contributes = EVERYONE_CONTRIBUTES.auth
 
         super(Project, self).save(*args, **kwargs)
 
@@ -208,9 +208,9 @@ class Project(models.Model):
             Indicating if user can contribute
         """
         return self.status == STATUS.active and (
-            (self.everyone_contributes != EVERYONE_CONTRIB.false and (
+            (self.everyone_contributes != EVERYONE_CONTRIBUTES.false and (
                 not user.is_anonymous() or
-                not self.everyone_contributes == EVERYONE_CONTRIB.auth)
+                not self.everyone_contributes == EVERYONE_CONTRIBUTES.auth)
              ) or self.is_admin(user) or (
                 not user.is_anonymous() and (
                     self.usergroups.filter(

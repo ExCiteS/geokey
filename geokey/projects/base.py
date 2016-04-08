@@ -1,4 +1,7 @@
+"""Base for projects."""
+
 from model_utils import Choices
 
+
 STATUS = Choices('active', 'inactive', 'deleted')
-EVERYONE_CONTRIB = Choices('true', 'auth', 'false')
+EVERYONE_CONTRIBUTES = Choices('true', 'auth', 'false')
