@@ -1,4 +1,4 @@
-"""All views for superusertools."""
+"""All views for superuser tools."""
 
 from django.db.models import Q, Case, When, Sum, IntegerField
 from django.views.generic import TemplateView
@@ -7,51 +7,17 @@ from django.contrib.sites.shortcuts import get_current_site
 
 from braces.views import LoginRequiredMixin
 from allauth.account.models import EmailAddress
-
 from rest_framework import status
-from rest_framework.permissions import BasePermission
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from geokey.core.decorators import handle_exceptions_for_ajax
 from geokey.users.models import User
 from geokey.users.serializers import UserSerializer
 from geokey.projects.models import Project
 from geokey.contributions.base import OBSERVATION_STATUS
-
-
-# #############################################################################
-#
-# MIXINS
-#
-# #############################################################################
-
-class SuperuserMixin(object):
-    """A mixin for superuser."""
-
-    exception_message = 'No rights to access superuser tools.'
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Dispatch the request.
-
-        Check if user is a superuser, display an error message if not.
-
-        Parameters
-        ----------
-        request : django.http.HttpRequest
-            Object representing the request.
-
-        Returns
-        -------
-        django.http.HttpResponse
-        """
-        if not request.user.is_superuser:
-            return self.render_to_response({
-                'error': 'Permission denied.',
-                'error_description': self.exception_message
-            })
-
-        return super(SuperuserMixin, self).dispatch(request, *args, **kwargs)
+from geokey.superusertools.base import IsSuperuser
+from geokey.superusertools.mixins import SuperuserMixin
 
 
 # #############################################################################
@@ -144,7 +110,7 @@ class ManageProjects(LoginRequiredMixin, SuperuserMixin, TemplateView):
         """
         Return the context to render the view.
 
-        Add a list of projects to the context (with numbers in total for
+        Add a list of projects to the context (with numbers in total of
         contributions, comments, media files).
 
         Returns
@@ -194,6 +160,8 @@ class PlatformSettings(LoginRequiredMixin, SuperuserMixin, TemplateView):
 
     def post(self, request):
         """
+        Handle POST request.
+
         Update the platform settings.
 
         Parameters
@@ -228,38 +196,17 @@ class PlatformSettings(LoginRequiredMixin, SuperuserMixin, TemplateView):
 #
 # #############################################################################
 
-class IsSuperuser(BasePermission):
-    """A permission to check if user is a superuser."""
-
-    def has_permission(self, request, view):
-        """
-        Check whether user has superuser permission.
-
-        Parameters
-        ----------
-        request : rest_framework.request.Request
-            Object representing the request.
-        view : rest_framework.views.APIView
-            View that called the permission.
-
-        Returns
-        -------
-        Boolean
-            Indicating if user is a superuser.
-        """
-        return request.user and request.user.is_superuser
-
-
 class SuperusersAjaxView(APIView):
     """Ajax API for all superusers."""
 
     permission_classes = (IsSuperuser,)
 
+    @handle_exceptions_for_ajax
     def post(self, request):
         """
         Handle POST request.
 
-        Add the user to superusers.
+        Add a user to superusers.
 
         Parameters
         ----------
@@ -269,24 +216,20 @@ class SuperusersAjaxView(APIView):
         Returns
         -------
         rest_framework.response.Response
-            Contains a list of superusers or an error message.
+            Response to the request.
         """
-        try:
-            user = User.objects.get(pk=request.data.get('user_id'))
-            user.is_superuser = True
-            user.save()
+        user = User.objects.get(pk=request.data.get('user_id'))
+        user.is_superuser = True
+        user.save()
 
-            superusers = User.objects.filter(is_superuser=True)
-            serializer = UserSerializer(superusers, many=True)
-            return Response(
-                {'users': serializer.data},
-                status=status.HTTP_201_CREATED
-            )
-        except User.DoesNotExist:
-            return Response(
-                'The user does not exist.',
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        serializer = UserSerializer(
+            User.objects.filter(is_superuser=True),
+            many=True
+        )
+        return Response(
+            {'users': serializer.data},
+            status=status.HTTP_201_CREATED
+        )
 
 
 class SingleSuperuserAjaxView(APIView):
@@ -294,11 +237,12 @@ class SingleSuperuserAjaxView(APIView):
 
     permission_classes = (IsSuperuser,)
 
+    @handle_exceptions_for_ajax
     def delete(self, request, user_id):
         """
         Handle DELETE request.
 
-        Remove the user from superusers.
+        Remove a user from superusers.
 
         Parameters
         ----------
@@ -312,14 +256,8 @@ class SingleSuperuserAjaxView(APIView):
         rest_framework.response.Response
             Response to the request.
         """
-        try:
-            user = User.objects.get(pk=user_id, is_superuser=True)
-            user.is_superuser = False
-            user.save()
+        user = User.objects.get(pk=user_id, is_superuser=True)
+        user.is_superuser = False
+        user.save()
 
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except User.DoesNotExist:
-            return Response(
-                'The user does not exist.',
-                status=status.HTTP_404_NOT_FOUND
-            )
+        return Response(status=status.HTTP_204_NO_CONTENT)
