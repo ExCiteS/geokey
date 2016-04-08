@@ -16,9 +16,7 @@ from braces.views import LoginRequiredMixin
 
 from geokey.projects.models import Project
 from geokey.projects.views import ProjectContext
-from geokey.core.decorators import (
-    handle_exceptions_for_ajax, handle_exceptions_for_admin
-)
+from geokey.core.decorators import handle_exceptions_for_ajax
 
 from .base import STATUS
 from .models import (
@@ -29,74 +27,8 @@ from .forms import CategoryCreateForm, FieldCreateForm
 from .serializers import (
     CategorySerializer, FieldSerializer, LookupFieldSerializer
 )
+from geokey.categories.mixins import CategoryMixin, FieldMixin
 from geokey.contributions.models import Observation
-
-
-# #############################################################################
-#
-# CONTEXTS
-#
-# #############################################################################
-
-class CategoryContext(object):
-    """Context for a single category."""
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id, category_id, *args, **kwargs):
-        """
-        Return the context to render the view.
-
-        Overwrite the method to add the project and the category to the
-        context.
-
-        Returns
-        -------
-        dict
-            Context.
-        """
-        category = Category.objects.as_admin(
-            self.request.user,
-            project_id,
-            category_id
-        )
-        return super(CategoryContext, self).get_context_data(
-            project=category.project,
-            category=category,
-            *args,
-            **kwargs
-        )
-
-
-class FieldContext(object):
-    """Context for a single field."""
-
-    @handle_exceptions_for_admin
-    def get_context_data(self, project_id, category_id, field_id,
-                         *args, **kwargs):
-        """
-        Return the context to render the view.
-
-        Overwrite the method to add the project, the category and the field to
-        the context.
-
-        Returns
-        -------
-        dict
-            Context.
-        """
-        field = Field.objects.as_admin(
-            self.request.user,
-            project_id,
-            category_id,
-            field_id
-        )
-        return super(FieldContext, self).get_context_data(
-            project=field.category.project,
-            category=field.category,
-            field=field,
-            *args,
-            **kwargs
-        )
 
 
 # #############################################################################
@@ -185,13 +117,13 @@ class CategoryCreate(LoginRequiredMixin, ProjectContext, CreateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class CategoryOverview(LoginRequiredMixin, CategoryContext, TemplateView):
+class CategoryOverview(LoginRequiredMixin, CategoryMixin, TemplateView):
     """Category overview page."""
 
     template_name = 'categories/category_overview.html'
 
 
-class CategorySettings(LoginRequiredMixin, CategoryContext, TemplateView):
+class CategorySettings(LoginRequiredMixin, CategoryMixin, TemplateView):
     """Category settings page."""
 
     template_name = 'categories/category_settings.html'
@@ -274,7 +206,7 @@ class CategorySettings(LoginRequiredMixin, CategoryContext, TemplateView):
         return self.render_to_response(context)
 
 
-class CategoryDisplay(LoginRequiredMixin, CategoryContext, TemplateView):
+class CategoryDisplay(LoginRequiredMixin, CategoryMixin, TemplateView):
     """Category display page."""
 
     template_name = 'categories/category_display.html'
@@ -322,7 +254,7 @@ class CategoryDisplay(LoginRequiredMixin, CategoryContext, TemplateView):
         return self.render_to_response(context)
 
 
-class CategoryDelete(LoginRequiredMixin, CategoryContext, TemplateView):
+class CategoryDelete(LoginRequiredMixin, CategoryMixin, TemplateView):
     """Delete category page."""
 
     template_name = 'base.html'
@@ -373,7 +305,7 @@ class CategoryDelete(LoginRequiredMixin, CategoryContext, TemplateView):
         return self.render_to_response(context)
 
 
-class FieldCreate(LoginRequiredMixin, CategoryContext, CreateView):
+class FieldCreate(LoginRequiredMixin, CategoryMixin, CreateView):
     """Creat field page."""
 
     template_name = 'categories/field_create.html'
@@ -485,7 +417,7 @@ class FieldCreate(LoginRequiredMixin, CategoryContext, CreateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class FieldSettings(LoginRequiredMixin, FieldContext, TemplateView):
+class FieldSettings(LoginRequiredMixin, FieldMixin, TemplateView):
     """Field settings page."""
 
     template_name = 'categories/field_settings.html'
@@ -570,7 +502,7 @@ class FieldSettings(LoginRequiredMixin, FieldContext, TemplateView):
         return self.render_to_response(context)
 
 
-class FieldDelete(LoginRequiredMixin, FieldContext, TemplateView):
+class FieldDelete(LoginRequiredMixin, FieldMixin, TemplateView):
     """Delete field page."""
 
     template_name = 'base.html'
