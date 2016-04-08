@@ -1,6 +1,6 @@
 """Base for extensions."""
 
-from .exceptions import ExtensionExists
+from geokey.extensions.exceptions import ExtensionExists
 
 
 extensions = {}

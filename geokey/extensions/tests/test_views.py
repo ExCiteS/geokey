@@ -7,17 +7,16 @@ from django.views.generic.base import TemplateResponseMixin
 from rest_framework.test import APIRequestFactory
 
 from geokey.users.tests.model_factories import UserFactory
-
-from ..views import SuperuserMixin
+from geokey.extensions.views import SuperuserMixin
 
 
 class ExampleView(SuperuserMixin, TemplateResponseMixin, View):
-    """Setup example view."""
+    """Set up example view."""
 
     template_name = 'base.html'
 
     def get(self, request):
-        """Setup GET."""
+        """Set up GET request."""
         return self.render_to_response({
             'country': 'United Kingdom'
         })

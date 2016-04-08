@@ -2,8 +2,8 @@
 
 from django.test import TestCase
 
-from ..base import extensions, register, deregister
-from ..exceptions import ExtensionExists
+from geokey.extensions.base import extensions, register, deregister
+from geokey.extensions.exceptions import ExtensionExists
 
 
 class RegisterTest(TestCase):

@@ -1,6 +1,6 @@
-"""All views for extensions."""
+"""All mixins for extensions."""
 
-from geokey.superusertools.views import SuperuserMixin
+from geokey.superusertools.mixins import SuperuserMixin
 
 
 class SuperuserMixin(SuperuserMixin):
