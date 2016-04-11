@@ -1,3 +1,5 @@
+"""Tests for models of categories."""
+
 import json
 
 from django.test import TestCase

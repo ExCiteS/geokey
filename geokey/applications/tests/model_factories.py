@@ -1,3 +1,5 @@
+"""Model factories used for tests of applications."""
+
 import datetime
 import factory
 

@@ -1,4 +1,4 @@
-"""All core serializers."""
+"""Core serializers."""
 
 from rest_framework import serializers
 

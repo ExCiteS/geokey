@@ -1,4 +1,4 @@
-"""All Ajax API URLs."""
+"""Ajax API URLs."""
 
 from django.conf.urls import url
 

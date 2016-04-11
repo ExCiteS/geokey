@@ -1,3 +1,5 @@
+"""Tests for managers of users."""
+
 from django.test import TestCase, TransactionTestCase
 from nose.tools import raises
 

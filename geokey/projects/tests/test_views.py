@@ -1,3 +1,5 @@
+"""Tests for views of projects."""
+
 import json
 
 from django.test import TestCase

@@ -1,4 +1,4 @@
-"""Tests for mixins."""
+"""Tests for mixins of extensions."""
 
 from django.test import TestCase
 from django.views.generic import View

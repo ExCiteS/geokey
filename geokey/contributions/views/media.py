@@ -1,4 +1,4 @@
-"""All views for media of contributions."""
+"""Views for media files of contributions."""
 
 from django.core.exceptions import PermissionDenied
 

@@ -1,4 +1,4 @@
-"""All public API URLs."""
+"""Public API URLs."""
 
 from django.conf.urls import url
 

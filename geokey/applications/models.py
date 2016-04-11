@@ -1,9 +1,11 @@
+"""Models for applications."""
+
 from django.db import models
 
 from oauth2_provider.models import AbstractApplication
 
 from .base import STATUS
-from .manager import ApplicationManager
+from .managers import ApplicationManager
 
 
 class Application(AbstractApplication):

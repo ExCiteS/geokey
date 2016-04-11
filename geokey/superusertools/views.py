@@ -1,4 +1,4 @@
-"""All views for superuser tools."""
+"""Views for superuser tools."""
 
 from django.db.models import Q, Case, When, Sum, IntegerField
 from django.views.generic import TemplateView

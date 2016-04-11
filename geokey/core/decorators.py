@@ -1,4 +1,4 @@
-"""All core decorators."""
+"""Core decorators."""
 
 from django.core.exceptions import PermissionDenied, ValidationError
 

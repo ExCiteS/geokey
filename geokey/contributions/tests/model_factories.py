@@ -1,3 +1,5 @@
+"""Model factories used for tests of contributions."""
+
 import datetime
 import factory
 

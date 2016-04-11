@@ -1,4 +1,7 @@
+"""Tests for models of projects."""
+
 import pytz
+
 from datetime import datetime
 
 from django.test import TestCase

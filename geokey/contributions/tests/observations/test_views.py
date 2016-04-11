@@ -1,3 +1,5 @@
+"""Tests for views of contributions (observations)."""
+
 import json
 
 from django.test import TestCase

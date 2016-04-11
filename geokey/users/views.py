@@ -1,4 +1,4 @@
-"""All views for users."""
+"""Views for users."""
 
 from json import loads as json_loads
 from django.views.generic import TemplateView, CreateView

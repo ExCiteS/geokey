@@ -1,3 +1,5 @@
+"""Tests for template tags of contributions (observations)."""
+
 from django.test import TestCase
 
 from geokey.contributions.templatetags import kml_tags

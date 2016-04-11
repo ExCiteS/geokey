@@ -1,3 +1,5 @@
+"""Tests for parsers of contributions (observations)."""
+
 import json
 from io import BytesIO
 

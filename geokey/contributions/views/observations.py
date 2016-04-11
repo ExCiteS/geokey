@@ -1,3 +1,5 @@
+"""Views for observations of categories."""
+
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.gzip import gzip_page
 
@@ -9,7 +11,7 @@ from geokey.core.decorators import handle_exceptions_for_ajax
 from geokey.users.models import User
 from geokey.projects.models import Project
 
-from ..renderer.geojson import GeoJsonRenderer
+from ..renderers.geojson import GeoJsonRenderer
 from ..parsers.geojson import GeoJsonParser
 
 from .base import SingleAllContribution

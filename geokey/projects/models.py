@@ -1,8 +1,10 @@
+"""Models for projects."""
+
 from django.db import models
 from django.conf import settings
 from django.contrib.gis.db import models as gis
 
-from .manager import ProjectManager
+from .managers import ProjectManager
 from .base import STATUS, EVERYONE_CONTRIBUTES
 
 

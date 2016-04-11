@@ -1,4 +1,4 @@
-"""Tests for base."""
+"""Tests for base of extensions."""
 
 from django.test import TestCase
 

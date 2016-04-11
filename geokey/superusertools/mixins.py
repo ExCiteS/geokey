@@ -1,4 +1,4 @@
-"""All mixins for superuser tools."""
+"""Mixins for superuser tools."""
 
 
 class SuperuserMixin(object):

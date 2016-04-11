@@ -1,3 +1,5 @@
+"""Model factories used for tests of categories."""
+
 import factory
 
 from geokey.core.tests.helpers.image_helpers import get_image

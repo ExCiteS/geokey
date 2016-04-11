@@ -1,3 +1,5 @@
+"""Forms for users."""
+
 from django import forms
 from django.utils.html import strip_tags
 from django.core.exceptions import ValidationError

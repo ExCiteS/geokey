@@ -1,3 +1,5 @@
+"""Models for categories."""
+
 import json
 
 import time
@@ -10,7 +12,7 @@ from django.db import models
 
 from geokey.core.exceptions import InputError
 
-from .manager import CategoryManager, FieldManager, LookupValueManager
+from .managers import CategoryManager, FieldManager, LookupValueManager
 from .base import STATUS, DEFAULT_STATUS
 
 

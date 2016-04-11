@@ -1,3 +1,5 @@
+"""Tests for views of users."""
+
 import json
 
 from django.test import TestCase, TransactionTestCase

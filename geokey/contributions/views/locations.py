@@ -1,4 +1,4 @@
-"""All views for locations of contributions."""
+"""Views for locations of contributions."""
 
 from django.db.models import Q
 

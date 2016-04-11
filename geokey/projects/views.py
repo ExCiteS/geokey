@@ -1,4 +1,4 @@
-"""All views for projects."""
+"""Views for projects."""
 
 from django.db import IntegrityError
 from django.views.generic import CreateView, TemplateView

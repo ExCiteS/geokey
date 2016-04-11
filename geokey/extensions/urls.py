@@ -1,4 +1,4 @@
-"""All URLs for extensions."""
+"""URLs for extensions."""
 
 from os.path import dirname, isfile, join
 

@@ -1,4 +1,4 @@
-"""All mixins for extensions."""
+"""Mixins for extensions."""
 
 from geokey.superusertools.mixins import SuperuserMixin
 

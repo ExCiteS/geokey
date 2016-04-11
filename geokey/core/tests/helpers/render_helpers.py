@@ -1,3 +1,5 @@
+"""Core render helpers."""
+
 from re import sub
 
 

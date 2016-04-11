@@ -1,3 +1,5 @@
+"""Tests for serializers of contributions (media files)."""
+
 import os
 import glob
 

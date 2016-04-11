@@ -1,3 +1,5 @@
+"""Tests for managers of contributions (comments)."""
+
 from django.test import TestCase
 
 from ..model_factories import ObservationFactory, CommentFactory

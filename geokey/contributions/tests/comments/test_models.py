@@ -1,3 +1,5 @@
+"""Tests for models of contributions (comments)."""
+
 from django.test import TestCase
 
 from nose.tools import raises

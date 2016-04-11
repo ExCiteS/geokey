@@ -1,4 +1,4 @@
-"""Tests for views."""
+"""Tests for core views."""
 
 import json
 

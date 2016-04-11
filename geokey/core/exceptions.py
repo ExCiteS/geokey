@@ -1,4 +1,4 @@
-"""All core exceptions."""
+"""Core exceptions."""
 
 
 class Unauthenticated(Exception):

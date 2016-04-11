@@ -1,4 +1,4 @@
-"""All views for categories."""
+"""Views for categories."""
 
 from django.views.generic import CreateView, TemplateView
 from django.shortcuts import redirect

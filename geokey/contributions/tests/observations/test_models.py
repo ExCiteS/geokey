@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Tests for models of contributions (observations)."""
 
 from django.test import TestCase
 from django.core.exceptions import ValidationError

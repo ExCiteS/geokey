@@ -1,3 +1,5 @@
+"""Serializers for categories."""
+
 from rest_framework.serializers import (
     ModelSerializer, ReadOnlyField, SerializerMethodField
 )

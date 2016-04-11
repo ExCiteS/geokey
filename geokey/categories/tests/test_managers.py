@@ -1,3 +1,5 @@
+"""Tests for managers of categories."""
+
 from django.test import TestCase
 from django.core.exceptions import PermissionDenied
 

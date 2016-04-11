@@ -1,3 +1,5 @@
+"""Tests for views of contributions (media files)."""
+
 import json
 import os
 import glob

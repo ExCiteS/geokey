@@ -1,3 +1,5 @@
+"""KML renderer."""
+
 from django.template.loader import render_to_string
 
 from rest_framework.renderers import BaseRenderer

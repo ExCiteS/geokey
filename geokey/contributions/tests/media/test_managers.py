@@ -1,3 +1,5 @@
+"""Tests for managers of contributions (media files)."""
+
 import os
 import glob
 

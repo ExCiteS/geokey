@@ -1,3 +1,5 @@
+"""Model factories used for tests of subsets."""
+
 import factory
 
 from geokey.users.tests.model_factories import UserFactory

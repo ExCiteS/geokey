@@ -1,3 +1,5 @@
+"""Tests for serializers of users."""
+
 from django.test import TestCase
 
 from rest_framework.serializers import ValidationError

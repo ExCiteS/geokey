@@ -1,3 +1,5 @@
+"""Tests for template tags of users."""
+
 from django.test import TestCase
 
 from geokey.categories.tests.model_factories import CategoryFactory

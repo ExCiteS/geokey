@@ -1,4 +1,4 @@
-"""All core mixins."""
+"""Core mixins."""
 
 
 class FilterMixin(object):

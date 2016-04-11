@@ -1,3 +1,5 @@
+"""Managers for applications."""
+
 from django.db import models
 from django.core.exceptions import PermissionDenied
 

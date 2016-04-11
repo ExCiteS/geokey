@@ -1,3 +1,5 @@
+"""Command `check_confirm`."""
+
 from django.core.management.base import NoArgsCommand
 
 from datetime import datetime, timedelta

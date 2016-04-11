@@ -1,4 +1,4 @@
-"""All core middleware."""
+"""Core middleware."""
 # https://gist.github.com/barrabinfc/426829
 
 from django import http

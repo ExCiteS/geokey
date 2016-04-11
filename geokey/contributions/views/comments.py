@@ -1,4 +1,4 @@
-"""All views for comments of contributions."""
+"""Views for comments of categories."""
 
 from django.core.exceptions import PermissionDenied
 

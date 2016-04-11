@@ -1,4 +1,4 @@
-"""All admin URLs."""
+"""Admin URLs."""
 
 from django.conf.urls import url
 from django.core.urlresolvers import reverse_lazy

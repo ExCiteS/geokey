@@ -1,5 +1,8 @@
+"""Managers for contributions."""
+
 import os
 import re
+
 from datetime import datetime
 
 from django.contrib.gis.db import models

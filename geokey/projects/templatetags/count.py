@@ -1,3 +1,5 @@
+"""Template tags for counting."""
+
 from django import template
 
 register = template.Library()

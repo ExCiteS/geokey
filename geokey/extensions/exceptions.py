@@ -1,4 +1,4 @@
-"""All exceptions for extensions."""
+"""Exceptions for extensions."""
 
 
 class ExtensionExists(BaseException):

@@ -1,3 +1,5 @@
+"""Tests for models of contributions (media files)."""
+
 from django.test import TestCase
 
 from geokey.contributions.models import (

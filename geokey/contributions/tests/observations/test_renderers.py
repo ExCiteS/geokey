@@ -1,9 +1,12 @@
+"""Tests for renderers of contributions (observations)."""
+
 import json
+
 from django.test import TestCase
 from django.template.loader import render_to_string
 
-from geokey.contributions.renderer.geojson import GeoJsonRenderer
-from geokey.contributions.renderer.kml import KmlRenderer
+from geokey.contributions.renderers.geojson import GeoJsonRenderer
+from geokey.contributions.renderers.kml import KmlRenderer
 
 
 class KmlRendererTest(TestCase):

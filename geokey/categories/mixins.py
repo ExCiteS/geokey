@@ -1,4 +1,4 @@
-"""All mixins for categories."""
+"""Mixins for categories."""
 
 from geokey.core.decorators import handle_exceptions_for_admin
 from geokey.categories.models import Category, Field

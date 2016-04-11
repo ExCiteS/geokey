@@ -1,3 +1,5 @@
+"""Serializers for subsets."""
+
 from rest_framework.serializers import ModelSerializer
 from .models import Subset
 

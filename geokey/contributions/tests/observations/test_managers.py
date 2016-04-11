@@ -1,3 +1,5 @@
+"""Tests for managers of contributions (observations)."""
+
 from django.test import TestCase
 
 from geokey.contributions.models import Observation
