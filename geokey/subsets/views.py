@@ -1,3 +1,5 @@
+"""Views for subsets."""
+
 from json import loads as json_loads
 
 from django.core.urlresolvers import reverse

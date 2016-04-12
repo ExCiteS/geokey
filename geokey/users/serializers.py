@@ -1,3 +1,5 @@
+"""Serializers for users."""
+
 from rest_framework.serializers import ModelSerializer, ValidationError
 
 from geokey.core.serializers import FieldSelectorSerializer

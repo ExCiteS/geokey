@@ -1,7 +1,9 @@
+"""Serializers for contributions."""
+
 import requests
 import tempfile
-from django.core import files
 
+from django.core import files
 from django.core.exceptions import PermissionDenied, ValidationError
 
 from easy_thumbnails.files import get_thumbnailer
@@ -16,9 +18,15 @@ from geokey.categories.serializers import CategorySerializer
 from geokey.categories.models import Category
 from geokey.users.serializers import UserSerializer
 
-from .models import Observation, Comment
-from .models import Location
-from .models import MediaFile, ImageFile, VideoFile, AudioFile
+from .models import (
+    Observation,
+    Location,
+    Comment,
+    MediaFile,
+    ImageFile,
+    VideoFile,
+    AudioFile
+)
 
 
 class LocationSerializer(geoserializers.GeoFeatureModelSerializer):
@@ -471,7 +479,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def to_representation(self, obj):
         """
-        Returns native represenation of the Comment. Adds reponses to comment
+        Returns native represenation of the Comment. Adds responses to comment
 
         Parameter
         ---------

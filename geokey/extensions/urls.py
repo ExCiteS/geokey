@@ -1,3 +1,5 @@
+"""URLs for extensions."""
+
 from os.path import dirname, isfile, join
 
 from django.conf.urls import url, include

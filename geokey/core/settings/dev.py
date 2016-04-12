@@ -1,3 +1,5 @@
+"""Development settings."""
+
 from .base import *
 
 # Development environment should have debugging enabled

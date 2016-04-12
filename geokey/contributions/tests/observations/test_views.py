@@ -1,3 +1,5 @@
+"""Tests for views of contributions (observations)."""
+
 import json
 
 from django.test import TestCase
@@ -407,22 +409,22 @@ class SingleAllContributionAPIViewTest(TestCase):
             'status': 'active'
         })
 
-    def test_get_object_with_creator(self):
+    def test_get_contribution_with_creator(self):
         view = SingleAllContributionAPIView()
-        view.get_object(
+        view.get_contribution(
             self.creator, self.observation.project.id, self.observation.id)
 
-    def test_get_object_with_admin(self):
+    def test_get_contribution_with_admin(self):
         view = SingleAllContributionAPIView()
-        observation = view.get_object(
+        observation = view.get_contribution(
             self.admin, self.observation.project.id, self.observation.id)
         self.assertEqual(observation, self.observation)
 
     @raises(Project.DoesNotExist)
-    def test_get_object_with_some_dude(self):
+    def test_get_contribution_with_some_dude(self):
         some_dude = UserFactory.create()
         view = SingleAllContributionAPIView()
-        view.get_object(
+        view.get_contribution(
             some_dude, self.observation.project.id, self.observation.id)
 
     @raises(Observation.DoesNotExist)
@@ -431,7 +433,7 @@ class SingleAllContributionAPIViewTest(TestCase):
         self.observation.save()
 
         view = SingleAllContributionAPIView()
-        view.get_object(
+        view.get_contribution(
             self.admin, self.observation.project.id, self.observation.id)
 
     def test_api_with_admin(self):

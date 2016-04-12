@@ -74,7 +74,7 @@
         }
 
         Control.Ajax.del(url + userId + '/', handleRemoveUserSuccess, handleRemoveUserError, {
-            'userId': userId
+            'user_id': userId
         });
         event.preventDefault();
     }
@@ -121,7 +121,7 @@
 
         typeAwayResults.hide();
         Control.Ajax.post(url, handleAddUserSucess, handleAddUserError, {
-            'userId': userId
+            'user_id': userId
         });
         event.preventDefault();
     }
@@ -129,7 +129,7 @@
 
 
     /**
-     * Handles the reponse the the request for the user list was successful. Updates the dropdown list.
+     * Handles the response the the request for the user list was successful. Updates the dropdown list.
      * @param  {Object} response JSON object of the response
      */
     function handleSuccess(response) {

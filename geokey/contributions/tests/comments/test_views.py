@@ -1,3 +1,5 @@
+"""Tests for views of contributions (comments)."""
+
 import json
 
 from django.test import TestCase
@@ -21,8 +23,8 @@ from geokey.users.tests.model_factories import UserGroupFactory
 from ..model_factories import ObservationFactory, CommentFactory
 
 from geokey.contributions.views.comments import (
-    AllContributionsSingleCommentAPIView,
-    AllContributionsCommentsAPIView,
+    CommentsAPIView,
+    SingleCommentAPIView,
     CommentAbstractAPIView
 )
 
@@ -42,13 +44,13 @@ class CommentAbstractAPIViewTest(TestCase):
             'project': self.project,
             'can_moderate': True
         })
-        self.observation = ObservationFactory.create(**{
+        self.contribution = ObservationFactory.create(**{
             'project': self.project,
             'creator': self.creator,
             'status': 'active'
         })
         self.comment = CommentFactory.create(**{
-            'commentto': self.observation,
+            'commentto': self.contribution,
             'creator': self.commenter
         })
 
@@ -61,7 +63,7 @@ class CommentAbstractAPIViewTest(TestCase):
     def test_create_comment_with_admin(self):
         url = reverse('api:project_comments', kwargs={
             'project_id': self.project.id,
-            'observation_id': self.observation.id
+            'contribution_id': self.contribution.id
         })
         request = self.factory.post(url, {'text': 'Comment'})
         request.user = self.admin
@@ -69,14 +71,14 @@ class CommentAbstractAPIViewTest(TestCase):
 
         view = CommentAbstractAPIView()
         response = self.render(
-            view.create_and_respond(request, self.observation)
+            view.create_and_respond(request, self.contribution)
         )
         self.assertEqual(json.loads(response.content).get('text'), 'Comment')
 
     def test_create_reviewcomment_with_admin(self):
         url = reverse('api:project_comments', kwargs={
             'project_id': self.project.id,
-            'observation_id': self.observation.id
+            'contribution_id': self.contribution.id
         })
         request = self.factory.post(
             url, {'text': 'Comment', 'review_status': 'open'}
@@ -86,19 +88,19 @@ class CommentAbstractAPIViewTest(TestCase):
 
         view = CommentAbstractAPIView()
         response = self.render(
-            view.create_and_respond(request, self.observation)
+            view.create_and_respond(request, self.contribution)
         )
         self.assertEqual(json.loads(response.content).get('text'), 'Comment')
-        ref = Observation.objects.get(pk=self.observation.id)
+        ref = Observation.objects.get(pk=self.contribution.id)
         self.assertEqual(ref.status, 'review')
 
     def test_create_reviewcomment_to_empty_obs_with_admin(self):
-        self.observation.properties = None
-        self.observation.save()
+        self.contribution.properties = None
+        self.contribution.save()
 
         url = reverse('api:project_comments', kwargs={
             'project_id': self.project.id,
-            'observation_id': self.observation.id
+            'contribution_id': self.contribution.id
         })
         request = self.factory.post(
             url, {'text': 'Comment', 'review_status': 'open'}
@@ -108,16 +110,16 @@ class CommentAbstractAPIViewTest(TestCase):
 
         view = CommentAbstractAPIView()
         response = self.render(
-            view.create_and_respond(request, self.observation)
+            view.create_and_respond(request, self.contribution)
         )
         self.assertEqual(json.loads(response.content).get('text'), 'Comment')
-        ref = Observation.objects.get(pk=self.observation.id)
+        ref = Observation.objects.get(pk=self.contribution.id)
         self.assertEqual(ref.status, 'review')
 
     def test_update_comment_with_admin(self):
         url = reverse('api:project_single_comment', kwargs={
             'project_id': self.project.id,
-            'observation_id': self.observation.id,
+            'contribution_id': self.contribution.id,
             'comment_id': self.comment.id
         })
         request = self.factory.patch(url, {'text': 'Updated'})
@@ -126,7 +128,7 @@ class CommentAbstractAPIViewTest(TestCase):
 
         view = CommentAbstractAPIView()
         response = self.render(
-            view.update_and_respond(request, self.comment)
+            view.update_and_respond(request, self.contribution, self.comment)
         )
         self.assertEqual(json.loads(response.content).get('text'), 'Updated')
         self.assertEqual(
@@ -137,7 +139,7 @@ class CommentAbstractAPIViewTest(TestCase):
     def test_update_comment_with_commenter(self):
         url = reverse('api:project_single_comment', kwargs={
             'project_id': self.project.id,
-            'observation_id': self.observation.id,
+            'contribution_id': self.contribution.id,
             'comment_id': self.comment.id
         })
         request = self.factory.patch(url, {'text': 'Updated'})
@@ -146,7 +148,7 @@ class CommentAbstractAPIViewTest(TestCase):
 
         view = CommentAbstractAPIView()
         response = self.render(
-            view.update_and_respond(request, self.comment)
+            view.update_and_respond(request, self.contribution, self.comment)
         )
         self.assertEqual(json.loads(response.content).get('text'), 'Updated')
         self.assertEqual(
@@ -157,7 +159,7 @@ class CommentAbstractAPIViewTest(TestCase):
     def test_update_comment_with_moderator(self):
         url = reverse('api:project_single_comment', kwargs={
             'project_id': self.project.id,
-            'observation_id': self.observation.id,
+            'contribution_id': self.contribution.id,
             'comment_id': self.comment.id
         })
         request = self.factory.patch(url, {'text': 'Updated'})
@@ -166,7 +168,7 @@ class CommentAbstractAPIViewTest(TestCase):
 
         view = CommentAbstractAPIView()
         response = self.render(
-            view.update_and_respond(request, self.comment)
+            view.update_and_respond(request, self.contribution, self.comment)
         )
         self.assertEqual(json.loads(response.content).get('text'), 'Updated')
         self.assertEqual(
@@ -178,7 +180,7 @@ class CommentAbstractAPIViewTest(TestCase):
     def test_update_comment_with_creator(self):
         url = reverse('api:project_single_comment', kwargs={
             'project_id': self.project.id,
-            'observation_id': self.observation.id,
+            'contribution_id': self.contribution.id,
             'comment_id': self.comment.id
         })
         request = self.factory.patch(url, {'text': 'Updated'})
@@ -187,7 +189,7 @@ class CommentAbstractAPIViewTest(TestCase):
 
         view = CommentAbstractAPIView()
         response = self.render(
-            view.update_and_respond(request, self.comment)
+            view.update_and_respond(request, self.contribution, self.comment)
         )
         self.assertEqual(
             json.loads(response.content).get('text'),
@@ -204,7 +206,7 @@ class CommentAbstractAPIViewTest(TestCase):
 
         url = reverse('api:project_single_comment', kwargs={
             'project_id': self.project.id,
-            'observation_id': self.observation.id,
+            'contribution_id': self.contribution.id,
             'comment_id': self.comment.id
         })
         request = self.factory.patch(
@@ -212,11 +214,11 @@ class CommentAbstractAPIViewTest(TestCase):
         )
         force_authenticate(request, user=self.commenter)
 
-        view = AllContributionsSingleCommentAPIView.as_view()
+        view = SingleCommentAPIView.as_view()
         response = view(
             request,
             project_id=self.project.id,
-            observation_id=self.observation.id,
+            contribution_id=self.contribution.id,
             comment_id=self.comment.id
         ).render()
 
@@ -238,13 +240,13 @@ class CommentAbstractAPIViewResolveTest(TestCase):
             'project': self.project,
             'can_moderate': True
         })
-        self.observation = ObservationFactory.create(**{
+        self.contribution = ObservationFactory.create(**{
             'project': self.project,
             'creator': self.creator,
             'status': 'review'
         })
         self.comment = CommentFactory.create(**{
-            'commentto': self.observation,
+            'commentto': self.contribution,
             'creator': self.commenter,
             'review_status': 'open'
         })
@@ -258,7 +260,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
     def test_resolve_comment_with_admin(self):
         url = reverse('api:project_single_comment', kwargs={
             'project_id': self.project.id,
-            'observation_id': self.observation.id,
+            'contribution_id': self.contribution.id,
             'comment_id': self.comment.id
         })
         request = self.factory.patch(url, {'text': 'Updated'})
@@ -267,21 +269,21 @@ class CommentAbstractAPIViewResolveTest(TestCase):
 
         view = CommentAbstractAPIView()
         response = self.render(
-            view.update_and_respond(request, self.comment)
+            view.update_and_respond(request, self.contribution, self.comment)
         )
         self.assertEqual(
             json.loads(response.content).get('review_status'),
             'resolved'
         )
 
-        reference = Observation.objects.get(pk=self.observation.id)
+        reference = Observation.objects.get(pk=self.contribution.id)
         self.assertEqual(reference.status, 'active')
         self.assertIsNotNone(reference.properties)
 
     def test_resolve_comment_with_invalid_review_status(self):
         url = reverse('api:project_single_comment', kwargs={
             'project_id': self.project.id,
-            'observation_id': self.observation.id,
+            'contribution_id': self.contribution.id,
             'comment_id': self.comment.id
         })
         request = self.factory.patch(url, {'text': 'Updated'})
@@ -290,7 +292,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
 
         view = CommentAbstractAPIView()
         response = self.render(
-            view.update_and_respond(request, self.comment)
+            view.update_and_respond(request, self.contribution, self.comment)
         )
 
         ref = Comment.objects.get(pk=self.comment.id)
@@ -299,14 +301,14 @@ class CommentAbstractAPIViewResolveTest(TestCase):
 
     def test_resolve_one_of_two_comment_with_admin(self):
         CommentFactory.create(**{
-            'commentto': self.observation,
+            'commentto': self.contribution,
             'creator': self.creator,
             'review_status': 'open'
         })
 
         url = reverse('api:project_single_comment', kwargs={
             'project_id': self.project.id,
-            'observation_id': self.observation.id,
+            'contribution_id': self.contribution.id,
             'comment_id': self.comment.id
         })
         request = self.factory.patch(url, {'text': 'Updated'})
@@ -315,21 +317,21 @@ class CommentAbstractAPIViewResolveTest(TestCase):
 
         view = CommentAbstractAPIView()
         response = self.render(
-            view.update_and_respond(request, self.comment)
+            view.update_and_respond(request, self.contribution, self.comment)
         )
         self.assertEqual(
             json.loads(response.content).get('review_status'),
             'resolved'
         )
         self.assertEqual(
-            Observation.objects.get(pk=self.observation.id).status,
+            Observation.objects.get(pk=self.contribution.id).status,
             'review'
         )
 
     def test_resolve_comment_with_moderator(self):
         url = reverse('api:project_single_comment', kwargs={
             'project_id': self.project.id,
-            'observation_id': self.observation.id,
+            'contribution_id': self.contribution.id,
             'comment_id': self.comment.id
         })
         request = self.factory.patch(url, {'text': 'Updated'})
@@ -338,14 +340,14 @@ class CommentAbstractAPIViewResolveTest(TestCase):
 
         view = CommentAbstractAPIView()
         response = self.render(
-            view.update_and_respond(request, self.comment)
+            view.update_and_respond(request, self.contribution, self.comment)
         )
         self.assertEqual(
             json.loads(response.content).get('review_status'),
             'resolved'
         )
         self.assertEqual(
-            Observation.objects.get(pk=self.observation.id).status,
+            Observation.objects.get(pk=self.contribution.id).status,
             'active'
         )
 
@@ -353,7 +355,7 @@ class CommentAbstractAPIViewResolveTest(TestCase):
     def test_resolve_comment_with_creator(self):
         url = reverse('api:project_single_comment', kwargs={
             'project_id': self.project.id,
-            'observation_id': self.observation.id,
+            'contribution_id': self.contribution.id,
             'comment_id': self.comment.id
         })
         request = self.factory.patch(url, {'text': 'Updated'})
@@ -361,13 +363,13 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         request.data = {'review_status': 'resolved'}
 
         view = CommentAbstractAPIView()
-        view.update_and_respond(request, self.comment)
+        view.update_and_respond(request, self.contribution, self.comment)
 
     @raises(PermissionDenied)
     def test_resolve_comment_with_commenter(self):
         url = reverse('api:project_single_comment', kwargs={
             'project_id': self.project.id,
-            'observation_id': self.observation.id,
+            'contribution_id': self.contribution.id,
             'comment_id': self.comment.id
         })
         request = self.factory.patch(url, {'text': 'Updated'})
@@ -375,13 +377,13 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         request.data = {'review_status': 'resolved'}
 
         view = CommentAbstractAPIView()
-        view.update_and_respond(request, self.comment)
+        view.update_and_respond(request, self.contribution, self.comment)
 
     @raises(PermissionDenied)
     def test_resolve_comment_with_anonymous(self):
         url = reverse('api:project_single_comment', kwargs={
             'project_id': self.project.id,
-            'observation_id': self.observation.id,
+            'contribution_id': self.contribution.id,
             'comment_id': self.comment.id
         })
         request = self.factory.patch(url, {'text': 'Updated'})
@@ -389,10 +391,10 @@ class CommentAbstractAPIViewResolveTest(TestCase):
         request.data = {'review_status': 'resolved'}
 
         view = CommentAbstractAPIView()
-        view.update_and_respond(request, self.comment)
+        view.update_and_respond(request, self.contribution, self.comment)
 
 
-class AllContributionsSingleCommentAPIViewTest(TestCase):
+class SingleCommentAPIViewTest(TestCase):
     def setUp(self):
         self.admin = UserFactory.create()
         self.creator = UserFactory.create()
@@ -400,26 +402,34 @@ class AllContributionsSingleCommentAPIViewTest(TestCase):
             add_admins=[self.admin],
             add_contributors=[self.creator]
         )
-        self.observation = ObservationFactory.create(**{
+        self.contribution = ObservationFactory.create(**{
             'project': self.project,
             'creator': self.creator
         })
 
-    def test_get_object_with_admin(self):
-        view = AllContributionsSingleCommentAPIView()
-        observation = view.get_object(
-            self.admin, self.project.id, self.observation.id)
-        self.assertEqual(observation, self.observation)
+    def test_get_contribution_with_admin(self):
+        view = SingleCommentAPIView()
+        contribution = view.get_contribution(
+            self.admin, self.project.id, self.contribution.id)
+        self.assertEqual(contribution, self.contribution)
 
-    def test_get_object_with_creator(self):
-        view = AllContributionsSingleCommentAPIView()
-        view.get_object(self.creator, self.project.id, self.observation.id)
+    def test_get_contribution_with_creator(self):
+        view = SingleCommentAPIView()
+        view.get_contribution(
+            self.creator,
+            self.project.id,
+            self.contribution.id
+        )
 
     @raises(Project.DoesNotExist)
-    def test_get_object_with_some_dude(self):
+    def test_get_contribution_with_some_dude(self):
         some_dude = UserFactory.create()
-        view = AllContributionsSingleCommentAPIView()
-        view.get_object(some_dude, self.project.id, self.observation.id)
+        view = SingleCommentAPIView()
+        view.get_contribution(
+            some_dude,
+            self.project.id,
+            self.contribution.id
+        )
 
 
 class GetProjectComments(APITestCase):
@@ -431,41 +441,41 @@ class GetProjectComments(APITestCase):
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
-        self.observation = ObservationFactory.create(**{
+        self.contribution = ObservationFactory.create(**{
             'project': self.project,
             'creator': self.contributor
         })
         comment = CommentFactory.create(**{
-            'commentto': self.observation
+            'commentto': self.contribution
         })
         response = CommentFactory.create(**{
-            'commentto': self.observation,
+            'commentto': self.contribution,
             'respondsto': comment
         })
         CommentFactory.create(**{
-            'commentto': self.observation,
+            'commentto': self.contribution,
             'respondsto': response
         })
         CommentFactory.create(**{
-            'commentto': self.observation,
+            'commentto': self.contribution,
             'respondsto': comment
         })
         CommentFactory.create(**{
-            'commentto': self.observation
+            'commentto': self.contribution
         })
 
     def get_response(self, user):
         factory = APIRequestFactory()
         request = factory.get(
-            '/api/projects/%s/observations/%s/comments/' %
-            (self.project.id, self.observation.id)
+            '/api/projects/%s/contributions/%s/comments/' %
+            (self.project.id, self.contribution.id)
         )
         force_authenticate(request, user=user)
-        view = AllContributionsCommentsAPIView.as_view()
+        view = CommentsAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
-            observation_id=self.observation.id
+            contribution_id=self.contribution.id
         ).render()
 
     def test_get_comments_with_admin(self):
@@ -490,7 +500,7 @@ class AddCommentToPrivateProjectTest(APITestCase):
             add_admins=[self.admin],
             add_contributors=[self.contributor]
         )
-        self.observation = ObservationFactory.create(**{
+        self.contribution = ObservationFactory.create(**{
             'project': self.project,
             'creator': self.contributor
         })
@@ -498,83 +508,83 @@ class AddCommentToPrivateProjectTest(APITestCase):
     def get_response(self, user):
         factory = APIRequestFactory()
         request = factory.post(
-            '/api/projects/%s/observations/%s/comments/' %
-            (self.project.id, self.observation.id),
-            {'text': 'A comment to the observation'}
+            '/api/projects/%s/contributions/%s/comments/' %
+            (self.project.id, self.contribution.id),
+            {'text': 'A comment to the contribution.'}
         )
         force_authenticate(request, user=user)
-        view = AllContributionsCommentsAPIView.as_view()
+        view = CommentsAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
-            observation_id=self.observation.id
+            contribution_id=self.contribution.id
         ).render()
 
-    def test_add_comment_to_observation_with_admin(self):
+    def test_add_comment_to_contribution_with_admin(self):
         response = self.get_response(self.admin)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_add_comment_to_observation_with_contributor(self):
+    def test_add_comment_to_contribution_with_contributor(self):
         response = self.get_response(self.contributor)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_add_review_comment_to_observation_with_contributor(self):
+    def test_add_review_comment_to_contribution_with_contributor(self):
         factory = APIRequestFactory()
         request = factory.post(
-            '/api/projects/%s/observations/%s/comments/' %
-            (self.project.id, self.observation.id),
+            '/api/projects/%s/contributions/%s/comments/' %
+            (self.project.id, self.contribution.id),
             {
-                'text': 'A review comment to the observation',
+                'text': 'A review comment to the contribution.',
                 'review_status': 'open'
             }
         )
         force_authenticate(request, user=self.contributor)
-        view = AllContributionsCommentsAPIView.as_view()
+        view = CommentsAPIView.as_view()
         response = view(
             request,
             project_id=self.project.id,
-            observation_id=self.observation.id
+            contribution_id=self.contribution.id
         ).render()
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
-            Observation.objects.get(pk=self.observation.id).status,
+            Observation.objects.get(pk=self.contribution.id).status,
             'review'
         )
 
-    def test_add_closed_review_comment_to_observation_with_contributor(self):
+    def test_add_closed_review_comment_to_contribution_with_contributor(self):
         factory = APIRequestFactory()
         request = factory.post(
-            '/api/projects/%s/observations/%s/comments/' %
-            (self.project.id, self.observation.id),
+            '/api/projects/%s/contributions/%s/comments/' %
+            (self.project.id, self.contribution.id),
             {
-                'text': 'A review comment to the observation',
+                'text': 'A review comment to the contribution.',
                 'review_status': 'resolved'
             }
         )
         force_authenticate(request, user=self.contributor)
-        view = AllContributionsCommentsAPIView.as_view()
+        view = CommentsAPIView.as_view()
         response = view(
             request,
             project_id=self.project.id,
-            observation_id=self.observation.id
+            contribution_id=self.contribution.id
         ).render()
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
-            Observation.objects.get(pk=self.observation.id).status,
+            Observation.objects.get(pk=self.contribution.id).status,
             'active'
         )
 
-    def test_add_comment_to_observation_with_non_member(self):
+    def test_add_comment_to_contribution_with_non_member(self):
         response = self.get_response(self.non_member)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_add_comment_to_draft(self):
-        self.observation.status = 'draft'
-        self.observation.save()
+        self.contribution.status = 'draft'
+        self.contribution.save()
 
-        response = self.get_response(self.observation.creator)
+        response = self.get_response(self.contribution.creator)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
@@ -588,7 +598,7 @@ class AddCommentToPublicProjectTest(APITestCase):
             add_contributors=[self.contributor],
             **{'isprivate': False}
         )
-        self.observation = ObservationFactory.create(**{
+        self.contribution = ObservationFactory.create(**{
             'project': self.project,
             'creator': self.contributor
         })
@@ -601,52 +611,52 @@ class AddCommentToPublicProjectTest(APITestCase):
         factory = APIRequestFactory()
         request = factory.post(
             '/api/projects/%s/maps/all-contributions/%s/comments/' %
-            (self.project.id, self.observation.id),
-            {'text': 'A comment to the observation'}
+            (self.project.id, self.contribution.id),
+            {'text': 'A comment to the contribution.'}
         )
         force_authenticate(request, user=user)
-        view = AllContributionsCommentsAPIView.as_view()
+        view = CommentsAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
-            observation_id=self.observation.id
+            contribution_id=self.contribution.id
         ).render()
 
-    def test_add_comment_to_observation_with_admin(self):
+    def test_add_comment_to_contribution_with_admin(self):
         response = self.get_response(self.admin)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_add_comment_to_observation_with_contributor(self):
+    def test_add_comment_to_contribution_with_contributor(self):
         response = self.get_response(self.contributor)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_add_comment_to_observation_with_non_member(self):
+    def test_add_comment_to_contribution_with_non_member(self):
         response = self.get_response(self.non_member)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_add_comment_to_observation_with_anonymous(self):
+    def test_add_comment_to_contribution_with_anonymous(self):
         response = self.get_response(AnonymousUser())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
-class AddCommentToWrongProjectObservation(APITestCase):
+class AddCommentToWrongProjectContribution(APITestCase):
     def test(self):
         admin = UserFactory.create()
         project = ProjectFactory(add_admins=[admin])
-        observation = ObservationFactory.create()
+        contribution = ObservationFactory.create()
 
         factory = APIRequestFactory()
         request = factory.post(
-            '/api/projects/%s/observations/%s/comments/' %
-            (project.id, observation.id),
-            {'text': 'A comment to the observation'}
+            '/api/projects/%s/contributions/%s/comments/' %
+            (project.id, contribution.id),
+            {'text': 'A comment to the contribution.'}
         )
         force_authenticate(request, user=admin)
-        view = AllContributionsCommentsAPIView.as_view()
+        view = CommentsAPIView.as_view()
         response = view(
             request,
             project_id=project.id,
-            observation_id=observation.id
+            contribution_id=contribution.id
         ).render()
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -655,28 +665,28 @@ class AddResponseToProjectCommentTest(APITestCase):
     def test(self):
         admin = UserFactory.create()
         project = ProjectFactory(add_admins=[admin])
-        observation = ObservationFactory.create(**{
+        contribution = ObservationFactory.create(**{
             'project': project
         })
         comment = CommentFactory.create(**{
-            'commentto': observation
+            'commentto': contribution
         })
 
         factory = APIRequestFactory()
         request = factory.post(
-            '/api/projects/%s/observations/%s/comments/' %
-            (project.id, observation.id),
+            '/api/projects/%s/contributions/%s/comments/' %
+            (project.id, contribution.id),
             {
                 'text': 'Response to a comment',
                 'respondsto': comment.id
             }
         )
         force_authenticate(request, user=admin)
-        view = AllContributionsCommentsAPIView.as_view()
+        view = CommentsAPIView.as_view()
         response = view(
             request,
             project_id=project.id,
-            observation_id=observation.id
+            contribution_id=contribution.id
         ).render()
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -690,33 +700,33 @@ class AddResponseToWrongProjectCommentTest(APITestCase):
     def test(self):
         admin = UserFactory.create()
         project = ProjectFactory(add_admins=[admin])
-        observation = ObservationFactory.create(**{
+        contribution = ObservationFactory.create(**{
             'project': project
         })
         comment = CommentFactory.create()
 
         factory = APIRequestFactory()
         request = factory.post(
-            '/api/projects/%s/observations/%s/comments/' %
-            (project.id, observation.id),
+            '/api/projects/%s/contributions/%s/comments/' %
+            (project.id, contribution.id),
             {
                 'text': 'Response to a comment',
                 'respondsto': comment.id
             }
         )
         force_authenticate(request, user=admin)
-        view = AllContributionsCommentsAPIView.as_view()
+        view = CommentsAPIView.as_view()
         response = view(
             request,
             project_id=project.id,
-            observation_id=observation.id
+            contribution_id=contribution.id
         ).render()
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
             json.loads(response.content).get('error'),
             'The comment you try to respond to is not a comment to the '
-            'observation.'
+            'contribution.'
         )
 
 
@@ -730,31 +740,31 @@ class DeleteProjectCommentTest(APITestCase):
             add_contributors=[self.contributor],
             **{'isprivate': False}
         )
-        self.observation = ObservationFactory.create(**{
+        self.contribution = ObservationFactory.create(**{
             'project': self.project,
             'creator': self.contributor
         })
         self.comment = CommentFactory.create(**{
-            'commentto': self.observation
+            'commentto': self.contribution
         })
         self.comment_to_remove = CommentFactory.create(**{
-            'commentto': self.observation,
+            'commentto': self.contribution,
             'creator': self.contributor
         })
 
     def get_response(self, user):
         factory = APIRequestFactory()
         request = factory.delete(
-            '/api/projects/%s/observations/%s/comments/%s/' %
-            (self.project.id, self.observation.id, self.comment_to_remove.id),
-            {'text': 'A comment to the observation'}
+            '/api/projects/%s/contributions/%s/comments/%s/' %
+            (self.project.id, self.contribution.id, self.comment_to_remove.id),
+            {'text': 'A comment to the contribution.'}
         )
         force_authenticate(request, user=user)
-        view = AllContributionsSingleCommentAPIView.as_view()
+        view = SingleCommentAPIView.as_view()
         return view(
             request,
             project_id=self.project.id,
-            observation_id=self.observation.id,
+            contribution_id=self.contribution.id,
             comment_id=self.comment_to_remove.id
         ).render()
 
@@ -762,69 +772,69 @@ class DeleteProjectCommentTest(APITestCase):
         response = self.get_response(self.admin)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        observation = Observation.objects.get(pk=self.observation.id)
-        self.assertIn(self.comment, observation.comments.all())
-        self.assertNotIn(self.comment_to_remove, observation.comments.all())
+        contribution = Observation.objects.get(pk=self.contribution.id)
+        self.assertIn(self.comment, contribution.comments.all())
+        self.assertNotIn(self.comment_to_remove, contribution.comments.all())
 
     def test_delete_comment_with_comment_creator(self):
         response = self.get_response(self.contributor)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        observation = Observation.objects.get(pk=self.observation.id)
-        self.assertIn(self.comment, observation.comments.all())
-        self.assertNotIn(self.comment_to_remove, observation.comments.all())
+        contribution = Observation.objects.get(pk=self.contribution.id)
+        self.assertIn(self.comment, contribution.comments.all())
+        self.assertNotIn(self.comment_to_remove, contribution.comments.all())
 
     def test_delete_review_comment_with_comment_creator(self):
         self.comment_to_remove.review_status = 'open'
         self.comment_to_remove.save()
-        self.observation.status = 'review'
-        self.observation.save()
+        self.contribution.status = 'review'
+        self.contribution.save()
 
         response = self.get_response(self.contributor)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        observation = Observation.objects.get(pk=self.observation.id)
-        self.assertEqual(observation.status, 'active')
+        contribution = Observation.objects.get(pk=self.contribution.id)
+        self.assertEqual(contribution.status, 'active')
 
-        self.assertIn(self.comment, observation.comments.all())
-        self.assertNotIn(self.comment_to_remove, observation.comments.all())
+        self.assertIn(self.comment, contribution.comments.all())
+        self.assertNotIn(self.comment_to_remove, contribution.comments.all())
 
     def test_delete_comment_but_not_change_status_from_pending(self):
-        self.observation.status = 'pending'
-        self.observation.save()
+        self.contribution.status = 'pending'
+        self.contribution.save()
 
         response = self.get_response(self.contributor)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        observation = Observation.objects.get(pk=self.observation.id)
-        self.assertEqual(observation.status, 'pending')
+        contribution = Observation.objects.get(pk=self.contribution.id)
+        self.assertEqual(contribution.status, 'pending')
 
     def test_delete_comment_and_change_status_from_review(self):
-        self.observation.status = 'review'
-        self.observation.save()
+        self.contribution.status = 'review'
+        self.contribution.save()
 
         response = self.get_response(self.contributor)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        observation = Observation.objects.get(pk=self.observation.id)
-        self.assertEqual(observation.status, 'active')
+        contribution = Observation.objects.get(pk=self.contribution.id)
+        self.assertEqual(contribution.status, 'active')
 
     def test_delete_one_review_comment_with_comment_creator(self):
         self.comment.review_status = 'open'
         self.comment.save()
         self.comment_to_remove.review_status = 'open'
         self.comment_to_remove.save()
-        self.observation.status = 'review'
-        self.observation.save()
+        self.contribution.status = 'review'
+        self.contribution.save()
 
         response = self.get_response(self.contributor)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        observation = Observation.objects.get(pk=self.observation.id)
-        self.assertEqual(observation.status, 'review')
+        contribution = Observation.objects.get(pk=self.contribution.id)
+        self.assertEqual(contribution.status, 'review')
 
-        self.assertIn(self.comment, observation.comments.all())
-        self.assertNotIn(self.comment_to_remove, observation.comments.all())
+        self.assertIn(self.comment, contribution.comments.all())
+        self.assertNotIn(self.comment_to_remove, contribution.comments.all())
 
     def test_resolve_nested_comment_with_admin(self):
         self.comment.respondsto = self.comment_to_remove
@@ -834,14 +844,14 @@ class DeleteProjectCommentTest(APITestCase):
         self.comment_to_remove.review_status = None
         self.comment_to_remove.save()
 
-        self.observation.status = 'review'
-        self.observation.save()
+        self.contribution.status = 'review'
+        self.contribution.save()
 
         response = self.get_response(self.admin)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         self.assertEqual(
-            Observation.objects.get(pk=self.observation.id).status,
+            Observation.objects.get(pk=self.contribution.id).status,
             'active'
         )
 
@@ -850,23 +860,23 @@ class DeleteWrongProjectComment(APITestCase):
     def test(self):
         admin = UserFactory.create()
         project = ProjectFactory(add_admins=[admin])
-        observation = ObservationFactory.create(**{
+        contribution = ObservationFactory.create(**{
             'project': project
         })
         comment = CommentFactory.create()
 
         factory = APIRequestFactory()
         request = factory.delete(
-            '/api/projects/%s/observations/%s/comments/%s/' %
-            (project.id, observation.id, comment.id),
-            {'text': 'A comment to the observation'}
+            '/api/projects/%s/contributions/%s/comments/%s/' %
+            (project.id, contribution.id, comment.id),
+            {'text': 'A comment to the contribution.'}
         )
         force_authenticate(request, user=admin)
-        view = AllContributionsSingleCommentAPIView.as_view()
+        view = SingleCommentAPIView.as_view()
         response = view(
             request,
             project_id=project.id,
-            observation_id=observation.id,
+            contribution_id=contribution.id,
             comment_id=comment.id
         ).render()
 

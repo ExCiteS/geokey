@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %} | Superuser tools: Manage superusers{% endblock %}
+
+{% block main %}
+<div class="page-header">
+    <div class="container">
+        <h1>Superuser tools</h1>
+        {% include 'superusertools/navigation.html' %}
+    </div>
+</div>
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+
+    <div class="row">
+        <div id="members" class="col-sm-12 col-md-12 col-lg-12">
+            <div class="header">
+                <div class="row">
+                    <div class="col-sm-6 col-md-7">
+                        <h3>Manage superusers</h3>
+                    </div>
+
+                    <div class="col-sm-6 col-md-5 dropdown">
+                        <input type="text" id="find-users" class="pull-right form-control" placeholder="Search for users to add to the superusers group">
+                        <ul class="dropdown-menu type-away">
+                            <li role="presentation" class="dropdown-header">Click on item to add user</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            {% if superusers|length %}
+                <ul class="user-list">
+                    {% for user in superusers %}
+                        <li>
+                            {{ user.display_name }}
+                            {% if superusers|length > 1 %}<a class="text-danger remove" data-user-id="{{ user.id }}" href="#"><small>remove</small></a>{% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No superusers were found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block libraries %}
+<script>
+url = 'superusertools/';
+</script>
+
+<script src="/static/lib/handlebars/handlebars.js"></script>
+<script src="/static/js/templates.js"></script>
+<script src="/static/js/admin.control.ajax.js"></script>
+<script src="/static/js/admin.ui.usergroup.users.js"></script>
+{% endblock %}

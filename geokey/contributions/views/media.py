@@ -1,284 +1,325 @@
+"""Views for media files of contributions."""
+
 from django.core.exceptions import PermissionDenied
 
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from geokey.core.exceptions import MalformedRequestData
 from geokey.core.decorators import handle_exceptions_for_ajax
-from .base import SingleAllContribution
-
+from geokey.core.exceptions import MalformedRequestData
 from geokey.users.models import User
-from ..serializers import FileSerializer
+
+from .base import SingleAllContribution
 from ..models import MediaFile
+from ..serializers import FileSerializer
 
 
-class MediaFileListAbstractAPIView(APIView):
-    """
-    Abstract APIView for listing media files of a contribution
-    """
-    def get_list_and_respond(self, user, contribution):
+class MediaAbstractAPIView(APIView):
+    """Abstract class for media."""
+
+    def get_user(self, request):
         """
-        Serialises all files attached to the contribution and returns the
-        JSON response
+        Get user of a request.
 
-        Parameter
-        ---------
-        user : geokey.users.models.User
-            User authenticated with the request
-        contribution : geokey.contributions.models.Observation
-            contribution the comments are requested for
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Object representing the request.
 
         Returns
         -------
-        rest_framework.response.Respones
-            Contains the serialised files
+        geokey.users.models.User
+            User of a request.
         """
-        files = contribution.files_attached.all()
-        serializer = FileSerializer(
-            files, many=True, context={'user': user})
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        user = request.user
 
-    def create_and_respond(self, user, contribution):
-        """
-        Creates an file and responds with the file information
-
-        Parameter
-        ---------
-        user : geokey.users.models.User
-            User authenticated with the request
-        contribution : geokey.contributions.models.Observation
-            contribution the comments are requested for
-
-        Returns
-        -------
-        rest_framework.response.Respones
-            Contains the serialised file
-        """
         if user.is_anonymous():
             user = User.objects.get(display_name='AnonymousUser')
 
-        data = self.request.POST
-        name = data.get('name')
-        description = data.get('description')
-        the_file = self.request.FILES.get('file')
-        errors = []
+        return user
 
-        if name is None:
-            errors.append('Property name is not set.')
-
-        if the_file is None:
-            errors.append('No file attached.')
-
-        if errors:
-            raise MalformedRequestData(', '.join(errors))
-
-        if contribution.project.can_contribute(user):
-            the_file = MediaFile.objects.create(
-                name=name,
-                description=description,
-                contribution=contribution,
-                creator=user,
-                the_file=the_file
-            )
-
-            serializer = FileSerializer(the_file, context={'user': user})
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            raise PermissionDenied('You are not allowed to contribute to the'
-                                   'project.')
-
-
-class AllContributionsMediaAPIView(
-        MediaFileListAbstractAPIView, SingleAllContribution):
-    """
-    View for media file lists on all contributions endpoints
-    """
-
-    @handle_exceptions_for_ajax
-    def get(self, request, project_id, contribution_id):
+    def get_file(self, contribution, file_id):
         """
-        Returns a list of all files attached to the observation
+        Get media file of a contribution.
 
         Parameters
         ----------
         request : rest_framework.request.Request
-            Represents the request
-        project_id : int
-            identifies the project in the data base
-        contribution_id : int
-            identifies the observation in the data base
-
-        Returns
-        -------
-        rest_framework.response.Respone
-            Contains the serialised comments
-        """
-        contribution = self.get_object(
-            request.user,
-            project_id,
-            contribution_id
-        )
-        return self.get_list_and_respond(request.user, contribution)
-
-    @handle_exceptions_for_ajax
-    def post(self, request, project_id, contribution_id):
-        """
-        Creates a new file for a contribution
-
-        Parameters
-        ----------
-        request : rest_framework.request.Request
-            Represents the request
-        project_id : int
-            identifies the project in the data base
-        contribution_id : int
-            identifies the observation in the data base
-
-        Returns
-        -------
-        rest_framework.response.Respone
-            Contains the serialised comments
-        """
-        contribution = self.get_object(
-            request.user,
-            project_id,
-            contribution_id
-        )
-        return self.create_and_respond(request.user, contribution)
-
-
-class MediaFileSingleAbstractView(APIView):
-    """
-    Abstract APIView for single file endpoints.
-    """
-    def get_and_respond(self, user, media_file):
-        """
-        Returns a single media file
-
-        Parameter
-        ---------
-        user : geokey.users.models.User
-            User authenticated with the request
-        media_file : geokey.contributions.models.MediaFile
-            File to be returned
-
-        Returns
-        -------
-        rest_framework.response.Respone
-            Contains the serialised file
-        """
-        serializer = FileSerializer(media_file, context={'user': user})
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def delete_and_respond(self, user, media_file):
-        """
-        Deletes a single media file
-
-        Parameter
-        ---------
-        user : geokey.users.models.User
-            User authenticated with the request
-        media_file : geokey.contributions.models.MediaFile
-            File to be deleted
-
-        Returns
-        -------
-        rest_framework.response.Respone
-            Empty response stating the success of the delete
-        """
-        if (media_file.creator == user or
-                media_file.contribution.project.can_moderate(user)):
-            media_file.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-        raise PermissionDenied('You neither are the creator if this file '
-                               'nor a project moderator and therefore '
-                               'not eligable to delete this file.')
-
-
-class AllContributionsSingleMediaApiView(
-        MediaFileSingleAbstractView, SingleAllContribution):
-    """
-    APIView for single files on all contributions endpoints
-    """
-
-    def get_file(self, user, project_id, contribution_id, file_id):
-        """
-        Returns the file object
-
-        Parameter
-        ---------
-        user : geokey.users.models.User
-            User authenticated with the request
-        project_id : int
-            identifies the project in the data base
-        observation_id : int
-            identifies the observation in the data base
+            Object representing the request.
+        contribution : geokey.contributions.models.Observation
+            Contribution to retrieve the file from.
         file_id : int
-            identifies the file in the database
+            Identifies the media file in the database.
 
         Returns
         -------
         geokey.contributions.models.MediaFile
+            Media file of a contribution.
         """
-        contribution = self.get_object(user, project_id, contribution_id)
-        return contribution.files_attached.get(pk=file_id)
+        return contribution.files_attached\
+            .select_related('creator')\
+            .get(pk=file_id)
+
+    def get_list_and_respond(self, request, contribution):
+        """
+        Respond to a GET request with a list of all media files.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Object representing the request.
+        contribution : geokey.contributions.models.Observation
+            Contribution the media files are requested for.
+
+        Returns
+        -------
+        rest_framework.response.Respones
+            Contains the serialized media files.
+        """
+        serializer = FileSerializer(
+            contribution.files_attached.all(),
+            many=True,
+            context={'user': self.get_user(request)}
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def create_and_respond(self, request, contribution):
+        """
+        Respond to a POST request by creating a media file.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Object representing the request.
+        contribution : geokey.contributions.models.Observation
+            Contribution the media file should be added to.
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the serialized media file.
+
+        Raises
+        ------
+        MalformedRequestData
+            When name is not set or file is not attached.
+        PermissionDenied
+            When user is not allowed to contribute to the project.
+        """
+        user = self.get_user(request)
+
+        data = self.request.POST
+        name = data.get('name')
+        description = data.get('description')
+        file = self.request.FILES.get('file')
+
+        errors = []
+        if name is None:
+            errors.append('Property `name` is not set')
+        if file is None:
+            errors.append('No file attached')
+        if errors:
+            raise MalformedRequestData('%s.' % ', '.join(errors))
+
+        if contribution.project.can_contribute(user):
+            file = MediaFile.objects.create(
+                name=name,
+                description=description,
+                contribution=contribution,
+                creator=user,
+                the_file=file
+            )
+
+            serializer = FileSerializer(file, context={'user': user})
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            raise PermissionDenied(
+                'You are not allowed to contribute to the project.'
+            )
+
+    def get_single_and_respond(self, request, file):
+        """
+        Respond to a GET request with a single media file.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Object representing the request.
+        file : geokey.contributions.models.MediaFile
+            Media file to be returned.
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the serialized media file.
+        """
+        serializer = FileSerializer(
+            file,
+            context={'user': self.get_user(request)}
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete_and_respond(self, request, contribution, file):
+        """
+        Respond to a DELETE request by deleting the media file.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Object representing the request.
+        contribution : geokey.contributions.models.Observation
+            Contribution of a media file.
+        file : geokey.contributions.models.MediaFile
+            Media file to be deleted.
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Empty response indicating success.
+
+        Raises
+        ------
+        PermissionDenied
+            When user is not allowed to delete the media file.
+        """
+        user = self.get_user(request)
+
+        if file.creator == user or contribution.project.can_moderate(user):
+            file.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            raise PermissionDenied(
+                'You are neither the creator if this file nor a project '
+                'moderator and therefore not eligable to delete it.'
+            )
+
+
+class MediaAPIView(SingleAllContribution, MediaAbstractAPIView):
+    """Public API for all media files."""
+
+    @handle_exceptions_for_ajax
+    def get(self, request, project_id, contribution_id):
+        """
+        Handle GET request.
+
+        Return a list of all media files of the contribution.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Object representing the request.
+        project_id : int
+            Identifies the project in the database.
+        contribution_id : int
+            Identifies the contribution in the database.
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the serialised media files.
+        """
+        contribution = self.get_contribution(
+            request.user,
+            project_id,
+            contribution_id
+        )
+
+        return self.get_list_and_respond(request, contribution)
+
+    @handle_exceptions_for_ajax
+    def post(self, request, project_id, contribution_id):
+        """
+        Handle POST request.
+
+        Add a new media file to the contribution.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Object representing the request.
+        project_id : int
+            Identifies the project in the database.
+        contribution_id : int
+            Identifies the contribution in the database.
+
+        Returns
+        -------
+        rest_framework.response.Respone
+            Contains the serialised media file.
+        """
+        contribution = self.get_contribution(
+            request.user,
+            project_id,
+            contribution_id
+        )
+
+        return self.create_and_respond(request, contribution)
+
+
+class SingleMediaAPIView(SingleAllContribution, MediaAbstractAPIView):
+    """Public API for a single media."""
 
     @handle_exceptions_for_ajax
     def get(self, request, project_id, contribution_id, file_id):
         """
-        Returns a single media file
+        Handle GET request.
 
-        Parameter
-        ---------
-        user : geokey.users.models.User
-            User authenticated with the request
+        Return a single media file.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Object representing the request.
         project_id : int
-            identifies the project in the data base
-        observation_id : int
-            identifies the observation in the data base
+            Identifies the project in the database.
+        contribution_id : int
+            Identifies the contribution in the database.
         file_id : int
-            identifies the file in the database
+            Identifies the media file in the database.
 
         Returns
         -------
         rest_framework.response.Respone
-            Contains the serialised file
+            Contains the serialized media file.
         """
-        media_file = self.get_file(
+        contribution = self.get_contribution(
             request.user,
             project_id,
-            contribution_id,
-            file_id
+            contribution_id
         )
-        return self.get_and_respond(request.user, media_file)
+        file = self.get_file(contribution, file_id)
+
+        return self.get_single_and_respond(request, file)
 
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, contribution_id, file_id):
         """
-        Deletes a single media file
+        Handle DELETE request.
 
-        Parameter
-        ---------
-        user : geokey.users.models.User
-            User authenticated with the request
+        Delete the media file.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Object representing the request.
         project_id : int
-            identifies the project in the data base
-        observation_id : int
-            identifies the observation in the data base
+            Identifies the project in the database.
+        contribution_id : int
+            Identifies the contribution in the database.
         file_id : int
-            identifies the file in the database
+            Identifies the media file in the database.
 
         Returns
         -------
         rest_framework.response.Respone
-            Empty repsonse indicating success
+            Empty response indicating success.
         """
-        media_file = self.get_file(
+        contribution = self.get_contribution(
             request.user,
             project_id,
-            contribution_id,
-            file_id
+            contribution_id
         )
-        return self.delete_and_respond(request.user, media_file)
+        file = self.get_file(contribution, file_id)
+
+        return self.delete_and_respond(request, contribution, file)

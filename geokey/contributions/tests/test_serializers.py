@@ -1,3 +1,5 @@
+"""Tests for serializers of contributions."""
+
 import json
 
 from django.core.exceptions import ValidationError

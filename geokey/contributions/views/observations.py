@@ -1,3 +1,5 @@
+"""Views for observations of categories."""
+
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.gzip import gzip_page
 
@@ -9,7 +11,7 @@ from geokey.core.decorators import handle_exceptions_for_ajax
 from geokey.users.models import User
 from geokey.projects.models import Project
 
-from ..renderer.geojson import GeoJsonRenderer
+from ..renderers.geojson import GeoJsonRenderer
 from ..parsers.geojson import GeoJsonParser
 
 from .base import SingleAllContribution
@@ -77,33 +79,38 @@ class ProjectObservations(GZipView, GeoJsonView):
     @handle_exceptions_for_ajax
     def get(self, request, project_id):
         """
-        Returns a list of contributions for a project
+        Handle GET request.
+
+        Return a list of all contributions of the project accessible to the
+        user.
 
         Parameters
         ----------
         request : rest_framework.request.Request
-            Represents the request
+            Represents the request.
         project_id : int
-            identifies the project in the data base
+            Identifies the project in the database.
 
         Returns
         -------
         rest_framework.response.Respone
-            Contains the serialised observations
+            Contains the serialized contributions.
         """
-        q = request.GET.get('search')
-        s = request.GET.get('subset')
         project = Project.objects.get_single(request.user, project_id)
         contributions = project.get_all_contributions(
             request.user,
-            search=q,
-            subset=s
-        )
+            search=request.GET.get('search'),
+            subset=request.GET.get('subset')
+        ).select_related('location', 'creator', 'updator', 'category')
 
         serializer = ContributionSerializer(
             contributions,
             many=True,
-            context={'user': request.user, 'project': project, 'search': q}
+            context={
+                'user': request.user,
+                'project': project,
+                'search': request.GET.get('search')
+            }
         )
 
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -260,8 +267,13 @@ class SingleAllContributionAPIView(
         rest_framework.response.Respone
             Contains the serialised observation
         """
-        observation = self.get_object(request.user, project_id, observation_id)
-        return self.get_and_respond(request, observation)
+        contribution = self.get_contribution(
+            request.user,
+            project_id,
+            observation_id
+        )
+
+        return self.get_and_respond(request, contribution)
 
     @handle_exceptions_for_ajax
     def patch(self, request, project_id, observation_id):
@@ -282,8 +294,13 @@ class SingleAllContributionAPIView(
         rest_framework.response.Respone
             Contains the updated serialised observation
         """
-        observation = self.get_object(request.user, project_id, observation_id)
-        return self.update_and_respond(request, observation)
+        contribution = self.get_contribution(
+            request.user,
+            project_id,
+            observation_id
+        )
+
+        return self.update_and_respond(request, contribution)
 
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, observation_id):
@@ -304,5 +321,10 @@ class SingleAllContributionAPIView(
         rest_framework.response.Respone
             Empty response indicating successful delete
         """
-        observation = self.get_object(request.user, project_id, observation_id)
-        return self.delete_and_respond(request, observation)
+        contribution = self.get_contribution(
+            request.user,
+            project_id,
+            observation_id
+        )
+
+        return self.delete_and_respond(request, contribution)

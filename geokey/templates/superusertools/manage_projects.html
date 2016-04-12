@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load project_attributes %}
+
+{% block title %} | Superuser tools: Manage projects{% endblock %}
+
+{% block main %}
+<div class="page-header">
+    <div class="container">
+        <h1>Superuser tools</h1>
+        {% include 'superusertools/navigation.html' %}
+    </div>
+</div>
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+            <h3 class="header">Manage projects</h3>
+
+            {% if projects|length %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th class="text-center">Contributions</th>
+                            <th class="text-center">Comments</th>
+                            <th class="text-center">Media files</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for project in projects %}
+                            <tr>
+                                <td>
+                                    <h4>
+                                        {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                                        <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
+                                    </h4>
+
+                                    {% project_attributes project %}
+                                </td>
+
+                                <td class="text-center {% if project.contributions_count == 0 %}text-muted{% endif %}">{{ project.contributions_count }}</td>
+                                <td class="text-center {% if project.comments_count == 0 %}text-muted{% endif %}">{{ project.comments_count }}</td>
+                                <td class="text-center {% if project.media_count == 0 %}text-muted{% endif %}">{{ project.media_count }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No projects were found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

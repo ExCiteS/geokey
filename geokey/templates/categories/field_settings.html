@@ -17,7 +17,7 @@ data-field-id="{{ field.id }}"
             <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
         </h1>
 
-        {% include 'projects_navigation.html' %}
+        {% include 'projects/navigation.html' %}
     </div>
 </div>
 
@@ -32,7 +32,7 @@ data-field-id="{{ field.id }}"
 
                     <h3>
                         {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
-                        {{ field.name }}
+                        <span>{{ field.name }}</span>
                     </h3>
                 </div>
 

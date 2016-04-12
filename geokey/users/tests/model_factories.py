@@ -1,3 +1,5 @@
+"""Model factories used for tests of users."""
+
 import datetime
 import factory
 import string
@@ -8,7 +10,6 @@ from django.utils import timezone
 
 from oauth2_provider.models import AccessToken
 
-import geokey
 from ..models import User, UserGroup
 
 
@@ -44,12 +45,12 @@ class AccessTokenFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = AccessToken
         django_get_or_create = ('user', 'application')
-    
-    user=factory.SubFactory(UserFactory)
-    application=factory.SubFactory(ApplicationFactory)
-    token=FuzzyText(length=30, chars=string.ascii_uppercase + string.digits)
-    expires=timezone.now() + datetime.timedelta(days=1)
-    scope='read write'
+
+    user = factory.SubFactory(UserFactory)
+    application = factory.SubFactory(ApplicationFactory)
+    token = FuzzyText(length=30, chars=string.ascii_uppercase + string.digits)
+    expires = timezone.now() + datetime.timedelta(days=1)
+    scope = 'read write'
 
 
 class UserGroupFactory(factory.django.DjangoModelFactory):

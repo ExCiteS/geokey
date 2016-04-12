@@ -1,33 +1,45 @@
 #!/usr/bin/env python
 
+"""GeoKey setup."""
+
+from os.path import join
 from setuptools import setup, find_packages
+
 from geokey.version import get_version
+
+
+name = 'geokey'
+version = get_version()
+repository = join('https://github.com/ExCiteS', name)
 
 
 def get_install_requires():
     """
-    parse requirements.txt, ignore links, exclude comments
+    Get requirements (ignore links, exclude comments).
+
+    Returns
+    -------
+    list
+        Requirements for GeoKey.
     """
     requirements = list()
     for line in open('requirements.txt').readlines():
-        # skip to next iteration if comment or empty line
         if line.startswith('#') or line.startswith('git+https') or line == '':
             continue
-        # add line to requirements
         requirements.append(line.rstrip())
-
     return requirements
 
+
 setup(
-    name="geokey",
-    version=get_version(),
-    license="Apache 2.0",
-    description="Open-source participatory mapping framework",
+    name=name,
+    version=version,
+    description='Platform for participatory mapping',
     url='http://geokey.org.uk',
-    download_url='https://github.com/excites/geokey/releases',
-    author="Oliver Roick",
-    author_email="o.roick@ucl.ac.uk",
+    download_url=join(repository, 'tarball', version),
+    author='ExCiteS',
+    author_email='excites@ucl.ac.uk',
+    license='Apache 2.0',
     packages=find_packages(),
-    install_requires=get_install_requires(),
     include_package_data=True,
+    install_requires=get_install_requires(),
 )

@@ -1,3 +1,5 @@
+"""Tests for template tags of projects."""
+
 import datetime
 
 from django.test import TestCase

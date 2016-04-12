@@ -1,31 +1,61 @@
+"""Tests for base of extensions."""
+
 from django.test import TestCase
-from ..base import ExtensionExists, register, deregister, extensions
+
+from geokey.extensions.base import extensions, register, deregister
+from geokey.extensions.exceptions import ExtensionExists
 
 
-class RegisterExtensionTest(TestCase):
-    def test_register_new(self):
-        ext_name = 'test_ext_A'
-        register(ext_name, 'Test', True, True, '1.0.0')
-    
-        extension = extensions.get(ext_name)
-        self.assertEqual(extension.get('ext_id'), ext_name)
+class RegisterTest(TestCase):
+    """Test register."""
+
+    def tearDown(self):
+        """Tear down test."""
+        deregister(self.ext_id)
+
+    def test_register(self):
+        """Test registering new extension."""
+        self.ext_id = 'test_ext'
+        register(self.ext_id, 'Test', True, True, '1.0.0')
+
+        extension = extensions.get(self.ext_id)
+        self.assertEqual(extension.get('ext_id'), self.ext_id)
         self.assertEqual(extension.get('name'), 'Test')
-        self.assertEqual(extension.get('index_url'), ext_name + ':index')
+        self.assertEqual(extension.get('version'), '1.0.0')
         self.assertTrue(extension.get('display_admin'))
         self.assertTrue(extension.get('superuser'))
-        self.assertEqual(extension.get('version'), '1.0.0')
+        self.assertEqual(extension.get('index_url'), self.ext_id + ':index')
 
-    def test_register_existing(self):
-        register('test_ext_existing', 'Test', True, True, '1.0.0')
-        self.assertRaises(
-            ExtensionExists,
-            register,
-            'test_ext_existing', 'abc', False, False, '0.0.1')
+    def test_register_when_already_exists(self):
+        """Test registering existing extension."""
+        self.ext_id = 'test_ext'
+        extensions[self.ext_id] = {
+            'ext_id': self.ext_id,
+            'name': 'Test',
+            'version': '1.0.0',
+            'display_admin': True,
+            'superuser': True,
+            'index_url': self.ext_id + ':index'
+        }
+
+        with self.assertRaises(ExtensionExists):
+            register(self.ext_id, 'Test B', False, False, '1.0.0')
+
+
+class DeregisterTest(TestCase):
+    """Test deregister."""
 
     def test_deregister(self):
-        ext_name = 'test_ext_B'
-        register(ext_name, 'Test', True, True, '1.0.0')
-        
-        deregister(ext_name)
-        
-        self.assertNotIn(ext_name, extensions)
+        """Test deregistering existing extension."""
+        ext_id = 'test_ext'
+        extensions[ext_id] = {
+            'ext_id': ext_id,
+            'name': 'Test',
+            'version': '1.0.0',
+            'display_admin': True,
+            'superuser': True,
+            'index_url': ext_id + ':index'
+        }
+        deregister(ext_id)
+
+        self.assertNotIn(ext_id, extensions)

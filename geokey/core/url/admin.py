@@ -1,10 +1,14 @@
+"""Admin URLs."""
+
 from django.conf.urls import url
+from django.core.urlresolvers import reverse_lazy
+from django.views.generic.base import RedirectView
 
 from geokey.projects import views as project_views
 from geokey.categories import views as category_views
 from geokey.users import views as login_views
 from geokey.applications import views as app_views
-from geokey.superusertools import views as superuser
+from geokey.superusertools import views as superusertools
 from geokey.subsets import views as subsets
 
 
@@ -45,35 +49,43 @@ urlpatterns = [
     # USER GROUPS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'usergroups/$',
         login_views.UserGroupList.as_view(),
         name='usergroup_list'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/new/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'usergroups/new/$',
         login_views.UserGroupCreate.as_view(),
         name='usergroup_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<usergroup_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'usergroups/(?P<usergroup_id>[0-9]+)/$',
         login_views.UserGroupOverview.as_view(),
         name='usergroup_overview'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/administrators/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'usergroups/administrators/$',
         login_views.AdministratorsOverview.as_view(),
         name='admins_overview'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<usergroup_id>[0-9]+)/permissions/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'usergroups/(?P<usergroup_id>[0-9]+)/permissions/$',
         login_views.UserGroupPermissions.as_view(),
         name='usergroup_permissions'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<usergroup_id>[0-9]+)/settings/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'usergroups/(?P<usergroup_id>[0-9]+)/settings/$',
         login_views.UserGroupSettings.as_view(),
         name='usergroup_settings'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<usergroup_id>[0-9]+)/delete/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'usergroups/(?P<usergroup_id>[0-9]+)/delete/$',
         login_views.UserGroupDelete.as_view(),
         name='usergroup_delete'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/usergroups/(?P<usergroup_id>[0-9]+)/data/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'usergroups/(?P<usergroup_id>[0-9]+)/data/$',
         login_views.UserGroupData.as_view(),
         name='usergroup_data'),
 
@@ -81,58 +93,75 @@ urlpatterns = [
     # CATEGORIES & FIELDS
     # ###########################
     url(
-        r'^projects/(?P<project_id>[0-9]+)/categories/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'categories/$',
         category_views.CategoryList.as_view(),
         name='category_list'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/categories/new/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'categories/new/$',
         category_views.CategoryCreate.as_view(),
         name='category_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'categories/(?P<category_id>[0-9]+)/$',
         category_views.CategoryOverview.as_view(),
         name='category_overview'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/display/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'categories/(?P<category_id>[0-9]+)/display/$',
         category_views.CategoryDisplay.as_view(),
         name='category_display'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/settings/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'categories/(?P<category_id>[0-9]+)/settings/$',
         category_views.CategorySettings.as_view(),
         name='category_settings'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/delete/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'categories/(?P<category_id>[0-9]+)/delete/$',
         category_views.CategoryDelete.as_view(),
         name='category_delete'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/new/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'categories/(?P<category_id>[0-9]+)/'
+        r'fields/new/$',
         category_views.FieldCreate.as_view(),
         name='category_field_create'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'categories/(?P<category_id>[0-9]+)/'
+        r'fields/(?P<field_id>[0-9]+)/$',
         category_views.FieldSettings.as_view(),
         name='category_field_settings'),
     url(
-        r'^projects/(?P<project_id>[0-9]+)/categories/(?P<category_id>[0-9]+)/fields/(?P<field_id>[0-9]+)/delete/$',
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'categories/(?P<category_id>[0-9]+)/'
+        r'fields/(?P<field_id>[0-9]+)/delete/$',
         category_views.FieldDelete.as_view(),
         name='category_field_delete'),
 
     # ###########################
     # SUBSETS
     # ###########################
-    url(r'^projects/(?P<project_id>[0-9]+)/subsets/$',
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'subsets/$',
         subsets.SubsetList.as_view(),
         name='subset_list'),
-    url(r'^projects/(?P<project_id>[0-9]+)/subsets/new/$',
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'subsets/new/$',
         subsets.SubsetCreate.as_view(),
         name='subset_create'),
-    url(r'^projects/(?P<project_id>[0-9]+)/subsets/(?P<subset_id>[0-9]+)/$',
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'subsets/(?P<subset_id>[0-9]+)/$',
         subsets.SubsetSettings.as_view(),
         name='subset_settings'),
-    url(r'^projects/(?P<project_id>[0-9]+)/subsets/(?P<subset_id>[0-9]+)/data/$',
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'subsets/(?P<subset_id>[0-9]+)/data/$',
         subsets.SubsetData.as_view(),
         name='subset_data'),
-    url(r'^projects/(?P<project_id>[0-9]+)/subsets/(?P<subset_id>[0-9]+)/delete/$',
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'subsets/(?P<subset_id>[0-9]+)/delete/$',
         subsets.SubsetDelete.as_view(),
         name='subset_delete'),
 
@@ -174,16 +203,21 @@ urlpatterns = [
     # ###########################
     # SUPERUSER TOOLS
     # ###########################
-    url(r'^superuser-tools/$',
-        superuser.PlatformSettings.as_view(),
-        name="superuser_index"),
-    url(r'^superuser-tools/projects/$',
-        superuser.ProjectsList.as_view(),
-        name="superuser_projects"),
-    url(r'^superuser-tools/manage-superusers/$',
-        superuser.ManageSuperUsers.as_view(),
-        name="superuser_manage_users"),
-    url(r'^superuser-tools/manage-inactive-users/$',
-        superuser.ManageInactiveUsers.as_view(),
-        name="superuser_manage_inactiveusers"),
+    url(r'^superusertools/$',
+        RedirectView.as_view(
+            url=reverse_lazy('admin:superusertools_manage_superusers'),
+            permanent=False),
+        name='superusertools_index'),
+    url(r'^superusertools/manage-superusers/$',
+        superusertools.ManageSuperusers.as_view(),
+        name='superusertools_manage_superusers'),
+    url(r'^superusertools/manage-inactive-users/$',
+        superusertools.ManageInactiveUsers.as_view(),
+        name='superusertools_manage_inactive_users'),
+    url(r'^superusertools/manage-projects/$',
+        superusertools.ManageProjects.as_view(),
+        name='superusertools_manage_projects'),
+    url(r'^superuser-tools/platform-settings/$',
+        superusertools.PlatformSettings.as_view(),
+        name='superusertools_platform_settings'),
 ]

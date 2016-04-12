@@ -1,4 +1,7 @@
+"""Tests for models of projects."""
+
 import pytz
+
 from datetime import datetime
 
 from django.test import TestCase
@@ -67,7 +70,7 @@ class ProjectTest(TestCase):
         self.assertEqual('contributor', project.get_role(contributor))
         self.assertEqual('watcher', project.get_role(other))
 
-    def test_re_order_categories(self):
+    def test_reorder_categories(self):
         project = ProjectFactory.create()
 
         category_0 = CategoryFactory.create(**{'project': project})
@@ -76,7 +79,7 @@ class ProjectTest(TestCase):
         category_3 = CategoryFactory.create(**{'project': project})
         category_4 = CategoryFactory.create(**{'project': project})
 
-        project.re_order_categories(
+        project.reorder_categories(
             [category_4.id, category_0.id, category_2.id,
              category_1.id, category_3.id]
         )
@@ -90,7 +93,7 @@ class ProjectTest(TestCase):
         self.assertEqual(categories[3], category_1)
         self.assertEqual(categories[4], category_3)
 
-    def test_re_order_categories_with_false_category(self):
+    def test_reorder_categories_with_false_category(self):
         project = ProjectFactory.create()
 
         category_0 = CategoryFactory.create(**{'project': project})
@@ -100,7 +103,7 @@ class ProjectTest(TestCase):
         category_4 = CategoryFactory.create(**{'project': project})
 
         try:
-            project.re_order_categories(
+            project.reorder_categories(
                 [category_4.id, category_0.id, category_2.id,
                  category_1.id, 5854]
             )

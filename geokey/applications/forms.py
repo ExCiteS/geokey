@@ -1,3 +1,5 @@
+"""Forms for applications."""
+
 from django import forms
 
 from .models import Application

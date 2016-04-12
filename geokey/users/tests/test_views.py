@@ -1,3 +1,5 @@
+"""Tests for views of users."""
+
 import json
 
 from django.test import TestCase, TransactionTestCase
@@ -61,8 +63,10 @@ class IndexTest(TestCase):
 
 
 class DashboardTest(TestCase):
+    """Test dashboard page."""
 
     def setUp(self):
+        """Set up tests."""
         self.creator = UserFactory.create()
         self.admin = UserFactory.create()
         self.view_member = UserFactory.create()
@@ -77,6 +81,7 @@ class DashboardTest(TestCase):
         )
 
     def test_get_context_data_with_admin(self):
+        """Test GET with admin."""
         dashboard_view = Dashboard()
         url = reverse('admin:dashboard')
         request = APIRequestFactory().get(url)
@@ -85,10 +90,10 @@ class DashboardTest(TestCase):
         dashboard_view.request = request
         context = dashboard_view.get_context_data()
 
-        self.assertEqual(len(context.get('admin_projects')), 2)
-        self.assertFalse(context.get('involved_projects'))
+        self.assertEqual(len(context.get('projects')), 2)
 
     def test_get_context_data_with_contributor(self):
+        """Test GET with contributor."""
         dashboard_view = Dashboard()
         url = reverse('admin:dashboard')
         request = APIRequestFactory().get(url)
@@ -97,8 +102,7 @@ class DashboardTest(TestCase):
         dashboard_view.request = request
         context = dashboard_view.get_context_data()
 
-        self.assertEqual(len(context.get('admin_projects')), 1)
-        self.assertTrue(context.get('involved_projects'))
+        self.assertEqual(len(context.get('projects')), 1)
 
 
 class UserGroupListTest(TestCase):
@@ -1170,7 +1174,7 @@ class UserGroupUsersTest(TestCase):
         request = self.factory.post(
             '/ajax/projects/%s/usergroups/%s/users/' %
             (self.project.id, 6545454844545648),
-            {'userId': self.user_to_add.id}
+            {'user_id': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
         view = UserGroupUsers.as_view()
@@ -1186,7 +1190,7 @@ class UserGroupUsersTest(TestCase):
         request = self.factory.post(
             '/ajax/projects/%s/usergroups/%s/users/' %
             (self.project.id, self.contributors.id),
-            {'userId': 4445468756454}
+            {'user_id': 4445468756454}
         )
         force_authenticate(request, user=self.admin)
         view = UserGroupUsers.as_view()
@@ -1205,7 +1209,7 @@ class UserGroupUsersTest(TestCase):
         request = self.factory.post(
             '/ajax/projects/%s/usergroups/%s/users/' %
             (self.project.id, self.contributors.id),
-            {'userId': self.user_to_add.id}
+            {'user_id': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
         view = UserGroupUsers.as_view()
@@ -1221,7 +1225,7 @@ class UserGroupUsersTest(TestCase):
         request = self.factory.post(
             '/ajax/projects/%s/usergroups/%s/users/' %
             (self.project.id, self.contributors.id),
-            {'userId': self.user_to_add.id}
+            {'user_id': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
         view = UserGroupUsers.as_view()
@@ -1241,7 +1245,7 @@ class UserGroupUsersTest(TestCase):
         request = self.factory.post(
             '/ajax/projects/%s/usergroups/%s/users/' %
             (self.project.id, self.contributors.id),
-            {'userId': self.user_to_add.id}
+            {'user_id': self.user_to_add.id}
         )
         force_authenticate(request, user=self.contributor)
         view = UserGroupUsers.as_view()
@@ -1261,7 +1265,7 @@ class UserGroupUsersTest(TestCase):
         request = self.factory.post(
             '/ajax/projects/%s/usergroups/%s/users/' %
             (self.project.id, self.contributors.id),
-            {'userId': self.user_to_add.id}
+            {'user_id': self.user_to_add.id}
         )
         force_authenticate(request, user=self.non_member)
         view = UserGroupUsers.as_view()

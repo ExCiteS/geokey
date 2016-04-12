@@ -1,3 +1,5 @@
+"""Template tags for KML."""
+
 from osgeo import ogr
 
 from django import template

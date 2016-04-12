@@ -1,12 +1,16 @@
-from django.core.management.base import NoArgsCommand
+"""Command `check_confirm`."""
 
-from datetime import datetime, timedelta
 from pytz import utc
+from datetime import datetime, timedelta
+
+from django.core.management.base import BaseCommand
 
 from allauth.account.models import EmailAddress, EmailConfirmation
 
 
-class Command(NoArgsCommand):
+class Command(BaseCommand):
+    """A command to check which users should be inactivated."""
+
     def set_user_inactive(self, yesterday):
         outstanding = EmailAddress.objects.filter(verified=False)
         for address in outstanding:

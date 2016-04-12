@@ -1,3 +1,5 @@
+"""Tests for models of applications."""
+
 from django.test import TestCase
 
 from nose.tools import raises

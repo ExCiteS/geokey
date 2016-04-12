@@ -1,3 +1,5 @@
+"""Tests for serializers of projects."""
+
 from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser
 

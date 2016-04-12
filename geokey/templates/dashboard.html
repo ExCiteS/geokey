@@ -17,14 +17,14 @@
         <div class="col-md-8">
             <h3 class="header">
                 Manage your projects
-                {% if admin_projects %}
+                {% if projects %}
                     <a href="{% url 'admin:project_create' %}" class="pull-right btn btn-sm btn-success">
                         <span class="glyphicon glyphicon-plus"></span>
                         Create new Project
                     </a>
                 {% endif %}
             </h3>
-            {% for project in admin_projects %}
+            {% for project in projects %}
                 {% if forloop.first %}
                     <ul class="list-unstyled overview-list">
                 {% endif %}
@@ -55,8 +55,8 @@
             <div class="panel panel-default">
                 <div class="list-group">
                     <a class="list-group-item" href="{% url 'admin:app_overview' %}">Your applications</a>
-                    {% if user.is_superuser %}<a class="list-group-item" href="{% url 'admin:superuser_index' %}">Superuser tools</a>{% endif %}
-                    {% if involved_projects %}<a class="list-group-item" href="{% url 'admin:projects_involved' %}">Other projects</a>{% endif %}
+                    {% if user.is_superuser %}<a class="list-group-item" href="{% url 'admin:superusertools_index' %}">Superuser tools</a>{% endif %}
+                    <a class="list-group-item" href="{% url 'admin:projects_involved' %}">Other projects</a>
                 </div>
             </div>
 

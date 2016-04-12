@@ -1,3 +1,5 @@
+"""Models for categories."""
+
 import json
 
 import time
@@ -10,7 +12,7 @@ from django.db import models
 
 from geokey.core.exceptions import InputError
 
-from .manager import CategoryManager, FieldManager, LookupValueManager
+from .managers import CategoryManager, FieldManager, LookupValueManager
 from .base import STATUS, DEFAULT_STATUS
 
 
@@ -47,7 +49,7 @@ class Category(models.Model):
     class Meta:
         ordering = ['order']
 
-    def re_order_fields(self, order):
+    def reorder_fields(self, order):
         """
         Changes the order in which fields are displayed on client side.
 

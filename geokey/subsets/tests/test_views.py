@@ -1,3 +1,5 @@
+"""Tests for views of subsets."""
+
 import json
 
 from django.test import TestCase

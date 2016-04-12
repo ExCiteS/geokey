@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Tests for views of categories."""
 
 import json
 

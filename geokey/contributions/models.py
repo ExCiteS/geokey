@@ -1,4 +1,7 @@
+"""Models for contributions."""
+
 import re
+
 from pytz import utc
 from datetime import datetime
 
@@ -7,22 +10,26 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
+from django.contrib.gis.db import models as gis
 
 from django_pgjson.fields import JsonBField
 from simple_history.models import HistoricalRecords
 
 from geokey.core.exceptions import InputError
 
-from .base import OBSERVATION_STATUS, COMMENT_STATUS, COMMENT_REVIEW
-from .manager import ObservationManager, CommentManager
-
-from django.contrib.gis.db import models as gis
-
-from .base import LOCATION_STATUS
-from .manager import LocationManager
-
-from .manager import MediaFileManager
-from .base import MEDIA_STATUS
+from .base import (
+    OBSERVATION_STATUS,
+    COMMENT_STATUS,
+    COMMENT_REVIEW,
+    LOCATION_STATUS,
+    MEDIA_STATUS
+)
+from .managers import (
+    ObservationManager,
+    LocationManager,
+    CommentManager,
+    MediaFileManager
+)
 
 
 class Location(models.Model):

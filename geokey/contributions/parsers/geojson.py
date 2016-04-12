@@ -1,3 +1,5 @@
+"""GeoJSON parser."""
+
 import json
 from rest_framework.parsers import BaseParser
 

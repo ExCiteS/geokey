@@ -1,4 +1,7 @@
+"""Serializers for projects."""
+
 import json
+
 from django.db.models import Q
 
 from rest_framework import serializers

@@ -1,3 +1,5 @@
+"""Views for applications."""
+
 from django.views.generic import CreateView, TemplateView
 from django.core.urlresolvers import reverse
 from django.contrib import messages

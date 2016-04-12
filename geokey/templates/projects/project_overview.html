@@ -16,7 +16,7 @@ data-project-locked="{{ project.islocked }}"
             {{ project.name }}
         </h1>
 
-        {% include 'projects_navigation.html' %}
+        {% include 'projects/navigation.html' %}
     </div>
 </div>
 
@@ -25,121 +25,127 @@ data-project-locked="{{ project.islocked }}"
 
     <div id="overview-block">
         <h3 class="header">
-            Overview
+            <span>Overview</span>
             {% if not project.islocked %}<small><a href="#" id="help-link" class="pull-right">Click here for help</a></small>{% endif %}
         </h3>
 
         <div class="row">
             <div class="col-sm-4">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
-                            Categories
-                            <a href="{% url 'admin:category_list' project.id %}" class="badge pull-right">{{ project.categories.count }} &raquo;</a>
-                        </h4>
-                    </div>
-
-                    <div class="list-group">
-                        {% for category in project.categories.all %}
-                            {% if forloop.counter == 6 %}
-                                <div class="list-group-item">
-                                    <strong><a href="#" class="text-primary expand">{% more_link_text project.categories.count 'category' 'categories' %}</a></strong>
-                                </div>
-                            {% endif %}
-
-                            <a href="{% url 'admin:category_overview' project.id category.id %}" class="list-group-item {% if forloop.counter > 5 %}hidden{% endif %}">
-                                <strong>{{ category.name }}</strong><br>
-                                {% with fields_count=category.fields.count %}
-                                    {{ fields_count }} field{{ fields_count|pluralize }}
-                                {% endwith %}
-                            </a>
-
-                        {% empty %}
-                            <div class="list-group-item">No categories have been created yet.</div>
-                        {% endfor %}
-                    </div>
-
-                    {% if not project.islocked %}
-                        <div class="panel-footer">
-                            <a href="{% url 'admin:category_create' project.id %}" class="btn btn-sm btn-success">Create category</a>
+                {% with categories=project.categories.all %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                                <span>Categories</span>
+                                <a href="{% url 'admin:category_list' project.id %}" class="badge pull-right">{{ categories|length }} &raquo;</a>
+                            </h4>
                         </div>
-                    {% endif %}
-                </div>
+
+                        <div class="list-group">
+                            {% for category in categories %}
+                                {% if forloop.counter == 6 %}
+                                    <div class="list-group-item">
+                                        <strong><a href="#" class="text-primary expand">{% more_link_text categories|length 'category' 'categories' %}</a></strong>
+                                    </div>
+                                {% endif %}
+
+                                <a href="{% url 'admin:category_overview' project.id category.id %}" class="list-group-item {% if forloop.counter > 5 %}hidden{% endif %}">
+                                    <strong>{{ category.name }}</strong><br>
+                                    {% with fields_count=category.fields.count %}
+                                        {{ fields_count }} field{{ fields_count|pluralize }}
+                                    {% endwith %}
+                                </a>
+
+                            {% empty %}
+                                <div class="list-group-item">No categories have been created yet.</div>
+                            {% endfor %}
+                        </div>
+
+                        {% if not project.islocked %}
+                            <div class="panel-footer">
+                                <a href="{% url 'admin:category_create' project.id %}" class="btn btn-sm btn-success">Create category</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endwith %}
             </div>
 
             <div class="col-sm-4">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
-                            Subsets
-                            <a href="{% url 'admin:subset_list' project.id %}" class="badge pull-right">{{ project.subsets.count }} &raquo;</a>
-                        </h4>
-                    </div>
-
-                    <div class="list-group">
-                        {% for subset in project.subsets.all %}
-                            {% if forloop.counter == 6 %}
-                                <div class="list-group-item">
-                                    <strong><a href="#" class="text-primary expand">{% more_link_text project.subsets.count 'subset' 'subsets' %}</a></strong>
-                                </div>
-                            {% endif %}
-
-                            <a href="{% url 'admin:subset_data' project.id subset.id %}" class="list-group-item {% if forloop.counter > 5 %}hidden{% endif %}">{{ subset.name }}</a>
-                        {% empty %}
-                            <div class="list-group-item">No subsets have been created yet.</div>
-                        {% endfor %}
-                    </div>
-
-                    {% if not project.islocked %}
-                        <div class="panel-footer">
-                            <a href="{% url 'admin:subset_create' project.id %}" class="btn btn-sm btn-success">Create subset</a>
+                {% with subsets=project.subsets.all %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                                <span>Subsets</span>
+                                <a href="{% url 'admin:subset_list' project.id %}" class="badge pull-right">{{ subsets|length }} &raquo;</a>
+                            </h4>
                         </div>
-                    {% endif %}
-                </div>
+
+                        <div class="list-group">
+                            {% for subset in subsets %}
+                                {% if forloop.counter == 6 %}
+                                    <div class="list-group-item">
+                                        <strong><a href="#" class="text-primary expand">{% more_link_text subsets|length 'subset' 'subsets' %}</a></strong>
+                                    </div>
+                                {% endif %}
+
+                                <a href="{% url 'admin:subset_data' project.id subset.id %}" class="list-group-item {% if forloop.counter > 5 %}hidden{% endif %}">{{ subset.name }}</a>
+                            {% empty %}
+                                <div class="list-group-item">No subsets have been created yet.</div>
+                            {% endfor %}
+                        </div>
+
+                        {% if not project.islocked %}
+                            <div class="panel-footer">
+                                <a href="{% url 'admin:subset_create' project.id %}" class="btn btn-sm btn-success">Create subset</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endwith %}
             </div>
 
             <div class="col-sm-4">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
-                            User groups
-                            <a href="{% url 'admin:usergroup_list' project.id %}" class="badge pull-right">{{ project.usergroups.count|add:'1' }} &raquo;</a>
-                        </h4>
-                    </div>
+                {% with usergroups=project.usergroups.all %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                                <span>User groups</span>
+                                <a href="{% url 'admin:usergroup_list' project.id %}" class="badge pull-right">{{ usergroups|length|add:'1' }} &raquo;</a>
+                            </h4>
+                        </div>
 
-                    <div class="list-group">
-                        <a href="{% url 'admin:admins_overview' project.id %}" class="list-group-item">
-                            <strong>Administators</strong><br>
-                            {% with admins_count=project.admins.count %}
-                                {{ admins_count }} member{{ admins_count|pluralize }}
-                            {% endwith %}
-                        </a>
-
-                        {% for group in project.usergroups.all %}
-                            {% if forloop.counter == 5 %}
-                                <div class="list-group-item">
-                                    <strong><a href="#" class="text-primary expand">{% more_link_text project.usergroups.count 'user group' 'user groups' 4 %}</a></strong>
-                                </div>
-                            {% endif %}
-
-                            <a href="{% url 'admin:usergroup_overview' project.id group.id %}" class="list-group-item {% if forloop.counter > 4 %}hidden{% endif %}">
-                                <strong>{{ group.name }}</strong><br>
-                                {% with members_count=group.users.count %}
-                                    {{ members_count }} member{{ members_count|pluralize }}
+                        <div class="list-group">
+                            <a href="{% url 'admin:admins_overview' project.id %}" class="list-group-item">
+                                <strong>Administators</strong><br>
+                                {% with admins_count=project.admins.count %}
+                                    {{ admins_count }} member{{ admins_count|pluralize }}
                                 {% endwith %}
                             </a>
-                        {% endfor %}
-                    </div>
 
-                    {% if not project.islocked %}
-                        <div class="panel-footer">
-                            <a href="{% url 'admin:usergroup_create' project.id %}" class="btn btn-sm btn-success">Create user group</a>
+                            {% for group in usergroups %}
+                                {% if forloop.counter == 5 %}
+                                    <div class="list-group-item">
+                                        <strong><a href="#" class="text-primary expand">{% more_link_text usergroups|length 'user group' 'user groups' 4 %}</a></strong>
+                                    </div>
+                                {% endif %}
+
+                                <a href="{% url 'admin:usergroup_overview' project.id group.id %}" class="list-group-item {% if forloop.counter > 4 %}hidden{% endif %}">
+                                    <strong>{{ group.name }}</strong><br>
+                                    {% with members_count=group.users.count %}
+                                        {{ members_count }} member{{ members_count|pluralize }}
+                                    {% endwith %}
+                                </a>
+                            {% endfor %}
                         </div>
-                    {% endif %}
-                </div>
+
+                        {% if not project.islocked %}
+                            <div class="panel-footer">
+                                <a href="{% url 'admin:usergroup_create' project.id %}" class="btn btn-sm btn-success">Create user group</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endwith %}
             </div>
         </div>
     </div>
@@ -151,18 +157,18 @@ data-project-locked="{{ project.islocked }}"
 
         <div id="statistics" class="row">
             <div class="col-sm-4">
-                <span class="number">{{ all_contributions }}</span>
-                <p>contributions</p>
+                <span class="number">{{ project.contributions_count }}</span>
+                <p>contribution{{ project.contributions_count|pluralize }}</p>
             </div>
 
             <div class="col-sm-4">
-                <span class="number">{{ all_comments }}</span>
-                <p>comments</p>
+                <span class="number">{{ project.comments_count }}</span>
+                <p>comment{{ project.comments_count|pluralize }}</p>
             </div>
 
             <div class="col-sm-4">
-                <span class="number">{{ all_mediafiles }}</span>
-                <p>media files</p>
+                <span class="number">{{ project.media_count }}</span>
+                <p>media file{{ project.media_count|pluralize }}</p>
             </div>
         </div>
     </div>

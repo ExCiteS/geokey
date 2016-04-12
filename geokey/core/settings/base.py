@@ -1,12 +1,4 @@
-"""
-Django settings for opencomap project.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/1.8/topics/settings/
-
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.8/ref/settings/
-"""
+"""Base settings."""
 
 from os.path import abspath, dirname, join, normpath
 from django.contrib import messages

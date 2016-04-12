@@ -1,3 +1,5 @@
+"""Tests for models of users."""
+
 from django.test import TestCase
 
 from oauth2_provider.models import AccessToken

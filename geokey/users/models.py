@@ -1,3 +1,5 @@
+"""Managers for users."""
+
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
@@ -7,7 +9,7 @@ from django_pgjson.fields import JsonBField
 from oauth2_provider.models import AccessToken
 
 from geokey.core.mixins import FilterMixin
-from .manager import UserManager
+from .managers import UserManager
 
 
 class User(AbstractBaseUser):

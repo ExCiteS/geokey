@@ -1,3 +1,5 @@
+"""Views for users."""
+
 from json import loads as json_loads
 from django.views.generic import TemplateView, CreateView
 from django.shortcuts import redirect
@@ -70,37 +72,34 @@ class Index(TemplateView):
 
 
 class Dashboard(LoginRequiredMixin, TemplateView):
-    """
-    Displays the dashboard.
-    """
+    """Dashboard page."""
+
     template_name = 'dashboard.html'
 
     def get_context_data(self):
         """
-        Returns the context to render the view. Overwrites the method to add
-        projects, projects status types and extensions to context
+        Return the context to render the view.
 
-        Return
+        Overwrite the method to add projects, project status types and
+        extensions to the context.
+
+        Returns
+        -------
         dict
         """
-        projects = Project.objects.get_list(self.request.user)
-
         from geokey.extensions.base import extensions
 
         ext = []
-
         for ext_id in sorted(extensions):
             extension = extensions.get(ext_id)
-
             if extension.get('display_admin') and (
                     not extension.get('superuser') or
                     self.request.user.is_superuser):
                 ext.append(extension)
 
         return {
-            'admin_projects': projects.filter(admins=self.request.user),
-            'involved_projects': projects.exclude(
-                admins=self.request.user).exists(),
+            'projects': Project.objects.get_list(
+                self.request.user).filter(admins=self.request.user),
             'status_types': STATUS,
             'extensions': ext
         }
@@ -670,7 +669,7 @@ class UserGroupUsers(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         else:
-            user_id = request.data.get('userId')
+            user_id = request.data.get('user_id')
 
             try:
                 user = User.objects.get(pk=user_id)

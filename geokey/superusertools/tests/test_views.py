@@ -1,215 +1,105 @@
+"""Tests for views of superuser tools."""
+
 from django.test import TestCase
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import AnonymousUser
 from django.http import HttpResponseRedirect, HttpRequest, QueryDict
-from django.contrib.sites.models import Site
 from django.template.loader import render_to_string
+from django.contrib.auth.models import AnonymousUser
+from django.contrib.sites.models import Site
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.messages import get_messages
+from django.contrib.messages.storage.fallback import FallbackStorage
 
 from allauth.account.models import EmailAddress
-
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from geokey import version
 from geokey.core.tests.helpers import render_helpers
-from geokey.users.tests.model_factories import UserFactory
 from geokey.users.models import User
+from geokey.users.tests.model_factories import UserFactory
 from geokey.projects.tests.model_factories import ProjectFactory
+from geokey.categories.tests.model_factories import CategoryFactory
+from geokey.contributions.tests.model_factories import (
+    ObservationFactory,
+    CommentFactory
+)
 
-from ..views import (
-    PlatformSettings,
-    ProjectsList,
-    ManageSuperUsers,
+from geokey.superusertools.views import (
+    ManageSuperusers,
     ManageInactiveUsers,
-    AddSuperUsersAjaxView,
-    DeleteSuperUsersAjaxView
+    ManageProjects,
+    PlatformSettings,
+    SuperusersAjaxView,
+    SingleSuperuserAjaxView
 )
 
 
-class SiteSettingsTest(TestCase):
+# #############################################################################
+#
+# ADMIN VIEWS
+#
+# #############################################################################
+
+class ManageSuperusersTest(TestCase):
+    """Test manage superusers page."""
+
+    def setUp(self):
+        """Set up test."""
+        self.url = reverse('admin:superusertools_manage_superusers')
+        self.request = APIRequestFactory().get(self.url)
+
     def test_get_context_data(self):
-        view = PlatformSettings()
-        url = reverse('admin:superuser_index')
-        request = APIRequestFactory().get(url)
-        view.request = request
-        context = view.get_context_data()
-        self.assertIsNotNone(context.get('site'))
-
-    def test_get_with_superuser(self):
-        view = PlatformSettings.as_view()
-        url = reverse('admin:superuser_index')
-        request = APIRequestFactory().get(url)
-        request.user = UserFactory.create(**{'is_superuser': True})
-        response = view(request).render()
-        self.assertEqual(response.status_code, 200)
-
-    def test_get_with_user(self):
-        view = PlatformSettings.as_view()
-        url = reverse('admin:superuser_index')
-        request = APIRequestFactory().get(url)
-        request.user = UserFactory.create(**{'is_superuser': False})
-        view.request = request
-        response = view(request).render()
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(
-            response,
-            'Superuser tools are for superusers only. You are not a superuser.'
-        )
-
-    def test_get_with_anonymous(self):
-        view = PlatformSettings.as_view()
-        url = reverse('admin:superuser_index')
-        request = APIRequestFactory().get(url)
-        request.user = AnonymousUser()
-        view.request = request
-        response = view(request)
-        self.assertTrue(isinstance(response, HttpResponseRedirect))
-
-    def test_post_with_superuser(self):
-        data = {
-            'name': 'New Name',
-            'domain': 'http://domain'
-        }
-        view = PlatformSettings.as_view()
-        url = reverse('admin:superuser_index')
-        request = APIRequestFactory().post(url, data)
-        request.user = UserFactory.create(**{'is_superuser': True})
-
-        from django.contrib.messages.storage.fallback import FallbackStorage
-        setattr(request, 'session', 'session')
-        messages = FallbackStorage(request)
-        setattr(request, '_messages', messages)
-
-        response = view(request).render()
-        self.assertEqual(response.status_code, 200)
-
-        self.assertContains(
-            response, 'The platform settings have been updated.')
-
-        site = Site.objects.get(pk=1)
-        self.assertEqual(site.name, data.get('name'))
-        self.assertEqual(site.domain, data.get('domain'))
-
-    def test_post_with_user(self):
-        data = {
-            'name': 'New Name',
-            'domain': 'http://domain'
-        }
-        view = PlatformSettings.as_view()
-        url = reverse('admin:superuser_index')
-        request = APIRequestFactory().post(url, data)
-        request.user = UserFactory.create(**{'is_superuser': False})
-        view.request = request
-        response = view(request).render()
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(
-            response,
-            'Superuser tools are for superusers only. You are not a superuser.'
-        )
-
-    def test_post_with_anonymous(self):
-        data = {
-            'name': 'New Name',
-            'domain': 'http://domain'
-        }
-        view = PlatformSettings.as_view()
-        url = reverse('admin:superuser_index')
-        request = APIRequestFactory().post(url, data)
-        request.user = AnonymousUser()
-        view.request = request
-        response = view(request)
-        self.assertTrue(isinstance(response, HttpResponseRedirect))
-
-
-class ProjectsListTest(TestCase):
-    def test_get_context_data(self):
-        user = UserFactory.create(**{'is_superuser': True})
-        ProjectFactory.create_batch(5, add_admins=[user])
-        ProjectFactory.create_batch(5)
-        view = ProjectsList()
-        context = view.get_context_data()
-        self.assertEqual(len(context.get('projects')), 10)
-
-    def test_get_with_superuser(self):
-        view = ProjectsList.as_view()
-        url = reverse('admin:superuser_projects')
-        request = APIRequestFactory().get(url)
-        request.user = UserFactory.create(**{'is_superuser': True})
-        response = view(request).render()
-        self.assertEqual(response.status_code, 200)
-
-    def test_get_with_user(self):
-        view = ProjectsList.as_view()
-        url = reverse('admin:superuser_projects')
-        request = APIRequestFactory().get(url)
-        request.user = UserFactory.create(**{'is_superuser': False})
-        response = view(request).render()
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(
-            response,
-            'Superuser tools are for superusers only. You are not a superuser.'
-        )
-
-    def test_get_with_anonymous(self):
-        view = ProjectsList.as_view()
-        url = reverse('admin:superuser_projects')
-        request = APIRequestFactory().get(url)
-        request.user = AnonymousUser()
-        response = view(request)
-        self.assertTrue(isinstance(response, HttpResponseRedirect))
-
-
-class ManageSuperUsersTest(TestCase):
-    def test_get_context_data(self):
+        """Test getting context data."""
         UserFactory.create_batch(2, **{'is_superuser': True})
         UserFactory.create_batch(2, **{'is_superuser': False})
-        view = ManageSuperUsers()
+        view = ManageSuperusers()
         context = view.get_context_data()
+
         self.assertEqual(len(context.get('superusers')), 2)
 
-    def test_get_with_superuser(self):
-        view = ManageSuperUsers.as_view()
-        url = reverse('admin:superuser_manage_users')
-        request = APIRequestFactory().get(url)
-        request.user = UserFactory.create(**{'is_superuser': True})
-        response = view(request).render()
-        self.assertEqual(response.status_code, 200)
+    def test_get_with_anonymous(self):
+        """Test GET with anonymous user."""
+        view = ManageSuperusers.as_view()
+        self.request.user = AnonymousUser()
+        response = view(self.request)
+
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
 
     def test_get_with_user(self):
-        view = ManageSuperUsers.as_view()
-        url = reverse('admin:superuser_manage_users')
-        request = APIRequestFactory().get(url)
-        request.user = UserFactory.create(**{'is_superuser': False})
-        response = view(request).render()
+        """Test GET with user."""
+        view = ManageSuperusers.as_view()
+        self.request.user = UserFactory.create(**{'is_superuser': False})
+        response = view(self.request).render()
+
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            'Superuser tools are for superusers only. You are not a superuser.'
+            'No rights to access superuser tools.'
         )
 
-    def test_get_with_anonymous(self):
-        view = ManageSuperUsers.as_view()
-        url = reverse('admin:superuser_manage_users')
-        request = APIRequestFactory().get(url)
-        request.user = AnonymousUser()
-        response = view(request)
-        self.assertTrue(isinstance(response, HttpResponseRedirect))
+    def test_get_with_superuser(self):
+        """Test GET with superuser."""
+        view = ManageSuperusers.as_view()
+        self.request.user = UserFactory.create(**{'is_superuser': True})
+        response = view(self.request).render()
+
+        self.assertEqual(response.status_code, 200)
 
 
 class ManageInactiveUsersTest(TestCase):
+    """Test manage inactivate users page."""
+
     def setUp(self):
+        """Set up test."""
         self.view = ManageInactiveUsers.as_view()
         self.request = HttpRequest()
-        self.request.method = 'GET'
-        self.request.user = AnonymousUser()
 
-        from django.contrib.messages.storage.fallback import FallbackStorage
         setattr(self.request, 'session', 'session')
         messages = FallbackStorage(self.request)
         setattr(self.request, '_messages', messages)
 
     def create_inactive(self):
+        """Create 3 inactive users."""
         self.inactive_1 = UserFactory.create(**{'is_active': False})
         EmailAddress(
             user=self.inactive_1,
@@ -230,209 +120,461 @@ class ManageInactiveUsersTest(TestCase):
         ).save()
 
     def test_get_with_anonymous(self):
+        """Test GET with anonymous user."""
+        self.request.method = 'GET'
+        self.request.user = AnonymousUser()
         response = self.view(self.request)
 
         self.assertEqual(response.status_code, 302)
         self.assertIn('/admin/account/login/', response['location'])
-
-    def test_post_with_anonymous(self):
-        self.create_inactive()
-        self.request.POST = QueryDict(
-            'activate_users=%s&activate_users=%s' % (
-                self.inactive_1.id, self.inactive_2.id))
-        self.request.method = 'POST'
-        response = self.view(self.request)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertIn('/admin/account/login/', response['location'])
-        self.assertEqual(User.objects.filter(is_active=False).count(), 3)
 
     def test_get_with_user(self):
-        user = UserFactory.create()
+        """Test GET with user."""
+        user = UserFactory.create(**{'is_superuser': False})
+        self.request.method = 'GET'
         self.request.user = user
         response = self.view(self.request).render()
 
         rendered = render_to_string(
-            'superusertools/manage_inactiveusers.html',
+            'superusertools/manage_inactive_users.html',
             {
-                'error_description': 'Superuser tools are for superusers only.'
-                                     ' You are not a superuser.',
-                'error': 'Permission denied.',
-                'user': user,
+                'GEOKEY_VERSION': version.get_version(),
                 'PLATFORM_NAME': get_current_site(self.request).name,
-                'GEOKEY_VERSION': version.get_version()
+                'user': user,
+                'error': 'Permission denied.',
+                'error_description': 'No rights to access superuser tools.',
             }
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
 
-    def test_post_with_user(self):
-        user = UserFactory.create()
-        self.create_inactive()
-        self.request.POST = QueryDict(
-            'activate_users=%s&activate_users=%s' % (
-                self.inactive_1.id, self.inactive_2.id))
-        self.request.method = 'POST'
-        self.request.user = user
-        response = self.view(self.request).render()
-
-        rendered = render_to_string(
-            'superusertools/manage_inactiveusers.html',
-            {
-                'error_description': 'Superuser tools are for superusers only.'
-                                     ' You are not a superuser.',
-                'error': 'Permission denied.',
-                'user': user,
-                'PLATFORM_NAME': get_current_site(self.request).name,
-                'GEOKEY_VERSION': version.get_version()
-            }
-        )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
-        self.assertEqual(User.objects.filter(is_active=False).count(), 3)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_get_with_superuser(self):
+        """Test GET with superuser."""
+        self.create_inactive()
         user = UserFactory.create(**{'is_superuser': True})
-        inactive_users = UserFactory.create_batch(3, **{'is_active': False})
-
+        self.request.method = 'GET'
         self.request.user = user
         response = self.view(self.request).render()
 
         rendered = render_to_string(
-            'superusertools/manage_inactiveusers.html',
+            'superusertools/manage_inactive_users.html',
             {
-                'inactive_users': inactive_users,
-                'user': user,
+                'GEOKEY_VERSION': version.get_version(),
                 'PLATFORM_NAME': get_current_site(self.request).name,
-                'GEOKEY_VERSION': version.get_version()
+                'user': user,
+                'inactive_users': [
+                    self.inactive_1,
+                    self.inactive_2,
+                    self.inactive_3
+                ]
             }
         )
+
         self.assertEqual(response.status_code, 200)
         response = render_helpers.remove_csrf(response.content.decode('utf-8'))
         self.assertEqual(response, rendered)
 
-    def test_post_with_superuser(self):
-        user = UserFactory.create(**{'is_superuser': True})
+    def test_post_with_anonymous(self):
+        """Test POST with anonymous user."""
         self.create_inactive()
+        self.request.method = 'POST'
         self.request.POST = QueryDict(
             'activate_users=%s&activate_users=%s' % (
-                self.inactive_1.id, self.inactive_2.id))
-        self.request.method = 'POST'
-        self.request.user = user
+                self.inactive_1.id, self.inactive_2.id
+            )
+        )
+        self.request.user = AnonymousUser()
+        response = self.view(self.request)
 
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/account/login/', response['location'])
+        self.assertEqual(User.objects.filter(is_active=False).count(), 3)
+        self.assertEqual(len(EmailAddress.objects.filter(verified=False)), 3)
+
+    def test_post_with_user(self):
+        """Test POST with user."""
+        self.create_inactive()
+        user = UserFactory.create()
+        self.request.method = 'POST'
+        self.request.POST = QueryDict(
+            'activate_users=%s&activate_users=%s' % (
+                self.inactive_1.id, self.inactive_2.id
+            )
+        )
+        self.request.user = user
         response = self.view(self.request).render()
 
         rendered = render_to_string(
-            'superusertools/manage_inactiveusers.html',
+            'superusertools/manage_inactive_users.html',
             {
-                'inactive_users': [self.inactive_3],
-                'user': user,
-                'PLATFORM_NAME': get_current_site(self.request).name,
                 'GEOKEY_VERSION': version.get_version(),
-                'messages': get_messages(self.request)
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'user': user,
+                'error': 'Permission denied.',
+                'error_description': 'No rights to access superuser tools.'
             }
         )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(User.objects.filter(is_active=False).count(), 3)
+        self.assertEqual(len(EmailAddress.objects.filter(verified=False)), 3)
+
+    def test_post_with_superuser(self):
+        """Test POST with superuser."""
+        self.create_inactive()
+        user = UserFactory.create(**{'is_superuser': True})
+        self.request.method = 'POST'
+        self.request.POST = QueryDict(
+            'activate_users=%s&activate_users=%s' % (
+                self.inactive_1.id, self.inactive_2.id
+            )
+        )
+        self.request.user = user
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            'superusertools/manage_inactive_users.html',
+            {
+                'GEOKEY_VERSION': version.get_version(),
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'user': user,
+                'messages': get_messages(self.request),
+                'inactive_users': [self.inactive_3]
+            }
+        )
+
         self.assertEqual(response.status_code, 200)
         response = render_helpers.remove_csrf(response.content.decode('utf-8'))
         self.assertEqual(response, rendered)
-        self.assertEqual(
-            User.objects.filter(is_active=False).count(), 1
-        )
-        self.assertEqual(
-            EmailAddress.objects.filter(verified=False).count(), 1
-        )
+        self.assertEqual(User.objects.filter(is_active=False).count(), 1)
+        self.assertEqual(len(EmailAddress.objects.filter(verified=False)), 1)
 
 
-class AddSuperUsersAjaxViewTest(TestCase):
-    def test_post_with_superuser(self):
-        factory = APIRequestFactory()
+class ManageProjectsTest(TestCase):
+    """Test manage projects page."""
+
+    def setUp(self):
+        """Set up test."""
+        self.url = reverse('admin:superusertools_manage_projects')
+        self.request = APIRequestFactory().get(self.url)
+
+    def test_get_context_data(self):
+        """Test getting context data."""
         user = UserFactory.create(**{'is_superuser': True})
-        user_to_add = UserFactory.create(**{'is_superuser': False})
-        request = factory.post(
-            reverse('ajax:superusers_adduser'),
-            {'userId': user_to_add.id}
+
+        # 1 contribution, 1 comment
+        project_1 = ProjectFactory.create()
+        category_1 = CategoryFactory.create(project=project_1)
+        contribution_1 = ObservationFactory.create(
+            project=project_1,
+            category=category_1)
+        CommentFactory.create(commentto=contribution_1)
+
+        # 2 contributions (1 deleted), 2 comments
+        project_2 = ProjectFactory.create(add_admins=[user])
+        category_2 = CategoryFactory.create(project=project_2)
+        contribution_2 = ObservationFactory.create(
+            project=project_2,
+            category=category_2)
+        CommentFactory.create(commentto=contribution_2)
+        contribution_3 = ObservationFactory.create(
+            project=project_2,
+            category=category_2)
+        CommentFactory.create(commentto=contribution_3)
+        contribution_3.delete()
+
+        # 2 contributions (1 deleted), 3 comments (1 deleted)
+        project_3 = ProjectFactory.create(add_moderators=[user])
+        category_3 = CategoryFactory.create(project=project_3)
+        contribution_4 = ObservationFactory.create(
+            project=project_3,
+            category=category_3)
+        CommentFactory.create(commentto=contribution_4)
+        comment_to_delete = CommentFactory.create(commentto=contribution_4)
+        comment_to_delete.delete()
+        contribution_5 = ObservationFactory.create(
+            project=project_3,
+            category=category_3)
+        CommentFactory.create(commentto=contribution_5)
+        contribution_5.delete()
+
+        # 1 contribution, 2 comments (1 deleted)
+        project_4 = ProjectFactory.create(add_contributors=[user])
+        category_4 = CategoryFactory.create(project=project_4)
+        contribution_6 = ObservationFactory.create(
+            project=project_4,
+            category=category_4)
+        CommentFactory.create(commentto=contribution_6)
+        comment_to_delete = CommentFactory.create(commentto=contribution_6)
+        comment_to_delete.delete()
+
+        view = ManageProjects()
+        context = view.get_context_data()
+        self.assertEqual(len(context.get('projects')), 4)
+
+        for project in context.get('projects'):
+            self.assertEqual(project.contributions_count, 1)
+            self.assertEqual(project.comments_count, 1)
+            self.assertEqual(project.media_count, 0)
+
+    def test_get_with_anonymous(self):
+        """Test GET with anonymous user."""
+        view = ManageProjects.as_view()
+        self.request.user = AnonymousUser()
+        response = view(self.request)
+
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+    def test_get_with_user(self):
+        """Test GET with user."""
+        view = ManageProjects.as_view()
+        self.request.user = UserFactory.create(**{'is_superuser': False})
+        response = view(self.request).render()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'No rights to access superuser tools.'
         )
-        force_authenticate(request, user=user)
-        view = AddSuperUsersAjaxView.as_view()
+
+    def test_get_with_superuser(self):
+        """Test GET with superuser."""
+        view = ManageProjects.as_view()
+        self.request.user = UserFactory.create(**{'is_superuser': True})
+        response = view(self.request).render()
+
+        self.assertEqual(response.status_code, 200)
+
+
+class PlatformSettingsTest(TestCase):
+    """Test platform settings page."""
+
+    def setUp(self):
+        """Set up test."""
+        self.url = reverse('admin:superusertools_platform_settings')
+
+    def test_get_context_data(self):
+        """Test getting context data."""
+        view = PlatformSettings()
+        view.request = APIRequestFactory().get(self.url)
+        context = view.get_context_data()
+
+        self.assertIsNotNone(context.get('site'))
+
+    def test_get_with_anonymous(self):
+        """Test GET with anonymous user."""
+        view = PlatformSettings.as_view()
+        request = APIRequestFactory().get(self.url)
+        request.user = AnonymousUser()
+        view.request = request
+        response = view(request)
+
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+    def test_get_with_user(self):
+        """Test GET with user."""
+        view = PlatformSettings.as_view()
+        request = APIRequestFactory().get(self.url)
+        request.user = UserFactory.create(**{'is_superuser': False})
+        view.request = request
         response = view(request).render()
 
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(len(User.objects.filter(is_superuser=True)), 2)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'No rights to access superuser tools.'
+        )
+
+    def test_get_with_superuser(self):
+        """Test GET with superuser."""
+        view = PlatformSettings.as_view()
+        request = APIRequestFactory().get(self.url)
+        request.user = UserFactory.create(**{'is_superuser': True})
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_with_anonymous(self):
+        """Test POST with anonymous user."""
+        data = {
+            'name': 'New Name',
+            'domain': 'http://new-domain.org.uk'
+        }
+        view = PlatformSettings.as_view()
+        request = APIRequestFactory().post(self.url, data)
+        request.user = AnonymousUser()
+        view.request = request
+        response = view(request)
+
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+        reference = Site.objects.latest('id')
+        self.assertNotEqual(reference.name, data.get('name'))
+        self.assertNotEqual(reference.domain, data.get('domain'))
 
     def test_post_with_user(self):
-        factory = APIRequestFactory()
-        user = UserFactory.create(**{'is_superuser': False})
-        user_to_add = UserFactory.create(**{'is_superuser': False})
-        request = factory.post(
-            reverse('ajax:superusers_adduser'),
-            {'userId': user_to_add.id}
-        )
-        force_authenticate(request, user=user)
-        view = AddSuperUsersAjaxView.as_view()
+        """Test POST with user."""
+        data = {
+            'name': 'New Name',
+            'domain': 'http://new-domain.org.uk'
+        }
+        view = PlatformSettings.as_view()
+        request = APIRequestFactory().post(self.url, data)
+        request.user = UserFactory.create(**{'is_superuser': False})
+        view.request = request
         response = view(request).render()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'No rights to access superuser tools.'
+        )
+
+        reference = Site.objects.latest('id')
+        self.assertNotEqual(reference.name, data.get('name'))
+        self.assertNotEqual(reference.domain, data.get('domain'))
+
+    def test_post_with_superuser(self):
+        """Test POST with superuser."""
+        data = {
+            'name': 'New Name',
+            'domain': 'http://new-domain.org.uk'
+        }
+        view = PlatformSettings.as_view()
+        request = APIRequestFactory().post(self.url, data)
+        request.user = UserFactory.create(**{'is_superuser': True})
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = view(request).render()
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Platform settings have been updated.')
+
+        reference = Site.objects.latest('id')
+        self.assertEqual(reference.name, data.get('name'))
+        self.assertEqual(reference.domain, data.get('domain'))
+
+
+# #############################################################################
+#
+# AJAX API
+#
+# #############################################################################
+
+class SuperusersAjaxViewTest(TestCase):
+    """Test Ajax API for all superusers."""
+
+    def setUp(self):
+        """Set up test."""
+        self.factory = APIRequestFactory()
+        self.view = SuperusersAjaxView.as_view()
+        self.url = reverse('ajax:superusertools_superusers')
+
+        self.user = UserFactory.create(**{'is_superuser': False})
+        self.superuser = UserFactory.create(**{'is_superuser': True})
+        self.user_to_add = UserFactory.create(**{'is_superuser': False})
+
+    def test_post_with_anonymous_user(self):
+        """Test POST with anonymous user."""
+        request = self.factory.post(self.url, {'user_id': self.user_to_add.id})
+        response = self.view(request).render()
 
         self.assertEqual(response.status_code, 403)
-        self.assertEqual(len(User.objects.filter(is_superuser=True)), 0)
+        self.assertEqual(User.objects.filter(is_superuser=True).count(), 1)
 
-    def test_post_non_existing_user(self):
-        factory = APIRequestFactory()
-        user = UserFactory.create(**{'is_superuser': True})
-        request = factory.post(
-            reverse('ajax:superusers_adduser'),
-            {'userId': 78463857934859}
-        )
-        force_authenticate(request, user=user)
-        view = AddSuperUsersAjaxView.as_view()
-        response = view(request).render()
+    def test_post_with_user(self):
+        """Test POST with user."""
+        request = self.factory.post(self.url, {'user_id': self.user_to_add.id})
+        force_authenticate(request, user=self.user)
+        response = self.view(request).render()
 
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(len(User.objects.filter(is_superuser=True)), 1)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(User.objects.filter(is_superuser=True).count(), 1)
+
+    def test_post_with_superuser(self):
+        """Test POST with superuser."""
+        request = self.factory.post(self.url, {'user_id': self.user_to_add.id})
+        force_authenticate(request, user=self.superuser)
+        response = self.view(request).render()
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(User.objects.filter(is_superuser=True).count(), 2)
+
+    def test_post_when_no_superuser(self):
+        """Test POST with superuser, when user does not exist."""
+        request = self.factory.post(self.url, {'user_id': 84774358734})
+        force_authenticate(request, user=self.superuser)
+        response = self.view(request).render()
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(User.objects.filter(is_superuser=True).count(), 1)
 
 
-class DeleteSuperUsersAjaxViewTest(TestCase):
-    def test_delete_with_superuser(self):
-        factory = APIRequestFactory()
-        user = UserFactory.create(**{'is_superuser': True})
-        user_to_remove = UserFactory.create(**{'is_superuser': True})
-        request = factory.delete(
-            reverse('ajax:superusers_deleteuser', kwargs={
-                'user_id': user_to_remove.id
+class SingleSuperuserAjaxViewTest(TestCase):
+    """Test Ajax API for a single superuser."""
+
+    def setUp(self):
+        """Set up test."""
+        self.factory = APIRequestFactory()
+        self.view = SingleSuperuserAjaxView.as_view()
+
+        self.user = UserFactory.create(**{'is_superuser': False})
+        self.superuser = UserFactory.create(**{'is_superuser': True})
+        self.user_to_remove = UserFactory.create(**{'is_superuser': True})
+
+    def test_delete_with_anonymous_user(self):
+        """Test DELETE with anonymous user."""
+        request = self.factory.delete(
+            reverse('ajax:superusertools_single_superuser', kwargs={
+                'user_id': self.user_to_remove.id
             })
         )
-        force_authenticate(request, user=user)
-        view = DeleteSuperUsersAjaxView.as_view()
-        response = view(request, user_id=user_to_remove.id).render()
+        response = self.view(request, user_id=self.user_to_remove.id).render()
 
-        self.assertEqual(response.status_code, 204)
-        self.assertEqual(len(User.objects.filter(is_superuser=True)), 1)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(User.objects.filter(is_superuser=True).count(), 2)
 
     def test_delete_with_user(self):
-        factory = APIRequestFactory()
-        user = UserFactory.create(**{'is_superuser': False})
-        user_to_remove = UserFactory.create(**{'is_superuser': True})
-        request = factory.delete(
-            reverse('ajax:superusers_deleteuser', kwargs={
-                'user_id': user_to_remove.id
+        """Test DELETE with user."""
+        request = self.factory.delete(
+            reverse('ajax:superusertools_single_superuser', kwargs={
+                'user_id': self.user_to_remove.id
             })
         )
-        force_authenticate(request, user=user)
-        view = DeleteSuperUsersAjaxView.as_view()
-        response = view(request, user_id=user_to_remove.id).render()
+        force_authenticate(request, user=self.user)
+        response = self.view(request, user_id=self.user_to_remove.id).render()
 
         self.assertEqual(response.status_code, 403)
-        self.assertEqual(len(User.objects.filter(is_superuser=True)), 1)
+        self.assertEqual(User.objects.filter(is_superuser=True).count(), 2)
 
-    def test_delete_not_existing_user(self):
-        factory = APIRequestFactory()
-        user = UserFactory.create(**{'is_superuser': True})
-        request = factory.delete(
-            reverse('ajax:superusers_deleteuser', kwargs={
+    def test_delete_with_superuser(self):
+        """Test DELETE with superuser."""
+        request = self.factory.delete(
+            reverse('ajax:superusertools_single_superuser', kwargs={
+                'user_id': self.user_to_remove.id
+            })
+        )
+        force_authenticate(request, user=self.superuser)
+        response = self.view(request, user_id=self.user_to_remove.id).render()
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(User.objects.filter(is_superuser=True).count(), 1)
+
+    def test_delete_when_no_superuser(self):
+        """Test DELETE with superuser, when superuser does not exist."""
+        request = self.factory.delete(
+            reverse('ajax:superusertools_single_superuser', kwargs={
                 'user_id': 84774358734
             })
         )
-        force_authenticate(request, user=user)
-        view = DeleteSuperUsersAjaxView.as_view()
-        response = view(request, user_id=84774358734).render()
+        force_authenticate(request, user=self.superuser)
+        response = self.view(request, user_id=84774358734).render()
 
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(len(User.objects.filter(is_superuser=True)), 1)
+        self.assertEqual(User.objects.filter(is_superuser=True).count(), 2)

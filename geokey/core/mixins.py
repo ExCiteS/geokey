@@ -1,9 +1,13 @@
+"""Core mixins."""
+
+
 class FilterMixin(object):
+    """A mixin for filter."""
+
     def save(self, *args, **kwargs):
-        """
-        Overwrites save to implement integrity ensurance.
-        """
+        """Overwrite `save` to implement integrity ensurance."""
         self.where_clause = None
+
         if self.filters is not None:
             queries = []
 

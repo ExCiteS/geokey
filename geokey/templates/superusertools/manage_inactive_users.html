@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %} | Superuser tools: Manage inactive users{% endblock %}
+
+{% block main %}
+<div class="page-header">
+    <div class="container">
+        <h1>Superuser tools</h1>
+        {% include 'superusertools/navigation.html' %}
+    </div>
+</div>
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+
+    <div class="row">
+        <form class="col-sm-12 col-md-12 col-lg-12" method="POST" action="{% url 'admin:superusertools_manage_inactive_users' %}">
+            {% csrf_token %}
+
+            <h3 class="header">Manage inactive users</h3>
+
+            {% if inactive_users|length %}
+                <p>Select users you would like to activate by manually confirming their email addresses:</p>
+
+                <div class="form-group">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Display name</th>
+                                <th>Email address</th>
+                                <th>Date joined</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for user in inactive_users %}
+                                <tr>
+                                    <td class="text-center"><input type="checkbox" name="activate_users" value="{{ user.id }}"></td>
+                                    <td>{{ user.display_name }}</td>
+                                    <td>{{ user.email|urlize }}</td>
+                                    <td>{{ user.date_joined|date:'d F, Y' }}</td>
+                                </td>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Activate selected</button>
+            {% else %}
+                <p>No inactive users were found.</p>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}

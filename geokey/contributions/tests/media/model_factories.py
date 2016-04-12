@@ -1,3 +1,5 @@
+"""Model factories used for tests of contributions (media files)."""
+
 import factory
 
 from geokey.users.tests.model_factories import UserFactory

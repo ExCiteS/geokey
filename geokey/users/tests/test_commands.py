@@ -1,3 +1,5 @@
+"""Tests for commands of users."""
+
 from pytz import utc
 from datetime import datetime
 

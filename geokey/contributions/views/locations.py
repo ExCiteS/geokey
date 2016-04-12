@@ -1,80 +1,116 @@
+"""Views for locations of contributions."""
+
 from django.db.models import Q
 
 from rest_framework import status
-from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from geokey.core.decorators import handle_exceptions_for_ajax
+from geokey.users.models import User
 
 from ..models import Location
 from ..serializers import LocationSerializer
 
 
-class Locations(APIView):
-    """
-    Public API endpoint for all locations in a project.
-    /api/projects/:project_id/locations/
-    """
+class LocationAbstractAPIView(APIView):
+    """Abstract class for locations."""
+
+    def get_user(self, request):
+        """
+        Get user of a request.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Object representing the request.
+
+        Returns
+        -------
+        geokey.users.models.User
+            User of a request.
+        """
+        user = request.user
+
+        if user.is_anonymous():
+            user = User.objects.get(display_name='AnonymousUser')
+
+        return user
+
+
+class LocationsAPIView(LocationAbstractAPIView):
+    """Public API for all locations."""
 
     @handle_exceptions_for_ajax
     def get(self, request, project_id):
         """
-        Returns a list of locations that can be used for contributions to the
-        given project.
+        Handle GET request.
+
+        Return a list of all locations of the project, that can be used for
+        contributions.
 
         Parameters
         ----------
         request : rest_framework.request.Request
-            User authenticated with the request
+            Object representing the request.
         project_id : int
-            identifies the project the locations should be returned for
+            Identifies the project in the database.
 
         Returns
         -------
         rest_framework.response.Respone
-            Contains the list of serialised locations
+            Contains the serialised locations.
         """
-        q = request.GET.get('query')
-        locations = Location.objects.get_list(request.user, project_id)
+        query = request.GET.get('query')
+        locations = Location.objects.get_list(
+            self.get_user(request),
+            project_id
+        )
 
-        if q is not None:
+        if query:
+            query = query.lower()
             locations = locations.filter(
-                Q(name__icontains=q.lower()) |
-                Q(description__icontains=q.lower())
+                Q(name__icontains=query) | Q(description__icontains=query)
             )
 
         serializer = LocationSerializer(locations, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class SingleLocation(APIView):
-    """
-    Public API endpoint for a single location in a project.
-    /api/projects/:project_id/locations/:location_id/
-    """
+class SingleLocationAPIView(LocationAbstractAPIView):
+    """Public API for a single location."""
+
     @handle_exceptions_for_ajax
     def patch(self, request, project_id, location_id):
         """
-        Updates a single location
+        Handle GET request.
+
+        Update the location.
 
         Parameters
         ----------
         request : rest_framework.request.Request
-            User authenticated with the request
+            Object representing the request.
         project_id : int
-            identifies the project in the database
+            Identifies the project in the database.
         location_id : int
-            identifies the location in the database
+            Identifies the location in the database.
 
         Returns
         -------
         rest_framework.response.Respone
-            Contains the serialised location
+            Contains the serialized location.
         """
         location = Location.objects.get_single(
-            request.user, project_id, location_id)
+            self.get_user(request),
+            project_id,
+            location_id
+        )
         serializer = LocationSerializer(
-            location, data=request.data, partial=True)
+            location,
+            data=request.data,
+            partial=True
+        )
 
         if serializer.is_valid():
             serializer.save()

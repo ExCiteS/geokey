@@ -1,3 +1,5 @@
+"""Tests for views of projects."""
+
 import json
 
 from django.test import TestCase
@@ -625,7 +627,7 @@ class ProjectAdminsTest(TestCase):
         project_id = 156564541545445421
         request = self.factory.post(
             '/ajax/projects/%s/admins/' % project_id,
-            {'userId': self.user_to_add.id}
+            {'user_id': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
         view = ProjectAdmins.as_view()
@@ -640,7 +642,7 @@ class ProjectAdminsTest(TestCase):
         user_id = 468476351545643131
         request = self.factory.post(
             '/ajax/projects/%s/admins/' % self.project.id,
-            {'userId': user_id}
+            {'user_id': user_id}
         )
         force_authenticate(request, user=self.admin)
         view = ProjectAdmins.as_view()
@@ -655,7 +657,7 @@ class ProjectAdminsTest(TestCase):
         Admins.objects.create(project=self.project, user=self.user_to_add)
         request = self.factory.post(
             '/ajax/projects/%s/admins/' % self.project.id,
-            {'userId': self.user_to_add.id}
+            {'user_id': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
         view = ProjectAdmins.as_view()
@@ -669,7 +671,7 @@ class ProjectAdminsTest(TestCase):
     def test_add_with_admin(self):
         request = self.factory.post(
             '/ajax/projects/%s/admins/' % self.project.id,
-            {'userId': self.user_to_add.id}
+            {'user_id': self.user_to_add.id}
         )
         force_authenticate(request, user=self.admin)
         view = ProjectAdmins.as_view()
@@ -687,7 +689,7 @@ class ProjectAdminsTest(TestCase):
     def test_add_with_contributor(self):
         request = self.factory.post(
             '/ajax/projects/%s/admins/' % self.project.id,
-            {'userId': self.user_to_add.id}
+            {'user_id': self.user_to_add.id}
         )
         force_authenticate(request, user=self.contributor)
         view = ProjectAdmins.as_view()
@@ -705,7 +707,7 @@ class ProjectAdminsTest(TestCase):
     def test_add_with_non_member(self):
         request = self.factory.post(
             '/ajax/projects/%s/admins/' % self.project.id,
-            {'userId': self.user_to_add.id}
+            {'user_id': self.user_to_add.id}
         )
         force_authenticate(request, user=self.non_member)
         view = ProjectAdmins.as_view()

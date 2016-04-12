@@ -1,3 +1,5 @@
+"""Tests for views of contributions (locations)."""
+
 import json
 
 from django.test import TestCase
@@ -8,7 +10,10 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from geokey.projects.tests.model_factories import UserFactory, ProjectFactory
 
 from ..model_factories import LocationFactory
-from geokey.contributions.views.locations import Locations, SingleLocation
+from geokey.contributions.views.locations import (
+    LocationsAPIView,
+    SingleLocationAPIView
+)
 from geokey.contributions.models import Location
 
 
@@ -49,7 +54,7 @@ class LocationApiTest(TestCase):
         )
         request = self.factory.get(url)
         force_authenticate(request, user=user)
-        view = Locations.as_view()
+        view = LocationsAPIView.as_view()
         return view(request, project_id=self.project.id).render()
 
     def test_get_locations_with_admin(self):
@@ -90,7 +95,7 @@ class LocationQueryTest(TestCase):
     def test_hyd(self):
         request = self.factory.get(self.url + '?query=Hyd')
         force_authenticate(request, user=self.project.creator)
-        view = Locations.as_view()
+        view = LocationsAPIView.as_view()
         response = view(request, project_id=self.project.id).render()
 
         response_json = json.loads(response.content)
@@ -100,7 +105,7 @@ class LocationQueryTest(TestCase):
     def test_park(self):
         request = self.factory.get(self.url + '?query=park')
         force_authenticate(request, user=self.project.creator)
-        view = Locations.as_view()
+        view = LocationsAPIView.as_view()
         response = view(request, project_id=self.project.id).render()
 
         response_json = json.loads(response.content)
@@ -110,7 +115,7 @@ class LocationQueryTest(TestCase):
     def test_regen(self):
         request = self.factory.get(self.url + '?query=regen')
         force_authenticate(request, user=self.project.creator)
-        view = Locations.as_view()
+        view = LocationsAPIView.as_view()
         response = view(request, project_id=self.project.id).render()
 
         response_json = json.loads(response.content)
@@ -149,7 +154,7 @@ class LocationUpdateApiTest(TestCase):
         request = self.factory.patch(
             url, json.dumps(data), content_type='application/json')
         force_authenticate(request, user=user)
-        view = SingleLocation.as_view()
+        view = SingleLocationAPIView.as_view()
         return view(
             request, project_id=self.project.id, location_id=l_id).render()
 
