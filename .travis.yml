@@ -40,7 +40,7 @@ before_script:
   - python manage.py migrate
 
 script:
-  - coverage run --source=geokey.applications,geokey.projects,geokey.categories,geokey.contributions,geokey.users,geokey.superusertools,geokey.extensions manage.py test
+  - coverage run --source=geokey.applications,geokey.extensions,geokey.users,geokey.superusertools,geokey.projects,geokey.categories,geokey.contributions,geokey.subsets manage.py test
 
 after_success:
   - coveralls
