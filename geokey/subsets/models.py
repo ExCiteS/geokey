@@ -1,7 +1,7 @@
 """Models for subsets."""
 
-from django.db import models
 from django.conf import settings
+from django.db import models
 
 from django_pgjson.fields import JsonBField
 
@@ -9,9 +9,8 @@ from geokey.core.mixins import FilterMixin
 
 
 class Subset(FilterMixin, models.Model):
-    """
-    Subsets define pre-defined query for a share of all data in a project.
-    """
+    """Stores a single subset."""
+
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
