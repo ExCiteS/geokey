@@ -50,10 +50,6 @@ INSTALLED_APPS += (
 # see: https://docs.djangoproject.com/en/1.8/ref/settings/#wsgi-application
 WSGI_APPLICATION = 'local_settings.wsgi.application'
 
-# Python path to the root URL configuration
-# see: https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-ROOT_URLCONF
-ROOT_URLCONF = 'local_settings.urls'
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 STATIC_ROOT = '/some/path/' # CHANGE THIS!
