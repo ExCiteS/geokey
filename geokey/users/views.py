@@ -815,7 +815,7 @@ class UserAPIView(CreateUserMixin, APIView):
 
     def post(self, request):
         """
-        Creates a new user.
+        Create a new user.
 
         Parameters
         ----------
@@ -827,13 +827,11 @@ class UserAPIView(CreateUserMixin, APIView):
         rest_framework.response.Response
             Containing the user info or an error message
         """
-
         data = request.data
         form = UserRegistrationForm(data)
-        client_id = data.pop('client_id', None)
 
         try:
-            Application.objects.get(client_id=client_id)
+            Application.objects.get(client_id=data.get('client_id'))
 
             if form.is_valid():
                 user = self.create_user(data)
