@@ -189,24 +189,24 @@ class CategorySettings(LoginRequiredMixin, CategoryMixin, TemplateView):
             category.default_status = data.get('default_status')
 
             if category.fields.exists():
-                display_field = data.get('display_field')
-                if display_field:
+                try:
                     display_field = category.fields.get(
                         pk=data.get('display_field'))
-                else:
+                except:
                     display_field = None
+
                 if category.display_field != display_field:
                     category.display_field = display_field
                     for observation in category.observation_set.all():
                         observation.update_display_field()
                         observation.save()
 
-                expiry_field = data.get('expiry_field')
-                if expiry_field:
+                try:
                     expiry_field = category.fields.get(
                         pk=data.get('expiry_field'))
-                else:
+                except:
                     expiry_field = None
+
                 if category.expiry_field != expiry_field:
                     category.expiry_field = expiry_field
 
