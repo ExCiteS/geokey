@@ -112,7 +112,7 @@ class LookupValueFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = LookupValue
 
-    name = factory.Sequence(lambda n: 'lookupfield %s' % n)
+    name = factory.Sequence(lambda n: 'lookupvalue %s' % n)
     symbol = get_image(file_name='test_lookup_value_symbol.png')
     field = factory.SubFactory(LookupFieldFactory)
     status = 'active'
@@ -122,8 +122,8 @@ class MultipleLookupFieldFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = MultipleLookupField
 
-    name = factory.Sequence(lambda n: 'lookupfield %s' % n)
-    key = factory.Sequence(lambda n: 'lookupfield_%s' % n)
+    name = factory.Sequence(lambda n: 'multiplelookupfield %s' % n)
+    key = factory.Sequence(lambda n: 'multiplelookupfield_%s' % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     category = factory.SubFactory(CategoryFactory)
     status = 'active'
@@ -134,7 +134,7 @@ class MultipleLookupValueFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = MultipleLookupValue
 
-    name = factory.Sequence(lambda n: 'lookupfield %s' % n)
+    name = factory.Sequence(lambda n: 'multiplelookupvalue %s' % n)
     symbol = get_image(file_name='test_lookup_value_symbol.png')
     field = factory.SubFactory(MultipleLookupFieldFactory)
     status = 'active'
