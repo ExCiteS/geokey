@@ -189,15 +189,26 @@ class CategorySettings(LoginRequiredMixin, CategoryMixin, TemplateView):
             category.default_status = data.get('default_status')
 
             if category.fields.exists():
-                display_field = category.fields.get(
-                    pk=data.get('display_field')
-                )
-
+                display_field = data.get('display_field')
+                if display_field:
+                    display_field = category.fields.get(
+                        pk=data.get('display_field'))
+                else:
+                    display_field = None
                 if category.display_field != display_field:
                     category.display_field = display_field
                     for observation in category.observation_set.all():
                         observation.update_display_field()
                         observation.save()
+
+                expiry_field = data.get('expiry_field')
+                if expiry_field:
+                    expiry_field = category.fields.get(
+                        pk=data.get('expiry_field'))
+                else:
+                    expiry_field = None
+                if category.expiry_field != expiry_field:
+                    category.expiry_field = expiry_field
 
             category.save()
             messages.success(self.request, 'The category has been updated.')

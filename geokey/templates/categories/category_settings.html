@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load filter_fields %}
 
 {% block bodydata %}
 data-project-id="{{ project.id }}"
@@ -56,6 +57,23 @@ data-category-id="{{ category.id }}"
                             </select>
                         {% else %}
                             <p class="form-control-static">No fields have been added to the category. <a href="{% url 'admin:category_field_create' category.project.id category.id %}">Add a field</a> to make it the display field for this category.</p>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+
+                <div class="form-group">
+                    <label for="expiry_field" class="control-label">Expiry field</label>
+
+                    {% with fields=category.fields.all|only_fields:'Date and Time, Date' %}
+                        {% if fields %}
+                            <select name="expiry_field" class="form-control input-lg">
+                                <option value=""></option>
+                                {% for field in fields %}
+                                <option value="{{ field.id }}" {% if category.expiry_field.id == field.id%}selected{% endif %}>{{ field.name }}</option>
+                                {% endfor %}
+                            </select>
+                        {% else %}
+                            <p class="form-control-static">No date fields have been added to the category. <a href="{% url 'admin:category_field_create' category.project.id category.id %}">Add a date field</a> to make it the expiry field for this category.</p>
                         {% endif %}
                     {% endwith %}
                 </div>
