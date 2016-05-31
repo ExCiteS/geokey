@@ -510,6 +510,31 @@ class CategorySettingsTest(TestCase):
         self.assertEqual(ref.default_status, self.data.get('default_status'))
         self.assertEqual(ref.expiry_field, None)
 
+    def test_update_settings_when_field_for_expiryfield_is_wrong(self):
+        field_1 = DateFieldFactory.create(**{'category': self.category})
+        field_2 = TextFieldFactory.create(**{'category': self.category})
+
+        self.category.expiry_field = field_1
+        self.category.save()
+
+        response = self.post(self.admin, expiry_field=field_2.id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+        self.assertContains(
+            response,
+            'Only `Date and Time` and `Date` fields can be used.'
+        )
+
+        ref = Category.objects.get(pk=self.category.id)
+        self.assertEqual(ref.name, self.data.get('name'))
+        self.assertEqual(ref.description, self.data.get('description'))
+        self.assertEqual(ref.default_status, self.data.get('default_status'))
+        self.assertEqual(ref.expiry_field, field_1)
+
     def test_update_settings_with_non_member(self):
         response = self.post(self.non_member)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

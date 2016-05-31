@@ -207,7 +207,15 @@ class CategorySettings(LoginRequiredMixin, CategoryMixin, TemplateView):
                 except:
                     expiry_field = None
 
-                if category.expiry_field != expiry_field:
+                if (expiry_field and
+                        expiry_field.type_name not in [
+                        'Date and Time',
+                        'Date']):
+                    messages.error(
+                        self.request,
+                        'Only `Date and Time` and `Date` fields can be used.'
+                    )
+                elif category.expiry_field != expiry_field:
                     category.expiry_field = expiry_field
 
             category.save()
