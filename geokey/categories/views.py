@@ -217,6 +217,9 @@ class CategorySettings(LoginRequiredMixin, CategoryMixin, TemplateView):
                     )
                 elif category.expiry_field != expiry_field:
                     category.expiry_field = expiry_field
+                    for observation in category.observation_set.all():
+                        observation.update_expiry_field()
+                        observation.save()
 
             category.save()
             messages.success(self.request, 'The category has been updated.')
