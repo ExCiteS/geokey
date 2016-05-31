@@ -473,7 +473,7 @@ class CategorySettingsTest(TestCase):
         field_1 = DateFieldFactory.create(**{'category': self.category})
         field_2 = DateFieldFactory.create(**{'category': self.category})
 
-        self.category.display_field = field_1
+        self.category.expiry_field = field_1
         self.category.save()
 
         response = self.post(self.admin, expiry_field=field_2.id)
@@ -493,7 +493,7 @@ class CategorySettingsTest(TestCase):
     def test_update_settings_when_clearing_expiryfield(self):
         field = DateFieldFactory.create(**{'category': self.category})
 
-        self.category.display_field = field
+        self.category.expiry_field = field
         self.category.save()
 
         response = self.post(self.admin, expiry_field=None)
