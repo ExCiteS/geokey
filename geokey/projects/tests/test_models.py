@@ -2,7 +2,7 @@
 
 import pytz
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser
@@ -447,7 +447,19 @@ class ProjectGetDataTest(TestCase):
             'category': category_3}
         )
 
-        self.assertEqual(project.get_all_contributions(user).count(), 15)
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+        ObservationFactory.create(**{
+            'project': project,
+            'category': category_3,
+            'expiry_field': now - timedelta(1)
+        })
+        ObservationFactory.create(**{
+            'project': project,
+            'category': category_3,
+            'expiry_field': now + timedelta(1)
+        })
+
+        self.assertEqual(project.get_all_contributions(user).count(), 16)
 
     def test_get_data_category_filter(self):
         user = UserFactory.create()
@@ -469,22 +481,28 @@ class ProjectGetDataTest(TestCase):
                 'project': project,
                 'category': category_1}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'status': 'pending'}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_2}
             )
+
+            a_day_ago = datetime.utcnow().replace(
+                tzinfo=pytz.utc) - timedelta(1)
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'expiry_field': a_day_ago
+            })
+
         self.assertEqual(project.get_all_contributions(user).count(), 10)
 
     def test_get_data_subset(self):
@@ -505,22 +523,28 @@ class ProjectGetDataTest(TestCase):
                 'project': project,
                 'category': category_1}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'status': 'pending'}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_2}
             )
+
+            a_day_ago = datetime.utcnow().replace(
+                tzinfo=pytz.utc) - timedelta(1)
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'expiry_field': a_day_ago
+            })
+
         self.assertEqual(
             project.get_all_contributions(user, subset=subset.id).count(),
             10
@@ -552,22 +576,28 @@ class ProjectGetDataTest(TestCase):
                 'project': project,
                 'category': category_1}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'status': 'pending'}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_2}
             )
+
+            a_day_ago = datetime.utcnow().replace(
+                tzinfo=pytz.utc) - timedelta(1)
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_2,
+                'expiry_field': a_day_ago
+            })
+
         self.assertEqual(
             project.get_all_contributions(user, subset=subset.id).count(),
             0
@@ -595,23 +625,29 @@ class ProjectGetDataTest(TestCase):
                 'category': category_1,
                 'properties': {'text': 'blah'}}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'text': 'blub'}}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'status': 'pending'}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_2}
             )
+
+            a_day_ago = datetime.utcnow().replace(
+                tzinfo=pytz.utc) - timedelta(1)
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'expiry_field': a_day_ago
+            })
+
         self.assertEqual(
             project.get_all_contributions(user, search='blah').count(),
             5
@@ -646,25 +682,30 @@ class ProjectGetDataTest(TestCase):
                 'category': category_1,
                 'properties': {'text': 'yes %s' % x}}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'status': 'pending',
                 'properties': {'text': 'yes %s' % x}}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'text': 'no %s' % x}}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': 'yes %s' % x}}
             )
+
+            a_day_ago = datetime.utcnow().replace(
+                tzinfo=pytz.utc) - timedelta(1)
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'expiry_field': a_day_ago
+            })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
 
@@ -696,18 +737,24 @@ class ProjectGetDataTest(TestCase):
                 'category': category_1,
                 'properties': {'number': 12}}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'number': 20}}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'number': 12}}
             )
+
+            a_day_ago = datetime.utcnow().replace(
+                tzinfo=pytz.utc) - timedelta(1)
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'expiry_field': a_day_ago
+            })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
 
@@ -739,18 +786,24 @@ class ProjectGetDataTest(TestCase):
                 'category': category_1,
                 'properties': {'number': 12}}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'number': 20}}
             )
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'number': 12}}
             )
+
+            a_day_ago = datetime.utcnow().replace(
+                tzinfo=pytz.utc) - timedelta(1)
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'expiry_field': a_day_ago
+            })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
 
@@ -787,30 +840,34 @@ class ProjectGetDataTest(TestCase):
                     'category': category_1,
                     'properties': {'number': 5}}
                 )
-
                 ObservationFactory.create(**{
                     'project': project,
                     'category': category_1,
                     'properties': {'number': 12}}
                 )
-
                 ObservationFactory.create(**{
                     'project': project,
                     'category': category_1,
                     'properties': {'number': 20}}
                 )
-
                 ObservationFactory.create(**{
                     'project': project,
                     'category': category_1,
                     'properties': {'number': 25}}
                 )
-
                 ObservationFactory.create(**{
                     'project': project,
                     'category': category_2,
                     'properties': {'number': 12}}
                 )
+
+                a_day_ago = datetime.utcnow().replace(
+                    tzinfo=pytz.utc) - timedelta(1)
+                ObservationFactory.create(**{
+                    'project': project,
+                    'category': category_1,
+                    'expiry_field': a_day_ago
+                })
 
             self.assertEqual(project.get_all_contributions(user).count(), 10)
 
@@ -857,18 +914,25 @@ class ProjectGetDataTest(TestCase):
                 'category': category_1,
                 'properties': {'lookup': lookup_1.id}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'lookup': lookup_2.id}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': lookup_3.id}
             })
+
+            a_day_ago = datetime.utcnow().replace(
+                tzinfo=pytz.utc) - timedelta(1)
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'expiry_field': a_day_ago
+            })
+
         self.assertEqual(project.get_all_contributions(user).count(), 10)
 
     def test_get_data_min_max_datetime_filter(self):
@@ -903,17 +967,23 @@ class ProjectGetDataTest(TestCase):
                 'category': category_1,
                 'properties': {'date': '2014-04-09'}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'date': '2013-04-09'}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': '2014-04-09'}
+            })
+
+            a_day_ago = datetime.utcnow().replace(
+                tzinfo=pytz.utc) - timedelta(1)
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'expiry_field': a_day_ago
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
@@ -950,17 +1020,23 @@ class ProjectGetDataTest(TestCase):
                 'category': category_1,
                 'properties': {'date': '2014-04-09'}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'date': '2013-04-09'}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': '2014-04-09'}
+            })
+
+            a_day_ago = datetime.utcnow().replace(
+                tzinfo=pytz.utc) - timedelta(1)
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'expiry_field': a_day_ago
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
@@ -996,17 +1072,23 @@ class ProjectGetDataTest(TestCase):
                 'category': category_1,
                 'properties': {'date': '2014-04-09'}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'date': '2013-04-09'}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': '2014-04-09'}
+            })
+
+            a_day_ago = datetime.utcnow().replace(
+                tzinfo=pytz.utc) - timedelta(1)
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'expiry_field': a_day_ago
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
@@ -1042,17 +1124,23 @@ class ProjectGetDataTest(TestCase):
                 'category': category_1,
                 'properties': {'date': '2014-04-09'}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'date': '2013-04-09'}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': '2014-04-09'}
+            })
+
+            a_day_ago = datetime.utcnow().replace(
+                tzinfo=pytz.utc) - timedelta(1)
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'expiry_field': a_day_ago
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
@@ -1088,17 +1176,23 @@ class ProjectGetDataTest(TestCase):
                 'category': category_1,
                 'properties': {'time': '11:00'}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'time': '18:00'}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': '11:00'}
+            })
+
+            a_day_ago = datetime.utcnow().replace(
+                tzinfo=pytz.utc) - timedelta(1)
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'expiry_field': a_day_ago
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
@@ -1134,17 +1228,23 @@ class ProjectGetDataTest(TestCase):
                 'category': category_1,
                 'properties': {'time': '2:00'}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'time': '18:00'}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': '2:00'}
+            })
+
+            a_day_ago = datetime.utcnow().replace(
+                tzinfo=pytz.utc) - timedelta(1)
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'expiry_field': a_day_ago
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
@@ -1180,17 +1280,23 @@ class ProjectGetDataTest(TestCase):
                 'category': category_1,
                 'properties': {'time': '11:00'}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'time': '18:00'}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': '11:00'}
+            })
+
+            a_day_ago = datetime.utcnow().replace(
+                tzinfo=pytz.utc) - timedelta(1)
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'expiry_field': a_day_ago
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
@@ -1226,17 +1332,23 @@ class ProjectGetDataTest(TestCase):
                 'category': category_1,
                 'properties': {'time': '11:00'}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'time': '18:00'}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': '11:00'}
+            })
+
+            a_day_ago = datetime.utcnow().replace(
+                tzinfo=pytz.utc) - timedelta(1)
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'expiry_field': a_day_ago
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
@@ -1424,17 +1536,23 @@ class ProjectGetDataTest(TestCase):
                 'category': category_1,
                 'properties': {'lookup': [lookup_1.id, lookup_3.id]}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
                 'properties': {'lookup': [lookup_2.id, lookup_3.id]}
             })
-
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
                 'properties': {'bla': [lookup_4.id]}
+            })
+
+            a_day_ago = datetime.utcnow().replace(
+                tzinfo=pytz.utc) - timedelta(1)
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'expiry_field': a_day_ago
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 10)

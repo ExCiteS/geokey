@@ -1,5 +1,8 @@
 """Models for projects."""
 
+from pytz import utc
+from datetime import datetime
+
 from django.db import models
 from django.conf import settings
 from django.contrib.gis.db import models as gis
@@ -275,13 +278,18 @@ class Project(models.Model):
         django.db.models.query.QuerySet
             List of geokey.contributions.models.Observations
         """
-        data = None
         is_admin = self.is_admin(user)
 
+        # Leave only contributions that hasn't expired or withouts expiry date
+        data = self.observations.filter(
+            models.Q(expiry_field__isnull=True) |
+            models.Q(expiry_field__gt=datetime.utcnow().replace(tzinfo=utc))
+        )
+
         if is_admin or self.can_moderate(user):
-            data = self.observations.for_moderator(user)
+            data = data.for_moderator(user)
         else:
-            data = self.observations.for_viewer(user)
+            data = data.for_viewer(user)
 
         where_clause = None
         if not is_admin and self.isprivate and not user.is_anonymous():
