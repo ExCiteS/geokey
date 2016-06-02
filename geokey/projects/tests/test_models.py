@@ -28,7 +28,6 @@ from ..models import Project
 class CreateProjectTest(TestCase):
     def test_create_project(self):
         creator = UserFactory.create()
-
         project = Project.create(
             'Test', 'Test desc', True, False, True, creator
         )
@@ -425,9 +424,14 @@ class ProjectGetDataTest(TestCase):
     def test_get_data_with_none_rule(self):
         user = UserFactory.create()
         project = ProjectFactory.create()
+
         category_1 = CategoryFactory(**{'project': project})
         category_2 = CategoryFactory(**{'project': project})
         category_3 = CategoryFactory(**{'project': project})
+
+        expiry_field = DateFieldFactory.create(**{'category': category_3})
+        category_3.expiry_field = expiry_field
+        category_3.save()
 
         UserGroupFactory.create(
             add_users=[user],
@@ -451,12 +455,16 @@ class ProjectGetDataTest(TestCase):
         ObservationFactory.create(**{
             'project': project,
             'category': category_3,
-            'expiry_field': now - timedelta(1)
+            'properties': {
+                expiry_field.key: str(now - timedelta(1))
+            }
         })
         ObservationFactory.create(**{
             'project': project,
             'category': category_3,
-            'expiry_field': now + timedelta(1)
+            'properties': {
+                expiry_field.key: str(now + timedelta(1))
+            }
         })
 
         self.assertEqual(project.get_all_contributions(user).count(), 16)
@@ -466,6 +474,9 @@ class ProjectGetDataTest(TestCase):
         project = ProjectFactory.create()
 
         category_1 = CategoryFactory(**{'project': project})
+        expiry_field = DateFieldFactory.create(**{'category': category_1})
+        category_1.expiry_field = expiry_field
+        category_1.save()
         category_2 = CategoryFactory(**{'project': project})
 
         UserGroupFactory.create(
@@ -476,6 +487,8 @@ class ProjectGetDataTest(TestCase):
             }
         )
 
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+
         for x in range(0, 5):
             ObservationFactory.create(**{
                 'project': project,
@@ -494,13 +507,12 @@ class ProjectGetDataTest(TestCase):
                 'project': project,
                 'category': category_2}
             )
-
-            a_day_ago = datetime.utcnow().replace(
-                tzinfo=pytz.utc) - timedelta(1)
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
-                'expiry_field': a_day_ago
+                'properties': {
+                    expiry_field.key: str(now - timedelta(1))
+                }
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 10)
@@ -511,12 +523,17 @@ class ProjectGetDataTest(TestCase):
 
         category_1 = CategoryFactory(**{'project': project})
         TextFieldFactory.create(**{'key': 'text', 'category': category_1})
+        expiry_field = DateFieldFactory.create(**{'category': category_1})
+        category_1.expiry_field = expiry_field
+        category_1.save()
         category_2 = CategoryFactory(**{'project': project})
 
         subset = SubsetFactory.create(**{
             'project': project,
             'filters': {category_1.id: {}}
         })
+
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
 
         for x in range(0, 5):
             ObservationFactory.create(**{
@@ -536,13 +553,12 @@ class ProjectGetDataTest(TestCase):
                 'project': project,
                 'category': category_2}
             )
-
-            a_day_ago = datetime.utcnow().replace(
-                tzinfo=pytz.utc) - timedelta(1)
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
-                'expiry_field': a_day_ago
+                'properties': {
+                    expiry_field.key: str(now - timedelta(1))
+                }
             })
 
         self.assertEqual(
@@ -557,6 +573,9 @@ class ProjectGetDataTest(TestCase):
         category_1 = CategoryFactory(**{'project': project})
         TextFieldFactory.create(**{'key': 'text', 'category': category_1})
         category_2 = CategoryFactory(**{'project': project})
+        expiry_field = DateFieldFactory.create(**{'category': category_2})
+        category_2.expiry_field = expiry_field
+        category_2.save()
 
         UserGroupFactory.create(
             add_users=[user],
@@ -570,6 +589,8 @@ class ProjectGetDataTest(TestCase):
             'project': project,
             'filters': {category_1.id: {}}
         })
+
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
 
         for x in range(0, 5):
             ObservationFactory.create(**{
@@ -589,13 +610,12 @@ class ProjectGetDataTest(TestCase):
                 'project': project,
                 'category': category_2}
             )
-
-            a_day_ago = datetime.utcnow().replace(
-                tzinfo=pytz.utc) - timedelta(1)
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_2,
-                'expiry_field': a_day_ago
+                'properties': {
+                    expiry_field.key: str(now - timedelta(1))
+                }
             })
 
         self.assertEqual(
@@ -609,6 +629,9 @@ class ProjectGetDataTest(TestCase):
 
         category_1 = CategoryFactory(**{'project': project})
         TextFieldFactory.create(**{'key': 'text', 'category': category_1})
+        expiry_field = DateFieldFactory.create(**{'category': category_1})
+        category_1.expiry_field = expiry_field
+        category_1.save()
         category_2 = CategoryFactory(**{'project': project})
 
         UserGroupFactory.create(
@@ -618,6 +641,8 @@ class ProjectGetDataTest(TestCase):
                 'filters': {category_1.id: {}}
             }
         )
+
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
 
         for x in range(0, 5):
             ObservationFactory.create(**{
@@ -639,13 +664,12 @@ class ProjectGetDataTest(TestCase):
                 'project': project,
                 'category': category_2}
             )
-
-            a_day_ago = datetime.utcnow().replace(
-                tzinfo=pytz.utc) - timedelta(1)
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
-                'expiry_field': a_day_ago
+                'properties': {
+                    expiry_field.key: str(now - timedelta(1))
+                }
             })
 
         self.assertEqual(
@@ -662,6 +686,9 @@ class ProjectGetDataTest(TestCase):
             'key': 'text',
             'category': category_1
         })
+        expiry_field = DateFieldFactory.create(**{'category': category_1})
+        category_1.expiry_field = expiry_field
+        category_1.save()
         category_2 = CategoryFactory(**{'project': project})
         TextFieldFactory(**{
             'key': 'bla',
@@ -675,6 +702,8 @@ class ProjectGetDataTest(TestCase):
                 'filters': {category_1.id: {'text': 'yes'}}
             }
         )
+
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
 
         for x in range(0, 5):
             ObservationFactory.create(**{
@@ -698,13 +727,12 @@ class ProjectGetDataTest(TestCase):
                 'category': category_2,
                 'properties': {'bla': 'yes %s' % x}}
             )
-
-            a_day_ago = datetime.utcnow().replace(
-                tzinfo=pytz.utc) - timedelta(1)
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
-                'expiry_field': a_day_ago
+                'properties': {
+                    expiry_field.key: str(now - timedelta(1))
+                }
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
@@ -712,11 +740,15 @@ class ProjectGetDataTest(TestCase):
     def test_get_data_min_number_filter(self):
         user = UserFactory.create()
         project = ProjectFactory.create()
+
         category_1 = CategoryFactory(**{'project': project})
         NumericFieldFactory.create(**{
             'key': 'number',
             'category': category_1
         })
+        expiry_field = DateFieldFactory.create(**{'category': category_1})
+        category_1.expiry_field = expiry_field
+        category_1.save()
         category_2 = CategoryFactory(**{'project': project})
         NumericFieldFactory.create(**{
             'key': 'bla',
@@ -731,6 +763,8 @@ class ProjectGetDataTest(TestCase):
             }
         )
 
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+
         for x in range(0, 5):
             ObservationFactory.create(**{
                 'project': project,
@@ -747,13 +781,12 @@ class ProjectGetDataTest(TestCase):
                 'category': category_2,
                 'properties': {'number': 12}}
             )
-
-            a_day_ago = datetime.utcnow().replace(
-                tzinfo=pytz.utc) - timedelta(1)
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
-                'expiry_field': a_day_ago
+                'properties': {
+                    expiry_field.key: str(now - timedelta(1))
+                }
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
@@ -761,11 +794,15 @@ class ProjectGetDataTest(TestCase):
     def test_get_data_max_number_filter(self):
         user = UserFactory.create()
         project = ProjectFactory.create()
+
         category_1 = CategoryFactory(**{'project': project})
         NumericFieldFactory.create(**{
             'key': 'number',
             'category': category_1
         })
+        expiry_field = DateFieldFactory.create(**{'category': category_1})
+        category_1.expiry_field = expiry_field
+        category_1.save()
         category_2 = CategoryFactory(**{'project': project})
         NumericFieldFactory.create(**{
             'key': 'bla',
@@ -780,6 +817,8 @@ class ProjectGetDataTest(TestCase):
             }
         )
 
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+
         for x in range(0, 5):
             ObservationFactory.create(**{
                 'project': project,
@@ -796,86 +835,90 @@ class ProjectGetDataTest(TestCase):
                 'category': category_2,
                 'properties': {'number': 12}}
             )
-
-            a_day_ago = datetime.utcnow().replace(
-                tzinfo=pytz.utc) - timedelta(1)
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
-                'expiry_field': a_day_ago
+                'properties': {
+                    expiry_field.key: str(now - timedelta(1))
+                }
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
 
     def test_get_data_min_max_number_filter(self):
-            user = UserFactory.create()
-            project = ProjectFactory.create()
-            category_1 = CategoryFactory(**{'project': project})
-            NumericFieldFactory.create(**{
-                'key': 'number',
-                'category': category_1
-            })
-            category_2 = CategoryFactory(**{'project': project})
-            NumericFieldFactory.create(**{
-                'key': 'bla',
-                'category': category_2
-            })
+        user = UserFactory.create()
+        project = ProjectFactory.create()
 
-            UserGroupFactory.create(
-                add_users=[user],
-                **{
-                    'project': project,
-                    'filters': {
-                        category_1.id: {'number': {
-                            'minval': '10',
-                            'maxval': '22'
-                        }}
-                    }
+        category_1 = CategoryFactory(**{'project': project})
+        NumericFieldFactory.create(**{
+            'key': 'number',
+            'category': category_1
+        })
+        expiry_field = DateFieldFactory.create(**{'category': category_1})
+        category_1.expiry_field = expiry_field
+        category_1.save()
+        category_2 = CategoryFactory(**{'project': project})
+        NumericFieldFactory.create(**{
+            'key': 'bla',
+            'category': category_2
+        })
+
+        UserGroupFactory.create(
+            add_users=[user],
+            **{
+                'project': project,
+                'filters': {
+                    category_1.id: {'number': {
+                        'minval': '10',
+                        'maxval': '22'
+                    }}
                 }
+            }
+        )
+
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+
+        for x in range(0, 5):
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'properties': {'number': 5}}
             )
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'properties': {'number': 12}}
+            )
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'properties': {'number': 20}}
+            )
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'properties': {'number': 25}}
+            )
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_2,
+                'properties': {'number': 12}}
+            )
+            ObservationFactory.create(**{
+                'project': project,
+                'category': category_1,
+                'properties': {
+                    expiry_field.key: str(now - timedelta(1))
+                }
+            })
 
-            for x in range(0, 5):
-                ObservationFactory.create(**{
-                    'project': project,
-                    'category': category_1,
-                    'properties': {'number': 5}}
-                )
-                ObservationFactory.create(**{
-                    'project': project,
-                    'category': category_1,
-                    'properties': {'number': 12}}
-                )
-                ObservationFactory.create(**{
-                    'project': project,
-                    'category': category_1,
-                    'properties': {'number': 20}}
-                )
-                ObservationFactory.create(**{
-                    'project': project,
-                    'category': category_1,
-                    'properties': {'number': 25}}
-                )
-                ObservationFactory.create(**{
-                    'project': project,
-                    'category': category_2,
-                    'properties': {'number': 12}}
-                )
-
-                a_day_ago = datetime.utcnow().replace(
-                    tzinfo=pytz.utc) - timedelta(1)
-                ObservationFactory.create(**{
-                    'project': project,
-                    'category': category_1,
-                    'expiry_field': a_day_ago
-                })
-
-            self.assertEqual(project.get_all_contributions(user).count(), 10)
+        self.assertEqual(project.get_all_contributions(user).count(), 10)
 
     def test_get_data_lookup_filter(self):
         user = UserFactory.create()
         project = ProjectFactory.create()
-        category_1 = CategoryFactory(**{'project': project})
 
+        category_1 = CategoryFactory(**{'project': project})
         lookup_field = LookupFieldFactory(**{
             'key': 'lookup',
             'category': category_1
@@ -888,6 +931,9 @@ class ProjectGetDataTest(TestCase):
             'name': 'Kermit',
             'field': lookup_field
         })
+        expiry_field = DateFieldFactory.create(**{'category': category_1})
+        category_1.expiry_field = expiry_field
+        category_1.save()
         category_2 = CategoryFactory(**{'project': project})
         lookup_field_2 = LookupFieldFactory(**{
             'key': 'bla',
@@ -908,6 +954,8 @@ class ProjectGetDataTest(TestCase):
             }
         )
 
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+
         for x in range(0, 5):
             ObservationFactory.create(**{
                 'project': project,
@@ -924,13 +972,12 @@ class ProjectGetDataTest(TestCase):
                 'category': category_2,
                 'properties': {'bla': lookup_3.id}
             })
-
-            a_day_ago = datetime.utcnow().replace(
-                tzinfo=pytz.utc) - timedelta(1)
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
-                'expiry_field': a_day_ago
+                'properties': {
+                    expiry_field.key: str(now - timedelta(1))
+                }
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 10)
@@ -938,11 +985,15 @@ class ProjectGetDataTest(TestCase):
     def test_get_data_min_max_datetime_filter(self):
         user = UserFactory.create()
         project = ProjectFactory.create()
+
         category_1 = CategoryFactory(**{'project': project})
         DateTimeFieldFactory(**{
             'key': 'date',
             'category': category_1
         })
+        expiry_field = DateFieldFactory.create(**{'category': category_1})
+        category_1.expiry_field = expiry_field
+        category_1.save()
         category_2 = CategoryFactory(**{'project': project})
         DateTimeFieldFactory(**{
             'key': 'bla',
@@ -961,6 +1012,8 @@ class ProjectGetDataTest(TestCase):
             }
         )
 
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+
         for x in range(0, 5):
             ObservationFactory.create(**{
                 'project': project,
@@ -977,13 +1030,12 @@ class ProjectGetDataTest(TestCase):
                 'category': category_2,
                 'properties': {'bla': '2014-04-09'}
             })
-
-            a_day_ago = datetime.utcnow().replace(
-                tzinfo=pytz.utc) - timedelta(1)
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
-                'expiry_field': a_day_ago
+                'properties': {
+                    expiry_field.key: str(now - timedelta(1))
+                }
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
@@ -991,11 +1043,15 @@ class ProjectGetDataTest(TestCase):
     def test_get_data_min_max_date_filter(self):
         user = UserFactory.create()
         project = ProjectFactory.create()
+
         category_1 = CategoryFactory(**{'project': project})
         DateFieldFactory(**{
             'key': 'date',
             'category': category_1
         })
+        expiry_field = DateFieldFactory.create(**{'category': category_1})
+        category_1.expiry_field = expiry_field
+        category_1.save()
         category_2 = CategoryFactory(**{'project': project})
         DateFieldFactory(**{
             'key': 'bla',
@@ -1014,6 +1070,8 @@ class ProjectGetDataTest(TestCase):
             }
         )
 
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+
         for x in range(0, 5):
             ObservationFactory.create(**{
                 'project': project,
@@ -1030,13 +1088,12 @@ class ProjectGetDataTest(TestCase):
                 'category': category_2,
                 'properties': {'bla': '2014-04-09'}
             })
-
-            a_day_ago = datetime.utcnow().replace(
-                tzinfo=pytz.utc) - timedelta(1)
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
-                'expiry_field': a_day_ago
+                'properties': {
+                    expiry_field.key: str(now - timedelta(1))
+                }
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
@@ -1044,11 +1101,15 @@ class ProjectGetDataTest(TestCase):
     def test_get_data_min_date_filter(self):
         user = UserFactory.create()
         project = ProjectFactory.create()
+
         category_1 = CategoryFactory(**{'project': project})
         DateFieldFactory(**{
             'key': 'date',
             'category': category_1
         })
+        expiry_field = DateFieldFactory.create(**{'category': category_1})
+        category_1.expiry_field = expiry_field
+        category_1.save()
         category_2 = CategoryFactory(**{'project': project})
         DateFieldFactory(**{
             'key': 'bla',
@@ -1066,6 +1127,8 @@ class ProjectGetDataTest(TestCase):
             }
         )
 
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+
         for x in range(0, 5):
             ObservationFactory.create(**{
                 'project': project,
@@ -1082,13 +1145,12 @@ class ProjectGetDataTest(TestCase):
                 'category': category_2,
                 'properties': {'bla': '2014-04-09'}
             })
-
-            a_day_ago = datetime.utcnow().replace(
-                tzinfo=pytz.utc) - timedelta(1)
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
-                'expiry_field': a_day_ago
+                'properties': {
+                    expiry_field.key: str(now - timedelta(1))
+                }
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
@@ -1096,11 +1158,15 @@ class ProjectGetDataTest(TestCase):
     def test_get_data_max_date_filter(self):
         user = UserFactory.create()
         project = ProjectFactory.create()
+
         category_1 = CategoryFactory(**{'project': project})
         DateFieldFactory(**{
             'key': 'date',
             'category': category_1
         })
+        expiry_field = DateFieldFactory.create(**{'category': category_1})
+        category_1.expiry_field = expiry_field
+        category_1.save()
         category_2 = CategoryFactory(**{'project': project})
         DateFieldFactory(**{
             'key': 'bla',
@@ -1118,6 +1184,8 @@ class ProjectGetDataTest(TestCase):
             }
         )
 
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+
         for x in range(0, 5):
             ObservationFactory.create(**{
                 'project': project,
@@ -1134,13 +1202,12 @@ class ProjectGetDataTest(TestCase):
                 'category': category_2,
                 'properties': {'bla': '2014-04-09'}
             })
-
-            a_day_ago = datetime.utcnow().replace(
-                tzinfo=pytz.utc) - timedelta(1)
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
-                'expiry_field': a_day_ago
+                'properties': {
+                    expiry_field.key: str(now - timedelta(1))
+                }
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
@@ -1148,11 +1215,15 @@ class ProjectGetDataTest(TestCase):
     def test_get_data_min_max_time_filter(self):
         user = UserFactory.create()
         project = ProjectFactory.create()
+
         category_1 = CategoryFactory(**{'project': project})
         TimeFieldFactory(**{
             'key': 'time',
             'category': category_1
         })
+        expiry_field = DateFieldFactory.create(**{'category': category_1})
+        category_1.expiry_field = expiry_field
+        category_1.save()
         category_2 = CategoryFactory(**{'project': project})
         TimeFieldFactory(**{
             'key': 'bla',
@@ -1170,6 +1241,8 @@ class ProjectGetDataTest(TestCase):
             }
         )
 
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+
         for x in range(0, 5):
             ObservationFactory.create(**{
                 'project': project,
@@ -1186,13 +1259,12 @@ class ProjectGetDataTest(TestCase):
                 'category': category_2,
                 'properties': {'bla': '11:00'}
             })
-
-            a_day_ago = datetime.utcnow().replace(
-                tzinfo=pytz.utc) - timedelta(1)
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
-                'expiry_field': a_day_ago
+                'properties': {
+                    expiry_field.key: str(now - timedelta(1))
+                }
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
@@ -1200,11 +1272,15 @@ class ProjectGetDataTest(TestCase):
     def test_get_data_min_max_inverse_time_filter(self):
         user = UserFactory.create()
         project = ProjectFactory.create()
+
         category_1 = CategoryFactory(**{'project': project})
         TimeFieldFactory(**{
             'key': 'time',
             'category': category_1
         })
+        expiry_field = DateFieldFactory.create(**{'category': category_1})
+        category_1.expiry_field = expiry_field
+        category_1.save()
         category_2 = CategoryFactory(**{'project': project})
         TimeFieldFactory(**{
             'key': 'bla',
@@ -1222,6 +1298,8 @@ class ProjectGetDataTest(TestCase):
             }
         )
 
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+
         for x in range(0, 5):
             ObservationFactory.create(**{
                 'project': project,
@@ -1238,13 +1316,12 @@ class ProjectGetDataTest(TestCase):
                 'category': category_2,
                 'properties': {'bla': '2:00'}
             })
-
-            a_day_ago = datetime.utcnow().replace(
-                tzinfo=pytz.utc) - timedelta(1)
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
-                'expiry_field': a_day_ago
+                'properties': {
+                    expiry_field.key: str(now - timedelta(1))
+                }
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
@@ -1252,11 +1329,15 @@ class ProjectGetDataTest(TestCase):
     def test_get_data_min_time_filter(self):
         user = UserFactory.create()
         project = ProjectFactory.create()
+
         category_1 = CategoryFactory(**{'project': project})
         TimeFieldFactory(**{
             'key': 'time',
             'category': category_1
         })
+        expiry_field = DateFieldFactory.create(**{'category': category_1})
+        category_1.expiry_field = expiry_field
+        category_1.save()
         category_2 = CategoryFactory(**{'project': project})
         TimeFieldFactory(**{
             'key': 'bla',
@@ -1274,6 +1355,8 @@ class ProjectGetDataTest(TestCase):
             }
         )
 
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+
         for x in range(0, 5):
             ObservationFactory.create(**{
                 'project': project,
@@ -1290,13 +1373,12 @@ class ProjectGetDataTest(TestCase):
                 'category': category_2,
                 'properties': {'bla': '11:00'}
             })
-
-            a_day_ago = datetime.utcnow().replace(
-                tzinfo=pytz.utc) - timedelta(1)
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
-                'expiry_field': a_day_ago
+                'properties': {
+                    expiry_field.key: str(now - timedelta(1))
+                }
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
@@ -1304,11 +1386,15 @@ class ProjectGetDataTest(TestCase):
     def test_get_data_max_time_filter(self):
         user = UserFactory.create()
         project = ProjectFactory.create()
+
         category_1 = CategoryFactory(**{'project': project})
         TimeFieldFactory(**{
             'key': 'time',
             'category': category_1
         })
+        expiry_field = DateFieldFactory.create(**{'category': category_1})
+        category_1.expiry_field = expiry_field
+        category_1.save()
         category_2 = CategoryFactory(**{'project': project})
         TimeFieldFactory(**{
             'key': 'bla',
@@ -1326,6 +1412,8 @@ class ProjectGetDataTest(TestCase):
             }
         )
 
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+
         for x in range(0, 5):
             ObservationFactory.create(**{
                 'project': project,
@@ -1342,13 +1430,12 @@ class ProjectGetDataTest(TestCase):
                 'category': category_2,
                 'properties': {'bla': '11:00'}
             })
-
-            a_day_ago = datetime.utcnow().replace(
-                tzinfo=pytz.utc) - timedelta(1)
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
-                'expiry_field': a_day_ago
+                'properties': {
+                    expiry_field.key: str(now - timedelta(1))
+                }
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 5)
@@ -1356,14 +1443,14 @@ class ProjectGetDataTest(TestCase):
     def test_get_created_after(self):
         user = UserFactory.create()
         project = ProjectFactory.create()
-        category_1 = CategoryFactory(**{'project': project})
+        category = CategoryFactory(**{'project': project})
 
         UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
                 'filters': {
-                    category_1.id: {
+                    category.id: {
                         'min_date': '2013-05-01 00:00:00'}
                 }
             }
@@ -1371,7 +1458,7 @@ class ProjectGetDataTest(TestCase):
 
         obs = ObservationFactory.create_batch(5, **{
             'project': project,
-            'category': category_1
+            'category': category
         })
 
         for o in obs:
@@ -1380,7 +1467,7 @@ class ProjectGetDataTest(TestCase):
 
         obs = ObservationFactory.create_batch(5, **{
             'project': project,
-            'category': category_1
+            'category': category
         })
 
         for o in obs:
@@ -1389,7 +1476,7 @@ class ProjectGetDataTest(TestCase):
 
         obs = ObservationFactory.create_batch(5, **{
             'project': project,
-            'category': category_1
+            'category': category
         })
 
         for o in obs:
@@ -1401,14 +1488,14 @@ class ProjectGetDataTest(TestCase):
     def test_get_created_before(self):
         user = UserFactory.create()
         project = ProjectFactory.create()
-        category_1 = CategoryFactory(**{'project': project})
+        category = CategoryFactory(**{'project': project})
 
         UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
                 'filters': {
-                    category_1.id: {
+                    category.id: {
                         'max_date': '2013-05-01 00:00:00'}
                 }
             }
@@ -1416,7 +1503,7 @@ class ProjectGetDataTest(TestCase):
 
         obs = ObservationFactory.create_batch(5, **{
             'project': project,
-            'category': category_1
+            'category': category
         })
 
         for o in obs:
@@ -1425,7 +1512,7 @@ class ProjectGetDataTest(TestCase):
 
         obs = ObservationFactory.create_batch(5, **{
             'project': project,
-            'category': category_1
+            'category': category
         })
 
         for o in obs:
@@ -1434,7 +1521,7 @@ class ProjectGetDataTest(TestCase):
 
         obs = ObservationFactory.create_batch(5, **{
             'project': project,
-            'category': category_1
+            'category': category
         })
 
         for o in obs:
@@ -1446,14 +1533,14 @@ class ProjectGetDataTest(TestCase):
     def test_get_created_before_and_after(self):
         user = UserFactory.create()
         project = ProjectFactory.create()
-        category_1 = CategoryFactory(**{'project': project})
+        category = CategoryFactory(**{'project': project})
 
         UserGroupFactory.create(
             add_users=[user],
             **{
                 'project': project,
                 'filters': {
-                    category_1.id: {
+                    category.id: {
                         'min_date': '2013-01-01 00:00:00',
                         'max_date': '2013-10-01 00:00:00'}
                 }
@@ -1462,7 +1549,7 @@ class ProjectGetDataTest(TestCase):
 
         obs = ObservationFactory.create_batch(5, **{
             'project': project,
-            'category': category_1
+            'category': category
         })
 
         for o in obs:
@@ -1471,7 +1558,7 @@ class ProjectGetDataTest(TestCase):
 
         obs = ObservationFactory.create_batch(5, **{
             'project': project,
-            'category': category_1
+            'category': category
         })
 
         for o in obs:
@@ -1480,7 +1567,7 @@ class ProjectGetDataTest(TestCase):
 
         obs = ObservationFactory.create_batch(5, **{
             'project': project,
-            'category': category_1
+            'category': category
         })
 
         for o in obs:
@@ -1492,6 +1579,7 @@ class ProjectGetDataTest(TestCase):
     def test_get_data_multiple_lookup_filter(self):
         user = UserFactory.create()
         project = ProjectFactory.create()
+
         category_1 = CategoryFactory(**{'project': project})
         lookup_field = MultipleLookupFieldFactory(**{
             'key': 'lookup',
@@ -1509,6 +1597,9 @@ class ProjectGetDataTest(TestCase):
             'name': 'Gonzo',
             'field': lookup_field
         })
+        expiry_field = DateFieldFactory.create(**{'category': category_1})
+        category_1.expiry_field = expiry_field
+        category_1.save()
         category_2 = CategoryFactory(**{'project': project})
         lookup_field_2 = MultipleLookupFieldFactory(**{
             'key': 'bla',
@@ -1530,6 +1621,8 @@ class ProjectGetDataTest(TestCase):
             }
         )
 
+        now = datetime.utcnow().replace(tzinfo=pytz.utc)
+
         for x in range(0, 5):
             ObservationFactory.create(**{
                 'project': project,
@@ -1546,13 +1639,12 @@ class ProjectGetDataTest(TestCase):
                 'category': category_2,
                 'properties': {'bla': [lookup_4.id]}
             })
-
-            a_day_ago = datetime.utcnow().replace(
-                tzinfo=pytz.utc) - timedelta(1)
             ObservationFactory.create(**{
                 'project': project,
                 'category': category_1,
-                'expiry_field': a_day_ago
+                'properties': {
+                    expiry_field.key: str(now - timedelta(1))
+                }
             })
 
         self.assertEqual(project.get_all_contributions(user).count(), 10)

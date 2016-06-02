@@ -3,6 +3,7 @@
 import os
 import re
 
+from pytz import utc
 from datetime import datetime
 
 from django.contrib.gis.db import models
@@ -146,12 +147,12 @@ class ObservationQuerySet(models.query.QuerySet):
         Returns all observations for viewer, i.e. users who have no moderation
         permissions on the projects.
 
-        If the user is anonymous, it returns only observations with
-        status='active' and status='review'
+        If the user is anonymous, it returns only contributions that haven't
+        expired yet with status `active` or `review`.
 
-        If the user is not anonymous, it returns it returns only observations
-        with status='active' and status='review' as well as status='pending'
-        when the given user is creator of those observation.
+        If the user is not anonymous, it returns only contributions with status
+        `active` or `review` as well as `pending` when the given user is
+        creator of those contributions.
 
         Parameters
         ----------
@@ -164,10 +165,16 @@ class ObservationQuerySet(models.query.QuerySet):
             List of observations for viewer
         """
         if user.is_anonymous():
-            return self.exclude(status='draft').exclude(status='pending')
-
-        return self.for_moderator(user).exclude(
-            ~Q(creator=user), status='pending')
+            return self.exclude(
+                Q(expiry_field__isnull=False),
+                Q(expiry_field__lte=datetime.utcnow().replace(tzinfo=utc)),
+            ).exclude(status__in=['draft', 'pending'])
+        else:
+            return self.for_moderator(user).exclude(
+                ~Q(creator=user),
+                Q(expiry_field__isnull=False),
+                Q(expiry_field__lte=datetime.utcnow().replace(tzinfo=utc)),
+            ).exclude(~Q(creator=user), status='pending')
 
     def search(self, query):
         """
