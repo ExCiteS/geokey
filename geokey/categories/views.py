@@ -150,7 +150,7 @@ class CategorySettings(LoginRequiredMixin, CategoryMixin, TemplateView):
         context = super(CategorySettings, self).get_context_data(
             project_id,
             category_id,
-            status_types=STATUS,
+            status_types=STATUS
         )
         category = context.get('category')
 
@@ -464,20 +464,12 @@ class FieldSettings(LoginRequiredMixin, FieldMixin, TemplateView):
         dict
             Context
         """
-        context = super(FieldSettings, self).get_context_data(
+        return super(FieldSettings, self).get_context_data(
             project_id,
             category_id,
-            field_id
+            field_id,
+            status_types=STATUS
         )
-
-        if context.get('field'):
-            context['status_types'] = STATUS
-            context['is_display_field'] = (
-                context['field'] == context['field'].category.display_field)
-            context['is_expiry_field'] = (
-                context['field'] == context['field'].category.expiry_field)
-
-        return context
 
     def post(self, request, project_id, category_id, field_id):
         """
@@ -550,7 +542,8 @@ class FieldDelete(LoginRequiredMixin, FieldMixin, TemplateView):
         -------
         django.http.HttpResponseRedirect
             Redirects to category overview if field is deleted, field
-            settings if project is locked.
+            settings if project is locked or field is set as display/expiry
+            field for the category.
         django.http.HttpResponse
             Rendered template, if project, category or field does not exist.
         """
@@ -563,11 +556,15 @@ class FieldDelete(LoginRequiredMixin, FieldMixin, TemplateView):
                     self.request,
                     'The project is locked. Field cannot be deleted.'
                 )
-                return redirect(
-                    'admin:category_field_settings',
-                    project_id=project_id,
-                    category_id=category_id,
-                    field_id=field_id
+            elif context.get('is_display_field'):
+                messages.error(
+                    self.request,
+                    'The field is set as display field and cannot be deleted.'
+                )
+            elif context.get('is_expiry_field'):
+                messages.error(
+                    self.request,
+                    'The field is set as expiry field and cannot be deleted.'
                 )
             else:
                 field.delete()
@@ -577,6 +574,13 @@ class FieldDelete(LoginRequiredMixin, FieldMixin, TemplateView):
                     project_id=project_id,
                     category_id=category_id
                 )
+
+            return redirect(
+                'admin:category_field_settings',
+                project_id=project_id,
+                category_id=category_id,
+                field_id=field_id
+            )
 
         return self.render_to_response(context)
 

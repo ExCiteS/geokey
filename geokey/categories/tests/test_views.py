@@ -956,14 +956,24 @@ class FieldDeleteTest(TestCase):
         )
         self.category = CategoryFactory.create(
             **{'project': self.project})
-        self.field = TextFieldFactory.create(**{'category': self.category})
+        self.field = TextFieldFactory.create(
+            **{'category': self.category})
 
-    def get(self, user):
+        self.display_field = TextFieldFactory.create(
+            **{'category': self.category})
+        self.category.display_field = self.display_field
+        self.expiry_field = DateFieldFactory.create(**{
+            'category': self.category
+        })
+        self.category.expiry_field = self.expiry_field
+        self.category.save()
+
+    def get(self, user, field):
         view = FieldDelete.as_view()
         url = reverse('admin:category_field_delete', kwargs={
             'project_id': self.project.id,
             'category_id': self.category.id,
-            'field_id': self.field.id
+            'field_id': field.id
         })
         request = self.factory.get(url)
         request.user = user
@@ -976,10 +986,10 @@ class FieldDeleteTest(TestCase):
             request,
             project_id=self.project.id,
             category_id=self.category.id,
-            field_id=self.field.id)
+            field_id=field.id)
 
     def test_delete_with_admin(self):
-        response = self.get(self.admin)
+        response = self.get(self.admin, self.field)
         self.assertTrue(isinstance(response, HttpResponseRedirect))
 
         try:
@@ -993,7 +1003,25 @@ class FieldDeleteTest(TestCase):
         self.project.islocked = True
         self.project.save()
 
-        response = self.get(self.admin)
+        response = self.get(self.admin, self.field)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+        try:
+            Field.objects.get(pk=self.field.id)
+        except Field.DoesNotExist:
+            self.fail('Field has been deleted.')
+
+    def test_delete_with_admin_when_field_is_set_as_display_field(self):
+        response = self.get(self.admin, self.display_field)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+        try:
+            Field.objects.get(pk=self.field.id)
+        except Field.DoesNotExist:
+            self.fail('Field has been deleted.')
+
+    def test_delete_with_admin_when_field_is_set_as_expiry_field(self):
+        response = self.get(self.admin, self.expiry_field)
         self.assertTrue(isinstance(response, HttpResponseRedirect))
 
         try:
@@ -1002,7 +1030,7 @@ class FieldDeleteTest(TestCase):
             self.fail('Field has been deleted.')
 
     def test_delete_with_contributor(self):
-        response = self.get(self.contributor).render()
+        response = self.get(self.contributor, self.field).render()
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(
@@ -1017,7 +1045,7 @@ class FieldDeleteTest(TestCase):
             self.fail('Field has been deleted.')
 
     def test_delete_with_non_member(self):
-        response = self.get(self.non_member)
+        response = self.get(self.non_member, self.field)
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(
