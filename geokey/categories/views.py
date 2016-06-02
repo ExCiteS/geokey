@@ -474,6 +474,8 @@ class FieldSettings(LoginRequiredMixin, FieldMixin, TemplateView):
             context['status_types'] = STATUS
             context['is_display_field'] = (
                 context['field'] == context['field'].category.display_field)
+            context['is_expiry_field'] = (
+                context['field'] == context['field'].category.expiry_field)
 
         return context
 
