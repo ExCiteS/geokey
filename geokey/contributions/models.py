@@ -240,8 +240,9 @@ class Observation(models.Model):
         display field property
         """
         display_field = self.category.display_field
-        if display_field is not None:
-            value = None
+        value = None
+
+        if display_field:
             if self.properties:
                 value = self.properties.get(display_field.key)
 
