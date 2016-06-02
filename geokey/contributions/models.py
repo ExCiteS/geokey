@@ -255,16 +255,15 @@ class Observation(models.Model):
         for the current contribution.
         """
         expiry_field = self.category.expiry_field
-        if expiry_field is not None:
-            value = None
-            if self.properties:
-                value = self.properties.get(expiry_field.key)
-                try:
-                    value = parse_date(value)
-                except ParseError:
-                    value = None
+        value = None
 
-            self.expiry_field = value
+        if expiry_field and self.properties:
+            try:
+                value = parse_date(self.properties.get(expiry_field.key))
+            except ParseError:
+                pass
+
+        self.expiry_field = value
 
     def update_count(self):
         """
