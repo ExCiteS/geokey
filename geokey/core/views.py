@@ -39,11 +39,7 @@ class InfoAPIView(APIView):
                 'name': ext_id,
                 'version': ext['version'] if 'version' in ext else None
             },
-            filter(
-                lambda (ext_id, ext):
-                    request.user.is_superuser or not ext['superuser'],
-                extensions.iteritems()
-            )
+            extensions.iteritems()
         )
 
         return Response(info)
