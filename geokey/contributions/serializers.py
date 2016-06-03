@@ -356,7 +356,7 @@ class ContributionSerializer(BaseSerializer):
         Returns
         -------
         dict
-            serialised display_field; e.g.
+            serialised display_field; e.g.:
             {
                 'key': 'field_key',
                 'value': 'The value of the field'
@@ -371,6 +371,22 @@ class ContributionSerializer(BaseSerializer):
             }
         else:
             return None
+
+    def get_expiry_field(self, obj):
+        """
+        Returns a native representation of the expiry_field property.
+
+        Parameter
+        ---------
+        obj : geokey.contributions.models.Observation
+            The instance that is serialised
+
+        Returns
+        -------
+        dict
+            serialised expiry_field; e.g.: '2016-06-02 10:41:52.929103+00:00'
+        """
+        return str(obj.expiry_field) if obj.expiry_field else None
 
     def to_representation(self, obj):
         """
@@ -403,6 +419,7 @@ class ContributionSerializer(BaseSerializer):
             'id': obj.id,
             'properties': obj.properties,
             'display_field': self.get_display_field(obj),
+            'expiry_field': self.get_expiry_field(obj),
             'meta': {
                 'status': obj.status,
                 'creator': {

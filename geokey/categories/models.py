@@ -36,6 +36,11 @@ class Category(models.Model):
         null=True,
         related_name='display_field_of'
     )
+    expiry_field = models.ForeignKey(
+        'categories.Field',
+        null=True,
+        related_name='expiry_field_of'
+    )
     default_status = models.CharField(
         choices=DEFAULT_STATUS,
         default=DEFAULT_STATUS.pending,

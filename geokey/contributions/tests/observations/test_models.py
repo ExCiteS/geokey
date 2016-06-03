@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """Tests for models of contributions (observations)."""
 
+import pytz
+import datetime
+
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 
@@ -11,9 +14,9 @@ from geokey.projects.tests.model_factories import UserFactory
 
 from geokey.categories.models import LookupValue, MultipleLookupValue
 from geokey.categories.tests.model_factories import (
-    CategoryFactory, LookupFieldFactory, LookupValueFactory,
-    TextFieldFactory, MultipleLookupFieldFactory, MultipleLookupValueFactory,
-    NumericFieldFactory
+    CategoryFactory, NumericFieldFactory, TextFieldFactory,
+    DateTimeFieldFactory, LookupFieldFactory, LookupValueFactory,
+    MultipleLookupFieldFactory, MultipleLookupValueFactory
 )
 from ..model_factories import (
     ObservationFactory, LocationFactory, CommentFactory
@@ -231,6 +234,75 @@ class ObservationTest(TestCase):
 
         ref = Observation.objects.get(pk=observation.id)
         self.assertIsNone(ref.display_field)
+
+    def test_update_expiry_field(self):
+        category = CategoryFactory()
+        field = DateTimeFieldFactory(**{
+            'key': 'expires_at',
+            'category': category
+        })
+        category.expiry_field = field
+        category.save()
+
+        observation = ObservationFactory(**{
+            'project': category.project,
+            'category': category,
+            'expiry_field': None,
+            'properties': {
+                'expires_at': '2016-09-19T15:51:32.804Z'
+            }
+        })
+
+        observation.update_expiry_field()
+        observation.save()
+
+        ref = Observation.objects.get(pk=observation.id)
+        self.assertEqual(
+            ref.expiry_field,
+            datetime.datetime(2016, 9, 19, 15, 51, 32, 804000, tzinfo=pytz.utc)
+        )
+
+    def test_update_expiry_field_empty_properties(self):
+        category = CategoryFactory()
+        field = DateTimeFieldFactory(**{
+            'key': 'expires_at',
+            'category': category
+        })
+        category.expiry_field = field
+        category.save()
+
+        observation = ObservationFactory(**{
+            'project': category.project,
+            'category': category,
+            'expiry_field': None,
+            'properties': None
+        })
+
+        observation.update_expiry_field()
+        observation.save()
+
+        ref = Observation.objects.get(pk=observation.id)
+        self.assertEqual(ref.expiry_field, None)
+
+
+    def test_update_expiry_field_no_expiry_field(self):
+        category = CategoryFactory()
+        DateTimeFieldFactory(**{
+            'key': 'expires_at',
+            'category': category
+        })
+        observation = ObservationFactory(**{
+            'project': category.project,
+            'category': category,
+            'expiry_field': None,
+            'properties': None
+        })
+
+        observation.update_expiry_field()
+        observation.save()
+
+        ref = Observation.objects.get(pk=observation.id)
+        self.assertIsNone(ref.expiry_field)
 
     def test_update_count(self):
         observation = ObservationFactory()

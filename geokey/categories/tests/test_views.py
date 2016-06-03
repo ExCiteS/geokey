@@ -15,9 +15,9 @@ from geokey.projects.tests.model_factories import UserFactory, ProjectFactory
 from geokey.core.tests.helpers.image_helpers import get_image
 
 from .model_factories import (
-    CategoryFactory, TextFieldFactory, NumericFieldFactory,
-    LookupFieldFactory, LookupValueFactory, MultipleLookupFieldFactory,
-    MultipleLookupValueFactory, DateTimeFieldFactory
+    CategoryFactory, TextFieldFactory, NumericFieldFactory, DateFieldFactory,
+    DateTimeFieldFactory, LookupFieldFactory, LookupValueFactory,
+    MultipleLookupFieldFactory, MultipleLookupValueFactory
 )
 
 from ..models import Category, Field, LookupValue, MultipleLookupValue
@@ -362,12 +362,13 @@ class CategorySettingsTest(TestCase):
             project_id=self.project.id,
             category_id=self.category.id).render()
 
-    def post(self, user, display_field=None):
+    def post(self, user, display_field=None, expiry_field=None):
         self.data = {
             'name': 'Cat Name',
             'description': 'Cat description',
             'default_status': 'active',
-            'display_field': display_field
+            'display_field': display_field,
+            'expiry_field': expiry_field
         }
         view = CategorySettings.as_view()
         url = reverse('admin:category_settings', kwargs={
@@ -384,7 +385,8 @@ class CategorySettingsTest(TestCase):
         return view(
             request,
             project_id=self.project.id,
-            category_id=self.category.id).render()
+            category_id=self.category.id
+        ).render()
 
     def test_get_settings_with_admin(self):
         response = self.get(self.admin)
@@ -446,6 +448,92 @@ class CategorySettingsTest(TestCase):
         self.assertEqual(ref.description, self.data.get('description'))
         self.assertEqual(ref.default_status, self.data.get('default_status'))
         self.assertEqual(ref.display_field, field_2)
+
+    def test_update_settings_when_clearing_displayfield(self):
+        field = TextFieldFactory.create(**{'category': self.category})
+
+        self.category.display_field = field
+        self.category.save()
+
+        response = self.post(self.admin, display_field=None)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+        ref = Category.objects.get(pk=self.category.id)
+        self.assertEqual(ref.name, self.data.get('name'))
+        self.assertEqual(ref.description, self.data.get('description'))
+        self.assertEqual(ref.default_status, self.data.get('default_status'))
+        self.assertEqual(ref.display_field, None)
+
+    def test_update_settings_with_expiryfield(self):
+        field_1 = DateFieldFactory.create(**{'category': self.category})
+        field_2 = DateFieldFactory.create(**{'category': self.category})
+
+        self.category.expiry_field = field_1
+        self.category.save()
+
+        response = self.post(self.admin, expiry_field=field_2.id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+        ref = Category.objects.get(pk=self.category.id)
+        self.assertEqual(ref.name, self.data.get('name'))
+        self.assertEqual(ref.description, self.data.get('description'))
+        self.assertEqual(ref.default_status, self.data.get('default_status'))
+        self.assertEqual(ref.expiry_field, field_2)
+
+    def test_update_settings_when_clearing_expiryfield(self):
+        field = DateFieldFactory.create(**{'category': self.category})
+
+        self.category.expiry_field = field
+        self.category.save()
+
+        response = self.post(self.admin, expiry_field=None)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+
+        ref = Category.objects.get(pk=self.category.id)
+        self.assertEqual(ref.name, self.data.get('name'))
+        self.assertEqual(ref.description, self.data.get('description'))
+        self.assertEqual(ref.default_status, self.data.get('default_status'))
+        self.assertEqual(ref.expiry_field, None)
+
+    def test_update_settings_when_field_for_expiryfield_is_wrong(self):
+        field_1 = DateFieldFactory.create(**{'category': self.category})
+        field_2 = TextFieldFactory.create(**{'category': self.category})
+
+        self.category.expiry_field = field_1
+        self.category.save()
+
+        response = self.post(self.admin, expiry_field=field_2.id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotContains(
+            response,
+            'You are not member of the administrators group of this project '
+            'and therefore not allowed to alter the settings of the project'
+        )
+        self.assertContains(
+            response,
+            'Only `Date and Time` and `Date` fields can be used.'
+        )
+
+        ref = Category.objects.get(pk=self.category.id)
+        self.assertEqual(ref.name, self.data.get('name'))
+        self.assertEqual(ref.description, self.data.get('description'))
+        self.assertEqual(ref.default_status, self.data.get('default_status'))
+        self.assertEqual(ref.expiry_field, field_1)
 
     def test_update_settings_with_non_member(self):
         response = self.post(self.non_member)
@@ -868,14 +956,24 @@ class FieldDeleteTest(TestCase):
         )
         self.category = CategoryFactory.create(
             **{'project': self.project})
-        self.field = TextFieldFactory.create(**{'category': self.category})
+        self.field = TextFieldFactory.create(
+            **{'category': self.category})
 
-    def get(self, user):
+        self.display_field = TextFieldFactory.create(
+            **{'category': self.category})
+        self.category.display_field = self.display_field
+        self.expiry_field = DateFieldFactory.create(**{
+            'category': self.category
+        })
+        self.category.expiry_field = self.expiry_field
+        self.category.save()
+
+    def get(self, user, field):
         view = FieldDelete.as_view()
         url = reverse('admin:category_field_delete', kwargs={
             'project_id': self.project.id,
             'category_id': self.category.id,
-            'field_id': self.field.id
+            'field_id': field.id
         })
         request = self.factory.get(url)
         request.user = user
@@ -888,10 +986,10 @@ class FieldDeleteTest(TestCase):
             request,
             project_id=self.project.id,
             category_id=self.category.id,
-            field_id=self.field.id)
+            field_id=field.id)
 
     def test_delete_with_admin(self):
-        response = self.get(self.admin)
+        response = self.get(self.admin, self.field)
         self.assertTrue(isinstance(response, HttpResponseRedirect))
 
         try:
@@ -905,7 +1003,25 @@ class FieldDeleteTest(TestCase):
         self.project.islocked = True
         self.project.save()
 
-        response = self.get(self.admin)
+        response = self.get(self.admin, self.field)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+        try:
+            Field.objects.get(pk=self.field.id)
+        except Field.DoesNotExist:
+            self.fail('Field has been deleted.')
+
+    def test_delete_with_admin_when_field_is_set_as_display_field(self):
+        response = self.get(self.admin, self.display_field)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+        try:
+            Field.objects.get(pk=self.field.id)
+        except Field.DoesNotExist:
+            self.fail('Field has been deleted.')
+
+    def test_delete_with_admin_when_field_is_set_as_expiry_field(self):
+        response = self.get(self.admin, self.expiry_field)
         self.assertTrue(isinstance(response, HttpResponseRedirect))
 
         try:
@@ -914,7 +1030,7 @@ class FieldDeleteTest(TestCase):
             self.fail('Field has been deleted.')
 
     def test_delete_with_contributor(self):
-        response = self.get(self.contributor).render()
+        response = self.get(self.contributor, self.field).render()
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(
@@ -929,7 +1045,7 @@ class FieldDeleteTest(TestCase):
             self.fail('Field has been deleted.')
 
     def test_delete_with_non_member(self):
-        response = self.get(self.non_member)
+        response = self.get(self.non_member, self.field)
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(

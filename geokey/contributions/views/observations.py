@@ -118,7 +118,7 @@ class ProjectObservations(GZipView, GeoJsonView):
 
 # ############################################################################
 #
-# SINGLE CONTRIBUTIONS
+# SINGLE CONTRIBUTION
 #
 # ############################################################################
 

@@ -4,6 +4,8 @@ import re
 
 from pytz import utc
 from datetime import datetime
+from iso8601 import parse_date
+from iso8601.iso8601 import ParseError
 
 from django.db import models
 from django.conf import settings
@@ -85,6 +87,7 @@ class Observation(models.Model):
     version = models.IntegerField(default=1)
     search_index = models.TextField(null=True, blank=True)
     display_field = models.TextField(null=True, blank=True)
+    expiry_field = models.DateTimeField(null=True, blank=True)
     num_media = models.IntegerField(default=0)
     num_comments = models.IntegerField(default=0)
 
@@ -237,12 +240,30 @@ class Observation(models.Model):
         display field property
         """
         display_field = self.category.display_field
-        if display_field is not None:
-            value = None
+        value = None
+
+        if display_field:
             if self.properties:
                 value = self.properties.get(display_field.key)
 
             self.display_field = '%s:%s' % (display_field.key, value)
+
+    def update_expiry_field(self):
+        """
+        Updates the expiry_field attribute. It uses the expiry field of the
+        contributions category and sets the date according to the value set
+        for the current contribution.
+        """
+        expiry_field = self.category.expiry_field
+        value = None
+
+        if expiry_field and self.properties:
+            try:
+                value = parse_date(self.properties.get(expiry_field.key))
+            except ParseError:
+                pass
+
+        self.expiry_field = value
 
     def update_count(self):
         """
@@ -301,10 +322,11 @@ class Observation(models.Model):
 def pre_save_observation_update(sender, **kwargs):
     """
     Receiver that is called before an observation is saved. Updates
-    search_index and display_field properties.
+    `search_index`, `display_field`, `expiry_field` properties.
     """
     observation = kwargs.get('instance')
     observation.update_display_field()
+    observation.update_expiry_field()
     observation.create_search_index()
 
 

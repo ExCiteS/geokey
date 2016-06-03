@@ -275,13 +275,13 @@ class Project(models.Model):
         django.db.models.query.QuerySet
             List of geokey.contributions.models.Observations
         """
-        data = None
         is_admin = self.is_admin(user)
+        data = self.observations
 
         if is_admin or self.can_moderate(user):
-            data = self.observations.for_moderator(user)
+            data = data.for_moderator(user)
         else:
-            data = self.observations.for_viewer(user)
+            data = data.for_viewer(user)
 
         where_clause = None
         if not is_admin and self.isprivate and not user.is_anonymous():

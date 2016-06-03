@@ -60,6 +60,8 @@ class FieldMixin(object):
             project=field.category.project,
             category=field.category,
             field=field,
+            is_display_field=(field == field.category.display_field),
+            is_expiry_field=(field == field.category.expiry_field),
             *args,
             **kwargs
         )
