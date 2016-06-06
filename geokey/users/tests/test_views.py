@@ -28,7 +28,7 @@ from geokey.categories.tests.model_factories import CategoryFactory
 
 from .model_factories import UserFactory, UserGroupFactory
 from ..views import (
-    UserGroup, UserGroupUsers,
+    UserGroup, UserGroupUsers, UserGroupSingleUser,
     UserGroupCreate, UserGroupSettings, UserProfile,
     CreateUserMixin, UserAPIView, Dashboard, ChangePasswordView, Index,
     UserGroupList, UserGroupOverview, AdministratorsOverview,
@@ -1280,6 +1280,117 @@ class UserGroupUsersTest(TestCase):
             self.user_to_add,
             self.contributors.users.all()
         )
+
+class UserGroupSingleUserTest(TestCase):
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = UserFactory.create()
+        self.contributor = UserFactory.create()
+        self.non_member = UserFactory.create()
+        self.contrib_to_remove = UserFactory.create()
+
+        self.project = ProjectFactory.create(
+            add_admins=[self.admin]
+        )
+
+        self.contributors = UserGroupFactory(
+            add_users=[self.contributor, self.contrib_to_remove],
+            **{'project': self.project, 'can_contribute': True}
+        )
+
+    def test_delete_not_existing_user(self):
+        user = UserFactory.create()
+        request = self.factory.delete(
+            '/ajax/projects/%s/usergroups/%s/users/%s/' %
+            (self.project.id, self.contributors.id, user.id),
+        )
+        force_authenticate(request, user=self.admin)
+        view = UserGroupSingleUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            usergroup_id=self.contributors.id,
+            user_id=user.id
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_from_not_existing_usergroup(self):
+        request = self.factory.delete(
+            '/ajax/projects/%s/usergroups/%s/users/%s/' %
+            (self.project.id, 455646445484545, self.contrib_to_remove.id),
+        )
+        force_authenticate(request, user=self.admin)
+        view = UserGroupSingleUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            usergroup_id=455646445484545,
+            user_id=self.contrib_to_remove.id
+        ).render()
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_contributor_with_admin(self):
+        request = self.factory.delete(
+            '/ajax/projects/%s/usergroups/%s/users/%s/' %
+            (self.project.id, self.contributors.id, self.contrib_to_remove.id),
+        )
+        force_authenticate(request, user=self.admin)
+        view = UserGroupSingleUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            usergroup_id=self.contributors.id,
+            user_id=self.contrib_to_remove.id
+        ).render()
+
+        self.assertEqual(response.status_code, 204)
+        self.assertNotIn(
+            self.contrib_to_remove,
+            self.contributors.users.all()
+        )
+
+    def test_delete_contributor_with_contributor(self):
+        request = self.factory.delete(
+            '/ajax/projects/%s/usergroups/%s/users/%s/' %
+            (self.project.id, self.contributors.id, self.contrib_to_remove.id)
+        )
+        force_authenticate(request, user=self.contributor)
+        view = UserGroupSingleUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            usergroup_id=self.contributors.id,
+            user_id=self.contrib_to_remove.id
+        ).render()
+
+        self.assertEqual(response.status_code, 403)
+        self.assertIn(
+            self.contrib_to_remove,
+            self.contributors.users.all()
+        )
+
+    def test_delete_contributor_with_non_member(self):
+        request = self.factory.delete(
+            '/ajax/projects/%s/usergroups/%s/users/%s/' %
+            (self.project.id, self.contributors.id, self.contrib_to_remove.id)
+        )
+        force_authenticate(request, user=self.non_member)
+        view = UserGroupSingleUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            usergroup_id=self.contributors.id,
+            user_id=self.contrib_to_remove.id
+        ).render()
+        self.assertEqual(response.status_code, 404)
+        self.assertIn(
+            self.contrib_to_remove,
+            self.contributors.users.all()
+        )
+
 
 
 class ChangePasswordTest(TestCase):

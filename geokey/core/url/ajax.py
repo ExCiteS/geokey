@@ -37,6 +37,12 @@ urlpatterns = [
         r'users/$',
         user_views.UserGroupUsers.as_view(),
         name='usergroup_users'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'usergroups/(?P<usergroup_id>[0-9]+)/'
+        r'users/(?P<user_id>[0-9]+)/$',
+        user_views.UserGroupSingleUser.as_view(),
+        name='usergroup_single_user'),
 
     # ###########################
     # CATEGORIES & FIELDS

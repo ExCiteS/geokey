@@ -638,7 +638,7 @@ class UserGroup(APIView):
 class UserGroupUsers(APIView):
 
     """
-    API endpoints for users in a user group of a project in the AJAX API.
+    API endpoints for all users in a user group of a project.
     """
 
     @handle_exceptions_for_ajax
@@ -665,7 +665,7 @@ class UserGroupUsers(APIView):
 
         if project.islocked:
             return Response(
-                'The project is locked. New users cannot be added',
+                'The project is locked. New users cannot be added.',
                 status=status.HTTP_400_BAD_REQUEST
             )
         else:
@@ -676,7 +676,7 @@ class UserGroupUsers(APIView):
             except User.DoesNotExist:
                 return Response(
                     'The user you are trying to add to the user group does ' +
-                    'not exist',
+                    'not exist.',
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -685,6 +685,48 @@ class UserGroupUsers(APIView):
 
             serializer = UserGroupSerializer(group)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class UserGroupSingleUser(APIView):
+
+    """
+    API endpoints for a single user in a user group of a project.
+    """
+
+    @handle_exceptions_for_ajax
+    def delete(self, request, project_id, usergroup_id, user_id):
+        """
+        Removes a user from the user group.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Represents the HTTP request
+        project_id : int
+            Identifies the project in the database
+        usergroup_id : int
+            Identifies the user group in the database
+        user_id : int
+            Identifies the user in the database
+
+        Returns
+        -------
+        rest_framework.response.Response
+            Empty response if successful or an error message
+        """
+
+        project = Project.objects.as_admin(request.user, project_id)
+
+        if project.islocked:
+            return Response(
+                'The project is locked. Users cannot be removed.',
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        else:
+            usergroup = project.usergroups.get(pk=usergroup_id)
+            user = usergroup.users.get(pk=user_id)
+            usergroup.users.remove(user)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # ############################################################################
