@@ -42,8 +42,10 @@ INSTALLED_APPS += (
 )
 
 # Static files (CSS, JavaScript, Images)
+STATICFILES_DIRS = [normpath(join(SITE_ROOT, 'static'))]
 STATIC_ROOT = '/some/path/'
 STATIC_URL = '/static/'
+
 # Media files (usually uploaded by the user)
 MEDIA_ROOT = normpath(join(dirname(dirname(abspath(__file__))), 'assets'))
 MEDIA_URL = '/assets/'
