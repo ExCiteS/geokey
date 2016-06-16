@@ -14,7 +14,7 @@ djangorestframework-gis==0.10.1
 easy-thumbnails==2.3
 gdata==2.0.18
 iso8601==0.1.11
-moment==0.4
+moment==0.5.1
 pillow==3.2.0
 psycopg2==2.6.1
 pytz==2016.4
