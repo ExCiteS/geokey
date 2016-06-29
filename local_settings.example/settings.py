@@ -42,7 +42,6 @@ INSTALLED_APPS += (
 )
 
 # Static files (CSS, JavaScript, Images)
-STATICFILES_DIRS = [normpath(join(SITE_ROOT, 'static'))]
 STATIC_ROOT = '/some/path/'
 STATIC_URL = '/static/'
 

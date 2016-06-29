@@ -133,6 +133,8 @@ ACCOUNT_FORMS = {
 }
 
 SITE_ROOT = dirname(dirname(dirname(abspath(__file__))))
+STATICFILES_DIRS = [join(SITE_ROOT, 'static')]
+
 ROOT_URLCONF = 'geokey.core.urls'
 
 # Settings for Django's template engine
