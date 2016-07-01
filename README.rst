@@ -33,7 +33,7 @@ GeoKey can be run on Python 2.7 only.
 
     sudo apt-get update && sudo apt-get upgrade
 
-2. Install Postgres and PostGIS (we follow the `official guides <http://trac.osgeo.org/postgis/wiki/UsersWikiPostGIS21UbuntuPGSQL93Apt>`_):
+2. Install PostgreSQL and PostGIS (we follow the `official guides <http://trac.osgeo.org/postgis/wiki/UsersWikiPostGIS21UbuntuPGSQL93Apt>`_):
 
 .. code-block:: console
 
@@ -60,7 +60,7 @@ Setup database
 
     sudo su - postgres
 
-2. Install postgis in template1 (only required for running tests):
+2. Install PostGIS in *template1* (required for running tests):
 
 .. code-block:: console
 
@@ -104,7 +104,7 @@ Setup database
     geokey=# CREATE EXTENSION postgis;
     geokey=# CREATE EXTENSION hstore;
 
-9. Logout of the database and a user:
+9. Log out of the database and a user:
 
 .. code-block:: console
 
