@@ -15,7 +15,7 @@ easy-thumbnails==2.3
 gdata==2.0.18
 iso8601==0.1.11
 moment==0.5.1
-pillow==3.2.0
+pillow==3.3.0
 psycopg2==2.6.1
 pytz==2016.4
 requests==2.10.0
