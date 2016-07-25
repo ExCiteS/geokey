@@ -106,9 +106,9 @@ MESSAGE_TAGS = {
 # see: https://docs.djangoproject.com/en/1.8/ref/settings/#auth
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
-    "django.contrib.auth.backends.ModelBackend",
+    'django.contrib.auth.backends.ModelBackend',
     # `allauth` specific authentication methods, such as login by e-mail
-    "allauth.account.auth_backends.AuthenticationBackend"
+    'allauth.account.auth_backends.AuthenticationBackend'
 )
 AUTH_USER_MODEL = 'users.User'
 LOGIN_REDIRECT_URL = '/admin/dashboard/'
@@ -148,10 +148,10 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "geokey.core.context_processors.project_settings",
-                "django.contrib.messages.context_processors.messages"
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'geokey.core.context_processors.project_settings',
+                'django.contrib.messages.context_processors.messages'
             ],
         },
     },
