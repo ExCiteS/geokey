@@ -143,7 +143,6 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            # insert your TEMPLATE_DIRS here
             normpath(join(SITE_ROOT, 'templates')),
         ],
         'APP_DIRS': True,
