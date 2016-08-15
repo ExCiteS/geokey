@@ -18,4 +18,4 @@ moment==0.5.1
 pillow==3.3.0
 psycopg2==2.6.2
 pytz==2016.6.1
-requests==2.10.0
+requests==2.11.0
