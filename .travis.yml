@@ -8,6 +8,9 @@ python:
 
 addons:
   postgresql: '9.4'
+  apt:
+    packages:
+      - postgresql-9.4-postgis-2.2
 
 env:
   - DJANGO='>=1.8,<1.9'
@@ -17,9 +20,8 @@ virtualenv:
   system_site_packages: true
 
 install:
-  - sudo rm /etc/apt/sources.list.d/ubuntugis-stable-source.list
   - sudo apt-get update -y
-  - sudo apt-get install python-gdal gdal-bin binutils libav-tools libavcodec-extra-53
+  - sudo apt-get install binutils libav-tools libavcodec-extra-53
   - export C_INCLUDE_PATH=/usr/include/gdal
   - export CPLUS_INCLUDE_PATH=/usr/include/gdal
 
