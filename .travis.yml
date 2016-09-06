@@ -1,3 +1,4 @@
+dist: trusty
 language: python
 
 services:
@@ -20,8 +21,11 @@ virtualenv:
   system_site_packages: true
 
 install:
-  - sudo apt-get update -y
-  - sudo apt-get install python-gdal gdal-bin binutils libav-tools libavcodec-extra-53
+  - sudo add-apt-repository ppa:ubuntugis/ppa -y
+  - sudo -E apt-get -yq update &>> ~/apt-get-update.log
+  - sudo apt-get install binutils libav-tools libavcodec-extra-53
+  - sudo apt-get -yq install libgdal1-dev
+  - gdal-config --version
   - export C_INCLUDE_PATH=/usr/include/gdal
   - export CPLUS_INCLUDE_PATH=/usr/include/gdal
 
