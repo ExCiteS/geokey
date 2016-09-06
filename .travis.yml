@@ -23,7 +23,7 @@ virtualenv:
 install:
   - sudo add-apt-repository ppa:ubuntugis/ppa -y
   - sudo -E apt-get -yq update &>> ~/apt-get-update.log
-  - sudo apt-get install binutils libav-tools libavcodec-extra-53
+  - sudo apt-get install binutils libav-tools
   - sudo apt-get -yq install libgdal1-dev
   - gdal-config --version
   - export C_INCLUDE_PATH=/usr/include/gdal
