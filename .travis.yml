@@ -26,6 +26,7 @@ install:
   - sudo apt-get install binutils libav-tools
   - sudo apt-get -yq install libgdal1-dev
   - gdal-config --version
+  - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
   - export C_INCLUDE_PATH=/usr/include/gdal
   - export CPLUS_INCLUDE_PATH=/usr/include/gdal
 
