@@ -21,7 +21,7 @@ virtualenv:
 
 install:
   - sudo apt-get update -y
-  - sudo apt-get install binutils libav-tools libavcodec-extra-53
+  - sudo apt-get install python-gdal gdal-bin binutils libav-tools libavcodec-extra-53
   - export C_INCLUDE_PATH=/usr/include/gdal
   - export CPLUS_INCLUDE_PATH=/usr/include/gdal
 
