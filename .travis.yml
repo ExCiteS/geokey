@@ -24,9 +24,8 @@ install:
   - sudo add-apt-repository ppa:ubuntugis/ppa -y
   - sudo -E apt-get -yq update &>> ~/apt-get-update.log
   - sudo apt-get install binutils libav-tools
-  - sudo apt-get -yq install libgdal1-dev
+  - sudo apt-get -yq install libgdal1-dev gdal-bin python-gdal
   - gdal-config --version
-  - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
   - export C_INCLUDE_PATH=/usr/include/gdal
   - export CPLUS_INCLUDE_PATH=/usr/include/gdal
 
