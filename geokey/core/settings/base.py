@@ -41,7 +41,7 @@ INSTALLED_APPS = (
     'django.contrib.gis',
     'django.contrib.sites',
 
-    # third-party apps
+    # Third-party apps
     'django_hstore',
     'oauth2_provider',
     'easy_thumbnails',
