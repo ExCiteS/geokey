@@ -99,7 +99,7 @@ data-category-id="{{ category.id }}"
 
 			<div class="form-group">
 				<button type="submit" class="btn btn-primary">Save</button>
-                <a href="{% url 'admin:category_overview' project.id category.id %}" class="btn btn-link" role="button">Cancel</a>
+                <a role="button" href="{% url 'admin:category_overview' project.id category.id %}" class="btn btn-link">Cancel</a>
 			</div>
 		</form>
 	</div>
