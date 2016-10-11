@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %} | Superuser tools - Providers{% endblock %}
+
+{% block main %}
+<div class="page-header">
+    <div class="container">
+        <h1>Superuser tools</h1>
+        {% include 'superusertools/navigation.html' %}
+    </div>
+</div>
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="alert alert-info">
+                <p>Providers allow users to connect their social accounts and sign in to the {{ PLATFORM_NAME }} using them.</p>
+                <p>In order to enable a provider, the application must be registered on its API tools to retrieve the required credentials.</p>
+            </div>
+        </div>
+
+        <div class="col-sm-8">
+            <h2 class="header">Providers</h2>
+
+            {% for provider in providers %}
+                {% if forloop.first %}
+                    <ul class="list-unstyled overview-list social">
+                {% endif %}
+
+                <li>
+                    <a role="button" href="{% url 'admin:superusertools_provider_overview' provider.id %}"><strong>{{ provider.name }}</strong></a>
+                </li>
+
+                {% if forloop.last %}
+                    </ul>
+                {% endif %}
+            {% empty %}
+                <div class="well empty-list">
+                    <p class="lead">There are no providers available.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

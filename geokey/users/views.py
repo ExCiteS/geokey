@@ -3,14 +3,18 @@
 from json import loads as json_loads
 from django.views.generic import TemplateView, CreateView
 from django.shortcuts import redirect
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.contrib import messages
+from django.http import HttpResponseRedirect
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 
 from braces.views import LoginRequiredMixin
 
 from allauth.account.models import EmailAddress
+from allauth.socialaccount.adapter import get_adapter
+from allauth.socialaccount.models import SocialAccount
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -494,27 +498,40 @@ class UserGroupDelete(LoginRequiredMixin, UserGroupContext, TemplateView):
 
 
 class UserProfile(LoginRequiredMixin, TemplateView):
+    """User profile page."""
 
-    """
-    Displays the user profile page.
-    """
     template_name = 'users/profile.html'
+
+    def get_context_data(self, *args, **kwargs):
+        """
+        Return the context to render the view.
+
+        Add social accounts for user to the context.
+
+        Returns
+        -------
+        dict
+        """
+        return super(UserProfile, self).get_context_data(
+            accounts=SocialAccount.objects.filter(user=self.request.user),
+            *args,
+            **kwargs
+        )
 
     def post(self, request):
         """
-        Updates user profile.
+        Update user profile.
 
         Parameters
         ----------
         request : django.http.HttpRequest
-            Object representing the request
+            Object representing the request.
 
         Returns
         -------
         django.http.HttpResponse
-            Rendered template
+            Rendered template.
         """
-
         user = User.objects.get(pk=request.user.pk)
         form = UserForm(request.POST, instance=user)
 
@@ -543,6 +560,51 @@ class UserProfile(LoginRequiredMixin, TemplateView):
                 messages.info(request, 'Your profile has not been edited.')
 
         return self.render_to_response(self.get_context_data(form=form))
+
+
+class AccountDisconnect(LoginRequiredMixin, TemplateView):
+    """Disconnect an account."""
+
+    template_name = 'base.html'
+
+    def get(self, request, account_id):
+        """
+        Handle the GET request of the view.
+
+        Disconnect the account.
+
+        Parameters
+        ----------
+        request : django.http.HttpRequest
+            Object representing the request.
+        account_id : int
+            ID identifying the account in the database.
+
+        Returns
+        -------
+        django.http.HttpResponseRedirect
+            Redirecting to user profile page.
+        """
+        account = None
+
+        try:
+            account = SocialAccount.objects.get(
+                pk=account_id,
+                user=request.user)
+        except:
+            messages.error(request, 'The account could not be found.')
+
+        if account:
+            try:
+                get_adapter(request).validate_disconnect(
+                    account,
+                    SocialAccount.objects.filter(user=self.request.user))
+                account.delete()
+                messages.success(request, 'The account has been disconnected.')
+            except ValidationError, e:
+                messages.error(request, e)
+
+        return HttpResponseRedirect(reverse('admin:userprofile'))
 
 
 # ############################################################################

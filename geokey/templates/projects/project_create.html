@@ -4,88 +4,88 @@
 
 {% block main %}
 <div class="page-header">
-	<div class="container">
-		<h1>Create new project</h1>
-	</div>
+    <div class="container">
+        <h1>Create new project</h1>
+    </div>
 </div>
 
 <div class="container">
-	{% include 'snippets/messages.html' %}
+    {% include 'snippets/messages.html' %}
 
-	<div class="row">
-		<form role="form" class="col-sm-8 col-sm-offset-2" method="POST" action="{% url 'admin:project_create' %}" novalidate>
-			{% csrf_token %}
+    <div class="row">
+        <form class="col-sm-8 col-sm-offset-2" method="POST" action="{% url 'admin:project_create' %}" novalidate>
+            {% csrf_token %}
 
-			<div class="form-group">
-				<label for="name" class="control-label">Name (required)</label>
-				<input type="text" class="form-control input-lg" id="name" name="name" maxlength="100" required />
-			</div>
+            <div class="form-group">
+                <label for="name" class="control-label">Name (required)</label>
+                <input type="text" class="form-control input-lg" id="name" name="name" maxlength="100" required />
+            </div>
 
-			<div class="form-group">
-				<label for="description" class="control-label">Description</label>
-				<textarea class="form-control input-lg" rows="5" id="description" name="description"></textarea>
-			</div>
+            <div class="form-group">
+                <label for="description" class="control-label">Description</label>
+                <textarea class="form-control input-lg" rows="5" id="description" name="description"></textarea>
+            </div>
 
-			<div class="form-group">
-				<label for="isprivate" class="control-label">Project visibilty</label>
+            <div class="form-group">
+                <label for="isprivate" class="control-label">Project visibilty</label>
 
-				<div class="radio">
-					<label>
-						<input type="radio" id="private" name="isprivate" value="true" checked />
+                <div class="radio">
+                    <label>
+                        <input type="radio" id="private" name="isprivate" value="true" checked />
                         <strong>Private</strong>
                         <p>The project will only be visible to project administrators and members of any user group assigned to this project.</p>
-					</label>
-				</div>
+                    </label>
+                </div>
 
-				<div class="radio">
-					<label>
-						<input type="radio" id="public" name="isprivate" value="false" />
+                <div class="radio">
+                    <label>
+                        <input type="radio" id="public" name="isprivate" value="false" />
                         <strong>Public</strong>
                         <p>The project will be visible to the general public.</p>
-					</label>
-				</div>
-			</div>
+                    </label>
+                </div>
+            </div>
 
-			<div class="form-group">
-				<label for="everyone_contributes" class="control-label">Project permissions</label>
+            <div class="form-group">
+                <label for="everyone_contributes" class="control-label">Project permissions</label>
 
-				<div class="radio public hidden">
-					<label>
-						<input type="radio" name="everyone_contributes" value="true" />
+                <div class="radio public hidden">
+                    <label>
+                        <input type="radio" name="everyone_contributes" value="true" />
                         <strong>All users</strong>
                         <p>All users can contribute. This includes anonymous contributions from users, who are not logged in.</p>
-					</label>
-				</div>
+                    </label>
+                </div>
 
-				<div class="radio">
-					<label>
-						<input type="radio" name="everyone_contributes" value="auth" checked />
-						<span class="private">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="everyone_contributes" value="auth" checked />
+                        <span class="private">
                             <strong>All users</strong>
                             <p>All users that have access to the project can contribute.</p>
                         </span>
-						<span class="public hidden">
+                        <span class="public hidden">
                             <strong>All authenticated users</strong>
                             <p>Users have to be logged in to contribute.</p>
                         </span>
-					</label>
-				</div>
+                    </label>
+                </div>
 
-				<div class="radio">
-					<label>
-						<input type="radio" name="everyone_contributes" value="false" />
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="everyone_contributes" value="false" />
                         <strong>Only members of contributor groups can contribute</strong>
                         <p>Only users, who are members of a user groups that have been granted contribute permissions, can contribute.</p>
-					</label>
-				</div>
+                    </label>
+                </div>
             </div>
 
-			<div class="form-group">
-				<button type="submit" class="btn btn-primary">Save</button>
-				<a role="button" href="{% url 'admin:dashboard' %}" class="btn btn-link">Cancel</a>
-			</div>
-		</form>
-	</div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a role="button" href="{% url 'admin:dashboard' %}" class="btn btn-link">Cancel</a>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}
 

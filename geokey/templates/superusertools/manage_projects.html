@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load project_attributes %}
 
-{% block title %} | Superuser tools: Manage projects{% endblock %}
+{% block title %} | Superuser tools - Manage projects{% endblock %}
 
 {% block main %}
 <div class="page-header">
@@ -16,7 +16,7 @@
 
     <div class="row">
         <div class="col-sm-12 col-md-12 col-lg-12">
-            <h3 class="header">Manage projects</h3>
+            <h2 class="header">Manage projects</h2>
 
             {% if projects|length %}
                 <table class="table table-striped">
@@ -33,10 +33,10 @@
                         {% for project in projects %}
                             <tr>
                                 <td>
-                                    <h4>
+                                    <h3>
                                         {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
                                         <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
-                                    </h4>
+                                    </h3>
 
                                     {% project_attributes project %}
                                 </td>

@@ -29,9 +29,9 @@ data-usergroup-id="{{ usergroup.id }}"
         </div>
 
         <div class="col-sm-8">
-            <h3 class="header">User group settings</h3>
+            <h2 class="header">User group settings</h2>
 
-            <form role="form" method="POST" action="{% url 'admin:usergroup_settings' project.id usergroup.id %}" novalidate>
+            <form method="POST" action="{% url 'admin:usergroup_settings' project.id usergroup.id %}" novalidate>
                 {% csrf_token %}
 
                 <div class="form-group">

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %} | Sign up with social account{% endblock %}
+
+{% block main %}
+<div class="page-header">
+    <div class="container">
+        <h1>Sign up</h1>
+    </div>
+</div>
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+
+    <div class="row">
+        <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+            <h2 class="header">Complete your {{ account.get_provider.name }} sign up</h2>
+
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <p>An error occurred. Please try again.</p>
+                </div>
+            {% endif %}
+
+            <form action="{% url 'socialaccount_signup' %}" method="POST" novalidate>
+                {% csrf_token %}
+
+                <div class="form-group {% if form.email.errors %}has-error{% endif %}">
+                    <label for="email">Your email address</label>
+                    <input type="email" class="form-control input-lg" id="email" name="email" value="{% if form.data.email %}{{ form.data.email }}{% else %}{{ form.initial.email }}{% endif %}" required />
+                    {% if form.email.errors %}<span class="help-block">{{ form.email.errors|striptags }}</span>{% endif %}
+                </div>
+
+                <div class="form-group {% if form.username.errors %}has-error{% endif %}">
+                    <label for="username">Choose a display name</label>
+                    <input type="text" class="form-control input-lg" id="username" name="username" maxlength="50"  value="{% if form.data.username %}{{ form.data.username }}{% else %}{{ form.initial.useremail }}{% endif %}" required />
+                    {% if form.username.errors %}<span class="help-block">{{ form.username.errors|striptags }}</span>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-lg btn-primary">Sign me up</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <p>Already signed up with an email address? Please <a href="{% url 'account_login' %}">sign in here</a>.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block libraries %}
+<script src="/static/js/admin.ui.forms.validate.js"></script>
+{% endblock %}

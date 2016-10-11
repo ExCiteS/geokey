@@ -6,10 +6,11 @@ from django.test import TestCase, TransactionTestCase
 from django.core.urlresolvers import reverse, resolve
 from django.test import RequestFactory
 from django.contrib.auth.models import AnonymousUser
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponseRedirect
 from django.db import IntegrityError
 from django.core import mail
 from django.template.loader import render_to_string
+from django.test.utils import override_settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
@@ -19,6 +20,7 @@ from nose.tools import raises
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
 from allauth.account.models import EmailAddress
+from allauth.socialaccount.models import SocialApp, SocialAccount
 
 from geokey import version
 from geokey.core.tests.helpers import render_helpers
@@ -29,7 +31,7 @@ from geokey.categories.tests.model_factories import CategoryFactory
 from .model_factories import UserFactory, UserGroupFactory
 from ..views import (
     UserGroup, UserGroupUsers, UserGroupSingleUser,
-    UserGroupCreate, UserGroupSettings, UserProfile,
+    UserGroupCreate, UserGroupSettings, UserProfile, AccountDisconnect,
     CreateUserMixin, UserAPIView, Dashboard, ChangePasswordView, Index,
     UserGroupList, UserGroupOverview, AdministratorsOverview,
     UserGroupPermissions, UserGroupDelete, UserGroupData
@@ -804,7 +806,9 @@ class UserProfileTest(TestCase):
             {
                 'GEOKEY_VERSION': version.get_version(),
                 'PLATFORM_NAME': get_current_site(self.request).name,
-                'user': self.request.user
+                'user': self.request.user,
+                'accounts': SocialAccount.objects.filter(
+                    user=self.request.user)
             }
         )
         self.assertEqual(response.status_code, 200)
@@ -851,6 +855,8 @@ class UserProfileTest(TestCase):
                 'GEOKEY_VERSION': version.get_version(),
                 'PLATFORM_NAME': get_current_site(self.request).name,
                 'user': self.request.user,
+                'accounts': SocialAccount.objects.filter(
+                    user=self.request.user),
                 'messages': get_messages(self.request)
             }
         )
@@ -900,6 +906,8 @@ class UserProfileTest(TestCase):
                 'GEOKEY_VERSION': version.get_version(),
                 'PLATFORM_NAME': get_current_site(self.request).name,
                 'user': self.request.user,
+                'accounts': SocialAccount.objects.filter(
+                    user=self.request.user),
                 'messages': get_messages(self.request)
             }
         )
@@ -935,6 +943,8 @@ class UserProfileTest(TestCase):
                 'GEOKEY_VERSION': version.get_version(),
                 'PLATFORM_NAME': get_current_site(self.request).name,
                 'user': self.request.user,
+                'accounts': SocialAccount.objects.filter(
+                    user=self.request.user),
                 'messages': get_messages(self.request)
             }
         )
@@ -970,6 +980,8 @@ class UserProfileTest(TestCase):
                 'GEOKEY_VERSION': version.get_version(),
                 'PLATFORM_NAME': get_current_site(self.request).name,
                 'user': self.request.user,
+                'accounts': SocialAccount.objects.filter(
+                    user=self.request.user),
                 'messages': get_messages(self.request)
             }
         )
@@ -996,6 +1008,8 @@ class UserProfileTest(TestCase):
                 'GEOKEY_VERSION': version.get_version(),
                 'PLATFORM_NAME': get_current_site(self.request).name,
                 'user': self.request.user,
+                'accounts': SocialAccount.objects.filter(
+                    user=self.request.user),
                 'messages': get_messages(self.request)
             }
         )
@@ -1021,6 +1035,199 @@ class UserProfileTest(TestCase):
             self.request.POST.get('email')
         )
         self.assertEqual(reference.verified, False)
+
+
+class AccountDisconnectTest(TestCase):
+
+    def setUp(self):
+        self.view = AccountDisconnect.as_view()
+
+        self.social_app = SocialApp.objects.create(
+            provider='facebook',
+            name='Facebook',
+            client_id='xxxxxxxxxxxxxxxxxx',
+            secret='xxxxxxxxxxxxxxxxxx',
+            key='')
+
+    @override_settings(SOCIALACCOUNT_AUTO_SIGNUP=True,
+                       ACCOUNT_EMAIL_VERIFICATION='none')
+    def test_get_with_anonymous(self):
+        user = UserFactory.create(password='myPassword2016')
+
+        social_account = SocialAccount.objects.create(
+            user=user,
+            provider='facebook')
+
+        url = reverse(
+            'admin:account_disconnect',
+            kwargs={'account_id': social_account.id})
+        request = APIRequestFactory().get(url)
+        request.user = AnonymousUser()
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        self.social_app.sites.add(get_current_site(request))
+
+        response = self.view(request, account_id=social_account.id)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+        self.assertEqual(SocialAccount.objects.count(), 1)
+
+    @override_settings(SOCIALACCOUNT_AUTO_SIGNUP=True,
+                       ACCOUNT_EMAIL_VERIFICATION='none')
+    def test_get_with_user(self):
+        user = UserFactory.create(password='myPassword2016')
+
+        social_account = SocialAccount.objects.create(
+            user=user,
+            provider='facebook')
+
+        url = reverse(
+            'admin:account_disconnect',
+            kwargs={'account_id': social_account.id})
+        request = APIRequestFactory().get(url)
+        request.user = user
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        self.social_app.sites.add(get_current_site(request))
+
+        response = self.view(request, account_id=social_account.id)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+        self.assertEqual(SocialAccount.objects.count(), 0)
+
+        messages = get_messages(request)
+        msg = list(messages)[0]
+        self.assertEqual(msg.tags, 'success')
+        self.assertTrue(
+            'The account has been disconnected.' in msg.message)
+
+    @override_settings(SOCIALACCOUNT_AUTO_SIGNUP=True,
+                       ACCOUNT_EMAIL_VERIFICATION='none')
+    def test_get_with_user_when_not_personal_account(self):
+        user = UserFactory.create(password='myPassword2016')
+
+        social_account = SocialAccount.objects.create(
+            user=UserFactory.create(password='awesomePassword2016'),
+            provider='facebook')
+
+        url = reverse(
+            'admin:account_disconnect',
+            kwargs={'account_id': social_account.id})
+        request = APIRequestFactory().get(url)
+        request.user = user
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        self.social_app.sites.add(get_current_site(request))
+
+        response = self.view(request, account_id=social_account.id)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+        self.assertEqual(SocialAccount.objects.count(), 1)
+
+        messages = get_messages(request)
+        msg = list(messages)[0]
+        self.assertEqual(msg.tags, 'danger')
+        self.assertTrue(
+            'The account could not be found.' in msg.message)
+
+    @override_settings(SOCIALACCOUNT_AUTO_SIGNUP=True,
+                       ACCOUNT_EMAIL_VERIFICATION='none')
+    def test_get_with_user_when_not_exist(self):
+        user = UserFactory.create(password='myPassword2016')
+
+        SocialAccount.objects.create(
+            user=user,
+            provider='facebook')
+
+        url = reverse(
+            'admin:account_disconnect',
+            kwargs={'account_id': 1254548421148})
+        request = APIRequestFactory().get(url)
+        request.user = user
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        self.social_app.sites.add(get_current_site(request))
+
+        response = self.view(request, account_id=1254548421148)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+        self.assertEqual(SocialAccount.objects.count(), 1)
+
+        messages = get_messages(request)
+        msg = list(messages)[0]
+        self.assertEqual(msg.tags, 'danger')
+        self.assertTrue(
+            'The account could not be found.' in msg.message)
+
+    @override_settings(SOCIALACCOUNT_AUTO_SIGNUP=True,
+                       ACCOUNT_EMAIL_VERIFICATION='none')
+    def test_get_with_user_when_no_password(self):
+        user = UserFactory.create(password='')
+
+        social_account = SocialAccount.objects.create(
+            user=user,
+            provider='facebook')
+
+        url = reverse(
+            'admin:account_disconnect',
+            kwargs={'account_id': social_account.id})
+        request = APIRequestFactory().get(url)
+        request.user = user
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        self.social_app.sites.add(get_current_site(request))
+
+        response = self.view(request, account_id=social_account.id)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+        self.assertEqual(SocialAccount.objects.count(), 1)
+
+        messages = get_messages(request)
+        msg = list(messages)[0]
+        self.assertEqual(msg.tags, 'danger')
+        self.assertTrue(
+            'Your account has no password set up.' in msg.message)
+
+    @override_settings(SOCIALACCOUNT_AUTO_SIGNUP=True,
+                       ACCOUNT_EMAIL_VERIFICATION='mandatory')
+    def test_get_with_user_when_email_not_verified(self):
+        user = UserFactory.create(password='myPassword2016', )
+
+        social_account = SocialAccount.objects.create(
+            user=user,
+            provider='facebook')
+
+        url = reverse(
+            'admin:account_disconnect',
+            kwargs={'account_id': social_account.id})
+        request = APIRequestFactory().get(url)
+        request.user = user
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        self.social_app.sites.add(get_current_site(request))
+
+        response = self.view(request, account_id=social_account.id)
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+        self.assertEqual(SocialAccount.objects.count(), 1)
+
+        messages = get_messages(request)
+        msg = list(messages)[0]
+        self.assertEqual(msg.tags, 'danger')
+        self.assertTrue(
+            'Your account has no verified e-mail address.' in msg.message)
 
 
 # ############################################################################

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %} | Superuser tools: Manage inactive users{% endblock %}
+{% block title %} | Superuser tools - Manage inactive users{% endblock %}
 
 {% block main %}
 <div class="page-header">
@@ -17,7 +17,7 @@
         <form class="col-sm-12 col-md-12 col-lg-12" method="POST" action="{% url 'admin:superusertools_manage_inactive_users' %}">
             {% csrf_token %}
 
-            <h3 class="header">Manage inactive users</h3>
+            <h2 class="header">Manage inactive users</h2>
 
             {% if inactive_users|length %}
                 <p>Select users you would like to activate by manually confirming their email addresses:</p>

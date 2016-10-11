@@ -31,7 +31,7 @@ data-subset-id="{{ subset.id }}"
         <div class="col-sm-8">
             <h3 class="header">Subset settings</h3>
 
-            <form role="form" id="settings" method="POST" action="{% url 'admin:subset_settings' project.id subset.id %}" novalidate>
+            <form id="settings" method="POST" action="{% url 'admin:subset_settings' project.id subset.id %}" novalidate>
                 {% csrf_token %}
 
                 <div class="form-group">

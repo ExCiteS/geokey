@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
-
 {% block title %} | Your profile{% endblock %}
 
+{% load social %}
+
 {% block main %}
+{% get_social_apps as social_apps %}
 <div class="page-header">
     <div class="container">
         <h1>Your profile</h1>
@@ -10,12 +12,13 @@
 </div>
 
 <div class="container">
-    <div class="row">
-        <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-            <h3 class="header">Edit profile</h3>
-            {% include 'snippets/messages.html' %}
+    {% include 'snippets/messages.html' %}
 
-            <form role="form" action="{% url 'admin:userprofile' %}" method="POST" novalidate>
+    <div class="row">
+        <div class="col-md-6 {% if not social_apps %}col-sm-8 col-sm-offset-2 col-md-offset-3{% endif %}">
+            <h2 class="header">Profile information</h2>
+
+            <form action="{% url 'admin:userprofile' %}" method="POST" novalidate>
                 {% csrf_token %}
 
                 <div class="form-group {% if form.email.errors %}has-error{% endif %}">
@@ -31,11 +34,40 @@
                 </div>
 
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Update profile</button>
-                    <a type="button" href="{% url 'account_change_password' %}" class="btn btn-link">Change password</a>
+                    <button type="submit" class="btn btn-lg btn-primary">Update profile</button>
+                    <a type="button" href="{% url 'account_change_password' %}" class="btn btn-lg btn-link">{% if user.has_usable_password %}Change password{% else %}Set password{% endif %}</a>
                 </div>
             </form>
         </div>
+
+        {% if social_apps %}
+            <div class="col-md-6">
+                <h2 class="header">Connect social accounts</h2>
+
+                {% include 'snippets/social_apps.html' with process='connect' %}
+
+                {% if accounts %}
+                    <h2 class="header">Your connected accounts</h2>
+
+                    {% for account in accounts %}
+                        {% with account.get_provider_account as provider_account %}
+                            {% if forloop.first %}
+                                <ul class="list-unstyled overview-list social">
+                            {% endif %}
+
+                            <li>
+                                <strong>{{ provider_account }}</strong>
+                                <a role="button" href="{% url 'admin:account_disconnect' account.id %}" class="btn btn-sm btn-default pull-right">Disconnect</a>
+                            </li>
+
+                            {% if forloop.last %}
+                                </ul>
+                            {% endif %}
+                        {% endwith %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

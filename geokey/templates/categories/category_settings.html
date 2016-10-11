@@ -32,7 +32,7 @@ data-category-id="{{ category.id }}"
         <div class="col-sm-8">
             <h3 class="header">Category settings</h3>
 
-            <form role="form" method="POST" action="{% url 'admin:category_settings' category.project.id category.id %}" novalidate>
+            <form method="POST" action="{% url 'admin:category_settings' category.project.id category.id %}" novalidate>
                 {% csrf_token %}
 
                 <div class="form-group">
@@ -141,50 +141,50 @@ data-category-id="{{ category.id }}"
 
 {% block modals %}
 <div role="dialog" class="modal fade" id="make-inactive-confirm" tabindex="-1" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content panel-warning">
-			<div class="modal-header panel-heading">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				<h4 class="modal-title">Are you sure?</h4>
-			</div>
+    <div class="modal-dialog">
+        <div class="modal-content panel-warning">
+            <div class="modal-header panel-heading">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Are you sure?</h4>
+            </div>
 
-			<div class="modal-body panel-body">
-				<p><strong>Before you make the category inactive, please read through the consequences of this action:</strong></p>
+            <div class="modal-body panel-body">
+                <p><strong>Before you make the category inactive, please read through the consequences of this action:</strong></p>
 
-				<ul>
-					<li>Users will not be able to contribute new data using this category.</li>
-					<li>However, data already contributed using this contribution type can be edited and the input will be validated against the category.</li>
-				</ul>
-			</div>
+                <ul>
+                    <li>Users will not be able to contribute new data using this category.</li>
+                    <li>However, data already contributed using this contribution type can be edited and the input will be validated against the category.</li>
+                </ul>
+            </div>
 
-			<div class="modal-footer panel-footer">
-				<button type="button" name="confirm" value="{{ status_types.inactive }}" class="btn btn-warning" data-loading-text="Loading...">Yes, make the category inactive</button>
-			</div>
-		</div>
-	</div>
+            <div class="modal-footer panel-footer">
+                <button type="button" name="confirm" value="{{ status_types.inactive }}" class="btn btn-warning" data-loading-text="Loading...">Yes, make the category inactive</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div role="dialog" class="modal fade" id="make-active-confirm" tabindex="-1" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content panel-warning">
-			<div class="modal-header panel-heading">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				<h4 class="modal-title">Are you sure?</h4>
-			</div>
+    <div class="modal-dialog">
+        <div class="modal-content panel-warning">
+            <div class="modal-header panel-heading">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Are you sure?</h4>
+            </div>
 
-			<div class="modal-body panel-body">
-				<p><strong>Before you make the category active, please read through the consequences of this action:</strong></p>
+            <div class="modal-body panel-body">
+                <p><strong>Before you make the category active, please read through the consequences of this action:</strong></p>
 
-				<ul>
-					<li>The category can be used for data contribution and validation.</li>
-				</ul>
-			</div>
+                <ul>
+                    <li>The category can be used for data contribution and validation.</li>
+                </ul>
+            </div>
 
-			<div class="modal-footer panel-footer">
-				<button type="button" name="confirm" value="{{ status_types.active }}" class="btn btn-warning" data-loading-text="Loading...">Yes, make the category active</button>
-			</div>
-		</div>
-	</div>
+            <div class="modal-footer panel-footer">
+                <button type="button" name="confirm" value="{{ status_types.active }}" class="btn btn-warning" data-loading-text="Loading...">Yes, make the category active</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div role="dialog" class="modal fade" id="delete-confirm" tabindex="-1" aria-hidden="true">
@@ -196,7 +196,7 @@ data-category-id="{{ category.id }}"
             </div>
 
             <div class="modal-body panel-body">
-                <p><strong>Before you delete the category, please read through the consequences of this action.</strong></p>
+                <p><strong>Before you delete the category, please read through the consequences of this action:</strong></p>
 
                 <ul>
                     <li>Deleting a category cannot be undone.</li>
@@ -216,5 +216,4 @@ data-category-id="{{ category.id }}"
 <script src="/static/js/admin.ui.updater.js"></script>
 <script src="/static/js/admin.ui.forms.validate.js"></script>
 <script src="/static/js/admin.control.ajax.js"></script>
-</script>
 {% endblock %}

@@ -1,47 +1,68 @@
-{% extends "base.html" %}
-
+{% extends 'base.html' %}
+{% load social %}
 {% block title %} | Sign in{% endblock %}
-{% block bodydata %} class="login" {% endblock %}
 
 {% block main %}
+{% get_social_apps as social_apps %}
+<div class="page-header">
+    <div class="container">
+        <h1>Sign in</h1>
+    </div>
+</div>
+
 <div class="container">
-	<div class="row">
-		<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-			<h3 class="header">Sign in</h3>
-			{% include 'snippets/messages.html' %}
+    {% include 'snippets/messages.html' %}
 
-			{% if form.errors %}
-				<div class="alert alert-danger">
-					<p>We were unable to authenticate you. Either email or password are incorrect. Please try again.</p>
-				</div>
-			{% elif request.GET.next %}
-				<div class="alert alert-warning">
-					<p>Please sign in to continue.</p>
-				</div>
-			{% endif %}
+    {% if request.GET.next %}
+        <div class="alert alert-warning">
+            <p>Please sign in to continue.</p>
+        </div>
+    {% endif %}
 
-			<form role="form" action="{% url 'account_login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}" method="POST" novalidate>
-				{% csrf_token %}
-				<input type="hidden" name="next" value="{{ request.REQUEST.next }}" />
+    <div class="row">
+        <div class="col-md-6 {% if not social_apps %}col-sm-8 col-sm-offset-2 col-md-offset-3{% endif %}">
+            <h2 class="header">Sign in with email address</h2>
 
-				<div class="form-group {% if form.login.errors %}has-error{% endif %}">
-					<label for="login">Email address</label>
-					<input type="email" class="form-control input-lg" id="login" name="login" value="{{ form.data.login }}" required />
-				</div>
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <p>We were unable to authenticate you. Either your email address or password are incorrect. Please try again.</p>
+                </div>
+            {% endif %}
 
-				<div class="form-group {% if form.password.errors %}has-error{% endif %}">
-					<label for="inputPassword">Password</label>
-					<input type="password" class="form-control input-lg" id="password" name="password" value="{{ form.data.password }}" required />
-				</div>
+            <form action="{% url 'account_login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}" method="POST" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.REQUEST.next }}" />
 
-				<div class="form-group">
-					<button type="submit" class="btn btn-primary">Sign in</button>
-				</div>
-			</form>
+                <div class="form-group {% if form.login.errors %}has-error{% endif %}">
+                    <label for="login">Email address</label>
+                    <input type="email" class="form-control input-lg" id="login" name="login" value="{{ form.data.login }}" required />
+                </div>
 
-			<div class="well text-center">Not a member yet? Please <a href="{% url 'account_signup' %}">sign up here</a> &bull; <a href="{% url 'account_reset_password' %}">Forgot password?</a></div>
-		</div>
-	</div>
+                <div class="form-group {% if form.password.errors %}has-error{% endif %}">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control input-lg" id="password" name="password" value="{{ form.data.password }}" required />
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-lg btn-primary">Sign me in</button>
+                    <a role="button" href="{% url 'account_reset_password' %}" class="btn btn-lg btn-link">Forgot Password?</a>
+                </div>
+            </form>
+        </div>
+
+        {% if social_apps %}
+            <div class="col-md-6">
+                <h2 class="header">Sign in with social account</h2>
+                {% include 'snippets/social_apps.html' with process='login' %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <p>Don't have an account yet? Please {% if social_apps %}use your social account, or {% endif %}<a href="{% url 'account_signup' %}">sign up using an email address</a>.</p>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
