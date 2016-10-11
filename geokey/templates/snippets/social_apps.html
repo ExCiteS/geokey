@@ -1,0 +1,11 @@
+{% load socialaccount %}
+
+{% if social_apps %}
+    <div class="list-group social">
+        {% for social_app in social_apps %}
+            <a role="button" href="{% provider_login_url social_app.provider.id process=process scope=scope auth_params=auth_params %}" class="list-group-item">
+                <strong>{{ social_app.name }}</strong>
+            </a>
+        {% endfor %}
+    </div>
+{% endif %}

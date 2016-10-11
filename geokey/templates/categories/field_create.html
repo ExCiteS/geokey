@@ -23,24 +23,24 @@ data-category-id="{{ category.id }}"
 <div class="container">
     {% include 'snippets/messages.html' %}
 
-	<div class="row">
-		<form role="form" class="col-md-8 col-md-offset-2" method="POST" action="#" novalidate>
+    <div class="row">
+        <form class="col-md-8 col-md-offset-2" method="POST" action="#" novalidate>
             {% csrf_token %}
 
-			<h3 class="header">
+            <h3 class="header">
                 {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
                 <span>Create new field</span>
             </h3>
 
-			<div class="form-group">
-				<label for="name" class="control-label">Name (required)</label>
-				<input type="text" class="form-control input-lg" id="name" name="name" maxlength="100" required {%if data %}value="{{ data.name }}"{% endif %} />
-			</div>
+            <div class="form-group">
+                <label for="name" class="control-label">Name (required)</label>
+                <input type="text" class="form-control input-lg" id="name" name="name" maxlength="100" required {%if data %}value="{{ data.name }}"{% endif %} />
+            </div>
 
-			<div class="form-group">
-				<label for="description" class="control-label">Description</label>
-				<textarea class="form-control input-lg" rows="5" id="description" name="description" {%if data %}value="{{ data.description }}"{% endif %}></textarea>
-			</div>
+            <div class="form-group">
+                <label for="description" class="control-label">Description</label>
+                <textarea class="form-control input-lg" rows="5" id="description" name="description" {%if data %}value="{{ data.description }}"{% endif %}></textarea>
+            </div>
 
             <div class="form-group">
                 <div class="checkbox">
@@ -51,15 +51,15 @@ data-category-id="{{ category.id }}"
                 </div>
             </div>
 
-			<div class="form-group">
-				<label for="status" class="control-label">Type</label>
-				<select name="type" id="type" class="form-control" required>
-					<option value="">Please select the data type of the field.</option>
-					{% for field in fieldtypes %}
-						<option value="{{ field.fieldtype }}" {% if data.type == field.fieldtype %}selected{% endif %}>{{ field.type_name }}</option>
-					{% endfor %}
-				</select>
-			</div>
+            <div class="form-group">
+                <label for="status" class="control-label">Type</label>
+                <select name="type" id="type" class="form-control" required>
+                    <option value="">Please select the data type of the field.</option>
+                    {% for field in fieldtypes %}
+                        <option value="{{ field.fieldtype }}" {% if data.type == field.fieldtype %}selected{% endif %}>{{ field.type_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
             <div class="row hidden field-special" id="text">
                 <div class="form-group col-sm-12">
@@ -77,7 +77,7 @@ data-category-id="{{ category.id }}"
                 </div>
             </div>
 
-			<div class="row hidden field-special" id="minmax">
+            <div class="row hidden field-special" id="minmax">
                 <div class="form-group col-sm-6">
                     <label for="minval" class="control-label">Minimum value</label>
                     <input type="number" step="0.001" class="form-control" id="minval" name="minval" placeholder="e.g.; 1.642" />
@@ -97,12 +97,12 @@ data-category-id="{{ category.id }}"
                 </div>
             </div>
 
-			<div class="form-group">
-				<button type="submit" class="btn btn-primary">Save</button>
-                <a href="{% url 'admin:category_overview' project.id category.id %}" class="btn btn-link" role="button">Cancel</a>
-			</div>
-		</form>
-	</div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a role="button" href="{% url 'admin:category_overview' project.id category.id %}" class="btn btn-link">Cancel</a>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}
 

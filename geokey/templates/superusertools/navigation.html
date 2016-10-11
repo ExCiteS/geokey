@@ -1,4 +1,4 @@
-<ul class="nav nav-tabs header-nav">
+<ul role="navigation" class="nav nav-tabs header-nav">
     <li role="presentation" class="{% if request.resolver_match.url_name == 'superusertools_manage_superusers' %}active{% endif %}">
         <a href="{% url 'admin:superusertools_manage_superusers' %}">Manage superusers</a>
     </li>
@@ -13,5 +13,9 @@
 
     <li role="presentation" class="{% if request.resolver_match.url_name == 'superusertools_platform_settings' %}active{% endif %}">
         <a href="{% url 'admin:superusertools_platform_settings' %}">Platform settings</a>
+    </li>
+
+    <li role="presentation" class="{% if 'superusertools_provider' in request.resolver_match.url_name %}active{% endif %}">
+        <a href="{% url 'admin:superusertools_provider_list' %}">Providers</a>
     </li>
 </ul>

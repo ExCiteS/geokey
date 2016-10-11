@@ -47,7 +47,7 @@ data-usergroup-id="{{ usergroup.id }}"
 
             {% if usergroup.project.isprivate %}
                 {% if project.categories.all %}
-                    <form role="form" id="data-access" method="POST" action="{% url 'admin:usergroup_data' project.id usergroup.id %}" novalidate>
+                    <form id="data-access" method="POST" action="{% url 'admin:usergroup_data' project.id usergroup.id %}" novalidate>
                         {% csrf_token %}
 
                         <input type="hidden" name="filters" value="-1">

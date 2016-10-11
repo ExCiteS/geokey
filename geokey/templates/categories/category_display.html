@@ -31,7 +31,7 @@ data-category-id="{{ category.id }}"
         <div class="col-sm-8">
             <h3 class="header">Category display</h3>
 
-            <form role="form" method="POST" action="{% url 'admin:category_display' category.project.id category.id %}" enctype="multipart/form-data" novalidate>
+            <form method="POST" action="{% url 'admin:category_display' category.project.id category.id %}" enctype="multipart/form-data" novalidate>
                 {% csrf_token %}
 
                 <input type="hidden" name="clear-symbol" id="symbol-clear" value="false">

@@ -7,6 +7,8 @@ from django.contrib.sites.shortcuts import get_current_site
 
 from braces.views import LoginRequiredMixin
 from allauth.account.models import EmailAddress
+from allauth.socialaccount import providers
+from allauth.socialaccount.models import SocialApp
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -85,6 +87,7 @@ class ManageInactiveUsers(LoginRequiredMixin, SuperuserMixin, TemplateView):
         if inactive_users:
             active_users = inactive_users.filter(
                 id__in=data.getlist('activate_users'))
+            in_total = len(active_users)
 
             for email in EmailAddress.objects.filter(user__in=active_users):
                 email.verified = True
@@ -94,8 +97,7 @@ class ManageInactiveUsers(LoginRequiredMixin, SuperuserMixin, TemplateView):
             active_users.update(is_active=True)
             messages.success(
                 self.request,
-                '%s users were activated.' % len(active_users)
-            )
+                '%s user(s) has been activated.' % in_total)
             context['inactive_users'] = User.objects.filter(is_active=False)
 
         return self.render_to_response(context)
@@ -186,6 +188,121 @@ class PlatformSettings(LoginRequiredMixin, SuperuserMixin, TemplateView):
                 'Platform settings have been updated.'
             )
             context['site'] = site
+
+        return self.render_to_response(context)
+
+
+class ProviderList(LoginRequiredMixin, SuperuserMixin, TemplateView):
+    """A list of all providers page."""
+
+    template_name = 'superusertools/provider_list.html'
+
+    def get_context_data(self):
+        """
+        Return the context to render the view.
+
+        Add all providers to the context.
+
+        Returns
+        -------
+        dict
+        """
+        return {'providers': providers.registry.get_list()}
+
+
+class ProviderContext(LoginRequiredMixin, SuperuserMixin):
+    """Context mixin that adds a provider to render the template."""
+
+    def get_context_data(self, provider_id, *args, **kwargs):
+        """
+        Return the context to render the view.
+
+        Add a provider and optional social app to the context.
+
+        Parameters
+        ----------
+        provider_id : str
+            Identifies the provider in the list of available providers.
+
+        Returns
+        -------
+        dict
+        """
+        try:
+            provider = providers.registry.by_id(provider_id)
+
+            try:
+                social_app = SocialApp.objects.get_current(
+                    provider.id,
+                    self.request
+                )
+            except SocialApp.DoesNotExist:
+                social_app = None
+
+            return super(ProviderContext, self).get_context_data(
+                provider=provider,
+                social_app=social_app,
+                *args,
+                **kwargs
+            )
+        except:
+            return {
+                'error': 'Not found.',
+                'error_description': 'Provider not found.'
+            }
+
+
+class ProviderOverview(ProviderContext, TemplateView):
+    """Overview of a provider page."""
+
+    template_name = 'superusertools/provider_overview.html'
+
+    def post(self, request, provider_id):
+        """
+        Handle POST request.
+
+        Update or enable the social app.
+
+        Parameters
+        ----------
+        request : django.http.HttpRequest
+            Object representing the request.
+        provider_id : str
+            Identifies the provider in the list of available providers.
+
+        Returns
+        -------
+        django.http.HttpResponse
+        """
+        data = request.POST
+        context = self.get_context_data(provider_id)
+        provider = context.get('provider')
+        social_app = context.get('social_app')
+
+        if social_app:
+            social_app.client_id = data.get('client_id')
+            social_app.secret = data.get('secret')
+            social_app.key = data.get('key')
+            social_app.save()
+            messages.success(
+                self.request,
+                'Provider has been updated.'
+            )
+        else:
+            social_app = SocialApp.objects.create(
+                provider=provider.id,
+                name=provider.name,
+                client_id=data.get('client_id'),
+                secret=data.get('secret'),
+                key=data.get('key')
+            )
+            social_app.sites.add(get_current_site(request))
+            messages.success(
+                self.request,
+                'Provider has been activated.'
+            )
+
+        context['social_app'] = social_app
 
         return self.render_to_response(context)
 

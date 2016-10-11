@@ -6,15 +6,15 @@ from django.views.generic.base import RedirectView
 
 from geokey.projects import views as project_views
 from geokey.categories import views as category_views
-from geokey.users import views as login_views
+from geokey.users import views as user_views
 from geokey.applications import views as app_views
 from geokey.superusertools import views as superusertools
 from geokey.subsets import views as subsets
 
 
 urlpatterns = [
-    url(r'^$', login_views.Index.as_view(), name='index'),
-    url(r'^dashboard/$', login_views.Dashboard.as_view(), name='dashboard'),
+    url(r'^$', user_views.Index.as_view(), name='index'),
+    url(r'^dashboard/$', user_views.Dashboard.as_view(), name='dashboard'),
 
     # ###########################
     # PROJECTS
@@ -51,42 +51,42 @@ urlpatterns = [
     url(
         r'^projects/(?P<project_id>[0-9]+)/'
         r'usergroups/$',
-        login_views.UserGroupList.as_view(),
+        user_views.UserGroupList.as_view(),
         name='usergroup_list'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/'
         r'usergroups/new/$',
-        login_views.UserGroupCreate.as_view(),
+        user_views.UserGroupCreate.as_view(),
         name='usergroup_create'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/'
         r'usergroups/(?P<usergroup_id>[0-9]+)/$',
-        login_views.UserGroupOverview.as_view(),
+        user_views.UserGroupOverview.as_view(),
         name='usergroup_overview'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/'
         r'usergroups/administrators/$',
-        login_views.AdministratorsOverview.as_view(),
+        user_views.AdministratorsOverview.as_view(),
         name='admins_overview'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/'
         r'usergroups/(?P<usergroup_id>[0-9]+)/permissions/$',
-        login_views.UserGroupPermissions.as_view(),
+        user_views.UserGroupPermissions.as_view(),
         name='usergroup_permissions'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/'
         r'usergroups/(?P<usergroup_id>[0-9]+)/settings/$',
-        login_views.UserGroupSettings.as_view(),
+        user_views.UserGroupSettings.as_view(),
         name='usergroup_settings'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/'
         r'usergroups/(?P<usergroup_id>[0-9]+)/delete/$',
-        login_views.UserGroupDelete.as_view(),
+        user_views.UserGroupDelete.as_view(),
         name='usergroup_delete'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/'
         r'usergroups/(?P<usergroup_id>[0-9]+)/data/$',
-        login_views.UserGroupData.as_view(),
+        user_views.UserGroupData.as_view(),
         name='usergroup_data'),
 
     # ###########################
@@ -197,8 +197,11 @@ urlpatterns = [
     # USERS
     # ###########################
     url(r'^profile/$',
-        login_views.UserProfile.as_view(),
-        name="userprofile"),
+        user_views.UserProfile.as_view(),
+        name='userprofile'),
+    url(r'^accounts/(?P<account_id>[0-9]+)/disconnect/$',
+        user_views.AccountDisconnect.as_view(),
+        name='account_disconnect'),
 
     # ###########################
     # SUPERUSER TOOLS
@@ -220,4 +223,10 @@ urlpatterns = [
     url(r'^superuser-tools/platform-settings/$',
         superusertools.PlatformSettings.as_view(),
         name='superusertools_platform_settings'),
+    url(r'^superuser-tools/providers/$',
+        superusertools.ProviderList.as_view(),
+        name='superusertools_provider_list'),
+    url(r'^superuser-tools/providers/(?P<provider_id>[\w-]+)/$',
+        superusertools.ProviderOverview.as_view(),
+        name='superusertools_provider_overview'),
 ]

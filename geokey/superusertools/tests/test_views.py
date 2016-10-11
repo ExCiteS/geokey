@@ -1,6 +1,10 @@
 """Tests for views of superuser tools."""
 
+from collections import OrderedDict
+
 from django.test import TestCase
+from django.conf import settings
+from django.apps import apps
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpRequest, QueryDict
 from django.template.loader import render_to_string
@@ -10,7 +14,9 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
 
+from allauth.compat import importlib
 from allauth.account.models import EmailAddress
+from allauth.socialaccount.models import SocialApp
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from geokey import version
@@ -29,6 +35,8 @@ from geokey.superusertools.views import (
     ManageInactiveUsers,
     ManageProjects,
     PlatformSettings,
+    ProviderList,
+    ProviderOverview,
     SuperusersAjaxView,
     SingleSuperuserAjaxView
 )
@@ -397,6 +405,10 @@ class PlatformSettingsTest(TestCase):
         response = view(request).render()
 
         self.assertEqual(response.status_code, 200)
+        self.assertNotContains(
+            response,
+            'No rights to access superuser tools.'
+        )
 
     def test_post_with_anonymous(self):
         """Test POST with anonymous user."""
@@ -459,6 +471,285 @@ class PlatformSettingsTest(TestCase):
         reference = Site.objects.latest('id')
         self.assertEqual(reference.name, data.get('name'))
         self.assertEqual(reference.domain, data.get('domain'))
+
+
+class ProviderListTest(TestCase):
+    """Test a list of all providers page."""
+
+    def setUp(self):
+        """Set up test."""
+        self.url = reverse('admin:superusertools_provider_list')
+
+    def test_get_context_data(self):
+        """Test getting context data."""
+        view = ProviderList()
+        view.request = APIRequestFactory().get(self.url)
+        context = view.get_context_data()
+
+        self.assertIsNotNone(context.get('providers'))
+
+    def test_get_with_anonymous(self):
+        """Test GET with anonymous user."""
+        view = ProviderList.as_view()
+        request = APIRequestFactory().get(self.url)
+        request.user = AnonymousUser()
+        view.request = request
+        response = view(request)
+
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+    def test_get_with_user(self):
+        """Test GET with user."""
+        view = ProviderList.as_view()
+        request = APIRequestFactory().get(self.url)
+        request.user = UserFactory.create(**{'is_superuser': False})
+        view.request = request
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'No rights to access superuser tools.'
+        )
+
+    def test_get_with_superuser(self):
+        """Test GET with superuser."""
+        view = ProviderList.as_view()
+        request = APIRequestFactory().get(self.url)
+        request.user = UserFactory.create(**{'is_superuser': True})
+        view.request = request
+        response = view(request).render()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(
+            response,
+            'No rights to access superuser tools.'
+        )
+
+
+class ProviderOverviewTest(TestCase):
+    """Test overview of a provider page."""
+
+    def setUp(self):
+        """Set up test."""
+        google_provider = 'allauth.socialaccount.providers.google'
+        if google_provider not in settings.INSTALLED_APPS:
+            settings.INSTALLED_APPS += (google_provider,)
+            apps.app_configs = OrderedDict()
+            apps.ready = False
+            apps.populate(settings.INSTALLED_APPS)
+            importlib.import_module(google_provider + '.provider')
+
+        self.url = reverse(
+            'admin:superusertools_provider_overview',
+            kwargs={'provider_id': 'google'}
+        )
+
+    def test_get_context_data_when_social_app_doesnt_exist(self):
+        """Test getting context data when social app doesn't exist."""
+        view = ProviderOverview()
+        view.request = APIRequestFactory().get(self.url)
+
+        social_app = SocialApp.objects.create(
+            provider='facebook',
+            name='Facebook',
+            client_id='xxxxxxxxxxxxxxxxxx',
+            secret='xxxxxxxxxxxxxxxxxx',
+            key=''
+        )
+        social_app.sites.add(get_current_site(view.request))
+
+        context = view.get_context_data('google')
+
+        self.assertIsNotNone(context.get('provider'))
+        self.assertIsNone(context.get('social_app'))
+
+    def test_get_context_data_when_social_app_exists(self):
+        """Test getting context data when social app exists."""
+        view = ProviderOverview()
+        view.request = APIRequestFactory().get(self.url)
+
+        social_app = SocialApp.objects.create(
+            provider='google',
+            name='Google',
+            client_id='xxxxxxxxxxxxxxxxxx',
+            secret='xxxxxxxxxxxxxxxxxx',
+            key=''
+        )
+        social_app.sites.add(get_current_site(view.request))
+
+        context = view.get_context_data('google')
+
+        self.assertIsNotNone(context.get('provider'))
+        self.assertEqual(context.get('social_app'), social_app)
+
+    def test_get_context_data_when_social_app_exists_on_wrong_site(self):
+        """Test getting context data when social app exists on wrong site."""
+        view = ProviderOverview()
+        view.request = APIRequestFactory().get(self.url)
+
+        SocialApp.objects.create(
+            provider='google',
+            name='Google',
+            client_id='xxxxxxxxxxxxxxxxxx',
+            secret='xxxxxxxxxxxxxxxxxx',
+            key=''
+        )
+
+        context = view.get_context_data('google')
+
+        self.assertIsNotNone(context.get('provider'))
+        self.assertIsNone(context.get('social_app'))
+
+    def test_get_context_data_when_provider_doesnt_exist(self):
+        """Test getting context data when provider doesn't exist."""
+        url = reverse(
+            'admin:superusertools_provider_overview',
+            kwargs={'provider_id': 'myawesomeprovider'}
+        )
+        view = ProviderOverview.as_view()
+        request = APIRequestFactory().get(url)
+        request.user = UserFactory.create(**{'is_superuser': True})
+        view.request = request
+        response = view(request, provider_id='myawesomeprovider').render()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'Provider not found.'
+        )
+
+    def test_get_with_anonymous(self):
+        """Test GET with anonymous user."""
+        view = ProviderOverview.as_view()
+        request = APIRequestFactory().get(self.url)
+        request.user = AnonymousUser()
+        view.request = request
+        response = view(request, provider_id='google')
+
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+
+    def test_get_with_user(self):
+        """Test GET with user."""
+        view = ProviderOverview.as_view()
+        request = APIRequestFactory().get(self.url)
+        request.user = UserFactory.create(**{'is_superuser': False})
+        view.request = request
+        response = view(request, provider_id='google').render()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'No rights to access superuser tools.'
+        )
+
+    def test_get_with_superuser(self):
+        """Test GET with superuser."""
+        view = ProviderOverview.as_view()
+        request = APIRequestFactory().get(self.url)
+        request.user = UserFactory.create(**{'is_superuser': True})
+        view.request = request
+        response = view(request, provider_id='google').render()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(
+            response,
+            'No rights to access superuser tools.'
+        )
+
+    def test_post_with_anonymous(self):
+        """Test POST with anonymous user."""
+        data = {
+            'client_id': 'xxxxxxxxxxxxxxxxxx',
+            'secret': 'xxxxxxxxxxxxxxxxxx',
+            'key': ''
+        }
+        view = ProviderOverview.as_view()
+        request = APIRequestFactory().post(self.url, data)
+        request.user = AnonymousUser()
+        view.request = request
+        response = view(request, provider_id='google')
+
+        self.assertTrue(isinstance(response, HttpResponseRedirect))
+        self.assertEqual(SocialApp.objects.count(), 0)
+
+    def test_post_with_user(self):
+        """Test POST with user."""
+        data = {
+            'client_id': 'xxxxxxxxxxxxxxxxxx',
+            'secret': 'xxxxxxxxxxxxxxxxxx',
+            'key': ''
+        }
+        view = ProviderOverview.as_view()
+        request = APIRequestFactory().post(self.url, data)
+        request.user = UserFactory.create(**{'is_superuser': False})
+        view.request = request
+        response = view(request, provider_id='google').render()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'No rights to access superuser tools.'
+        )
+        self.assertEqual(SocialApp.objects.count(), 0)
+
+    def test_post_with_superuser_when_activating(self):
+        """Test POST with superuser."""
+        data = {
+            'client_id': 'xxxxxxxxxxxxxxxxxx',
+            'secret': 'xxxxxxxxxxxxxxxxxx',
+            'key': ''
+        }
+        view = ProviderOverview.as_view()
+        request = APIRequestFactory().post(self.url, data)
+        request.user = UserFactory.create(**{'is_superuser': True})
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = view(request, provider_id='google').render()
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Provider has been activated.')
+
+        reference = SocialApp.objects.latest('id')
+        self.assertEqual(reference.client_id, data.get('client_id'))
+        self.assertEqual(reference.secret, data.get('secret'))
+        self.assertEqual(reference.key, data.get('key'))
+
+    def test_post_with_superuser_when_updating(self):
+        """Test POST with superuser."""
+        data = {
+            'client_id': 'xxxxxxxxxxxxxxxxxx',
+            'secret': 'xxxxxxxxxxxxxxxxxx',
+            'key': ''
+        }
+        view = ProviderOverview.as_view()
+        request = APIRequestFactory().post(self.url, data)
+        request.user = UserFactory.create(**{'is_superuser': True})
+
+        social_app = SocialApp.objects.create(
+            provider='google',
+            name='Google',
+            client_id='yyyyyyyyyyyyyyyyyy',
+            secret='yyyyyyyyyyyyyyyyyy',
+            key=''
+        )
+        social_app.sites.add(get_current_site(request))
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = view(request, provider_id='google').render()
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Provider has been updated.')
+        self.assertEqual(SocialApp.objects.latest('id'), social_app)
+
+        reference = SocialApp.objects.get(pk=social_app.id)
+        self.assertEqual(reference.client_id, data.get('client_id'))
+        self.assertEqual(reference.secret, data.get('secret'))
+        self.assertEqual(reference.key, data.get('key'))
 
 
 # #############################################################################

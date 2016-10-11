@@ -4,9 +4,11 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
 from django.utils import timezone
+from django.dispatch import receiver
 
 from django_pgjson.fields import JsonBField
 from oauth2_provider.models import AccessToken
+from allauth.account.signals import email_confirmed
 
 from geokey.core.mixins import FilterMixin
 from .managers import UserManager
@@ -51,6 +53,13 @@ class User(AbstractBaseUser):
         self.set_password(password)
         self.save()
         AccessToken.objects.filter(user=self).delete()
+
+
+@receiver(email_confirmed)
+def set_user_active(sender, **kwargs):
+    email_address = kwargs.get('email_address')
+    email_address.user.is_active = True
+    email_address.user.save()
 
 
 class UserGroup(FilterMixin, models.Model):

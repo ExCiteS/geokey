@@ -41,7 +41,7 @@ INSTALLED_APPS = (
     'django.contrib.gis',
     'django.contrib.sites',
 
-    # third-party apps
+    # Third-party apps
     'django_hstore',
     'oauth2_provider',
     'easy_thumbnails',
@@ -117,6 +117,7 @@ LOGIN_URL = '/admin/account/login/'
 
 # django-allauth settings
 # see: http://django-allauth.readthedocs.org/en/latest/configuration.html
+ACCOUNT_ADAPTER = 'geokey.core.adapters.AccountAdapter'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/admin/account/login/'
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'display_name'
 ACCOUNT_EMAIL_REQUIRED = True
@@ -131,6 +132,10 @@ ACCOUNT_FORMS = {
     'change_password': 'geokey.users.forms.CustomPasswordChangeForm',
     'reset_password_from_key': 'geokey.users.forms.CustomResetPasswordKeyForm'
 }
+SOCIALACCOUNT_ADAPTER = 'geokey.core.adapters.SocialAccountAdapter'
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_PROVIDERS = {}
+
 
 SITE_ROOT = dirname(dirname(dirname(abspath(__file__))))
 STATICFILES_DIRS = [join(SITE_ROOT, 'static')]

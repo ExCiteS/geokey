@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %} | Superuser tools: Platform settings{% endblock %}
+{% block title %} | Superuser tools - Platform settings{% endblock %}
 
 {% block main %}
 <div class="page-header">
@@ -14,11 +14,11 @@
     {% include 'snippets/messages.html' %}
 
     <div class="row">
-        <div class="col-md-8 col-md-offset-2">
-            <h3 class="header">Platform settings</h3>
-
+        <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
             <form method="POST" action="{% url 'admin:superusertools_platform_settings' %}" novalidate>
                 {% csrf_token %}
+
+                <h2 class="header">General settings</h2>
 
                 <div class="form-group">
                     <label for="name">Name</label>
@@ -26,7 +26,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="name">Domain</label>
+                    <label for="domain">Domain</label>
                     <input type="url" id="domain" class="form-control input-lg" name="domain" maxlength="100" value="{{ site.domain }}" required />
                 </div>
 

@@ -46,7 +46,7 @@ data-subset-id="{{ subset.id }}"
             {% endif %}
 
             {% if project.categories.all %}
-                <form role="form" id="data-access" method="POST" action="{% url 'admin:subset_data' project.id subset.id %}" novalidate>
+                <form id="data-access" method="POST" action="{% url 'admin:subset_data' project.id subset.id %}" novalidate>
                     {% csrf_token %}
 
                     <input type="hidden" name="filters" value="-1">

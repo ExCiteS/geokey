@@ -15,7 +15,7 @@
 
 <div class="container">
     <div class="row">
-        <form role="form" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url "oauth2:authorize" %}" novalidate>
+        <form class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" method="POST" action="{% url "oauth2:authorize" %}" novalidate>
             <h3 class="header">Authorize application {{ client.name }}</h3>
             {% csrf_token %}
             <p>{{ client.name }} would like to access your data with the following permissions:</p>
