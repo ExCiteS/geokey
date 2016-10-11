@@ -19,21 +19,27 @@
         <div class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
-                    {% if not user.is_anonymous %}
-                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                            <span class="sr-only">Toggle menu navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                    {% endif %}
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle menu navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
 
                     <a class="navbar-brand" href="/admin/">{{ PLATFORM_NAME }}</a>
                 </div>
 
-                {% if not user.is_anonymous %}
-                    <nav class="navbar-collapse collapse">
-                        <ul class="nav navbar-nav navbar-right">
+
+                <nav class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="http://geokey.org.uk/help/">
+                                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                                <span>Help</span>
+                            </a>
+                        </li>
+
+                        {% if not user.is_anonymous %}
                             <li>
                                 <a href="{% url 'admin:dashboard'%}">
                                     <span class="glyphicon glyphicon-th" aria-hidden="true"></span>
@@ -54,9 +60,9 @@
                                     <span>Sign out</span>
                                 </a>
                             </li>
-                        </ul>
-                    </nav>
-                {% endif %}
+                        {% endif %}
+                    </ul>
+                </nav>
             </div>
         </div>
 
