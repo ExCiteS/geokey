@@ -1,6 +1,7 @@
 """Tests for views of superuser tools."""
 
 from django.test import TestCase
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpRequest, QueryDict
 from django.template.loader import render_to_string
@@ -527,6 +528,10 @@ class ProviderOverviewTest(TestCase):
 
     def setUp(self):
         """Set up test."""
+        google_provider = 'allauth.socialaccount.providers.google'
+        if google_provider not in settings.INSTALLED_APPS:
+            settings.INSTALLED_APPS += (google_provider,)
+
         self.url = reverse(
             'admin:superusertools_provider_overview',
             kwargs={'provider_id': 'google'}
