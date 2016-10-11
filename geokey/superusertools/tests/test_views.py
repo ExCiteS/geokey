@@ -1,7 +1,10 @@
 """Tests for views of superuser tools."""
 
+from collections import OrderedDict
+
 from django.test import TestCase
 from django.conf import settings
+from django.apps import apps
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpRequest, QueryDict
 from django.template.loader import render_to_string
@@ -11,6 +14,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
 
+from allauth.compat import importlib
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialApp
 from rest_framework.test import APIRequestFactory, force_authenticate
@@ -531,6 +535,10 @@ class ProviderOverviewTest(TestCase):
         google_provider = 'allauth.socialaccount.providers.google'
         if google_provider not in settings.INSTALLED_APPS:
             settings.INSTALLED_APPS += (google_provider,)
+            apps.app_configs = OrderedDict()
+            apps.ready = False
+            apps.populate(settings.INSTALLED_APPS)
+            importlib.import_module(google_provider + '.provider')
 
         self.url = reverse(
             'admin:superusertools_provider_overview',
