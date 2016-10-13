@@ -49,17 +49,17 @@ class UserSerializer(FieldSelectorSerializer):
 
     def validate_display_name(self, value):
         """
-        Checks if the display name already exists
+        Check if the display name already exists.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         value : str
-            Display name to be examined
+            Display name to be examined.
 
         Returns
         -------
         str
-            The display name
+            The display name.
 
         Raises
         ------
