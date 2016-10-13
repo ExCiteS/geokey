@@ -1,18 +1,51 @@
 """Serializers for users."""
 
+from allauth.socialaccount.models import SocialAccount
 from rest_framework.serializers import ModelSerializer, ValidationError
+from rest_framework import serializers
 
 from geokey.core.serializers import FieldSelectorSerializer
 from .models import User, UserGroup
+
+
+class SocialAccountSerializer(FieldSelectorSerializer):
+    """
+    Serializer for SocialAccount model.
+    """
+
+    class Meta:
+        model = SocialAccount
+        fields = ('id', 'provider')
 
 
 class UserSerializer(FieldSelectorSerializer):
     """
     Serializer for User model.
     """
+
+    social_accounts = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ('id', 'email', 'display_name')
+        fields = ('id', 'email', 'display_name','social_accounts')
+
+    def get_social_accounts(self, value):
+        """
+        Get social account information for the user.
+
+        Parameters
+        ----------
+        value : str
+            Display name to be examined.
+
+        Returns
+        -------
+        list
+            The social account information.
+        """
+        serializer = SocialAccountSerializer(
+            value.socialaccount_set.all(), many=True)
+        return serializer.data
 
     def validate_display_name(self, value):
         """
