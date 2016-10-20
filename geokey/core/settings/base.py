@@ -136,9 +136,8 @@ SOCIALACCOUNT_ADAPTER = 'geokey.core.adapters.SocialAccountAdapter'
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_PROVIDERS = {}
 
-
 SITE_ROOT = dirname(dirname(dirname(abspath(__file__))))
-STATICFILES_DIRS = [join(SITE_ROOT, 'static')]
+STATICFILES_DIRS = [normpath(join(SITE_ROOT, 'static'))]
 
 ROOT_URLCONF = 'geokey.core.urls'
 
