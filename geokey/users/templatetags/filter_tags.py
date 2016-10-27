@@ -2,6 +2,8 @@
 
 from django import template
 
+from geokey.categories.models import Field
+
 register = template.Library()
 
 
@@ -40,14 +42,19 @@ def show_fields(filters, category):
         context = {
             'locked': category.project.islocked,
             'min_date': cat_rules.pop('min_date', None),
-            'max_date': cat_rules.pop('max_date', None)
+            'max_date': cat_rules.pop('max_date', None),
+            'fields': [],
         }
 
-        context['fields'] = [{
-            'category_id': category.id,
-            'field': category.fields.get_subclass(key=key),
-            'rule': cat_rules[key]
-        } for key in cat_rules]
+        for key in cat_rules:
+            try:
+                context['fields'].append({
+                    'category_id': category.id,
+                    'field': category.fields.get_subclass(key=key),
+                    'rule': cat_rules[key],
+                })
+            except Field.DoesNotExist:
+                pass
 
         return context
 
