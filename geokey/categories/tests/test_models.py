@@ -104,6 +104,29 @@ class CategoryTest(TestCase):
         ref = UserGroup.objects.get(pk=group.id)
         self.assertEqual(ref.filters, {str(category_2.id): {}})
 
+    def test_get_query_when_field_does_not_exist(self):
+        category = CategoryFactory.create()
+        field = NumericFieldFactory.create(
+            **{'key': 'number', 'category': category})
+
+        query = category.get_query({
+            'number': {'minval': 20}
+        })
+        self.assertEqual(
+            query,
+            "((category_id = %s) AND (cast(prop"
+            "erties ->> 'number' as double precision) >= 20))" % category.id
+        )
+
+        category.fields.get(pk=field.id).delete()
+        query = category.get_query({
+            'number': {'minval': 20}
+        })
+        self.assertEqual(
+            query,
+            "((category_id = %s))" % category.id
+        )
+
     def test_get_query(self):
         category = CategoryFactory.create()
         query = category.get_query({})

@@ -96,8 +96,11 @@ class Category(models.Model):
 
         for key in rule:
             if key not in ['min_date', 'max_date']:
-                field = self.fields.get_subclass(key=key)
-                queries.append(field.get_filter(rule[key]))
+                try:
+                    field = self.fields.get_subclass(key=key)
+                    queries.append(field.get_filter(rule[key]))
+                except Field.DoesNotExist:
+                    pass
 
         return '(%s)' % ' AND '.join(queries)
 
