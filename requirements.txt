@@ -1,7 +1,7 @@
 Django>=1.8,<1.10
 django-aggregate-if==0.5
-django-allauth==0.27.0
-django_braces==1.9.0
+django-allauth==0.28.0
+django_braces==1.10.0
 django-hstore==1.4.2
 django-model-utils==2.6
 django-oauth-toolkit==0.10.0
@@ -9,13 +9,13 @@ django-pgjson==0.3.1
 django-simple-history==1.8.1
 django-youtube==0.2
 django_nose==1.4.4
-djangorestframework==3.4.7
+djangorestframework==3.5.1
 djangorestframework-gis==0.10.1
 easy-thumbnails==2.3
 gdata==2.0.18
 iso8601==0.1.11
 moment==0.5.1
-pillow==3.4.1
+pillow==3.4.2
 psycopg2==2.6.2
 pytz==2016.7
 requests==2.11.1
