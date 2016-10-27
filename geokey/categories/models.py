@@ -279,33 +279,13 @@ class Field(models.Model):
     def delete(self):
         """
         Deletes the field. It also removes the field from the filters attached
-        to user groups.
-
-        Notes
-        -----
-        Also deletes all references to the Field in Rules.
+        to substes and user groups.
         """
+        for subset in self.category.project.subsets.all():
+            subset.remove_filter_field(self)
 
-        groups = self.category.project.usergroups.all()
-
-        # Iterate through a;ll user groups
-        for usergroup in groups:
-
-            # when the user group has a filter attached
-            if usergroup.filters is not None:
-
-                # check if the category is part of the filters
-                category_filter = usergroup.filters.get(
-                    str(self.category.id), None)
-
-                if category_filter is not None:
-                    # pop the field filter if it exists
-                    field_filter = category_filter.pop(self.key, None)
-
-                    # update the user group filters if the field was amongst
-                    # the filters
-                    if field_filter is not None:
-                        usergroup.save()
+        for usergroup in self.category.project.usergroups.all():
+            usergroup.remove_filter_field(self)
 
         super(Field, self).delete()
 
