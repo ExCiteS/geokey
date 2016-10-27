@@ -32,7 +32,7 @@
 
                 <div class="form-group {% if form.username.errors %}has-error{% endif %}">
                     <label for="username">Choose a display name</label>
-                    <input type="text" class="form-control input-lg" id="username" name="username" maxlength="50"  value="{% if form.data.username %}{{ form.data.username }}{% else %}{{ form.initial.useremail }}{% endif %}" required />
+                    <input type="text" class="form-control input-lg" id="username" name="username" maxlength="50"  value="{% if form.data.username %}{{ form.data.username }}{% else %}{{ form.initial.username }}{% endif %}" required />
                     {% if form.username.errors %}<span class="help-block">{{ form.username.errors|striptags }}</span>{% endif %}
                 </div>
 
