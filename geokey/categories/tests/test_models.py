@@ -21,6 +21,8 @@ from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.users.tests.model_factories import UserGroupFactory
 from geokey.contributions.tests.model_factories import ObservationFactory
 from geokey.contributions.models import Observation
+from geokey.subsets.tests.model_factories import SubsetFactory
+from geokey.subsets.models import Subset
 from geokey.users.models import UserGroup
 
 
@@ -103,6 +105,29 @@ class CategoryTest(TestCase):
 
         ref = UserGroup.objects.get(pk=group.id)
         self.assertEqual(ref.filters, {str(category_2.id): {}})
+
+    def test_get_query_when_field_does_not_exist(self):
+        category = CategoryFactory.create()
+        field = NumericFieldFactory.create(
+            **{'key': 'number', 'category': category})
+
+        query = category.get_query({
+            'number': {'minval': 20}
+        })
+        self.assertEqual(
+            query,
+            "((category_id = %s) AND (cast(prop"
+            "erties ->> 'number' as double precision) >= 20))" % category.id
+        )
+
+        category.fields.get(pk=field.id).delete()
+        query = category.get_query({
+            'number': {'minval': 20}
+        })
+        self.assertEqual(
+            query,
+            "((category_id = %s))" % category.id
+        )
 
     def test_get_query(self):
         category = CategoryFactory.create()
@@ -208,7 +233,7 @@ class FieldTest(TestCase):
 
         Field.objects.get(pk=f.id)
 
-    def test_delete_with_field_filter(self):
+    def test_delete_with_field_filter_for_subset(self):
         project = ProjectFactory.create()
         category = CategoryFactory.create(**{'project': project})
         field = Field.create(
@@ -216,7 +241,7 @@ class FieldTest(TestCase):
             'TextField'
         )
 
-        group = UserGroupFactory.create(
+        subset = SubsetFactory.create(
             **{
                 'project': project,
                 'filters': {
@@ -226,7 +251,28 @@ class FieldTest(TestCase):
 
         field.delete()
 
-        ref = UserGroup.objects.get(pk=group.id)
+        ref = Subset.objects.get(pk=subset.id)
+        self.assertEqual(ref.filters, {str(category.id): {}})
+
+    def test_delete_with_field_filter_for_usergroup(self):
+        project = ProjectFactory.create()
+        category = CategoryFactory.create(**{'project': project})
+        field = Field.create(
+            'name', 'key', 'description', False, category,
+            'TextField'
+        )
+
+        usergroup = UserGroupFactory.create(
+            **{
+                'project': project,
+                'filters': {
+                    category.id: {field.key: 'blah'}}
+            }
+        )
+
+        field.delete()
+
+        ref = UserGroup.objects.get(pk=usergroup.id)
         self.assertEqual(ref.filters, {str(category.id): {}})
 
 

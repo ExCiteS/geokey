@@ -4,6 +4,24 @@
 class FilterMixin(object):
     """A mixin for filter."""
 
+    def remove_filter_field(self, field):
+        """
+        Remove a field from the filter.
+
+        Parameters
+        ----------
+        field : geokey.categories.models.Field
+            Represents the field of a category.
+        """
+        if self.filters:
+            category_filter = self.filters.get(str(field.category.id), None)
+
+            if category_filter:
+                field_filter = category_filter.pop(field.key, None)
+
+                if field_filter:
+                    self.save()
+
     def save(self, *args, **kwargs):
         """Overwrite `save` to implement integrity ensurance."""
         self.where_clause = None
