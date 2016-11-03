@@ -1,6 +1,7 @@
 """Tests for views of social interactions."""
 
 from django.test import TestCase
+from django.conf import settings
 from django.http import HttpRequest
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
@@ -26,11 +27,29 @@ from ..views import (
 )
 
 
+def install_required_apps():
+    """Install Twitter and Facebook providers for django-allauth."""
+    installed_apps = settings.INSTALLED_APPS
+
+    apps_to_install = [
+        'allauth.socialaccount.providers.twitter',
+        'allauth.socialaccount.providers.facebook',
+    ]
+
+    for app in apps_to_install:
+        if app not in installed_apps:
+            installed_apps = installed_apps + (app,)
+
+    return installed_apps
+
+
 class SocialInteractionsListTest(TestCase):
     """Test a list of social interactions page."""
 
     def setUp(self):
         """Set up tests."""
+        settings.INSTALLED_APPS = install_required_apps()
+
         self.view = SocialInteractionList.as_view()
         self.request = HttpRequest()
         self.request.method = 'GET'
@@ -106,6 +125,8 @@ class SocialInteractionCreateTest(TestCase):
 
     def setUp(self):
         """Set up tests."""
+        settings.INSTALLED_APPS = install_required_apps()
+
         self.anonymous_user = AnonymousUser()
         self.regular_user = UserFactory.create()
         self.admin_user = UserFactory.create()
@@ -318,6 +339,8 @@ class SocialInteractionSettingsTest(TestCase):
 
     def setUp(self):
         """Set up tests."""
+        settings.INSTALLED_APPS = install_required_apps()
+
         self.anonymous_user = AnonymousUser()
         self.regular_user = UserFactory.create()
         self.admin_user = UserFactory.create()
@@ -578,6 +601,8 @@ class SocialInteractionDeleteTest(TestCase):
 
     def setUp(self):
         """Set up tests."""
+        settings.INSTALLED_APPS = install_required_apps()
+
         self.anonymous_user = AnonymousUser()
         self.regular_user = UserFactory.create()
         self.admin_user = UserFactory.create()
