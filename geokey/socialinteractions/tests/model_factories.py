@@ -1,4 +1,4 @@
-"""Test Models for social interactions."""
+"""Model factories used for tests of social interactions."""
 
 import factory
 

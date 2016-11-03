@@ -1,4 +1,3 @@
-"""Views for social interactions."""
 """Tests for views of social interactions."""
 
 from django.test import TestCase
