@@ -523,7 +523,7 @@ class SocialInteractionSettingsTest(TestCase):
             self.request,
             project_id=181651545615,
             socialinteraction_id=self.socialinteraction.id
-        )
+        ).render()
 
         rendered = render_to_string(
             'base.html',
@@ -556,7 +556,7 @@ class SocialInteractionSettingsTest(TestCase):
             self.request,
             project_id=self.project.id,
             socialinteraction_id=181651545615
-        )
+        ).render()
 
         rendered = render_to_string(
             'base.html',
@@ -700,7 +700,7 @@ class SocialInteractionDeleteTest(TestCase):
             self.request,
             project_id=634842156456,
             socialinteraction_id=self.socialinteraction.id
-        )
+        ).render()
 
         rendered = render_to_string(
             'base.html',
@@ -728,7 +728,7 @@ class SocialInteractionDeleteTest(TestCase):
             self.request,
             project_id=self.project.id,
             socialinteraction_id=634842156456
-        )
+        ).render()
 
         rendered = render_to_string(
             'base.html',
