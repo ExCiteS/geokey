@@ -194,7 +194,7 @@ class SocialInteractionCreateTest(TestCase):
             'socialinteractions/socialinteraction_create.html',
             {
                 'project': self.project,
-                'auth_users': [self.socialaccount_2],
+                'socialaccounts': [self.socialaccount_2],
                 'user': self.admin_user,
                 'PLATFORM_NAME': get_current_site(self.request).name,
                 'GEOKEY_VERSION': version.get_version()
@@ -549,7 +549,7 @@ class SocialInteractionSettingsTest(TestCase):
         ).render()
 
         rendered = render_to_string(
-            'base.html',
+            'socialinteractions/socialinteraction_settings.html',
             {
                 'error_description': 'The social interaction is not found.',
                 'error': 'Not found.',

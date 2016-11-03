@@ -167,20 +167,15 @@ class SocialInteractionContext(object):
         try:
             socialinteraction = project.socialinteractions.get(
                 pk=socialinteraction_id)
+            return super(SocialInteractionContext, self).get_context_data(
+                project=project,
+                socialinteraction=socialinteraction,
+            )
         except:
-            messages.error(
-                self.request, 'The social interaction is not found.'
-            )
-            return redirect(
-                'socialinteractions/socialinteraction_settings.html',
-                project_id=project_id,
-                socialinteraction_id=socialinteraction_id,
-            )
-
-        return super(SocialInteractionContext, self).get_context_data(
-            project=project,
-            socialinteraction=socialinteraction,
-        )
+            return {
+                'error': 'Not found.',
+                'error_description': 'The social interaction is not found.'
+            }
 
 
 class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
