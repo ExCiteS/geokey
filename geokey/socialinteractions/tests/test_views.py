@@ -529,39 +529,6 @@ class SocialInteractionSettingsTest(TestCase):
         response = render_helpers.remove_csrf(response.content.decode('utf-8'))
         self.assertEqual(response, rendered)
 
-    def test_post_with_admin_when_project_does_not_exist(self):
-        """
-        Updating with project admin when project does not exist.
-
-        It should render the page with an error message.
-        """
-        self.request.method = 'POST'
-        self.request.POST = {
-            'name': 'New Name',
-            'description': 'New Description'
-        }
-
-        self.request.user = self.admin_user
-        response = self.view(
-            self.request,
-            project_id=181651545615,
-            socialinteraction_id=self.socialinteraction.id
-        ).render()
-
-        rendered = render_to_string(
-            'base.html',
-            {
-                'error_description': 'Project matching query does not exist.',
-                'error': 'Not found.',
-                'user': self.admin_user,
-                'PLATFORM_NAME': get_current_site(self.request).name,
-                'GEOKEY_VERSION': version.get_version()
-            }
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
-
     def test_post_with_admin_when_social_interaction_does_not_exist(self):
         """
         Updating with project admin when social int. does not exist.
