@@ -10,6 +10,7 @@ from geokey.users import views as user_views
 from geokey.applications import views as app_views
 from geokey.superusertools import views as superusertools
 from geokey.subsets import views as subsets
+from geokey.socialinteractions import views as socialinteractions
 
 
 urlpatterns = [
@@ -164,6 +165,27 @@ urlpatterns = [
         r'subsets/(?P<subset_id>[0-9]+)/delete/$',
         subsets.SubsetDelete.as_view(),
         name='subset_delete'),
+
+    # ###########################
+    #  SOCIAL INTERACTIONS
+    # ###########################
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/$',
+        socialinteractions.SocialInteractionList.as_view(),
+        name='socialinteraction_list'),
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/new/$',
+        socialinteractions.SocialInteractionCreate.as_view(),
+        name='socialinteraction_create'),
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/(?P<socialinteraction_id>[0-9]+)/$',
+        socialinteractions.SocialInteractionSettings.as_view(),
+        name='socialinteraction_settings'),
+     url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/(?P<socialinteraction_id>[0-9]+)/delete/$',
+        socialinteractions.SocialInteractionDelete.as_view(),
+        name='socialinteraction_delete'),
+
 
     # ###########################
     # APPS

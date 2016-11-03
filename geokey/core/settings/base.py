@@ -60,6 +60,7 @@ INSTALLED_APPS = (
     'geokey.superusertools',
     'geokey.extensions',
     'geokey.subsets',
+    'geokey.socialinteractions',
 )
 
 # Middleware that is used with GeoKey to process HTTP requests and responses.

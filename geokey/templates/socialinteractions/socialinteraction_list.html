@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block bodydata %}
+data-project-id="{{ project.id }}"
+data-project-locked="{{ project.islocked }}"
+{% endblock %}
+
+{% block title %} | Project: {{ project.name }} - Social interactions{% endblock %}
+
+{% block main %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="smaller">
+            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+            <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
+        </h1>
+
+        {% include 'projects/navigation.html' %}
+    </div>
+</div>
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+
+    <div class="row">
+        <div class="col-md-4 col-md-push-8">
+            <div class="alert alert-info">
+                {% if project.islocked %}
+                    <p>The project is locked, therefore social interactions cannot be edited. If you wish to edit them, you have to unlock the project in the <a href="{% url 'admin:project_settings' project.id %}"><strong>project settings</strong></a> first.</p>
+                {% else %}
+                    <p>Create social interactions to automatically post/tweet on your social accounts when you add a new contribution.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-8 col-md-pull-4">
+            <h3 class="header">
+                {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                <span>Social interactions</span>
+
+                {% if project.categories.all and project.socialinteractions.all and not project.islocked %}
+                    <a href="{% url 'admin:socialinteraction_create' project.id %}" class="btn btn-success btn-sm pull-right">
+                        <span class="glyphicon glyphicon-plus"></span>
+                        Create new social interaction
+                    </a>
+                {% endif %}
+            </h3>
+
+            {% for socialinteraction in project.socialinteractions.all %}
+                {% if forloop.first %}
+                    <ul class="list-unstyled overview-list">
+                {% endif %}
+
+                <li>
+                    <h4>
+                        {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                        <a href="{% url 'admin:socialinteraction_settings' project.id socialinteraction.id %}">{{ socialinteraction.name }}</a>
+                    </h4>
+
+                    {% if socialinteraction.socialaccount %}<p>{{ socialinteraction.socialaccount.uid }}</p>{% endif %}
+                </li>
+
+                {% if forloop.last %}
+                    </ul>
+                {% endif %}
+            {% empty %}
+                <div class="well empty-list">
+                    <p class="lead">We couldn't find any social interactions for this project.</p>
+
+                    {% if project.islocked %}
+                        <p>Unfortunately, you cannot create new social interactions when the project is locked.</p>
+                    {% elif not project.categories.all %}
+                        <p>Unfortunately, you cannot create new social interactions when there are no categories added to the project.</p>
+                    {% else %}
+                        <a href="{% url 'admin:socialinteraction_create' project.id %}" class="btn btn-success btn-lg">Create new social interaction</a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

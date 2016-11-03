@@ -105,6 +105,40 @@ data-project-locked="{{ project.islocked }}"
             </div>
 
             <div class="col-sm-4">
+                {% with socialinteractions=project.socialinteractions.all %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                                <span>Social interactions</span>
+                                <a href="{% url 'admin:socialinteraction_list' project.id %}" class="badge pull-right">{{ socialinteractions|length }} &raquo;</a>
+                            </h4>
+                        </div>
+
+                        <div class="list-group">
+                            {% for socialinteraction in socialinteractions %}
+                                {% if forloop.counter == 8 %}
+                                    <div class="list-group-item">
+                                        <strong><a href="#" class="text-primary expand">{% more_link_text socialinteractions|length 'socialinteraction' 'socialinteractions' %}</a></strong>
+                                    </div>
+                                {% endif %}
+
+                                <a href="{% url 'admin:socialinteraction_settings' project.id socialinteraction.id %}" class="list-group-item {% if forloop.counter > 5 %}hidden{% endif %}">{{ socialinteraction.name }}</a>
+                            {% empty %}
+                                <div class="list-group-item">No social interactions have been created yet.</div>
+                            {% endfor %}
+                        </div>
+
+                        {% if not project.islocked %}
+                            <div class="panel-footer">
+                                <a href="{% url 'admin:socialinteraction_create' project.id %}" class="btn btn-sm btn-success">Create social interaction</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endwith %}
+            </div>
+
+            <div class="col-sm-4">
                 {% with usergroups=project.usergroups.all %}
                     <div class="panel panel-default">
                         <div class="panel-heading">
