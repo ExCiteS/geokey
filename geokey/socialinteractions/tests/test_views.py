@@ -1,6 +1,6 @@
 """Tests for views of social interactions."""
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.conf import settings
 from django.http import HttpRequest
 from django.core.urlresolvers import reverse
@@ -16,6 +16,8 @@ from geokey import version
 from geokey.core.tests.helpers import render_helpers
 from geokey.users.tests.model_factories import UserFactory
 from geokey.projects.tests.model_factories import ProjectFactory
+
+from allauth.compat import importlib
 
 from .model_factories import SocialInteractionFactory
 from ..models import SocialInteraction
@@ -39,6 +41,7 @@ def install_required_apps():
     for app in apps_to_install:
         if app not in installed_apps:
             installed_apps = installed_apps + (app,)
+            importlib.import_module(app + '.provider')
 
     return installed_apps
 
@@ -48,8 +51,6 @@ class SocialInteractionsListTest(TestCase):
 
     def setUp(self):
         """Set up tests."""
-        settings.INSTALLED_APPS = install_required_apps()
-
         self.view = SocialInteractionList.as_view()
         self.request = HttpRequest()
         self.request.method = 'GET'
@@ -120,13 +121,12 @@ class SocialInteractionsListTest(TestCase):
         self.assertEqual(response.content.decode('utf-8'), rendered)
 
 
+@override_settings(INSTALLED_APPS=install_required_apps())
 class SocialInteractionCreateTest(TestCase):
     """Test creating a new social interaction."""
 
     def setUp(self):
         """Set up tests."""
-        settings.INSTALLED_APPS = install_required_apps()
-
         self.anonymous_user = AnonymousUser()
         self.regular_user = UserFactory.create()
         self.admin_user = UserFactory.create()
@@ -339,8 +339,6 @@ class SocialInteractionSettingsTest(TestCase):
 
     def setUp(self):
         """Set up tests."""
-        settings.INSTALLED_APPS = install_required_apps()
-
         self.anonymous_user = AnonymousUser()
         self.regular_user = UserFactory.create()
         self.admin_user = UserFactory.create()
@@ -568,8 +566,6 @@ class SocialInteractionDeleteTest(TestCase):
 
     def setUp(self):
         """Set up tests."""
-        settings.INSTALLED_APPS = install_required_apps()
-
         self.anonymous_user = AnonymousUser()
         self.regular_user = UserFactory.create()
         self.admin_user = UserFactory.create()
