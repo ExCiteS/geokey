@@ -551,7 +551,7 @@ class SocialInteractionSettingsTest(TestCase):
         rendered = render_to_string(
             'base.html',
             {
-                'error_description': 'The project is not found.',
+                'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
                 'user': self.admin_user,
                 'PLATFORM_NAME': get_current_site(self.request).name,
@@ -730,7 +730,7 @@ class SocialInteractionDeleteTest(TestCase):
         rendered = render_to_string(
             'base.html',
             {
-                'error_description': 'The project is not found.',
+                'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
                 'user': self.admin_user,
                 'PLATFORM_NAME': get_current_site(self.request).name,
