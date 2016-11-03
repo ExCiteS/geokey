@@ -69,8 +69,6 @@ data-project-locked="{{ project.islocked }}"
 
                     {% if project.islocked %}
                         <p>Unfortunately, you cannot create new social interactions when the project is locked.</p>
-                    {% elif not project.categories.all %}
-                        <p>Unfortunately, you cannot create new social interactions when there are no categories added to the project.</p>
                     {% else %}
                         <a href="{% url 'admin:socialinteraction_create' project.id %}" class="btn btn-success btn-lg">Create new social interaction</a>
                     {% endif %}

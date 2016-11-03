@@ -43,10 +43,10 @@ data-project-locked="{{ project.islocked }}"
 
             <div class="form-group">
                 <label for="socialaccount" class="control-label">Social account</label>
-                
+
                 <select class="form-control" id="project" name="socialaccount" required>
-                    {% for socialaccount in auth_users %}
-                        <option value="{{ socialaccount.id }}" class="form-control input-lg" >{{ socialaccount.get_provider_account }} ¦¦ {{ socialaccount.provider }}</option>
+                    {% for socialaccount in socialaccounts %}
+                        <option value="{{ socialaccount.id }}" class="form-control input-lg" >{{ socialaccount.get_provider_account }} ({{ socialaccount.provider }})</option>
                     {% endfor %}
                 </select>
             </div>
