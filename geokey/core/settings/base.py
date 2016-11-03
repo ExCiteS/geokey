@@ -52,15 +52,15 @@ INSTALLED_APPS = (
     'rest_framework_gis',
 
     # GeoKey apps
-    'geokey.projects',
-    'geokey.categories',
-    'geokey.contributions',
     'geokey.users',
-    'geokey.applications',
     'geokey.superusertools',
     'geokey.extensions',
+    'geokey.applications',
+    'geokey.projects',
+    'geokey.categories',
     'geokey.subsets',
     'geokey.socialinteractions',
+    'geokey.contributions',
 )
 
 # Middleware that is used with GeoKey to process HTTP requests and responses.
