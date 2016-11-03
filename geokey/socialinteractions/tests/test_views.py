@@ -441,7 +441,7 @@ class SocialInteractionSettingsTest(TestCase):
         self.request.method = 'POST'
         self.request.POST = {
             'name': 'New Name',
-            'description': 'New Description',
+            'description': 'New Description'
         }
         response = self.view(
             self.request,
@@ -464,7 +464,7 @@ class SocialInteractionSettingsTest(TestCase):
         self.request.method = 'POST'
         self.request.POST = {
             'name': 'New Name',
-            'description': 'New Description',
+            'description': 'New Description'
         }
 
         self.request.user = self.regular_user
@@ -500,7 +500,7 @@ class SocialInteractionSettingsTest(TestCase):
         self.request.method = 'POST'
         self.request.POST = {
             'name': 'New Name',
-            'description': 'New Description',
+            'description': 'New Description'
         }
 
         self.request.user = self.admin_user
@@ -538,7 +538,7 @@ class SocialInteractionSettingsTest(TestCase):
         self.request.method = 'POST'
         self.request.POST = {
             'name': 'New Name',
-            'description': 'New Description',
+            'description': 'New Description'
         }
 
         self.request.user = self.admin_user
@@ -571,7 +571,7 @@ class SocialInteractionSettingsTest(TestCase):
         self.request.method = 'POST'
         self.request.POST = {
             'name': 'New Name',
-            'description': 'New Description',
+            'description': 'New Description'
         }
 
         self.request.user = self.admin_user
@@ -682,13 +682,13 @@ class SocialInteractionDeleteTest(TestCase):
         self.assertIn(
             reverse(
                 'admin:socialinteraction_list',
-                args=(self.project.id)
+                args=(self.project.id,)
             ),
             response['location']
         )
         self.assertEqual(SocialInteraction.objects.count(), 0)
 
-    def test_delete_with_admin_when_project_is_loked(self):
+    def test_delete_with_admin_when_project_is_locked(self):
         """
         Accessing the view with project admin when project is locked.
 
@@ -708,7 +708,7 @@ class SocialInteractionDeleteTest(TestCase):
         self.assertIn(
             reverse(
                 'admin:socialinteraction_list',
-                args=(self.project.id)
+                args=(self.project.id,)
             ),
             response['location']
         )
