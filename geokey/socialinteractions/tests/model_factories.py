@@ -2,9 +2,6 @@
 
 import factory
 
-from django.conf import settings
-from django.db import models
-
 from geokey.users.tests.model_factories import UserFactory
 from geokey.projects.tests.model_factories import ProjectFactory
 

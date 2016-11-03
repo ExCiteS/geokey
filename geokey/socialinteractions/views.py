@@ -1,9 +1,6 @@
 """Views for social interactions."""
 
-from django.shortcuts import render_to_response, render
-from django.template.loader import get_template
 from django.views.generic import TemplateView
-from django.http import HttpResponseRedirect, HttpResponse 
 from django.core.urlresolvers import reverse
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
@@ -11,17 +8,14 @@ from django.shortcuts import redirect
 from django.contrib import messages
 
 from braces.views import LoginRequiredMixin
-from allauth.socialaccount.models import SocialAccount, SocialToken, SocialApp
+from allauth.socialaccount.models import SocialAccount
 
 from geokey.core.decorators import handle_exceptions_for_admin
 from geokey.projects.models import Project
 from geokey.projects.views import ProjectContext
 
-import requests
-
 from .models import SocialInteraction
 
-from tweepy.error import TweepError
 
 class SocialInteractionList(LoginRequiredMixin, ProjectContext, TemplateView):
 

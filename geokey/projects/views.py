@@ -25,7 +25,6 @@ from geokey.users.serializers import UserSerializer
 from geokey.users.models import User
 from geokey.categories.models import Category
 from geokey.contributions.models import Comment, MediaFile
-from geokey.socialinteractions.models import SocialInteraction
 
 from .base import STATUS
 from .models import Project, Admins

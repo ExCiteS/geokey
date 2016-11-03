@@ -1,20 +1,5 @@
 """Views for social interactions."""
-
-from django.shortcuts import render_to_response, render
-from django.template import RequestContext
-from django.template.loader import get_template
-from django.core.mail import EmailMessage
-from django.views.generic import TemplateView
-from django.contrib.auth.models import User
-from django.contrib.sites.models import Site
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponseRedirect, HttpResponse 
-from django.core.urlresolvers import reverse
-from django.utils.html import strip_tags
-from django.utils.safestring import mark_safe
-from django.shortcuts import redirect
-from django.contrib import messages
-
+"""Tests for views of social interactions."""
 
 from django.test import TestCase
 from django.http import HttpRequest
@@ -25,18 +10,12 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
 
-
-from braces.views import LoginRequiredMixin
-from allauth.socialaccount.models import SocialAccount, SocialToken, SocialApp
-
+from allauth.socialaccount.models import SocialAccount
 
 from geokey import version
-from geokey.core.decorators import handle_exceptions_for_admin
 from geokey.core.tests.helpers import render_helpers
 from geokey.users.tests.model_factories import UserFactory
 from geokey.projects.tests.model_factories import ProjectFactory
-from geokey.projects.views import ProjectContext
-
 
 from .model_factories import SocialInteractionFactory
 from ..models import SocialInteraction
