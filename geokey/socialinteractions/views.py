@@ -18,56 +18,66 @@ from .models import SocialInteraction
 
 
 class SocialInteractionList(LoginRequiredMixin, ProjectContext, TemplateView):
+    """Display the list of social interactions in the project."""
 
-    """
-    Displays the list of social interactions in the project.
-    """
     template_name = 'socialinteractions/socialinteraction_list.html'
 
 
-class SocialInteractionCreate(LoginRequiredMixin, ProjectContext, TemplateView):
+class SocialInteractionCreate(LoginRequiredMixin, ProjectContext,
+                              TemplateView):
+    """Provide the form to create a new social interaction."""
 
-    """
-    Provides the form to create a new social interaction.
-    """
     template_name = 'socialinteractions/socialinteraction_create.html'
 
-    def get_context_data(self, *args, **kwargs):
-        
-        context = super(SocialInteractionCreate, self).get_context_data( 
+    def get_context_data(self, project_id, *args, **kwargs):
+        """
+        Return the context to render the view.
+
+        Add Twitter and Facebook social accounts of a user to the context.
+
+        Parameters
+        ----------
+        project_id : int
+            Identifies the project in the database.
+
+        Returns
+        -------
+        dict
+            Context.
+        """
+        context = super(SocialInteractionCreate, self).get_context_data(
+            project_id,
             *args,
             **kwargs
         )
 
-        auth_users = SocialAccount.objects.filter(
+        context['socialaccounts'] = SocialAccount.objects.filter(
             user=self.request.user,
-            provider__in=['twitter', 'facebook'])
+            provider__in=['twitter', 'facebook']
+        )
 
-        context["auth_users"] = auth_users
         return context
-
 
     def post(self, request, project_id):
         """
-        Creates the social interaction based on the data entered by the user.
+        Create the social interaction based on the data entered by the user.
 
         Parameters
         ----------
         request : django.http.HttpRequest
-            Object representing the request
+            Object representing the request.
         project_id : int
-            Identifies the project in the database
+            Identifies the project in the database.
 
         Returns
         -------
         django.http.HttpResponseRedirect
-            Redirects to social interaction create if social interaction is 
-            created, social interaction list if project is locked or it does 
-            not have any categories
+            Redirects to social interaction settings page if social interaction
+            is created, social interaction create page if project is locked or
+            social account is not found.
         django.http.HttpResponse
-            Rendered template, if project does not exist
+            Rendered template, if project does not exist.
         """
-
         data = request.POST
         context = self.get_context_data(project_id)
         project = context.get('project')
@@ -103,7 +113,7 @@ class SocialInteractionCreate(LoginRequiredMixin, ProjectContext, TemplateView):
                 description=strip_tags(data.get('description')),
                 creator=request.user,
                 project=project,
-                socialaccount=socialaccount,
+                socialaccount=socialaccount
             )
 
             add_another_url = reverse(
@@ -115,7 +125,9 @@ class SocialInteractionCreate(LoginRequiredMixin, ProjectContext, TemplateView):
 
             messages.success(
                 self.request,
-                mark_safe('The social interaction has been created.<a href="%s"> Add another social interaction.</a>' % add_another_url)
+                mark_safe('The social interaction has been created. '
+                          '<a href="%s"> Add another social '
+                          'interaction.</a>' % add_another_url)
             )
 
             return redirect(
@@ -126,180 +138,145 @@ class SocialInteractionCreate(LoginRequiredMixin, ProjectContext, TemplateView):
         else:
             return self.render_to_response(context)
 
-class SocialInteractionContext(object):
 
-    """
-    Provides the context to render templates. The context contains
-    a social interaction instance based on project_id and socialinteraction_id.
-    """
+class SocialInteractionContext(object):
+    """Provide the context to render templates."""
 
     @handle_exceptions_for_admin
-    def get_context_data(self, project_id, socialinteraction_id, *args, **kwargs):
+    def get_context_data(self, project_id, socialinteraction_id,
+                         *args, **kwargs):
         """
-        Returns the context containing the project and social interaction 
-        instances.
+        Return the context to render the view.
+
+        Add social interaction to the context.
 
         Parameters
         ----------
         project_id : int
-            Identifies the project in the database
+            Identifies the project in the database.
         socialinteraction_id : int
-            Identifies the social interaction in the database
+            Identifies the social interaction in the database.
 
         Returns
         -------
         dict
-            Context
+            Context.
         """
-
         project = Project.objects.as_admin(self.request.user, project_id)
 
         try:
             socialinteraction = project.socialinteractions.get(
-                    pk=socialinteraction_id)
-
+                pk=socialinteraction_id)
         except:
             messages.error(
-                self.request, 'The social interactin is not found.'
-                )
+                self.request, 'The social interaction is not found.'
+            )
             return redirect(
-                    'socialinteractions/socialinteraction_settings.html',
-                    project_id=project_id,
-                    socialinteraction_id=socialinteraction_id,
-                 )
-
-        if socialinteraction:
-            return super(SocialInteractionContext, self).get_context_data(
-            project=project,
-            socialinteraction=socialinteraction,
+                'socialinteractions/socialinteraction_settings.html',
+                project_id=project_id,
+                socialinteraction_id=socialinteraction_id,
             )
 
-class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext, 
-            TemplateView):
+        return super(SocialInteractionContext, self).get_context_data(
+            project=project,
+            socialinteraction=socialinteraction,
+        )
 
-    """
-    Provides the form to update the social interaction settings.
-    """
+
+class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
+                                TemplateView):
+    """Provide the form to update the social interaction settings."""
+
     template_name = 'socialinteractions/socialinteraction_settings.html'
 
     def post(self, request, project_id, socialinteraction_id):
         """
-        Updates the social interaction based on the data entered by the user.
+        Update the social interaction based on the data entered by the user.
 
         Parameter
         ---------
         request : django.http.HttpRequest
-            Object representing the request
+            Object representing the request.
         project_id : int
-            Identifies the project in the database
+            Identifies the project in the database.
         socialinteraction_id : int
-            Identifies the scoial interaction in the database
+            Identifies the social interaction in the database.
 
         Returns
         -------
         django.http.HttpResponse
-            Rendered template when social interactions updated
+            Rendered template when social interactions updated.
         django.http.HttpResponse
-            Rendered template, if project or social interaction does not exist
+            Rendered template, if project or social interaction does not exist.
         """
-
         data = request.POST
-        try:
-            context = self.get_context_data(project_id, socialinteraction_id)
-            socialinteraction = context.get('socialinteraction')
-        except:
-            messages.error(
-                self.request, 'The social account is not found.'
-                )
-            return redirect(
-                    'socialinteractions/socialinteraction_settings.html',
-                    project_id=project_id,
-                    socialinteraction_id=socialinteraction_id
-                )
+        context = self.get_context_data(project_id, socialinteraction_id)
+        socialinteraction = context.get('socialinteraction')
 
         if socialinteraction:
-            if socialinteraction.project.islocked:
-                messages.error(
-                    self.request,
-                    'The project is locked. Social interaction cannot be deleted.'
-                )
-                return redirect(
-                    'admin:socialinteraction_settings',
-                    project_id=project_id,
-                    socialinteraction_id=socialinteraction_id
-                )
-            else:
-                socialinteraction.name = strip_tags(data.get('name'))
-                socialinteraction.description = strip_tags(data.get('description'))
-                #socialinteraction.socialaccount = socialaccount
-                socialinteraction.save()
+            socialinteraction.name = strip_tags(data.get('name'))
+            socialinteraction.description = strip_tags(data.get('description'))
+            socialinteraction.save()
 
-                messages.success(self.request, 'The social interaction has been updated.')
+            messages.success(
+                self.request,
+                'The social interaction has been updated.'
+            )
 
         return self.render_to_response(context)
 
 
 class SocialInteractionDelete(LoginRequiredMixin, SocialInteractionContext,
-            TemplateView):
+                              TemplateView):
+    """Delete the social interaction."""
 
-    """
-    Deletes the social interactions.
-    """
     template_name = 'base.html'
 
     def get(self, request, project_id, socialinteraction_id):
         """
-        Deletes the social interaction.
+        Delete the social interaction.
 
         Parameter
         ---------
         request : django.http.HttpRequest
-            Object representing the request
+            Object representing the request.
         project_id : int
-            Identifies the project in the database
+            Identifies the project in the database.
         socialinteraction_id : int
-            Identifies the social interaction in the database
+            Identifies the social interaction in the database.
 
         Returns
         -------
         django.http.HttpResponseRedirect
-            Redirects to social interaction list if social interaction is 
-            deleted, social interaction settings if project is locked, if social
-            interaction does not exists redirect to base.html and show error
+            Redirects to social interactions list if social interaction is
+            deleted, social interaction settings if project is locked.
         django.http.HttpResponse
-            Rendered template, if project or social interaction does not exist
+            Rendered template, if project or social interaction does not exist.
         """
-
-        try:
-            context = self.get_context_data(project_id, socialinteraction_id)
-            socialinteraction = context.get('socialinteraction')
-
-        except:
-            messages.error(
-                self.request, 'The social account is not found.'
-                )
-            return redirect(
-                    'base.html',
-                    project_id=project_id,
-                    socialinteraction_id=socialinteraction_id
-                )
+        context = self.get_context_data(project_id, socialinteraction_id)
+        socialinteraction = context.get('socialinteraction')
 
         if socialinteraction:
             if socialinteraction.project.islocked:
                 messages.error(
                     self.request,
-                    'The project is locked. Social interaction cannot be deleted.'
+                    'The project is locked. Social interaction cannot be '
+                    'deleted.'
                 )
                 return redirect(
                     'admin:socialinteraction_settings',
                     project_id=project_id,
                     socialinteraction_id=socialinteraction_id
                 )
-            else:
-                socialinteraction.delete()                    
-                messages.success(self.request, 'The social interaction has been'
-                    ' deleted.')
-                return redirect('admin:socialinteraction_list', 
-                    project_id=project_id)
+
+            socialinteraction.delete()
+            messages.success(
+                self.request,
+                'The social interaction has been deleted.'
+            )
+            return redirect(
+                'admin:socialinteraction_list',
+                project_id=project_id
+            )
 
         return self.render_to_response(context)
