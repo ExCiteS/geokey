@@ -506,32 +506,6 @@ class SocialInteractionSettingsTest(TestCase):
         response = render_helpers.remove_csrf(response.content.decode('utf-8'))
         self.assertEqual(response, rendered)
 
-    def test_post_with_admin_when_locked_project(self):
-        """
-        Updating with project admin when project is locked.
-
-        It should render the page with a an error message.
-        """
-        self.project.islocked = True
-        self.project.save()
-
-        self.request.method = 'POST'
-        self.request.POST = {
-            'name': 'New Name',
-            'description': 'New Description',
-        }
-
-        self.request.user = self.admin_user
-        self.view(
-            self.request,
-            project_id=self.project.id,
-            socialinteraction_id=self.socialinteraction.id
-        )
-
-        reference = SocialInteraction.objects.get(pk=self.socialinteraction.id)
-        self.assertNotEqual(reference.name, 'New Name')
-        self.assertNotEqual(reference.description, 'New Description')
-
     def test_post_with_admin_when_project_does_not_exist(self):
         """
         Updating with project admin when project does not exist.
