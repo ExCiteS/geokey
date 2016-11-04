@@ -13,6 +13,7 @@ from django.utils.safestring import mark_safe
 from braces.views import LoginRequiredMixin
 
 from allauth.account.models import EmailAddress
+from allauth.socialaccount.providers import registry
 from allauth.socialaccount.adapter import get_adapter
 from allauth.socialaccount.models import SocialAccount
 
@@ -513,7 +514,10 @@ class UserProfile(LoginRequiredMixin, TemplateView):
         dict
         """
         return super(UserProfile, self).get_context_data(
-            accounts=SocialAccount.objects.filter(user=self.request.user),
+            accounts=SocialAccount.objects.filter(
+                user=self.request.user,
+                provider__in=[id for id, name in registry.as_choices()]
+            ),
             *args,
             **kwargs
         )
