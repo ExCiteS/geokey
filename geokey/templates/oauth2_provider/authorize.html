@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %} | Authorise application{% endblock %}
+
+{% block main %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="smaller"><a href="{% url 'admin:app_overview' %}">Applications</a></h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <form method="POST" class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" novalidate>
+            {% csrf_token %}
+            <h2 class="header">Authorise application {{ application.name }}</h2>
+
+            {% for field in form %}
+                {% if field.is_hidden %}
+                    {{ field }}
+                {% endif %}
+            {% endfor %}
+
+            <p>{{ application.name  }} would like to access your data with the following permissions:</p>
+
+            <ul>
+                {% for scope in scopes %}
+                    {% if scope == "read" %}
+                        <li>Read your data</li>
+                    {% elif scope == "write" %}
+                        <li>Write new data</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+
+            <div class="form-group">
+                <button type="submit" value="Authorize" name="allow" class="btn btn-primary">Authorise</button>
+                <button type="submit" value="Cancel" class="btn btn-link">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
