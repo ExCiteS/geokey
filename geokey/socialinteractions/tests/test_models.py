@@ -34,7 +34,7 @@ class CreateSocialInteractionTest(TestCase):
 class UpdateSocialinteractionTest(TestCase):
 
     def test_update_seocial_interaction(self):
-         """ test update method for social interagration model. """
+        """ test update method for social interagration model. """
         creator = UserFactory.create()
         project = ProjectFactory.create(creator=creator)
         socialaccount_1 = SocialAccount.objects.create(
