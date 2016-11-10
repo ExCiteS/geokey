@@ -276,19 +276,19 @@ class SocialInteractionCreateTest(TestCase):
         response = self.view(self.request, project_id=self.project.id)
 
         self.assertEqual(1, SocialInteraction.objects.count())
-        sociailnteraction = SocialInteraction.objects.first()
-        self.assertEqual(sociailnteraction.name, 'My social interaction')
-        self.assertEqual(sociailnteraction.description, '')
-        self.assertEqual(sociailnteraction.project, self.project)
-        self.assertEqual(sociailnteraction.creator, self.admin_user)
-        socialaccounts = sociailnteraction.socialaccounts.all()
+        socialinteraction = SocialInteraction.objects.first()
+        self.assertEqual(socialinteraction.name, 'My social interaction')
+        self.assertEqual(socialinteraction.description, '')
+        self.assertEqual(socialinteraction.project, self.project)
+        self.assertEqual(socialinteraction.creator, self.admin_user)
+        socialaccounts = socialinteraction.socialaccounts.all()
         self.assertIn(self.socialaccount_2, socialaccounts)
         self.assertIn(self.socialaccount_1, socialaccounts)
 
         self.assertEqual(response.status_code, 302)
         self.assertIn(
             '/admin/projects/%s/socialinteractions/%s/' % (
-                self.project.id, sociailnteraction.id),
+                self.project.id, socialinteraction.id),
             response['location']
         )
 

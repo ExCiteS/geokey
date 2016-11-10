@@ -57,13 +57,9 @@ class SocialInteractionCreate(LoginRequiredMixin, ProjectContext,
                           if id in ['twitter', 'facebook']]
         )
 
-        if len(socialaccounts) == 0:
-            context['socialaccounts'] = ['']
-        else:
-            context['socialaccounts'] = socialaccounts
+        context['socialaccounts'] = socialaccounts
 
         return context
-
 
     def post(self, request, project_id):
         """
@@ -219,10 +215,7 @@ class SocialInteractionPost(LoginRequiredMixin, SocialInteractionContext,
                           if id in ['twitter', 'facebook']]
         )
 
-        if len(socialaccounts) == 0:
-            context['socialaccounts'] = ['']
-        else:
-            context['socialaccounts'] = socialaccounts
+        context['socialaccounts'] = socialaccounts
 
         return context
 

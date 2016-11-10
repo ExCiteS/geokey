@@ -67,8 +67,7 @@ class SocialInteraction(models.Model):
         else:
             return
 
-    @classmethod
-    def update(cls, socialinteraction_id, name, description, socialaccounts):
+    def update(self, socialinteraction_id, name, description, socialaccounts):
         """
         Updates social interaction
 
@@ -88,23 +87,22 @@ class SocialInteraction(models.Model):
         geokey.socialinteractions.models.SocialInteraction
 
         """
-        socialinteraction = SocialInteraction.objects.get(
-            pk=socialinteraction_id)
+        if self:
 
-        socialinteraction.description = description
-        socialinteraction.name = name
-        socialinteraction.save()
-        all_socialccounts = socialinteraction.socialaccounts.all()
-        sa_added = [s for s in socialaccounts]
-        sa_exist = [i for i in all_socialccounts]
-        to_add = set(sa_added) - set(sa_exist)
-        to_remove = set(sa_exist) - set(sa_added)
+            self.description = description
+            self.name = name
+            self.save()
+            all_socialccounts = self.socialaccounts.all()
+            sa_added = [s for s in socialaccounts]
+            sa_exist = [i for i in all_socialccounts]
+            to_add = set(sa_added) - set(sa_exist)
+            to_remove = set(sa_exist) - set(sa_added)
 
-        for sa_id in to_add:
-            socialinteraction.socialaccounts.add(sa_id)
-        for sa_id in to_remove:
-            socialinteraction.socialaccounts.remove(sa_id)
-        return socialinteraction
+            for sa_id in to_add:
+                self.socialaccounts.add(sa_id)
+            for sa_id in to_remove:
+                self.socialaccounts.remove(sa_id)
+        return self
 
 
 class SocialAccounts(models.Model):
