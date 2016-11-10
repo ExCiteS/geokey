@@ -50,7 +50,7 @@ data-project-locked="{{ project.islocked }}"
                     {%if socialaccount == '' %}
                         <p>Unfortunately, you cannot create new social interactions because any social media has been logged on for this project.</p>
                     {% else %}
-                        <input type="checkbox" name="socialaccounts" value="{{ socialaccount.id }}"> <img id="socialaccount_provider" src="{% static 'img/providers/' %}{{ socialaccount.provider }}.svg" alt="{{ socialaccount.get_provider.name }} social provider" /> {{ socialaccount.get_provider_account }}
+                        <input type="checkbox" name="socialaccounts" value="{{ socialaccount.id }}"> <img class="socialaccount_provider" src="{% static 'img/providers/' %}{{ socialaccount.provider }}.svg" alt="{{ socialaccount.get_provider.name }} social provider" /> {{ socialaccount.get_provider_account }}
                     {% endif %}
                 {% endfor %}
                 <ul>
