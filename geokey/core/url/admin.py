@@ -181,11 +181,14 @@ urlpatterns = [
         r'socialinteractions/(?P<socialinteraction_id>[0-9]+)/$',
         socialinteractions.SocialInteractionSettings.as_view(),
         name='socialinteraction_settings'),
-     url(r'^projects/(?P<project_id>[0-9]+)/'
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/(?P<socialinteraction_id>[0-9]+)/post/$',
+        socialinteractions.SocialInteractionPost.as_view(),
+        name='socialinteraction_post'),
+    url(r'^projects/(?P<project_id>[0-9]+)/'
         r'socialinteractions/(?P<socialinteraction_id>[0-9]+)/delete/$',
         socialinteractions.SocialInteractionDelete.as_view(),
         name='socialinteraction_delete'),
-
 
     # ###########################
     # APPS

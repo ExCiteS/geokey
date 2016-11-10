@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block bodydata %}
 data-project-id="{{ project.id }}"
@@ -43,12 +44,16 @@ data-project-locked="{{ project.islocked }}"
 
             <div class="form-group">
                 <label for="socialaccount" class="control-label">Social account</label>
-
-                <select class="form-control" id="project" name="socialaccount" required>
-                    {% for socialaccount in socialaccounts %}
-                        <option value="{{ socialaccount.id }}" class="form-control input-lg" >{{ socialaccount.get_provider_account }} ({{ socialaccount.provider }})</option>
-                    {% endfor %}
-                </select>
+                <br>
+                {% for socialaccount in socialaccounts %}
+                <ul id="check-list-box" class="list-group checked-list-box">
+                    {%if socialaccount == '' %}
+                        <p>Unfortunately, you cannot create new social interactions because any social media has been logged on for this project.</p>
+                    {% else %}
+                        <input type="checkbox" name="socialaccounts" value="{{ socialaccount.id }}"> <img id="socialaccount_provider" src="{% static 'img/providers/' %}{{ socialaccount.provider }}.svg" alt="{{ socialaccount.get_provider.name }} social provider" /> {{ socialaccount.get_provider_account }}
+                    {% endif %}
+                {% endfor %}
+                <ul>
             </div>
 
             <div class="form-group">

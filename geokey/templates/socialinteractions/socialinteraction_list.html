@@ -57,7 +57,7 @@ data-project-locked="{{ project.islocked }}"
                         <a href="{% url 'admin:socialinteraction_settings' project.id socialinteraction.id %}">{{ socialinteraction.name }}</a>
                     </h4>
 
-                    {% if socialinteraction.socialaccount %}<p>{{ socialinteraction.socialaccount.uid }}</p>{% endif %}
+                    {% if socialinteraction.socialaccount %}<p>{{ socialinteraction.description }} {{socialinteraction.socialaccount}}</p>{% endif %}
                 </li>
 
                 {% if forloop.last %}

@@ -7,8 +7,9 @@
             {{ socialinteraction.name }}
         </h3>
     </div>
-
     <div class="list-group">
+        <a href="{% url 'admin:socialinteraction_post' socialinteraction.project.id socialinteraction.id %}" class="list-group-item {% if request.resolver_match.url_name == 'socialinteraction_post' %}active{% endif %}">Post to social media</a>
         <a href="{% url 'admin:socialinteraction_settings' socialinteraction.project.id socialinteraction.id %}" class="list-group-item {% if request.resolver_match.url_name == 'socialinteraction_settings' %}active{% endif %}">Settings</a>
     </div>
+
 </div>

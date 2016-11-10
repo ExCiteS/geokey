@@ -9,6 +9,7 @@ from django.contrib import messages
 
 from braces.views import LoginRequiredMixin
 from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.providers import registry
 
 from geokey.core.decorators import handle_exceptions_for_admin
 from geokey.projects.models import Project
@@ -50,13 +51,19 @@ class SocialInteractionCreate(LoginRequiredMixin, ProjectContext,
             *args,
             **kwargs
         )
-
-        context['socialaccounts'] = SocialAccount.objects.filter(
+        socialaccounts = SocialAccount.objects.filter(
             user=self.request.user,
-            provider__in=['twitter', 'facebook']
+            provider__in=[id for id, name in registry.as_choices()
+                          if id in ['twitter', 'facebook']]
         )
 
+        if len(socialaccounts) == 0:
+            context['socialaccounts'] = ['']
+        else:
+            context['socialaccounts'] = socialaccounts
+
         return context
+
 
     def post(self, request, project_id):
         """
@@ -94,47 +101,48 @@ class SocialInteractionCreate(LoginRequiredMixin, ProjectContext,
                     'admin:socialinteraction_create',
                     project_id=project_id
                 )
-
-            try:
-                socialaccount = SocialAccount.objects.get(
-                    pk=data.get('socialaccount'))
-            except SocialAccount.DoesNotExist:
-                messages.error(
-                    self.request,
-                    'The social account is not found. %s' % cannot_create
+            else:
+                socialaccount_list = data.getlist('socialaccounts', [])
+                socialaccounts = SocialAccount.objects.filter(
+                    pk__in=socialaccount_list
                 )
-                return redirect(
-                    'admin:socialinteraction_create',
-                    project_id=project_id
-                )
+                try:
+                    socialinteraction = SocialInteraction.create(
+                        strip_tags(data.get('name')),
+                        strip_tags(data.get('description')),
+                        project,
+                        socialaccounts,
+                        request.user
+                    )
+                    add_another_url = reverse(
+                        'admin:socialinteraction_create',
+                        kwargs={
+                            'project_id': project_id
+                        }
+                    )
 
-            socialinteraction = SocialInteraction.objects.create(
-                name=strip_tags(data.get('name')),
-                description=strip_tags(data.get('description')),
-                creator=request.user,
-                project=project,
-                socialaccount=socialaccount
-            )
+                    messages.success(
+                        self.request,
+                        mark_safe('The social interaction has been created. '
+                                  '<a href="%s"> Add another social '
+                                  'interaction.</a>' % add_another_url)
+                    )
 
-            add_another_url = reverse(
-                'admin:socialinteraction_create',
-                kwargs={
-                    'project_id': project_id
-                }
-            )
+                    return redirect(
+                        'admin:socialinteraction_settings',
+                        project_id=project_id,
+                        socialinteraction_id=socialinteraction.id
+                    )
+                except:
+                    messages.error(
+                        self.request,
+                        'The social account is not found. %s' % cannot_create
+                    )
+                    return redirect(
+                        'admin:socialinteraction_create',
+                        project_id=project_id
+                    )
 
-            messages.success(
-                self.request,
-                mark_safe('The social interaction has been created. '
-                          '<a href="%s"> Add another social '
-                          'interaction.</a>' % add_another_url)
-            )
-
-            return redirect(
-                'admin:socialinteraction_settings',
-                project_id=project_id,
-                socialinteraction_id=socialinteraction.id
-            )
         else:
             return self.render_to_response(context)
 
@@ -178,11 +186,86 @@ class SocialInteractionContext(object):
             }
 
 
+class SocialInteractionPost(LoginRequiredMixin, SocialInteractionContext,
+                            TemplateView):
+    """Provide the form to update the social interaction settings."""
+
+    template_name = 'socialinteractions/socialinteraction_post.html'
+
+    def get_context_data(self, project_id, *args, **kwargs):
+        """
+        Return the context to render the view.
+
+        Add Twitter and Facebook social accounts of a user to the context.
+
+        Parameters
+        ----------
+        project_id : int
+            Identifies the project in the database.
+
+        Returns
+        -------
+        dict
+            Context.
+        """
+        context = super(SocialInteractionPost, self).get_context_data(
+            project_id,
+            *args,
+            **kwargs
+        )
+        socialaccounts = SocialAccount.objects.filter(
+            user=self.request.user,
+            provider__in=[id for id, name in registry.as_choices()
+                          if id in ['twitter', 'facebook']]
+        )
+
+        if len(socialaccounts) == 0:
+            context['socialaccounts'] = ['']
+        else:
+            context['socialaccounts'] = socialaccounts
+
+        return context
+
+
 class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
                                 TemplateView):
     """Provide the form to update the social interaction settings."""
 
     template_name = 'socialinteractions/socialinteraction_settings.html'
+
+    def get_context_data(self, project_id, *args, **kwargs):
+        """
+        Return the context to render the view.
+
+        Add Twitter and Facebook social accounts of a user to the context.
+
+        Parameters
+        ----------
+        project_id : int
+            Identifies the project in the database.
+
+        Returns
+        -------
+        dict
+            Context.
+        """
+        context = super(SocialInteractionSettings, self).get_context_data(
+            project_id,
+            *args,
+            **kwargs
+        )
+        socialaccounts = SocialAccount.objects.filter(
+            user=self.request.user,
+            provider__in=[id for id, name in registry.as_choices()
+                          if id in ['twitter', 'facebook']]
+        )
+
+        if len(socialaccounts) == 0:
+            context['socialaccounts_auth'] = ['']
+        else:
+            context['socialaccounts_auth'] = socialaccounts
+
+        return context
 
     def post(self, request, project_id, socialinteraction_id):
         """
@@ -209,15 +292,24 @@ class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
         socialinteraction = context.get('socialinteraction')
 
         if socialinteraction:
-            socialinteraction.name = strip_tags(data.get('name'))
-            socialinteraction.description = strip_tags(data.get('description'))
-            socialinteraction.save()
+            socialaccount_ids = data.getlist('socialaccounts', [])
 
-            messages.success(
-                self.request,
-                'The social interaction has been updated.'
-            )
+            socialaccounts = SocialAccount.objects.filter(
+                                                pk__in=socialaccount_ids)
+            try:
+                context['socialinteraction'] = socialinteraction.update(
+                    socialinteraction_id,
+                    strip_tags(data.get('name')),
+                    strip_tags(data.get('description')),
+                    socialaccounts
+                )
+            except:
+                pass
 
+        messages.success(
+                    self.request,
+                    'The social interaction has been updated.'
+                )
         return self.render_to_response(context)
 
 
@@ -263,8 +355,8 @@ class SocialInteractionDelete(LoginRequiredMixin, SocialInteractionContext,
                     project_id=project_id,
                     socialinteraction_id=socialinteraction_id
                 )
-
             socialinteraction.delete()
+
             messages.success(
                 self.request,
                 'The social interaction has been deleted.'
@@ -273,5 +365,4 @@ class SocialInteractionDelete(LoginRequiredMixin, SocialInteractionContext,
                 'admin:socialinteraction_list',
                 project_id=project_id
             )
-
         return self.render_to_response(context)

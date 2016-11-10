@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block bodydata %}
 data-project-id="{{ project.id }}"
@@ -42,6 +43,25 @@ data-socialinteraction-id="{{ socialinteraction.id }}"
                 <div class="form-group">
                     <label for="description" class="control-label">Description</label>
                     <textarea class="form-control input-lg" rows="5" id="description" name="description">{{ socialinteraction.description }} </textarea>
+                </div>
+               <div class="form-group">
+                    <label for="socialaccount" class="control-label">Social account</label>
+                    
+                    {% for socialaccount in socialaccounts_auth %}
+                        <ul id="check-list-box" class="list-group checked-list-box">
+                        {% if socialaccount == '' %}
+                            <p>Unfortunately, you cannot create new social interactions because any social media is log in for this project.</p>
+                        {% else %}                        
+                            {% if socialaccount in socialinteraction.socialaccounts.all %}
+                                <input type="checkbox" name="socialaccounts" value="{{ socialaccount.id }}" checked> <img id="socialaccount_provider" src="{% static 'img/providers/' %}{{ socialaccount.provider }}.svg" alt="{{ socialaccount.get_provider.name }} social provider" /> {{ socialaccount.get_provider_account }}  
+                            {% else %}
+                                <input type="checkbox" name="socialaccounts" value="{{ socialaccount.id }}" > <img id="socialaccount_provider" src="{% static 'img/providers/' %}{{ socialaccount.provider }}.svg" alt="{{ socialaccount.get_provider.name }} social provider" /> {{ socialaccount.get_provider_account }} 
+                            {%endif%}
+                       
+                        {% endif %}
+                     
+                    {% endfor %}
+                </ul>
                 </div>
 
                 <div class="form-group">

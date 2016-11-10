@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block bodydata %}
+data-project-id="{{ project.id }}"
+data-project-locked="{{ project.islocked }}"
+data-socialinteraction-id="{{ socialinteraction.id }}"
+{% endblock %}
+
+{% block title %} | Project: {{ project.name }} - Social interaction: {{ socialinteraction.name }} - Settings{% endblock %}
+
+{% block main %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="smaller">
+            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+            <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
+        </h1>
+
+        {% include 'projects/navigation.html' %}
+    </div>
+</div>
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+
+    <div class="row">
+        <div class="col-sm-4">
+            {% include 'socialinteractions/socialinteraction_navigation.html' %}
+        </div>
+
+        <div class="col-sm-8">
+            <h3 class="header">Social interaction post to social media</h3>
+            <h6 class="header">Social accounts associated: {% for sa in socialinteraction.socialaccounts.all %} {% load static %} <img id="socialaccount_provider" src="{% static 'img/providers/' %}{{ sa.provider }}.svg" alt="{{ sa.get_provider.name }} social provider" /> {%if sa.provider == 'twitter' %}@{% endif%}{{sa.get_provider_account}}{% endfor %} </h6>
+            <form id="settings" method="POST" action="{% url 'admin:socialinteraction_settings' project.id socialinteraction.id %}" novalidate>
+                {% csrf_token %} 
+                <div class="form-group">
+                    <label for="description" class="control-label">Text to post</label>
+                    <textarea class="form-control input-lg" rows="5" id="description" name="description"></textarea>
+                </div>
+               <div class="form-group">
+                    <label for="socialaccount" class="control-label">Categories</label>
+                    <br>
+
+                    {% if not project.categories.all %}
+                        <div class="alert alert-info">
+                            <p>The project has no categories, therefore social interaciton post to social media cannot be edited. If you wish to edit it, you have to <a href="{% url 'admin:category_create' project.id %}"><strong>create a new category</strong></a> first.</p>
+                        </div>
+                    {% endif %}
+                    {% if project.categories.all %}
+                       <select name="display_category" class="form-control input-lg" >
+                        {% for category in project.categories.all %}
+                          <option value="category.id">{{category.name}}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="reset" class="btn btn-link">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}
+
+
+{% block libraries %}
+<script src="/static/js/admin.ui.forms.validate.js"></script>
+{% endblock %}
