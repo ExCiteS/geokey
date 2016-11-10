@@ -21,10 +21,9 @@ virtualenv:
   system_site_packages: true
 
 install:
-  - sudo add-apt-repository ppa:ubuntugis/ppa -y
   - sudo -E apt-get -yq update &>> ~/apt-get-update.log
   - sudo apt-get install binutils libav-tools
-  - sudo apt-get -yq install libgdal1-dev gdal-bin python-gdal
+  - sudo apt-get -yq install libgdal-dev python-gdal
   - gdal-config --version
   - export C_INCLUDE_PATH=/usr/include/gdal
   - export CPLUS_INCLUDE_PATH=/usr/include/gdal
