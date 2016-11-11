@@ -16,11 +16,22 @@ class SocialInteractionFactory(factory.django.DjangoModelFactory):
         """Factory meta information."""
         model = SocialInteraction
 
-    name = factory.Sequence(lambda n: 'project %d' % n)
+    name = factory.Sequence(lambda n: 'social interaction %d' % n)
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     creator = factory.SubFactory(UserFactory)
     project = factory.SubFactory(ProjectFactory)
-    socialaccounts = SocialAccount()
+
+    @factory.post_generation
+    def add_social_accounts(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            for socialaccount in extracted:
+                SocialAccounts.objects.create(
+                    socialinteraction=self,
+                    socialaccount=socialaccount
+                )
+
 
 class SocialAccountsFactory(factory.django.DjangoModelFactory):
     """Factory for a single social social account."""

@@ -264,11 +264,11 @@ class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
         """
         Update the social interaction based on the data entered by the user.
 
-        Parameter
+        Parameters
         ---------
         request : django.http.HttpRequest
             Object representing the request.
-        project_id : int
+        project_id : intyes
             Identifies the project in the database.
         socialinteraction_id : int
             Identifies the social interaction in the database.
@@ -283,7 +283,6 @@ class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
         data = request.POST
         context = self.get_context_data(project_id, socialinteraction_id)
         socialinteraction = context.get('socialinteraction')
-
         if socialinteraction:
             socialaccount_ids = data.getlist('socialaccounts', [])
 
