@@ -60,8 +60,8 @@
             </div>
 
             <div class="form-group">
-                <label for="description" class="control-label">Redirect URL (required)</label>
-                <input type="url" class="form-control input-lg" id="redirect_uris" value="{{ application.redirect_uris }}" name="redirect_uris" required>
+                <label for="redirect_uris" class="control-label">Redirect URL (required)</label>
+                <textarea class="form-control input-lg" rows="5" id="redirect_uris" name="redirect_uris" required>{{ application.redirect_uris }}</textarea>
             </div>
 
             <div class="form-group">
