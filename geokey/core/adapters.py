@@ -1,5 +1,7 @@
 """Core adapters."""
 
+import re
+
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 
@@ -10,6 +12,8 @@ from allauth.account.models import EmailAddress
 
 class AccountAdapter(DefaultAccountAdapter):
     """Adapter for accounts."""
+
+    username_regex = re.compile(r'^.+$')
 
     def respond_user_inactive(self, request, user):
         """Resend email confirmation instructions if user is inactive."""
