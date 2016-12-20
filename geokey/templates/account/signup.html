@@ -13,6 +13,12 @@
 <div class="container">
     {% include 'snippets/messages.html' %}
 
+    {% if redirect_field_value %}
+        <div class="alert alert-warning">
+            <p>Please sign up to continue.</p>
+        </div>
+    {% endif %}
+
     <div class="row">
         <div class="col-md-6 {% if not social_apps %}col-sm-8 col-sm-offset-2 col-md-offset-3{% endif %}">
             <h2 class="header">Sign up with email address</h2>
@@ -25,6 +31,7 @@
 
             <form action="{% url 'account_signup' %}" method="POST" novalidate>
                 {% csrf_token %}
+                <input type="hidden" name="next" value="{{ redirect_field_value }}" />
 
                 <div class="form-group {% if form.email.errors %}has-error{% endif %}">
                     <label for="email">Your email address</label>
@@ -67,7 +74,7 @@
 
     <div class="row">
         <div class="col-md-12 text-center">
-            <p>Already signed up? Please <a href="{% url 'account_login' %}">sign in using an email address</a>{% if social_apps %}, or use your social account{% endif %}.</p>
+            <p>Already signed up? Please <a href="{{ login_url }}">sign in using an email address</a>{% if social_apps %}, or use your social account{% endif %}.</p>
         </div>
     </div>
 </div>
