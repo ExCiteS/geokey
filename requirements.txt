@@ -19,5 +19,5 @@ pillow==3.4.2
 psycopg2==2.6.2
 pytz==2016.7
 requests==2.12.1
-tweepy==3.6.0
+tweepy==3.5.0
 facebook-sdk==2.0.0
