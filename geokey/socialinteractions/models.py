@@ -2,9 +2,15 @@
 
 from django.conf import settings
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
-from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.models import SocialAccount, SocialToken, SocialApp
 
+from geokey.subsets.models import Subset
+
+import tweepy
+import facebook
 
 class SocialInteraction(models.Model):
     """Stores a single social interaction."""
@@ -22,6 +28,8 @@ class SocialInteraction(models.Model):
         related_name='socialinteractions',
         through='SocialAccounts'
     )
+
+    text_to_post = models.TextField(blank=True, null=True)
 
     @classmethod
     def create(cls, name, description, project, socialaccounts, creator):
@@ -55,7 +63,8 @@ class SocialInteraction(models.Model):
                 name=name,
                 description=description,
                 project=project,
-                creator=creator
+                creator=creator,
+                text_to_post="New contribution added!!"
             )
 
             socialinteraction.save()
@@ -120,3 +129,49 @@ class SocialAccounts(models.Model):
         auto_created = True
         ordering = ['socialinteraction__name']
         unique_together = ('socialinteraction', 'socialaccount')
+
+
+@receiver(post_save, sender=Subset)
+def post_social_media(sender, instance, **kwargs):
+    """This function post/tweet to social media when a new subset is added. """
+    project = instance.project
+    socialinteractions_all = project.socialinteractions.all()
+    url = 'www.acb.com/admin/projects/{project_id}/subsets/{subset_id}/'
+    link = url.format(project_id=project.id,subset_id=instance.id)
+
+    for socialinteraction in socialinteractions_all:
+        text_to_post = socialinteraction.text_to_post
+        replacements = {
+            "$project$": project.name,
+            "$link$":link
+        }
+        for key, replacement in replacements.iteritems():
+            text_to_post = text_to_post.replace(key, replacement)
+
+        for socialaccount in socialinteraction.socialaccounts.all():
+
+            provider = socialaccount.provider
+            app = SocialApp.objects.get(provider=provider)
+
+            access_token = SocialToken.objects.get(
+                account__user=socialaccount.user,
+                account__provider=app.provider
+            )
+            check_provider(provider, access_token,text_to_post, app)
+
+
+def check_provider(provider,access_token,text_to_post,app):
+    """This function checks the provider."""
+    if provider == 'facebook':
+        graph = facebook.GraphAPI(access_token)
+        graph.put_wall_post(message=text_to_post)
+    if provider == 'twitter':
+        consumer_key = app.client_id
+        consumer_secret = app.secret
+        auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+        access_token_all = access_token
+        access_token = access_token_all.token
+        access_token_secret = access_token_all.token_secret                
+        auth.set_access_token(access_token, access_token_secret)
+        api = tweepy.API(auth)
+        api.update_status(text_to_post)

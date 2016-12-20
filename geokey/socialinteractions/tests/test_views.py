@@ -20,6 +20,7 @@ from geokey.projects.tests.model_factories import ProjectFactory
 
 from allauth.compat import importlib
 
+from .model_factories import SocialInteractionFactory
 from ..models import SocialInteraction
 from ..views import (
     SocialInteractionList,
@@ -354,6 +355,8 @@ class SocialInteractionCreateTest(TestCase):
         )
 
 
+
+@override_settings(INSTALLED_APPS=install_required_apps())
 class SocialInteractionSettingsTest(TestCase):
     """Test social interaction settings page."""
 
@@ -369,15 +372,12 @@ class SocialInteractionSettingsTest(TestCase):
             user=self.admin_user, provider='facebook', uid='2')
         self.socialaccount_1 = SocialAccount.objects.create(
             user=self.admin_user, provider='twitter', uid='1')
-        self.socialaccounts = [self.socialaccount_2]
-        self.socialinteraction = SocialInteraction.objects.create(
-            name='My Social interaction',
-            description='Test desc',
-            project=self.project,
-            creator=self.admin_user,
+        self.socialaccount_3 = SocialAccount.objects.create(
+            user=self.admin_user, provider='twitter', uid='3')
+        self.socialaccounts = [self.socialaccount_2, self.socialaccount_1]
+        self.socialinteraction = SocialInteractionFactory.create(
+            add_social_accounts=(self.socialaccount_2,self.socialaccount_1)
         )
-        self.socialinteraction.socialaccounts.add(self.socialaccount_2)
-
         self.view = SocialInteractionSettings.as_view()
         self.request = HttpRequest()
         self.request.method = 'GET'
@@ -431,7 +431,15 @@ class SocialInteractionSettingsTest(TestCase):
 
         It should render the page.
         """
-        self.request.user = self.admin_user
+        socialaccounts_log = SocialAccount.objects.filter(
+            user=self.admin_user,
+            provider__in=[id for id, name in registry.as_choices()
+                          if id in ['twitter', 'facebook']]
+        )
+        self.socialinteraction.creator = self.admin_user
+        self.socialinteraction.project = self.project
+        self.request.user = self.socialinteraction.creator
+        self.socialinteraction.save()
         response = self.view(
             self.request,
             project_id=self.project.id,
@@ -439,7 +447,7 @@ class SocialInteractionSettingsTest(TestCase):
         ).render()
 
         socialaccounts_log = SocialAccount.objects.filter(
-            user=self.request.user,
+            user=self.admin_user,
             provider__in=[id for id, name in registry.as_choices()
                           if id in ['twitter', 'facebook']]
         )
@@ -465,12 +473,11 @@ class SocialInteractionSettingsTest(TestCase):
         It should redirect to the login page.
         """
         self.request.method = 'POST'
-        self.request.method = 'POST'
         post = QueryDict('name=%s&description=''%s&socialaccounts=%s' %
                          (
                           'New Name',
                           'New Description',
-                          self.socialaccount_1.id,
+                          self.socialaccount_3.id,
                          )
         )
 
@@ -487,7 +494,7 @@ class SocialInteractionSettingsTest(TestCase):
         self.assertNotEqual(reference.name, 'New Name')
         self.assertNotEqual(reference.description, 'New Description')
         socialaccounts = reference.socialaccounts.all()
-        self.assertNotIn(self.socialaccount_1, socialaccounts)
+        self.assertNotIn(self.socialaccount_3, socialaccounts)
 
     def test_post_with_user(self):
         """
@@ -500,7 +507,7 @@ class SocialInteractionSettingsTest(TestCase):
                          (
                           'New Name',
                           'New Description',
-                          self.socialaccount_1.id,
+                          self.socialaccount_3.id,
                          )
         )
         self.request.POST = post
@@ -529,7 +536,7 @@ class SocialInteractionSettingsTest(TestCase):
         self.assertNotEqual(reference.name, 'New Name')
         self.assertNotEqual(reference.description, 'New Description')
         socialaccounts = reference.socialaccounts.all()
-        self.assertNotIn(self.socialaccount_1, socialaccounts)
+        self.assertNotIn(self.socialaccount_3, socialaccounts)
 
     def test_post_with_admin(self):
         """
@@ -537,18 +544,20 @@ class SocialInteractionSettingsTest(TestCase):
 
         It should render the page with a success message.
         """
+        self.socialinteraction.creator = self.admin_user
+        self.socialinteraction.project = self.project
+        self.request.user = self.socialinteraction.creator
+        self.socialinteraction.save()
         self.request.method = 'POST'
-
+        self.request.user = self.admin_user
         post = QueryDict('name=%s&description=%s&socialaccounts=%s' %
                          (
                           'New Name',
                           'New Description',
-                          self.socialaccount_1.id
+                          self.socialaccount_3.id
                          )
         )
-        self.request.POST = post
-
-        self.request.user = self.admin_user
+        self.request.POST = post        
         response = self.view(
             self.request,
             project_id=self.project.id,
@@ -560,7 +569,8 @@ class SocialInteractionSettingsTest(TestCase):
             provider__in=[id for id, name in registry.as_choices()
                           if id in ['twitter', 'facebook']]
         )
-        reference = SocialInteraction.objects.get(pk=self.socialinteraction.id)
+        reference = reference = SocialInteraction.objects.get(
+            pk=self.socialinteraction.id)
         self.assertEqual(reference.name, 'New Name')
         self.assertEqual(reference.description, 'New Description')
 
@@ -578,7 +588,7 @@ class SocialInteractionSettingsTest(TestCase):
         )
         socialaccounts = reference.socialaccounts.all()
         self.assertNotIn(self.socialaccount_2, socialaccounts)
-        self.assertIn(self.socialaccount_1, socialaccounts)
+        self.assertIn(self.socialaccount_3, socialaccounts)
         self.assertEqual(response.status_code, 200)
         response = render_helpers.remove_csrf(response.content.decode('utf-8'))
         self.assertEqual(response, rendered)
@@ -626,8 +636,6 @@ class SocialInteractionDeleteTest(TestCase):
 
     def setUp(self):
         """Set up tests."""
-        settings.INSTALLED_APPS = install_required_apps()
-
         self.anonymous_user = AnonymousUser()
         self.regular_user = UserFactory.create()
         self.admin_user = UserFactory.create()
@@ -638,14 +646,13 @@ class SocialInteractionDeleteTest(TestCase):
             user=self.admin_user, provider='facebook', uid='2')
         self.socialaccount_1 = SocialAccount.objects.create(
             user=self.admin_user, provider='twitter', uid='1')
-        self.socialaccounts = [self.socialaccount_2]
-        self.socialinteraction = SocialInteraction.objects.create(
-            name='My Social interaction',
-            description='Test desc',
-            project=self.project,
-            creator=self.admin_user,
+        self.socialaccount_3 = SocialAccount.objects.create(
+            user=self.admin_user, provider='twitter', uid='3')
+        self.socialaccounts = [self.socialaccount_2, self.socialaccount_1]
+
+        self.socialinteraction = SocialInteractionFactory.create(
+            add_social_accounts=(self.socialaccount_2,self.socialaccount_1)
         )
-        self.socialinteraction.socialaccounts.add(self.socialaccount_2)
 
         self.view = SocialInteractionDelete.as_view()
         self.request = HttpRequest()
@@ -674,6 +681,9 @@ class SocialInteractionDeleteTest(TestCase):
 
         It should render the page with an error message.
         """
+        self.socialinteraction.project = self.project
+        self.socialinteraction.creator = self.admin_user
+        self.socialinteraction.save()
         self.request.user = self.regular_user
         response = self.view(
             self.request,
@@ -702,6 +712,11 @@ class SocialInteractionDeleteTest(TestCase):
 
         It should render the page.
         """
+
+        self.socialinteraction.project = self.project
+        self.socialinteraction.creator = self.admin_user
+        self.socialinteraction.save()
+
         self.request.user = self.admin_user
         response = self.view(
             self.request,
@@ -725,8 +740,12 @@ class SocialInteractionDeleteTest(TestCase):
 
         It should render the page.
         """
+
         self.project.islocked = True
         self.project.save()
+        self.socialinteraction.project = self.project
+        self.socialinteraction.creator = self.admin_user
+        self.socialinteraction.save()
 
         self.request.user = self.admin_user
         response = self.view(
@@ -751,6 +770,9 @@ class SocialInteractionDeleteTest(TestCase):
 
         It should render the page with an error message.
         """
+        self.socialinteraction.project = self.project
+        self.socialinteraction.creator = self.admin_user
+        self.socialinteraction.save()
         self.request.user = self.admin_user
         response = self.view(
             self.request,
@@ -779,6 +801,9 @@ class SocialInteractionDeleteTest(TestCase):
 
         It should render the page with an error message.
         """
+        self.socialinteraction.project = self.project
+        self.socialinteraction.creator = self.admin_user
+        self.socialinteraction.save()
         self.request.user = self.admin_user
         response = self.view(
             self.request,

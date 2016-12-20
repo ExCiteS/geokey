@@ -17,20 +17,23 @@ class SocialInteractionFactory(factory.django.DjangoModelFactory):
         model = SocialInteraction
 
     name = factory.Sequence(lambda n: 'social interaction %d' % n)
-    description = factory.LazyAttribute(lambda o: '%s description' % o.name)
+    description = factory.Sequence(lambda n: '%d description' % n)
     creator = factory.SubFactory(UserFactory)
     project = factory.SubFactory(ProjectFactory)
+    text_to_post = factory.Sequence(lambda n: 'text to post %d' % n)
 
     @factory.post_generation
-    def add_social_accounts(self, create, extracted, **kwargs):
+    def add_social_accounts(obj, create, extracted, **kwargs):
         if not create:
             return
         if extracted:
             for socialaccount in extracted:
                 SocialAccounts.objects.create(
-                    socialinteraction=self,
+                    socialinteraction=obj,
                     socialaccount=socialaccount
                 )
+                obj.socialaccounts.add(socialaccount)
+                obj.save()
 
 
 class SocialAccountsFactory(factory.django.DjangoModelFactory):

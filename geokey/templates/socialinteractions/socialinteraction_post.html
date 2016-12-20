@@ -35,27 +35,9 @@ data-socialinteraction-id="{{ socialinteraction.id }}"
             <form id="settings" method="POST" action="{% url 'admin:socialinteraction_settings' project.id socialinteraction.id %}" novalidate>
                 {% csrf_token %} 
                 <div class="form-group">
-                    <label for="description" class="control-label">Text to post</label>
-                    <textarea class="form-control input-lg" rows="5" id="description" name="description"></textarea>
+                    <label for="post_text" class="control-label">Text to post</label>
+                    <textarea class="form-control input-lg" rows="5" id="post_text" name="post_text"></textarea>
                 </div>
-               <div class="form-group">
-                    <label for="socialaccount" class="control-label">Categories</label>
-                    <br>
-
-                    {% if not project.categories.all %}
-                        <div class="alert alert-info">
-                            <p>The project has no categories, therefore social interaciton post to social media cannot be edited. If you wish to edit it, you have to <a href="{% url 'admin:category_create' project.id %}"><strong>create a new category</strong></a> first.</p>
-                        </div>
-                    {% endif %}
-                    {% if project.categories.all %}
-                       <select name="display_category" class="form-control input-lg" >
-                        {% for category in project.categories.all %}
-                          <option value="category.id">{{category.name}}</option>
-                        {% endfor %}
-                    </select>
-                    {% endif %}
-                </div>
-
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">Save</button>
                     <button type="reset" class="btn btn-link">Reset</button>
@@ -63,8 +45,6 @@ data-socialinteraction-id="{{ socialinteraction.id }}"
             </form>
         </div>
     </div>
-
-
 </div>
 {% endblock %}
 

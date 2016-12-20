@@ -219,6 +219,39 @@ class SocialInteractionPost(LoginRequiredMixin, SocialInteractionContext,
 
         return context
 
+    def post(self, request, project_id, socialinteraction_id):
+        """
+        Creates social post base on the data entered by the user.
+
+        Parameters
+        ---------
+        request : django.http.HttpRequest
+            Object representing the request.
+        project_id : intyes
+            Identifies the project in the database.
+        socialinteraction_id : int
+            Identifies the social interaction in the database.
+
+        Returns
+        -------
+        django.http.HttpResponse
+            Rendered template when social interactions updated.
+        django.http.HttpResponse
+            Rendered template, if project or social interaction does not exist.
+        """
+        data = request.POST
+        context = self.get_context_data(project_id, socialinteraction_id)
+        socialinteraction = context.get('socialinteraction')
+        #print context
+        text_post = data.get('text_post')
+        #category_id = data['display_category']
+        
+        print "data", data
+        print "text_post", text_post
+        socialinteraction.text_to_post = data.get('text_post')
+        socialinteraction.save()
+        return self.render_to_response(context)
+
 
 class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
                                 TemplateView):
@@ -283,6 +316,7 @@ class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
         data = request.POST
         context = self.get_context_data(project_id, socialinteraction_id)
         socialinteraction = context.get('socialinteraction')
+        print "yuyuyuyy", context.get('socialinteraction')
         if socialinteraction:
             socialaccount_ids = data.getlist('socialaccounts', [])
 
