@@ -13,7 +13,7 @@
 <div class="container">
     {% include 'snippets/messages.html' %}
 
-    {% if request.GET.next %}
+    {% if redirect_field_value %}
         <div class="alert alert-warning">
             <p>Please sign in to continue.</p>
         </div>
@@ -29,9 +29,9 @@
                 </div>
             {% endif %}
 
-            <form action="{% url 'account_login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}" method="POST" novalidate>
+            <form action="{% url 'account_login' %}" method="POST" novalidate>
                 {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.REQUEST.next }}" />
+                <input type="hidden" name="next" value="{{ redirect_field_value }}" />
 
                 <div class="form-group {% if form.login.errors %}has-error{% endif %}">
                     <label for="login">Email address</label>
@@ -60,7 +60,7 @@
 
     <div class="row">
         <div class="col-md-12 text-center">
-            <p>Don't have an account yet? Please {% if social_apps %}use your social account, or {% endif %}<a href="{% url 'account_signup' %}">sign up using an email address</a>.</p>
+            <p>Don't have an account yet? Please {% if social_apps %}use your social account, or {% endif %}<a href="{{ signup_url }}">sign up using an email address</a>.</p>
         </div>
     </div>
 </div>
