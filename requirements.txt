@@ -1,6 +1,6 @@
 Django>=1.8,<1.10
 django-aggregate-if==0.5
-django-allauth==0.28.0
+django-allauth==0.29.0
 django_braces==1.10.0
 django-hstore==1.4.2
 django-model-utils==2.6
@@ -18,4 +18,4 @@ moment==0.5.1
 pillow==3.4.2
 psycopg2==2.6.2
 pytz==2016.7
-requests==2.12.1
+requests==2.12.4
