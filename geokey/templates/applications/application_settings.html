@@ -84,6 +84,16 @@
             </div>
 
             <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="skip_authorization" {% if application.skip_authorization %}checked{% endif %} />
+                        <strong>Skip the authorisation form</strong>
+                        <p>Tick this box, if you want to grant all the permissions for this application instead of asking each user to do so manually.</p>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <button type="submit" class="btn btn-primary">Save</button>
                 <button type="reset" class="btn btn-link">Reset</button>
             </div>

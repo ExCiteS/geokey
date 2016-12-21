@@ -18,4 +18,5 @@ class ApplicationFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
     download_url = 'http://example.com'
     redirect_uris = ['http://example.com/app']
+    skip_authorization = False
     status = 'active'
