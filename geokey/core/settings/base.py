@@ -78,7 +78,10 @@ MIDDLEWARE_CLASSES = (
 # Settings for django-oauth-toolkit
 # see: https://django-oauth-toolkit.readthedocs.org/en/latest/settings.html
 OAUTH2_PROVIDER = {
-    'SCOPES': {'read': 'Read scope', 'write': 'Write scope'},
+    'SCOPES': {
+        'read': 'Access private projects, contributions and other information',
+        'write': 'Manage contributions, comments and media files'
+    },
     'CLIENT_SECRET_GENERATOR_LENGTH': 40
 }
 OAUTH2_PROVIDER_APPLICATION_MODEL = 'applications.Application'
