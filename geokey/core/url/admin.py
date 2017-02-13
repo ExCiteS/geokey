@@ -189,6 +189,14 @@ urlpatterns = [
         r'socialinteractions/(?P<socialinteraction_id>[0-9]+)/delete/$',
         socialinteractions.SocialInteractionDelete.as_view(),
         name='socialinteraction_delete'),
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/pull$',
+        socialinteractions.SocialInteractionPull.as_view(),
+        name='socialinteraction_pull'),
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/pullWorkshop$',
+        socialinteractions.SocialInteractionPullWorkshop.as_view(),
+        name='socialinteraction_pullWorkshop'),
 
     # ###########################
     # APPS
