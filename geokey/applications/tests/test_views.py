@@ -127,7 +127,8 @@ class ApplicationCreateTest(TestCase):
             'description:': '',
             'download_url': 'http://example.com',
             'redirect_uris': 'http://example.com',
-            'authorization_grant_type': 'password'
+            'authorization_grant_type': 'password',
+            'skip_authorization': False,
         }
         view = ApplicationCreate.as_view()
         url = reverse('admin:app_register')
@@ -149,7 +150,8 @@ class ApplicationCreateTest(TestCase):
             'description': '',
             'download_url': 'http://example.com',
             'redirect_uris': 'http://example.com',
-            'authorization_grant_type': 'password'
+            'authorization_grant_type': 'password',
+            'skip_authorization': False,
         }
         view = ApplicationCreate.as_view()
         url = reverse('admin:app_register')
@@ -206,7 +208,8 @@ class ApplicationSettingsTest(TestCase):
             'description': '',
             'download_url': 'http://example.com',
             'redirect_uris': 'http://example.com',
-            'authorization_grant_type': 'password'
+            'authorization_grant_type': 'password',
+            'skip_authorization': True,
         }
         view = ApplicationSettings.as_view()
         url = reverse('admin:app_settings', kwargs={'app_id': self.app.id})
@@ -242,7 +245,8 @@ class ApplicationSettingsTest(TestCase):
             'description': '',
             'download_url': 'http://example.com/download',
             'redirect_uris': 'http://example.com/redirect',
-            'authorization_grant_type': 'password'
+            'authorization_grant_type': 'password',
+            'skip_authorization': True,
         }
 
         view = ApplicationSettings.as_view()
@@ -273,7 +277,8 @@ class ApplicationSettingsTest(TestCase):
             'description': '',
             'download_url': 'http://example.com/download',
             'redirect_uris': 'http://example.com/redirect',
-            'authorization_grant_type': 'password'
+            'authorization_grant_type': 'password',
+            'skip_authorization': True,
         }
 
         view = ApplicationSettings.as_view()

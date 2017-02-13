@@ -24,12 +24,8 @@
             <p>{{ application.name  }} would like to access your data with the following permissions:</p>
 
             <ul>
-                {% for scope in scopes %}
-                    {% if scope == "read" %}
-                        <li>Read your data</li>
-                    {% elif scope == "write" %}
-                        <li>Write new data</li>
-                    {% endif %}
+                {% for scopes_description in scopes_descriptions %}
+                    <li>{{ scopes_description }}</li>
                 {% endfor %}
             </ul>
 

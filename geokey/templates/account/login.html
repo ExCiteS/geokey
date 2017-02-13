@@ -31,7 +31,10 @@
 
             <form action="{% url 'account_login' %}" method="POST" novalidate>
                 {% csrf_token %}
-                <input type="hidden" name="next" value="{{ redirect_field_value }}" />
+
+                {% if redirect_field_value %}
+                    <input type="hidden" name="next" value="{{ redirect_field_value }}" />
+                {% endif %}
 
                 <div class="form-group {% if form.login.errors %}has-error{% endif %}">
                     <label for="login">Email address</label>

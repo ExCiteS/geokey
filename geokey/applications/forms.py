@@ -14,7 +14,7 @@ class AppCreateForm(forms.ModelForm):
     class Meta:
         model = Application
         fields = ('name', 'description', 'download_url', 'redirect_uris',
-                  'authorization_grant_type')
+                  'authorization_grant_type', 'skip_authorization')
 
     def clean(self):
         """
