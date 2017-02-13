@@ -31,12 +31,22 @@ data-socialinteraction-id="{{ socialinteraction.id }}"
 
         <div class="col-sm-8">
             <h3 class="header">Social interaction post to social media</h3>
-            <h6 class="header">Social accounts associated: {% for sa in socialinteraction.socialaccounts.all %} {% load static %} <img id="socialaccount_provider" src="{% static 'img/providers/' %}{{ sa.provider }}.svg" alt="{{ sa.get_provider.name }} social provider" /> {%if sa.provider == 'twitter' %}@{% endif%}{{sa.get_provider_account}}{% endfor %} </h6>
-            <form id="settings" method="POST" action="{% url 'admin:socialinteraction_settings' project.id socialinteraction.id %}" novalidate>
+            <h6 class="header">Social accounts associated: {% for sa in socialinteraction.socialaccounts.all %} {% load static %} <img class="socialaccount_provider" src="{% static 'img/providers/' %}{{ sa.provider }}.svg" alt="{{ sa.get_provider.name }} social provider" /> {%if sa.provider == 'twitter' %}@{% endif%}{{sa.get_provider_account}}{% endfor %} </h6>
+            <form id="settings" method="POST" action="{% url 'admin:socialinteraction_post' project.id socialinteraction.id %}" novalidate>
                 {% csrf_token %} 
                 <div class="form-group">
-                    <label for="post_text" class="control-label">Text to post</label>
-                    <textarea class="form-control input-lg" rows="5" id="post_text" name="post_text"></textarea>
+                    <label for="text_postz" class="control-label" >Text to post {%if is_twitter == True %} (140 characters max.) {% endif%}</label>
+                    <textarea class="form-control input-lg" rows="5" id="text_post" name="text_post" {% if is_twitter == True %} maxlength="140"  {% endif %} >{{socialinteraction.text_to_post}}</textarea>
+                </div>
+                <div class="alert alert-warning">
+                    <p>In order to avoid problems with twitter API we have created in order to avoid problems with twitter. You can find the tags bellow:
+                    <ul>
+                        <li>$link$: this will create a link and append to the text which is provided by the domain.</li>
+                        <li>$project$: This will display the name of the project.</li>
+                        <!-- <li>$category$: This will display the name of the category.</li> -->
+                    </ul>
+                    One example could be: "New contribution added to $project$. Find it out here $link$"
+                    </p>
                 </div>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">Save</button>
