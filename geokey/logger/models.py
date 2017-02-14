@@ -44,6 +44,7 @@ def create_log(sender, instance, actions):
             if 'created' in action:
                 action_id = STATUS_ACTION.created
             if 'deleted' in action:
+            elif 'deleted' in action:
                 action_id = STATUS_ACTION.deleted
             else:
                 action_id = STATUS_ACTION.updated
