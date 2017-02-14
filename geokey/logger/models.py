@@ -43,7 +43,6 @@ def create_log(sender, instance, actions):
         for action in actions:
             if 'created' in action:
                 action_id = STATUS_ACTION.created
-            if 'deleted' in action:
             elif 'deleted' in action:
                 action_id = STATUS_ACTION.deleted
             else:
@@ -67,7 +66,7 @@ def create_log(sender, instance, actions):
                 log.project_id = instance.category.id
                 log.project_id = instance.project.id
                 log.user_id = instance.creator.id
-                log.user_id = instance.location.geometry
+                log.geometry = instance.location.geometry
             if sender.__name__ == 'UserGroup':
                 log.project_id = instance.project.id
                 #log.user_id = instance.creator.id
