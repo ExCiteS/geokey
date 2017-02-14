@@ -64,6 +64,7 @@ def create_log(sender, instance, actions):
             if sender.__name__ == 'Observation':
                 log.project_id = instance.project.id
                 log.user_id = instance.creator.id
+                log.user_id = instance.location.geometry
             if sender.__name__ == 'UserGroup':
                 log.project_id = instance.project.id
                 #log.user_id = instance.creator.id
