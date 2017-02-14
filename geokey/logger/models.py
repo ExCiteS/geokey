@@ -169,7 +169,10 @@ def log_delete(sender, instance, *args,  **kwargs):
         instance.__class__.objects.get(pk=instance.id)
     except:
         if sender.__name__ == 'Field':
-            project_id = instance.category.project.id
+            try:
+                project_id = instance.category.project.id
+            except:
+                project_id = 0
             action = "Field deleted"
             LoggerHistory.objects.create(
                 project_id=project_id,
