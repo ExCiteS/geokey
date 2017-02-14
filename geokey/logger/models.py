@@ -58,10 +58,12 @@ def create_log(sender, instance, actions):
                 log.project_id = instance.id
                 log.user_id = instance.creator.id
             if sender.__name__ == 'Comment':
-                log.project_id = instance.commentto.project.id
+                log.project_id = instance.commentto.category.project.id
                 log.user_id = instance.creator.id
+                log.category_id = instance.commentto.category.id
                 pass
             if sender.__name__ == 'Observation':
+                log.project_id = instance.category.id
                 log.project_id = instance.project.id
                 log.user_id = instance.creator.id
                 log.user_id = instance.location.geometry
