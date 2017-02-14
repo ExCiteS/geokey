@@ -39,10 +39,19 @@ def create_log(sender, instance, actions):
         field on HistoryLogger table
 
     """
-        print type(instance)
-        for accion in accions:
+    if actions:
+        for action in actions:
+            if 'created' in action:
+                action_id = STATUS_ACTION.created
+            if 'deleted' in action:
+                action_id = STATUS_ACTION.deleted
+            else:
+                action_id = STATUS_ACTION.updated
             log = LoggerHistory(
+                action=action,
+                action_id=action_id
             )
+
             if sender.__name__ == 'User':
                 log.user_id = instance.id
             if sender.__name__ == 'Project':
@@ -73,6 +82,7 @@ def create_log(sender, instance, actions):
 def checkIsPrivate(isprivate):
     """
     Checks if Project is privite and provides string with the text to be added
+    to action field in log.
 
     Parameters
     -----------
@@ -82,6 +92,7 @@ def checkIsPrivate(isprivate):
     Returns
     --------
     status = str
+        text to be added on action field Historylogger.
     """
 
     status = 'public'
@@ -103,18 +114,29 @@ def cross_check_fields(instance,obj):
     
     Returns
     --------
+    actions: list str
+        list of string with the text to be added on actions field on 
         HistoryLogger.
 
     """
+    actions = []
     class_name = instance.__class__.__name__
+    for field, value in actions_dic[class_name].iteritems():
         if not instance.__dict__.get(field) == obj.__dict__.get(field):
             try:
+                action = value                
                 if field == 'isprivate' and class_name == 'Project':
+                    action = action + checkIsPrivate(field)
                 if field == 'status' and class_name == 'Observation':
+                    action = action + instance.__dict__.get(field)
                 if field == 'status' and class_name == 'Category':
+                    action = action + instance.__dict__.get(field)
                 if field == 'status' and 'Field' in class_name:
+                    action = action + instance.__dict__.get(field)
+                actions.append(action)
             except:
                 pass
+    return actions
 
 """
 Receiver for pre_save and get updates.
@@ -147,4 +169,14 @@ def log_delete(sender, instance, *args,  **kwargs):
         instance.__class__.objects.get(pk=instance.id)
     except:
         if 'Field' == sender.__name__:
+            project_id=instance.category.project.id,
+            action="Field deleted",
+        if sender.__name__   == 'Subset' or 'UserGroup':
+            project_id = instance.project.id
+            action=sender.__name__ +" deleted"
+        if project_id and action:
             LoggerHistory.objects.create(
+                project_id=project_id,
+                action=action,
+                action_id=STATUS_ACTION.deleted
+            )
