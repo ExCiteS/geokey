@@ -168,13 +168,17 @@ def log_delete(sender, instance, *args,  **kwargs):
     try:
         instance.__class__.objects.get(pk=instance.id)
     except:
-        if 'Field' == sender.__name__:
-            project_id=instance.category.project.id,
-            action="Field deleted",
-        if sender.__name__   == 'Subset' or 'UserGroup':
+        if sender.__name__ == 'Field':
+            project_id = instance.category.project.id
+            action = "Field deleted"
+            LoggerHistory.objects.create(
+                project_id=project_id,
+                action=action,
+                action_id=STATUS_ACTION.deleted
+            )
+        if sender.__name__  in ['Subset', 'UserGroup']:
             project_id = instance.project.id
-            action=sender.__name__ +" deleted"
-        if project_id and action:
+            action = sender.__name__ +" deleted"
             LoggerHistory.objects.create(
                 project_id=project_id,
                 action=action,
