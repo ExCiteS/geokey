@@ -30,7 +30,7 @@ list_of_models = (
 actions_dic = {
     'User':
     {
-        'display_name': 'User changed name'
+        'display_name': 'User renamed'
     },
 
     'Comment':
