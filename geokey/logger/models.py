@@ -190,3 +190,10 @@ def log_delete(sender, instance, *args,  **kwargs):
                 action=action,
                 action_id=STATUS_ACTION.deleted
             )
+        if sender.__name__  == 'User':
+            action = sender.__name__ +" deleted"
+            LoggerHistory.objects.create(
+                user_id=instance.id,
+                action=action,
+                action_id=STATUS_ACTION.deleted
+            )
