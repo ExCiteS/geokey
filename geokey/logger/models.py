@@ -182,12 +182,21 @@ def log_delete(sender, instance, *args,  **kwargs):
                 action=action,
                 action_id=STATUS_ACTION.deleted
             )
-        if sender.__name__  in ['Subset', 'UserGroup']:
+        if sender.__name__  == 'UserGroup':
             project_id = instance.project.id
             action = sender.__name__ +" deleted"
             LoggerHistory.objects.create(
                 project_id=project_id,
                 action=action,
+                action_id=STATUS_ACTION.deleted
+            )
+        if sender.__name__  == 'Subset':
+            project_id = instance.project.id
+            action = sender.__name__ +" deleted"
+            LoggerHistory.objects.create(
+                project_id=project_id,
+                action=action,
+                user_id = instance.creator.id,
                 action_id=STATUS_ACTION.deleted
             )
         if sender.__name__  == 'User':
