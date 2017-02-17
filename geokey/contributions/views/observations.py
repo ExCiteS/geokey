@@ -100,7 +100,6 @@ class ProjectObservations(GZipView, GeoJsonView):
         contributions = project.get_all_contributions(
             request.user,
             search=request.GET.get('search'),
-            subset=request.GET.get('subset')
         ).select_related('location', 'creator', 'updator', 'category')
 
         serializer = ContributionSerializer(
@@ -109,7 +108,6 @@ class ProjectObservations(GZipView, GeoJsonView):
             context={
                 'user': request.user,
                 'project': project,
-                'search': request.GET.get('search')
             }
         )
 

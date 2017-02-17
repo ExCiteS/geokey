@@ -206,6 +206,37 @@ class ObservationQuerySet(models.query.QuerySet):
 
         return self
 
+    def get_by_bbox(self, bbox):
+        """
+        Returns a subset of the queryset containing observations where the 
+        teomgey of the location is inside the the bbox passed.
+
+        Parameters
+        ----------
+        bbox : str
+            Str that provides the xmin,ymin,xmax,ymax
+
+        Return
+        ------
+        django.db.models.Queryset
+            List of search results matching the query
+        """
+
+        if bbox:
+            try:
+                ## created bbox to Polygon 
+                from django.contrib.gis.geos import Polygon
+                bbox = bbox.split(',') ## Split by ','
+                geom_bbox = Polygon.from_bbox(bbox)
+                ### Filtering observations where 
+                return self.filter(location__geometry__bboverlaps=geom_bbox)
+            except Exception as e: 
+                print "ERROR <<< >>>", e
+                
+
+        return self
+
+
 
 class ObservationManager(models.Manager):
     """
