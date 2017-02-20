@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 from django.contrib.gis.db import models as gis
+from geokey.categories.models import Field
 
 from .base import actions_dic, list_of_models, STATUS_ACTION
 
@@ -78,6 +79,10 @@ def create_log(sender, instance, actions):
                 log.category_id = instance.id
                 log.project_id = instance.project.id
                 log.user_id = instance.creator.id
+            if 'Field' in sender.__name__:
+                field = Field.objects.latest('pk')
+                log.category_id = field.category.id
+                log.project_id = field.category.project.id
             log.save()
     # return log
 
