@@ -209,7 +209,7 @@ class ObservationQuerySet(models.query.QuerySet):
     def get_by_bbox(self, bbox):
         """
         Returns a subset of the queryset containing observations where the 
-        teomgey of the location is inside the the bbox passed.
+        geometry of the location is inside the the passed bbox.
 
         Parameters
         ----------
