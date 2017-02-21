@@ -15,7 +15,7 @@ from django.template.defaultfilters import slugify
 from model_utils.managers import InheritanceManager
 from django_youtube.api import Api as Youtube, AccessControl
 
-from geokey.core.exceptions import FileTypeError
+from geokey.core.exceptions import FileTypeError, InputError
 from geokey.projects.models import Project
 
 from .base import (
@@ -230,9 +230,9 @@ class ObservationQuerySet(models.query.QuerySet):
                 geom_bbox = Polygon.from_bbox(bbox)
                 ### Filtering observations where 
                 return self.filter(location__geometry__bboverlaps=geom_bbox)
-            except Exception as e: 
-                raise PermissionDenied(str(e) +'. Please, check the coordinates'
-                    'you attached to bbox parameters, they should follow'
+            except Exception as e:                
+                raise InputError(str(e) +'. Please, check the coordinates'
+                    ' you attached to bbox parameters, they should follow'
                     'the OSGeo standards (e.g:bbox=xmin,ymin,xmax,ymax).')               
 
 
