@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 from geokey.core.decorators import handle_exceptions_for_ajax
 from geokey.users.models import User
 from geokey.projects.models import Project
+from geokey.core.exceptions import InputError
 
 from ..renderers.geojson import GeoJsonRenderer
 from ..parsers.geojson import GeoJsonParser
@@ -97,12 +98,15 @@ class ProjectObservations(GZipView, GeoJsonView):
             Contains the serialized contributions.
         """
         project = Project.objects.get_single(request.user, project_id)
-        contributions = project.get_all_contributions(
-            request.user,
-            search=request.GET.get('search'),
-            subset=request.GET.get('subset'),
-            bbox=request.GET.get('bbox')
-        ).select_related('location', 'creator', 'updator', 'category')        
+        try:
+            contributions = project.get_all_contributions(
+                request.user,
+                search=request.GET.get('search'),
+                subset=request.GET.get('subset'),
+                bbox=request.GET.get('bbox')
+            ).select_related('location', 'creator', 'updator', 'category') 
+        except InputError as e:
+            return  Response(e, status=status.HTTP_406_NOT_ACCEPTABLE)
         serializer = ContributionSerializer(
             contributions,
             many=True,
@@ -112,8 +116,7 @@ class ProjectObservations(GZipView, GeoJsonView):
                 'search': request.GET.get('search'),
                 'bbox': request.GET.get('bbox')
             }
-        )
-
+        )  
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
