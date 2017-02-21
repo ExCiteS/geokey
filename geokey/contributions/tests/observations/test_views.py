@@ -1213,6 +1213,43 @@ class TestProjectPublicApi(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(json.loads(response.content).get('features')), 2)
 
+    def test_get_with_wrong_bbox(self):
+        category = CategoryFactory(**{'project': self.project})
+        TextFieldFactory.create(**{'key': 'text', 'category': category})
+        geom1 = 'POINT (-55.555 -66.666)'
+        geom2 = 'POINT (44.0010 33)'
+
+        loc1 = LocationFactory.create()
+        loc1.geometry = geom1
+        loc1.save()
+
+        loc2 = LocationFactory.create()
+        loc2.geometry = geom2
+        loc2.save()
+
+        for x in range(0, 1):
+            ObservationFactory.create(**{
+                'project': self.project,
+                'category': category,
+                'properties': {'text': 'blah'},
+                'location': loc1}
+
+            )
+
+            ObservationFactory.create(**{
+                'project': self.project,
+                'category': category,
+                'properties': {'text': 'blub'},
+                'location': loc2 }
+                
+            )
+
+        response = self.get(self.admin, bbox='text_only')
+        error = ''
+        if 'error' in response.content:
+            error = True
+        self.assertEqual(error, True)
+
     def test_get_with_admin(self):
         response = self.get(self.admin)
         self.assertEqual(response.status_code, 200)
