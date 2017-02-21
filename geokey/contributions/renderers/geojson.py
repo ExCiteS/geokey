@@ -38,6 +38,10 @@ class GeoJsonRenderer(BaseRenderer):
         """
         Renders `data` into serialized GeoJson.
         """
+
+        if '(e.g:bbox=xmin,ymin,xmax,ymax)' in str(data):
+            rendered = {'error': str(data)}
+            return json.dumps(rendered)
         if data is None:
             return ''
 
