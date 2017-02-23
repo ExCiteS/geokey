@@ -106,7 +106,7 @@ class ProjectObservations(GZipView, GeoJsonView):
                 bbox=request.GET.get('bbox')
             ).select_related('location', 'creator', 'updator', 'category') 
         except InputError as e:
-            return  Response(e, status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response(e, status=status.HTTP_406_NOT_ACCEPTABLE)
         serializer = ContributionSerializer(
             contributions,
             many=True,
