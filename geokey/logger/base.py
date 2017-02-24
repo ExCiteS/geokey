@@ -36,7 +36,7 @@ actions_dic = {
     'Comment':
     {
         'status': 'Comment deleted',
-        'review_status': 'Comment review status  to ',
+        'review_status': 'Comment review status to ',
     },
     'Observation':
     {
