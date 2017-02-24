@@ -26,7 +26,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertEqual(int(log.user_id), user.id)
         self.assertEqual(str(log.action_id), 'created')
-        self.assertEqual(log_count, log_count_init+1)
+        self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_update_user(self):
 
@@ -40,7 +40,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertEqual(int(log.user_id), user.id)
         self.assertEqual(str(log.action_id), 'updated')
-        self.assertEqual(log_count, log_count_init+1)
+        self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_deleted_user(self):
         user = UserFactory.create()
@@ -51,7 +51,7 @@ class LoggerHistoryTest(TestCase):
         log_count = LoggerHistory.objects.count()
 
         self.assertEqual(str(log.action_id), 'deleted')
-        self.assertEqual(log_count, log_count_init+1)
+        self.assertEqual(log_count, log_count_init + 1)
 
     # TESTING SUBSETS
     def test_log_create_subset(self):
@@ -72,7 +72,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertEqual(int(log.project_id), subset.project.id)
         self.assertEqual(str(log.action_id), 'deleted')
-        self.assertEqual(log_count, log_count_init+1)
+        self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_update_subset(self):
 
@@ -86,7 +86,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertEqual(int(log.project_id), subset.project.id)
         self.assertEqual(str(log.action_id), 'updated')
-        self.assertEqual(log_count, log_count_init+1)
+        self.assertEqual(log_count, log_count_init + 1)
 
     # TESTING PROJECTS
     def test_log_crete_project(self):
@@ -107,7 +107,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertEqual(int(log.project_id), project.id)
         self.assertEqual(str(log.action_id), 'deleted')
-        self.assertEqual(log_count, log_count_init+1)
+        self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_update_project_name(self):
         project = ProjectFactory.create()
@@ -121,7 +121,7 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(int(log.project_id), project.id)
         self.assertEqual(str(log.action_id), 'updated')
         self.assertEqual(str(log.action), 'Project renamed')
-        self.assertEqual(log_count, log_count_init+1)
+        self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_update_project_isprivate(self):
         project = ProjectFactory.create()
@@ -134,7 +134,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertEqual(int(log.project_id), project.id)
         self.assertEqual(str(log.action_id), 'updated')
-        self.assertEqual(log_count, log_count_init+1)
+        self.assertEqual(log_count, log_count_init + 1)
 
     # TESTING CATEGORIES
 
@@ -158,7 +158,7 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(int(log.project_id), category.project.id)
         self.assertEqual(int(log.category_id), category.id)
         self.assertEqual(str(log.action_id), 'deleted')
-        self.assertEqual(log_count, log_count_init+1)
+        self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_update_category_name(self):
         category = CategoryFactory.create()
@@ -173,7 +173,7 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(int(log.category_id), category.id)
         self.assertEqual(str(log.action_id), 'updated')
         self.assertEqual(str(log.action), 'Category renamed')
-        self.assertEqual(log_count, log_count_init+1)
+        self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_update_category_status(self):
         category = CategoryFactory.create()
@@ -188,7 +188,7 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(int(log.category_id), category.id)
         self.assertEqual(str(log.action_id), 'updated')
         self.assertEqual(str(log.action), 'Category is inactive')
-        self.assertEqual(log_count, log_count_init+1)
+        self.assertEqual(log_count, log_count_init + 1)
 
     # TESTING USERGROUPS
     def test_log_craete_usergroup(self):
@@ -209,7 +209,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertEqual(int(log.project_id), usergroup.project.id)
         self.assertEqual(str(log.action_id), 'deleted')
-        self.assertEqual(log_count, log_count_init+1)
+        self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_update_usergroup(self):
         usergroup = UserGroupFactory.create()
@@ -222,7 +222,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertEqual(int(log.project_id), usergroup.project.id)
         self.assertEqual(str(log.action_id), 'updated')
-        self.assertEqual(log_count, log_count_init+1)
+        self.assertEqual(log_count, log_count_init + 1)
 
     # TESTING OBSERVATIONS
     def test_log_create_observation(self):
@@ -243,7 +243,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertEqual(int(log.project_id), observation.project.id)
         self.assertEqual(str(log.action_id), 'deleted')
-        self.assertEqual(log_count, log_count_init+1)
+        self.assertEqual(log_count, log_count_init + 1)
 
     # TESTING COMMENTS
     def test_log_craete_comment(self):
@@ -273,7 +273,7 @@ class LoggerHistoryTest(TestCase):
             int(log.category_id),
             comment.commentto.category.id)
         self.assertEqual(str(log.action_id), 'deleted')
-        self.assertEqual(log_count, log_count_init+1)
+        self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_update_comment(self):
         comment = CommentFactory.create()
@@ -291,4 +291,4 @@ class LoggerHistoryTest(TestCase):
             int(log.category_id),
             comment.commentto.category.id)
         self.assertEqual(str(log.action_id), 'updated')
-        self.assertEqual(log_count, log_count_init+1)
+        self.assertEqual(log_count, log_count_init + 1)
