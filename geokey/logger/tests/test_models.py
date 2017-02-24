@@ -44,13 +44,14 @@ class LoggerHistoryTest(TestCase):
 
     def test_log_deleted_user(self):
         user = UserFactory.create()
+        user_id = user.id
         log_count_init = LoggerHistory.objects.count()
         user.delete()
 
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
 
-        self.assertEqual(int(log.user_id), user.id)
+        self.assertEqual(int(log.user_id), user_id)
         self.assertEqual(str(log.action_id), 'deleted')
         self.assertEqual(log_count, log_count_init + 1)
 
