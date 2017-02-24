@@ -4,6 +4,8 @@ from django.conf import settings
 from django.db import models
 
 from django_pgjson.fields import JsonBField
+from simple_history.models import HistoricalRecords
+
 
 from geokey.core.mixins import FilterMixin
 
@@ -18,3 +20,4 @@ class Subset(FilterMixin, models.Model):
     project = models.ForeignKey('projects.Project', related_name='subsets')
     filters = JsonBField(blank=True, null=True)
     where_clause = models.TextField(blank=True, null=True)
+    history = HistoricalRecords()

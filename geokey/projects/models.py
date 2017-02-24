@@ -4,6 +4,8 @@ from django.db import models
 from django.conf import settings
 from django.contrib.gis.db import models as gis
 
+from simple_history.models import HistoricalRecords
+
 from .managers import ProjectManager
 from .base import STATUS, EVERYONE_CONTRIBUTES
 
@@ -36,6 +38,7 @@ class Project(models.Model):
     geographic_extent = gis.PolygonField(null=True, geography=True)
 
     objects = ProjectManager()
+    history = HistoricalRecords()
 
     class Meta:
         ordering = ['name']
