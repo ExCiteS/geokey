@@ -20,4 +20,7 @@ request_accessor = RequestAccessorSignal()
 
 def get_request():
     """Get the current request."""
-    return request_accessor.send(None)[0][1]
+    entry = request_accessor.send(None)[0]
+    if isinstance(entry, tuple):
+        return entry[1]
+    return None
