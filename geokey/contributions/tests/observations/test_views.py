@@ -1115,7 +1115,7 @@ class TestProjectPublicApi(TestCase):
             add_contributors=[self.contributor]
         )
 
-    def get(self, user, search=None, subset=None):
+    def get(self, user, search=None, subset=None, bbox=None):
         url = reverse('api:project_observations', kwargs={
             'project_id': self.project.id
         })
@@ -1123,6 +1123,8 @@ class TestProjectPublicApi(TestCase):
             url += '?search=blah'
         if subset:
             url += '?subset=' + str(subset)
+        if bbox:
+            url += '?bbox=' + str(bbox)
 
         request = self.factory.get(url)
         force_authenticate(request, user=user)
@@ -1175,6 +1177,113 @@ class TestProjectPublicApi(TestCase):
         response = self.get(self.admin, search='blah')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(json.loads(response.content).get('features')), 2)
+
+    def test_get_with_bbox(self):
+        category = CategoryFactory(**{'project': self.project})
+        TextFieldFactory.create(**{'key': 'text', 'category': category})
+        geom1 = 'POINT (-55.555 -66.666)'
+        geom2 = 'POINT (44.0010 33)'
+
+        loc1 = LocationFactory.create()
+        loc1.geometry = geom1
+        loc1.save()
+
+        loc2 = LocationFactory.create()
+        loc2.geometry = geom2
+        loc2.save()
+
+        for x in range(0, 2):
+            ObservationFactory.create(**{
+                'project': self.project,
+                'category': category,
+                'properties': {'text': 'blah'},
+                'location': loc1}
+
+            )
+
+            ObservationFactory.create(**{
+                'project': self.project,
+                'category': category,
+                'properties': {'text': 'blub'},
+                'location': loc2 }
+                
+            )
+
+        response = self.get(self.admin, bbox='41,32,45,35')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(json.loads(response.content).get('features')), 2)
+
+    def test_get_with_wrong_bbox(self):
+        category = CategoryFactory(**{'project': self.project})
+        TextFieldFactory.create(**{'key': 'text', 'category': category})
+        geom1 = 'POINT (-55.555 -66.666)'
+        geom2 = 'POINT (44.0010 33)'
+
+        loc1 = LocationFactory.create()
+        loc1.geometry = geom1
+        loc1.save()
+
+        loc2 = LocationFactory.create()
+        loc2.geometry = geom2
+        loc2.save()
+
+        for x in range(0, 1):
+            ObservationFactory.create(**{
+                'project': self.project,
+                'category': category,
+                'properties': {'text': 'blah'},
+                'location': loc1}
+
+            )
+
+            ObservationFactory.create(**{
+                'project': self.project,
+                'category': category,
+                'properties': {'text': 'blub'},
+                'location': loc2 }
+                
+            )
+
+        response = self.get(self.admin, bbox='text_only')
+        error = ''
+        if 'error' in response.content:
+            error = True
+        self.assertEqual(error, True)
+
+    def test_get_with_bbox_and_search(self):
+        category = CategoryFactory(**{'project': self.project})
+        TextFieldFactory.create(**{'key': 'text', 'category': category})
+        geom1 = 'POINT (-55.555 -66.666)'
+        geom2 = 'POINT (44.0010 33)'
+
+        loc1 = LocationFactory.create()
+        loc1.geometry = geom1
+        loc1.save()
+
+        loc2 = LocationFactory.create()
+        loc2.geometry = geom2
+        loc2.save()
+
+        for x in range(0, 1):
+            ObservationFactory.create(**{
+                'project': self.project,
+                'category': category,
+                'properties': {'text': 'blah'},
+                'location': loc1}
+
+            )
+
+            ObservationFactory.create(**{
+                'project': self.project,
+                'category': category,
+                'properties': {'text': 'blub'},
+                'location': loc2 }
+                
+            )
+
+        response = self.get(self.admin, bbox='41,32,45,35', search='blah')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(json.loads(response.content).get('features')), 1)
 
     def test_get_with_admin(self):
         response = self.get(self.admin)

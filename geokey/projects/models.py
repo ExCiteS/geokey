@@ -259,7 +259,7 @@ class Project(models.Model):
             not user.is_anonymous() and (
                 self.usergroups.filter(users=user).exists()))
 
-    def get_all_contributions(self, user, search=None, subset=None):
+    def get_all_contributions(self, user, search=None, subset=None, bbox=None):
         """
         Returns all contributions a user can access in a project. It gets
         the SQL clauses of all data groupings in the project and combines them
@@ -306,6 +306,9 @@ class Project(models.Model):
 
         if search:
             data = data.search(search)
+
+        if bbox:
+            data = data.get_by_bbox(bbox)
 
         return data.distinct()
 
