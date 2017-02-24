@@ -16,7 +16,7 @@ from ..models import LoggerHistory
 
 class LoggerHistoryTest(TestCase):
 
-    # TESTING USER
+    # TESTING USERS
     def test_log_create_user(self):
         log_count_init = LoggerHistory.objects.count()
         user = UserFactory.create()
@@ -29,7 +29,6 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_update_user(self):
-
         user = UserFactory.create()
         log_count_init = LoggerHistory.objects.count()
         user.display_name = 'New name'
@@ -75,7 +74,6 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_update_subset(self):
-
         subset = SubsetFactory.create()
         log_count_init = LoggerHistory.objects.count()
         subset.name = 'New subset'
@@ -137,7 +135,6 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log_count, log_count_init + 1)
 
     # TESTING CATEGORIES
-
     def test_log_crete_category(self):
         category = CategoryFactory.create()
 
