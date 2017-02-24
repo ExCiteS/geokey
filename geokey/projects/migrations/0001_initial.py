@@ -8,7 +8,7 @@ import django.contrib.gis.db.models.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('logger', '0001_initial'),
+        ('core', '0001_initial'),
     ]
 
     operations = [

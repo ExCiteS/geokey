@@ -89,7 +89,7 @@ actions_dic = {
     },
     'UserGroup':
     {
-        'name': 'User groups renamed',
+        'name': 'User group renamed',
         'can_moderate': 'User groups permissions changed'
     },
     'Category':

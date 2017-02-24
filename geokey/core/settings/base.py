@@ -52,7 +52,6 @@ INSTALLED_APPS = (
     'rest_framework_gis',
 
     # GeoKey apps
-    'geokey.logger',
     'geokey.projects',
     'geokey.categories',
     'geokey.contributions',
