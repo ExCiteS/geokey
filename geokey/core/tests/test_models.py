@@ -1,6 +1,7 @@
 """Tests for core models."""
 
 from django.test import TestCase
+from django.contrib.gis.geos import GEOSGeometry
 
 from geokey.users.tests.model_factories import UserFactory, UserGroupFactory
 from geokey.projects.tests.model_factories import ProjectFactory
@@ -146,4 +147,21 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log.project_id, self.project.id)
         self.assertEqual(log.action_id, 'updated')
         self.assertEqual(log.action, 'Project is locked')
+        self.assertEqual(log_count, log_count_init + 1)
+
+    def test_log_update_project_geo_extent(self):
+        """Test when project geo. extent changes."""
+        log_count_init = LoggerHistory.objects.count()
+        self.project.geographic_extent = GEOSGeometry(
+            '{"type": "Polygon","coordinates": [[[55.32,50.25],[-0.58,58.36],'
+            '[55.22,59.32],[0.18,59.02],[-0.99,54.68]]]}')
+        self.project.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user_id, self.user.id)
+        self.assertEqual(log.project_id, self.project.id)
+        self.assertEqual(log.action_id, 'updated')
+        self.assertEqual(log.action, 'Project geogr. ext. changed')
         self.assertEqual(log_count, log_count_init + 1)
