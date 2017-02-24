@@ -58,7 +58,7 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log.action, 'Project created')
         self.assertEqual(log_count, log_count_init + 1)
 
-    def test_log_deleted_project(self):
+    def test_log_delete_project(self):
         """Test when project gets deleted."""
         project_id = self.project.id
         log_count_init = LoggerHistory.objects.count()
@@ -88,10 +88,10 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log.action, 'Project renamed')
         self.assertEqual(log_count, log_count_init + 1)
 
-    def test_log_update_project_contributing_permissions(self):
-        """Test when project contributing permissions change."""
+    def test_log_update_project_status(self):
+        """Test when project locker change."""
         log_count_init = LoggerHistory.objects.count()
-        self.project.everyone_contributes = 'auth'
+        self.project.status = 'inactive'
         self.project.save()
 
         log = LoggerHistory.objects.last()
@@ -100,7 +100,7 @@ class LoggerHistoryTest(TestCase):
         self.assertNotEqual(log.user_id, self.user.id)
         self.assertEqual(log.project_id, self.project.id)
         self.assertEqual(log.action_id, 'updated')
-        self.assertEqual(log.action, 'Project permissions changed')
+        self.assertEqual(log.action, 'Project is archived')
         self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_update_project_isprivate(self):
@@ -116,6 +116,21 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log.project_id, self.project.id)
         self.assertEqual(log.action_id, 'updated')
         self.assertEqual(log.action, 'Project is public')
+        self.assertEqual(log_count, log_count_init + 1)
+
+    def test_log_update_project_contributing_permissions(self):
+        """Test when project contributing permissions change."""
+        log_count_init = LoggerHistory.objects.count()
+        self.project.everyone_contributes = 'auth'
+        self.project.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user_id, self.user.id)
+        self.assertEqual(log.project_id, self.project.id)
+        self.assertEqual(log.action_id, 'updated')
+        self.assertEqual(log.action, 'Project permissions changed')
         self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_update_project_islocked(self):
