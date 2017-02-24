@@ -15,8 +15,8 @@ class LoggerHistory(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     project_id = models.CharField(null=True, max_length=1000)
     category_id = models.CharField(null=True, max_length=1000)
-    user_id = models.CharField(null=True,max_length=1000)
-    action  = models.CharField(max_length=300)
+    user_id = models.CharField(null=True, max_length=1000)
+    action = models.CharField(max_length=300)
     geometry = gis.GeometryField(geography=True, null=True)
     action_id = models.CharField(
         choices=STATUS_ACTION,
@@ -26,8 +26,7 @@ class LoggerHistory(models.Model):
 
 
 def create_log(sender, instance, actions):
-
-    """ Create a log on LoggerHistory depending the sender.
+    """Create a log on LoggerHistory depending the sender.
 
     Parameters
     -----------
@@ -70,7 +69,6 @@ def create_log(sender, instance, actions):
                 log.geometry = instance.location.geometry
             if sender.__name__ == 'UserGroup':
                 log.project_id = instance.project.id
-                #log.user_id = instance.creator.id
             if sender.__name__ == 'Category':
                 log.category_id = instance.id
                 log.project_id = instance.project.id
@@ -104,13 +102,14 @@ def checkIsPrivate(isprivate):
     """
 
     status = 'public'
-    if isprivate == True:
+    if isprivate is True:
         status = 'private'
     return status
 
-def cross_check_fields(instance,obj):
+
+def cross_check_fields(instance, obj):
     """
-    Cross check the fiels of the instance passed and check if there have been 
+    Cross check the fiels of the instance passed and check if there have been
     changes.
 
     Parameters
@@ -118,12 +117,12 @@ def cross_check_fields(instance,obj):
     instance: django model
         geokey object triggered by django.model.signals
 
-    obj: object 
-    
+    obj: object
+
     Returns
     --------
     actions: list str
-        list of string with the text to be added on actions field on 
+        list of string with the text to be added on actions field on
         HistoryLogger.
 
     """
@@ -132,7 +131,7 @@ def cross_check_fields(instance,obj):
     for field, value in actions_dic[class_name].iteritems():
         if not instance.__dict__.get(field) == obj.__dict__.get(field):
             try:
-                action = value                
+                action = value
                 if field == 'isprivate' and class_name == 'Project':
                     action = action + checkIsPrivate(field)
                 if field == 'status' and class_name == 'Observation':
@@ -148,9 +147,11 @@ def cross_check_fields(instance,obj):
 
 """
 Receiver for pre_save and get updates.
-""" 
+"""
+
+
 @receiver(pre_save)
-def log_updates(sender, instance, *args,  **kwargs):
+def log_updates(sender, instance, *args, **kwargs):
     if sender.__name__ in list_of_models:
         try:
             obj = sender.objects.get(pk=instance.pk)
@@ -160,19 +161,23 @@ def log_updates(sender, instance, *args,  **kwargs):
 
 """
 Receiver for post_save and get creations.
-""" 
+"""
+
+
 @receiver(post_save)
 def log_created(sender, instance, created, **kwargs):
     if sender.__name__ in list_of_models:
         if created:
-            create_log(sender, instance, [sender.__name__+" created"])
+            create_log(sender, instance, [sender.__name__ + " created"])
 
 
 """
 Receiver for post_deletes for UserGroup, Field and Subset
-""" 
-@receiver(post_delete) 
-def log_delete(sender, instance, *args,  **kwargs):
+"""
+
+
+@receiver(post_delete)
+def log_delete(sender, instance, *args, **kwargs):
     try:
         instance.__class__.objects.get(pk=instance.id)
     except:
@@ -187,25 +192,25 @@ def log_delete(sender, instance, *args,  **kwargs):
                 action=action,
                 action_id=STATUS_ACTION.deleted
             )
-        if sender.__name__  == 'UserGroup':
+        if sender.__name__ == 'UserGroup':
             project_id = instance.project.id
-            action = sender.__name__ +" deleted"
+            action = sender.__name__ + " deleted"
             LoggerHistory.objects.create(
                 project_id=project_id,
                 action=action,
                 action_id=STATUS_ACTION.deleted
             )
-        if sender.__name__  == 'Subset':
+        if sender.__name__ == 'Subset':
             project_id = instance.project.id
-            action = sender.__name__ +" deleted"
+            action = sender.__name__ + " deleted"
             LoggerHistory.objects.create(
                 project_id=project_id,
                 action=action,
-                user_id = instance.creator.id,
+                user_id=instance.creator.id,
                 action_id=STATUS_ACTION.deleted
             )
-        if sender.__name__  == 'User':
-            action = sender.__name__ +" deleted"
+        if sender.__name__ == 'User':
+            action = sender.__name__ + " deleted"
             LoggerHistory.objects.create(
                 user_id=instance.id,
                 action=action,
