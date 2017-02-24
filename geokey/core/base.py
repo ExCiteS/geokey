@@ -100,7 +100,7 @@ actions_dic = {
     'Project':
     {
         'name': 'Project renamed',
-        'geographic_extent': 'Project geogr. ext. changed',
+        'geographic_extent': 'Project geogr. extent changed',
         'everyone_contributes': 'Project permissions changed',
         'isprivate': 'Project is ',
         'status': 'Project deleted'
