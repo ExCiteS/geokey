@@ -27,43 +27,21 @@ class LoggerHistoryTest(TestCase):
     def test_log_create_user(self):
         """Test when user gets created."""
         log_count_init = LoggerHistory.objects.count()
-        user = UserFactory.create()
+        UserFactory.create()
+        self.assertEqual(LoggerHistory.objects.count(), log_count_init)
 
-        log = LoggerHistory.objects.last()
-        log_count = LoggerHistory.objects.count()
-
-        self.assertEqual(log.user_id, user.id)
-        self.assertEqual(log.action_id, 'created')
-        self.assertEqual(log.action, 'User created')
-        self.assertEqual(log_count, log_count_init + 1)
-
-    def test_log_deleted_user(self):
+    def test_log_delete_user(self):
         """Test when user gets deleted."""
-        user_id = self.user.id
         log_count_init = LoggerHistory.objects.count()
         self.user.delete()
+        self.assertEqual(LoggerHistory.objects.count(), log_count_init)
 
-        log = LoggerHistory.objects.last()
-        log_count = LoggerHistory.objects.count()
-
-        self.assertEqual(log.user_id, user_id)
-        self.assertEqual(log.action_id, 'deleted')
-        self.assertEqual(log.action, 'User deleted')
-        self.assertEqual(log_count, log_count_init + 1)
-
-    def test_log_update_user(self):
-        """Test when user changes name."""
+    def test_log_update_user_display_name(self):
+        """Test when user changes display name."""
         log_count_init = LoggerHistory.objects.count()
         self.user.display_name = '%s UPDATED' % self.user.display_name
         self.user.save()
-
-        log = LoggerHistory.objects.last()
-        log_count = LoggerHistory.objects.count()
-
-        self.assertEqual(log.user_id, self.user.id)
-        self.assertEqual(log.action_id, 'updated')
-        self.assertEqual(log.action, 'User renamed')
-        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(LoggerHistory.objects.count(), log_count_init)
 
     # PROJECTS
     def test_log_create_project(self):
