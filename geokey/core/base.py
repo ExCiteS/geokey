@@ -7,7 +7,6 @@ STATUS_ACTION = Choices('created', 'deleted', 'updated')
 
 
 list_of_models = (
-    'User',
     'Category',
     'Subset',
     'Project',

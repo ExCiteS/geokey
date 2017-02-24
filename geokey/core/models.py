@@ -65,11 +65,7 @@ def create_log(sender, instance, actions, request):
                 user = request.user
             else:
                 user = 0
-            if sender.__name__ == 'User':
-                log.user_id = user
-                log.historical = {
-                    sender.__name__: sender.history.lastest('id')
-                }
+
             if sender.__name__ == 'Project':
                 log.project_id = user
                 log.user_id = instance.creator.id
@@ -274,16 +270,6 @@ def log_delete(sender, instance, *args, **kwargs):
                 project_id=project_id,
                 action=action,
                 user_id=user,
-                action_id=STATUS_ACTION.deleted,
-                historical={
-                    sender.__name__: sender.history.lastest('id')
-                }
-            )
-        if sender.__name__ == 'User':
-            action = sender.__name__ + " deleted"
-            LoggerHistory.objects.create(
-                user_id=user,
-                action=action,
                 action_id=STATUS_ACTION.deleted,
                 historical={
                     sender.__name__: sender.history.lastest('id')
