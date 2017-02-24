@@ -70,7 +70,7 @@ def create_log(sender, instance, actions, request):
                 log.project_id = user
                 log.user_id = instance.creator.id
                 log.historical = {
-                    sender.__name__: sender.history.latest('id')
+                    sender.__name__: sender.history.latest('id').id
                 }
             if sender.__name__ == 'Comment':
                 log.project_id = instance.commentto.category.project.id
@@ -78,7 +78,7 @@ def create_log(sender, instance, actions, request):
                 log.category_id = instance.commentto.category.id
                 log.comment_id = instance.id
                 log.historical = {
-                    sender.__name__: sender.history.latest('id')
+                    sender.__name__: sender.history.latest('id').id
                 }
                 pass
             if sender.__name__ == 'Observation':
@@ -87,27 +87,27 @@ def create_log(sender, instance, actions, request):
                 log.user_id = user
                 log.geometry = instance.location.geometry
                 log.historical = {
-                    sender.__name__: sender.history.latest('id')
+                    sender.__name__: sender.history.latest('id').id
                 }
             if sender.__name__ == 'UserGroup':
                 log.project_id = instance.project.id
                 log.user_id = instance.id
                 log.historical = {
-                    sender.__name__: sender.history.latest('id')
+                    sender.__name__: sender.history.latest('id').id
                 }
             if sender.__name__ == 'Category':
                 log.category_id = instance.id
                 log.project_id = instance.project.id
                 log.user_id = user
                 log.historical = {
-                    sender.__name__: sender.history.latest('id')
+                    sender.__name__: sender.history.latest('id').id
                 }
             if sender.__name__ == 'Subset':
                 log.project_id = instance.project.id
                 log.subset_id = instance.id
                 log.user_id = user
                 log.historical = {
-                    sender.__name__: sender.history.latest('id')
+                    sender.__name__: sender.history.latest('id').id
                 }
             if 'Field' in sender.__name__:
                 field = Field.objects.latest('pk')
@@ -115,7 +115,7 @@ def create_log(sender, instance, actions, request):
                 log.category_id = field.category.id
                 log.project_id = field.category.project.id
                 log.historical = {
-                    sender.__name__: sender.history.latest('id')
+                    sender.__name__: sender.history.latest('id').id
                 }
             log.save()
     # return log
@@ -246,7 +246,7 @@ def log_delete(sender, instance, *args, **kwargs):
                 action=action,
                 action_id=STATUS_ACTION.deleted,
                 historical={
-                    sender.__name__: sender.history.latest('id')
+                    sender.__name__: sender.history.latest('id').id
                 }
             )
         if sender.__name__ == 'UserGroup':
@@ -259,7 +259,7 @@ def log_delete(sender, instance, *args, **kwargs):
                 action=action,
                 action_id=STATUS_ACTION.deleted,
                 historical={
-                    sender.__name__: sender.history.latest('id')
+                    sender.__name__: sender.history.latest('id').id
                 }
             )
         if sender.__name__ == 'Subset':
@@ -272,6 +272,6 @@ def log_delete(sender, instance, *args, **kwargs):
                 user_id=user,
                 action_id=STATUS_ACTION.deleted,
                 historical={
-                    sender.__name__: sender.history.latest('id')
+                    sender.__name__: sender.history.latest('id').id
                 }
             )
