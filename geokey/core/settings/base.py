@@ -75,6 +75,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'geokey.core.middleware.XsSharing',
+    'geokey.core.middleware.RequestProvider',
 )
 
 # Settings for django-oauth-toolkit
