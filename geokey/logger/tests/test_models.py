@@ -257,6 +257,7 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(int(log.project_id), project.id)
         self.assertEqual(int(log.subset_id), subset.id)
         self.assertEqual(str(log.action_id), 'created')
+        self.assertEqual(str(log.action), 'Subset created')
         self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_delete_subset(self):
