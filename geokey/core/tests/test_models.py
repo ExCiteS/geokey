@@ -89,7 +89,7 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_update_project_status(self):
-        """Test when project locker change."""
+        """Test when project status changes."""
         log_count_init = LoggerHistory.objects.count()
         self.project.status = 'inactive'
         self.project.save()
@@ -104,7 +104,7 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_update_project_isprivate(self):
-        """Test when project privacy change."""
+        """Test when project privacy changes."""
         log_count_init = LoggerHistory.objects.count()
         self.project.isprivate = False
         self.project.save()
@@ -119,7 +119,7 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_update_project_contributing_permissions(self):
-        """Test when project contributing permissions change."""
+        """Test when project contributing permissions changes."""
         log_count_init = LoggerHistory.objects.count()
         self.project.everyone_contributes = 'auth'
         self.project.save()
@@ -134,7 +134,7 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_update_project_islocked(self):
-        """Test when project locker change."""
+        """Test when project locker changes."""
         log_count_init = LoggerHistory.objects.count()
         self.project.islocked = True
         self.project.save()
