@@ -53,7 +53,6 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(str(log.action_id), 'deleted')
         self.assertEqual(log_count, log_count_init+1)
 
-
     # TESTING SUBSETS
     def test_log_create_subset(self):
         subset = SubsetFactory.create()
@@ -62,7 +61,6 @@ class LoggerHistoryTest(TestCase):
 
         self.assertEqual(int(log.project_id), subset.project.id)
         self.assertEqual(str(log.action_id), 'created')
-
 
     def test_log_delete_subset(self):
         subset = SubsetFactory.create()
@@ -137,7 +135,6 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(int(log.project_id), project.id)
         self.assertEqual(str(log.action_id), 'updated')
         self.assertEqual(log_count, log_count_init+1)
-
 
     # TESTING CATEGORIES
 
