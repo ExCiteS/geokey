@@ -8,7 +8,10 @@ from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.categories.tests.model_factories import CategoryFactory
 from geokey.subsets.tests.model_factories import SubsetFactory
 from geokey.users.tests.model_factories import UserGroupFactory, UserFactory
-from geokey.contributions.tests.model_factories import ObservationFactory, CommentFactory
+from geokey.contributions.tests.model_factories import (
+    ObservationFactory,
+    CommentFactory,
+)
 
 from ..models import LoggerHistory
 
@@ -253,8 +256,12 @@ class LoggerHistoryTest(TestCase):
         comment = CommentFactory.create()
 
         log = LoggerHistory.objects.last()
-        self.assertEqual(int(log.project_id), comment.commentto.category.project.id)
-        self.assertEqual(int(log.category_id), comment.commentto.category.id)
+        self.assertEqual(
+            int(log.project_id),
+            comment.commentto.category.project.id)
+        self.assertEqual(
+            int(log.category_id),
+            comment.commentto.category.id)
         self.assertEqual(str(log.action_id), 'created')
 
     def test_log_delete_comment(self):
@@ -265,8 +272,12 @@ class LoggerHistoryTest(TestCase):
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
 
-        self.assertEqual(int(log.project_id), comment.commentto.category.project.id)
-        self.assertEqual(int(log.category_id), comment.commentto.category.id)
+        self.assertEqual(
+            int(log.project_id),
+            comment.commentto.category.project.id)
+        self.assertEqual(
+            int(log.category_id),
+            comment.commentto.category.id)
         self.assertEqual(str(log.action_id), 'deleted')
         self.assertEqual(log_count, log_count_init+1)
 
@@ -279,7 +290,11 @@ class LoggerHistoryTest(TestCase):
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
 
-        self.assertEqual(int(log.project_id), comment.commentto.category.project.id)
-        self.assertEqual(int(log.category_id), comment.commentto.category.id)
+        self.assertEqual(
+            int(log.project_id),
+            comment.commentto.category.project.id)
+        self.assertEqual(
+            int(log.category_id),
+            comment.commentto.category.id)
         self.assertEqual(str(log.action_id), 'updated')
         self.assertEqual(log_count, log_count_init+1)
