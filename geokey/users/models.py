@@ -41,7 +41,6 @@ class User(AbstractBaseUser):
     REQUIRED_FIELDS = ['email']
 
     objects = UserManager()
-    history = HistoricalRecords()
 
     def reset_password(self, password):
         """
