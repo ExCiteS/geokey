@@ -15,7 +15,7 @@ from ..models import LoggerHistory
 
 class LoggerHistoryTest(TestCase):
 
-    ### TESETING USER ####
+    ### TESTING USER ####
     def test_log_create_user(self):
         log_count_init = LoggerHistory.objects.count()
         user = UserFactory.create()
@@ -53,7 +53,7 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log_count, log_count_init+1)
 
 
-    ## TESETING SUBSETS ####
+    ## TESTING SUBSETS ####
     def test_log_create_subset(self):
         subset = SubsetFactory.create()
 
