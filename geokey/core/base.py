@@ -25,84 +25,82 @@ list_of_models = (
 )
 #######
 
-#######
 actions_dic = {
     'User':
     {
-        'display_name': 'User renamed'
+        'display_name': STATUS_ACTION.updated
     },
 
     'Comment':
     {
-        'status': 'Comment deleted',
-        'review_status': 'Comment review status to ',
+        'status': STATUS_ACTION.deleted,
+        'review_status': STATUS_ACTION.updated,
     },
     'Observation':
     {
         # '_location_cache': 'Location has been changed',
-        'status': 'Observation is '
+        'status': STATUS_ACTION.updated,
     },
     'Field':
     {
-        # '_location_cache': 'Location has been changed',
-        'Required': 'Field is required'
+        'Required': STATUS_ACTION.updated,
     },
     'Subset':
     {
-        'name': 'Subset renamed'
+        'name': STATUS_ACTION.updated,
     },
     'TextField':
     {
-        'name': 'Field renamed',
-        'status': 'Field is '
+        'name': STATUS_ACTION.updated,
+        'status': STATUS_ACTION.updated,
     },
     'NumericField':
     {
-        'name': 'Field renamed',
-        'status': 'Field is '
+        'name': STATUS_ACTION.updated,
+        'status': STATUS_ACTION.updated,
     },
     'DateTimeField':
     {
-        'name': 'Field renamed',
-        'status': 'Field is '
+        'name': STATUS_ACTION.updated,
+        'status': STATUS_ACTION.updated
     },
     'TimeField':
     {
-        'name': 'Field renamed',
-        'status': 'Field is '
+        'name': STATUS_ACTION.updated,
+        'status': STATUS_ACTION.updated
     },
     'LookupField':
     {
-        'name': 'Field renamed',
+        'name': STATUS_ACTION.updated,
         'status': 'Field is '
     },
     'DateField':
     {
-        'name': 'Field renamed',
-        'status': 'Field is '
+        'name': STATUS_ACTION.updated,
+        'status': STATUS_ACTION.updated
     },
     'MultipleLookupField':
     {
-        'name': 'Field renamed',
-        'status': 'Field is '
+        'name': STATUS_ACTION.updated,
+        'status': STATUS_ACTION.updated
     },
     'UserGroup':
     {
-        'name': 'User group renamed',
-        'can_moderate': 'User groups permissions changed'
+        'name': STATUS_ACTION.updated,
+        'can_moderate': STATUS_ACTION.updated
     },
     'Category':
     {
-        'name': 'Category renamed',
-        'status': 'Category is ',
-        'default_status': 'Category default status changed'
+        'name': STATUS_ACTION.updated,
+        'status': STATUS_ACTION.updated,
+        'default_status': STATUS_ACTION.updated
     },
     'Project':
     {
-        'name': 'Project renamed',
-        'geographic_extent': 'Project geogr. ext. changed',
-        'everyone_contributes': 'Project permissions changed',
-        'isprivate': 'Project is ',
-        'status': 'Project deleted'
+        'name': STATUS_ACTION.updated,
+        'geographic_extent': STATUS_ACTION.updated,
+        'everyone_contributes': STATUS_ACTION.updated,
+        'isprivate': STATUS_ACTION.updated,
+        'status': STATUS_ACTION.deleted
     }
 }

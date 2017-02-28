@@ -9,22 +9,22 @@ from django.contrib.postgres.fields import HStoreField
 from geokey.core.signals import get_request
 
 
-from .base import actions_dic, list_of_models, STATUS_ACTION
+from .base import list_of_models, STATUS_ACTION, actions_dic
 
 
 class LoggerHistory(models.Model):
     """Stores the loggers for each even created."""
 
     timestamp = models.DateTimeField(auto_now_add=True)
-    project_id = models.IntegerField(null=True)
-    category_id = models.IntegerField(null=True)
-    user_id = models.IntegerField(null=True)
-    usergroup_id = models.IntegerField(null=True)
-    subset_id = models.IntegerField(null=True)
-    location_id = models.IntegerField(null=True)
-    observation_id = models.IntegerField(null=True)
-    comment_id = models.IntegerField(null=True)
-    action = models.CharField(max_length=300)
+    project = HStoreField(null=True, blank=True)
+    category = HStoreField(null=True, blank=True)
+    user = HStoreField(null=True, blank=True)
+    usergroup = HStoreField(null=True, blank=True)
+    subset = HStoreField(null=True, blank=True)
+    field = HStoreField(null=True, blank=True)
+    observation = HStoreField(null=True, blank=True)
+    comment = HStoreField(null=True, blank=True)
+    action = HStoreField(null=True, blank=True)
     geometry = gis.GeometryField(geography=True, null=True)
     action_id = models.CharField(
         choices=STATUS_ACTION,
@@ -34,111 +34,100 @@ class LoggerHistory(models.Model):
     historical = HStoreField(null=True, blank=True)
 
 
-def create_log(sender, instance, actions, request):
-    """
 
-    Create a log on LoggerHistory depending the sender.
-
-    Parameters
-    -----------
-    sender : django.db.models.base.ModeBase class
-        sender provided by the django.model.signals.
-    instance : django model
-        geokey model triggered by django.model.signals
-    actions : list of str
-        list of strings which contains the actions will be added to the action
-        field on HistoryLogger table.
-    """
-    if actions:
-        for action in actions:
-            if 'created' in action:
-                action_id = STATUS_ACTION.created
-            elif 'deleted' in action:
-                action_id = STATUS_ACTION.deleted
+def create_new_log(sender, instance, actions_info, request):
+    if actions_info:
+        for action in actions_info:
+            historical = {'class': sender.__name__}
+            if action['id'] != 'updated':
+                try:
+                    historical['id'] = str(instance.history.latest('pk').pk)
+                except:
+                    historical['id'] = None
             else:
-                action_id = STATUS_ACTION.updated
+                historical = {}
+            if hasattr(request, 'user'):
+                user_info = {
+                    'id': str(request.user.id),
+                    'display_name': request.user.display_name
+                }
+            else:
+                user_info = {}
             log = LoggerHistory(
                 action=action,
-                action_id=action_id
+                user_id=user_info,
+                historical=historical
             )
-            if hasattr(request, 'user'):
-                user = request.user
-            else:
-                user = 0
-
             if sender.__name__ == 'Project':
-                log.project_id = user
-                log.user_id = instance.creator.id
-                log.historical = {
-                    sender.__name__: str(sender.history.latest('id'))
+                log.project = {
+                    'id': str(instance.id),
+                    'name': instance.name
                 }
-            if sender.__name__ == 'Comment':
-                log.project_id = instance.commentto.category.project.id
-                log.user_id = user
-                log.category_id = instance.commentto.category.id
-                log.comment_id = instance.id
-                log.historical = {
-                    sender.__name__: str(sender.history.latest('id'))
+            elif sender.__name__ == 'Comment':
+                log.category = {
+                    'id': str(instance.commentto.category.id),
+                    'name': instance.commentto.category.name
                 }
+                log.project = {
+                    'id': str(instance.commentto.category.project.id),
+                    'name': instance.commentto.category.project.name
+                }
+                log.comment = {
+                    'id': str(instance.id)}
                 pass
-            if sender.__name__ == 'Observation':
-                log.category_id = instance.category.id
-                log.project_id = instance.project.id
-                log.user_id = user
+            elif sender.__name__ == 'Observation':
+                log.project = {
+                    'id': str(instance.project.id),
+                    'name': instance.project.name
+                }
+                log.category = {
+                    'id': str(instance.category.id),
+                    'name': instance.category.name
+                }
+                log.observation = {'id': str(instance.id)}
                 log.geometry = instance.location.geometry
-                log.historical = {
-                    sender.__name__: str(sender.history.latest('id'))
+            elif sender.__name__ == 'UserGroup':
+                log.project = {
+                    'id': str(instance.project.id),
+                    'name': instance.project.name
                 }
-            if sender.__name__ == 'UserGroup':
-                log.project_id = instance.project.id
-                log.user_id = instance.id
-                log.historical = {
-                    sender.__name__: str(sender.history.latest('id'))
+                log.usergroup = {
+                    'id': str(instance.id),
+                    'name': instance.name
                 }
-            if sender.__name__ == 'Category':
-                log.category_id = instance.id
-                log.project_id = instance.project.id
-                log.user_id = user
-                log.historical = {
-                    sender.__name__: str(sender.history.latest('id'))
+            elif sender.__name__ == 'Category':
+                log.category = {
+                    'id': str(instance.id),
+                    'name': instance.name
                 }
-            if sender.__name__ == 'Subset':
-                log.project_id = instance.project.id
-                log.subset_id = instance.id
-                log.user_id = user
-                log.historical = {
-                    sender.__name__: str(sender.history.latest('id'))
+                log.project = {
+                    'id': str(instance.project.id),
+                    'name': instance.project.name
                 }
-            if 'Field' in sender.__name__:
+            elif sender.__name__ == 'Subset':
+                log.subset = {
+                    'id': str(instance.id),
+                    'name': instance.name
+                }
+                log.project = {
+                    'id': str(instance.project.id),
+                    'name': instance.project.name
+                }
+            elif 'Field' in sender.__name__:
                 field = Field.objects.latest('pk')
-                log.user_id = user
-                log.category_id = field.category.id
-                log.project_id = field.category.project.id
-                log.historical = {
-                    sender.__name__: str(sender.history.latest('id'))
+                log.category = {
+                    'id': str(field.category.id),
+                    'name': field.category.name
+                }
+                log.field = {
+                    'id': str(field.id),
+                    'name': field.name
+                }
+                log.project = {
+                    'id': str(field.category.project.id),
+                    'name': field.category.project.name
                 }
             log.save()
-    # return log
-
-
-def check_is_private(isprivate):
-    """
-
-    Check if project is private and provide string to add to the action.
-
-    Parameters
-    -----------
-    isprivate = str
-        status field value in Project object.
-    Returns
-    --------
-    status = str
-        text to be added on action field Historylogger.
-    """
-    status = 'public'
-    if isprivate is True:
-        status = 'private'
-    return status
 
 
 def cross_check_fields(instance, obj):
@@ -159,24 +148,22 @@ def cross_check_fields(instance, obj):
         list of string with the text to be added on actions field on
         HistoryLogger.
     """
-    actions = []
+    actions_info = []
     class_name = instance.__class__.__name__
+
     for field, value in actions_dic[class_name].iteritems():
         if not instance.__dict__.get(field) == obj.__dict__.get(field):
             try:
-                action = value
-                if field == 'isprivate' and class_name == 'Project':
-                    action = action + check_is_private(field)
-                if field == 'status' and class_name == 'Observation':
-                    action = action + instance.__dict__.get(field)
-                if field == 'status' and class_name == 'Category':
-                    action = action + instance.__dict__.get(field)
-                if field == 'status' and 'Field' in class_name:
-                    action = action + instance.__dict__.get(field)
-                actions.append(action)
+                action_dic = {
+                    'id': value,
+                    'field': field,
+                    'value': instance.__dict__.get(field)
+                }
+                actions_info.append(action_dic)
             except:
                 pass
-    return actions
+    return actions_info
+
 
 """
 Receiver for pre_save and get updates.
@@ -190,7 +177,7 @@ def log_updates(sender, instance, *args, **kwargs):
     if sender.__name__ in list_of_models:
         try:
             obj = sender.objects.get(pk=instance.pk)
-            create_log(
+            create_new_log(
                 sender,
                 instance,
                 cross_check_fields(instance, obj),
@@ -210,12 +197,24 @@ def log_created(sender, instance, created, **kwargs):
     request = get_request()
     if sender.__name__ in list_of_models:
         if created:
-            create_log(
+            actions_info = {}
+            actions_info['id'] = STATUS_ACTION.created
+            create_new_log(
                 sender,
                 instance,
-                [sender.__name__ + " created"],
+                [actions_info],
                 request
             )
+        else:
+            try:
+                log = LoggerHistory.objects.last()
+                log.historical = {
+                    'class': sender.__name__,
+                    'id': str(instance.history.latest('pk').pk)
+                }
+                log.save()
+            except:
+                pass
 
 
 """
@@ -227,51 +226,30 @@ Receiver for post_deletes for UserGroup, Field, Subset and User
 def log_delete(sender, instance, *args, **kwargs):
     """Create logs when something is deleted in a model."""
     request = get_request()
-    if hasattr(request, 'user'):
-        user = request.user
-    else:
-        user = 0
     try:
         instance.__class__.objects.get(pk=instance.id)
     except:
         if sender.__name__ == 'Field':
-            try:
-                project_id = instance.category.project.id
-            except:
-                project_id = 0
-            action = sender.__name__ + " deleted"
-            LoggerHistory.objects.create(
-                user_id=user,
-                project_id=project_id,
-                action=action,
-                action_id=STATUS_ACTION.deleted,
-                historical={
-                    sender.__name__: str(sender.history.latest('id'))
-                }
+            actions_info = {'id': STATUS_ACTION.deleted}
+            create_new_log(
+                sender,
+                instance,
+                [actions_info],
+                request
             )
         if sender.__name__ == 'UserGroup':
-            project_id = instance.project.id
-            action = sender.__name__ + " deleted"
-            LoggerHistory.objects.create(
-                usergroup_id=instance.id,
-                user_id=user,
-                project_id=project_id,
-                action=action,
-                action_id=STATUS_ACTION.deleted,
-                historical={
-                    sender.__name__: str(sender.history.latest('id'))
-                }
+            actions_info = {'id': STATUS_ACTION.deleted}
+            create_new_log(
+                sender,
+                instance,
+                [actions_info],
+                request
             )
         if sender.__name__ == 'Subset':
-            project_id = instance.project.id
-            action = sender.__name__ + " deleted"
-            LoggerHistory.objects.create(
-                subset_id=instance.id,
-                project_id=project_id,
-                action=action,
-                user_id=user,
-                action_id=STATUS_ACTION.deleted,
-                historical={
-                    sender.__name__: str(sender.history.latest('id'))
-                }
+            actions_info = {'id': STATUS_ACTION.deleted}
+            create_new_log(
+                sender,
+                instance,
+                [actions_info],
+                request
             )
