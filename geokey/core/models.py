@@ -34,7 +34,6 @@ class LoggerHistory(models.Model):
     historical = HStoreField(null=True, blank=True)
 
 
-
 def create_new_log(sender, instance, actions_info, request):
     if actions_info:
         for action in actions_info:
@@ -193,6 +192,7 @@ def log_updates(sender, instance, *args, **kwargs):
             )
         except:
             pass
+
 
 """
 Receiver for post_save and get creations.
