@@ -345,7 +345,7 @@ class LoggerHistoryTest(TestCase):
     def test_log_delete_category(self):
         """Test when category gets deleted."""
         category_id = self.project.id
-        category_name = self.category_name
+        category_name = self.category.name
         log_count_init = LoggerHistory.objects.count()
         self.category.delete()
 
