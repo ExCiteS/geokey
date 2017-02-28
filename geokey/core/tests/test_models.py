@@ -3,15 +3,9 @@
 from django.test import TestCase
 from django.contrib.gis.geos import GEOSGeometry
 
-from geokey.users.tests.model_factories import UserFactory, UserGroupFactory
+from geokey.users.tests.model_factories import UserFactory
 from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.categories.tests.model_factories import CategoryFactory
-from geokey.contributions.tests.model_factories import (
-    LocationFactory,
-    ObservationFactory,
-    CommentFactory,
-)
-from geokey.subsets.tests.model_factories import SubsetFactory
 
 from ..models import LoggerHistory
 
@@ -59,7 +53,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertNotEqual(log.user, {
             'id': str(self.user.id),
-            'display_name': self.user.display_name)
+            'display_name': self.user.display_name})
         self.assertEqual(log.project, {
             'id': str(project.id),
             'name': project.name})
@@ -80,7 +74,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertNotEqual(log.user, {
             'id': str(self.user.id),
-            'display_name': self.user.display_name)
+            'display_name': self.user.display_name})
         self.assertEqual(log.project, {
             'id': str(project_id),
             'name': project_name})
@@ -102,7 +96,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertNotEqual(log.user, {
             'id': str(self.user.id),
-            'display_name': self.user.display_name)
+            'display_name': self.user.display_name})
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
@@ -125,7 +119,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertNotEqual(log.user, {
             'id': str(self.user.id),
-            'display_name': self.user.display_name)
+            'display_name': self.user.display_name})
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
@@ -144,7 +138,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertNotEqual(log.user, {
             'id': str(self.user.id),
-            'display_name': self.user.display_name)
+            'display_name': self.user.display_name})
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
@@ -167,7 +161,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertNotEqual(log.user, {
             'id': str(self.user.id),
-            'display_name': self.user.display_name)
+            'display_name': self.user.display_name})
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
@@ -186,7 +180,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertNotEqual(log.user, {
             'id': str(self.user.id),
-            'display_name': self.user.display_name)
+            'display_name': self.user.display_name})
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
@@ -209,7 +203,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertNotEqual(log.user, {
             'id': str(self.user.id),
-            'display_name': self.user.display_name)
+            'display_name': self.user.display_name})
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
@@ -228,7 +222,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertNotEqual(log.user, {
             'id': str(self.user.id),
-            'display_name': self.user.display_name)
+            'display_name': self.user.display_name})
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
@@ -247,7 +241,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertNotEqual(log.user, {
             'id': str(self.user.id),
-            'display_name': self.user.display_name)
+            'display_name': self.user.display_name})
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
@@ -270,7 +264,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertNotEqual(log.user, {
             'id': str(self.user.id),
-            'display_name': self.user.display_name)
+            'display_name': self.user.display_name})
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
@@ -289,7 +283,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertNotEqual(log.user, {
             'id': str(self.user.id),
-            'display_name': self.user.display_name)
+            'display_name': self.user.display_name})
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
@@ -313,7 +307,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertNotEqual(log.user, {
             'id': str(self.user.id),
-            'display_name': self.user.display_name)
+            'display_name': self.user.display_name})
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
@@ -335,7 +329,7 @@ class LoggerHistoryTest(TestCase):
 
         self.assertNotEqual(log.user, {
             'id': str(self.user.id),
-            'display_name': self.user.display_name)
+            'display_name': self.user.display_name})
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
@@ -358,8 +352,8 @@ class LoggerHistoryTest(TestCase):
 
         self.assertNotEqual(log.user, {
             'id': str(self.user.id),
-            'display_name': self.user.display_name)
-        sself.assertEqual(log.project, {
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
         self.assertEqual(log.category, {
@@ -382,13 +376,13 @@ class LoggerHistoryTest(TestCase):
 
         self.assertNotEqual(log.user, {
             'id': str(self.user.id),
-            'display_name': self.user.display_name)
+            'display_name': self.user.display_name})
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
         self.assertEqual(log.category, {
-            'id': str(category_id),
-            'name': category_name})
+            'id': str(self.category_id),
+            'name': self.category_name})
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'name',
