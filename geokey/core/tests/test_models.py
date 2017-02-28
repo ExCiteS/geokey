@@ -107,7 +107,7 @@ class LoggerHistoryTest(TestCase):
             'value': self.project.name})
         self.assertEqual(log_count, log_count_init + 1)
 
-        history = self.project.history.get(log.historical.get('id'))
+        history = self.project.history.objects.get(log.historical.get('id'))
         self.assertEqual(history.name, self.project.name)
 
     def test_log_update_project_status(self):
