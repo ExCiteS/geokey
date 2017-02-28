@@ -154,11 +154,19 @@ def cross_check_fields(instance, obj):
     for field, value in actions_dic[class_name].iteritems():
         if not instance.__dict__.get(field) == obj.__dict__.get(field):
             try:
-                action_dic = {
-                    'id': value,
-                    'field': field,
-                    'value': instance.__dict__.get(field)
-                }
+                if (class_name == 'Project' and
+                        instance.__dict__.get(field) == 'deleted'):
+                    action_dic = {
+                        'id': STATUS_ACTION.deleted,
+                        'field': field,
+                        'value': instance.__dict__.get(field)
+                    }
+                else:
+                    action_dic = {
+                        'id': value,
+                        'field': field,
+                        'value': instance.__dict__.get(field)
+                    }
                 actions_info.append(action_dic)
             except:
                 pass

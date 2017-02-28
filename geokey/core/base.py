@@ -101,6 +101,7 @@ actions_dic = {
         'geographic_extent': STATUS_ACTION.updated,
         'everyone_contributes': STATUS_ACTION.updated,
         'isprivate': STATUS_ACTION.updated,
-        'status': STATUS_ACTION.deleted
+        'status': STATUS_ACTION.updated,
+        'islocked': STATUS_ACTION.updated
     }
 }
