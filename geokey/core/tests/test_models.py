@@ -301,8 +301,8 @@ class LoggerHistoryTest(TestCase):
         """Test when project geo. extent changes."""
         log_count_init = LoggerHistory.objects.count()
         self.project.geographic_extent = GEOSGeometry(
-            '{"type": "Polygon","coordinates": [[[55.32,50.25],[-0.58,58.36],'
-            '[55.22,59.32],[0.18,59.02],[-0.99,54.68]]]}')
+            '{"type": "Polygon","coordinates": [[[-0.51,52.67],[-0.52,52.32],'
+            '[0.22,52.32],[0.17,51.88],[-0.55,51.69]]]}')
         self.project.save()
 
         log = LoggerHistory.objects.last()
