@@ -383,8 +383,8 @@ class LoggerHistoryTest(TestCase):
             'id': str(self.project.id),
             'name': self.project.name})
         self.assertEqual(log.category, {
-            'id': str(self.category_id),
-            'name': self.category_name})
+            'id': str(self.category.id),
+            'name': self.category.name})
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'name',
