@@ -55,7 +55,7 @@ def create_new_log(sender, instance, actions_info, request):
                 user_info = {}
             log = LoggerHistory(
                 action=action,
-                user_id=user_info,
+                user=user_info,
                 historical=historical
             )
             if sender.__name__ == 'Project':
