@@ -322,7 +322,9 @@ class LoggerHistoryTest(TestCase):
     def test_log_create_category(self):
         """Test when category gets created."""
         log_count_init = LoggerHistory.objects.count()
-        category = CategoryFactory.create(**{'creator': self.user})
+        category = CategoryFactory.create(**{
+            'creator': self.user,
+            'project': self.project})
 
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
@@ -343,7 +345,7 @@ class LoggerHistoryTest(TestCase):
     def test_log_delete_category(self):
         """Test when category gets deleted."""
         category_id = self.project.id
-        category_name = self.category_name
+        category_name = self.category.name
         log_count_init = LoggerHistory.objects.count()
         self.category.delete()
 
@@ -381,8 +383,8 @@ class LoggerHistoryTest(TestCase):
             'id': str(self.project.id),
             'name': self.project.name})
         self.assertEqual(log.category, {
-            'id': str(self.category_id),
-            'name': self.category_name})
+            'id': str(self.category.id),
+            'name': self.category.name})
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'name',
