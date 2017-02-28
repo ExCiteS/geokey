@@ -53,10 +53,14 @@ class LoggerHistoryTest(TestCase):
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
 
-        self.assertNotEqual(log.user_id, self.user.id)
-        self.assertEqual(log.project_id, project.id)
-        self.assertEqual(log.action_id, 'created')
-        self.assertEqual(log.action, 'Project created')
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name)
+        self.assertEqual(log.project, {
+            'id': str(project.id),
+            'name': project.name})
+        self.assertEqual(log.action, {
+            'id': 'created'})
         self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_delete_project(self):
@@ -68,10 +72,16 @@ class LoggerHistoryTest(TestCase):
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
 
-        self.assertNotEqual(log.user_id, self.user.id)
-        self.assertEqual(log.project_id, project_id)
-        self.assertEqual(log.action_id, 'deleted')
-        self.assertEqual(log.action, 'Project deleted')
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name)
+        self.assertEqual(log.project, {
+            'id': str(project.id),
+            'name': project.name})
+        self.assertEqual(log.action, {
+            'id': 'deleted',
+            'field': 'status',
+            'value': 'deleted'})
         self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_update_project_name(self):
@@ -83,71 +93,195 @@ class LoggerHistoryTest(TestCase):
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
 
-        self.assertNotEqual(log.user_id, self.user.id)
-        self.assertEqual(log.project_id, self.project.id)
-        self.assertEqual(log.action_id, 'updated')
-        self.assertEqual(log.action, 'Project renamed')
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name)
+        self.assertEqual(log.project, {
+            'id': str(project.id),
+            'name': project.name})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'name',
+            'value': self.project.name})
         self.assertEqual(log_count, log_count_init + 1)
 
     def test_log_update_project_status(self):
         """Test when project status changes."""
         log_count_init = LoggerHistory.objects.count()
+
         self.project.status = 'inactive'
         self.project.save()
 
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
 
-        self.assertNotEqual(log.user_id, self.user.id)
-        self.assertEqual(log.project_id, self.project.id)
-        self.assertEqual(log.action_id, 'updated')
-        self.assertEqual(log.action, 'Project is archived')
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name)
+        self.assertEqual(log.project, {
+            'id': str(project.id),
+            'name': project.name})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'status',
+            'value': self.project.status})
         self.assertEqual(log_count, log_count_init + 1)
+
+        self.project.status = 'active'
+        self.project.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name)
+        self.assertEqual(log.project, {
+            'id': str(project.id),
+            'name': project.name})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'status',
+            'value': self.project.status})
+        self.assertEqual(log_count, log_count_init + 2)
 
     def test_log_update_project_isprivate(self):
         """Test when project privacy changes."""
         log_count_init = LoggerHistory.objects.count()
+
         self.project.isprivate = False
         self.project.save()
 
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
 
-        self.assertNotEqual(log.user_id, self.user.id)
-        self.assertEqual(log.project_id, self.project.id)
-        self.assertEqual(log.action_id, 'updated')
-        self.assertEqual(log.action, 'Project is public')
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name)
+        self.assertEqual(log.project, {
+            'id': str(project.id),
+            'name': project.name})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'isprivate',
+            'value': str(self.project.isprivate)})
         self.assertEqual(log_count, log_count_init + 1)
+
+        self.project.isprivate = True
+        self.project.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name)
+        self.assertEqual(log.project, {
+            'id': str(project.id),
+            'name': project.name})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'isprivate',
+            'value': str(self.project.isprivate)})
+        self.assertEqual(log_count, log_count_init + 2)
 
     def test_log_update_project_contributing_permissions(self):
         """Test when project contributing permissions changes."""
         log_count_init = LoggerHistory.objects.count()
+
         self.project.everyone_contributes = 'auth'
         self.project.save()
 
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
 
-        self.assertNotEqual(log.user_id, self.user.id)
-        self.assertEqual(log.project_id, self.project.id)
-        self.assertEqual(log.action_id, 'updated')
-        self.assertEqual(log.action, 'Project permissions changed')
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name)
+        self.assertEqual(log.project, {
+            'id': str(project.id),
+            'name': project.name})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'everyone_contributes',
+            'value': self.project.everyone_contributes})
         self.assertEqual(log_count, log_count_init + 1)
+
+        self.project.everyone_contributes = 'true'
+        self.project.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name)
+        self.assertEqual(log.project, {
+            'id': str(project.id),
+            'name': project.name})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'everyone_contributes',
+            'value': self.project.everyone_contributes})
+        self.assertEqual(log_count, log_count_init + 2)
+
+        self.project.everyone_contributes = 'false'
+        self.project.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name)
+        self.assertEqual(log.project, {
+            'id': str(project.id),
+            'name': project.name})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'everyone_contributes',
+            'value': self.project.everyone_contributes})
+        self.assertEqual(log_count, log_count_init + 3)
 
     def test_log_update_project_islocked(self):
         """Test when project locker changes."""
         log_count_init = LoggerHistory.objects.count()
+
         self.project.islocked = True
         self.project.save()
 
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
 
-        self.assertNotEqual(log.user_id, self.user.id)
-        self.assertEqual(log.project_id, self.project.id)
-        self.assertEqual(log.action_id, 'updated')
-        self.assertEqual(log.action, 'Project is locked')
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name)
+        self.assertEqual(log.project, {
+            'id': str(project.id),
+            'name': project.name})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'islocked',
+            'value': str(self.project.islocked)})
         self.assertEqual(log_count, log_count_init + 1)
+
+        self.project.islocked = False
+        self.project.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name)
+        self.assertEqual(log.project, {
+            'id': str(project.id),
+            'name': project.name})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'islocked',
+            'value': str(self.project.islocked)})
+        self.assertEqual(log_count, log_count_init + 2)
 
     def test_log_update_project_geo_extent(self):
         """Test when project geo. extent changes."""
@@ -160,8 +294,14 @@ class LoggerHistoryTest(TestCase):
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
 
-        self.assertNotEqual(log.user_id, self.user.id)
-        self.assertEqual(log.project_id, self.project.id)
-        self.assertEqual(log.action_id, 'updated')
-        self.assertEqual(log.action, 'Project geogr. ext. changed')
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name)
+        self.assertEqual(log.project, {
+            'id': str(project.id),
+            'name': project.name})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'geographic_extent',
+            'value': self.project.geographic_extent})
         self.assertEqual(log_count, log_count_init + 1)
