@@ -107,6 +107,9 @@ class LoggerHistoryTest(TestCase):
             'value': self.project.name})
         self.assertEqual(log_count, log_count_init + 1)
 
+        history = self.project.history.get(log.historical.get('id'))
+        self.assertEqual(history.name, self.project.name)
+
     def test_log_update_project_status(self):
         """Test when project status changes."""
         log_count_init = LoggerHistory.objects.count()
