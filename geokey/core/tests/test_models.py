@@ -322,7 +322,9 @@ class LoggerHistoryTest(TestCase):
     def test_log_create_category(self):
         """Test when category gets created."""
         log_count_init = LoggerHistory.objects.count()
-        category = CategoryFactory.create(**{'creator': self.user})
+        category = CategoryFactory.create(**{
+            'creator': self.user,
+            'project': self.project})
 
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
