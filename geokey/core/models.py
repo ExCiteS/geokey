@@ -49,7 +49,7 @@ def create_new_log(sender, instance, actions_info, request):
             if hasattr(request, 'user'):
                 user_info = {
                     'id': str(request.user.id),
-                    'display_name': request.user.display_name
+                    'display_name': str(request.user)
                 }
             else:
                 user_info = {}
