@@ -139,3 +139,14 @@ def log_on_post_save(sender, instance, created, **kwargs):
         for log in logs:
             log.historical = historical
             log.save()
+
+
+@receiver(post_delete)
+def log_on_post_delete(sender, instance, *args, **kwargs):
+    """Create a log when instance is deleted."""
+    if LOG_MODELS.has_key(sender.__name__):
+        log = generate_log(
+            sender,
+            instance,
+            {'id': STATUS_ACTION.deleted})
+        log.save()

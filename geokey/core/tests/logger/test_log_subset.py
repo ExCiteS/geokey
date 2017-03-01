@@ -46,6 +46,32 @@ class LogSubsetTest(TestCase):
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 
+    def test_log_delete(self):
+        """Test when subset gets deleted."""
+        subset_id = self.subset.id
+        subset_name = self.subset.name
+        log_count_init = LoggerHistory.objects.count()
+        self.subset.delete()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.subset, {
+            'id': str(subset_id),
+            'name': subset_name})
+        self.assertEqual(log.action, {
+            'id': 'deleted'})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
     def test_log_update_name(self):
         """Test when name changes."""
         log_count_init = LoggerHistory.objects.count()

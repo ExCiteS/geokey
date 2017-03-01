@@ -53,6 +53,35 @@ class LogLookupFieldTest(TestCase):
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 
+    def test_log_delete(self):
+        """Test when multiple lookup field gets deleted."""
+        field_id = self.multiplelookupfield.id
+        field_name = self.multiplelookupfield.name
+        log_count_init = LoggerHistory.objects.count()
+        self.multiplelookupfield.delete()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(field_id),
+            'name': field_name,
+            'type': 'MultipleLookupField'})
+        self.assertEqual(log.subset, None)
+        self.assertEqual(log.action, {
+            'id': 'deleted'})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
     def test_log_update_name(self):
         """Test when name changes."""
         log_count_init = LoggerHistory.objects.count()
