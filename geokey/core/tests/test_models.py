@@ -217,7 +217,7 @@ class LoggerHistoryTest(TestCase):
             'value': self.project.everyone_contributes})
         self.assertEqual(log_count, log_count_init + 1)
 
-        self.project.everyone_contributes = 'true'
+        self.project.everyone_contributes = 'false'
         self.project.save()
 
         log = LoggerHistory.objects.last()
@@ -236,7 +236,7 @@ class LoggerHistoryTest(TestCase):
             'value': self.project.everyone_contributes})
         self.assertEqual(log_count, log_count_init + 2)
 
-        self.project.everyone_contributes = 'false'
+        self.project.everyone_contributes = 'true'
         self.project.save()
 
         log = LoggerHistory.objects.last()
