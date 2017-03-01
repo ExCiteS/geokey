@@ -7,21 +7,20 @@ STATUS_ACTION = Choices('created', 'deleted', 'updated')
 
 
 list_of_models = (
-    'Category',
-    'Subset',
     'Project',
-    'Observation',
-    'Field',
-    'Comment',
-    'UserGroup',
-    'TextField',
-    'NumericField',
-    'DateTimeField',
-    'DateField',
-    'TimeField',
-    'LookupField',
-    'MultipleLookupField',
-    'Field'
+    # 'UserGroup',
+    'Category',
+    # 'Field',
+    # 'TextField',
+    # 'NumericField',
+    # 'DateTimeField',
+    # 'DateField',
+    # 'TimeField',
+    # 'LookupField',
+    # 'MultipleLookupField',
+    # 'Observation',
+    # 'Comment',
+    # 'Subset',
 )
 #######
 
