@@ -21,9 +21,6 @@ LOG_MODELS = {
     'Subset': [
         'name'
     ],
-    'UserGroup': [
-        'name'
-    ],
     'TextField': [
         'name',
         'status',
@@ -58,6 +55,9 @@ LOG_MODELS = {
         'name',
         'status',
         'required',
+    ],
+    'Location': [
+        'name',
     ],
     'UserGroup': [
         'name'
