@@ -34,7 +34,7 @@ class LoggerHistory(models.Model):
     historical = HStoreField(null=True, blank=True)
 
 
-def create_new_log(sender, instance, actions_info, request):
+def generate_log(sender, instance, actions_info, request):
     if actions_info:
         for action in actions_info:
             historical = {'class': sender.__name__}
@@ -126,7 +126,8 @@ def create_new_log(sender, instance, actions_info, request):
                     'id': str(field.category.project.id),
                     'name': field.category.project.name
                 }
-            log.save()
+
+            return log
 
 
 def cross_check_fields(instance, obj):
@@ -150,21 +151,25 @@ def cross_check_fields(instance, obj):
     actions_info = []
     class_name = instance.__class__.__name__
 
-    for field, value in actions_dic[class_name].iteritems():
+    for field, action in actions_dic[class_name].iteritems():
         if not instance.__dict__.get(field) == obj.__dict__.get(field):
             try:
+                value = instance.__dict__.get(field)
+                if field == 'geographic_extent':
+                    value = value.json
+
                 if (class_name in ['Category', 'Project'] and
                         instance.__dict__.get(field) == 'deleted'):
                     action_dic = {
                         'id': STATUS_ACTION.deleted,
                         'field': field,
-                        'value': instance.__dict__.get(field)
+                        'value': str(value)
                     }
                 else:
                     action_dic = {
-                        'id': value,
+                        'id': action,
                         'field': field,
-                        'value': instance.__dict__.get(field)
+                        'value': str(value)
                     }
                 actions_info.append(action_dic)
             except:
@@ -172,66 +177,45 @@ def cross_check_fields(instance, obj):
     return actions_info
 
 
-"""
-Receiver for pre_save and get updates.
-"""
-
-
 @receiver(pre_save)
-def log_updates(sender, instance, *args, **kwargs):
-    """Create logs when something updated in a model."""
-    request = get_request()
+def log_on_pre_save(sender, instance, *args, **kwargs):
+    """Initiate log when instance get updated."""
     if sender.__name__ in list_of_models:
         try:
-            obj = sender.objects.get(pk=instance.pk)
-            create_new_log(
+            original_instance = sender.objects.get(pk=instance.pk)
+            instance._log = generate_log(
                 sender,
                 instance,
-                cross_check_fields(instance, obj),
-                request
-            )
-        except:
+                cross_check_fields(instance, original_instance),
+                get_request())
+        except sender.DoesNotExist:
             pass
 
 
-"""
-Receiver for post_save and get creations.
-"""
-
-
 @receiver(post_save)
-def log_created(sender, instance, created, **kwargs):
-    """Create logs when something new is created in a model."""
-    request = get_request()
+def log_on_post_save(sender, instance, created, **kwargs):
+    """Finalise initiated log, or create a new one when instance is created."""
     if sender.__name__ in list_of_models:
-        if created:
-            actions_info = {}
-            actions_info['id'] = STATUS_ACTION.created
-            create_new_log(
+        log = None
+
+        if hasattr(instance, '_log') and instance._log is not None:
+            log = instance._log
+        elif created:
+            log = generate_log(
                 sender,
                 instance,
-                [actions_info],
-                request
-            )
-        else:
-            try:
-                log = LoggerHistory.objects.last()
-                log.historical = {
-                    'class': sender.__name__,
-                    'id': str(instance.history.latest('pk').pk)
-                }
-                log.save()
-            except:
-                pass
+                [{'id': STATUS_ACTION.created}],
+                get_request())
 
-
-"""
-Receiver for post_deletes for UserGroup, Field, Subset and User
-"""
+        if log:
+            log.historical = {
+                'class': sender.__name__,
+                'id': str(instance.history.latest('pk').pk)}
+            log.save()
 
 
 @receiver(post_delete)
-def log_delete(sender, instance, *args, **kwargs):
+def log_on_post_delete(sender, instance, *args, **kwargs):
     """Create logs when something is deleted in a model."""
     request = get_request()
     try:
@@ -239,25 +223,25 @@ def log_delete(sender, instance, *args, **kwargs):
     except:
         if sender.__name__ == 'Field':
             actions_info = {'id': STATUS_ACTION.deleted}
-            create_new_log(
+            log = generate_log(
                 sender,
                 instance,
                 [actions_info],
-                request
-            )
+                request)
+            log.save()
         if sender.__name__ == 'UserGroup':
             actions_info = {'id': STATUS_ACTION.deleted}
-            create_new_log(
+            log = generate_log(
                 sender,
                 instance,
                 [actions_info],
-                request
-            )
+                request)
+            log.save()
         if sender.__name__ == 'Subset':
             actions_info = {'id': STATUS_ACTION.deleted}
-            create_new_log(
+            log = generate_log(
                 sender,
                 instance,
                 [actions_info],
-                request
-            )
+                request)
+            log.save()
