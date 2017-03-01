@@ -118,7 +118,10 @@ def log_on_post_save(sender, instance, created, **kwargs):
             }
         # TODO: Except when history model object does not exist
         except:
-            historical = None
+            historical = {
+                'class': instance.history.__class__.__name__,
+                'id': str(sender.history.all().count()),
+            }
 
         for log in logs:
             log.historical = historical
