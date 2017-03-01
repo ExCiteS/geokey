@@ -431,3 +431,103 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log_count, log_count_init + 1)
         history = self.category.history.get(pk=log.historical.get('id'))
         self.assertEqual(history.name, self.category.name)
+
+    def test_log_update_category_status(self):
+        """Test when category name changes."""
+        log_count_init = LoggerHistory.objects.count()
+        self.category.status = 'inactive'
+        self.category.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'status',
+            'value': self.category.status})
+        self.assertEqual(log_count, log_count_init + 1)
+        history = self.category.history.get(pk=log.historical.get('id'))
+        self.assertEqual(history.status, self.category.status)
+
+        log_count_init = LoggerHistory.objects.count()
+        self.category.status = 'active'
+        self.category.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'status',
+            'value': self.category.status})
+        self.assertEqual(log_count, log_count_init + 1)
+        history = self.category.history.get(pk=log.historical.get('id'))
+        self.assertEqual(history.status, self.category.status)
+
+    def test_log_update_category_default_status(self):
+        """Test when category name changes."""
+        log_count_init = LoggerHistory.objects.count()
+        self.category.default_status = 'active'
+        self.category.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'default_status',
+            'value': self.category.default_status})
+        self.assertEqual(log_count, log_count_init + 1)
+        history = self.category.history.get(pk=log.historical.get('id'))
+        self.assertEqual(history.default_status, self.category.default_status)
+
+        log_count_init = LoggerHistory.objects.count()
+        self.category.default_status = 'pending'
+        self.category.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'default_status',
+            'value': self.category.default_status})
+        self.assertEqual(log_count, log_count_init + 1)
+        history = self.category.history.get(pk=log.historical.get('id'))
+        self.assertEqual(history.default_status, self.category.default_status)
