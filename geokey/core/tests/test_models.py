@@ -15,6 +15,7 @@ from geokey.categories.tests.model_factories import (
     LookupFieldFactory,
     MultipleLookupFieldFactory,
 )
+from geokey.subsets.tests.model_factories import SubsetFactory
 
 from ..models import LoggerHistory
 
@@ -44,6 +45,9 @@ class LoggerHistoryTest(TestCase):
             'category': self.category})
         self.multiplelookupfield = MultipleLookupFieldFactory.create(**{
             'category': self.category})
+        self.subset = SubsetFactory.create(**{
+            'creator': self.user,
+            'project': self.project})
 
     # USERS
     def test_log_create_user(self):
@@ -1006,3 +1010,60 @@ class LoggerHistoryTest(TestCase):
             'value': self.multiplelookupfield.name})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
+
+    # SUBSETS
+    def test_log_create_subset(self):
+        """Test when category gets created."""
+        log_count_init = LoggerHistory.objects.count()
+        subset = SubsetFactory.create(**{
+            'creator': self.user,
+            'project': self.project})
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.subset, {
+            'id': str(subset.id),
+            'name': subset.name})
+        self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.action, {
+            'id': 'created'})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_subset_name(self):
+        """Test when category name changes."""
+        log_count_init = LoggerHistory.objects.count()
+        original_name = self.subset.name
+        self.subset.name = '%s UPDATED' % self.subset.name
+        self.subset.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.subset, {
+            'id': str(self.subset.id),
+            'name': self.subset.name})
+        self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'name',
+            'value': self.subset.name})
+        self.assertEqual(log_count, log_count_init + 1)
+        history = self.subset.history.get(pk=log.historical.get('id'))
+        self.assertEqual(history.id, self.subset.id)
+        self.assertEqual(history.name, original_name)

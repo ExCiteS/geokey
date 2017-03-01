@@ -1,7 +1,7 @@
 """Core models."""
 
 from django.db import models
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from django.contrib.postgres.fields import HStoreField
 
@@ -44,6 +44,9 @@ def generate_log(sender, instance, action):
     elif sender.__name__ == 'Category':
         fields['project'] = instance.project
         fields['category'] = instance
+    elif sender.__name__ == 'Subset':
+        fields['project'] = instance.project
+        fields['subset'] = instance
     else:
         bases = [x.__name__ for x in sender.__bases__]
 
@@ -53,7 +56,7 @@ def generate_log(sender, instance, action):
             fields['field'] = instance
 
     for field, value in fields.iteritems():
-        value =  {
+        value = {
             'id': str(value.id),
             'name': value.name,
         }

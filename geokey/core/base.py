@@ -18,6 +18,9 @@ LOG_MODELS = {
         'status',
         'default_status',
     ],
+    'Subset': [
+        'name'
+    ],
     'TextField': [
         'name',
     ],
