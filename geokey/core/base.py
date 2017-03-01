@@ -59,4 +59,7 @@ LOG_MODELS = {
         'status',
         'required',
     ],
+    'UserGroup': [
+        'name'
+    ],
 }
