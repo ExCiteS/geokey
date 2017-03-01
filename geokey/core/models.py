@@ -47,6 +47,9 @@ def generate_log(sender, instance, action):
     elif sender.__name__ == 'Subset':
         fields['project'] = instance.project
         fields['subset'] = instance
+    elif sender.__name__ == 'UserGroup':
+        fields['project'] = instance.project
+        fields['usergroup'] = instance
     else:
         bases = [x.__name__ for x in sender.__bases__]
 
