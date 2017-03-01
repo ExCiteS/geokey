@@ -106,7 +106,6 @@ class LoggerHistoryTest(TestCase):
             'field': 'name',
             'value': self.project.name})
         self.assertEqual(log_count, log_count_init + 1)
-
         history = self.project.history.objects.get(log.historical.get('id'))
         self.assertEqual(history.name, self.project.name)
 
@@ -132,6 +131,8 @@ class LoggerHistoryTest(TestCase):
             'field': 'status',
             'value': self.project.status})
         self.assertEqual(log_count, log_count_init + 1)
+        history = self.project.history.objects.get(log.historical.get('id'))
+        self.assertEqual(history.status, self.project.status)
 
         self.project.status = 'active'
         self.project.save()
@@ -151,6 +152,8 @@ class LoggerHistoryTest(TestCase):
             'field': 'status',
             'value': self.project.status})
         self.assertEqual(log_count, log_count_init + 2)
+        history = self.project.history.objects.get(log.historical.get('id'))
+        self.assertEqual(history.status, self.project.status)
 
     def test_log_update_project_isprivate(self):
         """Test when project privacy changes."""
@@ -174,6 +177,8 @@ class LoggerHistoryTest(TestCase):
             'field': 'isprivate',
             'value': str(self.project.isprivate)})
         self.assertEqual(log_count, log_count_init + 1)
+        history = self.project.history.objects.get(log.historical.get('id'))
+        self.assertEqual(history.isprivate, self.project.isprivate)
 
         self.project.isprivate = True
         self.project.save()
@@ -193,6 +198,8 @@ class LoggerHistoryTest(TestCase):
             'field': 'isprivate',
             'value': str(self.project.isprivate)})
         self.assertEqual(log_count, log_count_init + 2)
+        history = self.project.history.objects.get(log.historical.get('id'))
+        self.assertEqual(history.isprivate, self.project.isprivate)
 
     def test_log_update_project_contributing_permissions(self):
         """Test when project contributing permissions changes."""
@@ -216,6 +223,10 @@ class LoggerHistoryTest(TestCase):
             'field': 'everyone_contributes',
             'value': self.project.everyone_contributes})
         self.assertEqual(log_count, log_count_init + 1)
+        history = self.project.history.objects.get(log.historical.get('id'))
+        self.assertEqual(
+            history.everyone_contributes,
+            self.project.everyone_contributes)
 
         self.project.everyone_contributes = 'true'
         self.project.save()
@@ -235,6 +246,10 @@ class LoggerHistoryTest(TestCase):
             'field': 'everyone_contributes',
             'value': self.project.everyone_contributes})
         self.assertEqual(log_count, log_count_init + 2)
+        history = self.project.history.objects.get(log.historical.get('id'))
+        self.assertEqual(
+            history.everyone_contributes,
+            self.project.everyone_contributes)
 
         self.project.everyone_contributes = 'false'
         self.project.save()
@@ -254,6 +269,10 @@ class LoggerHistoryTest(TestCase):
             'field': 'everyone_contributes',
             'value': self.project.everyone_contributes})
         self.assertEqual(log_count, log_count_init + 3)
+        history = self.project.history.objects.get(log.historical.get('id'))
+        self.assertEqual(
+            history.everyone_contributes,
+            self.project.everyone_contributes)
 
     def test_log_update_project_islocked(self):
         """Test when project locker changes."""
@@ -277,6 +296,8 @@ class LoggerHistoryTest(TestCase):
             'field': 'islocked',
             'value': str(self.project.islocked)})
         self.assertEqual(log_count, log_count_init + 1)
+        history = self.project.history.objects.get(log.historical.get('id'))
+        self.assertEqual(history.islocked, self.project.islocked)
 
         self.project.islocked = False
         self.project.save()
@@ -296,6 +317,8 @@ class LoggerHistoryTest(TestCase):
             'field': 'islocked',
             'value': str(self.project.islocked)})
         self.assertEqual(log_count, log_count_init + 2)
+        history = self.project.history.objects.get(log.historical.get('id'))
+        self.assertEqual(history.islocked, self.project.islocked)
 
     def test_log_update_project_geo_extent(self):
         """Test when project geo. extent changes."""
@@ -320,6 +343,10 @@ class LoggerHistoryTest(TestCase):
             'field': 'geographic_extent',
             'value': self.project.geographic_extent})
         self.assertEqual(log_count, log_count_init + 1)
+        history = self.project.history.objects.get(log.historical.get('id'))
+        self.assertEqual(
+            history.geographic_extent,
+            self.project.geographic_extent)
 
     # CATEGORIES
     def test_log_create_category(self):
@@ -393,3 +420,5 @@ class LoggerHistoryTest(TestCase):
             'field': 'name',
             'value': self.category.name})
         self.assertEqual(log_count, log_count_init + 1)
+        history = self.category.history.objects.get(log.historical.get('id'))
+        self.assertEqual(history.name, self.category.name)
