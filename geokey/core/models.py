@@ -19,6 +19,7 @@ class LoggerHistory(models.Model):
     usergroup = HStoreField(null=True, blank=True)
     category = HStoreField(null=True, blank=True)
     field = HStoreField(null=True, blank=True)
+    location = HStoreField(null=True, blank=True)
     observation = HStoreField(null=True, blank=True)
     comment = HStoreField(null=True, blank=True)
     subset = HStoreField(null=True, blank=True)
@@ -47,6 +48,8 @@ def generate_log(sender, instance, action):
     elif sender.__name__ == 'Subset':
         fields['project'] = instance.project
         fields['subset'] = instance
+    elif sender.__name__ == 'Location':
+        fields['location'] = instance
     else:
         bases = [x.__name__ for x in sender.__bases__]
 

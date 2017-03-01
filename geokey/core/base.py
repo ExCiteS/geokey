@@ -18,9 +18,6 @@ LOG_MODELS = {
         'status',
         'default_status',
     ],
-    'Subset': [
-        'name'
-    ],
     'TextField': [
         'name',
         'status',
@@ -55,5 +52,11 @@ LOG_MODELS = {
         'name',
         'status',
         'required',
+    ],
+    'Location': [
+        'name',
+    ],
+    'Subset': [
+        'name',
     ],
 }
