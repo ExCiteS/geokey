@@ -1,247 +1,125 @@
-"""Models for logger."""
+"""Core models."""
 
 from django.db import models
-from django.db.models.signals import post_save, pre_save, post_delete
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
-from django.contrib.gis.db import models as gis
-from geokey.categories.models import Field
 from django.contrib.postgres.fields import HStoreField
+
 from geokey.core.signals import get_request
 
-
-from .base import list_of_models, STATUS_ACTION, actions_dic
+from .base import STATUS_ACTION, LOG_MODELS
 
 
 class LoggerHistory(models.Model):
-    """Stores the loggers for each even created."""
+    """Store the event logs."""
 
     timestamp = models.DateTimeField(auto_now_add=True)
-    project = HStoreField(null=True, blank=True)
-    category = HStoreField(null=True, blank=True)
     user = HStoreField(null=True, blank=True)
+    project = HStoreField(null=True, blank=True)
     usergroup = HStoreField(null=True, blank=True)
-    subset = HStoreField(null=True, blank=True)
+    category = HStoreField(null=True, blank=True)
     field = HStoreField(null=True, blank=True)
     observation = HStoreField(null=True, blank=True)
     comment = HStoreField(null=True, blank=True)
+    subset = HStoreField(null=True, blank=True)
     action = HStoreField(null=True, blank=True)
-    geometry = gis.GeometryField(geography=True, null=True)
-    action_id = models.CharField(
-        choices=STATUS_ACTION,
-        default=STATUS_ACTION.created,
-        max_length=20
-    )
     historical = HStoreField(null=True, blank=True)
 
 
-def generate_log(sender, instance, actions_info, request):
-    if actions_info:
-        for action in actions_info:
-            historical = {'class': sender.__name__}
-            if action['id'] != 'updated':
-                try:
-                    historical['id'] = str(instance.history.latest('pk').pk)
-                except:
-                    historical['id'] = None
-            else:
-                historical = {}
-            if hasattr(request, 'user'):
-                user_info = {
-                    'id': str(request.user.id),
-                    'display_name': str(request.user)
-                }
-            else:
-                user_info = {}
-            log = LoggerHistory(
-                action=action,
-                user=user_info,
-                historical=historical
-            )
-            if sender.__name__ == 'Project':
-                log.project = {
-                    'id': str(instance.id),
-                    'name': instance.name
-                }
-            elif sender.__name__ == 'Comment':
-                log.category = {
-                    'id': str(instance.commentto.category.id),
-                    'name': instance.commentto.category.name
-                }
-                log.project = {
-                    'id': str(instance.commentto.category.project.id),
-                    'name': instance.commentto.category.project.name
-                }
-                log.comment = {
-                    'id': str(instance.id)}
-                pass
-            elif sender.__name__ == 'Observation':
-                log.project = {
-                    'id': str(instance.project.id),
-                    'name': instance.project.name
-                }
-                log.category = {
-                    'id': str(instance.category.id),
-                    'name': instance.category.name
-                }
-                log.observation = {'id': str(instance.id)}
-                log.geometry = instance.location.geometry
-            elif sender.__name__ == 'UserGroup':
-                log.project = {
-                    'id': str(instance.project.id),
-                    'name': instance.project.name
-                }
-                log.usergroup = {
-                    'id': str(instance.id),
-                    'name': instance.name
-                }
-            elif sender.__name__ == 'Category':
-                log.category = {
-                    'id': str(instance.id),
-                    'name': instance.name
-                }
-                log.project = {
-                    'id': str(instance.project.id),
-                    'name': instance.project.name
-                }
-            elif sender.__name__ == 'Subset':
-                log.subset = {
-                    'id': str(instance.id),
-                    'name': instance.name
-                }
-                log.project = {
-                    'id': str(instance.project.id),
-                    'name': instance.project.name
-                }
-            elif 'Field' in sender.__name__:
-                field = Field.objects.latest('pk')
-                log.category = {
-                    'id': str(field.category.id),
-                    'name': field.category.name
-                }
-                log.field = {
-                    'id': str(field.id),
-                    'name': field.name
-                }
-                log.project = {
-                    'id': str(field.category.project.id),
-                    'name': field.category.project.name
-                }
+def generate_log(sender, instance, action):
+    """Generate a single log (without saving to DB)."""
+    log = LoggerHistory(action=action)
 
-            return log
+    request = get_request()
+    if hasattr(request, 'user'):
+        log.user = {
+            'id': str(request.user.id),
+            'display_name': str(request.user),
+        }
+
+    fields = {}
+
+    if sender.__name__ == 'Project':
+        fields['project'] = instance
+    elif sender.__name__ == 'Category':
+        fields['project'] = instance.project
+        fields['category'] = instance
+
+    for field, value in fields.iteritems():
+        setattr(log, field, {
+            'id': str(value.id),
+            'name': value.name,
+        })
+
+    return log
 
 
-def cross_check_fields(instance, obj):
-    """
+def cross_check_fields(new_instance, original_instance):
+    """Check for changed fields between new and original instances."""
+    changed_fields = []
 
-    Cross check if changes in there are changes in the instance.
+    for field in LOG_MODELS.get(new_instance.__class__.__name__, {}):
+        new_value = new_instance.__dict__.get(field)
+        original_value = original_instance.__dict__.get(field)
+        if new_value != original_value:
+            action_id = STATUS_ACTION.updated
 
-    Parameters
-    -----------
-    instance: django model
-        geokey object triggered by django.model.signals
+            # Store GeoJSON for geo. extent
+            if field == 'geographic_extent' and new_value is not None:
+                new_value = new_value.json
 
-    obj: object
+            # Action is "deleted" - nothing gets deleted, only status change
+            if field == 'status' and new_value == 'deleted':
+                action_id = STATUS_ACTION.deleted
 
-    Returns
-    --------
-    actions: list str
-        list of string with the text to be added on actions field on
-        HistoryLogger.
-    """
-    actions_info = []
-    class_name = instance.__class__.__name__
+            changed_fields.append({
+                'id': action_id,
+                'field': field,
+                'value': str(new_value),
+            })
 
-    for field, action in actions_dic[class_name].iteritems():
-        if not instance.__dict__.get(field) == obj.__dict__.get(field):
-            try:
-                value = instance.__dict__.get(field)
-                if field == 'geographic_extent':
-                    value = value.json
-
-                if (class_name in ['Category', 'Project'] and
-                        instance.__dict__.get(field) == 'deleted'):
-                    action_dic = {
-                        'id': STATUS_ACTION.deleted,
-                        'field': field,
-                        'value': str(value)
-                    }
-                else:
-                    action_dic = {
-                        'id': action,
-                        'field': field,
-                        'value': str(value)
-                    }
-                actions_info.append(action_dic)
-            except:
-                pass
-    return actions_info
+    return changed_fields
 
 
 @receiver(pre_save)
-def log_on_pre_save(sender, instance, *args, **kwargs):
-    """Initiate log when instance get updated."""
-    if sender.__name__ in list_of_models:
+def logs_on_pre_save(sender, instance, *args, **kwargs):
+    """Initiate logs when instance get updated."""
+    if LOG_MODELS.has_key(sender.__name__):
+        logs = []
+
         try:
             original_instance = sender.objects.get(pk=instance.pk)
-            instance._log = generate_log(
-                sender,
-                instance,
-                cross_check_fields(instance, original_instance),
-                get_request())
+            for field in cross_check_fields(instance, original_instance):
+                logs.append(generate_log(sender, instance, field))
         except sender.DoesNotExist:
             pass
+
+        instance._logs = logs
 
 
 @receiver(post_save)
 def log_on_post_save(sender, instance, created, **kwargs):
-    """Finalise initiated log, or create a new one when instance is created."""
-    if sender.__name__ in list_of_models:
-        log = None
+    """Finalise initiated logs or create a new one when instance is created."""
+    if LOG_MODELS.has_key(sender.__name__):
+        logs = []
 
-        if hasattr(instance, '_log') and instance._log is not None:
-            log = instance._log
-        elif created:
-            log = generate_log(
+        if created:
+            logs.append(generate_log(
                 sender,
                 instance,
-                [{'id': STATUS_ACTION.created}],
-                get_request())
+                {'id': STATUS_ACTION.created}))
+        elif hasattr(instance, '_logs') and instance._logs is not None:
+            logs = instance._logs
 
-        if log:
-            log.historical = {
-                'class': sender.__name__,
-                'id': str(instance.history.latest('pk').pk)}
-            log.save()
+        try:
+            historical = {
+                'class': instance.history.__class__.__name__,
+                'id': str(instance.history.latest('pk').pk),
+            }
+        # TODO: Except when history model object does not exist
+        except:
+            historical = None
 
-
-@receiver(post_delete)
-def log_on_post_delete(sender, instance, *args, **kwargs):
-    """Create logs when something is deleted in a model."""
-    request = get_request()
-    try:
-        instance.__class__.objects.get(pk=instance.id)
-    except:
-        if sender.__name__ == 'Field':
-            actions_info = {'id': STATUS_ACTION.deleted}
-            log = generate_log(
-                sender,
-                instance,
-                [actions_info],
-                request)
-            log.save()
-        if sender.__name__ == 'UserGroup':
-            actions_info = {'id': STATUS_ACTION.deleted}
-            log = generate_log(
-                sender,
-                instance,
-                [actions_info],
-                request)
-            log.save()
-        if sender.__name__ == 'Subset':
-            actions_info = {'id': STATUS_ACTION.deleted}
-            log = generate_log(
-                sender,
-                instance,
-                [actions_info],
-                request)
+        for log in logs:
+            log.historical = historical
             log.save()
