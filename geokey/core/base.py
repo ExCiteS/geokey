@@ -18,4 +18,25 @@ LOG_MODELS = {
         'status',
         'default_status',
     ],
+    'TextField': [
+        'name',
+    ],
+    'NumericField': [
+        'name',
+    ],
+    'DateTimeField': [
+        'name',
+    ],
+    'DateField': [
+        'name',
+    ],
+    'TimeField': [
+        'name',
+    ],
+    'LookupField': [
+        'name',
+    ],
+    'MultipleLookupField': [
+        'name',
+    ],
 }

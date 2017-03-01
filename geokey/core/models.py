@@ -44,12 +44,25 @@ def generate_log(sender, instance, action):
     elif sender.__name__ == 'Category':
         fields['project'] = instance.project
         fields['category'] = instance
+    else:
+        bases = [x.__name__ for x in sender.__bases__]
+
+        if 'Field' in bases:
+            fields['project'] = instance.category.project
+            fields['category'] = instance.category
+            fields['field'] = instance
 
     for field, value in fields.iteritems():
-        setattr(log, field, {
+        value =  {
             'id': str(value.id),
             'name': value.name,
-        })
+        }
+
+        # Fields for categories should also have type
+        if field == 'field':
+            value['type'] = sender.__name__
+
+        setattr(log, field, value)
 
     return log
 

@@ -5,7 +5,16 @@ from django.contrib.gis.geos import GEOSGeometry
 
 from geokey.users.tests.model_factories import UserFactory
 from geokey.projects.tests.model_factories import ProjectFactory
-from geokey.categories.tests.model_factories import CategoryFactory
+from geokey.categories.tests.model_factories import (
+    CategoryFactory,
+    TextFieldFactory,
+    NumericFieldFactory,
+    DateTimeFieldFactory,
+    DateFieldFactory,
+    TimeFieldFactory,
+    LookupFieldFactory,
+    MultipleLookupFieldFactory,
+)
 
 from ..models import LoggerHistory
 
@@ -21,18 +30,26 @@ class LoggerHistoryTest(TestCase):
         self.category = CategoryFactory.create(**{
             'creator': self.user,
             'project': self.project})
+        self.textfield = TextFieldFactory.create(**{
+            'category': self.category})
+        self.numericfield = NumericFieldFactory.create(**{
+            'category': self.category})
+        self.datetimefield = DateTimeFieldFactory.create(**{
+            'category': self.category})
+        self.datefield = DateFieldFactory.create(**{
+            'category': self.category})
+        self.timefield = TimeFieldFactory.create(**{
+            'category': self.category})
+        self.lookupfield = LookupFieldFactory.create(**{
+            'category': self.category})
+        self.multiplelookupfield = MultipleLookupFieldFactory.create(**{
+            'category': self.category})
 
     # USERS
     def test_log_create_user(self):
         """Test when user gets created."""
         log_count_init = LoggerHistory.objects.count()
         UserFactory.create()
-        self.assertEqual(LoggerHistory.objects.count(), log_count_init)
-
-    def test_log_delete_user(self):
-        """Test when user gets deleted."""
-        log_count_init = LoggerHistory.objects.count()
-        self.user.delete()
         self.assertEqual(LoggerHistory.objects.count(), log_count_init)
 
     def test_log_update_user_display_name(self):
@@ -58,10 +75,11 @@ class LoggerHistoryTest(TestCase):
             'id': str(project.id),
             'name': project.name})
         self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'created'})
-        self.assertEqual(log.historical, None)
         self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
 
     def test_log_delete_project(self):
         """Test when project gets deleted."""
@@ -80,6 +98,7 @@ class LoggerHistoryTest(TestCase):
             'id': str(project_id),
             'name': project_name})
         self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'deleted',
             'field': 'status',
@@ -106,6 +125,7 @@ class LoggerHistoryTest(TestCase):
             'id': str(self.project.id),
             'name': self.project.name})
         self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'name',
@@ -133,6 +153,7 @@ class LoggerHistoryTest(TestCase):
             'id': str(self.project.id),
             'name': self.project.name})
         self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'status',
@@ -156,6 +177,7 @@ class LoggerHistoryTest(TestCase):
             'id': str(self.project.id),
             'name': self.project.name})
         self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'status',
@@ -183,6 +205,7 @@ class LoggerHistoryTest(TestCase):
             'id': str(self.project.id),
             'name': self.project.name})
         self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'isprivate',
@@ -206,6 +229,7 @@ class LoggerHistoryTest(TestCase):
             'id': str(self.project.id),
             'name': self.project.name})
         self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'isprivate',
@@ -233,6 +257,7 @@ class LoggerHistoryTest(TestCase):
             'id': str(self.project.id),
             'name': self.project.name})
         self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'islocked',
@@ -256,6 +281,7 @@ class LoggerHistoryTest(TestCase):
             'id': str(self.project.id),
             'name': self.project.name})
         self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'islocked',
@@ -284,6 +310,7 @@ class LoggerHistoryTest(TestCase):
             'id': str(self.project.id),
             'name': self.project.name})
         self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'everyone_contributes',
@@ -309,6 +336,7 @@ class LoggerHistoryTest(TestCase):
             'id': str(self.project.id),
             'name': self.project.name})
         self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'everyone_contributes',
@@ -334,6 +362,7 @@ class LoggerHistoryTest(TestCase):
             'id': str(self.project.id),
             'name': self.project.name})
         self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'everyone_contributes',
@@ -365,6 +394,7 @@ class LoggerHistoryTest(TestCase):
             'id': str(self.project.id),
             'name': self.project.name})
         self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'geographic_extent',
@@ -394,6 +424,7 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log.category, {
             'id': str(category.id),
             'name': category.name})
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'created'})
         self.assertEqual(log_count, log_count_init + 1)
@@ -418,6 +449,7 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log.category, {
             'id': str(category_id),
             'name': category_name})
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'deleted',
             'field': 'status',
@@ -446,6 +478,7 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log.category, {
             'id': str(self.category.id),
             'name': self.category.name})
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'name',
@@ -475,6 +508,7 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log.category, {
             'id': str(self.category.id),
             'name': self.category.name})
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'status',
@@ -500,6 +534,7 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log.category, {
             'id': str(self.category.id),
             'name': self.category.name})
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'status',
@@ -529,6 +564,7 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log.category, {
             'id': str(self.category.id),
             'name': self.category.name})
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'default_status',
@@ -554,6 +590,7 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log.category, {
             'id': str(self.category.id),
             'name': self.category.name})
+        self.assertEqual(log.field, None)
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'default_status',
@@ -562,3 +599,410 @@ class LoggerHistoryTest(TestCase):
         history = self.category.history.get(pk=log.historical.get('id'))
         self.assertEqual(history.id, self.category.id)
         self.assertEqual(history.default_status, original_default_status)
+
+    # TEXT FIELDS
+    def test_log_create_text_field(self):
+        """Test when text field gets created."""
+        log_count_init = LoggerHistory.objects.count()
+        field = TextFieldFactory.create(**{
+            'category': self.category})
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(field.id),
+            'name': field.name,
+            'type': 'TextField'})
+        self.assertEqual(log.action, {
+            'id': 'created'})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_text_field_name(self):
+        """Test when text field name changes."""
+        log_count_init = LoggerHistory.objects.count()
+        original_name = self.textfield.name
+        self.textfield.name = '%s UPDATED' % self.textfield.name
+        self.textfield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.textfield.id),
+            'name': self.textfield.name,
+            'type': 'TextField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'name',
+            'value': self.textfield.name})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    # NUMERIC FIELDS
+    def test_log_create_numeric_field(self):
+        """Test when numeric field gets created."""
+        log_count_init = LoggerHistory.objects.count()
+        field = NumericFieldFactory.create(**{
+            'category': self.category})
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(field.id),
+            'name': field.name,
+            'type': 'NumericField'})
+        self.assertEqual(log.action, {
+            'id': 'created'})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_numeric_field_name(self):
+        """Test when numeric field name changes."""
+        log_count_init = LoggerHistory.objects.count()
+        original_name = self.numericfield.name
+        self.numericfield.name = '%s UPDATED' % self.numericfield.name
+        self.numericfield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.numericfield.id),
+            'name': self.numericfield.name,
+            'type': 'NumericField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'name',
+            'value': self.numericfield.name})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    # DATE & TIME FIELDS
+    def test_log_create_date_time_field(self):
+        """Test when date & time field gets created."""
+        log_count_init = LoggerHistory.objects.count()
+        field = DateTimeFieldFactory.create(**{
+            'category': self.category})
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(field.id),
+            'name': field.name,
+            'type': 'DateTimeField'})
+        self.assertEqual(log.action, {
+            'id': 'created'})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_date_time_field_name(self):
+        """Test when date & time field name changes."""
+        log_count_init = LoggerHistory.objects.count()
+        original_name = self.datetimefield.name
+        self.datetimefield.name = '%s UPDATED' % self.datetimefield.name
+        self.datetimefield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.datetimefield.id),
+            'name': self.datetimefield.name,
+            'type': 'DateTimeField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'name',
+            'value': self.datetimefield.name})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    # DATE FIELDS
+    def test_log_create_date_field(self):
+        """Test when date field gets created."""
+        log_count_init = LoggerHistory.objects.count()
+        field = DateFieldFactory.create(**{
+            'category': self.category})
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(field.id),
+            'name': field.name,
+            'type': 'DateField'})
+        self.assertEqual(log.action, {
+            'id': 'created'})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_date_field_name(self):
+        """Test when date field name changes."""
+        log_count_init = LoggerHistory.objects.count()
+        original_name = self.datefield.name
+        self.datefield.name = '%s UPDATED' % self.lookupfield.name
+        self.datefield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.datefield.id),
+            'name': self.datefield.name,
+            'type': 'DateField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'name',
+            'value': self.datefield.name})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    # TIME FIELDS
+    def test_log_create_time_field(self):
+        """Test when time field gets created."""
+        log_count_init = LoggerHistory.objects.count()
+        field = TimeFieldFactory.create(**{
+            'category': self.category})
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(field.id),
+            'name': field.name,
+            'type': 'TimeField'})
+        self.assertEqual(log.action, {
+            'id': 'created'})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_time_field_name(self):
+        """Test when time field name changes."""
+        log_count_init = LoggerHistory.objects.count()
+        original_name = self.timefield.name
+        self.timefield.name = '%s UPDATED' % self.timefield.name
+        self.timefield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.timefield.id),
+            'name': self.timefield.name,
+            'type': 'TimeField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'name',
+            'value': self.timefield.name})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    # LOOKUP FIELDS
+    def test_log_create_lookup_field(self):
+        """Test when lookup field gets created."""
+        log_count_init = LoggerHistory.objects.count()
+        field = LookupFieldFactory.create(**{
+            'category': self.category})
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(field.id),
+            'name': field.name,
+            'type': 'LookupField'})
+        self.assertEqual(log.action, {
+            'id': 'created'})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_lookup_field_name(self):
+        """Test when lookup field name changes."""
+        log_count_init = LoggerHistory.objects.count()
+        original_name = self.lookupfield.name
+        self.lookupfield.name = '%s UPDATED' % self.lookupfield.name
+        self.lookupfield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.lookupfield.id),
+            'name': self.lookupfield.name,
+            'type': 'LookupField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'name',
+            'value': self.lookupfield.name})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    # MULTIPLE LOOKUP FIELDS
+    def test_log_create_multiple_lookup_field(self):
+        """Test when multiple lookup field gets created."""
+        log_count_init = LoggerHistory.objects.count()
+        field = MultipleLookupFieldFactory.create(**{
+            'category': self.category})
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(field.id),
+            'name': field.name,
+            'type': 'MultipleLookupField'})
+        self.assertEqual(log.action, {
+            'id': 'created'})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_multiple_lookup_field_name(self):
+        """Test when multiple lookup field name changes."""
+        log_count_init = LoggerHistory.objects.count()
+        original_name = self.multiplelookupfield.name
+        self.multiplelookupfield.name = '%s UPDATED' % (
+            self.multiplelookupfield.name)
+        self.multiplelookupfield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.multiplelookupfield.id),
+            'name': self.multiplelookupfield.name,
+            'type': 'MultipleLookupField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'name',
+            'value': self.multiplelookupfield.name})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
