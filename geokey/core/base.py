@@ -20,23 +20,37 @@ LOG_MODELS = {
     ],
     'TextField': [
         'name',
+        'status',
+        'required',
     ],
     'NumericField': [
         'name',
+        'status',
+        'required',
     ],
     'DateTimeField': [
         'name',
+        'status',
+        'required',
     ],
     'DateField': [
         'name',
+        'status',
+        'required',
     ],
     'TimeField': [
         'name',
+        'status',
+        'required',
     ],
     'LookupField': [
         'name',
+        'status',
+        'required',
     ],
     'MultipleLookupField': [
         'name',
+        'status',
+        'required',
     ],
 }
