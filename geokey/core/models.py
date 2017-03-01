@@ -153,7 +153,7 @@ def cross_check_fields(instance, obj):
     for field, value in actions_dic[class_name].iteritems():
         if not instance.__dict__.get(field) == obj.__dict__.get(field):
             try:
-                if (class_name == 'Project' and
+                if (class_name in ['Category', 'Project'] and
                         instance.__dict__.get(field) == 'deleted'):
                     action_dic = {
                         'id': STATUS_ACTION.deleted,
