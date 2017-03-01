@@ -15,7 +15,6 @@ from geokey.categories.tests.model_factories import (
     LookupFieldFactory,
     MultipleLookupFieldFactory,
 )
-from geokey.subsets.tests.model_factories import SubsetFactory
 
 from ..models import LoggerHistory
 
@@ -45,9 +44,6 @@ class LoggerHistoryTest(TestCase):
             'category': self.category})
         self.multiplelookupfield = MultipleLookupFieldFactory.create(**{
             'category': self.category})
-        self.subset = SubsetFactory.create(**{
-            'creator': self.user,
-            'project': self.project})
 
     # USERS
     def test_log_create_user(self):
@@ -635,7 +631,6 @@ class LoggerHistoryTest(TestCase):
     def test_log_update_text_field_name(self):
         """Test when text field name changes."""
         log_count_init = LoggerHistory.objects.count()
-        original_name = self.textfield.name
         self.textfield.name = '%s UPDATED' % self.textfield.name
         self.textfield.save()
 
@@ -660,6 +655,118 @@ class LoggerHistoryTest(TestCase):
             'field': 'name',
             'value': self.textfield.name})
         self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_text_field_status(self):
+        """Test when text field status changes."""
+        log_count_init = LoggerHistory.objects.count()
+
+        self.textfield.status = 'inactive'
+        self.textfield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.textfield.id),
+            'name': self.textfield.name,
+            'type': 'TextField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'status',
+            'value': self.textfield.status})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+        self.textfield.status = 'active'
+        self.textfield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.textfield.id),
+            'name': self.textfield.name,
+            'type': 'TextField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'status',
+            'value': self.textfield.status})
+        self.assertEqual(log_count, log_count_init + 2)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_text_field_required(self):
+        """Test when text field required setting changes."""
+        log_count_init = LoggerHistory.objects.count()
+
+        self.textfield.required = True
+        self.textfield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.textfield.id),
+            'name': self.textfield.name,
+            'type': 'TextField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'required',
+            'value': str(self.textfield.required)})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+        self.textfield.required = False
+        self.textfield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.textfield.id),
+            'name': self.textfield.name,
+            'type': 'TextField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'required',
+            'value': str(self.textfield.required)})
+        self.assertEqual(log_count, log_count_init + 2)
         self.assertEqual(log.historical, None)
 
     # NUMERIC FIELDS
@@ -693,7 +800,6 @@ class LoggerHistoryTest(TestCase):
     def test_log_update_numeric_field_name(self):
         """Test when numeric field name changes."""
         log_count_init = LoggerHistory.objects.count()
-        original_name = self.numericfield.name
         self.numericfield.name = '%s UPDATED' % self.numericfield.name
         self.numericfield.save()
 
@@ -718,6 +824,118 @@ class LoggerHistoryTest(TestCase):
             'field': 'name',
             'value': self.numericfield.name})
         self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_numeric_field_status(self):
+        """Test when numeric field status changes."""
+        log_count_init = LoggerHistory.objects.count()
+
+        self.numericfield.status = 'inactive'
+        self.numericfield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.numericfield.id),
+            'name': self.numericfield.name,
+            'type': 'NumericField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'status',
+            'value': self.numericfield.status})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+        self.numericfield.status = 'active'
+        self.numericfield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.numericfield.id),
+            'name': self.numericfield.name,
+            'type': 'NumericField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'status',
+            'value': self.numericfield.status})
+        self.assertEqual(log_count, log_count_init + 2)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_numeric_field_required(self):
+        """Test when numeric field required setting changes."""
+        log_count_init = LoggerHistory.objects.count()
+
+        self.numericfield.required = True
+        self.numericfield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.numericfield.id),
+            'name': self.numericfield.name,
+            'type': 'NumericField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'required',
+            'value': str(self.numericfield.required)})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+        self.numericfield.required = False
+        self.numericfield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.numericfield.id),
+            'name': self.numericfield.name,
+            'type': 'NumericField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'required',
+            'value': str(self.numericfield.required)})
+        self.assertEqual(log_count, log_count_init + 2)
         self.assertEqual(log.historical, None)
 
     # DATE & TIME FIELDS
@@ -751,7 +969,6 @@ class LoggerHistoryTest(TestCase):
     def test_log_update_date_time_field_name(self):
         """Test when date & time field name changes."""
         log_count_init = LoggerHistory.objects.count()
-        original_name = self.datetimefield.name
         self.datetimefield.name = '%s UPDATED' % self.datetimefield.name
         self.datetimefield.save()
 
@@ -776,6 +993,118 @@ class LoggerHistoryTest(TestCase):
             'field': 'name',
             'value': self.datetimefield.name})
         self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_date_time_field_status(self):
+        """Test when date & time field status changes."""
+        log_count_init = LoggerHistory.objects.count()
+
+        self.datetimefield.status = 'inactive'
+        self.datetimefield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.datetimefield.id),
+            'name': self.datetimefield.name,
+            'type': 'DateTimeField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'status',
+            'value': self.datetimefield.status})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+        self.datetimefield.status = 'active'
+        self.datetimefield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.datetimefield.id),
+            'name': self.datetimefield.name,
+            'type': 'DateTimeField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'status',
+            'value': self.datetimefield.status})
+        self.assertEqual(log_count, log_count_init + 2)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_date_time_field_required(self):
+        """Test when date & time field required setting changes."""
+        log_count_init = LoggerHistory.objects.count()
+
+        self.datetimefield.required = True
+        self.datetimefield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.datetimefield.id),
+            'name': self.datetimefield.name,
+            'type': 'DateTimeField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'required',
+            'value': str(self.datetimefield.required)})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+        self.datetimefield.required = False
+        self.datetimefield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.datetimefield.id),
+            'name': self.datetimefield.name,
+            'type': 'DateTimeField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'required',
+            'value': str(self.datetimefield.required)})
+        self.assertEqual(log_count, log_count_init + 2)
         self.assertEqual(log.historical, None)
 
     # DATE FIELDS
@@ -809,7 +1138,6 @@ class LoggerHistoryTest(TestCase):
     def test_log_update_date_field_name(self):
         """Test when date field name changes."""
         log_count_init = LoggerHistory.objects.count()
-        original_name = self.datefield.name
         self.datefield.name = '%s UPDATED' % self.lookupfield.name
         self.datefield.save()
 
@@ -834,6 +1162,118 @@ class LoggerHistoryTest(TestCase):
             'field': 'name',
             'value': self.datefield.name})
         self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_date_field_status(self):
+        """Test when date field status changes."""
+        log_count_init = LoggerHistory.objects.count()
+
+        self.datefield.status = 'inactive'
+        self.datefield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.datefield.id),
+            'name': self.datefield.name,
+            'type': 'DateField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'status',
+            'value': self.datefield.status})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+        self.datefield.status = 'active'
+        self.datefield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.datefield.id),
+            'name': self.datefield.name,
+            'type': 'DateField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'status',
+            'value': self.datefield.status})
+        self.assertEqual(log_count, log_count_init + 2)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_date_field_required(self):
+        """Test when date field required setting changes."""
+        log_count_init = LoggerHistory.objects.count()
+
+        self.datefield.required = True
+        self.datefield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.datefield.id),
+            'name': self.datefield.name,
+            'type': 'DateField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'required',
+            'value': str(self.datefield.required)})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+        self.datefield.required = False
+        self.datefield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.datefield.id),
+            'name': self.datefield.name,
+            'type': 'DateField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'required',
+            'value': str(self.datefield.required)})
+        self.assertEqual(log_count, log_count_init + 2)
         self.assertEqual(log.historical, None)
 
     # TIME FIELDS
@@ -867,7 +1307,6 @@ class LoggerHistoryTest(TestCase):
     def test_log_update_time_field_name(self):
         """Test when time field name changes."""
         log_count_init = LoggerHistory.objects.count()
-        original_name = self.timefield.name
         self.timefield.name = '%s UPDATED' % self.timefield.name
         self.timefield.save()
 
@@ -892,6 +1331,118 @@ class LoggerHistoryTest(TestCase):
             'field': 'name',
             'value': self.timefield.name})
         self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_time_field_status(self):
+        """Test when time field status changes."""
+        log_count_init = LoggerHistory.objects.count()
+
+        self.timefield.status = 'inactive'
+        self.timefield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.timefield.id),
+            'name': self.timefield.name,
+            'type': 'TimeField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'status',
+            'value': self.timefield.status})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+        self.timefield.status = 'active'
+        self.timefield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.timefield.id),
+            'name': self.timefield.name,
+            'type': 'TimeField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'status',
+            'value': self.timefield.status})
+        self.assertEqual(log_count, log_count_init + 2)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_time_field_required(self):
+        """Test when time field required setting changes."""
+        log_count_init = LoggerHistory.objects.count()
+
+        self.timefield.required = True
+        self.timefield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.timefield.id),
+            'name': self.timefield.name,
+            'type': 'TimeField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'required',
+            'value': str(self.timefield.required)})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+        self.timefield.required = False
+        self.timefield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.timefield.id),
+            'name': self.timefield.name,
+            'type': 'TimeField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'required',
+            'value': str(self.timefield.required)})
+        self.assertEqual(log_count, log_count_init + 2)
         self.assertEqual(log.historical, None)
 
     # LOOKUP FIELDS
@@ -925,7 +1476,6 @@ class LoggerHistoryTest(TestCase):
     def test_log_update_lookup_field_name(self):
         """Test when lookup field name changes."""
         log_count_init = LoggerHistory.objects.count()
-        original_name = self.lookupfield.name
         self.lookupfield.name = '%s UPDATED' % self.lookupfield.name
         self.lookupfield.save()
 
@@ -950,6 +1500,118 @@ class LoggerHistoryTest(TestCase):
             'field': 'name',
             'value': self.lookupfield.name})
         self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_lookup_field_status(self):
+        """Test when lookup field status changes."""
+        log_count_init = LoggerHistory.objects.count()
+
+        self.lookupfield.status = 'inactive'
+        self.lookupfield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.lookupfield.id),
+            'name': self.lookupfield.name,
+            'type': 'LookupField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'status',
+            'value': self.lookupfield.status})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+        self.lookupfield.status = 'active'
+        self.lookupfield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.lookupfield.id),
+            'name': self.lookupfield.name,
+            'type': 'LookupField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'status',
+            'value': self.lookupfield.status})
+        self.assertEqual(log_count, log_count_init + 2)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_lookup_field_required(self):
+        """Test when lookup field required setting changes."""
+        log_count_init = LoggerHistory.objects.count()
+
+        self.lookupfield.required = True
+        self.lookupfield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.lookupfield.id),
+            'name': self.lookupfield.name,
+            'type': 'LookupField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'required',
+            'value': str(self.lookupfield.required)})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+        self.lookupfield.required = False
+        self.lookupfield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.lookupfield.id),
+            'name': self.lookupfield.name,
+            'type': 'LookupField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'required',
+            'value': str(self.lookupfield.required)})
+        self.assertEqual(log_count, log_count_init + 2)
         self.assertEqual(log.historical, None)
 
     # MULTIPLE LOOKUP FIELDS
@@ -983,7 +1645,6 @@ class LoggerHistoryTest(TestCase):
     def test_log_update_multiple_lookup_field_name(self):
         """Test when multiple lookup field name changes."""
         log_count_init = LoggerHistory.objects.count()
-        original_name = self.multiplelookupfield.name
         self.multiplelookupfield.name = '%s UPDATED' % (
             self.multiplelookupfield.name)
         self.multiplelookupfield.save()
@@ -1011,13 +1672,12 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 
-    # SUBSETS
-    def test_log_create_subset(self):
-        """Test when category gets created."""
+    def test_log_update_multiple_lookup_field_status(self):
+        """Test when multiple lookup field status changes."""
         log_count_init = LoggerHistory.objects.count()
-        subset = SubsetFactory.create(**{
-            'creator': self.user,
-            'project': self.project})
+
+        self.multiplelookupfield.status = 'inactive'
+        self.multiplelookupfield.save()
 
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
@@ -1028,22 +1688,22 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
-        self.assertEqual(log.subset, {
-            'id': str(subset.id),
-            'name': subset.name})
-        self.assertEqual(log.category, None)
-        self.assertEqual(log.field, None)
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.multiplelookupfield.id),
+            'name': self.multiplelookupfield.name,
+            'type': 'MultipleLookupField'})
         self.assertEqual(log.action, {
-            'id': 'created'})
+            'id': 'updated',
+            'field': 'status',
+            'value': self.multiplelookupfield.status})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 
-    def test_log_update_subset_name(self):
-        """Test when category name changes."""
-        log_count_init = LoggerHistory.objects.count()
-        original_name = self.subset.name
-        self.subset.name = '%s UPDATED' % self.subset.name
-        self.subset.save()
+        self.multiplelookupfield.status = 'active'
+        self.multiplelookupfield.save()
 
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
@@ -1054,16 +1714,72 @@ class LoggerHistoryTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
-        self.assertEqual(log.subset, {
-            'id': str(self.subset.id),
-            'name': self.subset.name})
-        self.assertEqual(log.category, None)
-        self.assertEqual(log.field, None)
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.multiplelookupfield.id),
+            'name': self.multiplelookupfield.name,
+            'type': 'MultipleLookupField'})
         self.assertEqual(log.action, {
             'id': 'updated',
-            'field': 'name',
-            'value': self.subset.name})
+            'field': 'status',
+            'value': self.multiplelookupfield.status})
+        self.assertEqual(log_count, log_count_init + 2)
+        self.assertEqual(log.historical, None)
+
+    def test_log_update_multiple_lookup_field_required(self):
+        """Test when multiple lookup field required setting changes."""
+        log_count_init = LoggerHistory.objects.count()
+
+        self.multiplelookupfield.required = True
+        self.multiplelookupfield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.multiplelookupfield.id),
+            'name': self.multiplelookupfield.name,
+            'type': 'MultipleLookupField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'required',
+            'value': str(self.multiplelookupfield.required)})
         self.assertEqual(log_count, log_count_init + 1)
-        history = self.subset.history.get(pk=log.historical.get('id'))
-        self.assertEqual(history.id, self.subset.id)
-        self.assertEqual(history.name, original_name)
+        self.assertEqual(log.historical, None)
+
+        self.multiplelookupfield.required = False
+        self.multiplelookupfield.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, {
+            'id': str(self.multiplelookupfield.id),
+            'name': self.multiplelookupfield.name,
+            'type': 'MultipleLookupField'})
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'required',
+            'value': str(self.multiplelookupfield.required)})
+        self.assertEqual(log_count, log_count_init + 2)
+        self.assertEqual(log.historical, None)
