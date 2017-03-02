@@ -150,7 +150,7 @@ def log_on_post_save(sender, instance, created, *args, **kwargs):
         try:
             historical = {
                 'id': str(instance.history.latest('pk').pk),
-                'class': instance.history.__class__.__name__,
+                'class': sender.history.model.__name__,
             }
         # TODO: Except when history model object does not exist
         except:
