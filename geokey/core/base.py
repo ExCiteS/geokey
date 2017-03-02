@@ -60,6 +60,6 @@ LOG_MODELS = {
         'name',
     ],
     'UserGroup': [
-        'name'
+        'name',
     ],
 }

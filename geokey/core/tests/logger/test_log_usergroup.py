@@ -1,4 +1,4 @@
-"""Tests for logger: model Subset."""
+"""Tests for logger: model UserGroup."""
 
 from django.test import TestCase
 
@@ -8,20 +8,22 @@ from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.users.tests.model_factories import UserGroupFactory
 
 
-class LogSubsetTest(TestCase):
-    """Test model Subset."""
+class LogUserGroupTest(TestCase):
+    """Test model UserGroup."""
 
     def setUp(self):
         """Set up test."""
         self.user = UserFactory.create()
         self.project = ProjectFactory.create(**{
             'creator': self.user})
-        self.usergroup = UserGroupFactory.create(**{'project': self.project})
+        self.usergroup = UserGroupFactory.create(**{
+            'project': self.project})
 
     def test_log_create(self):
-        """Test when subset gets created."""
+        """Test when user group gets created."""
         log_count_init = LoggerHistory.objects.count()
-        usergroup = UserGroupFactory.create(**{'project': self.project})
+        usergroup = UserGroupFactory.create(**{
+            'project': self.project})
 
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
@@ -32,18 +34,19 @@ class LogSubsetTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
-        self.assertEqual(log.category, None)
-        self.assertEqual(log.field, None)
         self.assertEqual(log.usergroup, {
             'id': str(usergroup.id),
             'name': usergroup.name})
+        self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'created'})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 
     def test_log_delete(self):
-        """Test when subset gets deleted."""
+        """Test when user group gets deleted."""
         usergroup_id = self.usergroup.id
         usergroup_name = self.usergroup.name
         log_count_init = LoggerHistory.objects.count()
@@ -58,11 +61,12 @@ class LogSubsetTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
-        self.assertEqual(log.category, None)
-        self.assertEqual(log.field, None)
         self.assertEqual(log.usergroup, {
             'id': str(usergroup_id),
             'name': usergroup_name})
+        self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'deleted'})
         self.assertEqual(log_count, log_count_init + 1)
@@ -84,11 +88,12 @@ class LogSubsetTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
-        self.assertEqual(log.category, None)
-        self.assertEqual(log.field, None)
         self.assertEqual(log.usergroup, {
             'id': str(self.usergroup.id),
             'name': self.usergroup.name})
+        self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
             'field': 'name',
