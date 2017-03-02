@@ -61,5 +61,7 @@ LOG_MODELS = {
     ],
     'UserGroup': [
         'name',
+        'can_contribute',
+        'can_moderate',
     ],
 }

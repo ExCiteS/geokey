@@ -101,3 +101,121 @@ class LogUserGroupTest(TestCase):
         history = self.usergroup.history.get(pk=log.historical.get('id'))
         self.assertEqual(history.id, self.usergroup.id)
         self.assertEqual(history.name, original_name)
+
+    def test_log_update_can_contribute_user_group(self):
+        """Test when can contribute changes."""
+        log_count_init = LoggerHistory.objects.count()
+        original_can_contribute = self.usergroup.can_contribute
+        self.usergroup.can_contribute = False
+        self.usergroup.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.usergroup, {
+            'id': str(self.usergroup.id),
+            'name': self.usergroup.name})
+        self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.subset, None)
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'can_contribute',
+            'value': 'False'})
+        self.assertEqual(log_count, log_count_init + 1)
+        history = self.usergroup.history.get(pk=log.historical.get('id'))
+        self.assertEqual(history.id, self.usergroup.id)
+        self.assertEqual(history.can_contribute, original_can_contribute)
+
+        original_can_contribute = self.usergroup.can_contribute
+        self.usergroup.can_contribute = True
+        self.usergroup.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.usergroup, {
+            'id': str(self.usergroup.id),
+            'name': self.usergroup.name})
+        self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.subset, None)
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'can_contribute',
+            'value': 'True'})
+        self.assertEqual(log_count, log_count_init + 2)
+        history = self.usergroup.history.get(pk=log.historical.get('id'))
+        self.assertEqual(history.id, self.usergroup.id)
+        self.assertEqual(history.can_contribute, original_can_contribute)
+
+    def test_log_update_can_moderate_user_group(self):
+        """Test when can moderate changes."""
+        log_count_init = LoggerHistory.objects.count()
+        original_can_moderate = self.usergroup.can_moderate
+        self.usergroup.can_moderate = True
+        self.usergroup.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.usergroup, {
+            'id': str(self.usergroup.id),
+            'name': self.usergroup.name})
+        self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.subset, None)
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'can_moderate',
+            'value': 'True'})
+        self.assertEqual(log_count, log_count_init + 1)
+        history = self.usergroup.history.get(pk=log.historical.get('id'))
+        self.assertEqual(history.id, self.usergroup.id)
+        self.assertEqual(history.can_moderate, original_can_moderate)
+
+        original_can_moderate = self.usergroup.can_moderate
+        self.usergroup.can_moderate = False
+        self.usergroup.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.usergroup, {
+            'id': str(self.usergroup.id),
+            'name': self.usergroup.name})
+        self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.subset, None)
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'field': 'can_moderate',
+            'value': 'False'})
+        self.assertEqual(log_count, log_count_init + 2)
+        history = self.usergroup.history.get(pk=log.historical.get('id'))
+        self.assertEqual(history.id, self.usergroup.id)
+        self.assertEqual(history.can_moderate, original_can_moderate)
