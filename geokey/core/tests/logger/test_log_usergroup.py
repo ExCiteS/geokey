@@ -105,12 +105,14 @@ class LogUserGroupTest(TestCase):
         self.assertEqual(history.id, self.usergroup.id)
         self.assertEqual(history.name, original_name)
 
-    def test_log_update_can_contribute_user_group(self):
-        """Test when can contribute changes."""
+    def test_log_update_can_contribute(self):
+        """Test when setting who can contribute changes."""
         log_count_init = LoggerHistory.objects.count()
+
         original_can_contribute = self.usergroup.can_contribute
         self.usergroup.can_contribute = False
         self.usergroup.save()
+
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
 
@@ -165,9 +167,10 @@ class LogUserGroupTest(TestCase):
         self.assertEqual(history.id, self.usergroup.id)
         self.assertEqual(history.can_contribute, original_can_contribute)
 
-    def test_log_update_can_moderate_user_group(self):
-        """Test when can moderate changes."""
+    def test_log_update_can_moderate(self):
+         """Test when setting who can moderate changes."""
         log_count_init = LoggerHistory.objects.count()
+
         original_can_moderate = self.usergroup.can_moderate
         self.usergroup.can_moderate = True
         self.usergroup.save()
