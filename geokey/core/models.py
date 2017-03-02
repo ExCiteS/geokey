@@ -73,10 +73,12 @@ def generate_log(sender, instance, action):
         fields['category'] = instance.category
         fields['location'] = instance.location
         fields['observation'] = instance
-    elif class_name == 'Field':
-        fields['project'] = instance.category.project
-        fields['category'] = instance.category
-        fields['field'] = instance
+    elif class_name == 'Comment':
+        fields['project'] = instance.commentto.project
+        fields['category'] = instance.commentto.category
+        fields['location'] = instance.commentto.location
+        fields['observation'] = instance.commentto
+        fields['comment'] = instance
     elif class_name == 'Subset':
         fields['project'] = instance.project
         fields['subset'] = instance

@@ -64,6 +64,7 @@ LOG_MODELS = {
     'Observation': [
         'status',
     ],
+    'Comment': [],
     'Subset': [
         'name',
         'can_contribute',
