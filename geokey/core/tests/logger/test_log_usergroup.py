@@ -111,7 +111,6 @@ class LogUserGroupTest(TestCase):
         original_can_contribute = self.usergroup.can_contribute
         self.usergroup.can_contribute = False
         self.usergroup.save()
-
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
 
@@ -129,6 +128,7 @@ class LogUserGroupTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'UserGroup',
             'field': 'can_contribute',
             'value': 'False'})
         self.assertEqual(log_count, log_count_init + 1)
@@ -157,6 +157,7 @@ class LogUserGroupTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'UserGroup',
             'field': 'can_contribute',
             'value': 'True'})
         self.assertEqual(log_count, log_count_init + 2)
@@ -188,6 +189,7 @@ class LogUserGroupTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'UserGroup',
             'field': 'can_moderate',
             'value': 'True'})
         self.assertEqual(log_count, log_count_init + 1)
@@ -216,6 +218,7 @@ class LogUserGroupTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'UserGroup',
             'field': 'can_moderate',
             'value': 'False'})
         self.assertEqual(log_count, log_count_init + 2)
