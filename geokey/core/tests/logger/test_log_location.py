@@ -37,7 +37,8 @@ class LogLocationFieldTest(TestCase):
             'name': location.name})
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
-            'id': 'created'})
+            'id': 'created',
+            'class': 'Location'})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 
@@ -63,7 +64,8 @@ class LogLocationFieldTest(TestCase):
             'name': location_name})
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
-            'id': 'deleted'})
+            'id': 'deleted',
+            'class': 'Location'})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 
@@ -91,6 +93,7 @@ class LogLocationFieldTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Location',
             'field': 'name'})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
