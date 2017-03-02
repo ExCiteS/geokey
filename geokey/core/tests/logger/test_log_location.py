@@ -6,6 +6,7 @@ from geokey.core.models import LoggerHistory
 from geokey.users.tests.model_factories import UserFactory
 from geokey.contributions.tests.model_factories import LocationFactory
 
+
 class LogLocationFieldTest(TestCase):
     """Test model Location."""
 
@@ -67,7 +68,6 @@ class LogLocationFieldTest(TestCase):
     def test_log_update_name(self):
         """Test when name changes."""
         log_count_init = LoggerHistory.objects.count()
-        original_name = self.location.name
         self.location.name = '%s UPDATED' % self.location.name
         self.location.save()
 
@@ -82,7 +82,7 @@ class LogLocationFieldTest(TestCase):
         self.assertEqual(log.field, None)
         self.assertEqual(log.location, {
             'id': str(self.location.id),
-            'name': self.location.name,})
+            'name': self.location.name})
         self.assertEqual(log.observation, None)
         self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
