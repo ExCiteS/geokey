@@ -106,7 +106,7 @@ def cross_check_fields(new_instance, original_instance):
 @receiver(pre_save)
 def logs_on_pre_save(sender, instance, *args, **kwargs):
     """Initiate logs when instance get updated."""
-    if LOG_MODELS.has_key(sender.__name__):
+    if sender.__name__ in LOG_MODELS:
         logs = []
 
         try:
@@ -122,7 +122,7 @@ def logs_on_pre_save(sender, instance, *args, **kwargs):
 @receiver(post_save)
 def log_on_post_save(sender, instance, created, *args, **kwargs):
     """Finalise initiated logs or create a new one when instance is created."""
-    if LOG_MODELS.has_key(sender.__name__):
+    if sender.__name__ in LOG_MODELS:
         logs = []
 
         if created:
@@ -150,7 +150,7 @@ def log_on_post_save(sender, instance, created, *args, **kwargs):
 @receiver(post_delete)
 def log_on_post_delete(sender, instance, *args, **kwargs):
     """Create a log when instance is deleted."""
-    if LOG_MODELS.has_key(sender.__name__):
+    if sender.__name__ in LOG_MODELS:
         log = generate_log(
             sender,
             instance,
