@@ -70,16 +70,21 @@ def generate_log(sender, instance, action):
         fields['project'] = instance.category.project
         fields['category'] = instance.category
         fields['field'] = instance
-
+    elif class_name == 'Observation':
+        fields['project'] = instance.project
+        fields['category'] = instance.category
+        fields['observation'] = instance
+    elif class_name == 'Field':
+        fields['project'] = instance.category.project
+        fields['category'] = instance.category
+        fields['field'] = instance
     for field, value in fields.iteritems():
         if field == 'observation':
             value = {'id': str(value.id)}
         else:
             value = {
                 'id': str(value.id),
-                'name': value.name,
-            }
-
+                'name': value.name}
         # Fields for categories should also have type
         if field == 'field':
             value['type'] = sender.__name__
