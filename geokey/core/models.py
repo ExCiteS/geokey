@@ -5,15 +5,16 @@ from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from django.contrib.postgres.fields import HStoreField
 
+from model_utils.models import TimeStampedModel
+
 from geokey.core.signals import get_request
 
 from .base import STATUS_ACTION, LOG_MODELS
 
 
-class LoggerHistory(models.Model):
+class LoggerHistory(TimeStampedModel):
     """Store the event logs."""
 
-    timestamp = models.DateTimeField(auto_now_add=True)
     user = HStoreField(null=True, blank=True)
     project = HStoreField(null=True, blank=True)
     usergroup = HStoreField(null=True, blank=True)
