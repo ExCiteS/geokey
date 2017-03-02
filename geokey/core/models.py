@@ -72,10 +72,13 @@ def generate_log(sender, instance, action):
         fields['field'] = instance
 
     for field, value in fields.iteritems():
-        value = {
-            'id': str(value.id),
-            'name': value.name,
-        }
+        if field == 'observation':
+            value = {'id': str(value.id)}
+        else:
+            value = {
+                'id': str(value.id),
+                'name': value.name,
+            }
 
         # Fields for categories should also have type
         if field == 'field':

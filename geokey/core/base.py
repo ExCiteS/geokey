@@ -66,4 +66,7 @@ LOG_MODELS = {
         'can_contribute',
         'can_moderate',
     ],
+    'Observation': [
+        'status',
+    ],
 }
