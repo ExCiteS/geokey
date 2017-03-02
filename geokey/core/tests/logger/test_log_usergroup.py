@@ -168,7 +168,7 @@ class LogUserGroupTest(TestCase):
         self.assertEqual(history.can_contribute, original_can_contribute)
 
     def test_log_update_can_moderate(self):
-         """Test when setting who can moderate changes."""
+        """Test when setting who can moderate changes."""
         log_count_init = LoggerHistory.objects.count()
 
         original_can_moderate = self.usergroup.can_moderate
