@@ -78,13 +78,14 @@ def generate_log(sender, instance, action):
         fields['project'] = instance.category.project
         fields['category'] = instance.category
         fields['field'] = instance
-    for field, value in fields.iteritems():
-        if field == 'observation':
-            value = {'id': str(value.id)}
-        else:
-            value = {
-                'id': str(value.id),
-                'name': value.name}
+
+    for field, instance in fields.iteritems():
+        value = {'id': str(instance.id)}
+
+        # Not all models have names
+        if hasattr(instance, 'name'):
+            value['name'] = instance.name
+
         # Fields for categories should also have type
         if field == 'field':
             value['type'] = sender.__name__
