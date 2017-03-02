@@ -18,8 +18,8 @@ LOG_MODELS = {
         'status',
         'default_status',
     ],
-    'Subset': [
-        'name'
+    'UserGroup': [
+        'name',
     ],
     'TextField': [
         'name',
@@ -59,7 +59,7 @@ LOG_MODELS = {
     'Location': [
         'name',
     ],
-    'UserGroup': [
+    'Subset': [
         'name',
     ],
 }
