@@ -108,8 +108,7 @@ class LogLookupFieldTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
-            'field': 'name',
-            'value': self.multiplelookupfield.name})
+            'field': 'name'})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 

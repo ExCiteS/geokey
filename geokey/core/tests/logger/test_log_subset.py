@@ -95,8 +95,7 @@ class LogSubsetTest(TestCase):
             'name': self.subset.name})
         self.assertEqual(log.action, {
             'id': 'updated',
-            'field': 'name',
-            'value': self.subset.name})
+            'field': 'name'})
         self.assertEqual(log_count, log_count_init + 1)
         history = self.subset.history.get(pk=log.historical.get('id'))
         self.assertEqual(history.id, self.subset.id)

@@ -96,8 +96,7 @@ class LogUserGroupTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
-            'field': 'name',
-            'value': self.usergroup.name})
+            'field': 'name'})
         self.assertEqual(log_count, log_count_init + 1)
         history = self.usergroup.history.get(pk=log.historical.get('id'))
         self.assertEqual(history.id, self.usergroup.id)

@@ -86,19 +86,19 @@ def cross_check_fields(new_instance, original_instance):
         if new_value != original_value:
             action_id = STATUS_ACTION.updated
 
-            # Store GeoJSON for geo. extent
-            if field == 'geographic_extent' and new_value is not None:
-                new_value = new_value.json
-
             # Action is "deleted" - nothing gets deleted, only status change
             if field == 'status' and new_value == 'deleted':
                 action_id = STATUS_ACTION.deleted
 
-            changed_fields.append({
+            changed_field = {
                 'id': action_id,
                 'field': field,
-                'value': str(new_value),
-            })
+            }
+
+            if field not in ['name', 'geographic_extent', 'properties']:
+                changed_field['value'] = str(new_value)
+
+            changed_fields.append(changed_field)
 
     return changed_fields
 

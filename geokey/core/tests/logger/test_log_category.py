@@ -99,8 +99,7 @@ class LogCategoryTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
-            'field': 'name',
-            'value': self.category.name})
+            'field': 'name'})
         self.assertEqual(log_count, log_count_init + 1)
         history = self.category.history.get(pk=log.historical.get('id'))
         self.assertEqual(history.id, self.category.id)
@@ -269,8 +268,7 @@ class LogCategoryTest(TestCase):
         self.assertEqual(logs[1].field, None)
         self.assertEqual(logs[1].action, {
             'id': 'updated',
-            'field': 'name',
-            'value': self.category.name})
+            'field': 'name'})
         history_2 = self.category.history.get(pk=logs[1].historical.get('id'))
         self.assertEqual(history_2.id, self.category.id)
         self.assertEqual(history_2.name, original_name)

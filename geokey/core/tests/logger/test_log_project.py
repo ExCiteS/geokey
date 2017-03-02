@@ -88,8 +88,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
-            'field': 'name',
-            'value': self.project.name})
+            'field': 'name'})
         self.assertEqual(log_count, log_count_init + 1)
         history = self.project.history.get(pk=log.historical.get('id'))
         self.assertEqual(history.id, self.project.id)
@@ -366,8 +365,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
-            'field': 'geographic_extent',
-            'value': self.project.geographic_extent.json})
+            'field': 'geographic_extent'})
         self.assertEqual(log_count, log_count_init + 1)
         history = self.project.history.get(pk=log.historical.get('id'))
         self.assertEqual(history.id, self.project.id)
