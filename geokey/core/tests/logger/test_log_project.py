@@ -36,7 +36,8 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
-            'id': 'created'})
+            'id': 'created',
+            'class': 'Project'})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 
@@ -62,6 +63,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'deleted',
+            'class': 'Project',
             'field': 'status',
             'value': 'deleted'})
         self.assertEqual(log_count, log_count_init + 1)
@@ -91,6 +93,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Project',
             'field': 'name'})
         self.assertEqual(log_count, log_count_init + 1)
         history = self.project.history.get(pk=log.historical.get('id'))
@@ -120,6 +123,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Project',
             'field': 'status',
             'value': self.project.status})
         self.assertEqual(log_count, log_count_init + 1)
@@ -146,6 +150,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Project',
             'field': 'status',
             'value': self.project.status})
         self.assertEqual(log_count, log_count_init + 2)
@@ -176,6 +181,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Project',
             'field': 'isprivate',
             'value': str(self.project.isprivate)})
         self.assertEqual(log_count, log_count_init + 1)
@@ -202,6 +208,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Project',
             'field': 'isprivate',
             'value': str(self.project.isprivate)})
         self.assertEqual(log_count, log_count_init + 2)
@@ -232,6 +239,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Project',
             'field': 'islocked',
             'value': str(self.project.islocked)})
         self.assertEqual(log_count, log_count_init + 1)
@@ -258,6 +266,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Project',
             'field': 'islocked',
             'value': str(self.project.islocked)})
         self.assertEqual(log_count, log_count_init + 2)
@@ -288,6 +297,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Project',
             'field': 'everyone_contributes',
             'value': self.project.everyone_contributes})
         self.assertEqual(log_count, log_count_init + 1)
@@ -316,6 +326,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Project',
             'field': 'everyone_contributes',
             'value': self.project.everyone_contributes})
         self.assertEqual(log_count, log_count_init + 2)
@@ -344,6 +355,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Project',
             'field': 'everyone_contributes',
             'value': self.project.everyone_contributes})
         self.assertEqual(log_count, log_count_init + 3)
@@ -378,6 +390,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Project',
             'field': 'geographic_extent'})
         self.assertEqual(log_count, log_count_init + 1)
         history = self.project.history.get(pk=log.historical.get('id'))
@@ -409,6 +422,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(logs[0].field, None)
         self.assertEqual(logs[0].action, {
             'id': 'updated',
+            'class': 'Project',
             'field': 'islocked',
             'value': str(self.project.islocked)})
         history_1 = self.project.history.get(pk=logs[0].historical.get('id'))
@@ -427,6 +441,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(logs[1].field, None)
         self.assertEqual(logs[1].action, {
             'id': 'updated',
+            'class': 'Project',
             'field': 'isprivate',
             'value': str(self.project.isprivate)})
         history_2 = self.project.history.get(pk=logs[1].historical.get('id'))

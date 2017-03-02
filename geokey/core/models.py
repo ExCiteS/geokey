@@ -27,6 +27,18 @@ class LoggerHistory(models.Model):
     historical = HStoreField(null=True, blank=True)
 
 
+def get_class_name(instance_class):
+    """Get the instance class name."""
+    if not hasattr(instance_class, '__bases__'):
+        instance_class = instance_class.__class__
+
+    bases = [x.__name__ for x in instance_class.__bases__]
+    if 'Field' in bases:
+        return 'Field'
+
+    return instance_class.__name__
+
+
 def generate_log(sender, instance, action):
     """Generate a single log (without saving to DB)."""
     log = LoggerHistory(action=action)
@@ -39,27 +51,25 @@ def generate_log(sender, instance, action):
         }
 
     fields = {}
+    class_name = get_class_name(sender)
 
-    if sender.__name__ == 'Project':
+    if class_name == 'Project':
         fields['project'] = instance
-    elif sender.__name__ == 'Category':
+    elif class_name == 'Category':
         fields['project'] = instance.project
         fields['category'] = instance
-    elif sender.__name__ == 'Subset':
+    elif class_name == 'Subset':
         fields['project'] = instance.project
         fields['subset'] = instance
-    elif sender.__name__ == 'UserGroup':
+    elif class_name == 'UserGroup':
         fields['project'] = instance.project
         fields['usergroup'] = instance
-    elif sender.__name__ == 'Location':
+    elif class_name == 'Location':
         fields['location'] = instance
-    else:
-        bases = [x.__name__ for x in sender.__bases__]
-
-        if 'Field' in bases:
-            fields['project'] = instance.category.project
-            fields['category'] = instance.category
-            fields['field'] = instance
+    elif class_name == 'Field':
+        fields['project'] = instance.category.project
+        fields['category'] = instance.category
+        fields['field'] = instance
 
     for field, value in fields.iteritems():
         value = {
@@ -92,6 +102,7 @@ def cross_check_fields(new_instance, original_instance):
 
             changed_field = {
                 'id': action_id,
+                'class': get_class_name(new_instance),
                 'field': field,
             }
 
@@ -129,14 +140,17 @@ def log_on_post_save(sender, instance, created, *args, **kwargs):
             logs.append(generate_log(
                 sender,
                 instance,
-                {'id': STATUS_ACTION.created}))
+                {
+                    'id': STATUS_ACTION.created,
+                    'class': get_class_name(sender),
+                }))
         elif hasattr(instance, '_logs') and instance._logs is not None:
             logs = instance._logs
 
         try:
             historical = {
-                'class': instance.history.__class__.__name__,
                 'id': str(instance.history.latest('pk').pk),
+                'class': instance.history.__class__.__name__,
             }
         # TODO: Except when history model object does not exist
         except:
@@ -154,5 +168,8 @@ def log_on_post_delete(sender, instance, *args, **kwargs):
         log = generate_log(
             sender,
             instance,
-            {'id': STATUS_ACTION.deleted})
+            {
+                'id': STATUS_ACTION.deleted,
+                'class': get_class_name(sender),
+            })
         log.save()

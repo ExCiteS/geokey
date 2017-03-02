@@ -50,7 +50,8 @@ class LogDateTimeTest(TestCase):
             'type': 'DateTimeField'})
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
-            'id': 'created'})
+            'id': 'created',
+            'class': 'Field'})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 
@@ -80,7 +81,8 @@ class LogDateTimeTest(TestCase):
             'type': 'DateTimeField'})
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
-            'id': 'deleted'})
+            'id': 'deleted',
+            'class': 'Field'})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 
@@ -110,6 +112,7 @@ class LogDateTimeTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Field',
             'field': 'name'})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
@@ -141,6 +144,7 @@ class LogDateTimeTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Field',
             'field': 'status',
             'value': self.datetimefield.status})
         self.assertEqual(log_count, log_count_init + 1)
@@ -168,6 +172,7 @@ class LogDateTimeTest(TestCase):
             'type': 'DateTimeField'})
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Field',
             'field': 'status',
             'value': self.datetimefield.status})
         self.assertEqual(log_count, log_count_init + 2)
@@ -200,6 +205,7 @@ class LogDateTimeTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Field',
             'field': 'required',
             'value': str(self.datetimefield.required)})
         self.assertEqual(log_count, log_count_init + 1)
@@ -228,6 +234,7 @@ class LogDateTimeTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Field',
             'field': 'required',
             'value': str(self.datetimefield.required)})
         self.assertEqual(log_count, log_count_init + 2)

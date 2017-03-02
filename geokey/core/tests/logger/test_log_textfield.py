@@ -50,7 +50,8 @@ class LogTextFieldTest(TestCase):
             'type': 'TextField'})
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
-            'id': 'created'})
+            'id': 'created',
+            'class': 'Field'})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 
@@ -80,7 +81,8 @@ class LogTextFieldTest(TestCase):
             'type': 'TextField'})
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
-            'id': 'deleted'})
+            'id': 'deleted',
+            'class': 'Field'})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 
@@ -110,6 +112,7 @@ class LogTextFieldTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Field',
             'field': 'name'})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
@@ -141,6 +144,7 @@ class LogTextFieldTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Field',
             'field': 'status',
             'value': self.textfield.status})
         self.assertEqual(log_count, log_count_init + 1)
@@ -169,6 +173,7 @@ class LogTextFieldTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Field',
             'field': 'status',
             'value': self.textfield.status})
         self.assertEqual(log_count, log_count_init + 2)
@@ -201,6 +206,7 @@ class LogTextFieldTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Field',
             'field': 'required',
             'value': str(self.textfield.required)})
         self.assertEqual(log_count, log_count_init + 1)
@@ -229,6 +235,7 @@ class LogTextFieldTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Field',
             'field': 'required',
             'value': str(self.textfield.required)})
         self.assertEqual(log_count, log_count_init + 2)

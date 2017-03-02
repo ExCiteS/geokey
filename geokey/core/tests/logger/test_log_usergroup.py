@@ -41,7 +41,8 @@ class LogUserGroupTest(TestCase):
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
-            'id': 'created'})
+            'id': 'created',
+            'class': 'UserGroup'})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 
@@ -68,7 +69,8 @@ class LogUserGroupTest(TestCase):
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
-            'id': 'deleted'})
+            'id': 'deleted',
+            'class': 'UserGroup'})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 
@@ -96,6 +98,7 @@ class LogUserGroupTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'UserGroup',
             'field': 'name'})
         self.assertEqual(log_count, log_count_init + 1)
         history = self.usergroup.history.get(pk=log.historical.get('id'))

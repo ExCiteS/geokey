@@ -43,7 +43,8 @@ class LogSubsetTest(TestCase):
             'id': str(subset.id),
             'name': subset.name})
         self.assertEqual(log.action, {
-            'id': 'created'})
+            'id': 'created',
+            'class': 'Subset'})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 
@@ -70,7 +71,8 @@ class LogSubsetTest(TestCase):
             'id': str(subset_id),
             'name': subset_name})
         self.assertEqual(log.action, {
-            'id': 'deleted'})
+            'id': 'deleted',
+            'class': 'Subset'})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 
@@ -98,6 +100,7 @@ class LogSubsetTest(TestCase):
             'name': self.subset.name})
         self.assertEqual(log.action, {
             'id': 'updated',
+            'class': 'Subset',
             'field': 'name'})
         self.assertEqual(log_count, log_count_init + 1)
         history = self.subset.history.get(pk=log.historical.get('id'))
