@@ -36,6 +36,7 @@ class LogSubsetTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, {
@@ -62,6 +63,7 @@ class LogSubsetTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, {
@@ -88,6 +90,7 @@ class LogSubsetTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, {

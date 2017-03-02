@@ -31,6 +31,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(project.id),
             'name': project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, None)
@@ -55,6 +56,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(project_id),
             'name': project_name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, None)
@@ -83,6 +85,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, None)
@@ -111,6 +114,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, None)
@@ -136,6 +140,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, None)
@@ -165,6 +170,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, None)
@@ -190,6 +196,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, None)
@@ -219,6 +226,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, None)
@@ -244,6 +252,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, None)
@@ -273,6 +282,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, None)
@@ -300,6 +310,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, None)
@@ -327,6 +338,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, None)
@@ -360,6 +372,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.subset, None)

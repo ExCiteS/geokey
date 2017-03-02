@@ -36,6 +36,7 @@ class LogCategoryTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, {
             'id': str(category.id),
             'name': category.name})
@@ -62,6 +63,7 @@ class LogCategoryTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, {
             'id': str(category_id),
             'name': category_name})
@@ -92,6 +94,7 @@ class LogCategoryTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, {
             'id': str(self.category.id),
             'name': self.category.name})
@@ -122,6 +125,7 @@ class LogCategoryTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, {
             'id': str(self.category.id),
             'name': self.category.name})
@@ -149,6 +153,7 @@ class LogCategoryTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, {
             'id': str(self.category.id),
             'name': self.category.name})
@@ -180,6 +185,7 @@ class LogCategoryTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, {
             'id': str(self.category.id),
             'name': self.category.name})
@@ -207,6 +213,7 @@ class LogCategoryTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, {
             'id': str(self.category.id),
             'name': self.category.name})

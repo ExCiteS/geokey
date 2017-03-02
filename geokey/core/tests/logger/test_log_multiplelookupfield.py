@@ -40,6 +40,7 @@ class LogLookupFieldTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, {
             'id': str(self.category.id),
             'name': self.category.name})
@@ -69,6 +70,7 @@ class LogLookupFieldTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, {
             'id': str(self.category.id),
             'name': self.category.name})
@@ -98,6 +100,7 @@ class LogLookupFieldTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, {
             'id': str(self.category.id),
             'name': self.category.name})
@@ -128,6 +131,7 @@ class LogLookupFieldTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, {
             'id': str(self.category.id),
             'name': self.category.name})
@@ -155,6 +159,7 @@ class LogLookupFieldTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, {
             'id': str(self.category.id),
             'name': self.category.name})
@@ -186,6 +191,7 @@ class LogLookupFieldTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, {
             'id': str(self.category.id),
             'name': self.category.name})
@@ -213,6 +219,7 @@ class LogLookupFieldTest(TestCase):
         self.assertEqual(log.project, {
             'id': str(self.project.id),
             'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, {
             'id': str(self.category.id),
             'name': self.category.name})

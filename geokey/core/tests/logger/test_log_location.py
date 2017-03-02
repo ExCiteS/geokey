@@ -29,6 +29,7 @@ class LogLocationFieldTest(TestCase):
             'id': str(self.user.id),
             'display_name': self.user.display_name})
         self.assertEqual(log.project, None)
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.location, {
@@ -54,6 +55,7 @@ class LogLocationFieldTest(TestCase):
             'id': str(self.user.id),
             'display_name': self.user.display_name})
         self.assertEqual(log.project, None)
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.location, {
@@ -78,6 +80,7 @@ class LogLocationFieldTest(TestCase):
             'id': str(self.user.id),
             'display_name': self.user.display_name})
         self.assertEqual(log.project, None)
+        self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
         self.assertEqual(log.location, {
