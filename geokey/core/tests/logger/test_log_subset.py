@@ -39,6 +39,9 @@ class LogSubsetTest(TestCase):
         self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, {
             'id': str(subset.id),
             'name': subset.name})
@@ -67,6 +70,9 @@ class LogSubsetTest(TestCase):
         self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, {
             'id': str(subset_id),
             'name': subset_name})
@@ -95,6 +101,9 @@ class LogSubsetTest(TestCase):
         self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, {
             'id': str(self.subset.id),
             'name': self.subset.name})

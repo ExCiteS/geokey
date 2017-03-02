@@ -55,29 +55,30 @@ def generate_log(sender, instance, action):
 
     if class_name == 'Project':
         fields['project'] = instance
-    elif class_name == 'Category':
-        fields['project'] = instance.project
-        fields['category'] = instance
-    elif class_name == 'Subset':
-        fields['project'] = instance.project
-        fields['subset'] = instance
     elif class_name == 'UserGroup':
         fields['project'] = instance.project
         fields['usergroup'] = instance
-    elif class_name == 'Location':
-        fields['location'] = instance
+    elif class_name == 'Category':
+        fields['project'] = instance.project
+        fields['category'] = instance
     elif class_name == 'Field':
         fields['project'] = instance.category.project
         fields['category'] = instance.category
         fields['field'] = instance
+    elif class_name == 'Location':
+        fields['location'] = instance
     elif class_name == 'Observation':
         fields['project'] = instance.project
         fields['category'] = instance.category
+        fields['location'] = instance.location
         fields['observation'] = instance
     elif class_name == 'Field':
         fields['project'] = instance.category.project
         fields['category'] = instance.category
         fields['field'] = instance
+    elif class_name == 'Subset':
+        fields['project'] = instance.project
+        fields['subset'] = instance
 
     for field, instance in fields.iteritems():
         value = {'id': str(instance.id)}

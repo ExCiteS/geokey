@@ -5,8 +5,8 @@ from geokey.users.tests.model_factories import UserFactory
 from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.categories.tests.model_factories import CategoryFactory
 from geokey.contributions.tests.model_factories import (
+    LocationFactory,
     ObservationFactory,
-    LocationFactory
 )
 
 
@@ -19,22 +19,25 @@ class LogObservationTest(TestCase):
         self.project = ProjectFactory.create(**{
             'creator': self.user})
         self.category = CategoryFactory.create(**{
-            'project': self.project,
+            'creator': self.user,
+            'project': self.project})
+        self.location = LocationFactory.create(**{
             'creator': self.user})
         self.observation = ObservationFactory.create(**{
+            'creator': self.user,
+            'location': self.location,
             'project': self.project,
-            'category': self.category,
-            'creator': self.user})
-        self.location = LocationFactory.create()
+            'category': self.category})
 
     def test_log_create(self):
         """Test when observation gets created."""
         log_count_init = LoggerHistory.objects.count()
         observation = ObservationFactory.create(**{
-            'project': self.project,
-            'category': self.category,
             'creator': self.user,
-            'location': self.location})
+            'location': self.location,
+            'project': self.project,
+            'category': self.category})
+
         log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
 
@@ -49,8 +52,13 @@ class LogObservationTest(TestCase):
             'id': str(self.category.id),
             'name': self.category.name})
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, {
+            'id': str(self.location.id),
+            'name': self.location.name})
+        self.assertEqual(log.observation, {
+            'id': str(observation.id)})
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
-        self.assertEqual(log.observation, {'id': str(observation.id)})
         self.assertEqual(log.action, {
             'id': 'created',
             'class': 'Observation'})
@@ -59,6 +67,7 @@ class LogObservationTest(TestCase):
 
     def test_log_delete(self):
         """Test when observation gets deleted."""
+        observation_id = self.observation.id
         log_count_init = LoggerHistory.objects.count()
         self.observation.delete()
 
@@ -76,8 +85,13 @@ class LogObservationTest(TestCase):
             'id': str(self.category.id),
             'name': self.category.name})
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, {
+            'id': str(self.location.id),
+            'name': self.location.name})
+        self.assertEqual(log.observation, {
+            'id': str(observation_id)})
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
-        self.assertEqual(log.observation, {'id': str(self.observation.id)})
         self.assertEqual(log.action, {
             'id': 'deleted',
             'class': 'Observation',
@@ -88,36 +102,10 @@ class LogObservationTest(TestCase):
         self.assertEqual(history.id, self.observation.id)
 
     def test_log_update_status(self):
-        """Test when observation status gets cchanged."""
+        """Test when observation status changes."""
         log_count_init = LoggerHistory.objects.count()
-        self.observation.status = 'review'
-        self.observation.save()
 
-        log = LoggerHistory.objects.last()
-        log_count = LoggerHistory.objects.count()
-
-        self.assertNotEqual(log.user, {
-            'id': str(self.user.id),
-            'display_name': self.user.display_name})
-        self.assertEqual(log.project, {
-            'id': str(self.project.id),
-            'name': self.project.name})
-        self.assertEqual(log.usergroup, None)
-        self.assertEqual(log.category, {
-            'id': str(self.category.id),
-            'name': self.category.name})
-        self.assertEqual(log.field, None)
-        self.assertEqual(log.subset, None)
-        self.assertEqual(log.observation, {'id': str(self.observation.id)})
-        self.assertEqual(log.action, {
-            'id': 'updated',
-            'class': 'Observation',
-            'field': 'status',
-            'value': 'review'})
-        self.assertEqual(log_count, log_count_init + 1)
-        history = self.observation.history.get(pk=log.historical.get('id'))
-        self.assertEqual(history.id, self.observation.id)
-
+        original_status = self.observation.status
         self.observation.status = 'draft'
         self.observation.save()
 
@@ -135,17 +123,59 @@ class LogObservationTest(TestCase):
             'id': str(self.category.id),
             'name': self.category.name})
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, {
+            'id': str(self.location.id),
+            'name': self.location.name})
+        self.assertEqual(log.observation, {
+            'id': str(self.observation.id)})
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
-        self.assertEqual(log.observation, {'id': str(self.observation.id)})
         self.assertEqual(log.action, {
             'id': 'updated',
             'class': 'Observation',
             'field': 'status',
             'value': 'draft'})
+        self.assertEqual(log_count, log_count_init + 1)
+        history = self.observation.history.get(pk=log.historical.get('id'))
+        self.assertEqual(history.id, self.observation.id)
+        self.assertEqual(history.status, original_status)
+
+        original_status = self.observation.status
+        self.observation.status = 'review'
+        self.observation.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.location, {
+            'id': str(self.location.id),
+            'name': self.location.name})
+        self.assertEqual(log.observation, {
+            'id': str(self.observation.id)})
+        self.assertEqual(log.comment, None)
+        self.assertEqual(log.subset, None)
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'class': 'Observation',
+            'field': 'status',
+            'value': 'review'})
         self.assertEqual(log_count, log_count_init + 2)
         history = self.observation.history.get(pk=log.historical.get('id'))
         self.assertEqual(history.id, self.observation.id)
+        self.assertEqual(history.status, original_status)
 
+        original_status = self.observation.status
         self.observation.status = 'pending'
         self.observation.save()
 
@@ -163,8 +193,13 @@ class LogObservationTest(TestCase):
             'id': str(self.category.id),
             'name': self.category.name})
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, {
+            'id': str(self.location.id),
+            'name': self.location.name})
+        self.assertEqual(log.observation, {
+            'id': str(self.observation.id)})
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
-        self.assertEqual(log.observation, {'id': str(self.observation.id)})
         self.assertEqual(log.action, {
             'id': 'updated',
             'class': 'Observation',
@@ -173,7 +208,9 @@ class LogObservationTest(TestCase):
         self.assertEqual(log_count, log_count_init + 3)
         history = self.observation.history.get(pk=log.historical.get('id'))
         self.assertEqual(history.id, self.observation.id)
+        self.assertEqual(history.status, original_status)
 
+        original_status = self.observation.status
         self.observation.status = 'active'
         self.observation.save()
 
@@ -191,8 +228,13 @@ class LogObservationTest(TestCase):
             'id': str(self.category.id),
             'name': self.category.name})
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, {
+            'id': str(self.location.id),
+            'name': self.location.name})
+        self.assertEqual(log.observation, {
+            'id': str(self.observation.id)})
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
-        self.assertEqual(log.observation, {'id': str(self.observation.id)})
         self.assertEqual(log.action, {
             'id': 'updated',
             'class': 'Observation',
@@ -201,3 +243,4 @@ class LogObservationTest(TestCase):
         self.assertEqual(log_count, log_count_init + 4)
         history = self.observation.history.get(pk=log.historical.get('id'))
         self.assertEqual(history.id, self.observation.id)
+        self.assertEqual(history.status, original_status)

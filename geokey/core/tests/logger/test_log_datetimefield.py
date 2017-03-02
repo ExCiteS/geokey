@@ -48,6 +48,9 @@ class LogDateTimeTest(TestCase):
             'id': str(field.id),
             'name': field.name,
             'type': 'DateTimeField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'created',
@@ -79,6 +82,9 @@ class LogDateTimeTest(TestCase):
             'id': str(field_id),
             'name': field_name,
             'type': 'DateTimeField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'deleted',
@@ -109,6 +115,9 @@ class LogDateTimeTest(TestCase):
             'id': str(self.datetimefield.id),
             'name': self.datetimefield.name,
             'type': 'DateTimeField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -141,6 +150,9 @@ class LogDateTimeTest(TestCase):
             'id': str(self.datetimefield.id),
             'name': self.datetimefield.name,
             'type': 'DateTimeField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -202,6 +214,9 @@ class LogDateTimeTest(TestCase):
             'id': str(self.datetimefield.id),
             'name': self.datetimefield.name,
             'type': 'DateTimeField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -231,6 +246,9 @@ class LogDateTimeTest(TestCase):
             'id': str(self.datetimefield.id),
             'name': self.datetimefield.name,
             'type': 'DateTimeField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',

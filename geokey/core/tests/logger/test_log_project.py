@@ -34,6 +34,9 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'created',
@@ -60,6 +63,9 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'deleted',
@@ -90,6 +96,9 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -120,6 +129,9 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -147,6 +159,9 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -178,6 +193,9 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -205,6 +223,9 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -236,6 +257,9 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -263,6 +287,9 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -294,6 +321,9 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -323,6 +353,9 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -352,6 +385,9 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -387,6 +423,9 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.usergroup, None)
         self.assertEqual(log.category, None)
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',

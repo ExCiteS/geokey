@@ -35,6 +35,8 @@ class LogLocationFieldTest(TestCase):
         self.assertEqual(log.location, {
             'id': str(location.id),
             'name': location.name})
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'created',
@@ -62,6 +64,8 @@ class LogLocationFieldTest(TestCase):
         self.assertEqual(log.location, {
             'id': str(location_id),
             'name': location_name})
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'deleted',

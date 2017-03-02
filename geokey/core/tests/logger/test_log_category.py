@@ -41,6 +41,9 @@ class LogCategoryTest(TestCase):
             'id': str(category.id),
             'name': category.name})
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'created',
@@ -69,6 +72,9 @@ class LogCategoryTest(TestCase):
             'id': str(category_id),
             'name': category_name})
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'deleted',
@@ -101,6 +107,9 @@ class LogCategoryTest(TestCase):
             'id': str(self.category.id),
             'name': self.category.name})
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -133,6 +142,9 @@ class LogCategoryTest(TestCase):
             'id': str(self.category.id),
             'name': self.category.name})
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -162,6 +174,9 @@ class LogCategoryTest(TestCase):
             'id': str(self.category.id),
             'name': self.category.name})
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -195,6 +210,9 @@ class LogCategoryTest(TestCase):
             'id': str(self.category.id),
             'name': self.category.name})
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -224,6 +242,9 @@ class LogCategoryTest(TestCase):
             'id': str(self.category.id),
             'name': self.category.name})
         self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',

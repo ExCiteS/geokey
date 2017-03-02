@@ -48,6 +48,9 @@ class LogLookupFieldTest(TestCase):
             'id': str(field.id),
             'name': field.name,
             'type': 'MultipleLookupField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'created',
@@ -79,6 +82,9 @@ class LogLookupFieldTest(TestCase):
             'id': str(field_id),
             'name': field_name,
             'type': 'MultipleLookupField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'deleted',
@@ -110,6 +116,9 @@ class LogLookupFieldTest(TestCase):
             'id': str(self.multiplelookupfield.id),
             'name': self.multiplelookupfield.name,
             'type': 'MultipleLookupField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -142,6 +151,9 @@ class LogLookupFieldTest(TestCase):
             'id': str(self.multiplelookupfield.id),
             'name': self.multiplelookupfield.name,
             'type': 'MultipleLookupField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -171,6 +183,9 @@ class LogLookupFieldTest(TestCase):
             'id': str(self.multiplelookupfield.id),
             'name': self.multiplelookupfield.name,
             'type': 'MultipleLookupField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -204,6 +219,9 @@ class LogLookupFieldTest(TestCase):
             'id': str(self.multiplelookupfield.id),
             'name': self.multiplelookupfield.name,
             'type': 'MultipleLookupField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -233,6 +251,9 @@ class LogLookupFieldTest(TestCase):
             'id': str(self.multiplelookupfield.id),
             'name': self.multiplelookupfield.name,
             'type': 'MultipleLookupField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',

@@ -13,15 +13,15 @@ LOG_MODELS = {
         'everyone_contributes',
         'geographic_extent',
     ],
-    'Category': [
-        'name',
-        'status',
-        'default_status',
-    ],
     'UserGroup': [
         'name',
         'can_contribute',
         'can_moderate',
+    ],
+    'Category': [
+        'name',
+        'status',
+        'default_status',
     ],
     'TextField': [
         'name',
@@ -61,12 +61,12 @@ LOG_MODELS = {
     'Location': [
         'name',
     ],
+    'Observation': [
+        'status',
+    ],
     'Subset': [
         'name',
         'can_contribute',
         'can_moderate',
-    ],
-    'Observation': [
-        'status',
     ],
 }

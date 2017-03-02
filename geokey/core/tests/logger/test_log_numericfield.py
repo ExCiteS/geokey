@@ -48,6 +48,9 @@ class LogNumericFieldTest(TestCase):
             'id': str(field.id),
             'name': field.name,
             'type': 'NumericField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'created',
@@ -79,6 +82,9 @@ class LogNumericFieldTest(TestCase):
             'id': str(field_id),
             'name': field_name,
             'type': 'NumericField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'deleted',
@@ -109,6 +115,9 @@ class LogNumericFieldTest(TestCase):
             'id': str(self.numericfield.id),
             'name': self.numericfield.name,
             'type': 'NumericField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -141,6 +150,9 @@ class LogNumericFieldTest(TestCase):
             'id': str(self.numericfield.id),
             'name': self.numericfield.name,
             'type': 'NumericField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -170,6 +182,9 @@ class LogNumericFieldTest(TestCase):
             'id': str(self.numericfield.id),
             'name': self.numericfield.name,
             'type': 'NumericField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -203,6 +218,9 @@ class LogNumericFieldTest(TestCase):
             'id': str(self.numericfield.id),
             'name': self.numericfield.name,
             'type': 'NumericField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
@@ -232,6 +250,9 @@ class LogNumericFieldTest(TestCase):
             'id': str(self.numericfield.id),
             'name': self.numericfield.name,
             'type': 'NumericField'})
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'updated',
