@@ -66,7 +66,8 @@ LOG_MODELS = {
         'status',
     ],
     'Comment': [
-        'status'
+        'status',
+        'review_status'
     ],
     'Subset': [
         'name',

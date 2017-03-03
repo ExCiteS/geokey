@@ -39,12 +39,14 @@ def get_class_name(instance_class):
     return instance_class.__name__
 
 
-def add_user_info(action, instance):
+def add_extra_info(action, instance):
     """Add the user info from admins class."""
     if action.get('class') == 'Admins' and hasattr(instance, 'user'):
         action['user_id'] = str(instance.user.id)
         action['user_display_name'] = str(instance.user)
-
+    elif action.get('class') == 'Comment' and hasattr(instance.respondsto, 'id'):
+        action['field'] = 'respondsto'
+        action['comment_id'] = str(instance.respondsto.id)
     return action
 
 
@@ -100,6 +102,8 @@ def generate_log(sender, instance, action):
         # Fields for categories should also have type
         if field == 'field':
             value['type'] = sender.__name__
+        if field == 'respondsto':
+            value['comment_id'] = str(instance.respondsto.id)
 
         setattr(log, field, value)
 
@@ -175,12 +179,12 @@ def log_on_post_save(sender, instance, created, *args, **kwargs):
     """Finalise initiated logs or create a new one when instance is created."""
     if sender.__name__ in LOG_MODELS:
         logs = []
-
         if created:
-            action = add_user_info({
+            action = add_extra_info({
                 'id': STATUS_ACTION.created,
                 'class': get_class_name(sender)
             }, instance)
+
             logs.append(generate_log(sender, instance, action))
         elif hasattr(instance, '_logs') and instance._logs is not None:
             logs = instance._logs
@@ -203,7 +207,7 @@ def log_on_post_save(sender, instance, created, *args, **kwargs):
 def log_on_post_delete(sender, instance, *args, **kwargs):
     """Create a log when instance is deleted."""
     if sender.__name__ in LOG_MODELS:
-        action = add_user_info({
+        action = add_extra_info({
             'id': STATUS_ACTION.deleted,
             'class': get_class_name(sender),
         }, instance)
