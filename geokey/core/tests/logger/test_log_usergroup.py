@@ -245,6 +245,9 @@ class LogUserGroupTest(TestCase):
         self.usergroup.can_moderate = True
         self.usergroup.save()
 
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
         self.assertNotEqual(log.user, {
             'id': str(self.user.id),
             'display_name': self.user.display_name})
@@ -321,6 +324,9 @@ class LogUserGroupTest(TestCase):
         self.usergroup.can_contribute = False
         self.usergroup.can_moderate = False
         self.usergroup.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
 
         self.assertNotEqual(log.user, {
             'id': str(self.user.id),
