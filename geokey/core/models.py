@@ -62,15 +62,14 @@ def generate_log(sender, instance, action):
     fields = {}
     class_name = get_class_name(sender)
 
+    if hasattr(instance, 'project'):
+        fields['project'] = instance.project
+
     if class_name == 'Project':
         fields['project'] = instance
-    elif class_name == 'Admins':
-        fields['project'] = instance.project
     elif class_name == 'UserGroup':
-        fields['project'] = instance.project
         fields['usergroup'] = instance
     elif class_name == 'Category':
-        fields['project'] = instance.project
         fields['category'] = instance
     elif class_name == 'Field':
         fields['project'] = instance.category.project
@@ -79,7 +78,6 @@ def generate_log(sender, instance, action):
     elif class_name == 'Location':
         fields['location'] = instance
     elif class_name == 'Observation':
-        fields['project'] = instance.project
         fields['category'] = instance.category
         fields['location'] = instance.location
         fields['observation'] = instance
@@ -90,7 +88,6 @@ def generate_log(sender, instance, action):
         fields['observation'] = instance.commentto
         fields['comment'] = instance
     elif class_name == 'Subset':
-        fields['project'] = instance.project
         fields['subset'] = instance
 
     for field, instance in fields.iteritems():
