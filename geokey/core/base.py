@@ -68,7 +68,5 @@ LOG_MODELS = {
     'Comment': [],
     'Subset': [
         'name',
-        'can_contribute',
-        'can_moderate',
     ],
 }
