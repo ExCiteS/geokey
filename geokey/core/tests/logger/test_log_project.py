@@ -44,10 +44,8 @@ class LogProjectTest(TestCase):
         self.assertEqual(logs[0].action, {
             'id': 'created',
             'class': 'Admins',
-            'user_info': {
-                'id': self.user.id,
-                'display_name': self.user.display_name
-            }})
+            'user_id': str(self.user.id),
+            'user_display_name': self.user.display_name})
         self.assertEqual(logs[0].historical, None)
 
         # Project gets created
@@ -121,10 +119,8 @@ class LogProjectTest(TestCase):
         self.assertEqual(logs[1].action, {
             'id': 'deleted',
             'class': 'Admins',
-            'user_info': {
-                'id': self.user.id,
-                'display_name': self.user.display_name
-            }})
+            'user_id': str(self.user.id),
+            'user_display_name': self.user.display_name})
         self.assertEqual(logs[1].historical, None)
 
     def test_log_update_name(self):
@@ -566,10 +562,8 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.action, {
             'id': 'created',
             'class': 'Admins',
-            'user_info': {
-                'id': new_admin.id,
-                'display_name': new_admin.display_name
-            }})
+            'user_id': str(new_admin.id),
+            'user_display_name': new_admin.display_name})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 
@@ -601,9 +595,7 @@ class LogProjectTest(TestCase):
         self.assertEqual(log.action, {
             'id': 'deleted',
             'class': 'Admins',
-            'user_info': {
-                'id': existing_admin.id,
-                'display_name': existing_admin.display_name
-            }})
+            'user_id': str(existing_admin.id),
+            'user_display_name': existing_admin.display_name})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)

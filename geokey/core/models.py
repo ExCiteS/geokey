@@ -1,6 +1,5 @@
 """Core models."""
 
-from django.db import models
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from django.contrib.postgres.fields import HStoreField
@@ -38,6 +37,14 @@ def get_class_name(instance_class):
         return 'Field'
 
     return instance_class.__name__
+
+
+def add_user_info(action, instance):
+    """Get the user info from admin class."""
+    if action.get('class') == 'Admins' and hasattr(instance, 'user'):
+        action['user_id'] = str(instance.user.id)
+        action['user_display_name'] = str(instance.user)
+    return action
 
 
 def generate_log(sender, instance, action):
@@ -152,13 +159,14 @@ def log_on_post_save(sender, instance, created, *args, **kwargs):
         logs = []
 
         if created:
+            action = {
+                'id': STATUS_ACTION.created,
+                'class': get_class_name(sender)}
+            action = add_user_info(action, instance)
             logs.append(generate_log(
                 sender,
                 instance,
-                {
-                    'id': STATUS_ACTION.created,
-                    'class': get_class_name(sender),
-                }))
+                action))
         elif hasattr(instance, '_logs') and instance._logs is not None:
             logs = instance._logs
 
@@ -180,11 +188,12 @@ def log_on_post_save(sender, instance, created, *args, **kwargs):
 def log_on_post_delete(sender, instance, *args, **kwargs):
     """Create a log when instance is deleted."""
     if sender.__name__ in LOG_MODELS:
+        action = {
+            'id': STATUS_ACTION.deleted,
+            'class': get_class_name(sender)}
+        action = add_user_info(action, instance)
         log = generate_log(
             sender,
             instance,
-            {
-                'id': STATUS_ACTION.deleted,
-                'class': get_class_name(sender),
-            })
+            action)
         log.save()
