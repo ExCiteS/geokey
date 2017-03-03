@@ -202,7 +202,7 @@ class LogUserGroupTest(TestCase):
         log_count_init = LoggerHistory.objects.count()
         original_can_contribute = self.usergroup.can_contribute
         original_can_moderate = self.usergroup.can_moderate
-        self.usergroup.can_contribute = False
+        self.usergroup.can_contribute = True
         self.usergroup.can_moderate = True
         self.usergroup.save()
 
@@ -241,7 +241,7 @@ class LogUserGroupTest(TestCase):
         log_count_init = LoggerHistory.objects.count()
         original_can_contribute = self.usergroup.can_contribute
         original_can_moderate = self.usergroup.can_moderate
-        self.usergroup.can_contribute = False
+        self.usergroup.can_contribute = True
         self.usergroup.can_moderate = True
         self.usergroup.save()
 
@@ -312,7 +312,7 @@ class LogUserGroupTest(TestCase):
         self.assertEqual(history.can_contribute, original_can_contribute)
         self.assertEqual(history.can_moderate, original_can_moderate)
 
-        self.usergroup.can_contribute = False
+        self.usergroup.can_contribute = True
         self.usergroup.can_moderate = True
         self.usergroup.save()
         log_count_init = LoggerHistory.objects.count()
