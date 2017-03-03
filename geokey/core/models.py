@@ -64,6 +64,8 @@ def generate_log(sender, instance, action):
 
     if hasattr(instance, 'project'):
         fields['project'] = instance.project
+    if hasattr(instance, 'category'):
+        fields['category'] = instance.category
 
     if class_name == 'Project':
         fields['project'] = instance
@@ -73,12 +75,10 @@ def generate_log(sender, instance, action):
         fields['category'] = instance
     elif class_name == 'Field':
         fields['project'] = instance.category.project
-        fields['category'] = instance.category
         fields['field'] = instance
     elif class_name == 'Location':
         fields['location'] = instance
     elif class_name == 'Observation':
-        fields['category'] = instance.category
         fields['location'] = instance.location
         fields['observation'] = instance
     elif class_name == 'Comment':
