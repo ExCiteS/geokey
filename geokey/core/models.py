@@ -47,8 +47,6 @@ def get_class_name(instance_class):
 def get_history(sender, instance):
     """Get the latest history entry of an instance."""
     try:
-        print str(instance.history.latest('pk').pk),
-        print sender.history.model.__name__
         history = {
             'id': str(instance.history.latest('pk').pk),
             'class': sender.history.model.__name__,
