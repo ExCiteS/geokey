@@ -82,35 +82,12 @@ class LogProjectTest(TestCase):
         logs = LoggerHistory.objects.all().order_by('-pk')[:2]
 
         # Project gets deleted
-        self.assertNotEqual(logs[1].user, {
-            'id': str(self.user.id),
-            'display_name': self.user.display_name})
-        self.assertEqual(logs[1].project, {
-            'id': str(project_id),
-            'name': project_name})
-        self.assertEqual(logs[1].usergroup, None)
-        self.assertEqual(logs[1].category, None)
-        self.assertEqual(logs[1].field, None)
-        self.assertEqual(logs[1].location, None)
-        self.assertEqual(logs[1].observation, None)
-        self.assertEqual(logs[1].comment, None)
-        self.assertEqual(logs[1].subset, None)
-        self.assertEqual(logs[1].action, {
-            'id': 'deleted',
-            'class': 'Project',
-            'field': 'status',
-            'value': 'deleted'})
-        history = self.project.history.get(pk=logs[1].historical.get('id'))
-        self.assertEqual(history.id, project_id)
-        self.assertEqual(history.name, project_name)
-
-        # Project creator gets removed from admins
         self.assertNotEqual(logs[0].user, {
             'id': str(self.user.id),
             'display_name': self.user.display_name})
         self.assertEqual(logs[0].project, {
-            'id': str(self.project.id),
-            'name': self.project.name})
+            'id': str(project_id),
+            'name': project_name})
         self.assertEqual(logs[0].usergroup, None)
         self.assertEqual(logs[0].category, None)
         self.assertEqual(logs[0].field, None)
@@ -120,12 +97,35 @@ class LogProjectTest(TestCase):
         self.assertEqual(logs[0].subset, None)
         self.assertEqual(logs[0].action, {
             'id': 'deleted',
+            'class': 'Project',
+            'field': 'status',
+            'value': 'deleted'})
+        history = self.project.history.get(pk=logs[0].historical.get('id'))
+        self.assertEqual(history.id, project_id)
+        self.assertEqual(history.name, project_name)
+
+        # Project creator gets removed from admins
+        self.assertNotEqual(logs[1].user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(logs[1].project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(logs[1].usergroup, None)
+        self.assertEqual(logs[1].category, None)
+        self.assertEqual(logs[1].field, None)
+        self.assertEqual(logs[1].location, None)
+        self.assertEqual(logs[1].observation, None)
+        self.assertEqual(logs[1].comment, None)
+        self.assertEqual(logs[1].subset, None)
+        self.assertEqual(logs[1].action, {
+            'id': 'deleted',
             'class': 'Admins',
             'user_info': {
                 'id': self.user.id,
                 'display_name': self.user.display_name
             }})
-        self.assertEqual(logs[0].historical, None)
+        self.assertEqual(logs[1].historical, None)
 
     def test_log_update_name(self):
         """Test when name changes."""
