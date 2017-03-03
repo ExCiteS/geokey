@@ -13,6 +13,7 @@ LOG_MODELS = {
         'everyone_contributes',
         'geographic_extent',
     ],
+    'Admins': [],
     'UserGroup': [
         'name',
         'can_contribute',

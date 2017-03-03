@@ -56,6 +56,8 @@ def generate_log(sender, instance, action):
 
     if class_name == 'Project':
         fields['project'] = instance
+    elif class_name == 'Admins':
+        fields['project'] = instance.project
     elif class_name == 'UserGroup':
         fields['project'] = instance.project
         fields['usergroup'] = instance

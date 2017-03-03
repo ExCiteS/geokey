@@ -5,7 +5,7 @@ from django.contrib.gis.geos import GEOSGeometry
 
 from geokey.core.models import LoggerHistory
 from geokey.users.tests.model_factories import UserFactory
-from geokey.projects.tests.model_factories import ProjectFactory
+from geokey.projects.tests.model_factories import ProjectFactory, AdminsFactory
 
 
 class LogProjectTest(TestCase):
@@ -22,27 +22,52 @@ class LogProjectTest(TestCase):
         log_count_init = LoggerHistory.objects.count()
         project = ProjectFactory.create(**{'creator': self.user})
 
-        log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
+        self.assertEqual(log_count, log_count_init + 2)
 
-        self.assertNotEqual(log.user, {
+        logs = LoggerHistory.objects.all().order_by('-pk')[:2]
+
+        # Project creator gets added as admin
+        self.assertNotEqual(logs[0].user, {
             'id': str(self.user.id),
             'display_name': self.user.display_name})
-        self.assertEqual(log.project, {
+        self.assertEqual(logs[0].project, {
             'id': str(project.id),
             'name': project.name})
-        self.assertEqual(log.usergroup, None)
-        self.assertEqual(log.category, None)
-        self.assertEqual(log.field, None)
-        self.assertEqual(log.location, None)
-        self.assertEqual(log.observation, None)
-        self.assertEqual(log.comment, None)
-        self.assertEqual(log.subset, None)
-        self.assertEqual(log.action, {
+        self.assertEqual(logs[0].usergroup, None)
+        self.assertEqual(logs[0].category, None)
+        self.assertEqual(logs[0].field, None)
+        self.assertEqual(logs[0].location, None)
+        self.assertEqual(logs[0].observation, None)
+        self.assertEqual(logs[0].comment, None)
+        self.assertEqual(logs[0].subset, None)
+        self.assertEqual(logs[0].action, {
+            'id': 'created',
+            'class': 'Admins',
+            'user_info': {
+                'id': self.user.id,
+                'display_name': self.user.display_name
+            }})
+        self.assertEqual(logs[0].historical, None)
+
+        # Project gets created
+        self.assertNotEqual(logs[1].user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(logs[1].project, {
+            'id': str(project.id),
+            'name': project.name})
+        self.assertEqual(logs[1].usergroup, None)
+        self.assertEqual(logs[1].category, None)
+        self.assertEqual(logs[1].field, None)
+        self.assertEqual(logs[1].location, None)
+        self.assertEqual(logs[1].observation, None)
+        self.assertEqual(logs[1].comment, None)
+        self.assertEqual(logs[1].subset, None)
+        self.assertEqual(logs[1].action, {
             'id': 'created',
             'class': 'Project'})
-        self.assertEqual(log_count, log_count_init + 1)
-        self.assertEqual(log.historical, None)
+        self.assertEqual(logs[1].historical, None)
 
     def test_log_delete(self):
         """Test when project gets deleted."""
@@ -51,31 +76,56 @@ class LogProjectTest(TestCase):
         log_count_init = LoggerHistory.objects.count()
         self.project.delete()
 
-        log = LoggerHistory.objects.last()
         log_count = LoggerHistory.objects.count()
+        self.assertEqual(log_count, log_count_init + 2)
 
-        self.assertNotEqual(log.user, {
+        logs = LoggerHistory.objects.all().order_by('-pk')[:2]
+
+        # Project gets deleted
+        self.assertNotEqual(logs[1].user, {
             'id': str(self.user.id),
             'display_name': self.user.display_name})
-        self.assertEqual(log.project, {
+        self.assertEqual(logs[1].project, {
             'id': str(project_id),
             'name': project_name})
-        self.assertEqual(log.usergroup, None)
-        self.assertEqual(log.category, None)
-        self.assertEqual(log.field, None)
-        self.assertEqual(log.location, None)
-        self.assertEqual(log.observation, None)
-        self.assertEqual(log.comment, None)
-        self.assertEqual(log.subset, None)
-        self.assertEqual(log.action, {
+        self.assertEqual(logs[1].usergroup, None)
+        self.assertEqual(logs[1].category, None)
+        self.assertEqual(logs[1].field, None)
+        self.assertEqual(logs[1].location, None)
+        self.assertEqual(logs[1].observation, None)
+        self.assertEqual(logs[1].comment, None)
+        self.assertEqual(logs[1].subset, None)
+        self.assertEqual(logs[1].action, {
             'id': 'deleted',
             'class': 'Project',
             'field': 'status',
             'value': 'deleted'})
-        self.assertEqual(log_count, log_count_init + 1)
-        history = self.project.history.get(pk=log.historical.get('id'))
+        history = self.project.history.get(pk=logs[1].historical.get('id'))
         self.assertEqual(history.id, project_id)
         self.assertEqual(history.name, project_name)
+
+        # Project creator gets removed from admins
+        self.assertNotEqual(logs[0].user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(logs[0].project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(logs[0].usergroup, None)
+        self.assertEqual(logs[0].category, None)
+        self.assertEqual(logs[0].field, None)
+        self.assertEqual(logs[0].location, None)
+        self.assertEqual(logs[0].observation, None)
+        self.assertEqual(logs[0].comment, None)
+        self.assertEqual(logs[0].subset, None)
+        self.assertEqual(logs[0].action, {
+            'id': 'deleted',
+            'class': 'Admins',
+            'user_info': {
+                'id': self.user.id,
+                'display_name': self.user.display_name
+            }})
+        self.assertEqual(logs[0].historical, None)
 
     def test_log_update_name(self):
         """Test when name changes."""
@@ -490,3 +540,70 @@ class LogProjectTest(TestCase):
 
         # History entry is only one per save
         self.assertEqual(history_1, history_2)
+
+    def test_log_add_admin(self):
+        """Test when admin is added."""
+        log_count_init = LoggerHistory.objects.count()
+        new_admin = UserFactory.create()
+        AdminsFactory.create(project=self.project, user=new_admin)
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
+        self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
+        self.assertEqual(log.subset, None)
+        self.assertEqual(log.action, {
+            'id': 'created',
+            'class': 'Admins',
+            'user_info': {
+                'id': new_admin.id,
+                'display_name': new_admin.display_name
+            }})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    def test_log_remove_admin(self):
+        """Test when admin is removed."""
+        existing_admin = UserFactory.create()
+        admins_relation = AdminsFactory.create(
+            project=self.project,
+            user=existing_admin)
+        log_count_init = LoggerHistory.objects.count()
+        admins_relation.delete()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
+        self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
+        self.assertEqual(log.subset, None)
+        self.assertEqual(log.action, {
+            'id': 'deleted',
+            'class': 'Admins',
+            'user_info': {
+                'id': existing_admin.id,
+                'display_name': existing_admin.display_name
+            }})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
