@@ -355,3 +355,70 @@ class LogUserGroupTest(TestCase):
         self.assertEqual(history.id, self.usergroup.id)
         self.assertEqual(history.can_contribute, original_can_contribute)
         self.assertEqual(history.can_moderate, original_can_moderate)
+
+    def test_log_add_user(self):
+        """Test when user is added."""
+        log_count_init = LoggerHistory.objects.count()
+        new_user = UserFactory.create()
+        self.usergroup.users.add(new_user)
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.usergroup, {
+            'id': str(self.usergroup.id),
+            'name': self.usergroup.name})
+        self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
+        self.assertEqual(log.subset, None)
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'class': 'UserGroup_users',
+            'subaction': 'add',
+            'user_id': str(new_user.id),
+            'user_display_name': new_user.display_name})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
+    def test_log_remove_user(self):
+        """Test when user is removed."""
+        existing_user = UserFactory.create()
+        self.usergroup.users.add(existing_user)
+        log_count_init = LoggerHistory.objects.count()
+        self.usergroup.users.remove(existing_user)
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.usergroup, {
+            'id': str(self.usergroup.id),
+            'name': self.usergroup.name})
+        self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.location, None)
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
+        self.assertEqual(log.subset, None)
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'class': 'UserGroup_users',
+            'subaction': 'remove',
+            'user_id': str(existing_user.id),
+            'user_display_name': existing_user.display_name})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)

@@ -1,6 +1,11 @@
 """Core models."""
 
-from django.db.models.signals import pre_save, post_save, post_delete
+from django.db.models.signals import (
+    pre_save,
+    post_save,
+    post_delete,
+    m2m_changed,
+)
 from django.dispatch import receiver
 from django.contrib.postgres.fields import HStoreField
 
@@ -8,7 +13,7 @@ from model_utils.models import TimeStampedModel
 
 from geokey.core.signals import get_request
 
-from .base import STATUS_ACTION, LOG_MODELS
+from .base import STATUS_ACTION, LOG_MODELS, LOG_M2M_RELATIONS
 
 
 class LoggerHistory(TimeStampedModel):
@@ -56,10 +61,13 @@ def get_history(sender, instance):
 
 
 def add_user_info(action, instance):
-    """Add the user info from admins class."""
-    if action.get('class') == 'Admins' and hasattr(instance, 'user'):
-        action['user_id'] = str(instance.user.id)
-        action['user_display_name'] = str(instance.user)
+    """Add the user info to the action."""
+    action_class = action.get('class')
+    if action_class in ['Admins', 'UserGroup_users']:
+        if hasattr(instance, 'user'):
+            instance = instance.user
+        action['user_id'] = str(instance.id)
+        action['user_display_name'] = str(instance)
 
     return action
 
@@ -78,17 +86,18 @@ def generate_log(sender, instance, action):
     fields = {}
     class_name = get_class_name(sender)
 
-    if hasattr(instance, 'project'):
-        fields['project'] = instance.project
-    if hasattr(instance, 'category'):
-        fields['category'] = instance.category
-
     if class_name == 'Project':
         fields['project'] = instance
-    elif class_name == 'UserGroup':
-        fields['usergroup'] = instance
-    elif class_name == 'Category':
+    elif hasattr(instance, 'project'):
+        fields['project'] = instance.project
+
+    if class_name == 'Category':
         fields['category'] = instance
+    elif hasattr(instance, 'category'):
+        fields['category'] = instance.category
+
+    if 'UserGroup' in class_name:
+        fields['usergroup'] = instance
     elif class_name == 'Field':
         fields['project'] = instance.category.project
         fields['field'] = instance
@@ -171,7 +180,7 @@ def cross_check_fields(new_instance, original_instance):
 
 
 @receiver(pre_save)
-def logs_on_pre_save(sender, instance, *args, **kwargs):
+def logs_on_pre_save(sender, instance, **kwargs):
     """Initiate logs when instance get updated."""
     if sender.__name__ in LOG_MODELS:
         logs = []
@@ -187,7 +196,7 @@ def logs_on_pre_save(sender, instance, *args, **kwargs):
 
 
 @receiver(post_save)
-def log_on_post_save(sender, instance, created, *args, **kwargs):
+def log_on_post_save(sender, instance, created, **kwargs):
     """Finalise initiated logs or create a new one when instance is created."""
     if sender.__name__ in LOG_MODELS:
         logs = []
@@ -207,7 +216,7 @@ def log_on_post_save(sender, instance, created, *args, **kwargs):
 
 
 @receiver(post_delete)
-def log_on_post_delete(sender, instance, *args, **kwargs):
+def log_on_post_delete(sender, instance, **kwargs):
     """Create a log when instance is deleted."""
     if sender.__name__ in LOG_MODELS:
         action = add_user_info({
@@ -218,3 +227,18 @@ def log_on_post_delete(sender, instance, *args, **kwargs):
         log = generate_log(sender, instance, action)
         log.historical = get_history(sender, instance)
         log.save()
+
+
+@receiver(m2m_changed)
+def log_on_m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):
+    """Create a log when object is added to or removed from M2M relation."""
+    if sender.__name__ in LOG_M2M_RELATIONS and 'post_' in action:
+        for pk in pk_set:
+            action = add_user_info({
+                'id': STATUS_ACTION.updated,
+                'class': sender.__name__,
+                'subaction': action.replace('post_', ''),
+            }, model.objects.get(pk=pk))
+
+            log = generate_log(sender, instance, action)
+            log.save()
