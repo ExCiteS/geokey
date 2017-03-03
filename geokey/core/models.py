@@ -39,6 +39,22 @@ def get_class_name(instance_class):
     return instance_class.__name__
 
 
+def get_history(sender, instance):
+    """Get the latest history entry of an instance."""
+    try:
+        print str(instance.history.latest('pk').pk),
+        print sender.history.model.__name__
+        history = {
+            'id': str(instance.history.latest('pk').pk),
+            'class': sender.history.model.__name__,
+        }
+    # TODO: Except when history model object does not exist
+    except:
+        history = None
+
+    return history
+
+
 def add_user_info(action, instance):
     """Add the user info from admins class."""
     if action.get('class') == 'Admins' and hasattr(instance, 'user'):
@@ -185,17 +201,8 @@ def log_on_post_save(sender, instance, created, *args, **kwargs):
         elif hasattr(instance, '_logs') and instance._logs is not None:
             logs = instance._logs
 
-        try:
-            historical = {
-                'id': str(instance.history.latest('pk').pk),
-                'class': sender.history.model.__name__,
-            }
-        # TODO: Except when history model object does not exist
-        except:
-            historical = None
-
         for log in logs:
-            log.historical = historical
+            log.historical = get_history(sender, instance)
             log.save()
 
 
@@ -209,4 +216,5 @@ def log_on_post_delete(sender, instance, *args, **kwargs):
         }, instance)
 
         log = generate_log(sender, instance, action)
+        log.historical = get_history(sender, instance)
         log.save()
