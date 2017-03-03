@@ -111,28 +111,48 @@ def generate_log(sender, instance, action):
 
 def cross_check_fields(new_instance, original_instance):
     """Check for changed fields between new and original instances."""
+    action_id = STATUS_ACTION.updated
+    class_name = get_class_name(new_instance)
+
     changed_fields = []
+    usergroup_permission_fields = {}
 
     for field in LOG_MODELS.get(new_instance.__class__.__name__, {}):
         new_value = new_instance.__dict__.get(field)
         original_value = original_instance.__dict__.get(field)
         if new_value != original_value:
-            action_id = STATUS_ACTION.updated
+            if field in ['can_contribute', 'can_moderate']:
+                usergroup_permission_fields[field] = new_value
+            else:
+                # Action "deleted" - nothing gets deleted, only status change
+                if field == 'status' and new_value == 'deleted':
+                    action_id = STATUS_ACTION.deleted
 
-            # Action is "deleted" - nothing gets deleted, only status change
-            if field == 'status' and new_value == 'deleted':
-                action_id = STATUS_ACTION.deleted
+                changed_field = {
+                    'id': action_id,
+                    'class': class_name,
+                    'field': field,
+                }
 
-            changed_field = {
-                'id': action_id,
-                'class': get_class_name(new_instance),
-                'field': field,
-            }
+                if field not in ['name', 'geographic_extent', 'properties']:
+                    changed_field['value'] = str(new_value)
 
-            if field not in ['name', 'geographic_extent', 'properties']:
-                changed_field['value'] = str(new_value)
+                changed_fields.append(changed_field)
 
-            changed_fields.append(changed_field)
+    if len(usergroup_permission_fields):
+        changed_field = {
+            'id': action_id,
+            'class': class_name,
+            'field': 'can_contribute',
+            'value': str(True),
+        }
+
+        if usergroup_permission_fields.get('can_moderate') is True:
+            changed_field['field'] = 'can_moderate'
+        elif usergroup_permission_fields.get('can_contribute') is False:
+            changed_field['field'] = 'can_view'
+
+        changed_fields.append(changed_field)
 
     return changed_fields
 
