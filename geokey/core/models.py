@@ -44,12 +44,12 @@ def get_class_name(instance_class):
     return instance_class.__name__
 
 
-def get_history(sender, instance):
+def get_history(instance):
     """Get the latest history entry of an instance."""
     try:
         history = {
             'id': str(instance.history.latest('pk').pk),
-            'class': sender.history.model.__name__,
+            'class': instance.history.model.__name__,
         }
     # TODO: Except when history model object does not exist
     except:
@@ -209,7 +209,7 @@ def log_on_post_save(sender, instance, created, **kwargs):
             logs = instance._logs
 
         for log in logs:
-            log.historical = get_history(sender, instance)
+            log.historical = get_history(instance)
             log.save()
 
 
