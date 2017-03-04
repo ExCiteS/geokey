@@ -9,7 +9,7 @@ from geokey.categories.tests.model_factories import CategoryFactory
 from geokey.contributions.tests.model_factories import (
     LocationFactory,
     ObservationFactory,
-    CommentFactory
+    CommentFactory,
 )
 
 
