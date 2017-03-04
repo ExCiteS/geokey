@@ -66,9 +66,13 @@ def add_extra_info(action, instance):
             instance = instance.user
         action['user_id'] = str(instance.id)
         action['user_display_name'] = str(instance)
-    elif action_class == 'Comment' and instance.respondsto:
-        action['subaction'] = 'respond'
-        action['comment_id'] = str(instance.respondsto_id)
+    elif action_class == 'Comment':
+        try:
+            if instance.respondsto:
+                action['subaction'] = 'respond'
+                action['comment_id'] = str(instance.respondsto_id)
+        except instance.__class__.DoesNotExist:
+            pass
 
     return action
 
