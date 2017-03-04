@@ -73,3 +73,4 @@ LOG_MODELS = {
         'name',
     ],
 }
+LOG_M2M_RELATIONS = ['UserGroup_users']

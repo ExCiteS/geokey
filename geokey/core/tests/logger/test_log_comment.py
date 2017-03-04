@@ -70,6 +70,44 @@ class LogCommentTest(TestCase):
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
 
+    def test_log_create_response(self):
+        """Test when response gets created."""
+        log_count_init = LoggerHistory.objects.count()
+        response = CommentFactory.create(**{
+            'creator': self.user,
+            'commentto': self.observation,
+            'respondsto': self.comment})
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.location, {
+            'id': str(self.location.id),
+            'name': self.location.name})
+        self.assertEqual(log.observation, {
+            'id': str(self.observation.id)})
+        self.assertEqual(log.comment, {
+            'id': str(response.id)})
+        self.assertEqual(log.subset, None)
+        self.assertEqual(log.action, {
+            'id': 'created',
+            'class': 'Comment',
+            'subaction': 'respond',
+            'comment_id': str(self.comment.id)})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)
+
     def test_log_delete(self):
         """Test when comment gets deleted."""
         log_count_init = LoggerHistory.objects.count()
@@ -105,41 +143,3 @@ class LogCommentTest(TestCase):
         self.assertEqual(log_count, log_count_init + 1)
         history = self.comment.history.get(pk=log.historical.get('id'))
         self.assertEqual(history.id, self.comment.id)
-
-    def test_log_create_comment_respondsto(self):
-        """Test when comment gets responded."""
-        log_count_init = LoggerHistory.objects.count()
-        comment_response = CommentFactory.create(**{
-            'creator': self.user,
-            'commentto': self.observation,
-            'respondsto': self.comment})
-
-        log = LoggerHistory.objects.last()
-        log_count = LoggerHistory.objects.count()
-
-        self.assertNotEqual(log.user, {
-            'id': str(self.user.id),
-            'display_name': self.user.display_name})
-        self.assertEqual(log.project, {
-            'id': str(self.project.id),
-            'name': self.project.name})
-        self.assertEqual(log.usergroup, None)
-        self.assertEqual(log.category, {
-            'id': str(self.category.id),
-            'name': self.category.name})
-        self.assertEqual(log.field, None)
-        self.assertEqual(log.location, {
-            'id': str(self.location.id),
-            'name': self.location.name})
-        self.assertEqual(log.observation, {
-            'id': str(self.observation.id)})
-        self.assertEqual(log.comment, {
-            'id': str(comment_response.id)})
-        self.assertEqual(log.subset, None)
-        self.assertEqual(log.action, {
-            'id': 'created',
-            'class': 'Comment',
-            'field': 'respondsto',
-            'comment_id': str(self.comment.id)})
-        self.assertEqual(log_count, log_count_init + 1)
-        self.assertEqual(log.historical, None)

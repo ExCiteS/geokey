@@ -1,6 +1,11 @@
 """Core models."""
 
-from django.db.models.signals import pre_save, post_save, post_delete
+from django.db.models.signals import (
+    pre_save,
+    post_save,
+    post_delete,
+    m2m_changed,
+)
 from django.dispatch import receiver
 from django.contrib.postgres.fields import HStoreField
 
@@ -8,7 +13,7 @@ from model_utils.models import TimeStampedModel
 
 from geokey.core.signals import get_request
 
-from .base import STATUS_ACTION, LOG_MODELS
+from .base import STATUS_ACTION, LOG_MODELS, LOG_M2M_RELATIONS
 
 
 class LoggerHistory(TimeStampedModel):
@@ -39,14 +44,32 @@ def get_class_name(instance_class):
     return instance_class.__name__
 
 
+def get_history(instance):
+    """Get the latest history entry of an instance."""
+    try:
+        history = {
+            'id': str(instance.history.latest('pk').pk),
+            'class': instance.history.model.__name__,
+        }
+    # TODO: Except when history model object does not exist
+    except:
+        history = None
+
+    return history
+
+
 def add_extra_info(action, instance):
-    """Add the user info from admins class."""
-    if action.get('class') == 'Admins' and hasattr(instance, 'user'):
-        action['user_id'] = str(instance.user.id)
-        action['user_display_name'] = str(instance.user)
-    elif action.get('class') == 'Comment' and hasattr(instance.respondsto, 'id'):
-        action['field'] = 'respondsto'
-        action['comment_id'] = str(instance.respondsto.id)
+    """Add the extra instance info to the action."""
+    action_class = action.get('class')
+    if action_class in ['Admins', 'UserGroup_users']:
+        if hasattr(instance, 'user'):
+            instance = instance.user
+        action['user_id'] = str(instance.id)
+        action['user_display_name'] = str(instance)
+    elif action_class == 'Comment' and instance.respondsto:
+        action['subaction'] = 'respond'
+        action['comment_id'] = str(instance.respondsto_id)
+
     return action
 
 
@@ -57,31 +80,35 @@ def generate_log(sender, instance, action):
     request = get_request()
     if hasattr(request, 'user'):
         log.user = {
-            'id': str(request.user.id),
+            'id': str(request.user_id),
             'display_name': str(request.user),
         }
 
     fields = {}
     class_name = get_class_name(sender)
 
-    if hasattr(instance, 'project'):
-        fields['project'] = instance.project
-    if hasattr(instance, 'category'):
-        fields['category'] = instance.category
-
     if class_name == 'Project':
         fields['project'] = instance
-    elif class_name == 'UserGroup':
+    elif hasattr(instance, 'project'):
+        fields['project'] = instance.project
+
+    if 'UserGroup' in class_name:
         fields['usergroup'] = instance
-    elif class_name == 'Category':
+
+    if class_name == 'Category':
         fields['category'] = instance
-    elif class_name == 'Field':
+    elif hasattr(instance, 'category'):
+        fields['category'] = instance.category
+
+    if class_name == 'Location':
+        fields['location'] = instance
+    elif hasattr(instance, 'location'):
+        fields['location'] = instance.location
+
+    if class_name == 'Field':
         fields['project'] = instance.category.project
         fields['field'] = instance
-    elif class_name == 'Location':
-        fields['location'] = instance
     elif class_name == 'Observation':
-        fields['location'] = instance.location
         fields['observation'] = instance
     elif class_name == 'Comment':
         fields['project'] = instance.commentto.project
@@ -102,8 +129,6 @@ def generate_log(sender, instance, action):
         # Fields for categories should also have type
         if field == 'field':
             value['type'] = sender.__name__
-        if field == 'respondsto':
-            value['comment_id'] = str(instance.respondsto.id)
 
         setattr(log, field, value)
 
@@ -159,7 +184,7 @@ def cross_check_fields(new_instance, original_instance):
 
 
 @receiver(pre_save)
-def logs_on_pre_save(sender, instance, *args, **kwargs):
+def logs_on_pre_save(sender, instance, **kwargs):
     """Initiate logs when instance get updated."""
     if sender.__name__ in LOG_MODELS:
         logs = []
@@ -167,7 +192,8 @@ def logs_on_pre_save(sender, instance, *args, **kwargs):
         try:
             original_instance = sender.objects.get(pk=instance.pk)
             for field in cross_check_fields(instance, original_instance):
-                logs.append(generate_log(sender, instance, field))
+                action = add_extra_info(field, instance)
+                logs.append(generate_log(sender, instance, action))
         except sender.DoesNotExist:
             pass
 
@@ -175,42 +201,46 @@ def logs_on_pre_save(sender, instance, *args, **kwargs):
 
 
 @receiver(post_save)
-def log_on_post_save(sender, instance, created, *args, **kwargs):
+def log_on_post_save(sender, instance, created, **kwargs):
     """Finalise initiated logs or create a new one when instance is created."""
     if sender.__name__ in LOG_MODELS:
         logs = []
+
         if created:
             action = add_extra_info({
                 'id': STATUS_ACTION.created,
                 'class': get_class_name(sender)
             }, instance)
-
             logs.append(generate_log(sender, instance, action))
         elif hasattr(instance, '_logs') and instance._logs is not None:
             logs = instance._logs
 
-        try:
-            historical = {
-                'id': str(instance.history.latest('pk').pk),
-                'class': sender.history.model.__name__,
-            }
-        # TODO: Except when history model object does not exist
-        except:
-            historical = None
-
         for log in logs:
-            log.historical = historical
+            log.historical = get_history(instance)
             log.save()
 
 
 @receiver(post_delete)
-def log_on_post_delete(sender, instance, *args, **kwargs):
+def log_on_post_delete(sender, instance, **kwargs):
     """Create a log when instance is deleted."""
     if sender.__name__ in LOG_MODELS:
         action = add_extra_info({
             'id': STATUS_ACTION.deleted,
             'class': get_class_name(sender),
         }, instance)
-
         log = generate_log(sender, instance, action)
         log.save()
+
+
+@receiver(m2m_changed)
+def log_on_m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):
+    """Create a log when object is added to or removed from M2M relation."""
+    if sender.__name__ in LOG_M2M_RELATIONS and 'post_' in action:
+        for pk in pk_set:
+            action = add_extra_info({
+                'id': STATUS_ACTION.updated,
+                'class': sender.__name__,
+                'subaction': action.replace('post_', ''),
+            }, model.objects.get(pk=pk))
+            log = generate_log(sender, instance, action)
+            log.save()
