@@ -27,6 +27,25 @@ class LogProjectTest(TestCase):
 
         logs = LoggerHistory.objects.all().order_by('-pk')[:2]
 
+        # Project gets created
+        self.assertNotEqual(logs[1].user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(logs[1].project, {
+            'id': str(project.id),
+            'name': project.name})
+        self.assertEqual(logs[1].usergroup, None)
+        self.assertEqual(logs[1].category, None)
+        self.assertEqual(logs[1].field, None)
+        self.assertEqual(logs[1].location, None)
+        self.assertEqual(logs[1].observation, None)
+        self.assertEqual(logs[1].comment, None)
+        self.assertEqual(logs[1].subset, None)
+        self.assertEqual(logs[1].action, {
+            'id': 'created',
+            'class': 'Project'})
+        self.assertEqual(logs[1].historical, None)
+
         # Project creator gets added as admin
         self.assertNotEqual(logs[0].user, {
             'id': str(self.user.id),
@@ -48,25 +67,6 @@ class LogProjectTest(TestCase):
             'user_display_name': self.user.display_name})
         self.assertEqual(logs[0].historical, None)
 
-        # Project gets created
-        self.assertNotEqual(logs[1].user, {
-            'id': str(self.user.id),
-            'display_name': self.user.display_name})
-        self.assertEqual(logs[1].project, {
-            'id': str(project.id),
-            'name': project.name})
-        self.assertEqual(logs[1].usergroup, None)
-        self.assertEqual(logs[1].category, None)
-        self.assertEqual(logs[1].field, None)
-        self.assertEqual(logs[1].location, None)
-        self.assertEqual(logs[1].observation, None)
-        self.assertEqual(logs[1].comment, None)
-        self.assertEqual(logs[1].subset, None)
-        self.assertEqual(logs[1].action, {
-            'id': 'created',
-            'class': 'Project'})
-        self.assertEqual(logs[1].historical, None)
-
     def test_log_delete(self):
         """Test when project gets deleted."""
         project_id = self.project.id
@@ -78,6 +78,27 @@ class LogProjectTest(TestCase):
         self.assertEqual(log_count, log_count_init + 2)
 
         logs = LoggerHistory.objects.all().order_by('-pk')[:2]
+
+        # Project creator gets removed from admins
+        self.assertNotEqual(logs[1].user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(logs[1].project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(logs[1].usergroup, None)
+        self.assertEqual(logs[1].category, None)
+        self.assertEqual(logs[1].field, None)
+        self.assertEqual(logs[1].location, None)
+        self.assertEqual(logs[1].observation, None)
+        self.assertEqual(logs[1].comment, None)
+        self.assertEqual(logs[1].subset, None)
+        self.assertEqual(logs[1].action, {
+            'id': 'deleted',
+            'class': 'Admins',
+            'user_id': str(self.user.id),
+            'user_display_name': self.user.display_name})
+        self.assertEqual(logs[1].historical, None)
 
         # Project gets deleted
         self.assertNotEqual(logs[0].user, {
@@ -101,27 +122,6 @@ class LogProjectTest(TestCase):
         history = self.project.history.get(pk=logs[0].historical.get('id'))
         self.assertEqual(history.id, project_id)
         self.assertEqual(history.name, project_name)
-
-        # Project creator gets removed from admins
-        self.assertNotEqual(logs[1].user, {
-            'id': str(self.user.id),
-            'display_name': self.user.display_name})
-        self.assertEqual(logs[1].project, {
-            'id': str(self.project.id),
-            'name': self.project.name})
-        self.assertEqual(logs[1].usergroup, None)
-        self.assertEqual(logs[1].category, None)
-        self.assertEqual(logs[1].field, None)
-        self.assertEqual(logs[1].location, None)
-        self.assertEqual(logs[1].observation, None)
-        self.assertEqual(logs[1].comment, None)
-        self.assertEqual(logs[1].subset, None)
-        self.assertEqual(logs[1].action, {
-            'id': 'deleted',
-            'class': 'Admins',
-            'user_id': str(self.user.id),
-            'user_display_name': self.user.display_name})
-        self.assertEqual(logs[1].historical, None)
 
     def test_log_update_name(self):
         """Test when name changes."""
@@ -497,25 +497,6 @@ class LogProjectTest(TestCase):
         logs = LoggerHistory.objects.all().order_by('-pk')[:2]
 
         # 1st changed field
-        self.assertNotEqual(logs[0].user, {
-            'id': str(self.user.id),
-            'display_name': self.user.display_name})
-        self.assertEqual(logs[0].project, {
-            'id': str(self.project.id),
-            'name': self.project.name})
-        self.assertEqual(logs[0].category, None)
-        self.assertEqual(logs[0].field, None)
-        self.assertEqual(logs[0].action, {
-            'id': 'updated',
-            'class': 'Project',
-            'field': 'islocked',
-            'value': str(self.project.islocked)})
-        history_1 = self.project.history.get(pk=logs[0].historical.get('id'))
-        self.assertEqual(history_1.id, self.project.id)
-        self.assertEqual(history_1.isprivate, original_isprivate)
-        self.assertEqual(history_1.islocked, original_islocked)
-
-        # 2st changed field
         self.assertNotEqual(logs[1].user, {
             'id': str(self.user.id),
             'display_name': self.user.display_name})
@@ -533,6 +514,25 @@ class LogProjectTest(TestCase):
         self.assertEqual(history_2.id, self.project.id)
         self.assertEqual(history_2.isprivate, original_isprivate)
         self.assertEqual(history_2.islocked, original_islocked)
+
+        # 2nd changed field
+        self.assertNotEqual(logs[0].user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(logs[0].project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(logs[0].category, None)
+        self.assertEqual(logs[0].field, None)
+        self.assertEqual(logs[0].action, {
+            'id': 'updated',
+            'class': 'Project',
+            'field': 'islocked',
+            'value': str(self.project.islocked)})
+        history_1 = self.project.history.get(pk=logs[0].historical.get('id'))
+        self.assertEqual(history_1.id, self.project.id)
+        self.assertEqual(history_1.isprivate, original_isprivate)
+        self.assertEqual(history_1.islocked, original_islocked)
 
         # History entry is only one per save
         self.assertEqual(history_1, history_2)

@@ -271,27 +271,6 @@ class LogCategoryTest(TestCase):
         logs = LoggerHistory.objects.all().order_by('-pk')[:2]
 
         # 1st changed field
-        self.assertNotEqual(logs[0].user, {
-            'id': str(self.user.id),
-            'display_name': self.user.display_name})
-        self.assertEqual(logs[0].project, {
-            'id': str(self.project.id),
-            'name': self.project.name})
-        self.assertEqual(logs[0].category, {
-            'id': str(self.category.id),
-            'name': self.category.name})
-        self.assertEqual(logs[0].field, None)
-        self.assertEqual(logs[0].action, {
-            'id': 'updated',
-            'class': 'Category',
-            'field': 'status',
-            'value': self.category.status})
-        history_1 = self.category.history.get(pk=logs[0].historical.get('id'))
-        self.assertEqual(history_1.id, self.category.id)
-        self.assertEqual(history_1.name, original_name)
-        self.assertEqual(history_1.status, original_status)
-
-        # 2st changed field
         self.assertNotEqual(logs[1].user, {
             'id': str(self.user.id),
             'display_name': self.user.display_name})
@@ -310,6 +289,27 @@ class LogCategoryTest(TestCase):
         self.assertEqual(history_2.id, self.category.id)
         self.assertEqual(history_2.name, original_name)
         self.assertEqual(history_2.status, original_status)
+
+        # 2nd changed field
+        self.assertNotEqual(logs[0].user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(logs[0].project, {
+            'id': str(self.project.id),
+            'name': self.project.names
+        self.assertEqual(logs[0].category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(logs[0].field, None)
+        self.assertEqual(logs[0].action, {
+            'id': 'updated',
+            'class': 'Category',
+            'field': 'status',
+            'value': self.category.status})
+        history_1 = self.category.history.get(pk=logs[0].historical.get('id'))
+        self.assertEqual(history_1.id, self.category.id)
+        self.assertEqual(history_1.name, original_name)
+        self.assertEqual(history_1.status, original_status)
 
         # History entry is only one per save
         self.assertEqual(history_1, history_2)
