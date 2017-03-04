@@ -80,7 +80,7 @@ def generate_log(sender, instance, action):
     request = get_request()
     if hasattr(request, 'user'):
         log.user = {
-            'id': str(request.user_id),
+            'id': str(request.user.id),
             'display_name': str(request.user),
         }
 
