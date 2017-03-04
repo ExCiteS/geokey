@@ -78,9 +78,7 @@ class LogUserGroupTest(TestCase):
             'id': 'deleted',
             'class': 'UserGroup'})
         self.assertEqual(log_count, log_count_init + 1)
-        history = self.usergroup.history.get(pk=log.historical.get('id'))
-        self.assertEqual(history.id, usergroup_id)
-        self.assertEqual(history.name, usergroup_name)
+        self.assertEqual(log.historical, None)
 
     def test_log_update_name(self):
         """Test when name changes."""

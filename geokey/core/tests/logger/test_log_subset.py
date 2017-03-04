@@ -80,9 +80,7 @@ class LogSubsetTest(TestCase):
             'id': 'deleted',
             'class': 'Subset'})
         self.assertEqual(log_count, log_count_init + 1)
-        history = self.subset.history.get(pk=log.historical.get('id'))
-        self.assertEqual(history.id, subset_id)
-        self.assertEqual(history.name, subset_name)
+        self.assertEqual(log.historical, None)
 
     def test_log_update_name(self):
         """Test when name changes."""

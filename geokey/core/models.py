@@ -223,7 +223,6 @@ def log_on_post_delete(sender, instance, **kwargs):
         }, instance)
 
         log = generate_log(sender, instance, action)
-        log.historical = get_history(sender, instance)
         log.save()
 
 
