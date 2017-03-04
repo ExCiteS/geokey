@@ -296,7 +296,7 @@ class LogCategoryTest(TestCase):
             'display_name': self.user.display_name})
         self.assertEqual(logs[0].project, {
             'id': str(self.project.id),
-            'name': self.project.names
+            'name': self.project.names})
         self.assertEqual(logs[0].category, {
             'id': str(self.category.id),
             'name': self.category.name})
