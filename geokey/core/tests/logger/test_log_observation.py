@@ -118,41 +118,6 @@ class LogObservationTest(TestCase):
         log_count_init = LoggerHistory.objects.count()
 
         original_status = self.observation.status
-        self.observation.status = 'draft'
-        self.observation.save()
-
-        log = LoggerHistory.objects.last()
-        log_count = LoggerHistory.objects.count()
-
-        self.assertNotEqual(log.user, {
-            'id': str(self.user.id),
-            'display_name': self.user.display_name})
-        self.assertEqual(log.project, {
-            'id': str(self.project.id),
-            'name': self.project.name})
-        self.assertEqual(log.usergroup, None)
-        self.assertEqual(log.category, {
-            'id': str(self.category.id),
-            'name': self.category.name})
-        self.assertEqual(log.field, None)
-        self.assertEqual(log.location, {
-            'id': str(self.location.id),
-            'name': self.location.name})
-        self.assertEqual(log.observation, {
-            'id': str(self.observation.id)})
-        self.assertEqual(log.comment, None)
-        self.assertEqual(log.subset, None)
-        self.assertEqual(log.action, {
-            'id': 'updated',
-            'class': 'Observation',
-            'field': 'status',
-            'value': 'draft'})
-        self.assertEqual(log_count, log_count_init + 1)
-        history = self.observation.history.get(pk=log.historical.get('id'))
-        self.assertEqual(history.id, self.observation.id)
-        self.assertEqual(history.status, original_status)
-
-        original_status = self.observation.status
         self.observation.status = 'review'
         self.observation.save()
 
@@ -182,7 +147,7 @@ class LogObservationTest(TestCase):
             'class': 'Observation',
             'field': 'status',
             'value': 'review'})
-        self.assertEqual(log_count, log_count_init + 2)
+        self.assertEqual(log_count, log_count_init + 1)
         history = self.observation.history.get(pk=log.historical.get('id'))
         self.assertEqual(history.id, self.observation.id)
         self.assertEqual(history.status, original_status)
@@ -217,7 +182,7 @@ class LogObservationTest(TestCase):
             'class': 'Observation',
             'field': 'status',
             'value': 'pending'})
-        self.assertEqual(log_count, log_count_init + 3)
+        self.assertEqual(log_count, log_count_init + 2)
         history = self.observation.history.get(pk=log.historical.get('id'))
         self.assertEqual(history.id, self.observation.id)
         self.assertEqual(history.status, original_status)
@@ -252,7 +217,7 @@ class LogObservationTest(TestCase):
             'class': 'Observation',
             'field': 'status',
             'value': 'active'})
-        self.assertEqual(log_count, log_count_init + 4)
+        self.assertEqual(log_count, log_count_init + 3)
         history = self.observation.history.get(pk=log.historical.get('id'))
         self.assertEqual(history.id, self.observation.id)
         self.assertEqual(history.status, original_status)
