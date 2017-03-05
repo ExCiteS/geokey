@@ -61,14 +61,22 @@ def get_history(instance):
 def add_extra_info(action, instance):
     """Add the extra instance info to the action."""
     action_class = action.get('class')
+
     if action_class in ['Admins', 'UserGroup_users']:
         if hasattr(instance, 'user'):
             instance = instance.user
+        # Add user details for user groups (including admin groups)
         action['user_id'] = str(instance.id)
         action['user_display_name'] = str(instance)
+    elif action_class == 'Observation':
+        # Add status value for observations - handy to know for admins
+        action['field'] = 'status'
+        action['value'] = instance.status
     elif action_class == 'Comment':
+        # There might be that a parent comment does not exist
         try:
             if instance.respondsto:
+                # Add parent comment details - handy to track nested comments
                 action['subaction'] = 'respond'
                 action['comment_id'] = str(instance.respondsto_id)
         except instance.__class__.DoesNotExist:
@@ -139,8 +147,8 @@ def generate_log(sender, instance, action):
     return log
 
 
-def cross_check_fields(new_instance, original_instance):
-    """Check for changed fields between new and original instances."""
+def cross_check_fields(new_instance, old_instance):
+    """Check for changed fields between new and old instances."""
     action_id = STATUS_ACTION.updated
     class_name = get_class_name(new_instance)
 
@@ -149,14 +157,18 @@ def cross_check_fields(new_instance, original_instance):
 
     for field in LOG_MODELS.get(new_instance.__class__.__name__, {}):
         new_value = new_instance.__dict__.get(field)
-        original_value = original_instance.__dict__.get(field)
-        if new_value != original_value:
+        old_value = old_instance.__dict__.get(field)
+        if new_value != old_value:
             if field in ['can_contribute', 'can_moderate']:
                 usergroup_permission_fields[field] = new_value
             else:
-                # Action "deleted" - nothing gets deleted, only status change
-                if field == 'status' and new_value == 'deleted':
-                    action_id = STATUS_ACTION.deleted
+                if field == 'status':
+                    if old_value == 'draft':
+                        # Status changes from "draft" - it's created action
+                        action_id = STATUS_ACTION.created
+                    elif new_value == 'deleted':
+                        # Status changes to "deleted" - it's deleted action
+                        action_id = STATUS_ACTION.deleted
 
                 changed_field = {
                     'id': action_id,
@@ -194,8 +206,8 @@ def logs_on_pre_save(sender, instance, **kwargs):
         logs = []
 
         try:
-            original_instance = sender.objects.get(pk=instance.pk)
-            for field in cross_check_fields(instance, original_instance):
+            old_instance = sender.objects.get(pk=instance.pk)
+            for field in cross_check_fields(instance, old_instance):
                 action = add_extra_info(field, instance)
                 logs.append(generate_log(sender, instance, action))
         except sender.DoesNotExist:
@@ -211,13 +223,17 @@ def log_on_post_save(sender, instance, created, **kwargs):
         logs = []
 
         if created:
-            if (not hasattr(instance, 'status') or
-                instance.status is not 'draft'):
-                action = add_extra_info({
-                    'id': STATUS_ACTION.created,
-                    'class': get_class_name(sender)
-                }, instance)
-                logs.append(generate_log(sender, instance, action))
+            class_name = get_class_name(sender)
+
+            # Do not log new observations when they're still drafts
+            if class_name == 'Observation' and instance.status == 'draft':
+                return
+
+            action = add_extra_info({
+                'id': STATUS_ACTION.created,
+                'class': class_name,
+            }, instance)
+            logs.append(generate_log(sender, instance, action))
         elif hasattr(instance, '_logs') and instance._logs is not None:
             logs = instance._logs
 

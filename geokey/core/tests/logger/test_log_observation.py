@@ -61,9 +61,64 @@ class LogObservationTest(TestCase):
         self.assertEqual(log.subset, None)
         self.assertEqual(log.action, {
             'id': 'created',
-            'class': 'Observation'})
+            'class': 'Observation',
+            'field': 'status',
+            'value': observation.status})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
+
+    def test_log_create_draft(self):
+        """Test when observation gets created as a draft."""
+        log_count_init = LoggerHistory.objects.count()
+        observation = ObservationFactory.create(**{
+            'status': 'draft',
+            'creator': self.user,
+            'location': self.location,
+            'project': self.project,
+            'category': self.category})
+
+        self.assertEqual(LoggerHistory.objects.count(), log_count_init)
+
+    def test_log_create_from_draft_status(self):
+        """Test when observation gets created from being a draft."""
+        self.observation.status = 'draft'
+        self.observation.save()
+        log_count_init = LoggerHistory.objects.count()
+
+        original_status = self.observation.status
+        self.observation.status = 'pending'
+        self.observation.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.location, {
+            'id': str(self.location.id),
+            'name': self.location.name})
+        self.assertEqual(log.observation, {
+            'id': str(self.observation.id)})
+        self.assertEqual(log.comment, None)
+        self.assertEqual(log.subset, None)
+        self.assertEqual(log.action, {
+            'id': 'created',
+            'class': 'Observation',
+            'field': 'status',
+            'value': self.observation.status})
+        self.assertEqual(log_count, log_count_init + 1)
+        history = self.observation.history.get(pk=log.historical.get('id'))
+        self.assertEqual(history.id, self.observation.id)
+        self.assertEqual(history.status, original_status)
 
     def test_log_delete(self):
         """Test when observation gets deleted."""
@@ -100,18 +155,6 @@ class LogObservationTest(TestCase):
         self.assertEqual(log_count, log_count_init + 1)
         history = self.observation.history.get(pk=log.historical.get('id'))
         self.assertEqual(history.id, self.observation.id)
-
-    def test_log_create_draft(self):
-        """Test when observation gets created as a draft."""
-        log_count_init = LoggerHistory.objects.count()
-        observation = ObservationFactory.create(**{
-            'status': 'draft',
-            'creator': self.user,
-            'location': self.location,
-            'project': self.project,
-            'category': self.category})
-
-        self.assertEqual(LoggerHistory.objects.count(), log_count_init)
 
     def test_log_update_status(self):
         """Test when observation status changes."""
