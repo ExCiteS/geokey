@@ -101,6 +101,18 @@ class LogObservationTest(TestCase):
         history = self.observation.history.get(pk=log.historical.get('id'))
         self.assertEqual(history.id, self.observation.id)
 
+    def test_log_create_draft(self):
+        """Test when observation gets created as a draft."""
+        log_count_init = LoggerHistory.objects.count()
+        observation = ObservationFactory.create(**{
+            'status': 'draft',
+            'creator': self.user,
+            'location': self.location,
+            'project': self.project,
+            'category': self.category})
+
+        self.assertEqual(LoggerHistory.objects.count(), log_count_init)
+
     def test_log_update_status(self):
         """Test when observation status changes."""
         log_count_init = LoggerHistory.objects.count()

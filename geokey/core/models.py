@@ -211,11 +211,13 @@ def log_on_post_save(sender, instance, created, **kwargs):
         logs = []
 
         if created:
-            action = add_extra_info({
-                'id': STATUS_ACTION.created,
-                'class': get_class_name(sender)
-            }, instance)
-            logs.append(generate_log(sender, instance, action))
+            if (not hasattr(instance, 'status') or
+                instance.status is not 'draft'):
+                action = add_extra_info({
+                    'id': STATUS_ACTION.created,
+                    'class': get_class_name(sender)
+                }, instance)
+                logs.append(generate_log(sender, instance, action))
         elif hasattr(instance, '_logs') and instance._logs is not None:
             logs = instance._logs
 
