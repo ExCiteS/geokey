@@ -52,6 +52,7 @@ INSTALLED_APPS = (
     'rest_framework_gis',
 
     # GeoKey apps
+    'geokey.core',
     'geokey.projects',
     'geokey.categories',
     'geokey.contributions',
@@ -73,6 +74,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'geokey.core.middleware.XsSharing',
+    'geokey.core.middleware.RequestProvider',
 )
 
 # Settings for django-oauth-toolkit

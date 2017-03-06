@@ -10,6 +10,8 @@ from django.apps import apps
 from django.conf import settings
 from django.db import models
 
+from simple_history.models import HistoricalRecords
+
 from geokey.core.exceptions import InputError
 
 from .managers import CategoryManager, FieldManager, LookupValueManager
@@ -50,6 +52,7 @@ class Category(models.Model):
     symbol = models.ImageField(upload_to='symbols', null=True, max_length=500)
 
     objects = CategoryManager()
+    history = HistoricalRecords()
 
     class Meta:
         ordering = ['order']
