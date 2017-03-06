@@ -61,6 +61,7 @@ LOG_MODELS = {
     ],
     'Location': [
         'name',
+        'geometry',
     ],
     'Observation': [
         'status',

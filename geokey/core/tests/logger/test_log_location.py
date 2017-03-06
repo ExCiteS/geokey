@@ -101,3 +101,32 @@ class LogLocationFieldTest(TestCase):
             'field': 'name'})
         self.assertEqual(log_count, log_count_init + 1)
         self.assertEqual(log.historical, None)
+
+    def test_log_update_geometry(self):
+        """Test when geometry changes."""
+        log_count_init = LoggerHistory.objects.count()
+        self.location.geometry = 'POINT(-0.134140712210241 51.12547879755655)'
+        self.location.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, None)
+        self.assertEqual(log.usergroup, None)
+        self.assertEqual(log.category, None)
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.location, {
+            'id': str(self.location.id),
+            'name': self.location.name})
+        self.assertEqual(log.observation, None)
+        self.assertEqual(log.comment, None)
+        self.assertEqual(log.subset, None)
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'class': 'Location',
+            'field': 'geometry'})
+        self.assertEqual(log_count, log_count_init + 1)
+        self.assertEqual(log.historical, None)

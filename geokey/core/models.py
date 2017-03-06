@@ -184,7 +184,12 @@ def cross_check_fields(new_instance, old_instance):
                     'field': field,
                 }
 
-                if field not in ['name', 'geographic_extent', 'properties']:
+                if field not in [
+                    'name',
+                    'geographic_extent',
+                    'geometry',
+                    'properties',
+                ]:
                     changed_field['value'] = str(new_value)
 
                 changed_fields.append(changed_field)
