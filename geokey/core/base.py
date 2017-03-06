@@ -71,5 +71,17 @@ LOG_MODELS = {
     'Subset': [
         'name',
     ],
+    'ImageFile': [
+        'status'
+    ],
+    'VideoFile': [
+        'status'
+    ],
+    'AudioFile': [
+        'status'
+    ],
+    'MediaFile': [
+        'status'
+    ],
 }
 LOG_M2M_RELATIONS = ['UserGroup_users']

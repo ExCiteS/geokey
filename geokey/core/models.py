@@ -28,6 +28,7 @@ class LoggerHistory(TimeStampedModel):
     observation = HStoreField(null=True, blank=True)
     comment = HStoreField(null=True, blank=True)
     subset = HStoreField(null=True, blank=True)
+    media_file = HStoreField(null=True, blank=True)
     action = HStoreField(null=True, blank=True)
     historical = HStoreField(null=True, blank=True)
 
@@ -40,7 +41,8 @@ def get_class_name(instance_class):
     bases = [x.__name__ for x in instance_class.__bases__]
     if 'Field' in bases:
         return 'Field'
-
+    if 'MediaFile' in bases:
+        return 'MediaFile'
     return instance_class.__name__
 
 
@@ -130,6 +132,12 @@ def generate_log(sender, instance, action):
         fields['comment'] = instance
     elif class_name == 'Subset':
         fields['subset'] = instance
+    elif class_name == 'MediaFile':
+        fields['observation'] = instance.contribution
+        fields['project'] = instance.contribution.project
+        fields['category'] = instance.contribution.category
+        fields['location'] = instance.contribution.location
+        fields['media_file'] = instance
 
     for field, instance in fields.iteritems():
         value = {'id': str(instance.id)}
@@ -139,7 +147,7 @@ def generate_log(sender, instance, action):
             value['name'] = instance.name
 
         # Fields for categories should also have type
-        if field == 'field':
+        if field in ['field', 'media_file']:
             value['type'] = sender.__name__
 
         setattr(log, field, value)
