@@ -68,20 +68,17 @@ LOG_MODELS = {
     'Comment': [
         'status',
     ],
-    'Subset': [
-        'name',
-    ],
     'ImageFile': [
-        'status'
+        'status',
     ],
     'VideoFile': [
-        'status'
+        'status',
     ],
     'AudioFile': [
-        'status'
+        'status',
     ],
-    'MediaFile': [
-        'status'
+    'Subset': [
+        'name',
     ],
 }
 LOG_M2M_RELATIONS = ['UserGroup_users']
