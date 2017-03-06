@@ -70,10 +70,6 @@ def add_extra_info(action, instance):
         # Add user details for user groups (including admin groups)
         action['user_id'] = str(instance.id)
         action['user_display_name'] = str(instance)
-    elif action_class == 'Observation':
-        # Add status value for observations - handy to know for admins
-        action['field'] = 'status'
-        action['value'] = instance.status
     elif action_class == 'Comment':
         # There might be that a parent comment does not exist
         try:
@@ -167,32 +163,38 @@ def cross_check_fields(new_instance, old_instance):
         new_value = new_instance.__dict__.get(field)
         old_value = old_instance.__dict__.get(field)
         if new_value != old_value:
+            # Do not log property change when instance (observation) is draft
+            if field == 'properties' and new_instance.status == 'draft':
+                continue
+
+            # Make specific case for user group permission update
             if field in ['can_contribute', 'can_moderate']:
                 usergroup_permission_fields[field] = new_value
-            else:
-                if field == 'status':
-                    if old_value == 'draft':
-                        # Status changes from "draft" - it's created action
-                        action_id = STATUS_ACTION.created
-                    elif new_value == 'deleted':
-                        # Status changes to "deleted" - it's deleted action
-                        action_id = STATUS_ACTION.deleted
+                continue
 
-                changed_field = {
-                    'id': action_id,
-                    'class': class_name,
-                    'field': field,
-                }
+            if field == 'status':
+                if old_value == 'draft':
+                    # Status changes from "draft" - it's created action
+                    action_id = STATUS_ACTION.created
+                elif new_value == 'deleted':
+                    # Status changes to "deleted" - it's deleted action
+                    action_id = STATUS_ACTION.deleted
 
-                if field not in [
-                    'name',
-                    'geographic_extent',
-                    'geometry',
-                    'properties',
-                ]:
-                    changed_field['value'] = str(new_value)
+            changed_field = {
+                'id': action_id,
+                'class': class_name,
+                'field': field,
+            }
 
-                changed_fields.append(changed_field)
+            if field not in [
+                'name',
+                'geographic_extent',
+                'geometry',
+                'properties',
+            ]:
+                changed_field['value'] = str(new_value)
+
+            changed_fields.append(changed_field)
 
     if len(usergroup_permission_fields):
         changed_field = {
@@ -238,14 +240,19 @@ def log_on_post_save(sender, instance, created, **kwargs):
         if created:
             class_name = get_class_name(sender)
 
-            # Do not log new observations when they're still drafts
-            if class_name == 'Observation' and instance.status == 'draft':
-                return
-
             action = add_extra_info({
                 'id': STATUS_ACTION.created,
                 'class': class_name,
             }, instance)
+
+            if class_name == 'Observation':
+                # Do not log new observations when they're still drafts
+                if instance.status == 'draft':
+                    return
+                # We need to know what status observation is when created
+                action['field'] = 'status'
+                action['value'] = instance.status
+
             logs.append(generate_log(sender, instance, action))
         elif hasattr(instance, '_logs') and instance._logs is not None:
             logs = instance._logs

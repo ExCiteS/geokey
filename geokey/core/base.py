@@ -65,6 +65,7 @@ LOG_MODELS = {
     ],
     'Observation': [
         'status',
+        'properties',
     ],
     'Comment': [
         'status',

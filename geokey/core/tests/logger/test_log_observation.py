@@ -1,3 +1,5 @@
+"""Tests for logger: model Observation."""
+
 from django.test import TestCase
 
 from geokey.core.models import LoggerHistory
@@ -70,7 +72,7 @@ class LogObservationTest(TestCase):
     def test_log_create_draft(self):
         """Test when observation gets created as a draft."""
         log_count_init = LoggerHistory.objects.count()
-        observation = ObservationFactory.create(**{
+        ObservationFactory.create(**{
             'status': 'draft',
             'creator': self.user,
             'location': self.location,
@@ -264,3 +266,55 @@ class LogObservationTest(TestCase):
         history = self.observation.history.get(pk=log.historical.get('id'))
         self.assertEqual(history.id, self.observation.id)
         self.assertEqual(history.status, original_status)
+
+    def test_log_update_properties(self):
+        """Test when observation properties changes."""
+        log_count_init = LoggerHistory.objects.count()
+
+        original_properties = self.observation.properties
+        self.observation.properties = {'field': 'value'}
+        self.observation.save()
+
+        log = LoggerHistory.objects.last()
+        log_count = LoggerHistory.objects.count()
+
+        self.assertEqual(log_count, log_count_init + 1)
+
+        self.assertNotEqual(log.user, {
+            'id': str(self.user.id),
+            'display_name': self.user.display_name})
+        self.assertEqual(log.project, {
+            'id': str(self.project.id),
+            'name': self.project.name})
+        self.assertEqual(log.usergroup, None)
+        self.assertEqual(log.category, {
+            'id': str(self.category.id),
+            'name': self.category.name})
+        self.assertEqual(log.field, None)
+        self.assertEqual(log.location, {
+            'id': str(self.location.id),
+            'name': self.location.name})
+        self.assertEqual(log.observation, {
+            'id': str(self.observation.id)})
+        self.assertEqual(log.comment, None)
+        self.assertEqual(log.subset, None)
+        self.assertEqual(log.action, {
+            'id': 'updated',
+            'class': 'Observation',
+            'field': 'properties'})
+        self.assertEqual(log_count, log_count_init + 1)
+        history = self.observation.history.get(pk=log.historical.get('id'))
+        self.assertEqual(history.id, self.observation.id)
+        self.assertEqual(history.properties, original_properties)
+
+    def test_log_update_properties_when_draft(self):
+        """Test when observation properties changes, but status is "draft"."""
+        self.observation.status = 'draft'
+        self.observation.save()
+        log_count_init = LoggerHistory.objects.count()
+
+        self.observation.properties
+        self.observation.properties = {'field': 'value'}
+        self.observation.save()
+
+        self.assertEqual(LoggerHistory.objects.count(), log_count_init)
