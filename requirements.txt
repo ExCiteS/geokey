@@ -16,6 +16,6 @@ gdata==2.0.18
 iso8601==0.1.11
 moment==0.6
 pillow==4.0.0
-psycopg2==2.6.2
+psycopg2==2.7
 pytz==2016.10
 requests==2.13.0
