@@ -16,6 +16,7 @@ from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
 
 from allauth.account.models import EmailAddress
+from allauth.socialaccount import providers
 from allauth.socialaccount.models import SocialApp
 from rest_framework.test import APIRequestFactory, force_authenticate
 
@@ -538,7 +539,9 @@ class ProviderOverviewTest(TestCase):
             apps.app_configs = OrderedDict()
             apps.ready = False
             apps.populate(settings.INSTALLED_APPS)
-            import_module(google_provider + '.provider')
+            module = import_module(google_provider + '.provider')
+            for cls in getattr(module, 'provider_classes', []):
+                providers.registry.register(cls)
 
         self.url = reverse(
             'admin:superusertools_provider_overview',
