@@ -10,6 +10,7 @@ from geokey.users import views as user_views
 from geokey.applications import views as app_views
 from geokey.superusertools import views as superusertools
 from geokey.subsets import views as subsets
+from geokey.core import views as logger
 
 
 urlpatterns = [
@@ -164,6 +165,16 @@ urlpatterns = [
         r'subsets/(?P<subset_id>[0-9]+)/delete/$',
         subsets.SubsetDelete.as_view(),
         name='subset_delete'),
+
+    # ###########################
+    # LOGGER
+    # ###########################
+
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'history/$',
+        logger.LoggerList.as_view(),
+        name='logger_list'),
+
 
     # ###########################
     # APPS
