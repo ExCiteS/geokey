@@ -57,7 +57,7 @@ class SocialInteraction(models.Model):
         Return
         ------
         geokey.socialinteractions.models.SocialInteraction.
-        
+
         """
         if socialaccounts:
             socialinteraction = cls(
@@ -136,24 +136,24 @@ def post_social_media(sender, instance, created, **kwargs):
     """This function post/tweet to social media when a new Observation
      is added.
     At the same time adds a new comment on the observaction with the link to
-    redirect 
+    redirect
      """
     if created:
         project = instance.project
         socialinteractions_all = project.socialinteractions.all()
-        url = 'www.acb.com/admin/projects/{project_id}/contributions/{subset_id}/'
+        url = 'local/{project_id}/contributions/{subset_id}/'
         link = url.format(project_id=project.id,subset_id=instance.id)
 
         for socialinteraction in socialinteractions_all:
             text_to_post = socialinteraction.text_to_post
             replacements = {
                 "$project$": project.name,
-                "$link$":link
+                "$link$": link
             }
 
             for key, replacement in replacements.iteritems():
                 text_to_post = text_to_post.replace(key, replacement)
-
+            print "text to post", text_to_post
             for socialaccount in socialinteraction.socialaccounts.all():
 
                 provider = socialaccount.provider
@@ -170,24 +170,24 @@ def post_social_media(sender, instance, created, **kwargs):
                     text_to_post,
                     app)
                 comment_txt = 'https://twitter.com/{user_name}/status/{tweet_id}'.format(
-                        user_name=screen_name,
-                        tweet_id=tweet_id
-                    )
+                    user_name=screen_name,
+                    tweet_id=tweet_id
+                )
                 Comment.objects.create(
                     text=comment_txt,
                     commentto=instance,
                     creator=socialaccount.user
                 )
 
-    
+
 
 def check_provider(provider,access_token,text_to_post,app):
     """This function checks the provider.
-    
+
     Parameters:
     ------------
-    provider :  str 
-        provider of the social account 
+    provider :  str
+        provider of the social account
     access_token: str - SocialToken Object
         access token for the social account and user
     text_to_post: str
@@ -196,8 +196,8 @@ def check_provider(provider,access_token,text_to_post,app):
 
     returns
     --------
-    tweet_id : str 
-        tweet identifier 
+    tweet_id : str
+        tweet identifier
     screen_aname: str
         screen name user by twitter user
 
@@ -212,9 +212,11 @@ def check_provider(provider,access_token,text_to_post,app):
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         access_token_all = access_token
         access_token = access_token_all.token
-        access_token_secret = access_token_all.token_secret       
+        access_token_secret = access_token_all.token_secret
         auth.set_access_token(access_token, access_token_secret)
         api = tweepy.API(auth)
+        #print "api", api
         tweet_back = api.update_status(text_to_post)
+        #print "tweet_back",  tweet_back
 
     return tweet_back.id, tweet_back.author.screen_name

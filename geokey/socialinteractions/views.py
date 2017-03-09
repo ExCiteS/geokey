@@ -294,7 +294,7 @@ class SocialInteractionPost(LoginRequiredMixin, SocialInteractionContext,
         data = request.POST
         context = self.get_context_data(project_id, socialinteraction_id)
         socialinteraction = context.get('socialinteraction')
-        
+
         socialinteraction.text_to_post = data.get('text_post')
         socialinteraction.save()
 
@@ -504,6 +504,7 @@ class SocialInteractionPull(LoginRequiredMixin, ProjectContext,
 
         data = request.POST
         text_pull = data.get("text_pull")
+        print "oOOOO", text_pull
         socialaccount_id= data.get('socialaccount_id')
         socialaccount = SocialAccount.objects.get(id=socialaccount_id)
         provider = socialaccount.provider
@@ -513,11 +514,11 @@ class SocialInteractionPull(LoginRequiredMixin, ProjectContext,
                 account__user=socialaccount.user,
                 account__provider=app.provider
             )
-        
-        
+
+
         all_tweets = pull_from_social_media(provider,access_token,text_pull,app)
-        
-        context = self.get_context_data(project_id)                
+
+        context = self.get_context_data(project_id)
 
         context['all_tweets'] = all_tweets
 
@@ -599,11 +600,11 @@ class SocialInteractionPullWorkshop(LoginRequiredMixin, ProjectContext,
                 account__id = socialaccount.id,
                 account__user=socialaccount.user,
                 account__provider=app.provider
-            )       
-        
+            )
+
         all_tweets = pull_from_social_media_workshop(provider,access_token,text_pull,app)
         geometry = all_tweets[0]['geometry']
-        point  = 'POINT(' + str(geometry['coordinates'][0]) + ' ' + str(geometry['coordinates'][1]) +')' 
+        point  = 'POINT(' + str(geometry['coordinates'][0]) + ' ' + str(geometry['coordinates'][1]) +')'
         new_loc = Location.objects.create(
             geometry=point,
             creator=socialaccount.user
@@ -612,7 +613,7 @@ class SocialInteractionPullWorkshop(LoginRequiredMixin, ProjectContext,
 
         for geo_tweet in all_tweets:
             coordinates = geo_tweet['geometry']['coordinates']
-            point  = 'POINT(' + str(coordinates[0]) + ' ' + str(coordinates[1]) +')' 
+            point  = 'POINT(' + str(coordinates[0]) + ' ' + str(coordinates[1]) +')'
             new_loc = Location.objects.create(
                 geometry=point,
                 creator=socialaccount.user
@@ -642,10 +643,10 @@ def pull_from_social_media_workshop(provider,access_token,text_to_pull,app):
     """
     Pull data from the timeline when social account has been mentioned and
     with specific text or hastag.
-    
+
     Parameters
     -----------
-    provider =  str 
+    provider =  str
         provider of the social account
 
     access_token: str - SocialToken Object
@@ -656,7 +657,7 @@ def pull_from_social_media_workshop(provider,access_token,text_to_pull,app):
 
     Returns
     --------
-    all_tweets: array 
+    all_tweets: array
         array of tweet objects
 
     """
@@ -667,7 +668,7 @@ def pull_from_social_media_workshop(provider,access_token,text_to_pull,app):
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         access_token_all = access_token
         access_token = access_token_all.token
-        access_token_secret = access_token_all.token_secret              
+        access_token_secret = access_token_all.token_secret
         auth.set_access_token(access_token, access_token_secret)
         api = tweepy.API(auth)
 
@@ -689,6 +690,7 @@ def pull_from_social_media_workshop(provider,access_token,text_to_pull,app):
                     new_contribution['geometry'] =  mention.coordinates
                     if 'media' in mention.entities: ## gets when is media attached to it
                         for image in mention.entities['media']:
+                            print "yes"
                             new_contribution['url'] = image['url']
 
                     all_tweets.append(new_contribution)
@@ -706,13 +708,14 @@ def pull_from_social_media(provider,access_token,text_to_pull,app):
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         access_token_all = access_token
         access_token = access_token_all.token
-        access_token_secret = access_token_all.token_secret              
+        access_token_secret = access_token_all.token_secret
         auth.set_access_token(access_token, access_token_secret)
         api = tweepy.API(auth)
 
         try:
             # tweets_all = api.mentions_timeline(count=100)
-            tweets_all = api.search(q=text_to_pull)
+            print "ofoao0", text_to_pull
+            tweets_all = api.search(q=text_to_pull, count=100)
         except:
             print "You are not autheticate"
 
@@ -724,7 +727,7 @@ def pull_from_social_media(provider,access_token,text_to_pull,app):
             new_contribution['user'] = mention.user.name
             new_contribution['created_at'] = mention.created_at
             if mention.coordinates: ## checks if there are coorindates
-                if text_to_pull in mention.text: 
+                if text_to_pull in mention.text:
                     #new_contribution['text'] = mention.text
                     geotype = mention.coordinates['type']
                     lon = mention.coordinates['coordinates'][1]
