@@ -10,6 +10,8 @@ from geokey.extensions.base import extensions
 from geokey.projects.views import ProjectContext
 from geokey.core.models import LoggerHistory
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 
 class LoggerList(ProjectContext, TemplateView):
     """A list of all history logs."""
@@ -25,6 +27,8 @@ class LoggerList(ProjectContext, TemplateView):
             Context.
         """
 
+        # page = request.GET.get('page')
+
         context = super(LoggerList, self).get_context_data(
             *args,
             **kwargs
@@ -33,9 +37,24 @@ class LoggerList(ProjectContext, TemplateView):
         logs = LoggerHistory.objects.filter(
             project__contains={'id': str(context['project'].id)})
 
-        context['logs'] = logs[::-1]
+        context['logs'] = self.paginate_logs(
+            logs[::-1],
+            self.request.GET.get('page'))
 
         return context
+
+    def paginate_logs(self, logs, page):
+            """Paginate all logs."""
+            paginator = Paginator(logs, 20)
+
+            try:
+                logs = paginator.page(page)
+            except PageNotAnInteger:
+                logs = paginator.page(1)
+            except EmptyPage:
+                logs = paginator.page(paginator.num_pages)
+
+            return logs
 
 
 # ############################################################################

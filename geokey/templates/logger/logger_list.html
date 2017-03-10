@@ -199,8 +199,30 @@ data-project-locked="{{ project.islocked }}"
 
                 {% if forloop.last %}
                     </ul>
-                {% endif %}
 
+                    {% if logs.has_other_pages %}
+                      <ul class="pagination">
+                        {% if logs.has_previous %}
+                          <li><a href="?page={{ logs.previous_page_number }}">&laquo;</a></li>
+                        {% else %}
+                          <li class="disabled"><span>&laquo;</span></li>
+                        {% endif %}
+                        {% for i in logs.paginator.page_range %}
+                          {% if logs.number == i %}
+                            <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                          {% else %}
+                            <li><a href="?page={{ i }}">{{ i }}</a></li>
+                          {% endif %}
+                        {% endfor %}
+                        {% if logs.has_next %}
+                          <li><a href="?page={{ logs.next_page_number }}">&raquo;</a></li>
+                        {% else %}
+                          <li class="disabled"><span>&raquo;</span></li>
+                        {% endif %}
+                      </ul>
+                    {% endif %}
+
+                    {% endif %}
 
 
             {% endfor %}
