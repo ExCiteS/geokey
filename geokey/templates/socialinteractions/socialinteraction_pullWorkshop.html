@@ -39,11 +39,11 @@ data-project-locked="{{ project.islocked }}"
                     <li>
                         <h4>
                             {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
-                        
+
                             <img class="socialaccount_provider" src="{% static 'img/providers/' %}{{ sa.provider }}.svg" alt="{{ sa.get_provider.name }} social provider" /> {{sa.get_provider_account}}
                         </h4>
                         <form id="settings" method="POST" action="{% url 'admin:socialinteraction_pullWorkshop' project.id %}" novalidate>
-                        {% csrf_token %} 
+                        {% csrf_token %}
                             <input hidden name="socialaccount_id" value="{{sa.id}}">
                             <div class="form-group">
                                 <label for="pull_text" class="control-label">Text to search</label>
@@ -106,6 +106,14 @@ data-project-locked="{{ project.islocked }}"
 <script src="/static/js/admin.ui.filters.data.js"></script>
 <script src="/static/js/admin.ui.forms.validate.js"></script>
 <script src="/static/js/admin.control.ajax.js"></script>
+<style>
+.socialaccount_provider
+{
+    height:15px;
+    width:15px;
+
+}
+</style>
 {% endblock %}
 
 
@@ -118,7 +126,7 @@ data-project-locked="{{ project.islocked }}"
             <h3 class="header">Social interaction post to social mediasdjsdjksdjksgnk sdgkl sdgkldsg</h3>
             <h6 class="header">Social accounts associated: {% for sa in socialinteraction.socialaccounts.all %} {% load static %} <img id="socialaccount_provider" src="{% static 'img/providers/' %}{{ sa.provider }}.svg" alt="{{ sa.get_provider.name }} social provider" /> {%if sa.provider == 'twitter' %}@{% endif%}{{sa.get_provider_account}}{% endfor %} </h6>
             <form id="settings" method="POST" action="{% url 'admin:socialinteraction_settings' project.id socialinteraction.id %}" novalidate>
-                {% csrf_token %} 
+                {% csrf_token %}
                 <div class="form-group">
                     <label for="post_text" class="control-label">Text to post</label>
                     <textarea class="form-control input-lg" rows="5" id="post_text" name="post_text"></textarea>

@@ -357,6 +357,7 @@ class Comment(models.Model):
     )
 
     objects = CommentManager()
+    history = HistoricalRecords()
 
     class Meta:
         ordering = ['id']

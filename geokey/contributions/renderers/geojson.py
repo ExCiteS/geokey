@@ -17,9 +17,12 @@ class GeoJsonRenderer(BaseRenderer):
         """
         Renders a single `Contribution` into GeoJson
         """
-        data['type'] = "Feature"
-        data['geometry'] = json.loads(data.get('location').pop('geometry'))
-        return data
+        try:
+            data['type'] = "Feature"
+            data['geometry'] = json.loads(data.get('location').pop('geometry'))
+            return data
+        except:
+            return data
 
     def render_many(self, data):
         """
@@ -35,6 +38,10 @@ class GeoJsonRenderer(BaseRenderer):
         """
         Renders `data` into serialized GeoJson.
         """
+
+        if '(e.g:bbox=xmin,ymin,xmax,ymax)' in str(data):
+            rendered = {'error': str(data)}
+            return json.dumps(rendered)
         if data is None:
             return ''
 

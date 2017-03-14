@@ -46,20 +46,20 @@ data-socialinteraction-id="{{ socialinteraction.id }}"
                 </div>
                <div class="form-group">
                     <label for="socialaccount" class="control-label">Social account</label>
-                    
+
                     {% for socialaccount in socialaccounts_auth %}
                         <ul id="check-list-box" class="list-group checked-list-box">
                         {% if socialaccount == '' %}
                             <p>Unfortunately, you cannot create new social interactions because any social media is log in for this project.</p>
-                        {% else %}                        
+                        {% else %}
                             {% if socialaccount in socialinteraction.socialaccounts.all %}
-                                <input type="checkbox" name="socialaccounts" value="{{ socialaccount.id }}" checked> <img class="socialaccount_provider" src="{% static 'img/providers/' %}{{ socialaccount.provider }}.svg" alt="{{ socialaccount.get_provider.name }} social provider" /> {{ socialaccount.get_provider_account }}  
+                                <input type="checkbox" name="socialaccounts" value="{{ socialaccount.id }}" checked> <img class="socialaccount_provider" src="{% static 'img/providers/' %}{{ socialaccount.provider }}.svg" alt="{{ socialaccount.get_provider.name }} social provider" /> {{ socialaccount.get_provider_account }}
                             {% else %}
-                                <input type="checkbox" name="socialaccounts" value="{{ socialaccount.id }}" > <img class="socialaccount_provider" src="{% static 'img/providers/' %}{{ socialaccount.provider }}.svg" alt="{{ socialaccount.get_provider.name }} social provider" /> {{ socialaccount.get_provider_account }} 
+                                <input type="checkbox" name="socialaccounts" value="{{ socialaccount.id }}" > <img class="socialaccount_provider" src="{% static 'img/providers/' %}{{ socialaccount.provider }}.svg" alt="{{ socialaccount.get_provider.name }} social provider" /> {{ socialaccount.get_provider_account }}
                             {%endif%}
-                       
+
                         {% endif %}
-                     
+
                     {% endfor %}
                 </ul>
                 </div>
@@ -122,4 +122,12 @@ data-socialinteraction-id="{{ socialinteraction.id }}"
 
 {% block libraries %}
 <script src="/static/js/admin.ui.forms.validate.js"></script>
+<style>
+.socialaccount_provider
+{
+    height:15px;
+    width:15px;
+
+}
+</style>
 {% endblock %}

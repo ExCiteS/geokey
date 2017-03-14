@@ -15,7 +15,7 @@ from django.template.defaultfilters import slugify
 from model_utils.managers import InheritanceManager
 from django_youtube.api import Api as Youtube, AccessControl
 
-from geokey.core.exceptions import FileTypeError
+from geokey.core.exceptions import FileTypeError, InputError
 from geokey.projects.models import Project
 
 from .base import (
@@ -205,6 +205,35 @@ class ObservationQuerySet(models.query.QuerySet):
                 return self.extra(where=[' OR '.join(queries)])
 
         return self
+
+    def get_by_bbox(self, bbox):
+        """
+        Returns a subset of the queryset containing observations where the 
+        geometry of the location is inside the the passed bbox.
+
+        Parameters
+        ----------
+        bbox : str
+            Str that provides the xmin,ymin,xmax,ymax
+
+        Return
+        ------
+        django.db.models.Queryset
+            List of search results matching the query
+        """
+
+        if bbox:
+            try:
+                ## created bbox to Polygon 
+                from django.contrib.gis.geos import Polygon
+                bbox = bbox.split(',') ## Split by ','
+                geom_bbox = Polygon.from_bbox(bbox)
+                ### Filtering observations where 
+                return self.filter(location__geometry__bboverlaps=geom_bbox)
+            except Exception as e:                
+                raise InputError(str(e) +'. Please, check the coordinates'
+                    ' you attached to bbox parameters, they should follow'
+                    'the OSGeo standards (e.g:bbox=xmin,ymin,xmax,ymax).')               
 
 
 class ObservationManager(models.Manager):

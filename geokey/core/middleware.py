@@ -4,6 +4,8 @@
 from django import http
 from django.db import connection
 
+from .signals import request_accessor
+
 try:
     import settings
     XS_SHARING_ALLOWED_ORIGINS = settings.XS_SHARING_ALLOWED_ORIGINS
@@ -52,6 +54,19 @@ class TerminalLogging(object):
                 print "\033[1;31m[%s]\033[0m \033[1m%s\033[0m" % (query['time'],
                     " ".join(query['sql'].split()))
         return response
+
+
+class RequestProvider(object):
+    def __init__(self):
+        self._request = None
+        request_accessor.connect(self)
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        self._request = request
+        return None
+
+    def __call__(self, **kwargs):
+        return self._request
 
 
 def show_debug_toolbar(request):

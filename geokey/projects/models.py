@@ -4,6 +4,8 @@ from django.db import models
 from django.conf import settings
 from django.contrib.gis.db import models as gis
 
+from simple_history.models import HistoricalRecords
+
 from .managers import ProjectManager
 from .base import STATUS, EVERYONE_CONTRIBUTES
 
@@ -36,6 +38,7 @@ class Project(models.Model):
     geographic_extent = gis.PolygonField(null=True, geography=True)
 
     objects = ProjectManager()
+    history = HistoricalRecords()
 
     class Meta:
         ordering = ['name']
@@ -259,7 +262,7 @@ class Project(models.Model):
             not user.is_anonymous() and (
                 self.usergroups.filter(users=user).exists()))
 
-    def get_all_contributions(self, user, search=None, subset=None):
+    def get_all_contributions(self, user, search=None, subset=None, bbox=None):
         """
         Returns all contributions a user can access in a project. It gets
         the SQL clauses of all data groupings in the project and combines them
@@ -306,6 +309,9 @@ class Project(models.Model):
 
         if search:
             data = data.search(search)
+
+        if bbox:
+            data = data.get_by_bbox(bbox)
 
         return data.distinct()
 

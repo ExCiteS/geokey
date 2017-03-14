@@ -20,8 +20,7 @@ from geokey.contributions.models import (
     Location,
     MediaFile
 )
-
-from simple_history.models import HistoricalRecords
+from geokey.categories.models import Field, TextField
 
 from geokey.categories.models import Category
 
@@ -368,7 +367,7 @@ class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
             socialaccount_ids = data.getlist('socialaccounts', [])
 
             socialaccounts = SocialAccount.objects.filter(
-                                                pk__in=socialaccount_ids)
+                pk__in=socialaccount_ids)
             try:
                 context['socialinteraction'] = socialinteraction.update(
                     socialinteraction_id,
@@ -380,9 +379,9 @@ class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
                 pass
 
         messages.success(
-                    self.request,
-                    'The social interaction has been updated.'
-                )
+            self.request,
+            'The social interaction has been updated.'
+        )
         return self.render_to_response(context)
 
 
@@ -441,8 +440,7 @@ class SocialInteractionDelete(LoginRequiredMixin, SocialInteractionContext,
         return self.render_to_response(context)
 
 
-class SocialInteractionPull(LoginRequiredMixin, ProjectContext,
-                                TemplateView):
+class SocialInteractionPull(LoginRequiredMixin, ProjectContext, TemplateView):
     """Provide the form to pull the data from social media."""
 
     template_name = 'socialinteractions/socialinteraction_pull.html'
@@ -505,18 +503,20 @@ class SocialInteractionPull(LoginRequiredMixin, ProjectContext,
         data = request.POST
         text_pull = data.get("text_pull")
         print "oOOOO", text_pull
-        socialaccount_id= data.get('socialaccount_id')
+        socialaccount_id = data.get('socialaccount_id')
         socialaccount = SocialAccount.objects.get(id=socialaccount_id)
         provider = socialaccount.provider
         app = SocialApp.objects.get(provider=provider)
         access_token = SocialToken.objects.get(
-                account__id = socialaccount.id,
-                account__user=socialaccount.user,
-                account__provider=app.provider
-            )
+            account__id=socialaccount.id,
+            account__user=socialaccount.user,
+            account__provider=app.provider)
 
-
-        all_tweets = pull_from_social_media(provider,access_token,text_pull,app)
+        all_tweets = pull_from_social_media(
+            provider,
+            access_token,
+            text_pull,
+            app)
 
         context = self.get_context_data(project_id)
 
@@ -527,7 +527,7 @@ class SocialInteractionPull(LoginRequiredMixin, ProjectContext,
 
 
 class SocialInteractionPullWorkshop(LoginRequiredMixin, ProjectContext,
-                                TemplateView):
+    TemplateView):
     """Provide the form to update the social interaction settings."""
 
     template_name = 'socialinteractions/socialinteraction_pullWorkshop.html'
@@ -592,39 +592,60 @@ class SocialInteractionPullWorkshop(LoginRequiredMixin, ProjectContext,
         project = context['project']
         text_pull = data.get("text_pull")
         category_id = data.get('category')
-        socialaccount_id= data.get('socialaccount_id')
+        socialaccount_id = data.get('socialaccount_id')
         socialaccount = SocialAccount.objects.get(id=socialaccount_id)
         provider = socialaccount.provider
         app = SocialApp.objects.get(provider=provider)
         access_token = SocialToken.objects.get(
-                account__id = socialaccount.id,
-                account__user=socialaccount.user,
-                account__provider=app.provider
-            )
+            account__id = socialaccount.id,
+            account__user=socialaccount.user,
+            account__provider=app.provider
+        )
 
-        all_tweets = pull_from_social_media_workshop(provider,access_token,text_pull,app)
+        all_tweets = pull_from_social_media_workshop(
+            provider,
+            access_token,
+            text_pull,
+            app)
         geometry = all_tweets[0]['geometry']
-        point  = 'POINT(' + str(geometry['coordinates'][0]) + ' ' + str(geometry['coordinates'][1]) +')'
+        point = 'POINT(' + str(geometry['coordinates'][0]) + ' ' + str(geometry['coordinates'][1]) +')'
         new_loc = Location.objects.create(
             geometry=point,
             creator=socialaccount.user
         )
 
-
+        if len(all_tweets) > 1:
+            try:
+                print "try"
+                tweet_cat = Category.objects.get(name='tweetsffff')
+                print "category", tweet_cat
+            except:
+                print "except"
+                tweet_cat = Category.objects.create(
+                    name='tweeffffffdts',
+                    project=project,
+                    creator=socialaccount.user)
+            text_field = TextField.objects.create(category=tweet_cat)
+        #text_field = Field.objects.filter(category=tweet_cat)
         for geo_tweet in all_tweets:
             coordinates = geo_tweet['geometry']['coordinates']
-            point  = 'POINT(' + str(coordinates[0]) + ' ' + str(coordinates[1]) +')'
+            point = 'POINT(' + str(coordinates[0]) + ' ' + str(coordinates[1]) +')'
+            #text_field.value = geo_tweet['text']
+            #print "text_field", text_field.value
             new_loc = Location.objects.create(
                 geometry=point,
-                creator=socialaccount.user
-            )
-            new_observation =  Observation.objects.create(
+                creator=socialaccount.user)
+            new_observation = Observation.objects.create(
                 location=new_loc,
                 project=project,
                 creator=socialaccount.user,
-                category=Category.objects.get(id=category_id)
-            )
+                category=tweet_cat)
+            properties = {
+                text_field.key: geo_tweet['text']
+            }
+            new_observation.properties = properties
             new_observation.save()
+
             # if 'url' in geo_tweet:
             #     print "yujuu URL"
             #     MediaFile.objects.create(
@@ -632,6 +653,13 @@ class SocialInteractionPullWorkshop(LoginRequiredMixin, ProjectContext,
             #         contribution=new_observation.id,
             #         creator=socialaccount.user
             #     )
+            # new_comment = Comment.objects.create(
+            #     text=geo_tweet['text'],
+            #     commentto=new_observation,
+            #     creator_id=socialaccount.user.id)
+            # new_comment.save()
+
+
 
 
 

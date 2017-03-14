@@ -137,12 +137,10 @@ class CategoryManager(ActiveMixin, models.Manager):
         geokey.categories.models.Category
             The newly created category
         """
-        category = super(CategoryManager, self).create(*args, **kwargs)
 
-        category.order = category.project.categories.count() - 1
-        category.save()
+        return super(CategoryManager, self).create(
+            order=kwargs.get('project').categories.count(), *args, **kwargs)
 
-        return category
 
 
 class FieldManager(ActiveMixin, InheritanceManager):

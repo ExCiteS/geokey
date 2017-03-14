@@ -33,7 +33,7 @@ data-socialinteraction-id="{{ socialinteraction.id }}"
             <h3 class="header">Social interaction post to social media</h3>
             <h6 class="header">Social accounts associated: {% for sa in socialinteraction.socialaccounts.all %} {% load static %} <img class="socialaccount_provider" src="{% static 'img/providers/' %}{{ sa.provider }}.svg" alt="{{ sa.get_provider.name }} social provider" /> {%if sa.provider == 'twitter' %}@{% endif%}{{sa.get_provider_account}}{% endfor %} </h6>
             <form id="settings" method="POST" action="{% url 'admin:socialinteraction_post' project.id socialinteraction.id %}" novalidate>
-                {% csrf_token %} 
+                {% csrf_token %}
                 <div class="form-group">
                     <label for="text_postz" class="control-label" >Text to post {%if is_twitter == True %} (140 characters max.) {% endif%}</label>
                     <textarea class="form-control input-lg" rows="5" id="text_post" name="text_post" {% if is_twitter == True %} maxlength="140"  {% endif %} >{{socialinteraction.text_to_post}}</textarea>
@@ -61,4 +61,12 @@ data-socialinteraction-id="{{ socialinteraction.id }}"
 
 {% block libraries %}
 <script src="/static/js/admin.ui.forms.validate.js"></script>
+<style>
+.socialaccount_provider
+{
+    height:15px;
+    width:15px;
+
+}
+</style>
 {% endblock %}

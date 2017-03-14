@@ -6,6 +6,8 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.utils import timezone
 from django.dispatch import receiver
 
+from simple_history.models import HistoricalRecords
+
 from django_pgjson.fields import JsonBField
 from oauth2_provider.models import AccessToken
 from allauth.account.signals import email_confirmed
@@ -74,6 +76,7 @@ class UserGroup(FilterMixin, models.Model):
     can_moderate = models.BooleanField(default=False)
     filters = JsonBField(blank=True, null=True)
     where_clause = models.TextField(blank=True, null=True)
+    history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
         """
