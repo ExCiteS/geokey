@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
-
+{% load logger %}
 {% block bodydata %}
 data-project-id="{{ project.id }}"
 data-project-locked="{{ project.islocked }}"
+
 {% endblock %}
 
 {% block title %} | Project: {{ project.name }} - Logger{% endblock %}
@@ -37,7 +38,16 @@ data-project-locked="{{ project.islocked }}"
                 <li>
                     <h6>{{log.created}}</h6>
                     <h4>
+                    {% if log.action.id == 'created' %}
+                         <span class="glyphicon glyphicon-ok" style="color:lightgreen"></span>
+                    {% elif log.action.id == 'deleted' %}
+                         <span class="glyphicon glyphicon-trash" style="color:red"></span>
+                    {% elif log.action.id == 'updated' %}
+                         <span class="glyphicon glyphicon-pencil" style="color:lightblue"></span>
+                    {% endif %}
+
                         {% if log.action.class == 'Project' %}
+
                             {%if log.action.id == 'created' %}
                                 {{log.action.class}} {{log.action.id}} with a name <a href="{% url 'admin:project_overview' log.project.id %}"> {{ log.project.name }}</a>
                             {%elif log.action.id == 'deleted' %}
@@ -132,19 +142,21 @@ data-project-locked="{{ project.islocked }}"
                             <a href="{% url 'admin:usergroup_overview' log.project.id log.usergroup.id %}"> {{ log.usergroup.name }} </a>
 
                         {% elif log.action.class == 'Field' %}
+                            {% with log.field.type|check_field_type as field_type %}
                             {%if log.action.id == 'created' %}
-                                {{log.action.id}} field with name  <a href="{% url 'admin:category_field_settings' log.project.id log.category.id log.field.id %}"> {{ log.field.name }}  </a> for category <a href="{% url 'admin:category_overview' log.project.id log.category.id %}"> {{ log.category.name }}  </a>
+                                {{field_type}} with name  <a href="{% url 'admin:category_field_settings' log.project.id log.category.id log.field.id %}"> {{ log.field.name }}  </a> for category <a href="{% url 'admin:category_overview' log.project.id log.category.id %}"> {{ log.category.name }}  </a>
                             {%elif log.action.id == 'deleted' %}
-                                {{log.field.type}} {{log.action.id}} for category <a href="{% url 'admin:category_overview' log.project.id log.category.id %}">{{ log.category.name }} </a>
+                                {{field_type}} {{log.action.id}} for category <a href="{% url 'admin:category_overview' log.project.id log.category.id %}">{{ log.category.name }} </a>
                             {%else%}
                                 {%if log.action.field == 'name' %}
-                                    {{log.field.type}} field renamed to <a href="{% url 'admin:category_field_settings' log.project.id log.category.id log.field.id %}"> {{ log.field.name }}
+                                    {{field_type}} renamed to <a href="{% url 'admin:category_field_settings' log.project.id log.category.id log.field.id %}"> {{ log.field.name }}
                                 {%elif log.action.field == 'status' %}
-                                    {{log.field.type}} field is now {{log.action.value}}
+                                    {{field_type}} is now {{log.action.value}}
                                 {%elif log.action.field == 'required' %}
-                                    {{log.field.type}} field set as {%if log.action.value == 'False' %} optional {% else %} mandatory{% endif %}
+                                    {{field_type}} set as {%if log.action.value == 'False' %} optional {% else %} mandatory{% endif %}
                                 {% endif %}
                             {% endif %}
+                            {% endwith %}
                         {% elif log.action.class == 'Location' %}
                             {{log.action.class}}
                             {%if log.action.id == 'created' %}
@@ -184,14 +196,15 @@ data-project-locked="{{ project.islocked }}"
                                     {% endif %}
                                 {% endif %}
                             {% endif %}
+
                         {% elif log.action.class == 'MediaFile' %}
+                            {% with log.mediafile.type|check_media_file_type as file_type %}
                             {%if log.action.id == 'created' %}
-                                {{log.mediafile.type}} media file added to observation
+                                {{file_type}} added to observation
                             {%elif log.action.id == 'deleted' %}
-                                {{log.mediafile.type}} media file {{log.action.id}} from observation
+                                {{file_type}} {{log.action.id}} from observation
                             {% endif %}
-                        {% else %}
-                            <a href="">## {{ log.action.id }} ## -- {{ log.action.class }} @@@@ {{ log.action.field }}  ??? {{ log.action.value}}- date: {{log.modified}}</a>
+                            {% endwith %}
                         {% endif %}
 
                         </h4>
