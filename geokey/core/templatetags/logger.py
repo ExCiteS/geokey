@@ -7,7 +7,8 @@ register = template.Library()
 
 @register.filter()
 def check_media_file_type(media_file_class):
-    """Check media file type and return string to be display on logger list."""
+    """Check media file type and return string to be display on logger list
+    in human-readble format."""
 
     if media_file_class == 'AudioFile':
         media_file_type = 'Audio file'
@@ -21,7 +22,8 @@ def check_media_file_type(media_file_class):
 
 @register.filter()
 def check_field_type(field_class):
-    """Check field type and return string to be display on logger list."""
+    """Check field type and return string to be display on logger list in
+    human-readble format."""
 
     if field_class == 'TextField':
         field_type = 'Text field'
