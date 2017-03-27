@@ -208,7 +208,7 @@ class ObservationQuerySet(models.query.QuerySet):
 
     def get_by_bbox(self, bbox):
         """
-        Returns a subset of the queryset containing observations where the 
+        Returns a subset of the queryset containing observations where the
         geometry of the location is inside the the passed bbox.
 
         Parameters
@@ -224,16 +224,16 @@ class ObservationQuerySet(models.query.QuerySet):
 
         if bbox:
             try:
-                ## created bbox to Polygon 
+                # created bbox to Polygon
                 from django.contrib.gis.geos import Polygon
-                bbox = bbox.split(',') ## Split by ','
+                bbox = bbox.split(',') # Split by ','
                 geom_bbox = Polygon.from_bbox(bbox)
-                ### Filtering observations where 
+                # Filtering observations where
                 return self.filter(location__geometry__bboverlaps=geom_bbox)
-            except Exception as e:                
-                raise InputError(str(e) +'. Please, check the coordinates'
+            except Exception as e:
+                raise InputError(str(e) + '. Please, check the coordinates'
                     ' you attached to bbox parameters, they should follow'
-                    'the OSGeo standards (e.g:bbox=xmin,ymin,xmax,ymax).')               
+                    'the OSGeo standards (e.g:bbox=xmin,ymin,xmax,ymax).')
 
 
 class ObservationManager(models.Manager):
