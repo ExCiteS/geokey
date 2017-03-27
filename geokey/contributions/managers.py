@@ -13,7 +13,6 @@ from django.conf import settings
 from django.template.defaultfilters import slugify
 
 from model_utils.managers import InheritanceManager
-from django_youtube.api import Api as Youtube, AccessControl
 
 from geokey.core.exceptions import FileTypeError, InputError
 from geokey.projects.models import Project
@@ -22,6 +21,7 @@ from .base import (
     OBSERVATION_STATUS, COMMENT_STATUS, ACCEPTED_IMAGE_FORMATS,
     ACCEPTED_AUDIO_FORMATS, ACCEPTED_VIDEO_FORMATS, MEDIA_STATUS
 )
+
 
 FILE_NAME_TRUNC = 60 - len(settings.MEDIA_URL)
 
@@ -422,15 +422,18 @@ class MediaFileManager(InheritanceManager):
         str, str
             Youtube video id, Youtube SWF url
         """
-        youtube = Youtube()
-        youtube.authenticate()
-        video_entry = youtube.upload_direct(
-            path,
-            name,
-            access_control=AccessControl.Unlisted
+
+        from utils import (
+            get_args,
+            get_authenticated_service,
+            initialize_upload
         )
 
-        return video_entry.id.text.split('/')[-1], video_entry.GetSwfUrl()
+        youtube = get_authenticated_service()
+        args = get_args(name, path)
+        video_id = initialize_upload(youtube, args)
+
+        return video_id, 'swf_wtf'
 
     def _create_video_file(self, name, description, creator, contribution,
                            the_file):
@@ -467,6 +470,7 @@ class MediaFileManager(InheritanceManager):
             'tmp/' + filename + extension,
             ContentFile(the_file.read())
         )
+
         tmp_file = os.path.join(settings.MEDIA_ROOT, path)
 
         video_id, swf_link = self._upload_to_youtube(
