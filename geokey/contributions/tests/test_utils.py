@@ -1,18 +1,11 @@
 """Test all utils."""
 
-from importlib import import_module
-
 from django.test import TestCase
-from django.conf import settings
-from django.http import HttpRequest
-from django.conf import settings
 
 from oauth2client.client import OAuth2WebServerFlow
 
 from geokey.contributions.utils import (
     my_flow_from_clientsecrets,
-    resumable_upload,
-    initialize_upload,
     get_args,
     get_authenticated_service
 )
@@ -102,6 +95,7 @@ class GetAuthenticatedServiceTest(TestCase):
 
     def test_method(self):
         """Test method."""
-        get_authenticated_service(**self.youtube_uploader)
+        with self.settings(YOUTUBE_UPLOADER=self.youtube_uploader):
+            get_authenticated_service()
 
         self.assertEqual(0, 0)
