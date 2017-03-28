@@ -428,11 +428,11 @@ class MediaFileManager(InheritanceManager):
             Youtube video id, Youtube SWF url
         """
 
-        youtube = get_authenticated_service()
-        args = get_args(name, path)
-        video_id = initialize_upload(youtube, args)
+        # youtube = get_authenticated_service()
+        # args = get_args(name, path)
+        # video_id = initialize_upload(youtube, args)
 
-        return video_id, 'swf_wtf'
+        # return video_id, 'swf_wtf'
 
     def _create_video_file(self, name, description, creator, contribution,
                            the_file):
