@@ -22,6 +22,11 @@ from .base import (
     ACCEPTED_AUDIO_FORMATS, ACCEPTED_VIDEO_FORMATS, MEDIA_STATUS
 )
 
+from .utils import (
+    get_args,
+    get_authenticated_service,
+    initialize_upload
+)
 
 FILE_NAME_TRUNC = 60 - len(settings.MEDIA_URL)
 
@@ -422,12 +427,6 @@ class MediaFileManager(InheritanceManager):
         str, str
             Youtube video id, Youtube SWF url
         """
-
-        from utils import (
-            get_args,
-            get_authenticated_service,
-            initialize_upload
-        )
 
         youtube = get_authenticated_service()
         args = get_args(name, path)
