@@ -102,6 +102,6 @@ class GetAuthenticatedServiceTest(TestCase):
 
     def test_method(self):
         """Test method."""
-        get_authenticated_service()
+        get_authenticated_service(**self.youtube_uploader)
 
         self.assertEqual(0, 0)
