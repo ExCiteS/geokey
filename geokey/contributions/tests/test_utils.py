@@ -13,20 +13,21 @@ from geokey.contributions.utils import (
     my_flow_from_clientsecrets,
     resumable_upload,
     initialize_upload,
-    get_args
+    get_args,
+    get_authenticated_service
 )
 
 
 class GetArgsTest(TestCase):
-    """Test for method 'get_args'. """
+    """Test for method 'get_args'."""
 
     def setUp(self):
-        """Set up tests. """
+        """Set up tests."""
         self.path = 'path/sample/test/test_file.mp4'
         self.name = 'test_file'
 
     def test_method(self):
-        """Test method. """
+        """Test method."""
         args = get_args(self.name, self.path)
         args_var = vars(args)
 
@@ -36,10 +37,10 @@ class GetArgsTest(TestCase):
 
 
 class MyFlowFromClientSecretTest(TestCase):
-    """Test for method 'my_flow_from_clientsecrets'. """
+    """Test for method 'my_flow_from_clientsecrets'."""
 
     def setUp(self):
-        """Set up tests. """
+        """Set up tests."""
         self.youtube_uploader = {
             'scope': "https://www.googleapis.com/auth/youtube.upload",
             'auth_host_name': 'localhost',
@@ -57,7 +58,7 @@ class MyFlowFromClientSecretTest(TestCase):
         }
 
     def test_method(self):
-        """Test method. """
+        """Test method."""
         flow = my_flow_from_clientsecrets(
             self.youtube_uploader['client_info'],
             self.youtube_uploader['scope'])
