@@ -21,3 +21,4 @@ pytz==2016.10
 requests==2.13.0
 oauth2client==4.0.0
 oauthlib==2.0.1
+google-api-python-client==1.6.2
