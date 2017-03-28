@@ -107,6 +107,21 @@ class InitializeUploadTest(TestCase):
 
     def setUp(self):
         """Set up tests."""
+        self.youtube_uploader = {
+            'scope': "https://www.googleapis.com/auth/youtube.upload",
+            'auth_host_name': 'localhost',
+            'auth_host_port': [8080, 8000],
+            'credentials_path': '/vagrant/geokey/local_settings',
+            'credentials_file': "carabassa.json",
+            'client_info': {
+                "client_id": "109430273076-t3e30ie5aseb3laj2da0gkpikir6b0e9.apps.googleusercontent.com",
+                "client_secret": "o3U69gnO4FRipA1Q3K6gi0_N",
+                "redirect_uris": ["http://localhost"],
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://accounts.google.com/o/oauth2/token"
+            },
+
+        }
         with self.settings(YOUTUBE_UPLOADER=self.youtube_uploader):
             self.youtube = get_authenticated_service()
             self.path = 'path/sample/test/test_file.mp4'
