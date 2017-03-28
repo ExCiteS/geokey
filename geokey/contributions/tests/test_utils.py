@@ -7,7 +7,8 @@ from oauth2client.client import OAuth2WebServerFlow
 from geokey.contributions.utils import (
     my_flow_from_clientsecrets,
     get_args,
-    get_authenticated_service
+    get_authenticated_service,
+    initialize_upload
 )
 
 
@@ -97,5 +98,23 @@ class GetAuthenticatedServiceTest(TestCase):
         """Test method."""
         with self.settings(YOUTUBE_UPLOADER=self.youtube_uploader):
             get_authenticated_service()
+
+        self.assertEqual(0, 0)
+
+
+class InitializeUploadTest(TestCase):
+    """Test for method 'initialize_upload'."""
+
+    def setUp(self):
+        """Set up tests."""
+        with self.settings(YOUTUBE_UPLOADER=self.youtube_uploader):
+            self.youtube = get_authenticated_service()
+            self.path = 'path/sample/test/test_file.mp4'
+            self.name = 'test_file'
+            self.args = get_args(self.name, self.path)
+
+    def test_method(self):
+        """Test method."""
+        youtube_id, swd_wft = initialize_upload(self.youtube, self.args)
 
         self.assertEqual(0, 0)
