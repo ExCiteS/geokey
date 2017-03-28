@@ -136,15 +136,6 @@ def initialize_upload(youtube, options):
 
     return resumable_upload(insert_request)
 
-# scope = youtube_uploader['scope']
-
-# scope = "https://www.googleapis.com/auth/youtube.upload"
-# #flow = My_flow_from_clientsecrets(client_info, scope)
-
-# credentials_path = youtube_uploader['credentials_path']
-# client_info = youtube_uploader['client_info']
-# credentials_file = youtube_uploader['credentials_file']
-
 
 def get_args(name, path):
     """Create arguments to passed to the ."""
@@ -165,8 +156,6 @@ def get_args(name, path):
 
 def get_authenticated_service():
     """Get youtube crecentials identified. """
-    print "get authentication service"
-    #### READ YOUTUBE INFORMATION FROM SETTINGS FILE ####
     try:
         youtube_uploader = settings.YOUTUBE_UPLOADER
     except Exception as e:
