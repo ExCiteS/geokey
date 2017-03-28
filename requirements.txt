@@ -19,3 +19,5 @@ pillow==4.0.0
 psycopg2==2.7
 pytz==2016.10
 requests==2.13.0
+oauth2client==4.0.0
+oauthlib==2.0.1
