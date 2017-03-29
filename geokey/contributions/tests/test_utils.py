@@ -97,9 +97,9 @@ class GetAuthenticatedServiceTest(TestCase):
     def test_method(self):
         """Test method."""
         with self.settings(YOUTUBE_UPLOADER=self.youtube_uploader):
-            get_authenticated_service()
-
-        self.assertEqual(0, 0)
+            youtube = get_authenticated_service()
+            print "get_authenticated_service", youtube
+            self.assertIsNotNone(youtube)
 
 
 class InitializeUploadTest(TestCase):
@@ -122,13 +122,26 @@ class InitializeUploadTest(TestCase):
             },
 
         }
+
         with self.settings(YOUTUBE_UPLOADER=self.youtube_uploader):
             self.youtube = get_authenticated_service()
-            self.path = './media/files/video.MOV'
+            self.path = 'vagrant/geokey/contributions/tests/media/files/video.MOV'
             self.name = 'video'
             self.args = get_args(self.name, self.path)
 
     def test_method(self):
         """Test method."""
+        s = 0
+        self.assertEqual(s, 0)
 
-        self.assertEqual(0, 0)
+
+class ResumableUploadTest(TestCase):
+    """Test for method 'resumable_upload'."""
+
+    def setUp(self):
+        """Set up tests."""
+        self.u = 0
+
+    def test_method(self):
+        """Test method."""
+        self.assertEqual(self.u, 0)
