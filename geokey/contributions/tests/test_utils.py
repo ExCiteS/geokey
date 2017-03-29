@@ -124,12 +124,11 @@ class InitializeUploadTest(TestCase):
         }
         with self.settings(YOUTUBE_UPLOADER=self.youtube_uploader):
             self.youtube = get_authenticated_service()
-            self.path = 'path/sample/test/test_file.mp4'
-            self.name = 'test_file'
+            self.path = './media/files/video.MOV'
+            self.name = 'video'
             self.args = get_args(self.name, self.path)
 
     def test_method(self):
         """Test method."""
-        youtube_id, swd_wft = initialize_upload(self.youtube, self.args)
 
         self.assertEqual(0, 0)
