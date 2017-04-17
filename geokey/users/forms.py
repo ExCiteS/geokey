@@ -21,7 +21,7 @@ class UserForm(forms.ModelForm):
     """
     class Meta:
         model = User
-        fields = ['display_name', 'email']
+        fields = ['display_name', 'email', 'is_active', 'is_superuser']
 
 
 class UserRegistrationForm(SignupForm):
