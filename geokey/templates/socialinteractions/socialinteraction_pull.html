@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block bodydata %}
+data-project-id="{{ project.id }}"
+data-project-locked="{{ project.islocked }}"
+data-socialinteraction-pull-id="{{ socialinteraction_pull.id }}"
+{% endblock %}
+
+{% block title %} | Project: {{ project.name }} - Create new social interaction{% endblock %}
+
+{% block main %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="smaller">
+            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+            <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
+        </h1>
+
+        {% include 'projects/navigation.html' %}
+    </div>
+</div>
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+
+    <div class="row">
+        <div class="row">
+        <div class="col-sm-3">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h6 class="item-info">Pull from social media</h6>
+
+                    <h3>
+                        {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                    </h3>
+                </div>
+
+                <table class="table table-striped field-info">
+                    <tr><td><strong>User</strong></td><td>{%if socialinteraction_pull.socialaccount.provider == 'twitter' %}@{% endif%}{{ socialinteraction_pull.socialaccount.get_provider_account}}</td></tr>
+                    <tr><td><strong>Provider</strong></td><td><img class="socialaccount_provider" src="{% static 'img/providers/' %}{{ socialinteraction_pull.socialaccount.provider }}.svg" alt="{{ socialinteraction_pull.socialaccount.get_provider.name }} social provider" /></td></tr>
+                    <tr><td><strong>Last update</strong></td><td>{% if socialinteraction_pull.updated_at == None %}{{socialinteraction_pull.created_at}}{%else %}{{socialinteraction_pull.updated_at}}{% endif %}</td></tr>
+                    <tr><td><strong>Status</strong></td><td>{{socialinteraction_pull.status}}</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+
+            {% if project.islocked %}
+                <div class="alert alert-info">
+                    <p>The project is locked, therefore social interactions cannot be edited. If you wish to edit them, you have to unlock the project in the <a href="{% url 'admin:project_settings' project.id %}"><strong>project settings</strong></a> first.</p>
+                </div>
+            {% endif %}
+            <div>
+                <h3 class="header">
+                    <span>Pull data from social media accounts settings </span><a href="{% url 'admin:socialinteraction_list' project.id %}" class="btn btn-info pull-right"><span class="glyphicon glyphicon-th-list"></span> Back to the list</a>
+                </h3>
+                {% if socialinteraction_pull %}
+                    <form id="settings" method="POST" action="{% url 'admin:socialinteraction_pull' project.id socialinteraction_pull.id %}" novalidate>
+                        {% csrf_token %}
+                            <input hidden name="socialaccount_id" value="{{sa.id}}">
+                            <div class="form-group">
+                                <label for="pull_text" class="control-label">Text to search</label>
+                                <input type="text" class="form-control input-lg" id="text_pull" name="text_pull" value={{socialinteraction_pull.text_to_pull}} placeholder="e.g: #Project2" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="socialaccount" class="control-label">Social account</label>
+
+                                <select class="form-control" id="project" name="socialaccount" required>
+                                    {% for socialaccount in auth_users %}
+                                        {%if socialaccount.id == socialinteraction_pull.socialaccount.id %}@
+                                            <option value="{{ socialaccount.id }}" class="form-control input-lg" selected="selected" >{{ socialaccount.get_provider_account }} ¦¦ {{ socialaccount.provider }}</option>
+                                        {%else%}
+                                            <option value="{{ socialaccount.id }}" class="form-control input-lg" >{{ socialaccount.get_provider_account }} ¦¦ {{ socialaccount.provider }}</option>
+                                        {% endif%}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="socialaccount" class="control-label">Frequency</label>
+                                <select class="form-control" id="frequency" name="frequency" required>
+                                {% for f in freq %}
+                                    {% if f == socialinteraction_pull.frequency %}
+                                        <option value={{f}} class="form-control input-lg" selected >{{f|title}}</option>
+                                    {% else %}
+                                        <option value={{f}} class="form-control input-lg" >{{f|title}}</option>
+                                    {% endif%}
+                                {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="status_type" class="control-label">Status</label>
+
+                                <select class="form-control" id="project" name="status_type" required>
+                                    {% for status in status_types %}
+                                        {%if socialinteraction_pull.status == status %}
+                                            <option value="{{status}}" class="form-control input-lg" selected >{{status}}</option>
+                                        {%else%}
+                                            <option value="{{status}}" class="form-control input-lg" >{{status}}</option>
+                                        {% endif%}
+                                    {% endfor %}
+                                </select>
+                            </div
+                            <div>
+                                <button type="submit" class="btn btn-primary">Save</button>
+                                <a role="button" href="{% url 'admin:socialinteraction_pull' project.id socialinteraction_pull.id %}" class="btn btn-link">Cancel</a>
+                                <button type="submit" href="{% url 'admin:socialinteraction_pull' project.id socialinteraction_pull.id %}" class="btn btn-success btn-lg">TEST IT OUT</button>
+                            </div>
+                    </form>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+        {% if not project.islocked %}
+            <div class="row">
+                <div class="col-md-8 col-md-offset-3">
+                    <div class="panel panel-danger">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Be careful!</h2>
+                        </div>
+                        <div class="panel-body becareful">
+                            <div>
+                                <strong>Delete pull from social media</strong>
+                                <p>Deleting this pull from social media action cannot be undone.</p>
+                                <a href="#" class="text-danger" data-toggle="modal" data-target="#delete-confirm">Delete this pull from social media</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <div>
+        {% if logs %}
+            {% for log in logs %}
+                <li> 333{{log}} </li>
+            {% endfor %}
+        {% endif %}
+
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block modals %}
+<div role="dialog" class="modal fade" id="delete-confirm" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content panel-danger">
+            <div class="modal-header panel-heading">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Are you sure?</h4>
+            </div>
+
+            <div class="modal-body panel-body">
+                <p><strong>Before you delete the Pull from social media, please read through the consequences of this action:</strong></p>
+
+                <ul>
+                    <li>Deleting this pull from social media cannot be undone.</li>
+                    <li>Data accessible through this subset will not be deleted.</li>
+                </ul>
+            </div>
+
+            <div class="modal-footer panel-footer">
+                <a href="{% url 'admin:socialinteraction_pull_delete' project.id socialinteraction_pull.id %}" class="btn btn-danger">I'm absolutely sure, delete the social interaction!</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+
+{% block libraries %}
+<script src="/static/js/admin.ui.forms.validate.js"></script>
+<script src="/static/js/admin.ui.updater.js"></script>
+<script src="/static/js/admin.control.ajax.js"></script>
+<script src="/static/lib/moment/moment.min.js"></script>
+
+<script src="/static/lib/handlebars/handlebars.js"></script>
+<script src="/static/js/templates.js"></script>
+
+<link rel="stylesheet" href="/static/lib/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
+<script src="/static/lib/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+
+<script src="/static/js/admin.ui.filters.data.js"></script>
+<script src="/static/js/admin.ui.forms.validate.js"></script>
+<style>
+.socialaccount_provider
+{
+    height:15px;
+    width:15px;
+
+}
+</style>
+{% endblock %}
+
+
