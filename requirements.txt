@@ -17,5 +17,5 @@ iso8601==0.1.11
 moment==0.6.1
 pillow==4.1.1
 psycopg2==2.7.1
-pytz==2016.10
+pytz==2017.2
 requests==2.13.0
