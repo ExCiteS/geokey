@@ -1,6 +1,6 @@
 Django>=1.8,<1.10
 django-aggregate-if==0.5
-django-allauth==0.31.0
+django-allauth==0.32.0
 django-braces==1.11.0
 django-hstore==1.4.2
 django-model-utils==2.6.1
