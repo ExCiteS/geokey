@@ -589,7 +589,7 @@ class SocialInteractionPullSettings(LoginRequiredMixin, SocialInteractionPullCon
 
         context["auth_users"] = auth_users
         print "pagasgashas", type(FREQUENCY)
-        freq = ['weekly', 'monthly', 'daily', 'forthnightly', 'hourly']
+        freq = ['5min', '10min', '20min', '30min','hourly', 'daily','weekly', 'monthly',  'forthnightly']
         status_types = ['active', 'inactive']
         context['status_types'] = status_types
         context["freq"] = freq
@@ -727,7 +727,6 @@ class SocialInteractionPullDelete(LoginRequiredMixin, SocialInteractionPullConte
     template_name = 'base.html'
 
     def get(self, request, project_id, socialinteractionpull_id):
-        print "heheheh"
         try:
             context = self.get_context_data(project_id, socialinteractionpull_id)
             socialinteraction_pull = context.get('socialinteraction_pull')
