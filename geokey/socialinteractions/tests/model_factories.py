@@ -23,7 +23,7 @@ class SocialInteractionFactory(factory.django.DjangoModelFactory):
     socialaccount = SocialAccount()
 
 
-class SocialInteractionPullFactoryFactory(factory.django.DjangoModelFactory):
+class SocialInteractionPullFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = SocialInteractionPull
 
