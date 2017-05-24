@@ -42,14 +42,13 @@ data-project-locked="{{ project.islocked }}"
 
                 <li>
                     <h4>
-
                         {% if si_pull.status == 'inactive' %}<span class="glyphicon glyphicon-pause" aria-hidden="true"></span>{% else %}<span class="glyphicon glyphicon-play-circle">  </span>{% endif %} <a href="{% url 'admin:socialinteraction_pull' project.id si_pull.id %}">{{ si_pull.socialaccount.get_provider_account }} {{ si_pull.text_to_pull }}</a>
                     </h4>
+                    {{si_pull.frequency}}
+                    {{si_pull.since_id}}
+                    {{si_pull.updated_at}} <br>
+                    {{si_pull.created_at}}
 
-                    {% if socialinteraction.socialaccount %}
-                        <p>
-                            <img class="socialaccount_provider" src="{% static 'img/providers/' %}{{ socialinteraction.socialaccount.provider }}.svg" alt="{{ socialinteraction.socialaccount.get_provider.name }} social provider" /> {%if socialinteraction.socialaccount.provider == 'twitter' %}@{% endif%}{{socialinteraction.socialaccount.get_provider_account}}</p>
-                        {% endif %}
                 </li>
 
                 {% if forloop.last %}
