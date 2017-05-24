@@ -475,8 +475,8 @@ class SocialInteractionSettingsTest(TestCase):
         reference = SocialInteraction.objects.get(pk=self.socialinteraction.id)
         self.assertNotEqual(reference.name, 'New Name')
         self.assertNotEqual(reference.description, 'New Description')
-        socialaccounts = reference.socialaccounts.all()
-        self.assertNotIn(self.socialaccount_3, socialaccounts)
+        socialaccount = reference.socialaccount
+        self.assertNotIn(self.socialaccount_3, socialaccount)
 
     def test_post_with_user(self):
         """
@@ -516,5 +516,5 @@ class SocialInteractionSettingsTest(TestCase):
         reference = SocialInteraction.objects.get(pk=self.socialinteraction.id)
         self.assertNotEqual(reference.name, 'New Name')
         self.assertNotEqual(reference.description, 'New Description')
-        socialaccounts = reference.socialaccounts.all()
-        self.assertNotIn(self.socialaccount_3, socialaccounts)
+        socialaccount = reference.socialaccount
+        self.assertNotIn(self.socialaccount_3, socialaccount)
