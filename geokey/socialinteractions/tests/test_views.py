@@ -138,6 +138,9 @@ class SocialInteractionCreateTest(TestCase):
         self.socialaccount_2 = SocialAccount.objects.create(
             user=self.admin_user, provider='facebook', uid='2')
 
+        print "social accounts 1:", self.socialaccount_1
+        print "social accounts 2:", self.socialaccount_2
+
         self.view = SocialInteractionCreate.as_view()
         self.request = HttpRequest()
         self.request.method = 'GET'
@@ -193,7 +196,7 @@ class SocialInteractionCreateTest(TestCase):
             'socialinteractions/socialinteraction_create.html',
             {
                 'project': self.project,
-                'auth_users': [self.socialaccount_2, self.socialaccount_1],
+                'auth_users': [self.socialaccount_2],
                 'user': self.admin_user,
                 'PLATFORM_NAME': get_current_site(self.request).name,
                 'GEOKEY_VERSION': version.get_version()
@@ -325,7 +328,7 @@ class SocialInteractionCreateTest(TestCase):
                          (
                             'My social interaction',
                           '',
-                          self.socialaccount_2.id
+                          74746464
                          ))
 
         self.request.POST = post
