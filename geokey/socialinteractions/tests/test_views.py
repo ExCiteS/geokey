@@ -138,9 +138,6 @@ class SocialInteractionCreateTest(TestCase):
         self.socialaccount_2 = SocialAccount.objects.create(
             user=self.admin_user, provider='twitter', uid='2')
 
-        print "social accounts 1:", self.socialaccount_1
-        print "social accounts 2:", self.socialaccount_2
-
         self.view = SocialInteractionCreate.as_view()
         self.request = HttpRequest()
         self.request.method = 'GET'
