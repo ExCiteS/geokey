@@ -183,28 +183,28 @@ class SocialInteractionCreateTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
 
-    def test_get_with_admin(self):
-        """
-        Accessing the view with project admin.
+    # def test_get_with_admin(self):
+    #     """
+    #     Accessing the view with project admin.
 
-        It should render the page.
-        """
-        self.request.user = self.admin_user
-        response = self.view(self.request, project_id=self.project.id).render()
+    #     It should render the page.
+    #     """
+    #     self.request.user = self.admin_user
+    #     response = self.view(self.request, project_id=self.project.id).render()
 
-        # rendered = render_to_string(
-        #     'socialinteractions/socialinteraction_create.html',
-        #     {
-        #         'project': self.project,
-        #         'auth_users': [self.socialaccount_2],
-        #         'user': self.admin_user,
-        #         'PLATFORM_NAME': get_current_site(self.request).name,
-        #         'GEOKEY_VERSION': version.get_version()
-        #     }
-        # )
-        self.assertEqual(response.status_code, 200)
-        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
-        # self.assertEqual(response, rendered)
+    #     # rendered = render_to_string(
+    #     #     'socialinteractions/socialinteraction_create.html',
+    #     #     {
+    #     #         'project': self.project,
+    #     #         'auth_users': [self.socialaccount_2],
+    #     #         'user': self.admin_user,
+    #     #         'PLATFORM_NAME': get_current_site(self.request).name,
+    #     #         'GEOKEY_VERSION': version.get_version()
+    #     #     }
+    #     # )
+    #     self.assertEqual(response.status_code, 200)
+    #     response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+    #     # self.assertEqual(response, rendered)
 
     def test_post_with_anonymous(self):
         """
@@ -342,3 +342,114 @@ class SocialInteractionCreateTest(TestCase):
             '/admin/projects/%s/socialinteractions/post/create' % (self.project.id),
             response['location'])
 
+
+@override_settings(INSTALLED_APPS=install_required_apps())
+class SocialInteractionSettingsTest(TestCase):
+    """Test social interaction settings page."""
+
+    def setUp(self):
+        """Set up tests."""
+        self.anonymous_user = AnonymousUser()
+        self.regular_user = UserFactory.create()
+        self.admin_user = UserFactory.create()
+
+        self.project = ProjectFactory.create(creator=self.admin_user)
+
+        self.socialaccount_2 = SocialAccount.objects.create(
+            user=self.admin_user, provider='facebook', uid='2')
+        self.socialaccount_1 = SocialAccount.objects.create(
+            user=self.admin_user, provider='twitter', uid='1')
+        self.socialaccount_3 = SocialAccount.objects.create(
+            user=self.admin_user, provider='twitter', uid='3')
+        self.socialaccounts = [self.socialaccount_2, self.socialaccount_1]
+        self.socialinteraction = SocialInteractionFactory.create(
+            socialaccount=self.socialaccount_1,
+            project=self.project,
+            creator=self.admin_user
+        )
+        self.view = SocialInteractionSettings.as_view()
+        self.request = HttpRequest()
+        self.request.method = 'GET'
+        self.request.user = self.anonymous_user
+
+        setattr(self.request, 'session', 'session')
+        messages = FallbackStorage(self.request)
+        setattr(self.request, '_messages', messages)
+
+    def test_get_with_anonymous(self):
+        """
+        Accessing the view with AnonymousUser.
+
+        It should redirect to the login page.
+        """
+        response = self.view(self.request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/account/login/', response['location'])
+        self.assertEqual(SocialInteraction.objects.count(), 1)
+
+    def test_get_with_user(self):
+        """
+        Accessing the view with normal user.
+
+        It should render the page with an error message.
+        """
+        self.request.user = self.regular_user
+        response = self.view(
+            self.request,
+            project_id=self.project.id,
+            socialinteraction_id=self.socialinteraction.id
+        ).render()
+
+        rendered = render_to_string(
+            'socialinteractions/socialinteraction_settings.html',
+            {
+                'error_description': 'Project matching query does not exist.',
+                'error': 'Not found.',
+                'user': self.regular_user,
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+    def test_get_with_admin(self):
+        """
+        Accessing the view with project admin.
+
+        It should render the page.
+        """
+        socialaccounts_log = SocialAccount.objects.filter(
+            user=self.admin_user,
+            provider__in=[id for id, name in registry.as_choices()
+                          if id in ['twitter', 'facebook']]
+        )
+        self.socialinteraction.creator = self.admin_user
+        self.socialinteraction.project = self.project
+        self.request.user = self.socialinteraction.creator
+        self.socialinteraction.save()
+        response = self.view(
+            self.request,
+            project_id=self.project.id,
+            socialinteraction_id=self.socialinteraction.id
+        ).render()
+
+        socialaccounts_log = SocialAccount.objects.filter(
+            user=self.admin_user,
+            provider__in=[id for id, name in registry.as_choices()
+                          if id in ['twitter', 'facebook']]
+        )
+        rendered = render_to_string(
+            'socialinteractions/socialinteraction_settings.html',
+            {
+                'project': self.socialinteraction.project,
+                'auth_users': socialaccounts_log,
+                'user': self.admin_user,
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
