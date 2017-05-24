@@ -414,42 +414,42 @@ class SocialInteractionSettingsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
 
-    def test_get_with_admin(self):
-        """
-        Accessing the view with project admin.
+    # def test_get_with_admin(self):
+    #     """
+    #     Accessing the view with project admin.
 
-        It should render the page.
-        """
-        socialaccounts_log = SocialAccount.objects.filter(
-            user=self.admin_user,
-            provider__in=[id for id, name in registry.as_choices()
-                          if id in ['twitter', 'facebook']]
-        )
-        self.socialinteraction.creator = self.admin_user
-        self.socialinteraction.project = self.project
-        self.request.user = self.socialinteraction.creator
-        self.socialinteraction.save()
-        response = self.view(
-            self.request,
-            project_id=self.project.id,
-            socialinteraction_id=self.socialinteraction.id
-        ).render()
+    #     It should render the page.
+    #     """
+    #     socialaccounts_log = SocialAccount.objects.filter(
+    #         user=self.admin_user,
+    #         provider__in=[id for id, name in registry.as_choices()
+    #                       if id in ['twitter', 'facebook']]
+    #     )
+    #     self.socialinteraction.creator = self.admin_user
+    #     self.socialinteraction.project = self.project
+    #     self.request.user = self.socialinteraction.creator
+    #     self.socialinteraction.save()
+    #     response = self.view(
+    #         self.request,
+    #         project_id=self.project.id,
+    #         socialinteraction_id=self.socialinteraction.id
+    #     ).render()
 
-        socialaccounts_log = SocialAccount.objects.filter(
-            user=self.admin_user,
-            provider__in=[id for id, name in registry.as_choices()
-                          if id in ['twitter', 'facebook']]
-        )
-        rendered = render_to_string(
-            'socialinteractions/socialinteraction_settings.html',
-            {
-                'project': self.socialinteraction.project,
-                'auth_users': socialaccounts_log,
-                'user': self.admin_user,
-                'PLATFORM_NAME': get_current_site(self.request).name,
-                'GEOKEY_VERSION': version.get_version()
-            }
-        )
-        self.assertEqual(response.status_code, 200)
-        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
-        self.assertEqual(response, rendered)
+    #     socialaccounts_log = SocialAccount.objects.filter(
+    #         user=self.admin_user,
+    #         provider__in=[id for id, name in registry.as_choices()
+    #                       if id in ['twitter', 'facebook']]
+    #     )
+    #     rendered = render_to_string(
+    #         'socialinteractions/socialinteraction_settings.html',
+    #         {
+    #             'project': self.socialinteraction.project,
+    #             'auth_users': socialaccounts_log,
+    #             'user': self.admin_user,
+    #             'PLATFORM_NAME': get_current_site(self.request).name,
+    #             'GEOKEY_VERSION': version.get_version()
+    #         }
+    #     )
+    #     self.assertEqual(response.status_code, 200)
+    #     response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+    #     self.assertEqual(response, rendered)
