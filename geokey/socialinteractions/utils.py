@@ -9,19 +9,27 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "local_settings.settings")
 django.setup()
 
 import tweepy
-
 from allauth.socialaccount.models import SocialToken, SocialApp
-
 from geokey.socialinteractions.models import SocialInteractionPull
 from geokey.categories.models import Category, TextField, Field
 from geokey.contributions.models import Observation, Location
 
 from datetime import timedelta
-# import datetime
-from .base import freq_dic
 
 from django.utils import timezone
 
+
+freq_dic = {
+    '5min': 0.083,
+    '10min': 0.17,
+    '20min': 0.33,
+    '30min': 0.5,
+    'hourly': 1,
+    'daily': 24,
+    'weekly': 168,
+    'fornightly': 336,
+    'monthly': 672
+}
 
 def check_dates(updated_at, frequency):
     """Check if data the SI Pull needs to be updated."""
@@ -40,10 +48,8 @@ def check_dates(updated_at, frequency):
 
 def start2pull():
     """Start pulling data from Twitter."""
-
     si_pull_all = SocialInteractionPull.objects.filter(status='active')
     for si_pull in si_pull_all:
-
         socialaccount = si_pull.socialaccount
         provider = socialaccount.provider
         app = SocialApp.objects.get(provider=provider)
@@ -71,7 +77,6 @@ def start2pull():
             tweet_cat, text_field = get_category_and_field(
                 project,
                 socialaccount)
-
             for geo_tweet in all_tweets:
                 if si_pull.since_id == None:
                     create_new_observation(
@@ -81,7 +86,7 @@ def start2pull():
                         text_field)
 
                     since_at = geo_tweet['id']
-                    if geo_tweet['id'] > since_at:
+                    if int(geo_tweet['id']) > int(since_at):
                         since_at = geo_tweet['id']
 
                     si_pull.updated_at = timezone.now()
@@ -89,8 +94,7 @@ def start2pull():
                     si_pull.save()
 
                 else:
-                    if int(geo_tweet['id']) < int(si_pull.since_id):
-
+                    if int(geo_tweet['id']) > int(si_pull.since_id):
                         create_new_observation(
                             si_pull,
                             geo_tweet,
@@ -98,7 +102,7 @@ def start2pull():
                             text_field)
 
                         since_at = geo_tweet['id']
-                        if geo_tweet['id'] > since_at:
+                        if int(geo_tweet['id']) > int(since_at):
                             since_at = geo_tweet['id']
 
                         si_pull.updated_at = timezone.now()
@@ -231,3 +235,5 @@ def pull_from_social_media(provider, access_token, text_to_pull, app):
                     all_tweets.append(new_contribution)
 
     return all_tweets
+
+start2pull()
