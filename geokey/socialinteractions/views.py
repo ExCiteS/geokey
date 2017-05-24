@@ -19,7 +19,7 @@ from geokey.projects.models import Project
 from geokey.projects.views import ProjectContext
 
 from .models import SocialInteraction, SocialInteractionPull
-from .base import FREQUENCY, STATUS
+from .base import FREQUENCY, STATUS, freq_dic
 
 import tweepy
 
@@ -282,8 +282,6 @@ class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
             user=self.request.user,
             provider__in=['twitter', 'facebook'])
 
-        print "arredeu", SocialInteractionPull.objects.all()
-
         context["auth_users"] = auth_users
         return context
 
@@ -451,16 +449,7 @@ class SocialInteractionPullCreate(LoginRequiredMixin, ProjectContext,
         django.http.HttpResponse
             Rendered template, if project or social interaction does not exist.
         """
-        print "works works works"
         data = request.POST
-        context = self.get_context_data(project_id)
-
-        # socialinteraction = context.get('socialinteraction')
-
-        # socialinteraction.text_to_post = data.get('text_post')
-        # socialinteraction.save()
-
-
         context = self.get_context_data(project_id)
         project = context.get('project')
 
@@ -490,7 +479,7 @@ class SocialInteractionPullCreate(LoginRequiredMixin, ProjectContext,
                     project_id=project_id
                 )
 
-            socialinteraction = SocialInteractionPull.objects.create(
+            SocialInteractionPull.objects.create(
                 text_to_pull=strip_tags(data.get('text_pull')),
                 creator=request.user,
                 project=project,
@@ -507,7 +496,7 @@ class SocialInteractionPullCreate(LoginRequiredMixin, ProjectContext,
 
             messages.success(
                 self.request,
-                mark_safe('The social interaction has been created.<a href="%s"> Add another social interaction.</a>' % add_another_url)
+                mark_safe('The social interaction has been created.<a href="%s"> Add pull from social media task.</a>' % add_another_url)
             )
 
             return redirect(
@@ -549,7 +538,6 @@ class SocialInteractionPullContext(object):
         try:
             socialinteraction_pull = project.socialinteractions_pull.get(
                 pk=socialinteractionpull_id)
-            print "socialinteraction_pull", socialinteraction_pull.text_to_pull
 
         except:
             messages.error(
@@ -581,18 +569,16 @@ class SocialInteractionPullSettings(LoginRequiredMixin, SocialInteractionPullCon
             **kwargs
         )
 
-        for i in context:
-            print "u" , i
         auth_users = SocialAccount.objects.filter(
             user=self.request.user,
             provider__in=['twitter', 'facebook'])
 
         context["auth_users"] = auth_users
-        print "pagasgashas", type(FREQUENCY)
-        freq = ['5min', '10min', '20min', '30min','hourly', 'daily','weekly', 'monthly',  'forthnightly']
-        status_types = ['active', 'inactive']
+        refund_dict = {value: key for key, value in STATUS}
+        status_types = refund_dict.keys()
+
         context['status_types'] = status_types
-        context["freq"] = freq
+        context["freq"] = freq_dic.keys()
 
         return context
 
@@ -625,96 +611,19 @@ class SocialInteractionPullSettings(LoginRequiredMixin, SocialInteractionPullCon
         socialaccount = SocialAccount.objects.get(id=socialaccount_id)
 
         status = data.get('status_type')
-        print "status", status
 
         if text_pull != si_pull.text_to_pull:
             si_pull.text_to_pull = text_pull
         if si_pull.frequency != frequency:
             si_pull.frequency = frequency
-        if si_pull.socialaccount == socialaccount:
+        if si_pull.socialaccount != socialaccount:
             si_pull.socialaccount = socialaccount
         if si_pull.status != status:
-            print "ole ole"
             si_pull.status = status
         si_pull.save()
 
-        print "frequency after", si_pull.frequency
-
         socialaccount = si_pull.socialaccount
-        print "OOOOO", text_pull, frequency, socialaccount
 
-        # socialaccount = SocialAccount.objects.get(id=socialaccount.id)
-        # provider = socialaccount.provider
-        # app = SocialApp.objects.get(provider=provider)
-        # access_token = SocialToken.objects.get(
-        #     account__id=socialaccount.id,
-        #     account__user=socialaccount.user,
-        #     account__provider=app.provider
-        # )
-
-        # all_tweets = pull_from_social_media_workshop(
-        #     provider,
-        #     access_token,
-        #     text_pull,
-        #     app)
-        # from .utils import start2pull
-
-        # start2pull()
-
-
-        # geometry = all_tweets[0]['geometry']
-        # point = 'POINT(' + str(geometry['coordinates'][0]) + ' ' + str(geometry['coordinates'][1]) +')'
-        # new_loc = Location.objects.create(
-        #     geometry=point,
-        #     creator=socialaccount.user
-        # )
-
-        # if len(all_tweets) > 1:
-        #     try:
-        #         print "try"
-        #         tweet_cat = Category.objects.get(name='tweetsffff')
-        #         print "category", tweet_cat
-        #     except:
-        #         print "except"
-        #         tweet_cat = Category.objects.create(
-        #             name='tweeffffffdts',
-        #             project=project,
-        #             creator=socialaccount.user)
-        #     text_field = TextField.objects.create(category=tweet_cat)
-        # #text_field = Field.objects.filter(category=tweet_cat)
-        # for geo_tweet in all_tweets:
-        #     coordinates = geo_tweet['geometry']['coordinates']
-        #     point = 'POINT(' + str(coordinates[0]) + ' ' + str(coordinates[1]) +')'
-        #     #text_field.value = geo_tweet['text']
-        #     #print "text_field", text_field.value
-        #     new_loc = Location.objects.create(
-        #         geometry=point,
-        #         creator=socialaccount.user)
-        #     new_observation = Observation.objects.create(
-        #         location=new_loc,
-        #         project=project,
-        #         creator=socialaccount.user,
-        #         category=tweet_cat)
-        #     properties = {
-        #         text_field.key: geo_tweet['text']
-        #     }
-        #     new_observation.properties = properties
-        #     new_observation.save()
-
-        #     # if 'url' in geo_tweet:
-        #     #     print "yujuu URL"
-        #     #     MediaFile.objects.create(
-        #     #         name="tweet",
-        #     #         contribution=new_observation.id,
-        #     #         creator=socialaccount.user
-        #     #     )
-        #     # new_comment = Comment.objects.create(
-        #     #     text=geo_tweet['text'],
-        #     #     commentto=new_observation,
-        #     #     creator_id=socialaccount.user.id)
-        #     # new_comment.save()
-        # context['logs'] = all_tweets
-        # print "merda pa tots"
         return self.render_to_response(context)
 
 
@@ -730,7 +639,6 @@ class SocialInteractionPullDelete(LoginRequiredMixin, SocialInteractionPullConte
         try:
             context = self.get_context_data(project_id, socialinteractionpull_id)
             socialinteraction_pull = context.get('socialinteraction_pull')
-            print "hehe"
         except:
             messages.error(
                 self.request, 'The social account is not found.'
@@ -816,7 +724,6 @@ def pull_from_social_media_workshop(provider,access_token,text_to_pull,app):
                     new_contribution['geometry'] =  mention.coordinates
                     if 'media' in mention.entities: ## gets when is media attached to it
                         for image in mention.entities['media']:
-                            print "yes"
                             new_contribution['url'] = image['url']
 
                     all_tweets.append(new_contribution)
@@ -838,7 +745,6 @@ def pull_from_social_media(provider,access_token,text_to_pull,app):
 
         try:
             # tweets_all = api.mentions_timeline(count=100)
-            print "ofoao0", text_to_pull
             # tweets_all = api.search(q="#Brexit", geocode="51.5074 -0.1278 100mi", count=100)
             tweets_all = api.search(q="#Brexit")
         except:
@@ -847,7 +753,6 @@ def pull_from_social_media(provider,access_token,text_to_pull,app):
         all_tweets = []
         for mention in tweets_all:
             new_contribution = {}
-            print mention.id
             new_contribution['text'] = mention.text
             new_contribution['user'] = mention.user.name
             new_contribution['created_at'] = mention.created_at
@@ -858,11 +763,8 @@ def pull_from_social_media(provider,access_token,text_to_pull,app):
                     lon = mention.coordinates['coordinates'][1]
                     lat = mention.coordinates['coordinates'][0]
                     new_contribution['geometry'] = {"lat":lat, "lon":lon}
-
-                    print "\t", lat,lon, geotype
                     if 'media' in mention.entities: ## gets when is media attached to it
                         for image in mention.entities['media']:
-                            print "\t","\t","yee", mention.id, image['url']
                             new_contribution['url'] = image['url']
             all_tweets.append(new_contribution)
 
