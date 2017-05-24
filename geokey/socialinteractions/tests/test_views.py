@@ -121,6 +121,7 @@ class SocialInteractionsListTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
 
+
 @override_settings(INSTALLED_APPS=install_required_apps())
 class SocialInteractionCreateTest(TestCase):
     """Test creating a new social interaction."""
@@ -135,9 +136,7 @@ class SocialInteractionCreateTest(TestCase):
         self.socialaccount_1 = SocialAccount.objects.create(
             user=self.regular_user, provider='facebook', uid='1')
         self.socialaccount_2 = SocialAccount.objects.create(
-            user=self.admin_user, provider='facebook', uid='2')
-        self.socialaccount_3 = SocialAccount.objects.create(
-            user=self.admin_user, provider='google', uid='3')
+            user=self.admin_user, provider='twitter', uid='2')
 
         self.view = SocialInteractionCreate.as_view()
         self.request = HttpRequest()
@@ -251,3 +250,91 @@ class SocialInteractionCreateTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
         self.assertEqual(0, SocialInteraction.objects.count())
+
+    def test_post_with_admin(self):
+        """
+        Updating with project admin.
+
+        It should create the social interaction and redirect to the social
+        interaction settings page.
+        """
+        self.request.method = 'POST'
+        post = QueryDict('name=%s&description=''%s&socialaccount=%s' %
+                         (
+                          'My social interaction',
+                          '',
+                          self.socialaccount_2.id
+                         ))
+
+        self.request.POST = post
+
+        self.request.user = self.admin_user
+        response = self.view(self.request, project_id=self.project.id)
+        print "it's sure we are testing?"
+        self.assertEqual(1, SocialInteraction.objects.count())
+        socialinteraction = SocialInteraction.objects.first()
+        self.assertEqual(socialinteraction.name, 'My social interaction')
+        self.assertEqual(socialinteraction.description, '')
+        self.assertEqual(socialinteraction.project, self.project)
+        self.assertEqual(socialinteraction.creator, self.admin_user)
+        self.assertEqual(self.socialaccount_2, socialinteraction.socialaccount)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(
+            '/admin/projects/%s/socialinteractions/posts/%s/settings' % (
+                self.project.id, socialinteraction.id),
+            response['location']
+        )
+
+    def test_post_on_locked_project_with_admin(self):
+        """
+        Updating with project admin when the project is locked.
+
+        It should redirect to creating a new social interaction page.
+        """
+        self.request.method = 'POST'
+        post = QueryDict('name=%s&description=''%s&socialaccount=%s' %
+                         (
+                          'My social interaction',
+                          '',
+                          self.socialaccount_2.id
+                         ))
+
+        self.request.POST = post
+        self.project.islocked = True
+        self.project.save()
+
+        self.request.user = self.admin_user
+        response = self.view(self.request, project_id=self.project.id)
+
+        self.assertEqual(0, SocialInteraction.objects.count())
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(
+            '/admin/projects/%s/socialinteractions/post/create' % (self.project.id),
+            response['location']
+        )
+
+    def test_post_when_social_accounts_do_not_exist_with_admin(self):
+        """
+        Updating with project admin when the social account is not found.
+
+        It should redirect to creating a new social interaction page.
+        """
+        self.request.method = 'POST'
+        post = QueryDict('name=%s&description=''%s&socialaccount=%s' %
+                         (
+                          'My social interaction',
+                          '',
+                          self.socialaccount_2.id
+                         ))
+
+        self.request.POST = post
+
+        self.request.user = self.admin_user
+        response = self.view(self.request, project_id=self.project.id)
+
+        self.assertEqual(0, SocialInteraction.objects.count())
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(
+            '/admin/projects/%s/socialinteractions/post/create' % (self.project.id),
+            response['location']
