@@ -42,13 +42,8 @@ data-project-locked="{{ project.islocked }}"
 
                 <li>
                     <h4>
-                        {% if si_pull.status == 'inactive' %}<span class="glyphicon glyphicon-pause" aria-hidden="true"></span>{% else %}<span class="glyphicon glyphicon-play-circle">  </span>{% endif %} <a href="{% url 'admin:socialinteraction_pull' project.id si_pull.id %}">{{ si_pull.socialaccount.get_provider_account }} {{ si_pull.text_to_pull }}</a>
+                        <div>{% if si_pull.status == 'inactive' %}<span class="glyphicon glyphicon-pause" aria-hidden="true"></span>{% else %}<span class="glyphicon glyphicon-play-circle">  </span>{% endif %} <a href="{% url 'admin:socialinteraction_pull' project.id si_pull.id %}">@{{ si_pull.socialaccount.get_provider_account }} </a>{{ si_pull.text_to_pull }}</div>
                     </h4>
-                    {{si_pull.frequency}}
-                    {{si_pull.since_id}}
-                    {{si_pull.updated_at}} <br>
-                    {{si_pull.created_at}}
-
                 </li>
 
                 {% if forloop.last %}
