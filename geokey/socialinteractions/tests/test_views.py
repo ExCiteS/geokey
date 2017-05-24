@@ -134,7 +134,7 @@ class SocialInteractionCreateTest(TestCase):
 
         self.project = ProjectFactory.create(creator=self.admin_user)
         self.socialaccount_1 = SocialAccount.objects.create(
-            user=self.regular_user, provider='facebook', uid='1')
+            user=self.admin_user, provider='facebook', uid='1')
         self.socialaccount_2 = SocialAccount.objects.create(
             user=self.admin_user, provider='facebook', uid='2')
 
@@ -193,7 +193,7 @@ class SocialInteractionCreateTest(TestCase):
             'socialinteractions/socialinteraction_create.html',
             {
                 'project': self.project,
-                'socialaccounts': self.socialaccount_2,
+                'socialaccount': self.socialaccount_2,
                 'user': self.admin_user,
                 'PLATFORM_NAME': get_current_site(self.request).name,
                 'GEOKEY_VERSION': version.get_version()
