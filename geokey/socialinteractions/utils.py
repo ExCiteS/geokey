@@ -225,4 +225,4 @@ def pull_from_social_media(provider, access_token, text_to_pull, app):
 
     return all_tweets
 
-start2pull()
+# start2pull()
