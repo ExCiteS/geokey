@@ -361,7 +361,6 @@ class SocialInteractionSettingsTest(TestCase):
             user=self.admin_user, provider='twitter', uid='1')
         self.socialaccount_3 = SocialAccount.objects.create(
             user=self.admin_user, provider='twitter', uid='3')
-        self.socialaccounts = [self.socialaccount_2, self.socialaccount_1]
         self.socialinteraction = SocialInteractionFactory.create(
             socialaccount=self.socialaccount_1,
             project=self.project,
@@ -453,3 +452,72 @@ class SocialInteractionSettingsTest(TestCase):
     #     self.assertEqual(response.status_code, 200)
     #     response = render_helpers.remove_csrf(response.content.decode('utf-8'))
     #     self.assertEqual(response, rendered)
+
+    def test_post_with_anonymous(self):
+        """
+        Updating with AnonymousUser.
+
+        It should redirect to the login page.
+        """
+        self.request.method = 'POST'
+        post = QueryDict('name=%s&description=''%s&socialaccount=%s' % (
+            'New Name',
+            'New Description',
+            self.socialaccount_3.id,
+        ))
+
+        self.request.POST = post
+        response = self.view(
+            self.request,
+            project_id=self.socialinteraction.project.id,
+            socialinteraction_id=self.socialinteraction.id)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/account/login/', response['location'])
+
+        reference = SocialInteraction.objects.get(pk=self.socialinteraction.id)
+        self.assertNotEqual(reference.name, 'New Name')
+        self.assertNotEqual(reference.description, 'New Description')
+        socialaccounts = reference.socialaccounts.all()
+        self.assertNotIn(self.socialaccount_3, socialaccounts)
+
+    def test_post_with_user(self):
+        """
+        Updating with normal user.
+
+        It should render the page with an error message.
+        """
+        self.request.method = 'POST'
+        post = QueryDict('name=%s&description=''%s&socialaccount=%s' % (
+            'New Name',
+            'New Description',
+            self.socialaccount_3.id,
+        ))
+
+        self.request.POST = post
+
+        self.request.user = self.regular_user
+        response = self.view(
+            self.request,
+            project_id=self.project.id,
+            socialinteraction_id=self.socialinteraction.id
+        ).render()
+
+        rendered = render_to_string(
+            'socialinteractions/socialinteraction_settings.html',
+            {
+                'error_description': 'Project matching query does not exist.',
+                'error': 'Not found.',
+                'user': self.regular_user,
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
+        reference = SocialInteraction.objects.get(pk=self.socialinteraction.id)
+        self.assertNotEqual(reference.name, 'New Name')
+        self.assertNotEqual(reference.description, 'New Description')
+        socialaccounts = reference.socialaccounts.all()
+        self.assertNotIn(self.socialaccount_3, socialaccounts)
