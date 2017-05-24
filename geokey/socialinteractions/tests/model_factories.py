@@ -10,7 +10,7 @@ from geokey.projects.tests.model_factories import ProjectFactory
 from ..models import SocialInteraction, SocialInteractionPull
 
 
-class SocialInteractionFactoryFactory(factory.django.DjangoModelFactory):
+class SocialInteractionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = SocialInteraction
 
