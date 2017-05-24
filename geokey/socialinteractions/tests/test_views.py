@@ -18,7 +18,7 @@ from geokey.core.tests.helpers import render_helpers
 from geokey.users.tests.model_factories import UserFactory
 from geokey.projects.tests.model_factories import ProjectFactory
 
-from allauth.compat import importlib
+import importlib
 
 from .model_factories import SocialInteractionFactory
 from ..models import SocialInteraction
