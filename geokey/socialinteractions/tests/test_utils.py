@@ -114,7 +114,10 @@ class CreateNewObservationTest(TestCase):
         self.si_pull = SocialInteractionPullFactory(
             socialaccount=self.socialaccount,
             project=self.project,
+            creator=self.admin,
             text_to_pull='#Project2')
+
+        print "si_pull", self.si_pull
 
         self.geo_tweet = {
             'geometry':
@@ -137,4 +140,3 @@ class CreateNewObservationTest(TestCase):
         )
 
         self.assertNotEqual(init_obs, Observation.objects.all())
-
