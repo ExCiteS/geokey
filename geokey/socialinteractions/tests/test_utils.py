@@ -129,7 +129,7 @@ class CreateNewObservationTest(TestCase):
     def test_method_create_new_observation(self):
         """Test for method 'create_new_observation'."""
 
-        init_obs = Observation.objects.all()
+        init_obs = Observation.objects.count()
 
         create_new_observation(
             self.si_pull,
@@ -137,6 +137,6 @@ class CreateNewObservationTest(TestCase):
             self.category,
             self.field_text
         )
-        observation = [Observation.objects.all()]
-        self.assertEqual(init_obs + 1, len(observation))
+
+        self.assertEqual(init_obs + 1, Observation.objects.count())
 
