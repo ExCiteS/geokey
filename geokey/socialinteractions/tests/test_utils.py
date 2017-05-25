@@ -118,13 +118,21 @@ class CreateNewObservationTest(TestCase):
 
         print "si_pull", self.si_pull
 
-        self.geo_tweet = {
+        self.geo_tweet = [{
             'geometry':
                 {u'type': u'Point', u'coordinates': [-0.1350858, 51.5246635]},
             'text': u'#Project2 scorpion @adeuonce',
             'created_at': datetime(2017, 5, 23, 14, 43, 1),
             'id': 867028097530572801,
+            'user': u'Pepito Grillo'},
+            {
+            'geometry':
+                {u'type': u'Point', u'coordinates': [-0.1350, 51.77]},
+            'text': u'#Project2 sagitario @GeoKeyTrece',
+            'created_at': datetime(2017, 5, 23, 15, 43, 1),
+            'id': 867028097530572801,
             'user': u'Pepito Grillo'}
+            ]
 
     def test_method_create_new_observation(self):
         """Test for method 'create_new_observation'."""
@@ -137,6 +145,6 @@ class CreateNewObservationTest(TestCase):
             self.category,
             self.field_text
         )
-
-        self.assertEqual(init_obs + 1, len(Observation.objects.all()))
+        observations = Observation.objects.all()
+        self.assertEqual(init_obs + 2, len(observations))
 
