@@ -31,7 +31,5 @@ class SocialInteractionPullFactory(factory.django.DjangoModelFactory):
     text_to_post = factory.LazyAttribute(lambda o: '%s Text_text' % o.name)
     project = factory.SubFactory(ProjectFactory)
     status = 'active'
-    description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     socialaccount = SocialAccount()
     frequency = '5min'
-    socialaccount = SocialAccount()
