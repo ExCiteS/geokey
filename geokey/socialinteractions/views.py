@@ -336,7 +336,7 @@ class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
                 socialinteraction.name = strip_tags(data.get('name'))
                 socialinteraction.description = strip_tags(data.get('description'))
                 socialinteraction.socialaccount = SocialAccount.objects.get(
-                    pk=data.get('socialaccount'))
+                    id=data.get('socialaccount'))
                 socialinteraction.save()
 
                 messages.success(self.request, 'The social interaction has been updated.')
