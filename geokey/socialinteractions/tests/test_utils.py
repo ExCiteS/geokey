@@ -44,7 +44,7 @@ class GetCategoryAndFieldTest(TestCase):
     def setUp(self):
         """Set up for test method get_category_and_field."""
         self.admin = UserFactory.create()
-        self.project = ProjectFactory.create(creator=self.admin_user)
+        self.project = ProjectFactory.create(creator=self.admin)
 
         self.socialaccount = SocialAccount.objects.create(
             user=self.admin, provider='facebook', uid='1')
