@@ -16,7 +16,7 @@ from geokey.categories.tests.model_factories import CategoryFactory, TextFieldFa
 
 from geokey.users.tests.model_factories import UserFactory
 from geokey.projects.tests.model_factories import ProjectFactory
-from geokey.socialinteractions.tests.models_factories import SocialInteractionPullFactory
+from geokey.socialinteractions.tests.model_factories import SocialInteractionPullFactory
 from geokey.contributions.models import Observation
 
 from datetime import timedelta, datetime
@@ -125,6 +125,7 @@ class CreateNewObservationTest(TestCase):
             'user': u'Pepito Grillo'}
 
     def test_method_create_new_observation(self):
+        """Test for method 'create_new_observation'."""
 
         init_obs = Observation.objects.all()
 
