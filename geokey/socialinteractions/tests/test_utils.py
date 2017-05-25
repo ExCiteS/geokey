@@ -116,8 +116,6 @@ class CreateNewObservationTest(TestCase):
             project=self.project,
             creator=self.admin)
 
-        print "si_pull", self.si_pull
-
         self.geo_tweet = {
             'geometry':
                 {u'type': u'Point', u'coordinates': [-0.1350858, 51.5246635]},
