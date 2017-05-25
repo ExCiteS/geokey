@@ -546,9 +546,10 @@ class SocialInteractionSettingsTest(TestCase):
 
         socialaccounts_log = SocialAccount.objects.filter(
             user=self.request.user,
-            provider__in=[id for id, name in registry.as_choices()
-                          if id in ['twitter', 'facebook']]
+            provider__in=['twitter', 'facebook']
         )
+        print "socialaccounts_log", socialaccounts_log
+
         reference = reference = SocialInteraction.objects.get(
             pk=self.socialinteraction.id)
         self.assertEqual(reference.name, 'New Name')
