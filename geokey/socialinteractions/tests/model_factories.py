@@ -28,7 +28,7 @@ class SocialInteractionPullFactory(factory.django.DjangoModelFactory):
         model = SocialInteractionPull
 
     creator = factory.SubFactory(UserFactory)
-    text_to_post = '#Project2'
+    text_to_pull = '#Project2'
     project = factory.SubFactory(ProjectFactory)
     status = 'active'
     socialaccount = SocialAccount()

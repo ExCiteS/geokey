@@ -112,7 +112,9 @@ class CreateNewObservationTest(TestCase):
         )
 
         self.si_pull = SocialInteractionPullFactory.create(
-            socialaccount=self.socialaccount)
+            socialaccount=self.socialaccount,
+            project=self.project,
+            creator=self.admin)
 
         print "si_pull", self.si_pull
 
@@ -136,4 +138,9 @@ class CreateNewObservationTest(TestCase):
             self.field_text
         )
 
+        observation = Observation.objects.all()
         self.assertEqual(init_obs + 1, Observation.objects.all())
+        self.assertEqual(observation.project, self.project)
+        self.assertEqual(observation.socialaccount, self.socialaccount)
+        self.asserEqual(observation.creator, self.admin)
+
