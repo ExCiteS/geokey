@@ -518,3 +518,57 @@ class SocialInteractionSettingsTest(TestCase):
         self.assertNotEqual(reference.description, 'New Description')
         socialaccount = reference.socialaccount
         self.assertNotEqual(self.socialaccount_3, socialaccount)
+
+    def test_post_with_admin(self):
+        """
+        Updating with project admin.
+
+        It should render the page with a success message.
+        """
+        self.socialinteraction.creator = self.admin_user
+        self.socialinteraction.project = self.project
+        self.request.user = self.socialinteraction.creator
+        self.socialinteraction.save()
+        self.request.method = 'POST'
+        self.request.user = self.admin_user
+        post = QueryDict('name=%s&description=%s&socialaccounts=%s' % (
+            'New Name',
+            'New Description',
+            self.socialaccount_3.id
+        )
+        )
+        self.request.POST = post
+        response = self.view(
+            self.request,
+            project_id=self.project.id,
+            socialinteraction_id=self.socialinteraction.id
+        ).render()
+
+        socialaccounts_log = SocialAccount.objects.filter(
+            user=self.request.user,
+            provider__in=[id for id, name in registry.as_choices()
+                          if id in ['twitter', 'facebook']]
+        )
+        reference = reference = SocialInteraction.objects.get(
+            pk=self.socialinteraction.id)
+        self.assertEqual(reference.name, 'New Name')
+        self.assertEqual(reference.description, 'New Description')
+
+        rendered = render_to_string(
+            'socialinteractions/socialinteraction_settings.html',
+            {
+                'project': self.project,
+                'socialinteraction': reference,
+                'auth_users': socialaccounts_log,
+                'user': reference.creator,
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version(),
+                'messages': get_messages(self.request)
+            }
+        )
+        socialaccount = reference.socialaccount
+        self.assertNotEqual(self.socialaccount_2, socialaccount)
+        self.assertEqual(self.socialaccount_3, socialaccount)
+        self.assertEqual(response.status_code, 200)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
