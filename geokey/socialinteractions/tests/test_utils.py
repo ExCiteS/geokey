@@ -136,4 +136,4 @@ class CreateNewObservationTest(TestCase):
             self.field_text
         )
 
-        self.assertNotEqual(init_obs, Observation.objects.all())
+        self.assertEqual(init_obs + 1, Observation.objects.all())
