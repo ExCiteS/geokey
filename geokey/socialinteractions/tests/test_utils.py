@@ -26,6 +26,6 @@ class CheckDatesTest(TestCase):
 
         self.assertEqual(True, value_true)
 
-        value_false = check_dates(updated_at, '5min')
+        value_false = check_dates(updated_at, 'daily')
 
         self.assertNotEqual(True, value_false)
