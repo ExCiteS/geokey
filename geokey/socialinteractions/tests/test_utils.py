@@ -81,7 +81,7 @@ class GetCategoryAndFieldTest(TestCase):
             self.socialaccount)
 
         self.assertNotEqual(tweet_cat.id, self.category.id)
-        self.assertNotEqual(tweet_cat.name, self.category.name)
+        self.assertEqual(tweet_cat.name, self.category.name)
 
         self.assertNotEqual(text_field.id, self.field_text.id)
-        self.assertNotEqual(text_field.name, self.field_text.name)
+        self.assertEqual(text_field.name, self.field_text.name)
