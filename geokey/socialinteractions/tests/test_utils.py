@@ -92,7 +92,7 @@ class GetCategoryAndFieldTest(TestCase):
 class CreateNewObservationTest(TestCase):
     """test for method 'create_new_observation'."""
 
-    def setup(self):
+    def setUp(self):
         """Set up test method 'create_new_observation'"""
 
         self.admin = UserFactory.create()
