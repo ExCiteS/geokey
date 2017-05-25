@@ -12,7 +12,7 @@ from geokey.socialinteractions.utils import (
     get_category_and_field,
     pull_from_social_media
 )
-from geokey.categories.tests.model_factories import CategoryFactory
+from geokey.categories.tests.model_factories import CategoryFactory, TextFieldFactory
 
 from geokey.users.tests.model_factories import UserFactory
 from geokey.projects.tests.model_factories import ProjectFactory
@@ -40,7 +40,7 @@ class CheckDatesTest(TestCase):
 
 class GetCategoryAndFieldTest(TestCase):
     """Test for 'get_category_and_field'."""
-
+        """Set up for test method get_category_and_field."""
     def setUp(self):
 
         self.admin = UserFactory.create()
@@ -57,8 +57,13 @@ class GetCategoryAndFieldTest(TestCase):
             project=self.project
         )
 
-        """Check if provides data when category and field exists."""
+        self.field_text = TextFieldFactory.create(
+            name='tweet',
+            category=self.category
+        )
 
+    def test_method_when_check_when_category_and_field_exists(self):
+        """Check if provides data when category and field exists."""
         tweet_cat, text_field = get_category_and_field(
             self.project,
             self.socialaccount)
@@ -66,6 +71,8 @@ class GetCategoryAndFieldTest(TestCase):
         self.assertEqual(tweet_cat.id, self.category.id)
         self.assertEqual(tweet_cat.name, self.category.name)
 
+        self.assertEqual(text_field.id, self.field_text.id)
+        self.assertEqual(text_field.name, self.field_text.name)
 
 
 
