@@ -532,7 +532,7 @@ class SocialInteractionSettingsTest(TestCase):
         print "social_interaction_id", self.socialinteraction.id
         self.request.method = 'POST'
         self.request.user = self.admin_user
-        post = QueryDict('name=%s&description=%s&socialaccounts=%s' % (
+        post = QueryDict('name=%s&description=%s&socialaccount=%s' % (
             'New Name',
             'New Description',
             self.socialaccount_3.id
