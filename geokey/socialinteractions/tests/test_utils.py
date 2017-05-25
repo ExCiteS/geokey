@@ -22,6 +22,9 @@ class CheckDatesTest(TestCase):
         now = timezone.now()
         updated_at = now - timedelta(minutes=10)
 
+        print "now", now
+        print "updated_at", updated_at
+
         value_true = check_dates(updated_at, '5min')
 
         self.assertEqual(True, value_true)
