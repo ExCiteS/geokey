@@ -529,6 +529,7 @@ class SocialInteractionSettingsTest(TestCase):
         self.socialinteraction.project = self.project
         self.request.user = self.socialinteraction.creator
         self.socialinteraction.save()
+        print "social_interaction_id", self.socialinteraction.id
         self.request.method = 'POST'
         self.request.user = self.admin_user
         post = QueryDict('name=%s&description=%s&socialaccounts=%s' % (
