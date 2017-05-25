@@ -538,6 +538,8 @@ class SocialInteractionSettingsTest(TestCase):
             self.socialaccount_3.id
         )
         )
+        print "provider", self.socialaccount_1.provider
+        print "provider", self.socialaccount_2.provider
         self.request.POST = post
         response = self.view(
             self.request,
