@@ -40,9 +40,9 @@ class CheckDatesTest(TestCase):
 
 class GetCategoryAndFieldTest(TestCase):
     """Test for 'get_category_and_field'."""
-        """Set up for test method get_category_and_field."""
-    def setUp(self):
 
+    def setUp(self):
+        """Set up for test method get_category_and_field."""
         self.admin = UserFactory.create()
         self.project = ProjectFactory.create(
             name="Tweets",
@@ -74,6 +74,17 @@ class GetCategoryAndFieldTest(TestCase):
         self.assertEqual(text_field.id, self.field_text.id)
         self.assertEqual(text_field.name, self.field_text.name)
 
+    def test_method_when_check_when_category_and_field_does_not_exist(self):
+        """Check if provides data when category and field exists."""
+        self.category.delete()
+        self.category.save()
 
+        tweet_cat, text_field = get_category_and_field(
+            self.project,
+            self.socialaccount)
 
+        self.assertNotEqual(tweet_cat.id, self.category.id)
+        self.assertNotEqual(tweet_cat.name, self.category.name)
 
+        self.assertNotEqual(text_field.id, self.field_text.id)
+        self.assertNotEqual(text_field.name, self.field_text.name)
