@@ -111,11 +111,7 @@ class CreateNewObservationTest(TestCase):
             category=self.category
         )
 
-        self.si_pull = SocialInteractionPullFactory.create(
-            socialaccount=self.socialaccount,
-            project=self.project,
-            creator=self.admin,
-            text_to_pull='#Project2')
+        self.si_pull = SocialInteractionPullFactory.create()
 
         print "si_pull", self.si_pull
 
