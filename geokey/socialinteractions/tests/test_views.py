@@ -207,6 +207,7 @@ class SocialInteractionCreateTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
 
     def test_post_with_anonymous(self):
         """
