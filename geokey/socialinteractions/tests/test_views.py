@@ -596,11 +596,10 @@ class SocialInteractionDeleteTest(TestCase):
         It should render the page.
         """
 
-        self.socialinteraction.save()
+        self.socialinteraction.delete()
         response = self.view(
             self.request,
             project_id=self.project.id,
-            socialinteraction_id=self.socialinteraction.id
         ).render()
 
         rendered = render_to_string(
@@ -612,7 +611,6 @@ class SocialInteractionDeleteTest(TestCase):
                 'GEOKEY_VERSION': version.get_version()
             }
         )
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(SocialInteraction.objects.count(), 0)
 
