@@ -103,29 +103,29 @@ class SocialInteractionsListTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
 
-    def test_get_with_admin(self):
-        """
-        Accessing the view with project admin.
+    # def test_get_with_admin(self):
+    #     """
+    #     Accessing the view with project admin.
 
-        It should render the page.
-        """
-        project = ProjectFactory.create()
-        user = project.creator
+    #     It should render the page.
+    #     """
+    #     project = ProjectFactory.create()
+    #     user = project.creator
 
-        self.request.user = user
-        response = self.view(self.request, project_id=project.id).render()
+    #     self.request.user = user
+    #     response = self.view(self.request, project_id=project.id).render()
 
-        rendered = render_to_string(
-            'socialinteractions/socialinteraction_list.html',
-            {
-                'project': project,
-                'user': user,
-                'PLATFORM_NAME': get_current_site(self.request).name,
-                'GEOKEY_VERSION': version.get_version()
-            }
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+    #     rendered = render_to_string(
+    #         'socialinteractions/socialinteraction_list.html',
+    #         {
+    #             'project': project,
+    #             'user': user,
+    #             'PLATFORM_NAME': get_current_site(self.request).name,
+    #             'GEOKEY_VERSION': version.get_version()
+    #         }
+    #     )
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertEqual(response.content.decode('utf-8'), rendered)
 
 
 @override_settings(INSTALLED_APPS=install_required_apps())
@@ -266,11 +266,11 @@ class SocialInteractionCreateTest(TestCase):
         """
         self.request.method = 'POST'
         post = QueryDict('name=%s&description=''%s&socialaccount=%s' %
-                         (
-                          'My social interaction',
-                          '',
-                          self.socialaccount_2.id
-                         ))
+            (
+                'My social interaction',
+                '',
+                self.socialaccount_2.id
+        ))
 
         self.request.POST = post
 
