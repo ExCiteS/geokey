@@ -30,6 +30,12 @@ from ..views import (
 )
 
 
+# #############################################################################
+#
+#  TEST FOR SOCIAL INTERACTIONS VIEWS
+#
+# #############################################################################
+
 def install_required_apps():
     """Install Twitter and Facebook providers for django-allauth."""
     installed_apps = settings.INSTALLED_APPS
@@ -180,28 +186,27 @@ class SocialInteractionCreateTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
 
-    # def test_get_with_admin(self):
-    #     """
-    #     Accessing the view with project admin.
+    def test_get_with_admin(self):
+        """
+        Accessing the view with project admin.
 
-    #     It should render the page.
-    #     """
-    #     self.request.user = self.admin_user
-    #     response = self.view(self.request, project_id=self.project.id).render()
+        It should render the page.
+        """
+        self.request.user = self.admin_user
+        response = self.view(self.request, project_id=self.project.id).render()
 
-    #     # rendered = render_to_string(
-    #     #     'socialinteractions/socialinteraction_create.html',
-    #     #     {
-    #     #         'project': self.project,
-    #     #         'auth_users': [self.socialaccount_2],
-    #     #         'user': self.admin_user,
-    #     #         'PLATFORM_NAME': get_current_site(self.request).name,
-    #     #         'GEOKEY_VERSION': version.get_version()
-    #     #     }
-    #     # )
-    #     self.assertEqual(response.status_code, 200)
-    #     response = render_helpers.remove_csrf(response.content.decode('utf-8'))
-    #     # self.assertEqual(response, rendered)
+        rendered = render_to_string(
+            'socialinteractions/socialinteraction_create.html',
+            {
+                'project': self.project,
+                'auth_users': [self.socialaccount_2],
+                'user': self.admin_user,
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
 
     def test_post_with_anonymous(self):
         """
