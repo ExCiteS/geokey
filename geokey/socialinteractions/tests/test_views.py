@@ -595,24 +595,48 @@ class SocialInteractionDeleteTest(TestCase):
 
         It should render the page.
         """
-
         self.socialinteraction.delete()
         response = self.view(
             self.request,
             project_id=self.project.id,
+            socialinteraction_id=self.socialinteraction.id
         ).render()
 
-        rendered = render_to_string(
-            'socialinteractions/socialinteraction_delete.html',
-            {
-                'project': self.socialinteraction.project,
-                'user': self.admin_user,
-                'PLATFORM_NAME': get_current_site(self.request).name,
-                'GEOKEY_VERSION': version.get_version()
-            }
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(
+            reverse(
+                'admin:socialinteraction_list',
+                args=(self.project.id,)
+            ),
+            response['location']
         )
-        self.assertEqual(response.status_code, 200)
         self.assertEqual(SocialInteraction.objects.count(), 0)
 
-        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
-        self.assertEqual(response, rendered)
+    def test_delete_with_admin_when_project_is_locked(self):
+        """
+        Accessing the view with project admin when project is locked.
+
+        It should render the page.
+        """
+        self.project.islocked = True
+        self.project.save()
+        self.socialinteraction.project = self.project
+        self.socialinteraction.creator = self.admin_user
+        self.socialinteraction.save()
+
+        self.request.user = self.admin_user
+        response = self.view(
+            self.request,
+            project_id=self.project.id,
+            socialinteraction_id=self.socialinteraction.id
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(
+            reverse(
+                'admin:socialinteraction_list',
+                args=(self.project.id,)
+            ),
+            response['location']
+        )
+        self.assertEqual(SocialInteraction.objects.count(), 1)
