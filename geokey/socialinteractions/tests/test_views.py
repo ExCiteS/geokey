@@ -600,8 +600,8 @@ class SocialInteractionDeleteTest(TestCase):
             self.request,
             project_id=self.project.id,
             socialinteraction_id=self.socialinteraction.id
-        ).render()
-
+        )
+        print "response", response
         self.assertEqual(response.status_code, 302)
         self.assertIn(
             reverse(
