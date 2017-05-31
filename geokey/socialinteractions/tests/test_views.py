@@ -524,7 +524,7 @@ class SocialInteractionDeleteTest(TestCase):
     """Test social interaction delete view."""
 
     def setUp(self):
-        """Set up tests."""
+        """Set up test."""
         self.anonymous_user = AnonymousUser()
         self.regular_user = UserFactory.create()
         self.admin_user = UserFactory.create()
