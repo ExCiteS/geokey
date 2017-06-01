@@ -766,7 +766,7 @@ class SocialInteractionPostTest(TestCase):
         self.assertEqual(reference.name, self.socialinteraction.name)
         self.assertNotEqual(reference.text_to_post, 'text_to_post new new new')
         socialaccount = reference.socialaccount
-        self.assertEqual(self.socialaccount_3, socialaccount)
+        self.assertEqual(self.socialaccount_1, socialaccount)
 
     def test_post_with_user(self):
         """
@@ -811,4 +811,4 @@ class SocialInteractionPostTest(TestCase):
         self.assertEqual(reference.name, self.socialinteraction.name)
         self.assertEqual(reference.text_to_post, 'text_to_post new new new')
         socialaccount = reference.socialaccount
-        self.assertEqual(self.socialaccount_3, socialaccount)
+        self.assertEqual(self.socialaccount_1, socialaccount)
