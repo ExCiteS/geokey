@@ -760,7 +760,10 @@ class SocialInteractionPostTest(TestCase):
         self.assertIn('/admin/account/login/', response['location'])
 
         reference = SocialInteraction.objects.get(pk=self.socialinteraction.id)
+        self.assertEqual(reference.name, 'New Name')
+        self.assertNotEqual(reference.text_to_post, 'text_to_post new new new')
         socialaccount = reference.socialaccount
+        self.assertEqual(self.socialaccount_3, socialaccount)
 
     def test_post_with_user(self):
         """
