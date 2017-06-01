@@ -745,14 +745,11 @@ class SocialInteractionPostTest(TestCase):
         It should redirect to the login page.
         """
         self.request.method = 'POST'
-        # post = QueryDict('text_to_post=%s' % (
-        #     'text_to_post new new new'
-        # ))
+        post = QueryDict('text_to_post=%s' % (
+            'text_to_post new new new'
+        ))
+        self.request.POST = post
 
-        self.request.POST = {
-            'text_post': 'text_post new new new'
-        }
-        # self.request.POST = post
         response = self.view(
             self.request,
             project_id=self.socialinteraction.project.id,
@@ -765,95 +762,5 @@ class SocialInteractionPostTest(TestCase):
 
         self.assertEqual(reference.name, self.socialinteraction.name)
         self.assertNotEqual(reference.text_to_post, 'text_to_post new new new')
-        socialaccount = reference.socialaccount
-        self.assertEqual(self.socialaccount_1, socialaccount)
-
-    def test_post_with_user(self):
-        """
-        Updating with normal user.
-
-        It should render the page with an error message.
-        """
-        self.request.method = 'POST'
-        # self.request.POST = {
-        #     'name': 'Name',
-        #     'description': 'Description',
-        # }
-        # post = QueryDict('text_to_post=%s' % (
-        #     'text_to_post new new new'
-        # ))
-
-        self.request.POST = {
-            'text_post': 'text_post new new new'
-        }
-
-        self.request.user = self.regular_user
-        response = self.view(
-            self.request,
-            project_id=self.project.id,
-            socialinteraction_id=self.socialinteraction.id
-        ).render()
-
-        rendered = render_to_string(
-            'socialinteractions/socialinteraction_post.html',
-            {
-                'error_description': 'Project matching query does not exist.',
-                'error': 'Not found.',
-                'user': self.regular_user,
-                'PLATFORM_NAME': get_current_site(self.request).name,
-                'GEOKEY_VERSION': version.get_version()
-            }
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
-
-        reference = SocialInteraction.objects.get(id=self.socialinteraction.id)
-        self.assertEqual(reference.name, self.socialinteraction.name)
-        self.assertNotEqual(reference.text_to_post, 'text_to_post new new new')
-        socialaccount = reference.socialaccount
-        self.assertEqual(self.socialaccount_1, socialaccount)
-
-    def test_post_with_admin(self):
-        """
-        Updating with normal user.
-
-        It should render the page with an error message.
-        """
-        self.request.method = 'POST'
-        # self.request.POST = {
-        #     'name': 'Name',
-        #     'description': 'Description',
-        # }
-        # post = QueryDict('text_to_post=%s' % (
-        #     'text_to_post new new new'
-        # ))
-
-        self.request.POST = {
-            'text_post': 'text_post new new new'
-        }
-
-        self.request.user = self.admin_user
-        response = self.view(
-            self.request,
-            project_id=self.project.id,
-            socialinteraction_id=self.socialinteraction.id
-        ).render()
-
-        rendered = render_to_string(
-            'socialinteractions/socialinteraction_post.html',
-            {
-                'error_description': 'Project matching query does not exist.',
-                'error': 'Not found.',
-                'user': self.admin_user,
-                'PLATFORM_NAME': get_current_site(self.request).name,
-                'GEOKEY_VERSION': version.get_version()
-            }
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
-
-        reference = SocialInteraction.objects.get(id=self.socialinteraction.id)
-        self.assertEqual(reference.name, self.socialinteraction.name)
-        self.assertEqual(reference.text_to_post, 'text_to_post new new new')
         socialaccount = reference.socialaccount
         self.assertEqual(self.socialaccount_1, socialaccount)
