@@ -595,13 +595,18 @@ class SocialInteractionDeleteTest(TestCase):
 
         It should render the page.
         """
-        #self.socialinteraction.delete()
+        self.socialinteraction.project = self.project
+        self.socialinteraction.creator = self.admin_user
+        self.socialinteraction.save()
+
+        self.request.user = self.admin_user
         response = self.view(
             self.request,
             project_id=self.project.id,
             socialinteraction_id=self.socialinteraction.id
         )
         print "response", response
+        print "response[location]", response['location']
         self.assertEqual(response.status_code, 302)
         # self.assertIn(
         #     reverse(
