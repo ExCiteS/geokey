@@ -746,8 +746,9 @@ class SocialInteractionPostTest(TestCase):
         It should redirect to the login page.
         """
         self.request.method = 'POST'
-        post = QueryDict('post_text=%s' % (
-            'text_to_post new new new'
+        post = QueryDict('post_text=%s&socialinteraction=%s' % (
+            'text_to_post new new new',
+            self.socialinteraction
         ))
         self.request.POST = post
 
