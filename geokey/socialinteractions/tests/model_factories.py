@@ -16,7 +16,6 @@ class SocialInteractionFactory(factory.django.DjangoModelFactory):
 
     creator = factory.SubFactory(UserFactory)
     name = factory.Sequence(lambda n: 'social interaction %s' % n)
-    text_to_post = factory.LazyAttribute(lambda o: '%s Text_text' % o.name)
     project = factory.SubFactory(ProjectFactory)
     status = 'active'
     description = factory.LazyAttribute(lambda o: '%s description' % o.name)
