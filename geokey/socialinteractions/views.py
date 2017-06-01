@@ -163,7 +163,7 @@ class SocialInteractionContext(object):
 
         try:
             socialinteraction = project.socialinteractions.get(
-                    pk=socialinteraction_id)
+                id=socialinteraction_id)
 
         except:
             messages.error(
