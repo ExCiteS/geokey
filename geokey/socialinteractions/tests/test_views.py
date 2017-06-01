@@ -746,8 +746,7 @@ class SocialInteractionPostTest(TestCase):
         """
         self.request.method = 'POST'
         post = QueryDict('text_to_post=%s' % (
-            'text_to_post new new new',
-            self.socialaccount_3.id,
+            'text_to_post new new new'
         ))
 
         self.request.POST = post
@@ -773,8 +772,7 @@ class SocialInteractionPostTest(TestCase):
         """
         self.request.method = 'POST'
         post = QueryDict('text_to_post=%s' % (
-            'text_to_post new new new',
-            self.socialaccount_3.id,
+            'text_to_post new new new'
         ))
 
         self.request.POST = post
