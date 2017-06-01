@@ -764,3 +764,34 @@ class SocialInteractionPostTest(TestCase):
         self.assertNotEqual(reference.text_to_post, 'text_to_post new new new')
         socialaccount = reference.socialaccount
         self.assertEqual(self.socialaccount_1, socialaccount)
+
+    def test_post_with_admin(self):
+        """
+        Updating with AnonymousUser.
+
+        It should redirect to the login page.
+        """
+        self.request.user = self.admin_user
+        self.request.method = 'POST'
+        post = QueryDict('text_to_post=%s' % (
+            'text_to_post new new new'
+        ))
+        self.request.POST = post
+
+        response = self.view(
+            self.request,
+            project_id=self.socialinteraction.project.id,
+            socialinteraction_id=self.socialinteraction.id)
+
+        print "response", response
+        print "location", response['location']
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('/admin/account/login/', response['location'])
+
+        reference = SocialInteraction.objects.get(id=self.socialinteraction.id)
+
+        self.assertEqual(reference.name, self.socialinteraction.name)
+        self.assertEqual(reference.text_to_post, 'text_to_post new new new')
+        socialaccount = reference.socialaccount
+        self.assertEqual(self.socialaccount_1, socialaccount)
