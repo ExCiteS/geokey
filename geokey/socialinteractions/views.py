@@ -366,16 +366,12 @@ class SocialInteractionPost(LoginRequiredMixin, SocialInteractionContext,
         dict
             Context.
         """
-        context = super(SocialInteractionPost, self).get_context_data(
+
+        return super(SocialInteractionPost, self).get_context_data(
             project_id,
             *args,
             **kwargs
         )
-
-        socialinteraction = context.get('socialinteraction')
-        sa = socialinteraction.socialaccount
-        context['socialaccount'] = sa
-        return context
 
 
     def post(self, request, project_id, socialinteraction_id):
