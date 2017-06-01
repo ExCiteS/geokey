@@ -401,9 +401,11 @@ class SocialInteractionPost(LoginRequiredMixin, SocialInteractionContext,
         data = request.POST
         context = self.get_context_data(project_id, socialinteraction_id)
         socialinteraction = context.get('socialinteraction')
-
+        print "socialinteraction.text_to_post", socialinteraction.text_to_post
+        print " agafa dades", data.get('text_post')
         socialinteraction.text_to_post = data.get('text_post')
         socialinteraction.save()
+        print "POST .text_to_post", socialinteraction.text_to_post
 
         return self.render_to_response(context)
 
