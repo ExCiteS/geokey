@@ -750,7 +750,6 @@ class SocialInteractionPostTest(TestCase):
         # ))
 
         self.request.POST = {
-            'text_to_post': 'text_to_post new new new'
         }
         # self.request.POST = post
         response = self.view(
@@ -784,7 +783,6 @@ class SocialInteractionPostTest(TestCase):
         # ))
 
         self.request.POST = {
-            'text_to_post': 'text_to_post new new new'
         }
 
         self.request.user = self.regular_user
