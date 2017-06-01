@@ -417,9 +417,13 @@ class SocialInteractionPullCreate(LoginRequiredMixin, ProjectContext,
             **kwargs
         )
 
+        # auth_users = SocialAccount.objects.filter(
+        #     user=self.request.user,
+        #     provider__in=['twitter', 'facebook'])
+
         auth_users = SocialAccount.objects.filter(
             user=self.request.user,
-            provider__in=['twitter', 'facebook'])
+            provider__in='twitter')
 
         context["auth_users"] = auth_users
         return context
