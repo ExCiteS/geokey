@@ -645,3 +645,34 @@ class SocialInteractionDeleteTest(TestCase):
             response['location']
         )
         self.assertEqual(SocialInteraction.objects.count(), 1)
+
+    def test_delete_with_admin_when_project_does_not_exit(self):
+        """
+        Accessing the view with project admin when project does not exist.
+
+        It should render the page with an error message.
+        """
+        self.socialinteraction.project = self.project
+        self.socialinteraction.creator = self.admin_user
+        self.socialinteraction.save()
+        self.request.user = self.admin_user
+        response = self.view(
+            self.request,
+            project_id=634842156456,
+            socialinteraction_id=self.socialinteraction.id
+        ).render()
+
+        rendered = render_to_string(
+            'base.html',
+            {
+                'error_description': 'Project matching query does not exist.',
+                'error': 'Not found.',
+                'user': self.admin_user,
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+        self.assertEqual(SocialInteraction.objects.count(), 1)
