@@ -577,7 +577,7 @@ class SocialInteractionDeleteTest(TestCase):
         ).render()
 
         rendered = render_to_string(
-            'socialinteractions/socialinteraction_settings.html',
+            'base.html',
             {
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
