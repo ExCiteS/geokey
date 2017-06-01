@@ -27,6 +27,7 @@ from ..views import (
     SocialInteractionCreate,
     SocialInteractionSettings,
     SocialInteractionDelete,
+    SocialInteractionPost,
 )
 
 
@@ -691,7 +692,7 @@ class SocialInteractionPostTest(TestCase):
             project=self.project,
             creator=self.admin_user
         )
-        self.view = SocialInteractionSettings.as_view()
+        self.view = SocialInteractionPost.as_view()
         self.request = HttpRequest()
         self.request.method = 'GET'
         self.request.user = self.anonymous_user
@@ -773,7 +774,7 @@ class SocialInteractionPostTest(TestCase):
         """
         self.request.user = self.admin_user
         self.request.method = 'POST'
-        post = QueryDict('text_to_post=%s' % (
+        post = QueryDict('text_post=%s' % (
             'text_to_post new new new'
         ))
         self.request.POST = post
