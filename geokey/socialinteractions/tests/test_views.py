@@ -763,7 +763,7 @@ class SocialInteractionPostTest(TestCase):
 
         reference = SocialInteraction.objects.get(id=self.socialinteraction.id)
 
-        self.assertEqual(reference.name, 'New Name')
+        self.assertEqual(reference.name, self.socialinteraction.name)
         self.assertNotEqual(reference.text_to_post, 'text_to_post new new new')
         socialaccount = reference.socialaccount
         self.assertEqual(self.socialaccount_3, socialaccount)
@@ -808,7 +808,7 @@ class SocialInteractionPostTest(TestCase):
         self.assertEqual(response.content.decode('utf-8'), rendered)
 
         reference = SocialInteraction.objects.get(id=self.socialinteraction.id)
-        self.assertEqual(reference.name, 'New Name')
+        self.assertEqual(reference.name, self.socialinteraction.name)
         self.assertEqual(reference.text_to_post, 'text_to_post new new new')
         socialaccount = reference.socialaccount
         self.assertEqual(self.socialaccount_3, socialaccount)
