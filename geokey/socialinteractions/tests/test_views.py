@@ -28,6 +28,7 @@ from ..views import (
     SocialInteractionSettings,
     SocialInteractionDelete,
     SocialInteractionPost,
+    SocialInteractionPullCreate,
 )
 
 
@@ -793,3 +794,62 @@ class SocialInteractionPostTest(TestCase):
         self.assertEqual(reference.name, self.socialinteraction.name)
         self.assertEqual(reference.text_to_post, 'post_text new new new')
         self.assertEqual(self.socialaccount_1, reference.socialaccount)
+
+
+@override_settings(INSTALLED_APPS=install_required_apps())
+class SocialInteractionPullCreateTest(TestCase):
+    """Test creating a new social interaction."""
+
+    def setUp(self):
+        """Set up tests."""
+        self.anonymous_user = AnonymousUser()
+        self.regular_user = UserFactory.create()
+        self.admin_user = UserFactory.create()
+
+        self.project = ProjectFactory.create(creator=self.admin_user)
+        self.socialaccount_1 = SocialAccount.objects.create(
+            user=self.regular_user, provider='twitter', uid='1')
+        self.socialaccount_2 = SocialAccount.objects.create(
+            user=self.admin_user, provider='twitter', uid='2')
+
+        self.view = SocialInteractionPullCreate.as_view()
+        self.request = HttpRequest()
+        self.request.method = 'GET'
+        self.request.user = self.anonymous_user
+
+        setattr(self.request, 'session', 'session')
+        messages = FallbackStorage(self.request)
+        setattr(self.request, '_messages', messages)
+
+    def test_get_with_anonymous(self):
+        """
+        Accessing the view with AnonymousUser.
+
+        It should redirect to the loginpage.
+        """
+        response = self.view(self.request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/account/login/', response['location'])
+
+    def test_get_with_user(self):
+        """
+        Accessing the view with normal user.
+
+        It should render the page with an error message.
+        """
+        self.request.user = self.regular_user
+        response = self.view(self.request, project_id=self.project.id).render()
+
+        rendered = render_to_string(
+            'socialinteractions/socialinteraction_create.html',
+            {
+                'error_description': 'Project matching query does not exist.',
+                'error': 'Not found.',
+                'user': self.regular_user,
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
