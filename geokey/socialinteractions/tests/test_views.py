@@ -676,3 +676,34 @@ class SocialInteractionDeleteTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
         self.assertEqual(SocialInteraction.objects.count(), 1)
+
+    def test_delete_with_admin_when_socialinteraction_does_not_exit(self):
+        """
+        Accessing the view with project admin when social int. does not exist.
+
+        It should render the page with an error message.
+        """
+        self.socialinteraction.project = self.project
+        self.socialinteraction.creator = self.admin_user
+        self.socialinteraction.save()
+        self.request.user = self.admin_user
+        response = self.view(
+            self.request,
+            project_id=self.project.id,
+            socialinteraction_id=634842156456
+        ).render()
+
+        rendered = render_to_string(
+            'base.html',
+            {
+                'error_description': 'The social interaction is not found.',
+                'error': 'Not found.',
+                'user': self.admin_user,
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+        self.assertEqual(SocialInteraction.objects.count(), 1)
