@@ -1196,8 +1196,9 @@ class SocialInteractionPullSettingsTest(TestCase):
         response = self.view(
             self.request,
             project_id=self.si_pull.project.id,
-            socialinteractionpull_id=self.si_pull.id
-        ).render()
+            socialinteractionpull_id=self.si_pull.id)
+
+        print "response", response
 
         rendered = render_to_string(
             'socialinteractions/socialinteraction_pull.html',
