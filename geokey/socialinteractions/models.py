@@ -79,7 +79,7 @@ def post_social_media(sender, instance, created, **kwargs):
     if created:
         project = instance.project
         socialinteractions_all = project.socialinteractions.all()
-        url = 'local/{project_id}/contributions/{subset_id}/'
+        url = 'localados/{project_id}/contributions/{subset_id}/'
         link = url.format(project_id=project.id, subset_id=instance.id)
         if instance.category.name != 'Tweets':
             for socialinteraction in socialinteractions_all:
