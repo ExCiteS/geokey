@@ -842,7 +842,7 @@ class SocialInteractionPullCreateTest(TestCase):
         response = self.view(self.request, project_id=self.project.id).render()
 
         rendered = render_to_string(
-            'socialinteractions/socialinteraction_create.html',
+            'socialinteractions/socialinteraction_pull_create.html',
             {
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
@@ -865,7 +865,7 @@ class SocialInteractionPullCreateTest(TestCase):
         response = self.view(self.request, project_id=self.project.id).render()
 
         rendered = render_to_string(
-            'socialinteractions/socialinteraction_create.html',
+            'socialinteractions/socialinteraction_pull_create.html',
             {
                 'project': self.project,
                 'auth_users': [
