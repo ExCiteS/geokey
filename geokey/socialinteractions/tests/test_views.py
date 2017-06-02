@@ -1093,7 +1093,7 @@ class SocialInteractionPullSettingsTest(TestCase):
         ).render()
 
         rendered = render_to_string(
-            'socialinteractions/socialinteraction_pull_settings.html',
+            'socialinteractions/socialinteraction_pull.html',
             {
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
