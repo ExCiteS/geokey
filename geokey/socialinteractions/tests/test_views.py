@@ -1154,7 +1154,7 @@ class SocialInteractionPullSettingsTest(TestCase):
         It should redirect to the login page.
         """
         self.request.method = 'POST'
-        post = QueryDict('name=%s&%s&frequency=%s&text_pull=%s&status_type=%s&socialaccount=%s' % (
+        post = QueryDict('name=%s&frequency=%s&text_pull=%s&status_type=%s&socialaccount=%s' % (
             'New Name',
             'hourly',
             '#hastag',
