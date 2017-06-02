@@ -862,7 +862,7 @@ class SocialInteractionPullCreateTest(TestCase):
         It should render the page.
         """
         self.request.user = self.admin_user
-        response = self.view(self.request, project_id=self.project.id).render()
+        response = self.view(self.request).render()
 
         rendered = render_to_string(
             'socialinteractions/socialinteraction_pull_create.html',
