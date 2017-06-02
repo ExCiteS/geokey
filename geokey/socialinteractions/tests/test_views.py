@@ -1165,7 +1165,7 @@ class SocialInteractionPullSettingsTest(TestCase):
         self.request.POST = post
         response = self.view(
             self.request,
-            project_id=self.socialinteraction.project.id,
+            project_id=self.si_pull.project.id,
             socialinteractionpull_id=self.socialinteraction.id)
 
         self.assertEqual(response.status_code, 302)
@@ -1196,8 +1196,9 @@ class SocialInteractionPullSettingsTest(TestCase):
         self.request.user = self.regular_user
         response = self.view(
             self.request,
-            project_id=self.project.id,
-            socialinteractionpull_id=self.si_pull.id
+            project_id=self.si_pull.project.id,
+            socialinteractionpull_id=self.si_pull.id,
+            socialinteraction_pull=self.si_pull
         ).render()
 
         rendered = render_to_string(
