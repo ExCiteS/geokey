@@ -81,41 +81,41 @@ def post_social_media(sender, instance, created, **kwargs):
         socialinteractions_all = project.socialinteractions.all()
         url = 'localados/{project_id}/contributions/{subset_id}/'
         link = url.format(project_id=project.id, subset_id=instance.id)
-        # if instance.category.name != 'Tweets':
-        for socialinteraction in socialinteractions_all:
-            text_to_post = socialinteraction.text_to_post
-            replacements = {
-                "$project$": project.name,
-                "$link$": link
-            }
+        if instance.category.name != 'Tweets':
+            for socialinteraction in socialinteractions_all:
+                text_to_post = socialinteraction.text_to_post
+                replacements = {
+                    "$project$": project.name,
+                    "$link$": link
+                }
 
-            for key, replacement in replacements.iteritems():
-                text_to_post = text_to_post.replace(key, replacement)
-            # for socialaccount in socialinteraction.socialaccount:
-            socialaccount = socialinteraction.socialaccount
-            provider = socialaccount.provider
-            app = SocialApp.objects.get(provider=provider)
+                for key, replacement in replacements.iteritems():
+                    text_to_post = text_to_post.replace(key, replacement)
+                # for socialaccount in socialinteraction.socialaccount:
+                socialaccount = socialinteraction.socialaccount
+                provider = socialaccount.provider
+                app = SocialApp.objects.get(provider=provider)
 
-            access_token = SocialToken.objects.get(
-                account__id=socialaccount.id,
-                account__user=socialaccount.user,
-                account__provider=app.provider
-            )
-            tweet_id, screen_name = check_provider(
-                provider,
-                access_token,
-                text_to_post,
-                app)
+                access_token = SocialToken.objects.get(
+                    account__id=socialaccount.id,
+                    account__user=socialaccount.user,
+                    account__provider=app.provider
+                )
+                tweet_id, screen_name = check_provider(
+                    provider,
+                    access_token,
+                    text_to_post,
+                    app)
 
-            # comment_txt = 'https://twitter.com/{user_name}/status/{tweet_id}'.format(
-            #     user_name=screen_name,
-            #     tweet_id=tweet_id
-            # )
-            # Comment.objects.create(
-            #     text=comment_txt,
-            #     commentto=instance,
-            #     creator=socialaccount.user
-            # )
+                # comment_txt = 'https://twitter.com/{user_name}/status/{tweet_id}'.format(
+                #     user_name=screen_name,
+                #     tweet_id=tweet_id
+                # )
+                # Comment.objects.create(
+                #     text=comment_txt,
+                #     commentto=instance,
+                #     creator=socialaccount.user
+                # )
 
 
 def check_provider(provider, access_token, text_to_post, app):
