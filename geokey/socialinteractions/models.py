@@ -107,6 +107,15 @@ def post_social_media(sender, instance, created, **kwargs):
                 text_to_post,
                 app)
 
+            # comment_txt = 'https://twitter.com/{user_name}/status/{tweet_id}'.format(
+            #     user_name=screen_name,
+            #     tweet_id=tweet_id
+            # )
+            # Comment.objects.create(
+            #     text=comment_txt,
+            #     commentto=instance,
+            #     creator=socialaccount.user
+            # )
 
 
 def check_provider(provider, access_token, text_to_post, app):
