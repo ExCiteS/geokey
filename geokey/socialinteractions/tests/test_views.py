@@ -1166,7 +1166,7 @@ class SocialInteractionPullSettingsTest(TestCase):
         response = self.view(
             self.request,
             project_id=self.si_pull.project.id,
-            socialinteractionpull_id=self.socialinteraction.id)
+            socialinteractionpull_id=self.si_pull.id)
 
         self.assertEqual(response.status_code, 302)
         self.assertIn('/admin/account/login/', response['location'])
@@ -1197,8 +1197,7 @@ class SocialInteractionPullSettingsTest(TestCase):
         response = self.view(
             self.request,
             project_id=self.si_pull.project.id,
-            socialinteractionpull_id=self.si_pull.id,
-            socialinteraction_pull=self.si_pull
+            socialinteractionpull_id=self.si_pull.id
         ).render()
 
         rendered = render_to_string(
