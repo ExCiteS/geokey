@@ -20,8 +20,11 @@ from geokey.projects.tests.model_factories import ProjectFactory
 
 import importlib
 
-from .model_factories import SocialInteractionFactory
-from ..models import SocialInteraction
+from .model_factories import (
+    SocialInteractionFactory,
+    SocialInteractionPullFactory
+)
+from ..models import SocialInteraction, SocialInteractionPull
 from ..views import (
     SocialInteractionList,
     SocialInteractionCreate,
@@ -29,6 +32,7 @@ from ..views import (
     SocialInteractionDelete,
     SocialInteractionPost,
     SocialInteractionPullCreate,
+    SocialInteractionPullDelete
 )
 
 
@@ -672,7 +676,7 @@ class SocialInteractionDeleteTest(TestCase):
 
 @override_settings(INSTALLED_APPS=install_required_apps())
 class SocialInteractionPostTest(TestCase):
-    """Test social interaction settings page."""
+    """Test social interaction pull settings page."""
 
     def setUp(self):
         """Set up tests."""
@@ -798,7 +802,7 @@ class SocialInteractionPostTest(TestCase):
 
 @override_settings(INSTALLED_APPS=install_required_apps())
 class SocialInteractionPullCreateTest(TestCase):
-    """Test creating a new social interaction."""
+    """Test creating a new social interaction pull."""
 
     def setUp(self):
         """Set up tests."""
@@ -879,28 +883,152 @@ class SocialInteractionPullCreateTest(TestCase):
     #     self.assertEqual(response.status_code, 200)
     #     response = render_helpers.remove_csrf(response.content.decode('utf-8'))
     #     self.assertEqual(response, rendered)
+
+
+class SocialInteractionPullDeleteTest(TestCase):
+    """Test social interaction pull delete view."""
+
+    def setUp(self):
+        """Set up test."""
+        self.anonymous_user = AnonymousUser()
+        self.regular_user = UserFactory.create()
+        self.admin_user = UserFactory.create()
+
+        self.project = ProjectFactory.create(creator=self.admin_user)
+
+        self.socialaccount_2 = SocialAccount.objects.create(
+            user=self.admin_user, provider='facebook', uid='2')
+        self.socialaccount_1 = SocialAccount.objects.create(
+            user=self.admin_user, provider='twitter', uid='1')
+        self.socialaccount_3 = SocialAccount.objects.create(
+            user=self.admin_user, provider='twitter', uid='3')
+        self.si_pull = SocialInteractionPullFactory.create(
+            socialaccount=self.socialaccount_1,
+            project=self.project,
+            creator=self.admin_user
+        )
+        self.view = SocialInteractionPullDelete.as_view()
+        self.request = HttpRequest()
+        self.request.method = 'GET'
+        self.request.user = self.anonymous_user
+
+        setattr(self.request, 'session', 'session')
+        messages = FallbackStorage(self.request)
+        setattr(self.request, '_messages', messages)
+
+    def test_get_with_anonymous(self):
+        """
+        Accessing the view with AnonymousUser.
+
+        It should redirect to the login page.
+        """
+        response = self.view(self.request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/account/login/', response['location'])
+        self.assertEqual(SocialInteractionPull.objects.count(), 1)
+
+    def test_get_with_user(self):
+        """
+        Accessing the view with normal user.
+
+        It should render the page with an error message.
+        """
+        self.request.user = self.regular_user
+        response = self.view(
+            self.request,
+            project_id=self.project.id,
+            socialinteractionpull_id=self.si_pull.id
+        ).render()
+
+        rendered = render_to_string(
+            'base.html',
+            {
+                'error_description': 'Project matching query does not exist.',
+                'error': 'Not found.',
+                'user': self.regular_user,
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'GEOKEY_VERSION': version.get_version()
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+
     def test_get_with_admin(self):
         """
         Accessing the view with project admin.
 
         It should render the page.
         """
+        self.si_pull.project = self.project
+        self.si_pull.creator = self.admin_user
+        self.si_pull.save()
+
         self.request.user = self.admin_user
-        response = self.view(self.request, project_id=self.project.id).render()
+        response = self.view(
+            self.request,
+            project_id=self.project.id,
+            socialinteractionpull_id=self.si_pull.id
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(SocialInteractionPull.objects.count(), 0)
+
+    def test_delete_with_admin_when_project_is_locked(self):
+        """
+        Accessing the view with project admin when project is locked.
+
+        It should render the page.
+        """
+        self.project.islocked = True
+        self.project.save()
+        self.si_pull.project = self.project
+        self.si_pull.creator = self.admin_user
+        self.si_pull.save()
+
+        self.request.user = self.admin_user
+        response = self.view(
+            self.request,
+            project_id=self.project.id,
+            socialinteractionpull_id=self.si_pull.id
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(
+            reverse(
+                'admin:socialinteraction_list',
+                args=(self.project.id,)
+            ),
+            response['location']
+        )
+        self.assertEqual(SocialInteractionPull.objects.count(), 1)
+
+    def test_delete_with_admin_when_project_does_not_exit(self):
+        """
+        Accessing the view with project admin when project does not exist.
+
+        It should render the page with an error message.
+        """
+        self.si_pull.project = self.project
+        self.si_pull.creator = self.admin_user
+        self.si_pull.save()
+        self.request.user = self.admin_user
+        response = self.view(
+            self.request,
+            project_id=634842156456,
+            socialinteractionpull_id=self.si_pull.id
+        ).render()
 
         rendered = render_to_string(
-            'socialinteractions/socialinteraction_pull_create.html',
+            'base.html',
             {
-                'project': self.project,
-                'auth_users': [
-                    self.socialaccount_2,
-                    self.socialinteraction.socialaccount
-                ],
+                'error_description': 'Project matching query does not exist.',
+                'error': 'Not found.',
                 'user': self.admin_user,
                 'PLATFORM_NAME': get_current_site(self.request).name,
                 'GEOKEY_VERSION': version.get_version()
             }
         )
+
         self.assertEqual(response.status_code, 200)
-        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
-        self.assertEqual(response, rendered)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+        self.assertEqual(SocialInteractionPull.objects.count(), 1)
