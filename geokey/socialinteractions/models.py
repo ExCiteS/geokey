@@ -11,7 +11,7 @@ import tweepy
 import facebook
 
 from geokey.subsets.models import Subset
-# from geokey.contributions.models import Observation, Comment
+from geokey.contributions.models import Observation, Comment
 from .base import STATUS, FREQUENCY
 
 
@@ -65,7 +65,7 @@ class SocialInteractionPull(models.Model):
     updated_at = models.DateTimeField(null=True, auto_now_add=False)
 
 
-@receiver(post_save, sender=Subset)
+@receiver(post_save, sender=Observation)
 def post_social_media(sender, instance, created, **kwargs):
     """Post/tweet to social media when a new Observation is added.
 
