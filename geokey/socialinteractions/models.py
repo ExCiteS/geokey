@@ -10,9 +10,9 @@ from allauth.socialaccount.models import SocialAccount, SocialToken, SocialApp
 import tweepy
 import facebook
 
-from geokey.subsets.models import Subset
+from geokey.contributions.models import Observation, Comment
 from .base import STATUS, FREQUENCY
-# from geokey.contributions.models import Observation, Comment
+from .utils import check_provider
 
 
 class SocialInteraction(models.Model):
@@ -65,91 +65,54 @@ class SocialInteractionPull(models.Model):
     updated_at = models.DateTimeField(null=True, auto_now_add=False)
 
 
-@receiver(post_save, sender=Subset)
+@receiver(post_save, sender=Observation)
 def post_social_media(sender, instance, created, **kwargs):
-    """This function post/tweet to social media when a new Observation
-     is added.
+    """Post/tweet to social media when a new Observation is added.
+
     At the same time adds a new comment on the observaction with the link to
     redirect
-     """
+
+    In order to avoid problems when pulling data from social media, only will
+    post to social media when a new contribution is added to any category
+    different than 'Tweets'
+    """
     if created:
         project = instance.project
         socialinteractions_all = project.socialinteractions.all()
         url = 'local/{project_id}/contributions/{subset_id}/'
-        link = url.format(project_id=project.id,subset_id=instance.id)
+        link = url.format(project_id=project.id, subset_id=instance.id)
+        if instance.category.name != 'Tweets':
+            for socialinteraction in socialinteractions_all:
+                text_to_post = socialinteraction.text_to_post
+                replacements = {
+                    "$project$": project.name,
+                    "$link$": link
+                }
 
-        for socialinteraction in socialinteractions_all:
-            text_to_post = socialinteraction.text_to_post
-            replacements = {
-                "$project$": project.name,
-                "$link$": link
-            }
+                for key, replacement in replacements.iteritems():
+                    text_to_post = text_to_post.replace(key, replacement)
+                # for socialaccount in socialinteraction.socialaccount:
+                socialaccount = socialinteraction.socialaccount
+                provider = socialaccount.provider
+                app = SocialApp.objects.get(provider=provider)
 
-            for key, replacement in replacements.iteritems():
-                text_to_post = text_to_post.replace(key, replacement)
-            # for socialaccount in socialinteraction.socialaccount:
-            socialaccount = socialinteraction.socialaccount
-            provider = socialaccount.provider
-            app = SocialApp.objects.get(provider=provider)
+                access_token = SocialToken.objects.get(
+                    account__id=socialaccount.id,
+                    account__user=socialaccount.user,
+                    account__provider=app.provider
+                )
+                tweet_id, screen_name = check_provider(
+                    provider,
+                    access_token,
+                    text_to_post,
+                    app)
 
-            access_token = SocialToken.objects.get(
-                account__id=socialaccount.id,
-                account__user=socialaccount.user,
-                account__provider=app.provider
-            )
-            [tweet_id, screen_name] = check_provider(
-                provider,
-                access_token,
-                text_to_post,
-                app)
-
-            # comment_txt = 'https://twitter.com/{user_name}/status/{tweet_id}'.format(
-            #     user_name=screen_name,
-            #     tweet_id=tweet_id
-            # )
-            # Comment.objects.create(
-            #     text=comment_txt,
-            #     commentto=instance,
-            #     creator=socialaccount.user
-            # )
-
-
-def check_provider(provider,access_token,text_to_post,app):
-    """This function checks the provider.
-
-    Parameters:
-    ------------
-    provider :  str
-        provider of the social account
-    access_token: str - SocialToken Object
-        access token for the social account and user
-    text_to_post: str
-        text which will be posted to social media
-    app: socialAccount app object
-
-    returns
-    --------
-    tweet_id : str
-        tweet identifier
-    screen_aname: str
-        screen name user by twitter user
-
-    """
-
-    if provider == 'facebook':
-        graph = facebook.GraphAPI(access_token)
-        graph.put_wall_post(message=text_to_post)
-    if provider == 'twitter':
-        consumer_key = app.client_id
-        consumer_secret = app.secret
-        auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-        access_token_all = access_token
-        access_token = access_token_all.token
-        access_token_secret = access_token_all.token_secret
-        auth.set_access_token(access_token, access_token_secret)
-        api = tweepy.API(auth)
-        #print "api", api
-        tweet_back = api.update_status(text_to_post)
-        #print "tweet_back",  tweet_back
-
-    return tweet_back.id, tweet_back.author.screen_name
+                comment_txt = 'https://twitter.com/{user_name}/status/{tweet_id}'.format(
+                    user_name=screen_name,
+                    tweet_id=tweet_id
+                )
+                Comment.objects.create(
+                    text=comment_txt,
+                    commentto=instance,
+                    creator=socialaccount.user
+                )

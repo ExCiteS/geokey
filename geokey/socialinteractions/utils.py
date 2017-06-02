@@ -9,6 +9,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "local_settings.settings")
 django.setup()
 
 import tweepy
+import facebook
+
 from allauth.socialaccount.models import SocialToken, SocialApp
 from geokey.socialinteractions.models import SocialInteractionPull
 from geokey.categories.models import Category, TextField, Field
@@ -226,3 +228,41 @@ def pull_from_social_media(provider, access_token, text_to_pull, app):
     return all_tweets
 
 # start2pull()
+
+
+def check_provider(provider, access_token, text_to_post, app):
+    """Check the provider and authenticate.
+
+    Parameters:
+    ------------
+    provider :  str
+        provider of the social account
+    access_token: str - SocialToken Object
+        access token for the social account and user
+    text_to_post: str
+        text which will be posted to social media
+    app: socialAccount app object
+
+    returns
+    --------
+    tweet_id : str
+        tweet identifier
+    screen_aname: str
+        screen name user by twitter user
+
+    """
+    if provider == 'facebook':
+        graph = facebook.GraphAPI(access_token)
+        graph.put_wall_post(message=text_to_post)
+    if provider == 'twitter':
+        consumer_key = app.client_id
+        consumer_secret = app.secret
+        auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+        access_token_all = access_token
+        access_token = access_token_all.token
+        access_token_secret = access_token_all.token_secret
+        auth.set_access_token(access_token, access_token_secret)
+        api = tweepy.API(auth)
+        tweet_back = api.update_status(text_to_post)
+
+    return tweet_back.id, tweet_back.author.screen_name
