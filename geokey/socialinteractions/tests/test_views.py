@@ -1154,8 +1154,7 @@ class SocialInteractionPullSettingsTest(TestCase):
         It should redirect to the login page.
         """
         self.request.method = 'POST'
-        post = QueryDict('name=%s&frequency=%s&text_pull=%s&status_type=%s&socialaccount=%s' % (
-            'New Name',
+        post = QueryDict('frequency=%s&text_pull=%s&status_type=%s&socialaccount=%s' % (
             'hourly',
             '#hastag',
             'desactive',
@@ -1172,8 +1171,9 @@ class SocialInteractionPullSettingsTest(TestCase):
         self.assertIn('/admin/account/login/', response['location'])
 
         reference = SocialInteractionPull.objects.get(id=self.si_pull.id)
-        self.assertNotEqual(reference.name, 'New Name')
         self.assertNotEqual(reference.frequency, 'hourly')
+        self.assertNotEqual(reference.text_to_pull, '#hastag')
+        self.assertNotEqual(reference.status, 'inactive')
         socialaccount = reference.socialaccount
         self.assertNotEqual(self.socialaccount_3, socialaccount)
 
@@ -1184,8 +1184,7 @@ class SocialInteractionPullSettingsTest(TestCase):
         It should render the page with an error message.
         """
         self.request.method = 'POST'
-        post = QueryDict('name=%s&frequency=%s&text_pull=%s&status_type=%s&socialaccount=%s' % (
-            'New Name',
+        post = QueryDict('frequency=%s&text_pull=%s&status_type=%s&socialaccount=%s' % (
             'hourly',
             '#hastag',
             'inactive',
@@ -1214,8 +1213,8 @@ class SocialInteractionPullSettingsTest(TestCase):
         self.assertEqual(response.content.decode('utf-8'), rendered)
 
         reference = SocialInteractionPull.objects.get(id=self.si_pull.id)
-        self.assertNotEqual(reference.name, 'New Name')
         self.assertNotEqual(reference.frequency, 'hourly')
         self.assertNotEqual(reference.status, 'inactive')
+        self.assertNotEqual(reference.text_to_pull, '#hastag')
         socialaccount = reference.socialaccount
         self.assertNotEqual(self.socialaccount_3, socialaccount)
