@@ -653,7 +653,7 @@ class SocialInteractionPullDelete(LoginRequiredMixin, SocialInteractionPullConte
                 return redirect(
                     'admin:socialinteraction_settings',
                     project_id=project_id,
-                    socialinteractionpull_id=socialinteraction_pull.id
+                    socialinteractionpull_id=socialinteractionpull_id
                 )
             else:
                 socialinteraction_pull.delete()
