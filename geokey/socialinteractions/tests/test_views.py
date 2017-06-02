@@ -854,7 +854,6 @@ class SocialInteractionPullCreateTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
 
-    @override_settings(INSTALLED_APPS=install_required_apps())
     def test_get_with_admin(self):
         """
         Accessing the view with project admin.
@@ -862,7 +861,7 @@ class SocialInteractionPullCreateTest(TestCase):
         It should render the page.
         """
         self.request.user = self.admin_user
-        response = self.view(self.request).render()
+        response = self.view(self.request, project_id=self.project.id).render()
 
         rendered = render_to_string(
             'socialinteractions/socialinteraction_pull_create.html',
