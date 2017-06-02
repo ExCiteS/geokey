@@ -1077,7 +1077,7 @@ class SocialInteractionPullSettingsTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertIn('/admin/account/login/', response['location'])
-        self.assertEqual(SocialInteraction.objects.count(), 1)
+        self.assertEqual(SocialInteractionPull.objects.count(), 1)
 
     def test_get_with_user(self):
         """
@@ -1093,7 +1093,7 @@ class SocialInteractionPullSettingsTest(TestCase):
         ).render()
 
         rendered = render_to_string(
-            'socialinteractions/socialinteraction_settings.html',
+            'socialinteractions/socialinteraction_pull_settings.html',
             {
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
