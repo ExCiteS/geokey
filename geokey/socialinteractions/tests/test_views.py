@@ -1116,14 +1116,14 @@ class SocialInteractionPullSettingsTest(TestCase):
     #         provider__in=[id for id, name in registry.as_choices()
     #                       if id in ['twitter', 'facebook']]
     #     )
-    #     self.socialinteraction.creator = self.admin_user
-    #     self.socialinteraction.project = self.project
-    #     self.request.user = self.socialinteraction.creator
-    #     self.socialinteraction.save()
+    #     self.si_pull.creator = self.admin_user
+    #     self.si_pull.project = self.project
+    #     self.request.user = self.si_pull.creator
+    #     self.si_pull.save()
     #     response = self.view(
     #         self.request,
     #         project_id=self.project.id,
-    #         socialinteraction_id=self.socialinteraction.id
+    #         socialinteractionpull_id=self.si_pull.id
     #     ).render()
 
     #     socialaccounts_log = SocialAccount.objects.filter(
@@ -1132,11 +1132,13 @@ class SocialInteractionPullSettingsTest(TestCase):
     #                       if id in ['twitter', 'facebook']]
     #     )
     #     rendered = render_to_string(
-    #         'socialinteractions/socialinteraction_settings.html',
+    #         'socialinteractions/socialinteraction_pull.html',
     #         {
     #             'project': self.socialinteraction.project,
     #             'auth_users': socialaccounts_log,
     #             'user': self.admin_user,
+                    # 'status_types': self.si_pull.status
+                    # 'freq': self.si_pull.frequency
     #             'PLATFORM_NAME': get_current_site(self.request).name,
     #             'GEOKEY_VERSION': version.get_version()
     #         }
@@ -1152,7 +1154,7 @@ class SocialInteractionPullSettingsTest(TestCase):
         It should redirect to the login page.
         """
         self.request.method = 'POST'
-        post = QueryDict('name=%s&description=''%s&frequency=%s&text_pull=%s&status_type=%s&socialaccount=%s' % (
+        post = QueryDict('name=%s&%s&frequency=%s&text_pull=%s&status_type=%s&socialaccount=%s' % (
             'New Name',
             'hourly',
             '#hastag',
@@ -1182,7 +1184,7 @@ class SocialInteractionPullSettingsTest(TestCase):
         It should render the page with an error message.
         """
         self.request.method = 'POST'
-        post = QueryDict('name=%s&description=''%s&frequency=%s&text_pull=%s&status_type=%s&socialaccount=%s' % (
+        post = QueryDict('name=%s&frequency=%s&text_pull=%s&status_type=%s&socialaccount=%s' % (
             'New Name',
             'hourly',
             '#hastag',
