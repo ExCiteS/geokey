@@ -373,7 +373,6 @@ class SocialInteractionPost(LoginRequiredMixin, SocialInteractionContext,
             **kwargs
         )
 
-
     def post(self, request, project_id, socialinteraction_id):
         """
         Creates social post base on the data entered by the user.
@@ -536,7 +535,7 @@ class SocialInteractionPullContext(object):
 
         except:
             messages.error(
-                self.request, 'The social interactin is not found.'
+                self.request, 'The social interaction pull is not found.'
             )
             return redirect(
                 'socialinteractions/socialinteraction_list.html',
@@ -595,29 +594,53 @@ class SocialInteractionPullSettings(LoginRequiredMixin, SocialInteractionPullCon
         django.http.HttpResponse
             Rendered template, if project or social interaction does not exist.
         """
-
         data = request.POST
-        context = self.get_context_data(project_id, socialinteractionpull_id)
-        si_pull = context['socialinteraction_pull']
+        try:
+            context = self.get_context_data(
+                project_id,
+                socialinteractionpull_id
+            )
+            # si_pull = context['socialinteraction_pull']
+            si_pull = SocialInteractionPull.objects.get(id=socialinteractionpull_id)
+        except:
+            messages.error(
+                self.request, 'The social account is not found.'
+            )
+            return redirect(
+                'socialinteractions/socialinteraction_pull.html',
+                project_id=project_id,
+                socialinteractionpull_id=socialinteractionpull_id
+            )
+        if si_pull:
+            if si_pull.project.islocked:
+                messages.error(
+                    self.request,
+                    'The project is locked. Social interaction cannot be deleted.'
+                )
+                return redirect(
+                    'admin:socialinteraction_pull',
+                    project_id=project_id,
+                    socialinteractionpull_id=socialinteractionpull_id
+                )
+            else:
+                text_pull = data.get("text_pull")
+                frequency = data.get('frequency')
+                socialaccount_id = data.get('socialaccount')
+                socialaccount = SocialAccount.objects.get(id=socialaccount_id)
 
-        text_pull = data.get("text_pull")
-        frequency = data.get('frequency')
-        socialaccount_id = data.get('socialaccount')
-        socialaccount = SocialAccount.objects.get(id=socialaccount_id)
+                status = data.get('status_type')
 
-        status = data.get('status_type')
+                if text_pull != si_pull.text_to_pull:
+                    si_pull.text_to_pull = text_pull
+                if si_pull.frequency != frequency:
+                    si_pull.frequency = frequency
+                if si_pull.socialaccount != socialaccount:
+                    si_pull.socialaccount = socialaccount
+                if si_pull.status != status:
+                    si_pull.status = status
+                si_pull.save()
 
-        if text_pull != si_pull.text_to_pull:
-            si_pull.text_to_pull = text_pull
-        if si_pull.frequency != frequency:
-            si_pull.frequency = frequency
-        if si_pull.socialaccount != socialaccount:
-            si_pull.socialaccount = socialaccount
-        if si_pull.status != status:
-            si_pull.status = status
-        si_pull.save()
-
-        socialaccount = si_pull.socialaccount
+                socialaccount = si_pull.socialaccount
 
         return self.render_to_response(context)
 
@@ -641,19 +664,19 @@ class SocialInteractionPullDelete(LoginRequiredMixin, SocialInteractionPullConte
             return redirect(
                 'base.html',
                 project_id=project_id,
-                socialinteractionpull_id=socialinteractionpull_id
+                socialinteractionpull_id=socialinteraction_pull.id
             )
 
         if socialinteraction_pull:
             if socialinteraction_pull.project.islocked:
                 messages.error(
                     self.request,
-                    'The project is locked. Social interaction cannot be deleted.'
+                    'The project is locked. Social pull cannot be deleted.'
                 )
                 return redirect(
-                    'admin:socialinteraction_settings',
+                    'admin:socialinteraction_pull',
                     project_id=project_id,
-                    socialinteractionpull_id=socialinteractionpull_id
+                    socialinteractionpull_id=socialinteraction_pull.id
                 )
             else:
                 socialinteraction_pull.delete()
@@ -663,129 +686,3 @@ class SocialInteractionPullDelete(LoginRequiredMixin, SocialInteractionPullConte
                     project_id=project_id)
 
         return self.render_to_response(context)
-
-
-
-
-def pull_from_social_media_workshop(provider,access_token,text_to_pull,app):
-    """
-    Pull data from the timeline when social account has been mentioned and
-    with specific text or hastag.
-
-    Parameters
-    -----------
-    provider =  str
-        provider of the social account
-
-    access_token: str - SocialToken Object
-        access token for the social account and user
-    text_to_pull: str
-        text to be searched on the tweets
-    app: socialAccount app object
-
-    Returns
-    --------
-    all_tweets: array
-        array of tweet objects
-
-    """
-
-    if provider == 'twitter':
-        consumer_key = app.client_id
-        consumer_secret = app.secret
-        auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-        access_token_all = access_token
-        access_token = access_token_all.token
-        access_token_secret = access_token_all.token_secret
-        auth.set_access_token(access_token, access_token_secret)
-        api = tweepy.API(auth)
-
-        try:
-            # tweets_all = api.home_timeline(count=100)
-            tweets_all = api.mentions_timeline(count=100)
-            # tweets_all = api.search(q=text_to_pull)
-        except:
-            print "You are not autheticate"
-
-        all_tweets = []
-        for mention in tweets_all:
-            new_contribution = {}
-            if text_to_pull in mention.text:
-                if mention.coordinates:
-                    new_contribution = {}
-                    new_contribution['text'] = mention.text
-                    new_contribution['user'] = mention.user.name
-                    new_contribution['created_at'] = mention.created_at
-                    new_contribution['geometry'] =  mention.coordinates
-                    if 'media' in mention.entities: ## gets when is media attached to it
-                        for image in mention.entities['media']:
-                            new_contribution['url'] = image['url']
-
-                    all_tweets.append(new_contribution)
-
-    return all_tweets
-
-def pull_from_social_media(provider,access_token,text_to_pull,app):
-    """This function checks the provider."""
-
-    if provider == 'twitter':
-        consumer_key = app.client_id
-        consumer_secret = app.secret
-        auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-        access_token_all = access_token
-        access_token = access_token_all.token
-        access_token_secret = access_token_all.token_secret
-        auth.set_access_token(access_token, access_token_secret)
-        api = tweepy.API(auth)
-
-        try:
-            # tweets_all = api.mentions_timeline(count=100)
-            # tweets_all = api.search(q="#Brexit", geocode="51.5074 -0.1278 100mi", count=100)
-            tweets_all = api.search(q="#Brexit")
-        except:
-            print "You are not autheticate"
-
-        all_tweets = []
-        for mention in tweets_all:
-            new_contribution = {}
-            new_contribution['text'] = mention.text
-            new_contribution['user'] = mention.user.name
-            new_contribution['created_at'] = mention.created_at
-            if mention.coordinates: ## checks if there are coorindates
-                if text_to_pull in mention.text:
-                    #new_contribution['text'] = mention.text
-                    geotype = mention.coordinates['type']
-                    lon = mention.coordinates['coordinates'][1]
-                    lat = mention.coordinates['coordinates'][0]
-                    new_contribution['geometry'] = {"lat":lat, "lon":lon}
-                    if 'media' in mention.entities: ## gets when is media attached to it
-                        for image in mention.entities['media']:
-                            new_contribution['url'] = image['url']
-            all_tweets.append(new_contribution)
-
-
-    # if provider == 'facebook':
-
-    #     try:
-    #         graph = facebook.GraphAPI(access_token)
-    #     except:
-    #         print "You are not autheticate"
-
-
-    #     objects = graph.get_object("me")
-    #     print "I am ", objects
-    #     feeds = graph.get_connections("me","feed")
-    #     posts = graph.request(objects['id']+'/posts')
-    #     feeds = graph.request(objects['id']+'/feed?limit=1000')
-    #     print "PPPPPPPP", len(feeds['data'])
-    #     print "PPPPPPPP", len(posts['data'])
-
-    #     ##wwww =  graph.request('q=samsung&type=post&center=12.9833,77.5833&distance=1000')
-    #     # for w in wwww:
-    #     #     print "AHHAHHA", w
-    #     for feed in feeds['data']:
-    #         print "oo", feed['created_time']
-    #         if text_to_pull in feed['message']:
-    #             print "Yeeepa", feed['created_time']
-
-    return all_tweets
