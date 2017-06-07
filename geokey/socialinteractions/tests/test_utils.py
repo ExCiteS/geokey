@@ -126,7 +126,6 @@ class CreateNewObservationTest(TestCase):
 
     def test_method_create_new_observation(self):
         """Test for method 'create_new_observation'."""
-
         init_obs = Observation.objects.count()
 
         create_new_observation(
@@ -140,11 +139,13 @@ class CreateNewObservationTest(TestCase):
 
 
 class PullFromSocialMediaTest(TestCase):
-    """ test for pull_from_social_media."""
+    """Test for pull_from_social_media."""
+
     def setUp(self):
+        """Setup for test."""
         self.provider = 'twitter'
-        self.access_token = 'seashashsdg4T@T43T333S'
         self.text_to_pull = '#Project2'
+        self.admin_user = UserFactory.create()
         self.app = SocialApp.objects.create(
             provider='twitter',
             name='Twitter',
@@ -152,12 +153,15 @@ class PullFromSocialMediaTest(TestCase):
             secret='xxxxxxxxxxxxxxxxxx',
             key=''
         )
+        self.socialaccount = SocialAccount.objects.create(
+            user=self.admin_user, provider='twitter', uid='1')
 
     def test_pull_from_social_media_with_fake_app(self):
         """Test pull_from_social_media with fake app."""
+        access_token = 'ahahashasgasgasfgas'
         value = pull_from_social_media(
             self.provider,
-            self.access_token,
+            access_token,
             self.text_to_pull,
             self.app)
         self.assertEqual(value, "You are not autheticated")
