@@ -1,3 +1,4 @@
+
 """Models for subsets."""
 
 from django.conf import settings
@@ -77,10 +78,16 @@ def post_social_media(sender, instance, created, **kwargs):
     different than 'Tweets'
     """
     if created:
+        from django.contrib.sites.models import Site
+        domain = Site.objects.get_current().domain
         project = instance.project
         socialinteractions_all = project.socialinteractions.all()
-        url = 'localados/{project_id}/contributions/{subset_id}/'
-        link = url.format(project_id=project.id, subset_id=instance.id)
+        url = '{domain}/projects/{project_id}/contributions/{subset_id}/'
+        link = url.format(
+            project_id=project.id,
+            subset_id=instance.id,
+            domain=domain
+        )
         if instance.category.name != 'Tweets':
             for socialinteraction in socialinteractions_all:
                 text_to_post = socialinteraction.text_to_post
@@ -88,10 +95,8 @@ def post_social_media(sender, instance, created, **kwargs):
                     "$project$": project.name,
                     "$link$": link
                 }
-
                 for key, replacement in replacements.iteritems():
                     text_to_post = text_to_post.replace(key, replacement)
-                # for socialaccount in socialinteraction.socialaccount:
                 socialaccount = socialinteraction.socialaccount
                 provider = socialaccount.provider
                 app = SocialApp.objects.get(provider=provider)
@@ -101,7 +106,7 @@ def post_social_media(sender, instance, created, **kwargs):
                     account__user=socialaccount.user,
                     account__provider=app.provider
                 )
-                tweet_id, screen_name = check_provider(
+                tweet_id, screen_name = post_to_social_media(
                     provider,
                     access_token,
                     text_to_post,
@@ -118,7 +123,7 @@ def post_social_media(sender, instance, created, **kwargs):
                 # )
 
 
-def check_provider(provider, access_token, text_to_post, app):
+def post_to_social_media(provider, access_token, text_to_post, app):
     """Check the provider and authenticate.
 
     Parameters:
