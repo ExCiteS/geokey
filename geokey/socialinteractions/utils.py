@@ -194,19 +194,22 @@ def pull_from_social_media(provider, access_token, text_to_pull, app):
         array of tweet objects
     """
     if provider == 'twitter':
-        consumer_key = app.client_id
-        consumer_secret = app.secret
-        auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-        access_token_all = access_token
-        access_token = access_token_all.token
-        access_token_secret = access_token_all.token_secret
-        auth.set_access_token(access_token, access_token_secret)
-        api = tweepy.API(auth)
-
         try:
-            tweets_all = api.mentions_timeline(count=100)
-        except Exception as e:
-            print "You are not autheticate", e
+            consumer_key = app.client_id
+            consumer_secret = app.secret
+            auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+            access_token_all = access_token
+            access_token = access_token_all.token
+            access_token_secret = access_token_all.token_secret
+            auth.set_access_token(access_token, access_token_secret)
+            api = tweepy.API(auth)
+
+            try:
+                tweets_all = api.mentions_timeline(count=100)
+            except Exception:
+                return "Implossible to get data from the timeline"
+        except:
+            return "You are not autheticated"
 
         all_tweets = []
         for mention in tweets_all:
