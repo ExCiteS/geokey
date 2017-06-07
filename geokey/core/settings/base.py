@@ -55,13 +55,13 @@ INSTALLED_APPS = (
     'geokey.core',
     'geokey.projects',
     'geokey.categories',
-    'geokey.extensions',
+    'geokey.contributions',
     'geokey.users',
-    'geokey.superusertools',
     'geokey.applications',
+    'geokey.superusertools',
+    'geokey.extensions',
     'geokey.subsets',
     'geokey.socialinteractions',
-    'geokey.contributions',
 )
 
 # Middleware that is used with GeoKey to process HTTP requests and responses.
