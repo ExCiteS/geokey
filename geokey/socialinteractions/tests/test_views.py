@@ -1221,53 +1221,53 @@ class SocialInteractionPullSettingsTest(TestCase):
         socialaccount = reference.socialaccount
         self.assertEqual(self.socialaccount_3, socialaccount)
 
-    def test_post_with_admin(self):
-        """
-        Updating with admin user.
+    # def test_post_with_admin(self):
+    #     """
+    #     Updating with admin user.
 
-        It should render the page with an error message.
-        """
-        self.request.method = 'POST'
-        post = QueryDict('frequency=%s&text_pull=%s&status_type=%s&socialaccount=%s' % (
-            'hourly',
-            '#hastag',
-            'inactive',
-            self.socialaccount_3.id,
-        ))
-        self.request.POST = post
+    #     It should render the page with an error message.
+    #     """
+    #     self.request.method = 'POST'
+    #     post = QueryDict('frequency=%s&text_pull=%s&status_type=%s&socialaccount=%s' % (
+    #         'hourly',
+    #         '#hastag',
+    #         'inactive',
+    #         self.socialaccount_3.id,
+    #     ))
+    #     self.request.POST = post
 
-        socialaccounts_log = SocialAccount.objects.filter(
-            user=self.admin_user,
-            provider__in=[id for id, name in registry.as_choices()
-                          if id in ['twitter', 'facebook']]
-        )
+    #     socialaccounts_log = SocialAccount.objects.filter(
+    #         user=self.admin_user,
+    #         provider__in=[id for id, name in registry.as_choices()
+    #                       if id in ['twitter', 'facebook']]
+    #     )
 
-        self.request.user = self.admin_user
-        response = self.view(
-            self.request,
-            project_id=self.si_pull.project.id,
-            socialinteractionpull_id=self.si_pull.id
-        ).render()
+    #     self.request.user = self.admin_user
+    #     response = self.view(
+    #         self.request,
+    #         project_id=self.si_pull.project.id,
+    #         socialinteractionpull_id=self.si_pull.id
+    #     ).render()
 
-        rendered = render_to_string(
-            'socialinteractions/socialinteraction_pull.html',
-            {
-                'project': self.si_pull.project,
-                'auth_users': socialaccounts_log,
-                'socialinteraction_pull': self.si_pull,
-                'user': self.admin_user,
-                'status_types': self.status_types,
-                'freq': self.freq,
-                'PLATFORM_NAME': get_current_site(self.request).name,
-                'GEOKEY_VERSION': version.get_version()
-            }
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
+    #     rendered = render_to_string(
+    #         'socialinteractions/socialinteraction_pull.html',
+    #         {
+    #             'project': self.si_pull.project,
+    #             'auth_users': socialaccounts_log,
+    #             'socialinteraction_pull': self.si_pull,
+    #             'user': self.admin_user,
+    #             'status_types': self.status_types,
+    #             'freq': self.freq,
+    #             'PLATFORM_NAME': get_current_site(self.request).name,
+    #             'GEOKEY_VERSION': version.get_version()
+    #         }
+    #     )
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertEqual(response.content.decode('utf-8'), rendered)
 
-        reference = SocialInteractionPull.objects.get(id=self.si_pull.id)
-        self.assertEqual(str(reference.frequency), 'hourly')
-        self.assertEqual(str(reference.status), 'inactive')
-        self.assertEqual(str(reference.text_to_pull), '#hastag')
-        socialaccount = reference.socialaccount
-        self.assertEqual(self.socialaccount_3, socialaccount)
+    #     reference = SocialInteractionPull.objects.get(id=self.si_pull.id)
+    #     self.assertEqual(str(reference.frequency), 'hourly')
+    #     self.assertEqual(str(reference.status), 'inactive')
+    #     self.assertEqual(str(reference.text_to_pull), '#hastag')
+    #     socialaccount = reference.socialaccount
+    #     self.assertEqual(self.socialaccount_3, socialaccount)
