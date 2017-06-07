@@ -3,7 +3,7 @@
 from django.test import TestCase
 from django.utils import timezone
 
-from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.models import SocialAccount, SocialApp
 
 from geokey.socialinteractions.utils import (
     start2pull,
@@ -138,3 +138,26 @@ class CreateNewObservationTest(TestCase):
 
         self.assertEqual(init_obs + 1, Observation.objects.count())
 
+
+class PullFromSocialMediaTest(TestCase):
+    """ test for pull_from_social_media."""
+    def setUp(self):
+        self.provider = 'twitter'
+        self.access_token = 'seashashsdg4T@T43T333S'
+        self.text_to_pull = '#Project2'
+        self.app = SocialApp.objects.create(
+            provider='twitter',
+            name='Twitter',
+            client_id='xxxxxxxxxxxxxxxxxx',
+            secret='xxxxxxxxxxxxxxxxxx',
+            key=''
+        )
+
+    def test_pull_from_social_media_with_fake_app(self):
+        """Test pull_from_social_media with fake app."""
+        value = pull_from_social_media(
+            self.provider,
+            self.access_token,
+            self.text_to_pull,
+            self.app)
+        self.assertEqual(value, "You are not autheticated")
