@@ -10,7 +10,7 @@ django-simple-history==1.8.2
 django-youtube==0.2
 django-nose==1.4.4
 djangorestframework==3.6.3
-djangorestframework-gis==0.11.1
+djangorestframework-gis==0.11.2
 easy-thumbnails==2.4.1
 gdata==2.0.18
 iso8601==0.1.11
