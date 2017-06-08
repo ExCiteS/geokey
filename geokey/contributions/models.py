@@ -61,7 +61,7 @@ class Observation(models.Model):
     Stores a single observation.
     """
     location = models.ForeignKey(
-        Location, related_name='locations'
+        Location, related_name='locations',  null=True
     )
     project = models.ForeignKey(
         'projects.Project', related_name='observations'
@@ -192,7 +192,8 @@ class Observation(models.Model):
         if not properties:
             properties = {}
 
-        location.save()
+        if not (location is None):
+            location.save()
         observation = cls.objects.create(
             location=location,
             category=category,
