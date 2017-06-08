@@ -17,7 +17,9 @@ from geokey.categories.tests.model_factories import CategoryFactory, TextFieldFa
 from geokey.users.tests.model_factories import UserFactory
 from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.socialinteractions.tests.model_factories import SocialInteractionPullFactory
+from geokey.socialinteractions.models import get_ready_to_post
 from geokey.contributions.models import Observation
+from geokey.contributions.tests.model_factories import ObservationFactory
 
 from datetime import timedelta, datetime
 
@@ -165,3 +167,33 @@ class PullFromSocialMediaTest(TestCase):
             self.text_to_pull,
             self.app)
         self.assertEqual(value, "You are not autheticated")
+
+
+class GetReadyToPostTest(TestCase):
+    """Test for get_ready_to_post."""
+    def setUp(self):
+
+        self.user = UserFactory.create()
+        self.category_tweet = CategoryFactory.create(
+            name="Tweets")
+
+        self.observation = ObservationFactory.create()
+        self.observation_tweet = ObservationFactory.create(
+            category=self.category_tweet)
+
+    def test_method_with_regular_category(self):
+
+        value = get_ready_to_post(self.observation)
+
+        self.assertEqual(value, "posted to social media")
+
+    def test_method_with_category_name_tweet(self):
+
+        value = get_ready_to_post(self.observation_tweet)
+
+        self.assertEqual(value, "Category name is Tweets")
+
+
+
+
+
