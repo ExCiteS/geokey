@@ -67,7 +67,13 @@ class SocialInteractionPull(models.Model):
 
 
 @receiver(post_save, sender=Observation)
-def post_social_media(sender, instance, created, **kwargs):
+def post_save_observation(sender, instance, created, **kwargs):
+    """Signal when new Observation object is created."""
+    if created:
+        get_ready_to_post(instance)
+
+
+def get_ready_to_post(instance):
     """Post/tweet to social media when a new Observation is added.
 
     At the same time adds a new comment on the observaction with the link to
@@ -77,50 +83,53 @@ def post_social_media(sender, instance, created, **kwargs):
     post to social media when a new contribution is added to any category
     different than 'Tweets'
     """
-    if created:
-        from django.contrib.sites.models import Site
-        domain = Site.objects.get_current().domain
-        project = instance.project
-        socialinteractions_all = project.socialinteractions.all()
-        url = '{domain}/projects/{project_id}/contributions/{subset_id}/'
-        link = url.format(
-            project_id=project.id,
-            subset_id=instance.id,
-            domain=domain
-        )
-        if instance.category.name != 'Tweets':
-            for socialinteraction in socialinteractions_all:
-                text_to_post = socialinteraction.text_to_post
-                replacements = {
-                    "$project$": project.name,
-                    "$link$": link
-                }
-                for key, replacement in replacements.iteritems():
-                    text_to_post = text_to_post.replace(key, replacement)
-                socialaccount = socialinteraction.socialaccount
-                provider = socialaccount.provider
-                app = SocialApp.objects.get(provider=provider)
+    from django.contrib.sites.models import Site
+    domain = Site.objects.get_current().domain
+    project = instance.project
+    socialinteractions_all = project.socialinteractions.all()
+    url = '{domain}/projects/{project_id}/contributions/{subset_id}/'
+    link = url.format(
+        project_id=project.id,
+        subset_id=instance.id,
+        domain=domain
+    )
+    if instance.category.name != 'Tweets':
+        for socialinteraction in socialinteractions_all:
+            text_to_post = socialinteraction.text_to_post
+            replacements = {
+                "$project$": project.name,
+                "$link$": link
+            }
+            for key, replacement in replacements.iteritems():
+                text_to_post = text_to_post.replace(key, replacement)
+            socialaccount = socialinteraction.socialaccount
+            provider = socialaccount.provider
+            app = SocialApp.objects.get(provider=provider)
 
-                access_token = SocialToken.objects.get(
-                    account__id=socialaccount.id,
-                    account__user=socialaccount.user,
-                    account__provider=app.provider
-                )
-                tweet_id, screen_name = post_to_social_media(
-                    provider,
-                    access_token,
-                    text_to_post,
-                    app)
+            access_token = SocialToken.objects.get(
+                account__id=socialaccount.id,
+                account__user=socialaccount.user,
+                account__provider=app.provider
+            )
+            tweet_id, screen_name = post_to_social_media(
+                provider,
+                access_token,
+                text_to_post,
+                app)
 
-                # comment_txt = 'https://twitter.com/{user_name}/status/{tweet_id}'.format(
-                #     user_name=screen_name,
-                #     tweet_id=tweet_id
-                # )
-                # Comment.objects.create(
-                #     text=comment_txt,
-                #     commentto=instance,
-                #     creator=socialaccount.user
-                # )
+            # comment_txt = 'https://twitter.com/{user_name}/status/{tweet_id}'.format(
+            #     user_name=screen_name,
+            #     tweet_id=tweet_id
+            # )
+            # Comment.objects.create(
+            #     text=comment_txt,
+            #     commentto=instance,
+            #     creator=socialaccount.user
+            # )
+
+        return "posted to social media"
+
+    return "Category name is Tweets"
 
 
 def post_to_social_media(provider, access_token, text_to_post, app):
