@@ -209,7 +209,7 @@ def pull_from_social_media(provider, access_token, text_to_pull, app):
             except Exception:
                 return "Implossible to get data from the timeline"
         except:
-            return "You are not autheticated"
+            return "You are not authenticated"
 
         all_tweets = []
         for mention in tweets_all:

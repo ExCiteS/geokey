@@ -166,7 +166,7 @@ class PullFromSocialMediaTest(TestCase):
             access_token,
             self.text_to_pull,
             self.app)
-        self.assertEqual(value, "You are not autheticated")
+        self.assertEqual(value, "You are not authenticated")
 
 
 class GetReadyToPostTest(TestCase):
