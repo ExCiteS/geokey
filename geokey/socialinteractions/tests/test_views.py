@@ -1033,7 +1033,7 @@ class SocialInteractionPullDeleteTest(TestCase):
 
 @override_settings(INSTALLED_APPS=install_required_apps())
 class SocialInteractionPullSettingsTest(TestCase):
-    """Test social interaction settings page."""
+    """Test social interaction pull settings page."""
 
     def setUp(self):
         """Set up tests."""
