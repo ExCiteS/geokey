@@ -29,7 +29,6 @@ class CheckDatesTest(TestCase):
 
     def test_method(self):
         """Test method."""
-
         now = timezone.now()
         updated_at = now - timedelta(minutes=10)
 
@@ -64,7 +63,7 @@ class GetCategoryAndFieldTest(TestCase):
         )
 
     def test_method_when_check_when_category_and_field_exists(self):
-        """Check if provides data when category and field exists."""
+        """Check method when category and field exists."""
         tweet_cat, text_field = get_category_and_field(
             self.project,
             self.socialaccount)
@@ -76,7 +75,7 @@ class GetCategoryAndFieldTest(TestCase):
         self.assertEqual(text_field.name, self.field_text.name)
 
     def test_method_when_check_when_category_and_field_does_not_exist(self):
-        """Check if provides data when category and field exists."""
+        """Check method when category does not exist and field exists."""
         self.category.delete()
         self.category.save()
 
@@ -92,11 +91,10 @@ class GetCategoryAndFieldTest(TestCase):
 
 
 class CreateNewObservationTest(TestCase):
-    """test for method 'create_new_observation'."""
+    """Test for method 'create_new_observation'."""
 
     def setUp(self):
-        """Set up test method 'create_new_observation'"""
-
+        """Set up test method 'create_new_observation'."""
         self.admin = UserFactory.create()
         self.project = ProjectFactory.create(creator=self.admin)
 
@@ -171,8 +169,9 @@ class PullFromSocialMediaTest(TestCase):
 
 class GetReadyToPostTest(TestCase):
     """Test for get_ready_to_post."""
-    def setUp(self):
 
+    def setUp(self):
+        """Setup for test."""
         self.user = UserFactory.create()
         self.category_tweet = CategoryFactory.create(
             name="Tweets")
@@ -182,13 +181,13 @@ class GetReadyToPostTest(TestCase):
             category=self.category_tweet)
 
     def test_method_with_regular_category(self):
-
+        """Test method with regular category."""
         value = get_ready_to_post(self.observation)
 
         self.assertEqual(value, "posted to social media")
 
     def test_method_with_category_name_tweet(self):
-
+        """Test method with category name as 'Tweets'."""
         value = get_ready_to_post(self.observation_tweet)
 
         self.assertEqual(value, "Category name is Tweets")
