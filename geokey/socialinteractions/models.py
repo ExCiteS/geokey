@@ -95,13 +95,13 @@ def get_ready_to_post(instance):
     )
     if instance.category.name != 'Tweets':
         for socialinteraction in socialinteractions_all:
-            text_to_post = socialinteraction.text_to_post
-            replacements = {
-                "$project$": project.name,
-                "$link$": link
-            }
-            for key, replacement in replacements.iteritems():
-                text_to_post = text_to_post.replace(key, replacement)
+            tweet_text = '{text} {project_name} ---> {link}. {tweet_to}'
+            text_to_post = tweet_text.format(
+                text="Check out the new contribution on",
+                project_name=project.name,
+                link=link,
+                tweet_to=socialinteraction.text_to_post
+            )
             socialaccount = socialinteraction.socialaccount
             provider = socialaccount.provider
             app = SocialApp.objects.get(provider=provider)
