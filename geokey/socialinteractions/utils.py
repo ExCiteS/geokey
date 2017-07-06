@@ -63,7 +63,10 @@ def start2pull():
                 si_pull.text_to_pull,
                 app)
 
-            project = si_pull.project
+            try:
+                project = si_pull.project
+            except:
+                next
 
             tweet_cat, text_field = get_category_and_field(
                 project,
