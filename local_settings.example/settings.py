@@ -42,7 +42,7 @@ INSTALLED_APPS += (
 )
 
 # Static files (CSS, JavaScript, Images)
-STATIC_ROOT = '/geokey/static/'
+STATIC_ROOT = '/app/static/'
 STATIC_URL = '/static/'
 
 # Media files (usually uploaded by the user)

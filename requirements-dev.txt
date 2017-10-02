@@ -1,2 +1,4 @@
+-r requirements.txt
+
 factory-boy==2.8.1
 django-debug-toolbar==1.8
