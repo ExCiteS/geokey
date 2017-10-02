@@ -54,3 +54,6 @@ WSGI_APPLICATION = 'local_settings.wsgi.application'
 
 # Allow all hosts
 ALLOWED_HOSTS = ['*']
+
+SOCIAL_AUTH_GITHUB_KEY = os.environ.get('SOCIAL_AUTH_GITHUB_KEY')
+SOCIAL_AUTH_GITHUB_SECRET = os.environ.get('SOCIAL_AUTH_GITHUB_SECRET')

@@ -35,6 +35,7 @@ urlpatterns = [
         r'^$',
         RedirectView.as_view(url='/admin/', permanent=True)
     ),
+    url(r'^social-oauth/', include('social_django.urls', namespace='social')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

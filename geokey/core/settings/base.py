@@ -50,6 +50,7 @@ INSTALLED_APPS = (
     'allauth.socialaccount',
     'rest_framework',
     'rest_framework_gis',
+    'social_django',
 
     # GeoKey apps
     'geokey.core',
@@ -73,6 +74,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
     'geokey.core.middleware.XsSharing',
     'geokey.core.middleware.RequestProvider',
 )
@@ -113,7 +115,8 @@ AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
     # `allauth` specific authentication methods, such as login by e-mail
-    'allauth.account.auth_backends.AuthenticationBackend'
+    'allauth.account.auth_backends.AuthenticationBackend',
+    'social_core.backends.github.GithubOAuth2',
 )
 AUTH_USER_MODEL = 'users.User'
 LOGIN_REDIRECT_URL = '/admin/dashboard/'
@@ -160,8 +163,10 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
                 'geokey.core.context_processors.project_settings',
-                'django.contrib.messages.context_processors.messages'
             ],
         },
     },

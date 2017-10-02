@@ -27,5 +27,6 @@ Thumbs.db
 .Spotlight-V100
 .Trashes
 
-# docker volumes
+# docker-compose
 volumes
+.env
