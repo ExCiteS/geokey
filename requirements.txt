@@ -16,7 +16,7 @@ iso8601==0.1.11
 moment==0.6.1
 pillow==4.0.0
 psycopg2==2.7
-pytz==2016.10
+pytz==2017.2
 requests==2.18.4
 oauth2client==4.0.0
 oauthlib==2.0.1
