@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  geokey:
+    build:
+      context: .
+    links:
+      - db
+    entrypoint: dockerize -wait tcp://db:5432 -timeout 20s
+    command: tail -f /dev/null
+    ports:
+      - "9000:8000"
+    environment:
+      DJANGO_DATABASE_HOST: db
+    volumes:
+      - ./geokey:/app/geokey
+  db:
+    build: db
+    environment:
+      POSTGRES_USER: django
+      POSTGRES_PASSWORD: django123
+      POSTGRES_DB: geokey
