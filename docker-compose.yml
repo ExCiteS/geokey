@@ -12,6 +12,9 @@ services:
       - "9000:8000"
     environment:
       DJANGO_DATABASE_HOST: db
+      SOCIAL_AUTH_GITHUB_KEY: ${SOCIAL_AUTH_GITHUB_KEY}
+      SOCIAL_AUTH_GITHUB_SECRET: ${SOCIAL_AUTH_GITHUB_SECRET}
+      DJANGO_DATABASE_HOST: db
     volumes:
       - ./geokey:/app/geokey
   db:

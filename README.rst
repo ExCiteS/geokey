@@ -58,6 +58,13 @@ For development purposes, the source code is also mounted as a volume in the `ge
 Install for development
 =======================
 
+.. NOTE::
+
+    If you prefer containerised applications, Docker instructions are here_.
+    Otherwise, please read on ...
+
+.. _here: docker.md
+
 GeoKey can be run on Python 2.7 only.
 
 1. Update your system:
