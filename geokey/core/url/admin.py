@@ -10,6 +10,7 @@ from geokey.users import views as user_views
 from geokey.applications import views as app_views
 from geokey.superusertools import views as superusertools
 from geokey.subsets import views as subsets
+from geokey.socialinteractions import views as socialinteractions
 from geokey.core import views as logger
 
 
@@ -167,14 +168,36 @@ urlpatterns = [
         name='subset_delete'),
 
     # ###########################
-    # LOGGER
+    #  SOCIAL INTERACTIONS
     # ###########################
-
     url(r'^projects/(?P<project_id>[0-9]+)/'
-        r'history/$',
-        logger.LoggerList.as_view(),
-        name='logger_list'),
-
+        r'socialinteractions/$',
+        socialinteractions.SocialInteractionList.as_view(),
+        name='socialinteraction_list'),
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/new/$',
+        socialinteractions.SocialInteractionCreate.as_view(),
+        name='socialinteraction_create'),
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/(?P<socialinteraction_id>[0-9]+)/$',
+        socialinteractions.SocialInteractionSettings.as_view(),
+        name='socialinteraction_settings'),
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/(?P<socialinteraction_id>[0-9]+)/post/$',
+        socialinteractions.SocialInteractionPost.as_view(),
+        name='socialinteraction_post'),
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/(?P<socialinteraction_id>[0-9]+)/delete/$',
+        socialinteractions.SocialInteractionDelete.as_view(),
+        name='socialinteraction_delete'),
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/pull$',
+        socialinteractions.SocialInteractionPull.as_view(),
+        name='socialinteraction_pull'),
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/pullWorkshop$',
+        socialinteractions.SocialInteractionPullWorkshop.as_view(),
+        name='socialinteraction_pullWorkshop'),
 
     # ###########################
     # APPS

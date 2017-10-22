@@ -15,6 +15,10 @@
         <a href="{% url 'admin:subset_list' project.id %}">Subsets</a>
     </li>
 
+    <li role="presentation" class="{% if 'socialinteraction' in request.resolver_match.url_name %}active{% endif %}">
+        <a href="{% url 'admin:socialinteraction_list' project.id %}">Social interactions</a>
+    </li>
+
     <li role="presentation" class="{% if request.resolver_match.url_name == 'project_geographicextent' %}active{% endif %}">
         <a href="{% url 'admin:project_geographicextent' project.id %}">Geographic extent</a>
     </li>

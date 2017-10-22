@@ -569,3 +569,10 @@ p.meta span.lower-case {
 .value-symbol {
     padding-top: 15px;
 }
+
+.socialaccount_provider
+{
+    height:15px;
+    width:15px;
+
+}

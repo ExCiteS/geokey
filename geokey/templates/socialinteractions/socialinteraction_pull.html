@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block bodydata %}
+data-project-id="{{ project.id }}"
+data-project-locked="{{ project.islocked }}"
+{% endblock %}
+
+{% block title %} | Project: {{ project.name }} - Create new social interaction{% endblock %}
+
+{% block main %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="smaller">
+            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+            <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
+        </h1>
+
+        {% include 'projects/navigation.html' %}
+    </div>
+</div>
+
+<div class="container">
+<div class="row">
+   <div class="col-md-8 col-md-push-2">
+            <div>
+                <h3 class="header">
+                    <!-- {% if project.socialinteraction.socialaccounts.length == 0 %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %} -->
+                    <span>Pull data from social media</span>
+                </h3>
+            </div>
+                {% for sa in socialaccounts_auth %}
+                    {% if forloop.first %}
+                        <ul class="list-unstyled overview-list">
+                    {% endif %}
+                    {% if forloop.first %}
+                        <ul class="list-unstyled overview-list">
+                    {% endif %}
+                    <li>
+                        <h4>
+                            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+
+                            <img class="socialaccount_provider" src="{% static 'img/providers/' %}{{ sa.provider }}.svg" alt="{{ sa.get_provider.name }} social provider" /> {{sa.get_provider_account}}
+                        </h4>
+                        <form id="settings" method="POST" action="{% url 'admin:socialinteraction_pull' project.id %}" novalidate>
+                        {% csrf_token %}
+                            <input hidden name="socialaccount_id" value="{{sa.id}}">
+                            <div class="form-group">
+                                <label for="text_pull" class="control-label">Text to search</label>
+                                <input type="text" class="form-control input-lg" id="text_pull" name="text_pull" value="#Project2" placeholder="e.g: #Project2" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="coordinates" class="control-label">Coordinates</label>
+                                <input type="text" class="form-control input-lg" id="coordinates" name="coordinates" value="50.56 2.333" placeholder="e.g: 50.56 2.333" required />
+                            </div>
+                            <div class="form-group">
+                            <label for="hola" class="col-sm-3 control-label">Get data from (date)</label>
+                                <div >
+                                    <input data-date-format="YYYY-MM-DD" type="text" class="form-control date" name="hola" id="hola"  max="" {% if locked %}disabled{% endif %} />
+                                </div>
+                            </div>
+
+                            <div>
+                                <!-- <button type="submit" href="{% url 'admin:socialinteraction_pull' project.id %}" class="btn btn-sm waves-effect waves-light">Get {%if sa.provider == 'twitter' %} tweets {% else %} posts {% endif%} </button> -->
+                                <button type="submit" href="{% url 'admin:socialinteraction_pull' project.id %}" class="btn btn-success btn-lg">Get {%if sa.provider == 'twitter' %} tweets {% else %} posts {% endif%}</button>
+                            </div>
+                        </form>
+                    </li>
+                    {% if forloop.last %}
+                        </ul>
+                    {% endif %}
+
+                {% endfor %}
+            </div>
+        </div>
+        {% if all_tweets %}
+            {% for t in all_tweets %}
+                {% if forloop.first %}
+                        <ul class="list-unstyled overview-list">
+                    {% endif %}
+                <li> {{t.text}} create by {{t.user}} at {{t.created_at}} {% if t.url %} <a href={{ t.url}}>URL </a>{% endif %} {% if t.geometry %} <button type="submit" class="btn btn-success btn-sm">Create Contribution</button> {% endif %}</li>
+                {% if forloop.last %}
+                    </ul>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
+
+{% block libraries %}
+<script src="/static/js/admin.ui.forms.validate.js"></script>
+<script src="/static/lib/moment/moment.min.js"></script>
+
+<script src="/static/lib/handlebars/handlebars.js"></script>
+<script src="/static/js/templates.js"></script>
+
+<link rel="stylesheet" href="/static/lib/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
+<script src="/static/lib/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+
+<script src="/static/js/admin.ui.filters.data.js"></script>
+<script src="/static/js/admin.ui.forms.validate.js"></script>
+<script src="/static/js/admin.control.ajax.js"></script>
+<style>
+.socialaccount_provider
+{
+    height:15px;
+    width:15px;
+
+}
+</style>
+{% endblock %}
+
+
+<!--     <div class="row">
+        <div class="col-sm-4">
+            {% include 'socialinteractions/socialinteraction_navigation.html' %}
+        </div>
+
+        <div class="col-sm-8">
+            <h3 class="header">Social interaction post to social mediasdjsdjksdjksgnk sdgkl sdgkldsg</h3>
+            <h6 class="header">Social accounts associated: {% for sa in socialinteraction.socialaccounts.all %} {% load static %} <img id="socialaccount_provider" src="{% static 'img/providers/' %}{{ sa.provider }}.svg" alt="{{ sa.get_provider.name }} social provider" /> {%if sa.provider == 'twitter' %}@{% endif%}{{sa.get_provider_account}}{% endfor %} </h6>
+            <form id="settings" method="POST" action="{% url 'admin:socialinteraction_settings' project.id socialinteraction.id %}" novalidate>
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="post_text" class="control-label">Text to post</label>
+                    <textarea class="form-control input-lg" rows="5" id="post_text" name="post_text"></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Save99999</button>
+                    <button type="reset" class="btn btn-link">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> -->
+
+
+
