@@ -1,7 +1,7 @@
 """GeoKey settings."""
 
+import os
 from geokey.core.settings.dev import *
-
 
 # Default email, used for automated correspondence
 DEFAULT_FROM_EMAIL = 'sender@example.com'
@@ -15,7 +15,7 @@ DATABASES = {
         'NAME': 'geokey',
         'USER': 'django',
         'PASSWORD': 'django123',
-        'HOST': 'localhost',
+        'HOST': os.environ.get('DJANGO_DATABASE_HOST', 'localhost'),
         'PORT': '',
     }
 }
@@ -42,7 +42,7 @@ INSTALLED_APPS += (
 )
 
 # Static files (CSS, JavaScript, Images)
-STATIC_ROOT = '/some/path/'
+STATIC_ROOT = '/geokey/static/'
 STATIC_URL = '/static/'
 
 # Media files (usually uploaded by the user)
@@ -51,3 +51,6 @@ MEDIA_URL = '/assets/'
 
 # Python path to WSGI application
 WSGI_APPLICATION = 'local_settings.wsgi.application'
+
+# Allow all hosts
+ALLOWED_HOSTS = ['*']

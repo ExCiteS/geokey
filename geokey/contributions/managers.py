@@ -13,7 +13,6 @@ from django.conf import settings
 from django.template.defaultfilters import slugify
 
 from model_utils.managers import InheritanceManager
-from django_youtube.api import Api as Youtube, AccessControl
 
 from geokey.core.exceptions import FileTypeError, InputError
 from geokey.projects.models import Project
@@ -21,6 +20,12 @@ from geokey.projects.models import Project
 from .base import (
     OBSERVATION_STATUS, COMMENT_STATUS, ACCEPTED_IMAGE_FORMATS,
     ACCEPTED_AUDIO_FORMATS, ACCEPTED_VIDEO_FORMATS, MEDIA_STATUS
+)
+
+from .utils import (
+    get_args,
+    get_authenticated_service,
+    initialize_upload
 )
 
 FILE_NAME_TRUNC = 60 - len(settings.MEDIA_URL)
@@ -208,7 +213,7 @@ class ObservationQuerySet(models.query.QuerySet):
 
     def get_by_bbox(self, bbox):
         """
-        Returns a subset of the queryset containing observations where the 
+        Returns a subset of the queryset containing observations where the
         geometry of the location is inside the the passed bbox.
 
         Parameters
@@ -224,16 +229,16 @@ class ObservationQuerySet(models.query.QuerySet):
 
         if bbox:
             try:
-                ## created bbox to Polygon 
+                # created bbox to Polygon
                 from django.contrib.gis.geos import Polygon
-                bbox = bbox.split(',') ## Split by ','
+                bbox = bbox.split(',') # Split by ','
                 geom_bbox = Polygon.from_bbox(bbox)
-                ### Filtering observations where 
+                # Filtering observations where
                 return self.filter(location__geometry__bboverlaps=geom_bbox)
-            except Exception as e:                
-                raise InputError(str(e) +'. Please, check the coordinates'
+            except Exception as e:
+                raise InputError(str(e) + '. Please, check the coordinates'
                     ' you attached to bbox parameters, they should follow'
-                    'the OSGeo standards (e.g:bbox=xmin,ymin,xmax,ymax).')               
+                    'the OSGeo standards (e.g:bbox=xmin,ymin,xmax,ymax).')
 
 
 class ObservationManager(models.Manager):
@@ -422,15 +427,12 @@ class MediaFileManager(InheritanceManager):
         str, str
             Youtube video id, Youtube SWF url
         """
-        youtube = Youtube()
-        youtube.authenticate()
-        video_entry = youtube.upload_direct(
-            path,
-            name,
-            access_control=AccessControl.Unlisted
-        )
 
-        return video_entry.id.text.split('/')[-1], video_entry.GetSwfUrl()
+        youtube = get_authenticated_service()
+        args = get_args(name, path)
+        video_id = initialize_upload(youtube, args)
+
+        return video_id, 'swf_wtf'
 
     def _create_video_file(self, name, description, creator, contribution,
                            the_file):
@@ -467,6 +469,7 @@ class MediaFileManager(InheritanceManager):
             'tmp/' + filename + extension,
             ContentFile(the_file.read())
         )
+
         tmp_file = os.path.join(settings.MEDIA_ROOT, path)
 
         video_id, swf_link = self._upload_to_youtube(

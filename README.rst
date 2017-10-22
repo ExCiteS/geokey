@@ -22,6 +22,39 @@ GeoKey
 GeoKey is a platform for participatory mapping, that is developed by `Extreme Citizen Science <http://ucl.ac.uk/excites>`_ research group at University College London.
 
 
+Install with Docker
+===================
+
+Download and install `Docker CE <https://www.docker.com/community-edition#download>`_ for your platform. This will include the `docker-compose` command used below.
+
+1. Pull and extract relevant images, build the GeoKey application container:
+
+.. code-block:: console
+
+    docker-compose up --build
+
+2. In another terminal window migrate the database:
+
+.. code-block:: console
+
+    docker-compose exec geokey python manage.py migrate
+
+3. Run the *collectstatic* management command:
+
+.. code-block:: console
+
+    docker-compose exec geokey python manage.py collectstatic --noinput
+
+4. Fin ally run the server:
+
+.. code-block:: console
+
+    docker-compose exec geokey python manage.py runserver 0.0.0.0:8000
+
+If everything went well, there should be a GeoKey instance available on your system at `http://localhost:9000`.
+
+For development purposes, the source code is also mounted as a volume in the `geokey` container, which means that changes made to the source code on the host machine are reflected in the container.
+
 Install for development
 =======================
 
