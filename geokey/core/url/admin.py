@@ -11,6 +11,7 @@ from geokey.applications import views as app_views
 from geokey.superusertools import views as superusertools
 from geokey.subsets import views as subsets
 from geokey.socialinteractions import views as socialinteractions
+from geokey.core import views as logger
 
 
 urlpatterns = [

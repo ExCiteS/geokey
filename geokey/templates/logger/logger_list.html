@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% load logger %}
+{% block bodydata %}
+data-project-id="{{ project.id }}"
+data-project-locked="{{ project.islocked }}"
+
+{% endblock %}
+
+{% block title %} | Project: {{ project.name }} - Logger{% endblock %}
+
+{% block main %}
+
+<div class="page-header">
+    <div class="container">
+        <h1 class="smaller">
+            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+            <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
+        </h1>
+
+        {% include 'projects/navigation.html' %}
+    </div>
+</div>
+
+<div class="container">
+
+    {% include 'snippets/messages.html' %}
+
+    <div class="row">
+        <div class="col-md-8 col-md-push-2">
+            <h3 class="header">
+                {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                <span>History</span>
+            </h3>
+            {% for log in logs %}
+                {% if forloop.first %}
+                    <ul class="list-unstyled overview-list">
+                {% endif %}
+                <li>
+                    <h6>{{log.created}}</h6>
+                    <h4>
+                    {% if log.action.id == 'created' %}
+                         <span class="glyphicon glyphicon-ok" style="color:lightgreen"></span>
+                    {% elif log.action.id == 'deleted' %}
+                         <span class="glyphicon glyphicon-trash" style="color:red"></span>
+                    {% elif log.action.id == 'updated' %}
+                         <span class="glyphicon glyphicon-pencil" style="color:lightblue"></span>
+                    {% endif %}
+
+                        {% if log.action.class == 'Project' %}
+
+                            {%if log.action.id == 'created' %}
+                                {{log.action.class}} {{log.action.id}} with a name <a href="{% url 'admin:project_overview' log.project.id %}"> {{ log.project.name }}</a>
+                            {%elif log.action.id == 'deleted' %}
+                               {{log.action.class}} {{log.action.id}}
+                            {%elif log.action.id == 'updated' %}
+
+                                {%if log.action.field == 'name' %}
+                                     {{log.action.class}} renamed to <a href="{% url 'admin:project_settings' log.project.id %}"> {{ log.project.name }}</a>
+                                {%elif log.action.field == 'everyone_contributes' %}
+                                    {%if log.action.value == 'auth' %}
+                                        Only authenticated users can now contribute to the project
+                                    {%elif log.action.value == 'true' %}
+                                        All users can now contribute to the project
+                                    {%elif log.action.value == 'false' %}
+                                        Only specified members can now contribute to the project
+                                    {% endif %}
+                                    <a href="{% url 'admin:project_settings' log.project.id %}"> {{ log.project.name }}</a>
+                                {%else%}
+                                    <a href="{% url 'admin:project_settings' log.project.id %}"> {{ log.project.name }}</a>
+                                    {%if log.action.field == 'islocked' %}
+                                        is {%if log.action.value == 'True' %} locked {%else%} unlocked {% endif %}
+                                    {%elif log.action.field == 'isprivate' %}
+                                        is now {%if log.action.value == 'True' %} private {%else%} public {% endif %}
+                                    {%elif log.action.field == 'status' %}
+                                        is now {{log.action.value}}
+                                    {%elif log.action.field == 'geographic_extent' %}
+                                        geographic extent changed
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+
+                        {% elif log.action.class == 'Admins' %}
+                            User {{log.action.user_display_name}}
+                            {%if log.action.id == 'created' %}
+                                added as an adminstrator of the project
+                            {%elif log.action.id == 'deleted' %}
+                                removed from adminstrators of the project
+                            {% endif %}
+                             <a href="{% url 'admin:project_settings' log.project.id %}">{{ log.project.name }} </a>
+
+                        {% elif log.action.class == 'Category' %}
+                            {%if log.action.id == 'created' %}
+                                {{log.action.class}} {{log.action.id}} with name <a href="{% url 'admin:category_overview' log.project.id log.category.id %}"> {{ log.category.name }}  </a>
+                            {%elif log.action.id == 'deleted' %}
+                                {{log.action.class}} {{ log.category.name }} {{log.action.id}}
+                            {%else%}
+                                {%if log.action.field == 'name' %}
+                                    {{log.action.class}} renamed to <a href="{% url 'admin:category_overview' log.project.id log.category.id %}"> {{ log.category.name }} </a>
+                                {%elif log.action.field == 'status' %}
+                                    {{log.action.class}} <a href="{% url 'admin:category_overview' log.project.id log.category.id %}"> {{ log.category.name }} </a> is {%if log.action.value == 'active' %} activated {% else %} deactivated {% endif %}
+                                {%elif log.action.field == 'default_status' %}
+                                    Default status for contributions of category <a href="{% url 'admin:category_overview' log.project.id log.category.id %}"> {{ log.category.name }} </a> is "{{log.action.value}}"
+                                {% endif %}
+                            {% endif %}
+
+                        {% elif log.action.class == 'Subset' %}
+                            {{log.action.class}}
+                            {%if log.action.id == 'created' %}
+                                 {{log.action.id}} with a name <a href="{% url 'admin:subset_settings' log.project.id log.subset.id %}"> {{ log.subset.name }}  </a>
+                            {%elif log.action.id == 'deleted' %}
+                                {{ log.subset.name }} {{log.action.id}}
+                            {%elif log.action.field == 'name' %}
+                                renamed to <a href="{% url 'admin:subset_settings' log.project.id log.subset.id %}"> {{ log.subset.name }} </a>
+                            {% endif %}
+
+                        {% elif log.action.class == 'UserGroup' %}
+                            {%if log.action.id == 'created' %}
+                                {{log.action.class}} {{log.action.id}} with a name <a href="{% url 'admin:usergroup_settings' log.project.id log.usergroup.id %}"> {{ log.usergroup.name }}  </a>
+                            {%elif log.action.id == 'deleted' %}
+                                {{log.action.class}} {{ log.category.name }} {{log.action.id}}
+                            {%else%}
+                                {%if log.action.field == 'name' %}
+                                    {{log.action.class}} renamed to <a href="{% url 'admin:usergroup_settings' log.project.id log.usergroup.id %}"> {{ log.usergroup.name }} </a>
+                                {%elif log.action.field == 'default_status' %}
+                                    Default status for contribution of {{log.action.class}} <a href="{% url 'admin:usergroup_settings' log.project.id log.usergroup.id %}"> {{ log.usergroup.name }} </a> is "{{log.action.value}}"
+                                {%elif log.action.field == 'can_contribute' %}
+                                   Members of the user group can now contribute to the project
+                                {%elif log.action.field == 'can_moderate' %}
+                                   Members of the user group can now moderate contributions of the project
+                                {%elif log.action.field == 'can_view' %}
+                                   Members of the user group can now view data of the project
+                                {% endif %}
+                            {% endif %}
+
+                        {% elif log.action.class == 'UserGroup_users' %}
+                             User {{log.action.user_display_name}}
+                            {%if log.action.subaction == 'add' %}
+                                added to user group
+                            {%elif log.action.subaction == 'remove' %}
+                               removed from user group
+                            {% endif %}
+                            <a href="{% url 'admin:usergroup_overview' log.project.id log.usergroup.id %}"> {{ log.usergroup.name }} </a>
+
+                        {% elif log.action.class == 'Field' %}
+                            {% with log.field.type|check_field_type as field_type %}
+                            {%if log.action.id == 'created' %}
+                                {{field_type}} with name  <a href="{% url 'admin:category_field_settings' log.project.id log.category.id log.field.id %}"> {{ log.field.name }}  </a> for category <a href="{% url 'admin:category_overview' log.project.id log.category.id %}"> {{ log.category.name }}  </a>
+                            {%elif log.action.id == 'deleted' %}
+                                {{field_type}} {{log.action.id}} for category <a href="{% url 'admin:category_overview' log.project.id log.category.id %}">{{ log.category.name }} </a>
+                            {%else%}
+                                {%if log.action.field == 'name' %}
+                                    {{field_type}} renamed to <a href="{% url 'admin:category_field_settings' log.project.id log.category.id log.field.id %}"> {{ log.field.name }}
+                                {%elif log.action.field == 'status' %}
+                                    {{field_type}} is now {{log.action.value}}
+                                {%elif log.action.field == 'required' %}
+                                    {{field_type}} set as {%if log.action.value == 'False' %} optional {% else %} mandatory{% endif %}
+                                {% endif %}
+                            {% endif %}
+                            {% endwith %}
+                        {% elif log.action.class == 'Location' %}
+                            {{log.action.class}}
+                            {%if log.action.id == 'created' %}
+                                 added
+                            {%elif log.action.id == 'deleted' %}
+                                {{log.action.id}}
+                            {%else%}
+                                {%if log.action.field == 'name' %}
+                                    renamed to {{log.location.name}}
+                                {%elif log.action.field == 'geometry' %}
+                                    geometry changed
+                                {% endif %}
+                            {% endif %}
+                        {% elif log.action.class == 'Comment' %}
+                            {{log.action.class}}
+                            {%if log.action.id == 'created' %}
+                                 added to observation
+                            {%elif log.action.id == 'deleted' %}
+                                {{log.action.id}} from observation
+                            {% endif %}
+                        {% elif log.action.class == 'Observation' %}
+                            {{log.action.class}}
+                            {%if log.action.id == 'created' %}
+                                added, and now is {{log.action.value}}
+                            {%elif log.action.id == 'deleted' %}
+                                {{log.action.id}}
+                            {%else%}
+                                {%if log.action.field == 'properties' %}
+                                    properties changed
+                                {%elif log.action.field == 'status' %}
+                                    {% if log.action.value == 'review' %}
+                                         reported
+                                    {% elif log.action.value == 'active' %}
+                                        activated
+                                    {% elif log.action.value == 'pending' %}
+                                        suspended
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+
+                        {% elif log.action.class == 'MediaFile' %}
+                            {% with log.mediafile.type|check_media_file_type as file_type %}
+                            {%if log.action.id == 'created' %}
+                                {{file_type}} added to observation
+                            {%elif log.action.id == 'deleted' %}
+                                {{file_type}} {{log.action.id}} from observation
+                            {% endif %}
+                            {% endwith %}
+                        {% endif %}
+
+                        </h4>
+                </li>
+
+                {% if forloop.last %}
+                    </ul>
+
+                    {% if logs.has_other_pages %}
+                      <ul class="pagination">
+                        {% if logs.has_previous %}
+                          <li><a href="?page={{ logs.previous_page_number }}">&laquo;</a></li>
+                        {% else %}
+                          <li class="disabled"><span>&laquo;</span></li>
+                        {% endif %}
+                        {% for i in logs.paginator.page_range %}
+                          {% if logs.number == i %}
+                            <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                          {% else %}
+                            <li><a href="?page={{ i }}">{{ i }}</a></li>
+                          {% endif %}
+                        {% endfor %}
+                        {% if logs.has_next %}
+                          <li><a href="?page={{ logs.next_page_number }}">&raquo;</a></li>
+                        {% else %}
+                          <li class="disabled"><span>&raquo;</span></li>
+                        {% endif %}
+                      </ul>
+                    {% endif %}
+
+                    {% endif %}
+
+
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block libraries %}
+<script src="/static/lib/moment/moment.min.js"></script>
+
+<script src="/static/lib/handlebars/handlebars.js"></script>
+<script src="/static/js/templates.js"></script>
+
+<link rel="stylesheet" href="/static/lib/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
+<script src="/static/lib/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+
+<script src="/static/js/admin.ui.filters.data.js"></script>
+<script src="/static/js/admin.ui.forms.validate.js"></script>
+
+{% endblock %}
