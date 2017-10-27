@@ -30,7 +30,7 @@ class SocialInteraction(models.Model):
         SocialAccount,
         related_name='socialinteractions'
     )
-    text_to_post = models.TextField(blank=True, null=True)
+    text_to_post = models.TextField(blank=True, null=True, default="New contribution added to $project$. Check it out here $link$")
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
