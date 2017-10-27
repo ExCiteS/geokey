@@ -1,4 +1,3 @@
-
 """Models for subsets."""
 
 from django.conf import settings
@@ -76,7 +75,7 @@ def post_save_observation(sender, instance, created, **kwargs):
 def get_ready_to_post(instance):
     """Post/tweet to social media when a new Observation is added.
 
-    At the same time adds a new comment on the observaction with the link to
+    At the same time adds a new comment on the observation with the link to
     redirect
 
     In order to avoid problems when pulling data from social media, only will
@@ -95,13 +94,13 @@ def get_ready_to_post(instance):
     )
     if instance.category.name != 'Tweets':
         for socialinteraction in socialinteractions_all:
-            tweet_text = '{text} {project_name} ---> {link}. {tweet_to}'
-            text_to_post = tweet_text.format(
-                text="Check out the new contribution on",
-                project_name=project.name,
-                link=link,
-                tweet_to=socialinteraction.text_to_post
-            )
+
+            text_to_post = socialinteraction.text_to_post
+            if "$project$" in text_to_post:
+                text_to_post = text_to_post.replace("$project$", project.name)
+            if "$link$" in text_to_post:
+                text_to_post = text_to_post.replace("$link$", link)
+
             socialaccount = socialinteraction.socialaccount
             provider = socialaccount.provider
             app = SocialApp.objects.get(provider=provider)
