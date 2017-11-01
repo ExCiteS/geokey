@@ -30,7 +30,10 @@ class SocialInteraction(models.Model):
         SocialAccount,
         related_name='socialinteractions'
     )
-    text_to_post = models.TextField(blank=True, null=True, default="New contribution added to $project$. Check it out here $link$")
+    text_to_post = models.TextField(blank=True, null=True,
+                                    default="New contribution added to $project$. Check it out here $link$")
+    link = models.TextField(blank=True, null=True,
+                            default="https://communitymaps.org.uk/project/$project_id$/contribution/$contribution_id$")
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
@@ -83,17 +86,18 @@ def get_ready_to_post(instance):
     different than 'Tweets'
     """
     from django.contrib.sites.models import Site
-    domain = Site.objects.get_current().domain
     project = instance.project
     socialinteractions_all = project.socialinteractions.all()
-    url = '{domain}/projects/{project_id}/contributions/{subset_id}/'
-    link = url.format(
-        project_id=project.id,
-        subset_id=instance.id,
-        domain=domain
-    )
+
     if instance.category.name != 'Tweets':
         for socialinteraction in socialinteractions_all:
+            link = socialinteraction.link
+            if "$project_id$" in link:
+                link = link.replace("$project_id$", str(project.id))
+            if "$contribution_id$" in link:
+                link = link.replace("$contribution_id$", str(instance.id))
+            if "$project$" in link:
+                link = link.replace("$project$", project.name)
 
             text_to_post = socialinteraction.text_to_post
             if "$project$" in text_to_post:
