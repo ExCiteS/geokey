@@ -25,7 +25,6 @@ import tweepy
 
 
 class SocialInteractionList(LoginRequiredMixin, ProjectContext, TemplateView):
-
     """
     Displays the list of social interactions in the project.
     """
@@ -33,7 +32,6 @@ class SocialInteractionList(LoginRequiredMixin, ProjectContext, TemplateView):
 
 
 class SocialInteractionCreate(LoginRequiredMixin, ProjectContext, TemplateView):
-
     """
     Provides the form to create a new social interaction.
     """
@@ -121,11 +119,12 @@ class SocialInteractionCreate(LoginRequiredMixin, ProjectContext, TemplateView):
 
             messages.success(
                 self.request,
-                mark_safe('The social interaction has been created.<a href="%s"> Add another social interaction.</a>' % add_another_url)
+                mark_safe(
+                    'The social interaction has been created.<a href="%s"> Add another social interaction.</a>' % add_another_url)
             )
 
             return redirect(
-                'admin:socialinteraction_settings',
+                'admin:socialinteraction_post',
                 project_id=project_id,
                 socialinteraction_id=socialinteraction.id
             )
@@ -134,7 +133,6 @@ class SocialInteractionCreate(LoginRequiredMixin, ProjectContext, TemplateView):
 
 
 class SocialInteractionContext(object):
-
     """
     Provides the context to render templates. The context contains
     a social interaction instance based on project_id and socialinteraction_id.
@@ -167,24 +165,36 @@ class SocialInteractionContext(object):
 
         except:
             messages.error(
-                self.request, 'The social interactin is not found.'
-                )
+                self.request, 'The social interaction was not found.'
+            )
             return redirect(
                 'socialinteractions/socialinteraction_settings.html',
                 project_id=project_id,
                 socialinteraction_id=socialinteraction_id,
-             )
+            )
 
-        if socialinteraction:
+        try:
+            socialaccount = SocialAccount.objects.get(id=socialinteraction.socialaccount_id)
+        except:
+            messages.error(
+                self.request, 'The social account was not found'
+            )
+            return redirect(
+                'socialinteractions/socialinteraction_settings.html',
+                project_id=project_id,
+                socialinteraction_id=socialinteraction_id,
+            )
+
+        if socialinteraction and socialaccount:
             return super(SocialInteractionContext, self).get_context_data(
-            project=project,
-            socialinteraction=socialinteraction,
+                project=project,
+                socialinteraction=socialinteraction,
+                socialaccount=socialaccount,
             )
 
 
 class SocialInteractionDelete(LoginRequiredMixin, SocialInteractionContext,
-            TemplateView):
-
+                              TemplateView):
     """
     Deletes the social interactions.
     """
@@ -241,16 +251,15 @@ class SocialInteractionDelete(LoginRequiredMixin, SocialInteractionContext,
             else:
                 socialinteraction.delete()
                 messages.success(self.request, 'The social interaction has been'
-                    ' deleted.')
+                                               ' deleted.')
                 return redirect('admin:socialinteraction_list',
-                    project_id=project_id)
+                                project_id=project_id)
 
         return self.render_to_response(context)
 
 
 class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
-            TemplateView):
-
+                                TemplateView):
     """
     Provides the form to update the social interaction settings.
     """
@@ -397,14 +406,14 @@ class SocialInteractionPost(LoginRequiredMixin, SocialInteractionContext,
         context = self.get_context_data(project_id, socialinteraction_id)
         socialinteraction = context.get('socialinteraction')
         socialinteraction.text_to_post = data.get('text_post')
+        socialinteraction.link = data.get('text_link')
         socialinteraction.save()
 
         return self.render_to_response(context)
 
 
-
 class SocialInteractionPullCreate(LoginRequiredMixin, ProjectContext,
-    TemplateView):
+                                  TemplateView):
     """Provide the form to update the social interaction settings."""
 
     template_name = 'socialinteractions/socialinteraction_pull_create.html'
@@ -490,7 +499,8 @@ class SocialInteractionPullCreate(LoginRequiredMixin, ProjectContext,
 
             messages.success(
                 self.request,
-                mark_safe('The social interaction has been created.<a href="%s"> Add pull from social media task.</a>' % add_another_url)
+                mark_safe(
+                    'The social interaction has been created.<a href="%s"> Add pull from social media task.</a>' % add_another_url)
             )
 
             return redirect(
@@ -502,7 +512,6 @@ class SocialInteractionPullCreate(LoginRequiredMixin, ProjectContext,
 
 
 class SocialInteractionPullContext(object):
-
     """
     Provides the context to render templates. The context contains
     a social interaction instance based on project_id and socialinteraction_id.
@@ -550,7 +559,7 @@ class SocialInteractionPullContext(object):
 
 
 class SocialInteractionPullSettings(LoginRequiredMixin, SocialInteractionPullContext,
-    TemplateView):
+                                    TemplateView):
     """Provide the form to update the social interaction settings."""
 
     template_name = 'socialinteractions/socialinteraction_pull.html'
@@ -646,8 +655,7 @@ class SocialInteractionPullSettings(LoginRequiredMixin, SocialInteractionPullCon
 
 
 class SocialInteractionPullDelete(LoginRequiredMixin, SocialInteractionPullContext,
-    TemplateView):
-
+                                  TemplateView):
     """
     Deletes the social interactions.
     """
@@ -681,8 +689,8 @@ class SocialInteractionPullDelete(LoginRequiredMixin, SocialInteractionPullConte
             else:
                 socialinteraction_pull.delete()
                 messages.success(self.request, 'The social interaction has been'
-                    ' deleted.')
+                                               ' deleted.')
                 return redirect('admin:socialinteraction_list',
-                    project_id=project_id)
+                                project_id=project_id)
 
         return self.render_to_response(context)
