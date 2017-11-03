@@ -5,6 +5,7 @@
     data-project-id="{{ project.id }}"
     data-project-locked="{{ project.islocked }}"
     data-socialinteraction-id="{{ socialinteraction.id }}"
+    data-socialprovider="{{ socialaccount.provider }}"
 {% endblock %}
 
 {% block title %} | Project: {{ project.name }} - Social interaction: {{ socialinteraction.name }} -
@@ -38,7 +39,9 @@
                       action="{% url 'admin:socialinteraction_post' project.id socialinteraction.id %}" novalidate>
                     {% csrf_token %}
                     <div class="form-group">
-                        <label for="text_post" class="control-label">Text to post</label>
+                        <label for="text_post" class="control-label">Text to post
+                            {% if socialaccount.provider == "twitter" %} <span id="characters">(<span
+                                    id="post_length">140</span> characters left)</span> {% endif %}</label>
                         <textarea class="form-control input-lg" rows="5" id="text_post" name="text_post"
                                 {% if socialaccount.provider == 'twitter' %}
                                   maxlength="140"  {% endif %} >{{ socialinteraction.text_to_post }}</textarea>
@@ -53,7 +56,6 @@
                         <ul>
                             <li>$project_id$: This will display the project id.</li>
                             <li>$contribution_id$: This will display the contribution id.</li>
-                            <li>$project$: This will display the name of the project.</li>
                             <li>$link$: this will create a link, which can be included in the tweet.</li>
                         </ul>
                         </p>
@@ -71,11 +73,35 @@
 
 {% block libraries %}
     <script src="/static/js/admin.ui.forms.validate.js"></script>
+
+    <script>
+        var post_length = 0
+        var url_length = 0
+
+        if ($('body').data('socialprovider') == 'twitter') {
+            $("#text_link").on('input', function () {
+                url_length = $(this).val().length
+                $('#text_post').attr('maxlength', 140 - url_length)
+                update_post_length()
+            }).trigger('input')
+            $("#text_post").on('input', function () {
+                post_length = $(this).val().length
+                update_post_length()
+            }).trigger('input')
+            function update_post_length() {
+                $('#post_length').text(140 - post_length - url_length)
+            }
+        }
+    </script>
+
     <style>
         .socialaccount_provider {
-            height: 15px;
-            width: 15px;
+            height: 25px;
+            width: 25px;
+        }
 
+        #characters {
+            font-weight: normal;
         }
     </style>
 {% endblock %}
