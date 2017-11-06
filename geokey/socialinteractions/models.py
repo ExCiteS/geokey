@@ -31,7 +31,7 @@ class SocialInteraction(models.Model):
         related_name='socialinteractions'
     )
     text_to_post = models.TextField(blank=True, null=True,
-                                    default="New contribution added to $project$. Check it out here $link$")
+                                    default="New contribution added to #$project$. Check it out here $link$")
     link = models.TextField(blank=True, null=True,
                             default="https://communitymaps.org.uk/project/$project_id$/contribution/$contribution_id$")
     status = models.CharField(
@@ -96,12 +96,8 @@ def get_ready_to_post(instance):
                 link = link.replace("$project_id$", str(project.id))
             if "$contribution_id$" in link:
                 link = link.replace("$contribution_id$", str(instance.id))
-            if "$project$" in link:
-                link = link.replace("$project$", project.name)
 
             text_to_post = socialinteraction.text_to_post
-            if "$project$" in text_to_post:
-                text_to_post = text_to_post.replace("$project$", project.name)
             if "$link$" in text_to_post:
                 text_to_post = text_to_post.replace("$link$", link)
 
@@ -114,6 +110,10 @@ def get_ready_to_post(instance):
                 account__user=socialaccount.user,
                 account__provider=app.provider
             )
+
+            if provider == "twitter":
+                text_to_post = text_to_post[:140]
+
             tweet_id, screen_name = post_to_social_media(
                 provider,
                 access_token,
