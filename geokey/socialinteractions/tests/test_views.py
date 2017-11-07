@@ -264,7 +264,7 @@ class SocialInteractionCreateTest(TestCase):
         Updating with project admin.
 
         It should create the social interaction and redirect to the social
-        interaction settings page.
+        interaction page to set the post message.
         """
         self.request.method = 'POST'
         post = QueryDict('name=%s&description=''%s&socialaccount=%s' %
@@ -288,7 +288,7 @@ class SocialInteractionCreateTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertIn(
-            '/admin/projects/%s/socialinteractions/posts/%s/settings' % (
+            '/admin/projects/%s/socialinteractions/posts/%s/' % (
                 self.project.id, socialinteraction.id),
             response['location']
         )
