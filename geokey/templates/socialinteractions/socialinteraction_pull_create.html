@@ -1,92 +1,96 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load placeholder_filters %}
 
 {% block bodydata %}
-data-project-id="{{ project.id }}"
-data-project-locked="{{ project.islocked }}"
+    data-project-id="{{ project.id }}"
+    data-project-locked="{{ project.islocked }}"
 {% endblock %}
 
 {% block title %} | Project: {{ project.name }} - Create new social interaction{% endblock %}
 
 {% block main %}
-<div class="page-header">
+    <div class="page-header">
+        <div class="container">
+            <h1 class="smaller">
+                {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
+            </h1>
+            {% include 'projects/navigation.html' %}
+        </div>
+    </div>
+
     <div class="container">
-        <h1 class="smaller">
-            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
-            <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
-        </h1>
-        {% include 'projects/navigation.html' %}
+        {% include 'snippets/messages.html' %}
+
+        <div class="col-sm-8-push-2">
+            <form class="col-md-8 col-md-offset-2" id="settings" method="POST"
+                  action="{% url 'admin:socialinteraction_pull_create' project.id %}" novalidate>
+                {% csrf_token %}
+                <h3 class="header">
+                    <span>Create new pull from social media </span>
+                </h3>
+                <div class="form-group">
+                    <label for="socialaccount" class="control-label">Social account</label>
+                    <select class="form-control" id="project" name="socialaccount" required>
+                        {% for socialaccount in auth_users %}
+                            <option value="{{ socialaccount.id }}"
+                                    class="form-control input-lg">{{ socialaccount.get_provider_account }}
+                                ¦¦ {{ socialaccount.provider }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input hidden name="socialaccount_id" value="{{ sa.id }}">
+                <div class="form-group">
+                    <label for="pull_text" class="control-label">Text to search</label>
+                    <input type="text" class="form-control input-lg" id="text_pull" name="text_pull"
+                           placeholder="e.g: {{ project.name | hashify }}" required/>
+                </div>
+
+                <div class="form-group">
+                    <label for="socialaccount" class="control-label">Frequency</label>
+                    <select class="form-control" id="frequency" name="frequency" required>
+                        <option value="5min" class="form-control input-lg">5 min</option>
+                        <option value="10min" class="form-control input-lg">10 min</option>
+                        <option value="20min" class="form-control input-lg">20 min</option>
+                        <option value="30min" class="form-control input-lg">30 min</option>
+                        <option value="hourly" class="form-control input-lg">Hourly</option>
+                        <option value="daily" class="form-control input-lg" selected="selected">Daily</option>
+                        <option value="weekly" class="form-control input-lg">Weekly</option>
+                        <option value="fornightly" class="form-control input-lg">Fornightly</option>
+                        <option value="monthly" class="form-control input-lg">Monthly</option>
+                    </select>
+                </div>
+
+                <div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <a role="button" href="{% url 'admin:socialinteraction_list' project.id %}" class="btn btn-link">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
-
-<div class="container">
-    {% include 'snippets/messages.html' %}
-
-    <div class="col-sm-8-push-2">
-        <form  class="col-md-8 col-md-offset-2" id="settings" method="POST" action="{% url 'admin:socialinteraction_pull_create' project.id %}" novalidate>
-            {% csrf_token %}
-            <h3 class="header">
-                <span>Create new pull from social media </span>
-            </h3>
-            <div class="form-group">
-                <label for="socialaccount" class="control-label">Social account</label>
-                <select class="form-control" id="project" name="socialaccount" required>
-                    {% for socialaccount in auth_users %}
-                        <option value="{{ socialaccount.id }}" class="form-control input-lg" >{{ socialaccount.get_provider_account }} ¦¦ {{ socialaccount.provider }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <input hidden name="socialaccount_id" value="{{sa.id}}">
-            <div class="form-group">
-                <label for="pull_text" class="control-label">Text to search</label>
-                <input type="text" class="form-control input-lg" id="text_pull" name="text_pull" value="#Project2" placeholder="e.g: #Project2" required />
-            </div>
-
-            <div class="form-group">
-                <label for="socialaccount" class="control-label">Frequency</label>
-                <select class="form-control" id="frequency" name="frequency" required>
-                    <option value="5min" class="form-control input-lg" >5 min</option>
-                    <option value="10min" class="form-control input-lg" >10 min</option>
-                    <option value="20min" class="form-control input-lg" >20 min</option>
-                    <option value="30min" class="form-control input-lg" >30 min</option>
-                    <option value="daily" class="form-control input-lg" selected="selected">Daily</option>
-                    <option value="hourly" class="form-control input-lg" >Hourly</option>
-                    <option value="weekly" class="form-control input-lg" >Weekly</option>
-                    <option value="fornightly" class="form-control input-lg" >Fornightly</option>
-                    <option value="monthly" class="form-control input-lg" >Monthly</option>
-                </select>
-            </div>
-
-            <div>
-                <button type="submit" class="btn btn-primary">Save</button>
-                <a role="button" href="{% url 'admin:socialinteraction_list' project.id %}" class="btn btn-link">Cancel</a>
-            </div>
-        </form>
-    </div>
-</div>
 {% endblock %}
 
 {% block libraries %}
-<script src="/static/js/admin.ui.forms.validate.js"></script>
-<script src="/static/lib/moment/moment.min.js"></script>
+    <script src="/static/js/admin.ui.forms.validate.js"></script>
+    <script src="/static/lib/moment/moment.min.js"></script>
 
-<script src="/static/lib/handlebars/handlebars.js"></script>
-<script src="/static/js/templates.js"></script>
+    <script src="/static/lib/handlebars/handlebars.js"></script>
+    <script src="/static/js/templates.js"></script>
 
-<link rel="stylesheet" href="/static/lib/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
-<script src="/static/lib/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+    <link rel="stylesheet" href="/static/lib/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
+    <script src="/static/lib/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
 
-<script src="/static/js/admin.ui.filters.data.js"></script>
-<script src="/static/js/admin.ui.forms.validate.js"></script>
-<script src="/static/js/admin.control.ajax.js"></script>
-<style>
-.socialaccount_provider
-{
-    height:15px;
-    width:15px;
+    <script src="/static/js/admin.ui.filters.data.js"></script>
+    <script src="/static/js/admin.ui.forms.validate.js"></script>
+    <script src="/static/js/admin.control.ajax.js"></script>
+    <style>
+        .socialaccount_provider {
+            height: 15px;
+            width: 15px;
 
-}
-</style>
+        }
+    </style>
 {% endblock %}
 
 
