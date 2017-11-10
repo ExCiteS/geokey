@@ -5,6 +5,7 @@ from django.conf import settings
 from django.apps import apps
 
 import django
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "local_settings.settings")
 django.setup()
 
@@ -117,8 +118,7 @@ def create_new_observation(si_pull, geo_tweet, tweet_cat, text_field):
 
     text_field: TextField Object
     """
-    coord = geo_tweet['geometry']['coordinates']
-    point = 'POINT(' + str(coord[0]) + ' ' + str(coord[1]) + ')'
+    point = geo_tweet['geometry']
 
     new_loc = Location.objects.create(
         geometry=point,
@@ -217,15 +217,16 @@ def pull_from_social_media(provider, access_token, text_to_pull, app):
         all_tweets = []
         for mention in tweets_all:
             new_contribution = {}
-            if text_to_pull in mention.text:
-                if mention.coordinates:
+            if text_to_pull.lower() in mention.text.lower():
+                if mention.coordinates or mention.place:
                     new_contribution = {}
                     new_contribution['id'] = mention.id
                     new_contribution['text'] = mention.text
                     new_contribution['user'] = mention.user.name
                     new_contribution['created_at'] = mention.created_at
-                    new_contribution['geometry'] = mention.coordinates
-                    if 'media' in mention.entities: ## gets when is media attached to it
+                    new_contribution['geometry'] = process_location(mention)
+
+                    if 'media' in mention.entities:  ## gets when is media attached to it
                         for image in mention.entities['media']:
                             new_contribution['url'] = image['url']
 
@@ -233,4 +234,35 @@ def pull_from_social_media(provider, access_token, text_to_pull, app):
 
     return all_tweets
 
-# start2pull()
+
+def process_location(tweet):
+    """Retrieve coordinates or place coordinates from tweet and converts them into WKT Point or Polygon.
+
+    Parameters
+    -----------
+    tweet =  JSON
+        tweet object returned by API
+
+    Returns
+    --------
+    wkt_coordinates: str
+        coordinates in WKT format
+    """
+    wkt_coordinates = ""
+    if tweet.coordinates:
+        coordinates = tweet.coordinates
+        wkt_coordinates = 'POINT(' + str(coordinates[0][0]) + ' ' + str(coordinates[0][1]) + ')'
+    elif tweet.place:
+        coordinates = tweet.place.bounding_box.coordinates
+
+        is_point = all(c == coordinates[0] for c in coordinates)
+        if is_point:
+            wkt_coordinates = 'POINT(' + str(coordinates[0][0][0]) + ' ' + str(coordinates[0][0][1]) + ')'
+        else:
+            wkt_coordinates = 'POLYGON(' + \
+                                    str(coordinates[0][0][0]) + ' ' + str(coordinates[0][0][1]) + + ', ' + \
+                                    str(coordinates[0][1][0]) + ' ' + str(coordinates[0][1][1]) + + ', ' + \
+                                    str(coordinates[0][2][0]) + ' ' + str(coordinates[0][2][1]) + + ', ' + \
+                                    str(coordinates[0][3][0]) + ' ' + str(coordinates[0][3][1]) + + ', ' + ')'
+
+    return wkt_coordinates
