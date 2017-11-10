@@ -117,8 +117,7 @@ class CreateNewObservationTest(TestCase):
             creator=self.admin)
 
         self.geo_tweet = {
-            'geometry':
-                {u'type': u'Point', u'coordinates': [-0.1350858, 51.5246635]},
+            'geometry': u'POINT (-0.1350858 51.5246635)',
             'text': u'#Project2 scorpion @adeuonce',
             'created_at': datetime(2017, 5, 23, 14, 43, 1),
             'id': 867028097530572801,
@@ -191,8 +190,3 @@ class GetReadyToPostTest(TestCase):
         value = get_ready_to_post(self.observation_tweet)
 
         self.assertEqual(value, "Category name is Tweets")
-
-
-
-
-
