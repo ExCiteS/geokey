@@ -40,6 +40,7 @@ def check_dates(updated_at, frequency):
 
 def start2pull():
     """Start pulling data from Twitter."""
+    print 'start2pull executed intresting'
     si_pull_all = SocialInteractionPull.objects.filter(status='active')
     for si_pull in si_pull_all:
         socialaccount = si_pull.socialaccount
@@ -251,7 +252,7 @@ def process_location(tweet):
     wkt_coordinates = ""
     if tweet.coordinates:
         coordinates = tweet.coordinates
-        wkt_coordinates = 'POINT(' + str(coordinates[0][0]) + ' ' + str(coordinates[0][1]) + ')'
+        wkt_coordinates = 'POINT(' + str(coordinates['coordinates'][0]) + ' ' + str(coordinates['coordinates'][1]) + ')'
     elif tweet.place:
         coordinates = tweet.place.bounding_box.coordinates
 
@@ -260,9 +261,9 @@ def process_location(tweet):
             wkt_coordinates = 'POINT(' + str(coordinates[0][0][0]) + ' ' + str(coordinates[0][0][1]) + ')'
         else:
             wkt_coordinates = 'POLYGON(' + \
-                                    str(coordinates[0][0][0]) + ' ' + str(coordinates[0][0][1]) + + ', ' + \
-                                    str(coordinates[0][1][0]) + ' ' + str(coordinates[0][1][1]) + + ', ' + \
-                                    str(coordinates[0][2][0]) + ' ' + str(coordinates[0][2][1]) + + ', ' + \
-                                    str(coordinates[0][3][0]) + ' ' + str(coordinates[0][3][1]) + + ', ' + ')'
+                              str(coordinates[0][0][0]) + ' ' + str(coordinates[0][0][1]) + + ', ' + \
+                              str(coordinates[0][1][0]) + ' ' + str(coordinates[0][1][1]) + + ', ' + \
+                              str(coordinates[0][2][0]) + ' ' + str(coordinates[0][2][1]) + + ', ' + \
+                              str(coordinates[0][3][0]) + ' ' + str(coordinates[0][3][1]) + + ', ' + ')'
 
     return wkt_coordinates
