@@ -66,6 +66,7 @@ class SocialInteractionPull(models.Model):
     )
     since_id = models.TextField(blank=True, null=True)
     updated_at = models.DateTimeField(null=True, auto_now_add=False)
+    checked_at = models.DateTimeField(null=True, auto_now_add=False)
 
 
 @receiver(post_save, sender=Observation)

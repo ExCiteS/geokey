@@ -27,9 +27,7 @@ def check_dates(updated_at, frequency):
     """Check if data the SI Pull needs to be updated."""
 
     update = updated_at + timedelta(hours=1)
-
     now = timezone.now() + timedelta(hours=1)
-
     diff = (((now - update).total_seconds()) / 3600)
 
     if diff > freq_dic[frequency]:
@@ -40,7 +38,7 @@ def check_dates(updated_at, frequency):
 
 def start2pull():
     """Start pulling data from Twitter."""
-    print 'start2pull executed intresting'
+    print '\n' + str(timezone.now()) + ': start2pull executed'
     si_pull_all = SocialInteractionPull.objects.filter(status='active')
     for si_pull in si_pull_all:
         socialaccount = si_pull.socialaccount
@@ -52,58 +50,40 @@ def start2pull():
             account__provider=app.provider
         )
 
-        time_to_check = si_pull.updated_at
-        if time_to_check == None:
-            time_to_check = si_pull.created_at
+        last_checked = si_pull.checked_at if si_pull.checked_at is not None else si_pull.created_at
+        check_required = check_dates(last_checked, si_pull.frequency)
+        print si_pull.project.name + ', ' + si_pull.text_to_pull + ' - ' + 'check required: ' + str(check_required)
 
-        times = check_dates(time_to_check, si_pull.frequency)
-
-        if times == True:
-            all_tweets = pull_from_social_media(
+        if check_required:
+            geo_tweets = pull_from_social_media(
                 provider,
                 access_token,
                 si_pull.text_to_pull,
+                si_pull.since_id,
                 app)
+
+            si_pull.checked_at = timezone.now()
 
             try:
                 project = si_pull.project
             except:
                 next
 
-            tweet_cat, text_field = get_category_and_field(
+            print 'New tweets: ' + str(project.name) + ": " + str(len(geo_tweets))
+
+            tweet_category, text_field = get_category_and_field(
                 project,
                 socialaccount)
-            for geo_tweet in all_tweets:
-                if si_pull.since_id == None:
-                    create_new_observation(
-                        si_pull,
-                        geo_tweet,
-                        tweet_cat,
-                        text_field)
+            for geo_tweet in geo_tweets:
+                create_new_observation(
+                    si_pull,
+                    geo_tweet,
+                    tweet_category,
+                    text_field)
 
-                    since_at = geo_tweet['id']
-                    if int(geo_tweet['id']) > int(since_at):
-                        since_at = geo_tweet['id']
-
-                    si_pull.updated_at = timezone.now()
-                    si_pull.since_id = since_at
-                    si_pull.save()
-
-                else:
-                    if int(geo_tweet['id']) > int(si_pull.since_id):
-                        create_new_observation(
-                            si_pull,
-                            geo_tweet,
-                            tweet_cat,
-                            text_field)
-
-                        since_at = geo_tweet['id']
-                        if int(geo_tweet['id']) > int(since_at):
-                            since_at = geo_tweet['id']
-
-                        si_pull.updated_at = timezone.now()
-                        si_pull.since_id = since_at
-                        si_pull.save()
+                si_pull.updated_at = timezone.now()
+                si_pull.since_id = geo_tweet['id']
+            si_pull.save()
 
 
 def create_new_observation(si_pull, geo_tweet, tweet_cat, text_field):
@@ -134,6 +114,8 @@ def create_new_observation(si_pull, geo_tweet, tweet_cat, text_field):
     new_observation.properties = properties
     new_observation.save()
 
+    print 'Observation saved: ' + si_pull.project.name + ', ' + geo_tweet['text'] + ', ' + str(point)
+
     si_pull.updated_at = timezone.now()
     si_pull.since_id = geo_tweet['id']
     si_pull.save()
@@ -156,30 +138,30 @@ def get_category_and_field(project, socialaccount):
 
     """
     try:
-        tweet_cat = Category.objects.get(
+        tweet_category = Category.objects.get(
             name="Tweets",
             project=project)
 
     except:
-        tweet_cat = Category.objects.create(
+        tweet_category = Category.objects.create(
             name="Tweets",
             project=project,
             creator=socialaccount.user)
 
-    if TextField.objects.filter(category=tweet_cat, name='tweet'):
+    if TextField.objects.filter(category=tweet_category, name='tweet'):
 
         text_field = TextField.objects.get(
-            category=tweet_cat,
+            category=tweet_category,
             name='tweet')
     else:
         text_field = TextField.objects.create(
             name='tweet',
-            category=tweet_cat)
+            category=tweet_category)
 
-    return tweet_cat, text_field
+    return tweet_category, text_field
 
 
-def pull_from_social_media(provider, access_token, text_to_pull, app):
+def pull_from_social_media(provider, access_token, text_to_pull, tweet_id, app):
     """Pull data from the timeline with specific text.
 
     Parameters
@@ -191,11 +173,13 @@ def pull_from_social_media(provider, access_token, text_to_pull, app):
         access token for the social account and user
     text_to_pull: str
         text to be searched on the tweets
+    tweet_id: int
+        searches all tweets with id more recent than tweet_id
     app: socialAccount app object
     Returns
     --------
-    all_tweets: array
-        array of tweet objects
+    geo_tweets: array
+        array of geo-referenced tweet objects
     """
     if provider == 'twitter':
         try:
@@ -209,31 +193,30 @@ def pull_from_social_media(provider, access_token, text_to_pull, app):
             api = tweepy.API(auth)
 
             try:
-                tweets_all = api.mentions_timeline(count=100)
+                tweets_all = api.mentions_timeline(count=100, since_id=tweet_id)
             except Exception:
-                return "Implossible to get data from the timeline"
+                return "Impossible to get data from the timeline"
         except:
             return "You are not authenticated"
 
-        all_tweets = []
-        for mention in tweets_all:
-            new_contribution = {}
-            if text_to_pull.lower() in mention.text.lower():
-                if mention.coordinates or mention.place:
+        geo_tweets = []
+        for tweet in tweets_all:
+            if text_to_pull.lower() in tweet.text.lower():
+                if tweet.coordinates or tweet.place:
                     new_contribution = {}
-                    new_contribution['id'] = mention.id
-                    new_contribution['text'] = mention.text
-                    new_contribution['user'] = mention.user.name
-                    new_contribution['created_at'] = mention.created_at
-                    new_contribution['geometry'] = process_location(mention)
+                    new_contribution['id'] = tweet.id
+                    new_contribution['text'] = tweet.text
+                    new_contribution['user'] = tweet.user.name
+                    new_contribution['created_at'] = tweet.created_at
+                    new_contribution['geometry'] = process_location(tweet)
 
-                    if 'media' in mention.entities:  ## gets when is media attached to it
-                        for image in mention.entities['media']:
+                    if 'media' in tweet.entities:  ## gets when is media attached to it
+                        for image in tweet.entities['media']:
                             new_contribution['url'] = image['url']
 
-                    all_tweets.append(new_contribution)
+                    geo_tweets.append(new_contribution)
 
-    return all_tweets
+    return geo_tweets
 
 
 def process_location(tweet):

@@ -39,7 +39,8 @@ data-socialinteraction-pull-id="{{ socialinteraction_pull.id }}"
                 <table class="table table-striped field-info">
                     <tr><td><strong>User</strong></td><td>{%if socialinteraction_pull.socialaccount.provider == 'twitter' %}@{% endif%}{{ socialinteraction_pull.socialaccount.get_provider_account}}</td></tr>
                     <tr><td><strong>Provider</strong></td><td><img class="socialaccount_provider" src="{% static 'img/providers/' %}{{ socialinteraction_pull.socialaccount.provider }}.svg" alt="{{ socialinteraction_pull.socialaccount.get_provider.name }} social provider" /></td></tr>
-                    <tr><td><strong>Last update</strong></td><td>{% if socialinteraction_pull.updated_at == None %}{{socialinteraction_pull.created_at}}{%else %}{{socialinteraction_pull.updated_at}}{% endif %}</td></tr>
+                    <tr><td><strong>Last pull</strong></td><td>{{ socialinteraction_pull.checked_at|default_if_none:'--' }}</td></tr>
+                    <tr><td><strong>Last update</strong></td><td>{{ socialinteraction_pull.updated_at|default_if_none:'--' }}</td></tr>
                     <tr><td><strong>Status</strong></td><td>{{socialinteraction_pull.status}}</td></tr>
                 </table>
             </div>
