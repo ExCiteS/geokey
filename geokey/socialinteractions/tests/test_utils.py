@@ -144,6 +144,7 @@ class PullFromSocialMediaTest(TestCase):
         """Setup for test."""
         self.provider = 'twitter'
         self.text_to_pull = '#Project2'
+        self.since_id = 928637049644646400
         self.admin_user = UserFactory.create()
         self.app = SocialApp.objects.create(
             provider='twitter',
@@ -162,6 +163,7 @@ class PullFromSocialMediaTest(TestCase):
             self.provider,
             access_token,
             self.text_to_pull,
+            self.since_id,
             self.app)
         self.assertEqual(value, "You are not authenticated")
 
