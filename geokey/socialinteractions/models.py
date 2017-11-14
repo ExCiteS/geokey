@@ -31,7 +31,7 @@ class SocialInteraction(models.Model):
         related_name='socialinteractions'
     )
     text_to_post = models.TextField(blank=True, null=True,
-                                    default="New contribution added to #$project$. Check it out here $link$")
+                                    default="New contribution added to $project$. Check it out here $link$")
     link = models.TextField(blank=True, null=True,
                             default="https://communitymaps.org.uk/project/$project_id$/contribution/$contribution_id$")
     status = models.CharField(
@@ -88,7 +88,7 @@ def get_ready_to_post(instance):
     """
     from django.contrib.sites.models import Site
     project = instance.project
-    socialinteractions_all = project.socialinteractions.all()
+    socialinteractions_all = SocialInteraction.objects.filter(project=project, status='active')
 
     if instance.category.name != 'Tweets':
         for socialinteraction in socialinteractions_all:

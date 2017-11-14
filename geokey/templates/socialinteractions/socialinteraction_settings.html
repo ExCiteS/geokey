@@ -1,129 +1,158 @@
 {% extends 'base.html' %}
 
 {% block bodydata %}
-data-project-id="{{ project.id }}"
-data-project-locked="{{ project.islocked }}"
-data-socialinteraction-id="{{ socialinteraction.id }}"
+    data-project-id="{{ project.id }}"
+    data-project-locked="{{ project.islocked }}"
+    data-socialinteraction-id="{{ socialinteraction.id }}"
 {% endblock %}
 
-{% block title %} | Project: {{ project.name }} - Social interaction: {{ socialinteraction.name }} - Settings{% endblock %}
+{% block title %} | Project: {{ project.name }} - Social interaction: {{ socialinteraction.name }} -
+    Settings{% endblock %}
 
 {% block main %}
-<div class="page-header">
+    <div class="page-header">
+        <div class="container">
+            <h1 class="smaller">
+                {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
+            </h1>
+
+            {% include 'projects/navigation.html' %}
+        </div>
+    </div>
+
     <div class="container">
-        <h1 class="smaller">
-            {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
-            <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
-        </h1>
+        {% include 'snippets/messages.html' %}
 
-        {% include 'projects/navigation.html' %}
-    </div>
-</div>
-
-<div class="container">
-    {% include 'snippets/messages.html' %}
-
-    <div class="row">
-        <div class="col-sm-4">
-            {% include 'socialinteractions/socialinteraction_navigation.html' %}
-        </div>
-
-        <div class="col-sm-8">
-            <h3 class="header">Social interaction settings <a href="{% url 'admin:socialinteraction_list' project.id %}" class="btn btn-info pull-right"><span class="glyphicon glyphicon-th-list"></span> Back to the list</a> </h3>
-
-            <form id="settings" method="POST" action="{% url 'admin:socialinteraction_settings' project.id socialinteraction.id %}" novalidate>
-                {% csrf_token %}
-
-                <div class="form-group">
-                    <label for="name" class="control-label">Name (required)</label>
-                    <input type="text" class="form-control input-lg" id="name" name="name" maxlength="100" value="{{ socialinteraction.name }}" required />
-                </div>
-
-                <div class="form-group">
-                    <label for="description" class="control-label">Description</label>
-                    <textarea class="form-control input-lg" rows="5" id="description" name="description">{{ socialinteraction.description }} </textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="socialaccount" class="control-label">Social account</label>
-
-                    <select class="form-control" id="project" name="socialaccount" required>
-                        {% for socialaccount in auth_users %}
-                            {%if socialaccount.id == socialinteraction.socialaccount.id %}@
-                                <option value="{{ socialaccount.id }}" class="form-control input-lg" selected="selected" >{{ socialaccount.get_provider_account }} ¦¦ {{ socialaccount.provider }}</option>
-                            {%else%}
-                                <option value="{{ socialaccount.id }}" class="form-control input-lg" >{{ socialaccount.get_provider_account }} ¦¦ {{ socialaccount.provider }}</option>
-                            {% endif%}
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Save</button>
-                    <button type="reset" class="btn btn-link">Reset</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    {% if not project.islocked %}
         <div class="row">
-            <div class="col-sm-8 col-sm-offset-4">
-                <div class="panel panel-danger">
-                    <div class="panel-heading">
-                        <h2 class="panel-title">Be careful!</h2>
+            <div class="col-sm-4">
+                {% include 'socialinteractions/socialinteraction_navigation.html' %}
+            </div>
+
+            <div class="col-sm-8">
+                <h3 class="header">Social interaction settings <a
+                        href="{% url 'admin:socialinteraction_list' project.id %}" class="btn btn-info pull-right"><span
+                        class="glyphicon glyphicon-th-list"></span> Back to the list</a></h3>
+
+                <form id="settings" method="POST"
+                      action="{% url 'admin:socialinteraction_settings' project.id socialinteraction.id %}" novalidate>
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="name" class="control-label">Name (required)</label>
+                        <input type="text" class="form-control input-lg" id="name" name="name" maxlength="100"
+                               value="{{ socialinteraction.name }}" required/>
                     </div>
 
-                    <div class="panel-body becareful">
-                        <div>
-                            <strong>Delete social interaction</strong>
-                            <p>Deleting this social interaction cannot be undone.</p>
-                            <a href="#" class="text-danger" data-toggle="modal" data-target="#delete-confirm">Delete this social interaction</a>
+                    <div class="form-group">
+                        <label for="description" class="control-label">Description</label>
+                        <textarea class="form-control input-lg" rows="5" id="description"
+                                  name="description">{{ socialinteraction.description }} </textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="socialaccount" class="control-label">Social account</label>
+
+                        <select class="form-control" id="project" name="socialaccount" required>
+                            {% for socialaccount in auth_users %}
+                                {% if socialaccount.id == socialinteraction.socialaccount.id %}@
+                                    <option value="{{ socialaccount.id }}" class="form-control input-lg"
+                                            selected="selected">{{ socialaccount.get_provider_account }}
+                                        ¦¦ {{ socialaccount.provider }}</option>
+                                {% else %}
+                                    <option value="{{ socialaccount.id }}"
+                                            class="form-control input-lg">{{ socialaccount.get_provider_account }}
+                                        ¦¦ {{ socialaccount.provider }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status_type" class="control-label">Status</label>
+
+                        <select class="form-control" id="status" name="status_type" required>
+                            {% for status in status_types %}
+                                {% if socialinteraction.status == status %}
+                                    <option value="{{ status }}" class="form-control input-lg"
+                                            selected>{{ status }}</option>
+                                {% else %}
+                                    <option value="{{ status }}"
+                                            class="form-control input-lg">{{ status }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="reset" class="btn btn-link">Reset</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if not project.islocked %}
+            <div class="row">
+                <div class="col-sm-8 col-sm-offset-4">
+                    <div class="panel panel-danger">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Be careful!</h2>
+                        </div>
+
+                        <div class="panel-body becareful">
+                            <div>
+                                <strong>Delete social interaction</strong>
+                                <p>Deleting this social interaction cannot be undone.</p>
+                                <a href="#" class="text-danger" data-toggle="modal" data-target="#delete-confirm">Delete
+                                    this social interaction</a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    {% endif %}
-</div>
+        {% endif %}
+    </div>
 {% endblock %}
 
 {% block modals %}
-<div role="dialog" class="modal fade" id="delete-confirm" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content panel-danger">
-            <div class="modal-header panel-heading">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Are you sure?</h4>
-            </div>
+    <div role="dialog" class="modal fade" id="delete-confirm" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Are you sure?</h4>
+                </div>
 
-            <div class="modal-body panel-body">
-                <p><strong>Before you delete the social interaction, please read through the consequences of this action:</strong></p>
+                <div class="modal-body panel-body">
+                    <p><strong>Before you delete the social interaction, please read through the consequences of this
+                        action:</strong></p>
 
-                <ul>
-                    <li>Deleting a social interaction cannot be undone.</li>
-                    <li>Data accessible through this subset will not be deleted.</li>
-                </ul>
-            </div>
+                    <ul>
+                        <li>Deleting a social interaction cannot be undone.</li>
+                        <li>Data accessible through this subset will not be deleted.</li>
+                    </ul>
+                </div>
 
-            <div class="modal-footer panel-footer">
-                <a href="{% url 'admin:socialinteraction_delete' project.id socialinteraction.id %}" class="btn btn-danger">I'm absolutely sure, delete the social interaction!</a>
+                <div class="modal-footer panel-footer">
+                    <a href="{% url 'admin:socialinteraction_delete' project.id socialinteraction.id %}"
+                       class="btn btn-danger">I'm absolutely sure, delete the social interaction!</a>
+                </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block libraries %}
-<script src="/static/js/admin.ui.forms.validate.js"></script>
+    <script src="/static/js/admin.ui.forms.validate.js"></script>
 
-<style>
-.socialaccount_provider
-{
-    height:15px;
-    width:15px;
+    <style>
+        .socialaccount_provider {
+            height: 15px;
+            width: 15px;
 
-}
-</style>
+        }
+    </style>
 {% endblock %}
 

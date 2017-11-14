@@ -292,6 +292,8 @@ class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
             provider__in=['twitter', 'facebook'])
 
         context["auth_users"] = auth_users
+        context['status_types'] = {value: key for key, value in STATUS}.keys()
+
         return context
 
     def post(self, request, project_id, socialinteraction_id):
@@ -346,6 +348,7 @@ class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
                 socialinteraction.description = strip_tags(data.get('description'))
                 socialinteraction.socialaccount = SocialAccount.objects.get(
                     id=data.get('socialaccount'))
+                socialinteraction.status = data.get('status_type')
                 socialinteraction.save()
 
                 messages.success(self.request, 'The social interaction has been updated.')
@@ -577,10 +580,7 @@ class SocialInteractionPullSettings(LoginRequiredMixin, SocialInteractionPullCon
             provider__in=['twitter', 'facebook'])
 
         context["auth_users"] = auth_users
-        refund_dict = {value: key for key, value in STATUS}
-        status_types = refund_dict.keys()
-
-        context['status_types'] = status_types
+        context['status_types'] = {value: key for key, value in STATUS}.keys()
         context["freq"] = freq_dic.keys()
 
         return context
@@ -624,7 +624,7 @@ class SocialInteractionPullSettings(LoginRequiredMixin, SocialInteractionPullCon
             if si_pull.project.islocked:
                 messages.error(
                     self.request,
-                    'The project is locked. Social interaction cannot be deleted.'
+                    'The project is locked. Social interaction cannot be edited.'
                 )
                 return redirect(
                     'admin:socialinteraction_pull',
