@@ -1,9 +1,6 @@
 """Views for social interactions."""
 
-from django.shortcuts import render_to_response, render
-from django.template.loader import get_template
 from django.views.generic import TemplateView
-from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
@@ -612,8 +609,7 @@ class SocialInteractionPullSettings(LoginRequiredMixin, SocialInteractionPullCon
                 project_id,
                 socialinteractionpull_id
             )
-            # si_pull = context['socialinteraction_pull']
-            si_pull = SocialInteractionPull.objects.get(id=socialinteractionpull_id)
+            si_pull = context['socialinteraction_pull']
         except:
             messages.error(
                 self.request, 'The social account is not found.'
@@ -652,7 +648,7 @@ class SocialInteractionPullSettings(LoginRequiredMixin, SocialInteractionPullCon
                     si_pull.status = status
                 si_pull.save()
 
-                socialaccount = si_pull.socialaccount
+                messages.success(self.request, 'The social interaction has been updated.')
 
         return self.render_to_response(context)
 
