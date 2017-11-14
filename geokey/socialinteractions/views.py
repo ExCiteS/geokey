@@ -17,6 +17,7 @@ from allauth.socialaccount.providers import registry
 from geokey.core.decorators import handle_exceptions_for_admin
 from geokey.projects.models import Project
 from geokey.projects.views import ProjectContext
+from geokey.socialinteractions.templatetags.placeholder_filters import hashify
 
 from .models import SocialInteraction, SocialInteractionPull
 from .base import FREQUENCY, STATUS, freq_dic
@@ -108,6 +109,8 @@ class SocialInteractionCreate(LoginRequiredMixin, ProjectContext, TemplateView):
                 creator=request.user,
                 project=project,
                 socialaccount=socialaccount,
+                text_to_post="New contribution added to " + hashify(project.name) + ". Check it out here $link$",
+                link="https://communitymaps.org.uk/project/$project_id$/contribution/$contribution_id$",
             )
 
             add_another_url = reverse(

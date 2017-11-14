@@ -30,10 +30,8 @@ class SocialInteraction(models.Model):
         SocialAccount,
         related_name='socialinteractions'
     )
-    text_to_post = models.TextField(blank=True, null=True,
-                                    default="New contribution added to $project$. Check it out here $link$")
-    link = models.TextField(blank=True, null=True,
-                            default="https://communitymaps.org.uk/project/$project_id$/contribution/$contribution_id$")
+    text_to_post = models.TextField(blank=True, null=True)
+    link = models.TextField(blank=True, null=True)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
