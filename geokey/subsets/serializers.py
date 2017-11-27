@@ -13,4 +13,4 @@ class SubsetSerializer(ModelSerializer):
 
         model = Subset
         depth = 1
-        fields = ('id', 'name', 'description', 'creator')
+        fields = ('id', 'name', 'description', 'created_at')
