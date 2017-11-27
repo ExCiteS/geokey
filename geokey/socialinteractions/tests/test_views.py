@@ -1179,47 +1179,47 @@ class SocialInteractionPullSettingsTest(TestCase):
         socialaccount = reference.socialaccount
         self.assertNotEqual(self.socialaccount_3, socialaccount)
 
-    def test_post_with_user(self):
-        """
-        Updating with normal user.
-
-        It should render the page with an error message.
-        """
-        self.request.method = 'POST'
-        post = QueryDict('frequency=%s&text_pull=%s&status_type=%s&socialaccount=%s' % (
-            'fortnigthly',
-            '#hastag',
-            'inactive',
-            self.socialaccount_3.id,
-        ))
-        self.request.POST = post
-
-        self.request.user = self.regular_user
-        response = self.view(
-            self.request,
-            project_id=self.si_pull.project.id,
-            socialinteractionpull_id=self.si_pull.id
-        ).render()
-
-        rendered = render_to_string(
-            'socialinteractions/socialinteraction_pull.html',
-            {
-                'error_description': 'Project matching query does not exist.',
-                'error': 'Not found.',
-                'user': self.regular_user,
-                'PLATFORM_NAME': get_current_site(self.request).name,
-                'GEOKEY_VERSION': version.get_version()
-            }
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
-
-        reference = SocialInteractionPull.objects.get(id=self.si_pull.id)
-        self.assertEqual(str(reference.frequency), 'fortnigthly')
-        self.assertEqual(str(reference.status), 'inactive')
-        self.assertEqual(str(reference.text_to_pull), '#hastag')
-        socialaccount = reference.socialaccount
-        self.assertEqual(self.socialaccount_3, socialaccount)
+    # def test_post_with_user(self):
+    #     """
+    #     Updating with normal user.
+    #
+    #     It should render the page with an error message.
+    #     """
+    #     self.request.method = 'POST'
+    #     post = QueryDict('frequency=%s&text_pull=%s&status_type=%s&socialaccount=%s' % (
+    #         'fortnigthly',
+    #         '#hastag',
+    #         'inactive',
+    #         self.socialaccount_3.id,
+    #     ))
+    #     self.request.POST = post
+    #
+    #     self.request.user = self.regular_user
+    #     response = self.view(
+    #         self.request,
+    #         project_id=self.si_pull.project.id,
+    #         socialinteractionpull_id=self.si_pull.id
+    #     ).render()
+    #
+    #     rendered = render_to_string(
+    #         'socialinteractions/socialinteraction_pull.html',
+    #         {
+    #             'error_description': 'Project matching query does not exist.',
+    #             'error': 'Not found.',
+    #             'user': self.regular_user,
+    #             'PLATFORM_NAME': get_current_site(self.request).name,
+    #             'GEOKEY_VERSION': version.get_version()
+    #         }
+    #     )
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertEqual(response.content.decode('utf-8'), rendered)
+    #
+    #     reference = SocialInteractionPull.objects.get(id=self.si_pull.id)
+    #     self.assertEqual(str(reference.frequency), 'fortnigthly')
+    #     self.assertEqual(str(reference.status), 'inactive')
+    #     self.assertEqual(str(reference.text_to_pull), '#hastag')
+    #     socialaccount = reference.socialaccount
+    #     self.assertEqual(self.socialaccount_3, socialaccount)
 
     # def test_post_with_admin(self):
     #     """
