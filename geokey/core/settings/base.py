@@ -50,6 +50,7 @@ INSTALLED_APPS = (
     'allauth.socialaccount',
     'rest_framework',
     'rest_framework_gis',
+    'django_crontab',
 
     # GeoKey apps
     'geokey.core',
@@ -61,6 +62,7 @@ INSTALLED_APPS = (
     'geokey.superusertools',
     'geokey.extensions',
     'geokey.subsets',
+    'geokey.socialinteractions',
 )
 
 # Middleware that is used with GeoKey to process HTTP requests and responses.
@@ -119,7 +121,6 @@ AUTH_USER_MODEL = 'users.User'
 LOGIN_REDIRECT_URL = '/admin/dashboard/'
 LOGIN_URL = '/admin/account/login/'
 
-
 # django-allauth settings
 # see: http://django-allauth.readthedocs.org/en/latest/configuration.html
 ACCOUNT_ADAPTER = 'geokey.core.adapters.AccountAdapter'
@@ -170,3 +171,7 @@ TEMPLATES = [
 # Custom GeoKey settings, enables video upload. Disabled by default, can be
 # endabled by overwriting in local settings
 ENABLE_VIDEO = False
+
+CRONJOBS = [
+    ('*/5 * * * *', 'geokey.socialinteractions.utils.start2pull'),
+]

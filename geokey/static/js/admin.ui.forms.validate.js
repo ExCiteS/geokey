@@ -6,7 +6,7 @@
  * @version 0.1
  * ***********************************************/
 
-$(function() {
+$(function () {
     'use strict';
 
     var form = $('form').not('#description-form');
@@ -91,13 +91,36 @@ $(function() {
     function emailsValid(form) {
         var valid = true;
 
-        $(form).find('input[type="email"]').each(function() {
+        $(form).find('input[type="email"]').each(function () {
             var email = $(this).val().split('@');
 
             if (email.length === 2 && email[1].indexOf('.') === -1) {
                 valid = false;
                 $(this).parents('.form-group').addClass('has-error');
                 showHelp($(this), 'You forgot to add a top level domain to the address. Please check your input.');
+            }
+        });
+
+        return valid;
+    }
+
+    /**
+     * Validates email fields and displays error hint if values are not
+     * valid.
+     * @param  {Object} Form that is validated
+     * @return {Boolean} True if all dates are valid
+     */
+    function maxLengthValid(form) {
+        var valid = true;
+
+        $(form).find('textarea').each(function () {
+            var length = $(this).val().length;
+            console.log(length)
+            console.log($(this).attr('maxlength'))
+            if (length > $(this).attr('maxlength')) {
+                valid = false;
+                $(this).parents('.form-group').addClass('has-error');
+                showHelp($(this), 'You exceeded the maximum valid length.');
             }
         });
 
@@ -165,7 +188,7 @@ $(function() {
      * @return {Boolean} True if all are valid
      */
     function allValid(form) {
-        return emailsValid(form) && dateTimeValid(form) && urlsValid(form) && passwordsValid(form);
+        return emailsValid(form) && dateTimeValid(form) && urlsValid(form) && passwordsValid(form) && maxLengthValid(form);
     }
 
     /**

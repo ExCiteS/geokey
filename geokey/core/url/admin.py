@@ -11,6 +11,7 @@ from geokey.applications import views as app_views
 from geokey.superusertools import views as superusertools
 from geokey.subsets import views as subsets
 from geokey.core import views as logger
+from geokey.socialinteractions import views as socialinteractions
 
 
 urlpatterns = [
@@ -165,6 +166,42 @@ urlpatterns = [
         r'subsets/(?P<subset_id>[0-9]+)/delete/$',
         subsets.SubsetDelete.as_view(),
         name='subset_delete'),
+
+    # ###########################
+    #  SOCIAL INTERACTIONS
+    # ###########################
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/$',
+        socialinteractions.SocialInteractionList.as_view(),
+        name='socialinteraction_list'),
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/post/create/$',
+        socialinteractions.SocialInteractionCreate.as_view(),
+        name='socialinteraction_create'),
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/posts/(?P<socialinteraction_id>[0-9]+)/settings$',
+        socialinteractions.SocialInteractionSettings.as_view(),
+        name='socialinteraction_settings'),
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/posts/(?P<socialinteraction_id>[0-9]+)/$',
+        socialinteractions.SocialInteractionPost.as_view(),
+        name='socialinteraction_post'),
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/pulls/(?P<socialinteractionpull_id>[0-9]+)/$',
+        socialinteractions.SocialInteractionPullSettings.as_view(),
+        name='socialinteraction_pull'),
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/pulls/create$',
+        socialinteractions.SocialInteractionPullCreate.as_view(),
+        name='socialinteraction_pull_create'),
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/(?P<socialinteraction_id>[0-9]+)/delete/$',
+        socialinteractions.SocialInteractionDelete.as_view(),
+        name='socialinteraction_delete'),
+    url(r'^projects/(?P<project_id>[0-9]+)/'
+        r'socialinteractions/pulls/(?P<socialinteractionpull_id>[0-9]+)/delete/$',
+        socialinteractions.SocialInteractionPullDelete.as_view(),
+        name='socialinteraction_pull_delete'),
 
     # ###########################
     # LOGGER
