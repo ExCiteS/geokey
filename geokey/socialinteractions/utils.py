@@ -38,7 +38,6 @@ def check_dates(updated_at, frequency):
 
 def start2pull():
     """Start pulling data from Twitter."""
-    print '\n' + str(timezone.now()) + ': start2pull executed'
     si_pull_all = SocialInteractionPull.objects.filter(status='active')
     for si_pull in si_pull_all:
         socialaccount = si_pull.socialaccount
@@ -52,7 +51,6 @@ def start2pull():
 
         last_checked = si_pull.checked_at if si_pull.checked_at is not None else si_pull.created_at
         check_required = check_dates(last_checked, si_pull.frequency)
-        print si_pull.project.name + ', ' + si_pull.text_to_pull + ' - ' + 'check required: ' + str(check_required)
 
         if check_required:
             geo_tweets = pull_from_social_media(
@@ -68,8 +66,6 @@ def start2pull():
                 project = si_pull.project
             except:
                 next
-
-            print 'New tweets: ' + str(project.name) + ": " + str(len(geo_tweets))
 
             tweet_category, text_field = get_category_and_field(
                 project,
@@ -113,8 +109,6 @@ def create_new_observation(si_pull, geo_tweet, tweet_cat, text_field):
         text_field.key: geo_tweet['text']}
     new_observation.properties = properties
     new_observation.save()
-
-    print 'Observation saved: ' + si_pull.project.name + ', ' + geo_tweet['text'] + ', ' + str(point)
 
     si_pull.updated_at = timezone.now()
     si_pull.since_id = geo_tweet['id']
@@ -193,7 +187,7 @@ def pull_from_social_media(provider, access_token, text_to_pull, tweet_id, app):
             api = tweepy.API(auth)
 
             try:
-                tweets_all = api.mentions_timeline(count=100, since_id=tweet_id)
+                tweets_all = api.mentions_timeline(count=100, since_id=tweet_id, tweet_mode='extended')
             except Exception:
                 return "Impossible to get data from the timeline"
         except:
@@ -201,11 +195,11 @@ def pull_from_social_media(provider, access_token, text_to_pull, tweet_id, app):
 
         geo_tweets = []
         for tweet in tweets_all:
-            if text_to_pull.lower() in tweet.text.lower():
+            if text_to_pull.lower() in tweet.full_text.lower():
                 if tweet.coordinates or tweet.place:
                     new_contribution = {}
                     new_contribution['id'] = tweet.id
-                    new_contribution['text'] = tweet.text
+                    new_contribution['text'] = tweet.full_text
                     new_contribution['user'] = tweet.user.name
                     new_contribution['created_at'] = tweet.created_at
                     new_contribution['geometry'] = process_location(tweet)

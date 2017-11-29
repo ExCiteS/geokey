@@ -46,7 +46,7 @@
                                     id="remaining_characters"></span> characters left)</span> {% endif %}</label>
                         <textarea class="form-control input-lg" rows="5" id="text_post" name="text_post"
                                 {% if socialaccount.provider == 'twitter' %}
-                                  maxlength="140"  {% endif %} >{{ socialinteraction.text_to_post }}</textarea>
+                                  maxlength="280"  {% endif %} >{{ socialinteraction.text_to_post }}</textarea>
                     </div>
                     <div class="form-group">
                         <label for="text_link" class="conrol-label">Link address</label>
@@ -99,7 +99,7 @@
                     post_length = $("#text_post").val().length
                     url_length = 0
                 }
-                var remaining = 140 - post_length - url_length
+                var remaining = 280 - post_length - url_length
                 $('#remaining_characters').text(remaining)
                 $('#text_post').attr('maxlength', $("#text_post").val().length + remaining)
             }

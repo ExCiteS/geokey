@@ -111,7 +111,7 @@ def get_ready_to_post(instance):
             )
 
             if provider == "twitter":
-                text_to_post = text_to_post[:140]
+                text_to_post = text_to_post[:280]
 
             tweet_id, screen_name = post_to_social_media(
                 provider,
