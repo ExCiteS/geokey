@@ -15,20 +15,18 @@ from geokey.contributions.models import Observation, Comment
 from .base import STATUS, FREQUENCY
 
 
-class SocialInteraction(models.Model):
-    """Stores a single social interaction."""
+class SocialInteractionPost(models.Model):
+    """Stores post social interaction."""
 
-    name = models.CharField(max_length=100)
-    description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     project = models.ForeignKey(
         'projects.Project',
-        related_name='socialinteractions'
+        related_name='socialinteractions_post'
     )
     socialaccount = models.ForeignKey(
         SocialAccount,
-        related_name='socialinteractions'
+        related_name='socialinteractions_post'
     )
     text_to_post = models.TextField(blank=True, null=True)
     link = models.TextField(blank=True, null=True)
@@ -86,7 +84,7 @@ def get_ready_to_post(instance):
     """
     from django.contrib.sites.models import Site
     project = instance.project
-    socialinteractions_all = SocialInteraction.objects.filter(project=project, status='active')
+    socialinteractions_all = SocialInteractionPost.objects.filter(project=project, status='active')
 
     if instance.category.name != 'Tweets':
         for socialinteraction in socialinteractions_all:

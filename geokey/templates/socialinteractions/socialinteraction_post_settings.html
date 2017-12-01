@@ -1,9 +1,13 @@
 {% extends 'base.html' %}
+{% load static %}
+
 
 {% block bodydata %}
     data-project-id="{{ project.id }}"
     data-project-locked="{{ project.islocked }}"
     data-socialinteraction-id="{{ socialinteraction.id }}"
+    data-contributions-count="{{ project.observations.count }}"
+
 {% endblock %}
 
 {% block title %} | Project: {{ project.name }} - Social interaction: {{ socialinteraction.name }} -
@@ -25,35 +29,53 @@
         {% include 'snippets/messages.html' %}
 
         <div class="row">
-            <div class="col-sm-4">
-                {% include 'socialinteractions/socialinteraction_navigation.html' %}
+
+            <div class="col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h6 class="item-info">Post to social media</h6>
+
+                        <h3>
+                            {% if project.islocked %}
+                                <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                        </h3>
+                    </div>
+
+                    <table class="table table-striped field-info">
+                        <tr>
+                            <td><strong>User</strong></td>
+                            <td>{% if socialinteraction.socialaccount.provider == 'twitter' %}
+                                @{% endif %}{{ socialinteraction.socialaccount.get_provider_account }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Provider</strong></td>
+                            <td><img class="socialaccount_provider" src="{% static 'img/providers/' %}{{ socialinteraction.socialaccount.provider }}.svg"
+                                     alt="{{ socialinteraction.socialaccount.get_provider.name }} social provider"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status</strong></td>
+                            <td>{{ socialinteraction.status }}</td>
+                        </tr>
+                    </table>
+                </div>
             </div>
 
-            <div class="col-sm-8">
+            <div class="col-sm-9">
                 <h3 class="header">Social interaction settings <a
                         href="{% url 'admin:socialinteraction_list' project.id %}" class="btn btn-info pull-right"><span
                         class="glyphicon glyphicon-th-list"></span> Back to the list</a></h3>
 
                 <form id="settings" method="POST"
-                      action="{% url 'admin:socialinteraction_settings' project.id socialinteraction.id %}" novalidate>
+                      action="{% url 'admin:socialinteraction_post_settings' project.id socialinteraction.id %}"
+                      novalidate>
                     {% csrf_token %}
 
-                    <div class="form-group">
-                        <label for="name" class="control-label">Name (required)</label>
-                        <input type="text" class="form-control input-lg" id="name" name="name" maxlength="100"
-                               value="{{ socialinteraction.name }}" required/>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="description" class="control-label">Description</label>
-                        <textarea class="form-control input-lg" rows="5" id="description"
-                                  name="description">{{ socialinteraction.description }} </textarea>
-                    </div>
 
                     <div class="form-group">
                         <label for="socialaccount" class="control-label">Social account</label>
 
-                        <select class="form-control" id="project" name="socialaccount" required>
+                        <select class="form-control" id="socialaccount" name="socialaccount" required>
                             {% for socialaccount in auth_users %}
                                 {% if socialaccount.id == socialinteraction.socialaccount.id %}@
                                     <option value="{{ socialaccount.id }}" class="form-control input-lg"
@@ -66,6 +88,20 @@
                                 {% endif %}
                             {% endfor %}
                         </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="text_post" class="control-label">Text to post
+                            {% if socialaccount.provider == "twitter" %} <span id="characters">(<span
+                                    id="remaining_characters"></span> characters left)</span> {% endif %}</label>
+                        <textarea class="form-control input-lg" rows="5" id="text_post" name="text_post"
+                                {% if socialaccount.provider == 'twitter' %}
+                                  maxlength="280"  {% endif %} >{{ socialinteraction.text_to_post }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="text_link" class="conrol-label">Link address</label>
+                        <input class="form-control input-lg" type="text" id="text_link"
+                               name="text_link" value= {{ socialinteraction.link }}>
                     </div>
 
                     <div class="form-group">
@@ -95,7 +131,7 @@
 
         {% if not project.islocked %}
             <div class="row">
-                <div class="col-sm-8 col-sm-offset-4">
+                <div class="col-sm-9 col-sm-offset-3">
                     <div class="panel panel-danger">
                         <div class="panel-heading">
                             <h2 class="panel-title">Be careful!</h2>
@@ -136,7 +172,7 @@
                 </div>
 
                 <div class="modal-footer panel-footer">
-                    <a href="{% url 'admin:socialinteraction_delete' project.id socialinteraction.id %}"
+                    <a href="{% url 'admin:socialinteraction_post_delete' project.id socialinteraction.id %}"
                        class="btn btn-danger">I'm absolutely sure, delete the social interaction!</a>
                 </div>
             </div>
@@ -146,13 +182,6 @@
 
 {% block libraries %}
     <script src="/static/js/admin.ui.forms.validate.js"></script>
-
-    <style>
-        .socialaccount_provider {
-            height: 15px;
-            width: 15px;
-
-        }
-    </style>
+    <script src="/static/js/admin.ui.socialinteractions.twittervalidator.js"></script>
 {% endblock %}
 

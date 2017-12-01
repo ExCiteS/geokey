@@ -60,7 +60,7 @@
                     <p>{% if si_pull.status == 'inactive' %}
                         <span class="glyphicon glyphicon-pause"></span>{% else %}
                         <span class="glyphicon glyphicon-play">  </span>{% endif %} <a
-                            href="{% url 'admin:socialinteraction_pull' project.id si_pull.id %}">Text to
+                            href="{% url 'admin:socialinteraction_pull_settings' project.id si_pull.id %}">Text to
                         pull ({{ si_pull.frequency }}): </a></br>
                         {% autoescape off %}
                             {{ si_pull.text_to_pull }}{% endautoescape %}
@@ -96,7 +96,7 @@
                         <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
                     <span>Post to social media</span>
                     {% if not project.islocked %}
-                        <a href="{% url 'admin:socialinteraction_create' project.id %}"
+                        <a href="{% url 'admin:socialinteraction_post_create' project.id %}"
                            class="btn btn-success btn-sm pull-right">
                             <span class="glyphicon glyphicon-plus"></span>
                             Add new post task
@@ -104,7 +104,7 @@
                     {% endif %}
                 </h3>
 
-                {% for socialinteraction in project.socialinteractions.all %}
+                {% for socialinteraction in project.socialinteractions_post.all %}
                     {% if forloop.first %}
                         <ul class="list-unstyled overview-list">
                     {% endif %}
@@ -123,7 +123,7 @@
                     <p>{% if socialinteraction.status == 'inactive' %}
                         <span class="glyphicon glyphicon-pause"></span>{% else %}
                         <span class="glyphicon glyphicon-play">  </span>{% endif %} <a
-                            href="{% url 'admin:socialinteraction_post' project.id socialinteraction.id %}">Text to
+                            href="{% url 'admin:socialinteraction_post_settings' project.id socialinteraction.id %}">Text to
                         post:</a></br>
                         {% autoescape off %}
                             {{ socialinteraction.text_to_post|add_link:socialinteraction.link }}{% endautoescape %}
@@ -140,10 +140,10 @@
                         {% if project.islocked %}
                             <p>Unfortunately, you cannot create new social interactions when the project is locked.</p>
                         {% elif not project.categories.all %}
-                            <p>Unfortunately, you cannot create new social interactions when there are no categories
+                            <p>Unfortunately, you cannot create new post interactions when there are no categories
                                 added to the project.</p>
                         {% else %}
-                            <a href="{% url 'admin:socialinteraction_create' project.id %}"
+                            <a href="{% url 'admin:socialinteraction_post_create' project.id %}"
                                class="btn btn-success btn-lg">Create post to social media</a>
                         {% endif %}
                     </div>

@@ -9,14 +9,12 @@ from django.contrib import messages
 
 from braces.views import LoginRequiredMixin
 from allauth.socialaccount.models import SocialAccount, SocialToken, SocialApp
-from allauth.socialaccount.providers import registry
 
 from geokey.core.decorators import handle_exceptions_for_admin
 from geokey.projects.models import Project
 from geokey.projects.views import ProjectContext
-from geokey.socialinteractions.templatetags.placeholder_filters import hashify
 
-from .models import SocialInteraction, SocialInteractionPull
+from .models import SocialInteractionPost, SocialInteractionPull
 from .base import STATUS, FREQUENCY
 
 
@@ -81,33 +79,35 @@ class SocialInteractionPostCreate(LoginRequiredMixin, ProjectContext, TemplateVi
                     'The project is locked. %s' % cannot_create
                 )
                 return redirect(
-                    'admin:socialinteraction_create',
+                    'admin:socialinteraction_post_create',
                     project_id=project_id
                 )
 
             try:
                 socialaccount = SocialAccount.objects.get(
                     pk=data.get('socialaccount'))
+                text_to_post = data.get('text_post')
+                link = data.get('text_link')
             except SocialAccount.DoesNotExist:
                 messages.error(
                     self.request,
                     'The social account is not found. %s' % cannot_create
                 )
                 return redirect(
-                    'admin:socialinteraction_create',
+                    'admin:socialinteraction_post_create',
                     project_id=project_id
                 )
 
-            socialinteraction = SocialInteraction.objects.create(
+            socialinteraction = SocialInteractionPost.objects.create(
                 creator=request.user,
                 project=project,
                 socialaccount=socialaccount,
-                text_to_post="New contribution added to " + hashify(project.name) + ". Check it out here $link$",
-                link="https://communitymaps.org.uk/project/$project_id$/contribution/$contribution_id$",
+                text_to_post=text_to_post,
+                link=link,
             )
 
             add_another_url = reverse(
-                'admin:socialinteraction_create',
+                'admin:socialinteraction_post_create',
                 kwargs={
                     'project_id': project_id
                 }
@@ -118,17 +118,16 @@ class SocialInteractionPostCreate(LoginRequiredMixin, ProjectContext, TemplateVi
                 mark_safe(
                     'The social interaction has been created.<a href="%s"> Add another social interaction.</a>' % add_another_url)
             )
-
             return redirect(
-                'admin:socialinteraction_post',
+                'admin:socialinteraction_list',
                 project_id=project_id,
-                socialinteraction_id=socialinteraction.id
             )
+
         else:
             return self.render_to_response(context)
 
 
-class SocialInteractionContext(object):
+class SocialInteractionPostContext(object):
     """
     Provides the context to render templates. The context contains
     a social interaction instance based on project_id and socialinteraction_id.
@@ -156,7 +155,7 @@ class SocialInteractionContext(object):
         project = Project.objects.as_admin(self.request.user, project_id)
 
         try:
-            socialinteraction = project.socialinteractions.get(
+            socialinteraction = project.socialinteractions_post.get(
                 id=socialinteraction_id)
 
         except:
@@ -182,15 +181,15 @@ class SocialInteractionContext(object):
             )
 
         if socialinteraction and socialaccount:
-            return super(SocialInteractionContext, self).get_context_data(
+            return super(SocialInteractionPostContext, self).get_context_data(
                 project=project,
                 socialinteraction=socialinteraction,
                 socialaccount=socialaccount,
             )
 
 
-class SocialInteractionDelete(LoginRequiredMixin, SocialInteractionContext,
-                              TemplateView):
+class SocialInteractionPostDelete(LoginRequiredMixin, SocialInteractionPostContext,
+                                  TemplateView):
     """
     Deletes the social interactions.
     """
@@ -221,7 +220,7 @@ class SocialInteractionDelete(LoginRequiredMixin, SocialInteractionContext,
 
         try:
             context = self.get_context_data(project_id, socialinteraction_id)
-            socialinteraction = context.get('socialinteraction')
+            socialinteraction = context.get('socialinteraction_post')
 
         except:
             messages.error(
@@ -240,7 +239,7 @@ class SocialInteractionDelete(LoginRequiredMixin, SocialInteractionContext,
                     'The project is locked. Social interaction cannot be deleted.'
                 )
                 return redirect(
-                    'admin:socialinteraction_settings',
+                    'admin:socialinteraction_post_settings',
                     project_id=project_id,
                     socialinteraction_id=socialinteraction_id
                 )
@@ -254,8 +253,8 @@ class SocialInteractionDelete(LoginRequiredMixin, SocialInteractionContext,
         return self.render_to_response(context)
 
 
-class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
-                                TemplateView):
+class SocialInteractionPostSettings(LoginRequiredMixin, SocialInteractionPostContext,
+                                    TemplateView):
     """
     Provides the form to update the social interaction settings.
     """
@@ -277,7 +276,7 @@ class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
         dict
             Context.
         """
-        context = super(SocialInteractionSettings, self).get_context_data(
+        context = super(SocialInteractionPostSettings, self).get_context_data(
             project_id,
             *args,
             **kwargs
@@ -334,14 +333,14 @@ class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
                     'The project is locked. Social interaction cannot be deleted.'
                 )
                 return redirect(
-                    'admin:socialinteraction_settings',
+                    'admin:socialinteraction_post_settings',
                     project_id=project_id,
                     socialinteraction_id=socialinteraction_id
                 )
             else:
 
-                socialinteraction.name = strip_tags(data.get('name'))
-                socialinteraction.description = strip_tags(data.get('description'))
+                socialinteraction.text_to_post = data.get('text_post')
+                socialinteraction.link = data.get('text_link')
                 socialinteraction.socialaccount = SocialAccount.objects.get(
                     id=data.get('socialaccount'))
                 socialinteraction.status = data.get('status_type')
@@ -352,63 +351,63 @@ class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
         return self.render_to_response(context)
 
 
-class SocialInteractionPost(LoginRequiredMixin, SocialInteractionContext,
-                            TemplateView):
-    """Provide the form to update the social interaction settings."""
-
-    template_name = 'socialinteractions/socialinteraction_post.html'
-
-    def get_context_data(self, project_id, *args, **kwargs):
-        """
-        Return the context to render the view.
-
-        Add Twitter and Facebook social accounts of a user to the context.
-
-        Parameters
-        ----------
-        project_id : int
-            Identifies the project in the database.
-
-        Returns
-        -------
-        dict
-            Context.
-        """
-
-        return super(SocialInteractionPost, self).get_context_data(
-            project_id,
-            *args,
-            **kwargs
-        )
-
-    def post(self, request, project_id, socialinteraction_id):
-        """
-        Creates social post base on the data entered by the user.
-
-        Parameters
-        ---------
-        request : django.http.HttpRequest
-            Object representing the request.
-        project_id : intyes
-            Identifies the project in the database.
-        socialinteraction_id : int
-            Identifies the social interaction in the database.
-
-        Returns
-        -------
-        django.http.HttpResponse
-            Rendered template when social interactions updated.
-        django.http.HttpResponse
-            Rendered template, if project or social interaction does not exist.
-        """
-        data = request.POST
-        context = self.get_context_data(project_id, socialinteraction_id)
-        socialinteraction = context.get('socialinteraction')
-        socialinteraction.text_to_post = data.get('text_post')
-        socialinteraction.link = data.get('text_link')
-        socialinteraction.save()
-
-        return self.render_to_response(context)
+# class SocialInteractionPost(LoginRequiredMixin, SocialInteractionPostContext,
+#                             TemplateView):
+#     """Provide the form to update the social interaction settings."""
+#
+#     template_name = 'socialinteractions/socialinteraction_post.html'
+#
+#     def get_context_data(self, project_id, *args, **kwargs):
+#         """
+#         Return the context to render the view.
+#
+#         Add Twitter and Facebook social accounts of a user to the context.
+#
+#         Parameters
+#         ----------
+#         project_id : int
+#             Identifies the project in the database.
+#
+#         Returns
+#         -------
+#         dict
+#             Context.
+#         """
+#
+#         return super(SocialInteractionPost, self).get_context_data(
+#             project_id,
+#             *args,
+#             **kwargs
+#         )
+#
+#     def post(self, request, project_id, socialinteraction_id):
+#         """
+#         Creates social post base on the data entered by the user.
+#
+#         Parameters
+#         ---------
+#         request : django.http.HttpRequest
+#             Object representing the request.
+#         project_id : intyes
+#             Identifies the project in the database.
+#         socialinteraction_id : int
+#             Identifies the social interaction in the database.
+#
+#         Returns
+#         -------
+#         django.http.HttpResponse
+#             Rendered template when social interactions updated.
+#         django.http.HttpResponse
+#             Rendered template, if project or social interaction does not exist.
+#         """
+#         data = request.POST
+#         context = self.get_context_data(project_id, socialinteraction_id)
+#         socialinteraction = context.get('socialinteraction')
+#         socialinteraction.text_to_post = data.get('text_post')
+#         socialinteraction.link = data.get('text_link')
+#         socialinteraction.save()
+#
+#         return self.render_to_response(context)
 
 
 class SocialInteractionPullCreate(LoginRequiredMixin, ProjectContext,
@@ -465,7 +464,7 @@ class SocialInteractionPullCreate(LoginRequiredMixin, ProjectContext,
                     'The project is locked. %s' % cannot_create
                 )
                 return redirect(
-                    'admin:socialinteraction_create',
+                    'admin:socialinteraction_post_create',
                     project_id=project_id
                 )
 
@@ -478,7 +477,7 @@ class SocialInteractionPullCreate(LoginRequiredMixin, ProjectContext,
                     'The social account is not found. %s' % cannot_create
                 )
                 return redirect(
-                    'admin:socialinteraction_create',
+                    'admin:socialinteraction_post_create',
                     project_id=project_id
                 )
 

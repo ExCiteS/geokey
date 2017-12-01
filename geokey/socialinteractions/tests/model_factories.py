@@ -7,12 +7,12 @@ from allauth.socialaccount.models import SocialAccount
 from geokey.users.tests.model_factories import UserFactory
 from geokey.projects.tests.model_factories import ProjectFactory
 
-from ..models import SocialInteraction, SocialInteractionPull
+from ..models import SocialInteractionPost, SocialInteractionPull
 
 
 class SocialInteractionFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = SocialInteraction
+        model = SocialInteractionPost
 
     creator = factory.SubFactory(UserFactory)
     name = factory.Sequence(lambda n: 'social interaction %s' % n)
