@@ -176,7 +176,7 @@ urlpatterns = [
         name='socialinteraction_list'),
     url(r'^projects/(?P<project_id>[0-9]+)/'
         r'socialinteractions/post/create/$',
-        socialinteractions.SocialInteractionCreate.as_view(),
+        socialinteractions.SocialInteractionPostCreate.as_view(),
         name='socialinteraction_create'),
     url(r'^projects/(?P<project_id>[0-9]+)/'
         r'socialinteractions/posts/(?P<socialinteraction_id>[0-9]+)/settings$',

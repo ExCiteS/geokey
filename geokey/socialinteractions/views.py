@@ -17,9 +17,7 @@ from geokey.projects.views import ProjectContext
 from geokey.socialinteractions.templatetags.placeholder_filters import hashify
 
 from .models import SocialInteraction, SocialInteractionPull
-from .base import FREQUENCY, STATUS, freq_dic
-
-import tweepy
+from .base import STATUS, FREQUENCY
 
 
 class SocialInteractionList(LoginRequiredMixin, ProjectContext, TemplateView):
@@ -29,15 +27,15 @@ class SocialInteractionList(LoginRequiredMixin, ProjectContext, TemplateView):
     template_name = 'socialinteractions/socialinteraction_list.html'
 
 
-class SocialInteractionCreate(LoginRequiredMixin, ProjectContext, TemplateView):
+class SocialInteractionPostCreate(LoginRequiredMixin, ProjectContext, TemplateView):
     """
     Provides the form to create a new social interaction.
     """
-    template_name = 'socialinteractions/socialinteraction_create.html'
+    template_name = 'socialinteractions/socialinteraction_post_create.html'
 
     def get_context_data(self, *args, **kwargs):
 
-        context = super(SocialInteractionCreate, self).get_context_data(
+        context = super(SocialInteractionPostCreate, self).get_context_data(
             *args,
             **kwargs
         )
@@ -101,8 +99,6 @@ class SocialInteractionCreate(LoginRequiredMixin, ProjectContext, TemplateView):
                 )
 
             socialinteraction = SocialInteraction.objects.create(
-                name=strip_tags(data.get('name')),
-                description=strip_tags(data.get('description')),
                 creator=request.user,
                 project=project,
                 socialaccount=socialaccount,
@@ -168,7 +164,7 @@ class SocialInteractionContext(object):
                 self.request, 'The social interaction was not found.'
             )
             return redirect(
-                'socialinteractions/socialinteraction_settings.html',
+                'socialinteractions/socialinteraction_post_settings.html',
                 project_id=project_id,
                 socialinteraction_id=socialinteraction_id,
             )
@@ -180,7 +176,7 @@ class SocialInteractionContext(object):
                 self.request, 'The social account was not found'
             )
             return redirect(
-                'socialinteractions/socialinteraction_settings.html',
+                'socialinteractions/socialinteraction_post_settings.html',
                 project_id=project_id,
                 socialinteraction_id=socialinteraction_id,
             )
@@ -263,7 +259,7 @@ class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
     """
     Provides the form to update the social interaction settings.
     """
-    template_name = 'socialinteractions/socialinteraction_settings.html'
+    template_name = 'socialinteractions/socialinteraction_post_settings.html'
 
     def get_context_data(self, project_id, *args, **kwargs):
         """
@@ -326,7 +322,7 @@ class SocialInteractionSettings(LoginRequiredMixin, SocialInteractionContext,
                 self.request, 'The social account is not found.'
             )
             return redirect(
-                'socialinteractions/socialinteraction_settings.html',
+                'socialinteractions/socialinteraction_post_settings.html',
                 project_id=project_id,
                 socialinteraction_id=socialinteraction_id
             )
@@ -433,6 +429,7 @@ class SocialInteractionPullCreate(LoginRequiredMixin, ProjectContext,
             provider__in=['twitter', 'facebook'])
 
         context["auth_users"] = auth_users
+        context["frequencies"] = [x for x, _ in FREQUENCY]
         return context
 
     def post(self, request, project_id):
@@ -581,7 +578,7 @@ class SocialInteractionPullSettings(LoginRequiredMixin, SocialInteractionPullCon
 
         context["auth_users"] = auth_users
         context['status_types'] = {value: key for key, value in STATUS}.keys()
-        context["freq"] = freq_dic.keys()
+        context["freq"] = [x for x, _ in FREQUENCY]
 
         return context
 

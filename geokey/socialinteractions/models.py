@@ -91,14 +91,10 @@ def get_ready_to_post(instance):
     if instance.category.name != 'Tweets':
         for socialinteraction in socialinteractions_all:
             link = socialinteraction.link
-            if "$project_id$" in link:
-                link = link.replace("$project_id$", str(project.id))
-            if "$contribution_id$" in link:
-                link = link.replace("$contribution_id$", str(instance.id))
+            link = link.replace("$project_id$", str(project.id))
+            link = link.replace("$contribution_id$", str(instance.id))
 
-            text_to_post = socialinteraction.text_to_post
-            if "$link$" in text_to_post:
-                text_to_post = text_to_post.replace("$link$", link)
+            text_to_post = socialinteraction.text_to_post.replace("$link$", link)
 
             socialaccount = socialinteraction.socialaccount
             provider = socialaccount.provider

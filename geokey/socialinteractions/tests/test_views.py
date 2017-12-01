@@ -28,7 +28,7 @@ from .model_factories import (
 from ..models import SocialInteraction, SocialInteractionPull
 from ..views import (
     SocialInteractionList,
-    SocialInteractionCreate,
+    SocialInteractionPostCreate,
     SocialInteractionSettings,
     SocialInteractionDelete,
     SocialInteractionPost,
@@ -146,7 +146,7 @@ class SocialInteractionCreateTest(TestCase):
         self.socialaccount_2 = SocialAccount.objects.create(
             user=self.admin_user, provider='twitter', uid='2')
 
-        self.view = SocialInteractionCreate.as_view()
+        self.view = SocialInteractionPostCreate.as_view()
         self.request = HttpRequest()
         self.request.method = 'GET'
         self.request.user = self.anonymous_user
@@ -176,7 +176,7 @@ class SocialInteractionCreateTest(TestCase):
         response = self.view(self.request, project_id=self.project.id).render()
 
         rendered = render_to_string(
-            'socialinteractions/socialinteraction_create.html',
+            'socialinteractions/socialinteraction_post_create.html',
             {
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
@@ -198,7 +198,7 @@ class SocialInteractionCreateTest(TestCase):
     #     response = self.view(self.request, project_id=self.project.id).render()
 
     #     rendered = render_to_string(
-    #         'socialinteractions/socialinteraction_create.html',
+    #         'socialinteractions/socialinteraction_post_create.html',
     #         {
     #             'project': self.project,
     #             'auth_users': [self.socialaccount_2],
@@ -246,7 +246,7 @@ class SocialInteractionCreateTest(TestCase):
         response = self.view(self.request, project_id=self.project.id).render()
 
         rendered = render_to_string(
-            'socialinteractions/socialinteraction_create.html',
+            'socialinteractions/socialinteraction_post_create.html',
             {
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
@@ -405,7 +405,7 @@ class SocialInteractionSettingsTest(TestCase):
         ).render()
 
         rendered = render_to_string(
-            'socialinteractions/socialinteraction_settings.html',
+            'socialinteractions/socialinteraction_post_settings.html',
             {
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
@@ -439,7 +439,7 @@ class SocialInteractionSettingsTest(TestCase):
     #                       if id in ['twitter', 'facebook']]
     #     )
     #     rendered = render_to_string(
-    #         'socialinteractions/socialinteraction_settings.html',
+    #         'socialinteractions/socialinteraction_post_settings.html',
     #         {
     #             'project': self.socialinteraction.project,
     #             'socialinteraction': self.socialinteraction,
@@ -504,7 +504,7 @@ class SocialInteractionSettingsTest(TestCase):
         ).render()
 
         rendered = render_to_string(
-            'socialinteractions/socialinteraction_settings.html',
+            'socialinteractions/socialinteraction_post_settings.html',
             {
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',

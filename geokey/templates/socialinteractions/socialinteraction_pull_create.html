@@ -28,7 +28,7 @@
                   action="{% url 'admin:socialinteraction_pull_create' project.id %}" novalidate>
                 {% csrf_token %}
                 <h3 class="header">
-                    <span>Create new pull from social media </span>
+                    <span>Create new pull task from social media </span>
                 </h3>
                 <div class="form-group">
                     <label for="socialaccount" class="control-label">Social account</label>
@@ -49,17 +49,16 @@
 
                 <div class="form-group">
                     <label for="socialaccount" class="control-label">Frequency</label>
-                    <select class="form-control" id="frequency" name="frequency" required>
-                        <option value="5min" class="form-control input-lg">5 min</option>
-                        <option value="10min" class="form-control input-lg">10 min</option>
-                        <option value="20min" class="form-control input-lg">20 min</option>
-                        <option value="30min" class="form-control input-lg">30 min</option>
-                        <option value="hourly" class="form-control input-lg">Hourly</option>
-                        <option value="daily" class="form-control input-lg" selected="selected">Daily</option>
-                        <option value="weekly" class="form-control input-lg">Weekly</option>
-                        <option value="fornightly" class="form-control input-lg">Fornightly</option>
-                        <option value="monthly" class="form-control input-lg">Monthly</option>
-                    </select>
+                                <select class="form-control" id="frequency" name="frequency" required>
+                                    {% for f in frequencies %}
+                                        {% if f == 'daily' %}
+                                            <option value="{{ f }}" class="form-control input-lg" selected >
+                                            {{ f|title }}</option>
+                                        {% else %}
+                                            <option value="{{ f }}" class="form-control input-lg" >{{ f|title }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
                 </div>
 
                 <div>

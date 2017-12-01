@@ -118,10 +118,10 @@
                                 <select class="form-control" id="frequency" name="frequency" required>
                                     {% for f in freq %}
                                         {% if f == socialinteraction_pull.frequency %}
-                                            <option value={{ f }} class="form-control input-lg" selected >
+                                            <option value="{{ f }}" class="form-control input-lg" selected >
                                             {{ f|title }}</option>
                                         {% else %}
-                                            <option value={{ f }} class="form-control input-lg" >{{ f|title }}</option>
+                                            <option value="{{ f }}" class="form-control input-lg" >{{ f|title }}</option>
                                         {% endif %}
                                     {% endfor %}
                                 </select>
