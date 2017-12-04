@@ -220,7 +220,7 @@ class SocialInteractionPostDelete(LoginRequiredMixin, SocialInteractionPostConte
 
         try:
             context = self.get_context_data(project_id, socialinteraction_id)
-            socialinteraction = context.get('socialinteraction_post')
+            socialinteraction = context.get('socialinteraction')
 
         except:
             messages.error(
@@ -677,7 +677,7 @@ class SocialInteractionPullDelete(LoginRequiredMixin, SocialInteractionPullConte
                     'The project is locked. Social pull cannot be deleted.'
                 )
                 return redirect(
-                    'admin:socialinteraction_pull',
+                    'admin:socialinteraction_pull_settings',
                     project_id=project_id,
                     socialinteractionpull_id=socialinteraction_pull.id
                 )

@@ -2,9 +2,15 @@
  * Indicates to user how many characters are still
  * left in the post to Twitter
  *
+ * if selected #socialaccount is twitter:
+ *     #remaining_characters are calculated based on fields: #text_post & #text_link
+ *     maxlength attribute in #text_post is dynamically updated
+ * else #characters is hidden
+ *
  * Used in:
  * - templates/socialinteractions/socialinteraction_post_create.html
  * - templates/socialinteractions/socialinteraction_post_settings.html
+ *
  * ***********************************************/
 
 if ($("#socialaccount option:selected").text().match("¦¦ twitter$")) {

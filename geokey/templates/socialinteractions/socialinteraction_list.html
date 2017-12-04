@@ -16,7 +16,6 @@
                 {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
                 <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
             </h1>
-
             {% include 'projects/navigation.html' %}
         </div>
     </div>
@@ -34,7 +33,7 @@
                         <a href="{% url 'admin:socialinteraction_pull_create' project.id %}"
                            class="btn btn-success btn-sm pull-right">
                             <span class="glyphicon glyphicon-plus"></span>
-                            Add new pull task
+                            Create new pull task
                         </a>
                     {% endif %}
                 </h3>
@@ -43,8 +42,6 @@
                     {% if forloop.first %}
                         <ul class="list-unstyled overview-list">
                     {% endif %}
-
-
 
                 <li>
                     <h5>
@@ -67,9 +64,6 @@
                     </p>
                 </li>
 
-
-
-
                 {% if forloop.last %}
                     </ul>
                 {% endif %}
@@ -79,12 +73,9 @@
 
                         {% if project.islocked %}
                             <p>Unfortunately, you cannot create new social interactions when the project is locked.</p>
-                        {% elif not project.categories.all %}
-                            <p>Unfortunately, you cannot create new social interactions when there are no categories
-                                added to the project.</p>
                         {% else %}
                             <a href="{% url 'admin:socialinteraction_pull_create' project.id %}"
-                               class="btn btn-success btn-lg">Create pull from social media</a>
+                               class="btn btn-success btn-lg">Create new pull task</a>
                         {% endif %}
                     </div>
                 {% endfor %}
@@ -99,7 +90,7 @@
                         <a href="{% url 'admin:socialinteraction_post_create' project.id %}"
                            class="btn btn-success btn-sm pull-right">
                             <span class="glyphicon glyphicon-plus"></span>
-                            Add new post task
+                            Create new post task
                         </a>
                     {% endif %}
                 </h3>
@@ -139,12 +130,9 @@
 
                         {% if project.islocked %}
                             <p>Unfortunately, you cannot create new social interactions when the project is locked.</p>
-                        {% elif not project.categories.all %}
-                            <p>Unfortunately, you cannot create new post interactions when there are no categories
-                                added to the project.</p>
                         {% else %}
                             <a href="{% url 'admin:socialinteraction_post_create' project.id %}"
-                               class="btn btn-success btn-lg">Create post to social media</a>
+                               class="btn btn-success btn-lg">Create new post task</a>
                         {% endif %}
                     </div>
                 {% endfor %}
