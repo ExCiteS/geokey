@@ -7,19 +7,18 @@ from allauth.socialaccount.models import SocialAccount
 from geokey.users.tests.model_factories import UserFactory
 from geokey.projects.tests.model_factories import ProjectFactory
 
-from ..models import SocialInteraction, SocialInteractionPull
+from ..models import SocialInteractionPost, SocialInteractionPull
 
 
 class SocialInteractionFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = SocialInteraction
+        model = SocialInteractionPost
 
     creator = factory.SubFactory(UserFactory)
-    name = factory.Sequence(lambda n: 'social interaction %s' % n)
-    text_to_post = 'Text to post'
+    text_to_post = 'Text to post including $link$'
+    link = 'www.link.com'
     project = factory.SubFactory(ProjectFactory)
     status = 'active'
-    description = factory.LazyAttribute(lambda o: '%s description' % o.name)
     socialaccount = SocialAccount()
 
 

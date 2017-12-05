@@ -25,12 +25,12 @@ from .model_factories import (
     SocialInteractionFactory,
     SocialInteractionPullFactory
 )
-from ..models import SocialInteraction, SocialInteractionPull
+from ..models import SocialInteractionPost, SocialInteractionPull
 from ..views import (
     SocialInteractionList,
-    SocialInteractionCreate,
-    SocialInteractionSettings,
-    SocialInteractionDelete,
+    SocialInteractionPostCreate,
+    SocialInteractionPostSettings,
+    SocialInteractionPostDelete,
     SocialInteractionPost,
     SocialInteractionPullCreate,
     SocialInteractionPullDelete,
@@ -146,7 +146,7 @@ class SocialInteractionCreateTest(TestCase):
         self.socialaccount_2 = SocialAccount.objects.create(
             user=self.admin_user, provider='twitter', uid='2')
 
-        self.view = SocialInteractionCreate.as_view()
+        self.view = SocialInteractionPostCreate.as_view()
         self.request = HttpRequest()
         self.request.method = 'GET'
         self.request.user = self.anonymous_user
@@ -176,7 +176,7 @@ class SocialInteractionCreateTest(TestCase):
         response = self.view(self.request, project_id=self.project.id).render()
 
         rendered = render_to_string(
-            'socialinteractions/socialinteraction_create.html',
+            'socialinteractions/socialinteraction_post_create.html',
             {
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
@@ -198,7 +198,7 @@ class SocialInteractionCreateTest(TestCase):
     #     response = self.view(self.request, project_id=self.project.id).render()
 
     #     rendered = render_to_string(
-    #         'socialinteractions/socialinteraction_create.html',
+    #         'socialinteractions/socialinteraction_post_create.html',
     #         {
     #             'project': self.project,
     #             'auth_users': [self.socialaccount_2],
@@ -227,7 +227,7 @@ class SocialInteractionCreateTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertIn('/admin/account/login/', response['location'])
-        self.assertEqual(0, SocialInteraction.objects.count())
+        self.assertEqual(0, SocialInteractionPost.objects.count())
 
     def test_post_with_user(self):
         """
@@ -246,7 +246,7 @@ class SocialInteractionCreateTest(TestCase):
         response = self.view(self.request, project_id=self.project.id).render()
 
         rendered = render_to_string(
-            'socialinteractions/socialinteraction_create.html',
+            'socialinteractions/socialinteraction_post_create.html',
             {
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
@@ -257,7 +257,7 @@ class SocialInteractionCreateTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
-        self.assertEqual(0, SocialInteraction.objects.count())
+        self.assertEqual(0, SocialInteractionPost.objects.count())
 
     def test_post_with_admin(self):
         """
@@ -267,29 +267,29 @@ class SocialInteractionCreateTest(TestCase):
         interaction page to set the post message.
         """
         self.request.method = 'POST'
-        post = QueryDict('name=%s&description=''%s&socialaccount=%s' %
+        post = QueryDict('socialaccount=%s&text_post=%s&text_link=%s' %
                          (
-                          'My social interaction',
-                          '',
-                          self.socialaccount_2.id
+                             self.socialaccount_2.id,
+                             'New contribution created for #project. Check it out here $link$',
+                             'http://www.mymapfrontend/$project_id$/$contribution_id$'
                          ))
 
         self.request.POST = post
-
         self.request.user = self.admin_user
         response = self.view(self.request, project_id=self.project.id)
-        self.assertEqual(1, SocialInteraction.objects.count())
-        socialinteraction = SocialInteraction.objects.first()
-        self.assertEqual(socialinteraction.name, 'My social interaction')
-        self.assertEqual(socialinteraction.description, '')
+        self.assertEqual(1, SocialInteractionPost.objects.count())
+        socialinteraction = SocialInteractionPost.objects.first()
+        self.assertEqual(socialinteraction.text_to_post,
+                         'New contribution created for #project. Check it out here $link$')
+        self.assertEqual(socialinteraction.link, 'http://www.mymapfrontend/$project_id$/$contribution_id$')
         self.assertEqual(socialinteraction.project, self.project)
         self.assertEqual(socialinteraction.creator, self.admin_user)
         self.assertEqual(self.socialaccount_2, socialinteraction.socialaccount)
 
         self.assertEqual(response.status_code, 302)
         self.assertIn(
-            '/admin/projects/%s/socialinteractions/posts/%s/' % (
-                self.project.id, socialinteraction.id),
+            '/admin/projects/%s/socialinteractions/' % (
+                self.project.id),
             response['location']
         )
 
@@ -302,9 +302,9 @@ class SocialInteractionCreateTest(TestCase):
         self.request.method = 'POST'
         post = QueryDict('name=%s&description=''%s&socialaccount=%s' %
                          (
-                          'My social interaction',
-                          '',
-                          self.socialaccount_2.id
+                             'My social interaction',
+                             '',
+                             self.socialaccount_2.id
                          ))
 
         self.request.POST = post
@@ -314,7 +314,7 @@ class SocialInteractionCreateTest(TestCase):
         self.request.user = self.admin_user
         response = self.view(self.request, project_id=self.project.id)
 
-        self.assertEqual(0, SocialInteraction.objects.count())
+        self.assertEqual(0, SocialInteractionPost.objects.count())
         self.assertEqual(response.status_code, 302)
         self.assertIn(
             '/admin/projects/%s/socialinteractions/post/create' % (self.project.id),
@@ -330,9 +330,9 @@ class SocialInteractionCreateTest(TestCase):
         self.request.method = 'POST'
         post = QueryDict('name=%s&description=''%s&socialaccount=%s' %
                          (
-                            'My social interaction',
-                          '',
-                          74746464
+                             'My social interaction',
+                             '',
+                             74746464
                          ))
 
         self.request.POST = post
@@ -340,7 +340,7 @@ class SocialInteractionCreateTest(TestCase):
         self.request.user = self.admin_user
         response = self.view(self.request, project_id=self.project.id)
 
-        self.assertEqual(0, SocialInteraction.objects.count())
+        self.assertEqual(0, SocialInteractionPost.objects.count())
         self.assertEqual(response.status_code, 302)
         self.assertIn(
             '/admin/projects/%s/socialinteractions/post/create' % (self.project.id),
@@ -370,7 +370,7 @@ class SocialInteractionSettingsTest(TestCase):
             project=self.project,
             creator=self.admin_user
         )
-        self.view = SocialInteractionSettings.as_view()
+        self.view = SocialInteractionPostSettings.as_view()
         self.request = HttpRequest()
         self.request.method = 'GET'
         self.request.user = self.anonymous_user
@@ -389,7 +389,7 @@ class SocialInteractionSettingsTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertIn('/admin/account/login/', response['location'])
-        self.assertEqual(SocialInteraction.objects.count(), 1)
+        self.assertEqual(SocialInteractionPost.objects.count(), 1)
 
     def test_get_with_user(self):
         """
@@ -405,7 +405,7 @@ class SocialInteractionSettingsTest(TestCase):
         ).render()
 
         rendered = render_to_string(
-            'socialinteractions/socialinteraction_settings.html',
+            'socialinteractions/socialinteraction_post_settings.html',
             {
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
@@ -439,7 +439,7 @@ class SocialInteractionSettingsTest(TestCase):
     #                       if id in ['twitter', 'facebook']]
     #     )
     #     rendered = render_to_string(
-    #         'socialinteractions/socialinteraction_settings.html',
+    #         'socialinteractions/socialinteraction_post_settings.html',
     #         {
     #             'project': self.socialinteraction.project,
     #             'socialinteraction': self.socialinteraction,
@@ -460,11 +460,14 @@ class SocialInteractionSettingsTest(TestCase):
         It should redirect to the login page.
         """
         self.request.method = 'POST'
-        post = QueryDict('name=%s&description=''%s&socialaccount=%s' % (
-            'New Name',
-            'New Description',
-            self.socialaccount_3.id,
-        ))
+        reference = SocialInteractionPost.objects.get(pk=self.socialinteraction.id)
+
+        post = QueryDict('socialaccount=%s&text_post=%s&text_link=%s' %
+                         (
+                             self.socialaccount_3.id,
+                             'New contribution created for #project. Check it out here $link$',
+                             'http://www.mymapfrontend/$project_id$/$contribution_id$'
+                         ))
 
         self.request.POST = post
         response = self.view(
@@ -474,10 +477,9 @@ class SocialInteractionSettingsTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertIn('/admin/account/login/', response['location'])
-
-        reference = SocialInteraction.objects.get(pk=self.socialinteraction.id)
-        self.assertNotEqual(reference.name, 'New Name')
-        self.assertNotEqual(reference.description, 'New Description')
+        reference = SocialInteractionPost.objects.get(pk=self.socialinteraction.id)
+        self.assertNotEqual(reference.text_to_post, post['text_post'])
+        self.assertNotEqual(reference.link, post['text_link'])
         socialaccount = reference.socialaccount
         self.assertNotEqual(self.socialaccount_3, socialaccount)
 
@@ -488,11 +490,12 @@ class SocialInteractionSettingsTest(TestCase):
         It should render the page with an error message.
         """
         self.request.method = 'POST'
-        post = QueryDict('name=%s&description=''%s&socialaccount=%s' % (
-            'New Name',
-            'New Description',
-            self.socialaccount_3.id,
-        ))
+        post = QueryDict('socialaccount=%s&text_post=%s&text_link=%s' %
+                         (
+                             self.socialaccount_3.id,
+                             'New contribution created for #project. Check it out here $link$',
+                             'http://www.mymapfrontend/$project_id$/$contribution_id$'
+                         ))
 
         self.request.POST = post
 
@@ -504,7 +507,7 @@ class SocialInteractionSettingsTest(TestCase):
         ).render()
 
         rendered = render_to_string(
-            'socialinteractions/socialinteraction_settings.html',
+            'socialinteractions/socialinteraction_post_settings.html',
             {
                 'error_description': 'Project matching query does not exist.',
                 'error': 'Not found.',
@@ -516,9 +519,10 @@ class SocialInteractionSettingsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
 
-        reference = SocialInteraction.objects.get(pk=self.socialinteraction.id)
-        self.assertNotEqual(reference.name, 'New Name')
-        self.assertNotEqual(reference.description, 'New Description')
+        reference = SocialInteractionPost.objects.get(pk=self.socialinteraction.id)
+        self.assertNotEqual(reference.text_to_post,
+                            'New contribution created for #project. Check it out here $link$')
+        self.assertNotEqual(reference.link, 'http://www.mymapfrontend/$project_id$/$contribution_id$')
         socialaccount = reference.socialaccount
         self.assertNotEqual(self.socialaccount_3, socialaccount)
 
@@ -545,7 +549,7 @@ class SocialInteractionDeleteTest(TestCase):
             project=self.project,
             creator=self.admin_user
         )
-        self.view = SocialInteractionDelete.as_view()
+        self.view = SocialInteractionPostDelete.as_view()
         self.request = HttpRequest()
         self.request.method = 'GET'
         self.request.user = self.anonymous_user
@@ -564,7 +568,7 @@ class SocialInteractionDeleteTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertIn('/admin/account/login/', response['location'])
-        self.assertEqual(SocialInteraction.objects.count(), 1)
+        self.assertEqual(SocialInteractionPost.objects.count(), 1)
 
     def test_get_with_user(self):
         """
@@ -609,7 +613,7 @@ class SocialInteractionDeleteTest(TestCase):
             socialinteraction_id=self.socialinteraction.id
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(SocialInteraction.objects.count(), 0)
+        self.assertEqual(SocialInteractionPost.objects.count(), 0)
 
     def test_delete_with_admin_when_project_is_locked(self):
         """
@@ -638,7 +642,7 @@ class SocialInteractionDeleteTest(TestCase):
             ),
             response['location']
         )
-        self.assertEqual(SocialInteraction.objects.count(), 1)
+        self.assertEqual(SocialInteractionPost.objects.count(), 1)
 
     def test_delete_with_admin_when_project_does_not_exit(self):
         """
@@ -669,133 +673,7 @@ class SocialInteractionDeleteTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
-        self.assertEqual(SocialInteraction.objects.count(), 1)
-
-
-@override_settings(INSTALLED_APPS=install_required_apps())
-class SocialInteractionPostTest(TestCase):
-    """Test social interaction pull settings page."""
-
-    def setUp(self):
-        """Set up tests."""
-        self.anonymous_user = AnonymousUser()
-        self.regular_user = UserFactory.create()
-        self.admin_user = UserFactory.create()
-
-        self.project = ProjectFactory.create(creator=self.admin_user)
-
-        self.socialaccount_2 = SocialAccount.objects.create(
-            user=self.admin_user, provider='facebook', uid='2')
-        self.socialaccount_1 = SocialAccount.objects.create(
-            user=self.admin_user, provider='twitter', uid='1')
-        self.socialaccount_3 = SocialAccount.objects.create(
-            user=self.admin_user, provider='twitter', uid='3')
-        self.socialinteraction = SocialInteractionFactory.create(
-            socialaccount=self.socialaccount_1,
-            project=self.project,
-            creator=self.admin_user
-        )
-        self.view = SocialInteractionPost.as_view()
-        self.request = HttpRequest()
-        self.request.method = 'GET'
-        self.request.user = self.anonymous_user
-
-        setattr(self.request, 'session', 'session')
-        messages = FallbackStorage(self.request)
-        setattr(self.request, '_messages', messages)
-
-    def test_get_with_anonymous(self):
-        """
-        Accessing the view with AnonymousUser.
-
-        It should redirect to the login page.
-        """
-        response = self.view(self.request)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertIn('/admin/account/login/', response['location'])
-        self.assertEqual(SocialInteraction.objects.count(), 1)
-
-    def test_get_with_user(self):
-        """
-        Accessing the view with normal user.
-
-        It should render the page with an error message.
-        """
-        self.request.user = self.regular_user
-        response = self.view(
-            self.request,
-            project_id=self.project.id,
-            socialinteraction_id=self.socialinteraction.id
-        ).render()
-
-        rendered = render_to_string(
-            'socialinteractions/socialinteraction_post.html',
-            {
-                'error_description': 'Project matching query does not exist.',
-                'error': 'Not found.',
-                'user': self.regular_user,
-                'PLATFORM_NAME': get_current_site(self.request).name,
-                'GEOKEY_VERSION': version.get_version()
-            }
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8'), rendered)
-
-    def test_post_with_anonymous(self):
-        """
-        Updating with AnonymousUser.
-
-        It should redirect to the login page.
-        """
-        self.request.method = 'POST'
-        post = QueryDict('post_text=%s&socialinteraction=%s' % (
-            'text_to_post new new new',
-            self.socialinteraction
-        ))
-        self.request.POST = post
-
-        response = self.view(
-            self.request,
-            project_id=self.socialinteraction.project.id,
-            socialinteraction_id=self.socialinteraction.id)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertIn('/admin/account/login/', response['location'])
-
-        reference = SocialInteraction.objects.get(id=self.socialinteraction.id)
-
-        self.assertEqual(reference.name, self.socialinteraction.name)
-        self.assertNotEqual(reference.text_to_post, 'text_to_post new new new')
-        socialaccount = reference.socialaccount
-        self.assertEqual(self.socialaccount_1, socialaccount)
-
-    def test_post_with_admin(self):
-        """
-        Updating with AnonymousUser.
-
-        It should redirect to the login page.
-        """
-        self.request.user = self.admin_user
-        self.request.method = 'POST'
-        post = QueryDict('text_post=%s&socialinteraction=%s' % (
-            'post_text new new new',
-            self.socialinteraction
-        ))
-        self.request.POST = post
-
-        response = self.view(
-            self.request,
-            project_id=self.socialinteraction.project.id,
-            socialinteraction_id=self.socialinteraction.id)
-
-        self.assertEqual(response.status_code, 200)
-
-        reference = SocialInteraction.objects.get(id=self.socialinteraction.id)
-
-        self.assertEqual(reference.name, self.socialinteraction.name)
-        self.assertEqual(reference.text_to_post, 'post_text new new new')
-        self.assertEqual(self.socialaccount_1, reference.socialaccount)
+        self.assertEqual(SocialInteractionPost.objects.count(), 1)
 
 
 @override_settings(INSTALLED_APPS=install_required_apps())
@@ -856,31 +734,31 @@ class SocialInteractionPullCreateTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
 
-    # def test_get_with_admin(self):
-    #     """
-    #     Accessing the view with project admin.
+        # def test_get_with_admin(self):
+        #     """
+        #     Accessing the view with project admin.
 
-    #     It should render the page.
-    #     """
-    #     self.request.user = self.admin_user
-    #     response = self.view(self.request, project_id=self.project.id).render()
+        #     It should render the page.
+        #     """
+        #     self.request.user = self.admin_user
+        #     response = self.view(self.request, project_id=self.project.id).render()
 
-    #     rendered = render_to_string(
-    #         'socialinteractions/socialinteraction_pull_create.html',
-    #         {
-    #             'project': self.project,
-    #             'auth_users': [
-    #                 self.socialaccount_2,
-    #                 self.socialaccount_1
-    #             ],
-    #             'user': self.admin_user,
-    #             'PLATFORM_NAME': get_current_site(self.request).name,
-    #             'GEOKEY_VERSION': version.get_version()
-    #         }
-    #     )
-    #     self.assertEqual(response.status_code, 200)
-    #     response = render_helpers.remove_csrf(response.content.decode('utf-8'))
-    #     # self.assertEqual(response, rendered)
+        #     rendered = render_to_string(
+        #         'socialinteractions/socialinteraction_pull_create.html',
+        #         {
+        #             'project': self.project,
+        #             'auth_users': [
+        #                 self.socialaccount_2,
+        #                 self.socialaccount_1
+        #             ],
+        #             'user': self.admin_user,
+        #             'PLATFORM_NAME': get_current_site(self.request).name,
+        #             'GEOKEY_VERSION': version.get_version()
+        #         }
+        #     )
+        #     self.assertEqual(response.status_code, 200)
+        #     response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        #     # self.assertEqual(response, rendered)
 
 
 class SocialInteractionPullDeleteTest(TestCase):
@@ -975,7 +853,6 @@ class SocialInteractionPullDeleteTest(TestCase):
     def test_delete_with_admin_when_project_is_locked(self):
         """
         Accessing the view with project admin when project is locked.
-
         It should render the page.
         """
         self.project.islocked = True
@@ -1179,95 +1056,95 @@ class SocialInteractionPullSettingsTest(TestCase):
         socialaccount = reference.socialaccount
         self.assertNotEqual(self.socialaccount_3, socialaccount)
 
-    # def test_post_with_user(self):
-    #     """
-    #     Updating with normal user.
-    #
-    #     It should render the page with an error message.
-    #     """
-    #     self.request.method = 'POST'
-    #     post = QueryDict('frequency=%s&text_pull=%s&status_type=%s&socialaccount=%s' % (
-    #         'fortnigthly',
-    #         '#hastag',
-    #         'inactive',
-    #         self.socialaccount_3.id,
-    #     ))
-    #     self.request.POST = post
-    #
-    #     self.request.user = self.regular_user
-    #     response = self.view(
-    #         self.request,
-    #         project_id=self.si_pull.project.id,
-    #         socialinteractionpull_id=self.si_pull.id
-    #     ).render()
-    #
-    #     rendered = render_to_string(
-    #         'socialinteractions/socialinteraction_pull.html',
-    #         {
-    #             'error_description': 'Project matching query does not exist.',
-    #             'error': 'Not found.',
-    #             'user': self.regular_user,
-    #             'PLATFORM_NAME': get_current_site(self.request).name,
-    #             'GEOKEY_VERSION': version.get_version()
-    #         }
-    #     )
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertEqual(response.content.decode('utf-8'), rendered)
-    #
-    #     reference = SocialInteractionPull.objects.get(id=self.si_pull.id)
-    #     self.assertEqual(str(reference.frequency), 'fortnigthly')
-    #     self.assertEqual(str(reference.status), 'inactive')
-    #     self.assertEqual(str(reference.text_to_pull), '#hastag')
-    #     socialaccount = reference.socialaccount
-    #     self.assertEqual(self.socialaccount_3, socialaccount)
+        # def test_post_with_user(self):
+        #     """
+        #     Updating with normal user.
+        #
+        #     It should render the page with an error message.
+        #     """
+        #     self.request.method = 'POST'
+        #     post = QueryDict('frequency=%s&text_pull=%s&status_type=%s&socialaccount=%s' % (
+        #         'fortnigthly',
+        #         '#hastag',
+        #         'inactive',
+        #         self.socialaccount_3.id,
+        #     ))
+        #     self.request.POST = post
+        #
+        #     self.request.user = self.regular_user
+        #     response = self.view(
+        #         self.request,
+        #         project_id=self.si_pull.project.id,
+        #         socialinteractionpull_id=self.si_pull.id
+        #     ).render()
+        #
+        #     rendered = render_to_string(
+        #         'socialinteractions/socialinteraction_pull.html',
+        #         {
+        #             'error_description': 'Project matching query does not exist.',
+        #             'error': 'Not found.',
+        #             'user': self.regular_user,
+        #             'PLATFORM_NAME': get_current_site(self.request).name,
+        #             'GEOKEY_VERSION': version.get_version()
+        #         }
+        #     )
+        #     self.assertEqual(response.status_code, 200)
+        #     self.assertEqual(response.content.decode('utf-8'), rendered)
+        #
+        #     reference = SocialInteractionPull.objects.get(id=self.si_pull.id)
+        #     self.assertEqual(str(reference.frequency), 'fortnigthly')
+        #     self.assertEqual(str(reference.status), 'inactive')
+        #     self.assertEqual(str(reference.text_to_pull), '#hastag')
+        #     socialaccount = reference.socialaccount
+        #     self.assertEqual(self.socialaccount_3, socialaccount)
 
-    # def test_post_with_admin(self):
-    #     """
-    #     Updating with admin user.
+        # def test_post_with_admin(self):
+        #     """
+        #     Updating with admin user.
 
-    #     It should render the page with an error message.
-    #     """
-    #     self.request.method = 'POST'
-    #     post = QueryDict('frequency=%s&text_pull=%s&status_type=%s&socialaccount=%s' % (
-    #         'hourly',
-    #         '#hastag',
-    #         'inactive',
-    #         self.socialaccount_3.id,
-    #     ))
-    #     self.request.POST = post
+        #     It should render the page with an error message.
+        #     """
+        #     self.request.method = 'POST'
+        #     post = QueryDict('frequency=%s&text_pull=%s&status_type=%s&socialaccount=%s' % (
+        #         'hourly',
+        #         '#hastag',
+        #         'inactive',
+        #         self.socialaccount_3.id,
+        #     ))
+        #     self.request.POST = post
 
-    #     socialaccounts_log = SocialAccount.objects.filter(
-    #         user=self.admin_user,
-    #         provider__in=[id for id, name in registry.as_choices()
-    #                       if id in ['twitter', 'facebook']]
-    #     )
+        #     socialaccounts_log = SocialAccount.objects.filter(
+        #         user=self.admin_user,
+        #         provider__in=[id for id, name in registry.as_choices()
+        #                       if id in ['twitter', 'facebook']]
+        #     )
 
-    #     self.request.user = self.admin_user
-    #     response = self.view(
-    #         self.request,
-    #         project_id=self.si_pull.project.id,
-    #         socialinteractionpull_id=self.si_pull.id
-    #     ).render()
+        #     self.request.user = self.admin_user
+        #     response = self.view(
+        #         self.request,
+        #         project_id=self.si_pull.project.id,
+        #         socialinteractionpull_id=self.si_pull.id
+        #     ).render()
 
-    #     rendered = render_to_string(
-    #         'socialinteractions/socialinteraction_pull.html',
-    #         {
-    #             'project': self.si_pull.project,
-    #             'auth_users': socialaccounts_log,
-    #             'socialinteraction_pull': self.si_pull,
-    #             'user': self.admin_user,
-    #             'status_types': self.status_types,
-    #             'freq': self.freq,
-    #             'PLATFORM_NAME': get_current_site(self.request).name,
-    #             'GEOKEY_VERSION': version.get_version()
-    #         }
-    #     )
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertEqual(response.content.decode('utf-8'), rendered)
+        #     rendered = render_to_string(
+        #         'socialinteractions/socialinteraction_pull.html',
+        #         {
+        #             'project': self.si_pull.project,
+        #             'auth_users': socialaccounts_log,
+        #             'socialinteraction_pull': self.si_pull,
+        #             'user': self.admin_user,
+        #             'status_types': self.status_types,
+        #             'freq': self.freq,
+        #             'PLATFORM_NAME': get_current_site(self.request).name,
+        #             'GEOKEY_VERSION': version.get_version()
+        #         }
+        #     )
+        #     self.assertEqual(response.status_code, 200)
+        #     self.assertEqual(response.content.decode('utf-8'), rendered)
 
-    #     reference = SocialInteractionPull.objects.get(id=self.si_pull.id)
-    #     self.assertEqual(str(reference.frequency), 'hourly')
-    #     self.assertEqual(str(reference.status), 'inactive')
-    #     self.assertEqual(str(reference.text_to_pull), '#hastag')
-    #     socialaccount = reference.socialaccount
-    #     self.assertEqual(self.socialaccount_3, socialaccount)
+        #     reference = SocialInteractionPull.objects.get(id=self.si_pull.id)
+        #     self.assertEqual(str(reference.frequency), 'hourly')
+        #     self.assertEqual(str(reference.status), 'inactive')
+        #     self.assertEqual(str(reference.text_to_pull), '#hastag')
+        #     socialaccount = reference.socialaccount
+        #     self.assertEqual(self.socialaccount_3, socialaccount)

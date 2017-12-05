@@ -2,19 +2,17 @@
 
 from model_utils import Choices
 
-
 STATUS = Choices('active', 'inactive')
-FREQUENCY = Choices(
-    '5min',
-    '10min',
-    '20min',
-    '30min',
-    'weekly',
-    'monthly',
-    'daily',
-    'forthnightly',
-    'hourly'
-)
+
+FREQUENCY = Choices('5min',
+                    '10min',
+                    '20min',
+                    '30min',
+                    'hourly',
+                    'daily',
+                    'weekly',
+                    'fortnightly',
+                    'monthly')
 
 freq_dic = {
     '5min': 0.083,
@@ -24,6 +22,6 @@ freq_dic = {
     'hourly': 1,
     'daily': 24,
     'weekly': 168,
-    'fornightly': 336,
+    'fortnightly': 336,
     'monthly': 672
 }

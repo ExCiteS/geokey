@@ -28,7 +28,7 @@
                   action="{% url 'admin:socialinteraction_pull_create' project.id %}" novalidate>
                 {% csrf_token %}
                 <h3 class="header">
-                    <span>Create new pull from social media </span>
+                    <span>Create new pull task from social media </span>
                 </h3>
                 <div class="form-group">
                     <label for="socialaccount" class="control-label">Social account</label>
@@ -49,17 +49,16 @@
 
                 <div class="form-group">
                     <label for="socialaccount" class="control-label">Frequency</label>
-                    <select class="form-control" id="frequency" name="frequency" required>
-                        <option value="5min" class="form-control input-lg">5 min</option>
-                        <option value="10min" class="form-control input-lg">10 min</option>
-                        <option value="20min" class="form-control input-lg">20 min</option>
-                        <option value="30min" class="form-control input-lg">30 min</option>
-                        <option value="hourly" class="form-control input-lg">Hourly</option>
-                        <option value="daily" class="form-control input-lg" selected="selected">Daily</option>
-                        <option value="weekly" class="form-control input-lg">Weekly</option>
-                        <option value="fornightly" class="form-control input-lg">Fornightly</option>
-                        <option value="monthly" class="form-control input-lg">Monthly</option>
-                    </select>
+                                <select class="form-control" id="frequency" name="frequency" required>
+                                    {% for f in frequencies %}
+                                        {% if f == 'daily' %}
+                                            <option value="{{ f }}" class="form-control input-lg" selected >
+                                            {{ f|title }}</option>
+                                        {% else %}
+                                            <option value="{{ f }}" class="form-control input-lg" >{{ f|title }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
                 </div>
 
                 <div>
@@ -93,29 +92,6 @@
     </style>
 {% endblock %}
 
-
-<!--     <div class="row">
-        <div class="col-sm-4">
-            {% include 'socialinteractions/socialinteraction_navigation.html' %}
-        </div>
-
-        <div class="col-sm-8">
-            <h3 class="header">Social interaction post to social mediasdjsdjksdjksgnk sdgkl sdgkldsg</h3>
-            <h6 class="header">Social accounts associated: {% for sa in socialinteraction.socialaccounts.all %} {% load static %} <img id="socialaccount_provider" src="{% static 'img/providers/' %}{{ sa.provider }}.svg" alt="{{ sa.get_provider.name }} social provider" /> {%if sa.provider == 'twitter' %}@{% endif%}{{sa.get_provider_account}}{% endfor %} </h6>
-            <form id="settings" method="POST" action="{% url 'admin:socialinteraction_settings' project.id socialinteraction.id %}" novalidate>
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="post_text" class="control-label">Text to post</label>
-                    <textarea class="form-control input-lg" rows="5" id="post_text" name="post_text"></textarea>
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Save99999</button>
-                    <button type="reset" class="btn btn-link">Reset</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div> -->
 
 
 

@@ -176,28 +176,24 @@ urlpatterns = [
         name='socialinteraction_list'),
     url(r'^projects/(?P<project_id>[0-9]+)/'
         r'socialinteractions/post/create/$',
-        socialinteractions.SocialInteractionCreate.as_view(),
-        name='socialinteraction_create'),
-    url(r'^projects/(?P<project_id>[0-9]+)/'
-        r'socialinteractions/posts/(?P<socialinteraction_id>[0-9]+)/settings$',
-        socialinteractions.SocialInteractionSettings.as_view(),
-        name='socialinteraction_settings'),
+        socialinteractions.SocialInteractionPostCreate.as_view(),
+        name='socialinteraction_post_create'),
     url(r'^projects/(?P<project_id>[0-9]+)/'
         r'socialinteractions/posts/(?P<socialinteraction_id>[0-9]+)/$',
-        socialinteractions.SocialInteractionPost.as_view(),
-        name='socialinteraction_post'),
+        socialinteractions.SocialInteractionPostSettings.as_view(),
+        name='socialinteraction_post_settings'),
     url(r'^projects/(?P<project_id>[0-9]+)/'
         r'socialinteractions/pulls/(?P<socialinteractionpull_id>[0-9]+)/$',
         socialinteractions.SocialInteractionPullSettings.as_view(),
-        name='socialinteraction_pull'),
+        name='socialinteraction_pull_settings'),
     url(r'^projects/(?P<project_id>[0-9]+)/'
         r'socialinteractions/pulls/create$',
         socialinteractions.SocialInteractionPullCreate.as_view(),
         name='socialinteraction_pull_create'),
     url(r'^projects/(?P<project_id>[0-9]+)/'
         r'socialinteractions/(?P<socialinteraction_id>[0-9]+)/delete/$',
-        socialinteractions.SocialInteractionDelete.as_view(),
-        name='socialinteraction_delete'),
+        socialinteractions.SocialInteractionPostDelete.as_view(),
+        name='socialinteraction_post_delete'),
     url(r'^projects/(?P<project_id>[0-9]+)/'
         r'socialinteractions/pulls/(?P<socialinteractionpull_id>[0-9]+)/delete/$',
         socialinteractions.SocialInteractionPullDelete.as_view(),

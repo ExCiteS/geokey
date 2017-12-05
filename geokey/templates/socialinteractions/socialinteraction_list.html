@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load placeholder_filters %}
 
 {% block bodydata %}
     data-project-id="{{ project.id }}"
@@ -9,13 +10,12 @@
 {% block title %} | Project: {{ project.name }} - Social interactions{% endblock %}
 
 {% block main %}
-    <div class="page-header">
+    <div class="page-header" xmlns="http://www.w3.org/1999/html">
         <div class="container">
             <h1 class="smaller">
                 {% if project.islocked %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
                 <a href="{% url 'admin:project_overview' project.id %}">{{ project.name }}</a>
             </h1>
-
             {% include 'projects/navigation.html' %}
         </div>
     </div>
@@ -33,23 +33,35 @@
                         <a href="{% url 'admin:socialinteraction_pull_create' project.id %}"
                            class="btn btn-success btn-sm pull-right">
                             <span class="glyphicon glyphicon-plus"></span>
-                            Add new pull task
+                            Create new pull task
                         </a>
                     {% endif %}
                 </h3>
+
                 {% for si_pull in project.socialinteractions_pull.all %}
                     {% if forloop.first %}
                         <ul class="list-unstyled overview-list">
                     {% endif %}
 
                 <li>
-                    <h4>
-                        <div>{% if si_pull.status == 'inactive' %}
-                            <span class="glyphicon glyphicon-pause"></span>{% else %}
-                            <span class="glyphicon glyphicon-play">  </span>{% endif %} <a
-                                href="{% url 'admin:socialinteraction_pull' project.id si_pull.id %}">@{{ si_pull.socialaccount.get_provider_account }} </a>{{ si_pull.text_to_pull }}
-                        </div>
-                    </h4>
+                    <h5>
+                        {% if si_pull.islocked %}
+                            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+                        <p>{% if si_pull.socialaccount %}
+                            <img class="socialaccount_provider" src="
+                                    {% static 'img/providers/' %}{{ si_pull.socialaccount.provider }}.svg"
+                                 alt="{{ si_pull.socialaccount.get_provider.name }} social provider"/>
+                            {{ si_pull.socialaccount.provider|capfirst }} account:
+                            {% if si_pull.socialaccount.provider == 'twitter' %}@{% endif %}{{ si_pull.socialaccount.get_provider_account }}{% endif %}
+                    </h5>
+                    <p>{% if si_pull.status == 'inactive' %}
+                        <span class="glyphicon glyphicon-pause"></span>{% else %}
+                        <span class="glyphicon glyphicon-play">  </span>{% endif %} <a
+                            href="{% url 'admin:socialinteraction_pull_settings' project.id si_pull.id %}">Text to
+                        pull ({{ si_pull.frequency }}): </a></br>
+                        {% autoescape off %}
+                            {{ si_pull.text_to_pull }}{% endautoescape %}
+                    </p>
                 </li>
 
                 {% if forloop.last %}
@@ -61,12 +73,9 @@
 
                         {% if project.islocked %}
                             <p>Unfortunately, you cannot create new social interactions when the project is locked.</p>
-                        {% elif not project.categories.all %}
-                            <p>Unfortunately, you cannot create new social interactions when there are no categories
-                                added to the project.</p>
                         {% else %}
                             <a href="{% url 'admin:socialinteraction_pull_create' project.id %}"
-                               class="btn btn-success btn-lg">Create pull from social media</a>
+                               class="btn btn-success btn-lg">Create new pull task</a>
                         {% endif %}
                     </div>
                 {% endfor %}
@@ -78,40 +87,38 @@
                         <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
                     <span>Post to social media</span>
                     {% if not project.islocked %}
-                        <a href="{% url 'admin:socialinteraction_create' project.id %}"
+                        <a href="{% url 'admin:socialinteraction_post_create' project.id %}"
                            class="btn btn-success btn-sm pull-right">
                             <span class="glyphicon glyphicon-plus"></span>
-                            Add new post to social media
+                            Create new post task
                         </a>
                     {% endif %}
                 </h3>
 
-                {% for socialinteraction in project.socialinteractions.all %}
+                {% for socialinteraction in project.socialinteractions_post.all %}
                     {% if forloop.first %}
                         <ul class="list-unstyled overview-list">
                     {% endif %}
 
                 <li>
-                    <h4>
+                    <h5>
                         {% if socialinteraction.islocked %}
                             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
-                        <p>{% if socialinteraction.status == 'inactive' %}
-                            <span class="glyphicon glyphicon-pause"></span>{% else %}
-                            <span class="glyphicon glyphicon-play">  </span>{% endif %}
-                            <a href="{% url 'admin:socialinteraction_post' project.id socialinteraction.id %}">{{ socialinteraction.name }}</a>
-                        <h6> {% if socialinteraction.socialaccount %}<img class="socialaccount_provider" src="
-                                {% static 'img/providers/' %}{{ socialinteraction.socialaccount.provider }}.svg"
-                                                                          alt="{{ socialinteraction.socialaccount.get_provider.name }} social provider"/>
-                            {% if socialinteraction.socialaccount.provider == 'twitter' %}
-                                @{% endif %}{{ socialinteraction.socialaccount.get_provider_account }}</p>{% endif %}</p></h6>
-
-                    </h4>
-                    {% if socialinteraction.description %}<p>{{ socialinteraction.description }}</p>{% endif %}
-                    <!-- {% if socialinteraction.socialaccount %}<p><img class="socialaccount_provider" src="
-                        {% static 'img/providers/' %}{{ socialinteraction.socialaccount.provider }}.svg" alt="
-                        {{ socialinteraction.socialaccount.get_provider.name }} social provider" />
-                        {%if socialinteraction.socialaccount.provider == 'twitter' %}@
-                        {% endif%}{{socialinteraction.socialaccount.get_provider_account}}</p>{% endif %} -->
+                        <p>{% if socialinteraction.socialaccount %}
+                            <img class="socialaccount_provider" src="
+                                    {% static 'img/providers/' %}{{ socialinteraction.socialaccount.provider }}.svg"
+                                 alt="{{ socialinteraction.socialaccount.get_provider.name }} social provider"/>
+                            {{ socialinteraction.socialaccount.provider|capfirst }} account:
+                            {% if socialinteraction.socialaccount.provider == 'twitter' %}@{% endif %}{{ socialinteraction.socialaccount.get_provider_account }}{% endif %}
+                    </h5>
+                    <p>{% if socialinteraction.status == 'inactive' %}
+                        <span class="glyphicon glyphicon-pause"></span>{% else %}
+                        <span class="glyphicon glyphicon-play">  </span>{% endif %} <a
+                            href="{% url 'admin:socialinteraction_post_settings' project.id socialinteraction.id %}">Text to
+                        post:</a></br>
+                        {% autoescape off %}
+                            {{ socialinteraction.text_to_post|add_link:socialinteraction.link }}{% endautoescape %}
+                    </p>
                 </li>
 
                 {% if forloop.last %}
@@ -123,12 +130,9 @@
 
                         {% if project.islocked %}
                             <p>Unfortunately, you cannot create new social interactions when the project is locked.</p>
-                        {% elif not project.categories.all %}
-                            <p>Unfortunately, you cannot create new social interactions when there are no categories
-                                added to the project.</p>
                         {% else %}
-                            <a href="{% url 'admin:socialinteraction_create' project.id %}"
-                               class="btn btn-success btn-lg">Create post to social media</a>
+                            <a href="{% url 'admin:socialinteraction_post_create' project.id %}"
+                               class="btn btn-success btn-lg">Create new post task</a>
                         {% endif %}
                     </div>
                 {% endfor %}
@@ -141,10 +145,10 @@
 {% block libraries %}
     <script src="/static/js/admin.ui.forms.validate.js"></script>
     <style>
-        .socialaccount_provider {
-            height: 15px;
-            width: 15px;
-
+        #breakable {
+            word-break: break-all;
+            color: #9d9d9d;
         }
+
     </style>
 {% endblock %}

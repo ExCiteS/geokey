@@ -2,9 +2,11 @@ html, body {
     margin: 0;
     width: 100%;
 }
+
 html {
     height: 100%;
 }
+
 body {
     min-height: 100%;
     font-size: 16px;
@@ -20,6 +22,7 @@ a.light {
     color: #fff;
     text-decoration: underline;
 }
+
 a.light:hover {
     color: rgb(200, 200, 200);
     text-decoration: underline;
@@ -41,20 +44,25 @@ a.light:hover {
     background-size: cover;
     color: #fff;
 }
+
 #home .jumbotron {
     padding: 10px 0;
     background-color: transparent;
 }
+
 #home .jumbotron p {
     font-size: 28px;
 }
+
 #home .credits {
     margin-top: 20px;
     margin-bottom: 80px;
 }
+
 #home .authentication {
     background-color: rgba(32, 32, 32, 0.3);
 }
+
 #home .authentication h2 {
     padding: 25px 0;
 }
@@ -102,7 +110,7 @@ a.light:hover {
     padding-right: 35px;
 }
 
-.hidden.radio+.radio {
+.hidden.radio + .radio {
     margin-top: 10px;
 }
 
@@ -118,14 +126,17 @@ h6:first-child {
 h1 {
     font-size: 36px;
 }
+
 h1.smaller {
     font-size: 28px;
     font-weight: normal;
 }
+
 h1.smaller a:link,
 h1.smaller a:visited {
     color: rgb(51, 51, 51);
 }
+
 h1.smaller a:hover,
 h1.smaller a:focus {
     color: rgb(66, 139, 202);
@@ -135,14 +146,17 @@ h1.smaller a:focus {
 h2 {
     font-size: 32px;
 }
+
 h2.smaller {
     font-size: 24px;
     font-weight: normal;
 }
+
 h2.smaller a:link,
 h2.smaller a:visited {
     color: rgb(51, 51, 51);
 }
+
 h2.smaller a:hover,
 h2.smaller a:focus {
     color: rgb(66, 139, 202);
@@ -152,6 +166,7 @@ h2.smaller a:focus {
 .navbar h1 {
     margin: 0;
 }
+
 .navbar-default {
     background-color: #f5f5f5;
 }
@@ -164,14 +179,14 @@ div.page-header {
     background-color: #fafafa;
 }
 
-    div.page-header p.lead {
-        max-height: 4em;
-        overflow: auto;
-    }
+div.page-header p.lead {
+    max-height: 4em;
+    overflow: auto;
+}
 
-    div.page-header div.row {
-        margin-bottom: 0;
-    }
+div.page-header div.row {
+    margin-bottom: 0;
+}
 
 div.page-header .breadcrumb {
     background-color: #fafafa;
@@ -185,46 +200,48 @@ div.page-header .breadcrumb > li + li:before {
     content: "\00BB";
 }
 
-    div.page-header h1,
-    div.page-header h2,
-    div.page-header h3 {
-        margin-top: 20px;
-        margin-bottom: 25px;
+div.page-header h1,
+div.page-header h2,
+div.page-header h3 {
+    margin-top: 20px;
+    margin-bottom: 25px;
+}
+
+div.page-header p.lead {
+    margin-bottom: 0;
+}
+
+div.page-header .form-inline {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+div.page-header .form-inline > .form-group {
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    div.page-header .form-inline > .form-group {
+        width: 583px;
     }
 
-    div.page-header p.lead {
-        margin-bottom: 0;
+    div.page-header .form-inline > .form-group > input[type="text"] {
+        width: 100%;
     }
+}
 
-    div.page-header .form-inline {
-        margin-top: 0;
-        margin-bottom: 0;
-    }
-        div.page-header .form-inline > .form-group {
-            width: 100%;
-        }
+div.page-header .form-inline p.error {
+    margin-top: 10px;
+}
 
-        @media (min-width: 768px) {
-            div.page-header .form-inline > .form-group {
-                width: 583px;
-            }
-            div.page-header .form-inline > .form-group > input[type="text"] {
-                width: 100%;
-            }
-        }
+div.page-header > .col-sm-12 {
+    padding-left: 0;
+    padding-right: 0;
+}
 
-        div.page-header .form-inline p.error {
-            margin-top: 10px;
-        }
-
-    div.page-header > .col-sm-12 {
-        padding-left: 0;
-        padding-right: 0;
-    }
-
-        div.page-header > .col-sm-12 > .alert {
-            margin: 5px 0 0 0;
-        }
+div.page-header > .col-sm-12 > .alert {
+    margin: 5px 0 0 0;
+}
 
 .panel-title + p {
     margin-top: 0.5em;
@@ -275,19 +292,19 @@ div.well.empty-list {
 
 ul.overview-list > li,
 ol.overview-list > li {
-  padding: 1.5em 0;
-  border-top: 1px solid #ddd;
+    padding: 1.5em 0;
+    border-top: 1px solid #ddd;
 }
 
 ul.overview-list > li:first-child,
 ol.overview-list > li:first-child {
-  padding-top: 0;
-  border-top: none;
+    padding-top: 0;
+    border-top: none;
 }
 
 ul.overview-list > li:last-child,
 ol.overview-list > li:last-child {
-  padding-bottom: 0;
+    padding-bottom: 0;
 }
 
 ul.overview-list > li .checkbox {
@@ -298,32 +315,32 @@ ul.overview-list > li .checkbox {
     padding-bottom: 15px;
 }
 
-    ul.overview-list > li h3:last-child,
-    ul.overview-list > li p:last-child {
-        margin-bottom: 0;
-    }
+ul.overview-list > li h3:last-child,
+ul.overview-list > li p:last-child {
+    margin-bottom: 0;
+}
 
-    ul.overview-list > li a + h3 {
-        margin-top: 0;
-    }
+ul.overview-list > li a + h3 {
+    margin-top: 0;
+}
 
-    ul.overview-list > li h3 a {
-        text-decoration: none;
-    }
+ul.overview-list > li h3 a {
+    text-decoration: none;
+}
 
-    ul.overview-list > li h3 span.label {
-        font-size: 0.5em;
-    }
+ul.overview-list > li h3 span.label {
+    font-size: 0.5em;
+}
 
-    ul.overview-list > li.message {
-        margin-top: -15px;
-        margin-bottom: 15px;
-        padding: 15px;
-    }
+ul.overview-list > li.message {
+    margin-top: -15px;
+    margin-bottom: 15px;
+    padding: 15px;
+}
 
-    ul.overview-list > li.ui-sortable-helper {
-        border-bottom: 1px solid #ddd;
-    }
+ul.overview-list > li.ui-sortable-helper {
+    border-bottom: 1px solid #ddd;
+}
 
 li.ui-state-highlight {
     background-color: #fcf8e3;
@@ -347,7 +364,7 @@ ul.overview-list > li > div:last-child {
 .app-meta code {
     display: block;
     word-break: break-all;
-    overflow-wrap: break-word;     /* Renamed property in CSS3 draft spec */
+    overflow-wrap: break-word; /* Renamed property in CSS3 draft spec */
     width: 100%;
 }
 
@@ -459,21 +476,21 @@ form#permissions .message {
     text-align: left;
 }
 
-    #statistics .number {
-        font-size: 4em;
-        min-width: 86px;
-        padding: 15px;
-        border-radius: 43px;
-        margin-bottom: 15px;
-    }
+#statistics .number {
+    font-size: 4em;
+    min-width: 86px;
+    padding: 15px;
+    border-radius: 43px;
+    margin-bottom: 15px;
+}
 
-    .contributions .number {
-        text-align: center;
-        font-size: 1em;
-        min-width: 28px;
-        padding: 7px;
-        border-radius: 14px;
-    }
+.contributions .number {
+    text-align: center;
+    font-size: 1em;
+    min-width: 28px;
+    padding: 7px;
+    border-radius: 14px;
+}
 
 .panel-heading h3:last-child,
 .panel-heading p,
@@ -570,9 +587,12 @@ p.meta span.lower-case {
     padding-top: 15px;
 }
 
-.socialaccount_provider
-{
-    height:15px;
-    width:15px;
+.socialaccount_provider {
+    height: 15px;
+    width: 15px;
 
+}
+
+#characters {
+    font-weight: normal;
 }
