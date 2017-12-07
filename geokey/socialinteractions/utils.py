@@ -62,23 +62,24 @@ def start2pull():
 
             si_pull.checked_at = timezone.now()
 
-            try:
-                project = si_pull.project
-            except:
-                next
+            if len(geo_tweets) != 0:
+                try:
+                    project = si_pull.project
+                except:
+                    next
 
-            tweet_category, text_field = get_category_and_field(
-                project,
-                socialaccount)
-            for geo_tweet in geo_tweets:
-                create_new_observation(
-                    si_pull,
-                    geo_tweet,
-                    tweet_category,
-                    text_field)
+                tweet_category, text_field = get_category_and_field(
+                    project,
+                    socialaccount)
+                for geo_tweet in geo_tweets:
+                    create_new_observation(
+                        si_pull,
+                        geo_tweet,
+                        tweet_category,
+                        text_field)
 
-                si_pull.updated_at = timezone.now()
-                si_pull.since_id = geo_tweet['id']
+                    si_pull.updated_at = timezone.now()
+                    si_pull.since_id = geo_tweet['id']
             si_pull.save()
 
 
