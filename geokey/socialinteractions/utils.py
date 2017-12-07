@@ -108,6 +108,7 @@ def create_new_observation(si_pull, geo_tweet, tweet_cat, text_field):
     properties = {
         text_field.key: geo_tweet['text']}
     new_observation.properties = properties
+    new_observation.update_display_field()
     new_observation.save()
 
     si_pull.updated_at = timezone.now()
@@ -150,7 +151,10 @@ def get_category_and_field(project, socialaccount):
     else:
         text_field = TextField.objects.create(
             name='tweet',
-            category=tweet_category)
+            category=tweet_category,
+            key="tweet")
+    tweet_category.display_field = text_field
+    tweet_category.save()
 
     return tweet_category, text_field
 
