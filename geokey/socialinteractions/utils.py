@@ -63,6 +63,7 @@ def start2pull():
             si_pull.checked_at = timezone.now()
 
             if len(geo_tweets) != 0:
+                si_pull.since_id = max([x['id'] for x in geo_tweets])
                 try:
                     project = si_pull.project
                 except:
@@ -77,9 +78,6 @@ def start2pull():
                         geo_tweet,
                         tweet_category,
                         text_field)
-
-                    si_pull.updated_at = timezone.now()
-                    si_pull.since_id = geo_tweet['id']
             si_pull.save()
 
 
@@ -110,10 +108,10 @@ def create_new_observation(si_pull, geo_tweet, tweet_cat, text_field):
         text_field.key: geo_tweet['text']}
     new_observation.properties = properties
     new_observation.update_display_field()
+
     new_observation.save()
 
     si_pull.updated_at = timezone.now()
-    si_pull.since_id = geo_tweet['id']
     si_pull.save()
 
 
@@ -192,7 +190,7 @@ def pull_from_social_media(provider, access_token, text_to_pull, tweet_id, app):
             api = tweepy.API(auth)
 
             try:
-                tweets_all = api.mentions_timeline(count=100, since_id=tweet_id, tweet_mode='extended')
+                tweets_all = api.home_timeline(count=100, since_id=tweet_id, tweet_mode='extended')
             except Exception:
                 return "Impossible to get data from the timeline"
         except:
