@@ -12,7 +12,7 @@ def project_replace(value, project_name):
 
 @register.filter()
 def hashify(value):
-    return "#" + value.replace(' ', '').lower()
+    return "#" + value.replace(' ', '').replace('-', '').lower()
 
 
 @register.filter()
