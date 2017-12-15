@@ -14,7 +14,7 @@ import facebook
 
 from allauth.socialaccount.models import SocialToken, SocialApp
 from geokey.socialinteractions.models import SocialInteractionPull
-from geokey.categories.models import Category, TextField, Field
+from geokey.categories.models import Category, TextField, NumericField, Field
 from geokey.contributions.models import Observation, Location
 
 from datetime import timedelta
@@ -69,19 +69,22 @@ def start2pull():
                 except:
                     next
 
-                tweet_category, text_field = get_category_and_field(
+                tweet_category, text_field, tweet_id_field = get_category_and_field(
                     project,
                     socialaccount)
                 for geo_tweet in geo_tweets:
-                    create_new_observation(
-                        si_pull,
-                        geo_tweet,
-                        tweet_category,
-                        text_field)
+                    if not Observation.objects.filter(project = project, properties__contains=geo_tweet['id']):
+                        create_new_observation(
+                            si_pull,
+                            geo_tweet,
+                            tweet_category,
+                            text_field,
+                            tweet_id_field
+                        )
             si_pull.save()
 
 
-def create_new_observation(si_pull, geo_tweet, tweet_cat, text_field):
+def create_new_observation(si_pull, geo_tweet, tweet_cat, text_field, tweet_id_field):
     """Create new observation based on the tweet.
 
     Parameters
@@ -105,7 +108,9 @@ def create_new_observation(si_pull, geo_tweet, tweet_cat, text_field):
         creator=si_pull.socialaccount.user,
         category=tweet_cat)
     properties = {
-        text_field.key: geo_tweet['text']}
+        text_field.key: geo_tweet['text'],
+        tweet_id_field.key: geo_tweet['id']
+    }
     new_observation.properties = properties
     new_observation.update_display_field()
 
@@ -142,20 +147,36 @@ def get_category_and_field(project, socialaccount):
             project=project,
             creator=socialaccount.user)
 
-    if TextField.objects.filter(category=tweet_category, name='tweet'):
+    if TextField.objects.filter(category=tweet_category, key='tweet'):
 
         text_field = TextField.objects.get(
             category=tweet_category,
-            name='tweet')
+            key='tweet')
     else:
         text_field = TextField.objects.create(
-            name='tweet',
+            name='Tweet',
             category=tweet_category,
             key="tweet")
+
+
+    if NumericField.objects.filter(category=tweet_category, key='tweet-id'):
+
+        tweet_id_field = NumericField.objects.get(
+            category=tweet_category,
+            key='tweet-id')
+    else:
+        tweet_id_field = NumericField.objects.create(
+            name='Tweet-ID',
+            category=tweet_category,
+            key='tweet-id'
+        )
+        field = Field.objects.get(pk=tweet_id_field.field_ptr_id)
+        field.order = 1
+        field.save()
     tweet_category.display_field = text_field
     tweet_category.save()
 
-    return tweet_category, text_field
+    return tweet_category, text_field, tweet_id_field
 
 
 def pull_from_social_media(provider, access_token, text_to_pull, tweet_id, app):
