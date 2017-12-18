@@ -73,7 +73,7 @@ def start2pull():
                     project,
                     socialaccount)
                 for geo_tweet in geo_tweets:
-                    if not Observation.objects.filter(project = project, properties__contains=geo_tweet['id']):
+                    if not Observation.objects.filter(project=project, status='active', properties__contains=geo_tweet['id']):
                         create_new_observation(
                             si_pull,
                             geo_tweet,
@@ -108,7 +108,6 @@ def create_new_observation(si_pull, geo_tweet, tweet_cat, text_field, tweet_id_f
         project=si_pull.project,
         creator=si_pull.socialaccount.user,
         category=tweet_cat)
-    new_observation.save(commit=False)
     properties = {
         text_field.key: geo_tweet['text'],
         tweet_id_field.key: geo_tweet['id']
