@@ -99,14 +99,16 @@ def create_new_observation(si_pull, geo_tweet, tweet_cat, text_field, tweet_id_f
     """
     point = geo_tweet['geometry']
 
-    new_loc = Location.objects.create(
+    new_loc = Location(
         geometry=point,
         creator=si_pull.socialaccount.user)
-    new_observation = Observation.objects.create(
+    new_loc.save()
+    new_observation = Observation(
         location=new_loc,
         project=si_pull.project,
         creator=si_pull.socialaccount.user,
         category=tweet_cat)
+    new_observation.save(commit=False)
     properties = {
         text_field.key: geo_tweet['text'],
         tweet_id_field.key: geo_tweet['id']
@@ -213,9 +215,9 @@ def pull_from_social_media(provider, access_token, text_to_pull, tweet_id, app):
             try:
                 tweets_all = api.home_timeline(count=100, since_id=tweet_id, tweet_mode='extended')
             except Exception:
-                return "Impossible to get data from the timeline"
+                raise Exception("Impossible to get data from the timeline")
         except:
-            return "You are not authenticated"
+            raise Exception("You are not authenticated")
 
         geo_tweets = []
         for tweet in tweets_all:
@@ -233,9 +235,8 @@ def pull_from_social_media(provider, access_token, text_to_pull, tweet_id, app):
                             new_contribution['url'] = image['url']
 
                     geo_tweets.append(new_contribution)
-
+        geo_tweets.reverse()
     return geo_tweets
-
 
 def process_location(tweet):
     """Retrieve coordinates or place coordinates from tweet and converts them into WKT Point or Polygon.
