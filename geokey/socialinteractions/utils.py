@@ -113,8 +113,6 @@ def create_new_observation(si_pull, geo_tweet, tweet_cat, text_field, tweet_id_f
         tweet_id_field.key: geo_tweet['id']
     }
     new_observation.properties = properties
-    new_observation.update_display_field()
-
     new_observation.save()
 
     si_pull.updated_at = timezone.now()
