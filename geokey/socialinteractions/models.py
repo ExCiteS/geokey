@@ -12,6 +12,8 @@ import facebook
 
 from geokey.subsets.models import Subset
 from geokey.contributions.models import Observation, Comment
+from geokey.projects.models import Project
+from geokey.core.signals import delete_project
 from .base import STATUS, FREQUENCY
 
 
@@ -63,6 +65,23 @@ class SocialInteractionPull(models.Model):
     since_id = models.TextField(blank=True, null=True)
     updated_at = models.DateTimeField(null=True, auto_now_add=False)
     checked_at = models.DateTimeField(null=True, auto_now_add=False)
+
+
+@receiver(delete_project)
+def on_delete_project(project, **kwargs):
+    """
+    Receiver that is called after a project is deleted.
+
+    Removes Socialinteractions.
+    """
+
+    try:
+        SocialInteractionPull.objects.filter(project=project).delete()
+        SocialInteractionPost.objects.filter(project=project).delete()
+    except SocialInteractionPull.DoesNotExist:
+        pass
+    except SocialInteractionPost.DoesNotExist:
+        pass
 
 
 @receiver(post_save, sender=Observation)

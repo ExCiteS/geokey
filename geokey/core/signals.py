@@ -2,6 +2,7 @@
 
 from django.dispatch import Signal
 
+delete_project = Signal(providing_args=["project"])
 
 class RequestAccessorSignal(Signal):
     """Request accessor signal."""

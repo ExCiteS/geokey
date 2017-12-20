@@ -4,6 +4,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.gis.db import models as gis
 
+from geokey.core import signals
 from simple_history.models import HistoricalRecords
 
 from .managers import ProjectManager
@@ -108,6 +109,7 @@ class Project(models.Model):
         all Admin groups related to the project.
         """
         Admins.objects.filter(project=self).delete()
+        signals.delete_project.send(sender=Project, project=self)
         self.status = STATUS.deleted
         self.save()
 
