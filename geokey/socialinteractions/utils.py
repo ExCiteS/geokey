@@ -226,11 +226,6 @@ def pull_from_social_media(provider, access_token, text_to_pull, tweet_id, app):
                     new_contribution['user'] = tweet.user.name
                     new_contribution['created_at'] = tweet.created_at
                     new_contribution['geometry'] = process_location(tweet)
-
-                    if 'media' in tweet.entities:  ## gets when is media attached to it
-                        for image in tweet.entities['media']:
-                            new_contribution['url'] = image['url']
-
                     geo_tweets.append(new_contribution)
         geo_tweets.reverse()
     return geo_tweets
