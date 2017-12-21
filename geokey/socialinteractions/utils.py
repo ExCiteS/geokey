@@ -84,7 +84,7 @@ def start2pull():
             si_pull.save()
 
 
-def create_new_observation(si_pull, geo_tweet, tweet_cat, text_field, tweet_id_field):
+def create_new_observation(si_pull, geo_tweet, tweet_category, text_field, tweet_id_field):
     """Create new observation based on the tweet.
 
     Parameters
@@ -93,27 +93,28 @@ def create_new_observation(si_pull, geo_tweet, tweet_cat, text_field, tweet_id_f
 
     geo_tweet: array of tweets
 
-    tweet_cat: Category Object
+    tweet_category: Category Object
 
     text_field: TextField Object
+    
+    tweet_id_field: TweetID Object
     """
     point = geo_tweet['geometry']
-
-    new_loc = Location(
-        geometry=point,
-        creator=si_pull.socialaccount.user)
-    new_loc.save()
-    new_observation = Observation(
-        location=new_loc,
-        project=si_pull.project,
-        creator=si_pull.socialaccount.user,
-        category=tweet_cat)
     properties = {
         text_field.key: geo_tweet['text'],
         tweet_id_field.key: geo_tweet['id']
     }
-    new_observation.properties = properties
-    new_observation.save()
+
+    location = Location.objects.create(
+        geometry=point,
+        creator=si_pull.socialaccount.user)
+
+    Observation.objects.create(
+        properties=properties,
+        location=location,
+        project=si_pull.project,
+        creator=si_pull.socialaccount.user,
+        category=tweet_category)
 
     si_pull.updated_at = timezone.now()
     si_pull.save()
@@ -156,7 +157,6 @@ def get_category_and_field(project, socialaccount):
             name='Tweet',
             category=tweet_category,
             key="tweet")
-
 
     if NumericField.objects.filter(category=tweet_category, key='tweet-id'):
 
@@ -212,9 +212,9 @@ def pull_from_social_media(provider, access_token, text_to_pull, tweet_id, app):
             try:
                 tweets_all = api.home_timeline(count=100, since_id=tweet_id, tweet_mode='extended')
             except Exception:
-                raise Exception("Impossible to get data from the timeline")
+                return "Impossible to get data from the timeline"
         except:
-            raise Exception("You are not authenticated")
+            return "You are not authenticated"
 
         geo_tweets = []
         for tweet in tweets_all:
@@ -234,6 +234,7 @@ def pull_from_social_media(provider, access_token, text_to_pull, tweet_id, app):
                     geo_tweets.append(new_contribution)
         geo_tweets.reverse()
     return geo_tweets
+
 
 def process_location(tweet):
     """Retrieve coordinates or place coordinates from tweet and converts them into WKT Point or Polygon.
