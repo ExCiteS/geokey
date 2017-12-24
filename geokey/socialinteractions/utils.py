@@ -105,16 +105,17 @@ def create_new_observation(si_pull, geo_tweet, tweet_category, text_field, tweet
         tweet_id_field.key: geo_tweet['id']
     }
 
-    location = Location.objects.create(
+    location = Location(
         geometry=point,
         creator=si_pull.socialaccount.user)
 
-    Observation.objects.create(
+    Observation.create(
         properties=properties,
         location=location,
         project=si_pull.project,
         creator=si_pull.socialaccount.user,
-        category=tweet_category)
+        category=tweet_category,
+        status='active')
 
     si_pull.updated_at = timezone.now()
     si_pull.save()
