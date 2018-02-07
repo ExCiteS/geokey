@@ -75,6 +75,12 @@ GeoKey can be run on Python 2.7 only.
     sudo apt-get update
     sudo apt-get install postgresql-9.4-postgis-2.1 postgresql-contrib postgresql-server-dev-9.4
 
+Note that for Ubuntu 16.04, you don't need to add the repo and can install 9.5:
+
+.. code-block:: console
+
+    sudo apt-get install postgresql-9.5-postgis-2.2 postgresql-contrib postgresql-server-dev-9.5
+
 3. Setup all other dependencies:
 
 .. code-block:: console
