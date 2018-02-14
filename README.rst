@@ -25,7 +25,7 @@ GeoKey is a platform for participatory mapping, that is developed by `Extreme Ci
 Install with Docker
 ===================
 
-Download and install `Docker CE <https://www.docker.com/community-edition#download>`_ for your platform. This will include the `docker-compose` command used below.
+Download and install `Docker CE <https://www.docker.com/community-edition#download>`_ for your platform. This will include the `docker-compose` command used below. (Note that when using Ubuntu, most of these commands need to be run as root or prefixed with sudo).
 
 1. Pull and extract relevant images, build the GeoKey application container:
 
