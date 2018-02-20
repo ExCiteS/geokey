@@ -2,6 +2,7 @@
 
 import json
 
+from django.contrib.auth import hashers
 from django.test import TestCase, TransactionTestCase
 from django.core.urlresolvers import reverse, resolve
 from django.test import RequestFactory
@@ -1603,7 +1604,8 @@ class UserGroupSingleUserTest(TestCase):
 class ChangePasswordTest(TestCase):
 
     def test_changepassword(self):
-        user = UserFactory.create(**{'password': '123456'})
+        hashed_password = hashers.make_password(password='123456')
+        user = UserFactory.create(**{'password': hashed_password})
         factory = APIRequestFactory()
         url = reverse('api:changepassword')
         data = {
