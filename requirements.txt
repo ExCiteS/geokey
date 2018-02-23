@@ -15,6 +15,7 @@ easy-thumbnails==2.4.2
 gdata==2.0.18
 iso8601==0.1.12
 moment==0.8.2
+nose==1.3.7
 pillow==4.3.0
 psycopg2==2.7.3.1
 pytz==2017.2
@@ -24,3 +25,4 @@ facebook-sdk==2.0.0
 oauth2client==4.1.2
 oauthlib==2.0.6
 google-api-python-client==1.6.4
+factory-boy==2.10.0

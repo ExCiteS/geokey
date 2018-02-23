@@ -68,6 +68,7 @@ class UserGroup(FilterMixin, models.Model):
     """
     A user gropup assigned to a project.
     """
+    objects = None
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL)

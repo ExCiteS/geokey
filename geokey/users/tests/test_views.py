@@ -2,6 +2,7 @@
 
 import json
 
+from django.contrib.auth import hashers
 from django.test import TestCase, TransactionTestCase
 from django.core.urlresolvers import reverse, resolve
 from django.test import RequestFactory
@@ -47,7 +48,8 @@ from ..models import User, UserGroup as Group
 
 class IndexTest(TestCase):
 
-    def get(self, user):
+    @staticmethod
+    def get(user):
         factory = RequestFactory()
         view = Index.as_view()
         url = reverse('admin:index')
@@ -1077,7 +1079,8 @@ class AccountDisconnectTest(TestCase):
     @override_settings(SOCIALACCOUNT_AUTO_SIGNUP=True,
                        ACCOUNT_EMAIL_VERIFICATION='none')
     def test_get_with_user(self):
-        user = UserFactory.create(password='myPassword2016')
+        hashed_password = hashers.make_password(password='myPassword2016')
+        user = UserFactory.create(password=hashed_password, )
 
         social_account = SocialAccount.objects.create(
             user=user,
@@ -1201,7 +1204,8 @@ class AccountDisconnectTest(TestCase):
     @override_settings(SOCIALACCOUNT_AUTO_SIGNUP=True,
                        ACCOUNT_EMAIL_VERIFICATION='mandatory')
     def test_get_with_user_when_email_not_verified(self):
-        user = UserFactory.create(password='myPassword2016', )
+        hashed_password = hashers.make_password(password='myPassword2016')
+        user = UserFactory.create(password=hashed_password, )
 
         social_account = SocialAccount.objects.create(
             user=user,
@@ -1488,6 +1492,7 @@ class UserGroupUsersTest(TestCase):
             self.contributors.users.all()
         )
 
+
 class UserGroupSingleUserTest(TestCase):
 
     def setUp(self):
@@ -1599,11 +1604,11 @@ class UserGroupSingleUserTest(TestCase):
         )
 
 
-
 class ChangePasswordTest(TestCase):
 
     def test_changepassword(self):
-        user = UserFactory.create(**{'password': '123456'})
+        hashed_password = hashers.make_password(password='123456')
+        user = UserFactory.create(**{'password': hashed_password})
         factory = APIRequestFactory()
         url = reverse('api:changepassword')
         data = {

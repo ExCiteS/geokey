@@ -3,7 +3,8 @@ version: "3"
 services:
   geokey:
     build:
-      context: .
+      context: ../
+      dockerfile: ./geokey/Dockerfile
     links:
       - db
     entrypoint: dockerize -wait tcp://db:5432 -timeout 20s
@@ -15,7 +16,9 @@ services:
     volumes:
       - ./geokey:/app/geokey
   db:
-    build: db
+    build:
+      context: ../
+      dockerfile: ./geokey/db/Dockerfile
     environment:
       POSTGRES_USER: django
       POSTGRES_PASSWORD: django123
