@@ -54,3 +54,9 @@ WSGI_APPLICATION = 'local_settings.wsgi.application'
 
 # Allow all hosts
 ALLOWED_HOSTS = ['*']
+
+# Specify what kind of user contributions an admin can allow for a project.
+#   true - All users (including anonymous users) can contribute
+#   auth - Only registered users can contribute.
+#   false - Only users of the contributors group can contribute
+ALLOWED_CONTRIBUTORS = ("true", "auth", "false")
