@@ -60,3 +60,6 @@ ALLOWED_HOSTS = ['*']
 #   auth - Only registered users can contribute.
 #   false - Only users of the contributors group can contribute
 ALLOWED_CONTRIBUTORS = ("true", "auth", "false")
+
+# Allows access to settings within templates.
+TEMPLATES[0]['OPTIONS']['context_processors'][:0] = ['geokey.context_processors.allowed_contributors']

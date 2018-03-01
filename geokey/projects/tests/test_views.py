@@ -85,6 +85,18 @@ class ProjectCreateTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Project.objects.count(), 0)
 
+    def test_get_with_auth(self):
+        expected_text = 'This includes anonymous contributions'
+        with self.settings(ALLOWED_CONTRIBUTORS=tuple(['true', 'auth', 'false'])):
+            view = ProjectCreate.as_view()
+            url = reverse('admin:project_create')
+            request = APIRequestFactory().get(url)
+            request.user = UserFactory.create()
+            response = view(request).render()
+            # self.assertEquals(settings.ALLOWED_CONTRIBUTORS, tuple('thing'), msg=settings.ALLOWED_CONTRIBUTORS)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response=response, text=expected_text, status_code=200)
+
 
 class ProjectsInvolvedTest(TestCase):
     def test_get_with_user(self):
