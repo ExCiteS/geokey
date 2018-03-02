@@ -2,7 +2,7 @@
 
 import json
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpResponseRedirect
@@ -25,13 +25,31 @@ from ..views import (
     ProjectDelete
 )
 
+
 # ############################################################################
 #
 # ADMIN VIEWS
 #
 # ############################################################################
 
-
+@override_settings(
+    TEMPLATES=[
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': [],
+            'APP_DIRS': True,
+            'OPTIONS': {
+                'context_processors': [
+                    'django.template.context_processors.debug',
+                    'django.template.context_processors.request',
+                    'django.contrib.auth.context_processors.auth',
+                    'django.contrib.messages.context_processors.messages',
+                    'geokey.context_processors.allowed_contributors',
+                ],
+            },
+        },
+    ]
+)
 class ProjectCreateTest(TestCase):
     def test_get_with_user(self):
         view = ProjectCreate.as_view()
