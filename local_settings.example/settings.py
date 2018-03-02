@@ -54,3 +54,12 @@ WSGI_APPLICATION = 'local_settings.wsgi.application'
 
 # Allow all hosts
 ALLOWED_HOSTS = ['*']
+
+# Specify what kind of user contributions an admin can allow for a project.
+#   true - All users (including anonymous users) can contribute
+#   auth - Only registered users can contribute.
+#   false - Only users of the contributors group can contribute
+ALLOWED_CONTRIBUTORS = ("true", "auth", "false")
+
+# Allows access to settings within templates.
+TEMPLATES[0]['OPTIONS']['context_processors'][:0] = ['geokey.context_processors.allowed_contributors']

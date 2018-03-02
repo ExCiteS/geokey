@@ -2,12 +2,13 @@
 
 import json
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpResponseRedirect
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.messages.storage.fallback import FallbackStorage
+from django.conf import settings
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
@@ -25,13 +26,27 @@ from ..views import (
     ProjectDelete
 )
 
+
 # ############################################################################
 #
 # ADMIN VIEWS
 #
 # ############################################################################
+@override_settings(
+    TEMPLATES=[
+        {
+            'BACKEND': settings.TEMPLATES[0]['BACKEND'],
+            'DIRS': settings.TEMPLATES[0]['DIRS'],
+            'OPTIONS': {
+                'context_processors': settings.TEMPLATES[0]['OPTIONS']['context_processors'] + [
+                    'geokey.context_processors.allowed_contributors'],
+                'debug': settings.TEMPLATES[0]['OPTIONS']['debug'],
+                'loaders': settings.TEMPLATES[0]['OPTIONS']['loaders']
+            },
+        },
 
-
+    ]
+)
 class ProjectCreateTest(TestCase):
     def test_get_with_user(self):
         view = ProjectCreate.as_view()
@@ -84,6 +99,32 @@ class ProjectCreateTest(TestCase):
         response = view(request)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Project.objects.count(), 0)
+
+    def test_get_with_anon(self):
+        anon_text = 'This includes anonymous contributions'
+        groups_text = '<strong>Only members of contributor groups can contribute</strong>'
+        with self.settings(ALLOWED_CONTRIBUTORS=tuple(['true', 'auth', 'false'])):
+            view = ProjectCreate.as_view()
+            url = reverse('admin:project_create')
+            request = APIRequestFactory().get(url)
+            request.user = UserFactory.create()
+            response = view(request).render()
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response=response, text=groups_text, status_code=200)
+            self.assertContains(response=response, text=anon_text, status_code=200)
+
+    def test_get_without_anon(self):
+        unexpected_text = 'This includes anonymous contributions'
+        groups_text = '<strong>Only members of contributor groups can contribute</strong>'
+        with self.settings(ALLOWED_CONTRIBUTORS=tuple(['auth', 'false'])):
+            view = ProjectCreate.as_view()
+            url = reverse('admin:project_create')
+            request = APIRequestFactory().get(url)
+            request.user = UserFactory.create()
+            response = view(request).render()
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response=response, text=groups_text, status_code=200)
+            self.assertNotContains(response=response, text=unexpected_text, status_code=200)
 
 
 class ProjectsInvolvedTest(TestCase):
