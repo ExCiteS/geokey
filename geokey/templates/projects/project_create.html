@@ -50,11 +50,13 @@
                 <label for="everyone_contributes" class="control-label">Project permissions</label>
 
                 <div class="radio public hidden">
+                    {% if not ALLOWED_CONTRIBUTORS or 'true' in ALLOWED_CONTRIBUTORS %}
                     <label>
                         <input type="radio" name="everyone_contributes" value="true" />
                         <strong>All users</strong>
                         <p>All users can contribute. This includes anonymous contributions from users, who are not logged in.</p>
                     </label>
+                    {% endif %}
                 </div>
 
                 <div class="radio">

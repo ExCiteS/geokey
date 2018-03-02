@@ -323,6 +323,7 @@ class Admins(models.Model):
     An Administator group for a project. Represents the relation between
     Project and User.
     """
+    objects = None
     project = models.ForeignKey('Project', related_name='admin_of')
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
