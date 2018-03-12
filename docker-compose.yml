@@ -17,8 +17,8 @@ services:
       - ./geokey:/app/geokey
   db:
     build:
-      context: ../
-      dockerfile: ./geokey/db/Dockerfile
+      context: ./db
+      dockerfile: ./Dockerfile
     environment:
       POSTGRES_USER: django
       POSTGRES_PASSWORD: django123
