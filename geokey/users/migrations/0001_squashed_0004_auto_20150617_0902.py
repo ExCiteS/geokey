@@ -24,8 +24,6 @@ def create_anonymous(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
-    replaces = [(b'users', '0001_initial'), (b'users', '0002_auto_20150106_1420'), (b'users', '0003_auto_20150611_1307'), (b'users', '0004_auto_20150617_0902')]
-
     dependencies = [
         ('projects', '0001_initial'),
     ]
