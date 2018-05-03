@@ -14,7 +14,10 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 from django.contrib.gis.db import models as gis
 
-from django_pgjson.fields import JsonBField
+try:
+    from django.contrib.postgres.fields import JSONField
+except ImportError:
+    from django_pgjson.fields import JsonBField as JSONField
 from simple_history.models import HistoricalRecords
 
 from geokey.core.exceptions import InputError
@@ -72,7 +75,7 @@ class Observation(models.Model):
         default=OBSERVATION_STATUS.active,
         max_length=20
     )
-    properties = JsonBField(default={})
+    properties = JSONField(default={})
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -123,7 +126,7 @@ class Observation(models.Model):
             if field.key in data and data.get(field.key) is not None:
                 try:
                     field.validate_input(data.get(field.key))
-                except InputError, error:
+                except InputError as error:
                     is_valid = False
                     error_messages.append(error)
 
@@ -154,7 +157,7 @@ class Observation(models.Model):
         for field in category.fields.all().filter(status='active'):
             try:
                 field.validate_input(data.get(field.key))
-            except InputError, error:
+            except InputError as error:
                 is_valid = False
                 error_messages.append(error)
 

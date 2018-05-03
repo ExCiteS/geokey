@@ -3,7 +3,10 @@
 from django.conf import settings
 from django.db import models
 
-from django_pgjson.fields import JsonBField
+try:
+    from django.contrib.postgres.fields import JSONField
+except ImportError:
+    from django_pgjson.fields import JsonBField as JSONField
 from simple_history.models import HistoricalRecords
 
 
@@ -18,6 +21,6 @@ class Subset(FilterMixin, models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     project = models.ForeignKey('projects.Project', related_name='subsets')
-    filters = JsonBField(blank=True, null=True)
+    filters = JSONField(blank=True, null=True)
     where_clause = models.TextField(blank=True, null=True)
     history = HistoricalRecords()

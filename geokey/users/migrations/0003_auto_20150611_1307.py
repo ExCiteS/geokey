@@ -2,7 +2,10 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import django_pgjson.fields
+try:
+    from django.contrib.postgres.fields import JSONField
+except ImportError:
+    from django_pgjson.fields import JsonBField as JSONField
 
 
 class Migration(migrations.Migration):
@@ -15,7 +18,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='usergroup',
             name='filters',
-            field=django_pgjson.fields.JsonBField(null=True, blank=True),
+            field=JSONField(null=True, blank=True),
             preserve_default=True,
         ),
         migrations.AddField(
