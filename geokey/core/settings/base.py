@@ -70,6 +70,8 @@ INSTALLED_APPS = (
 # Conditionally add applications depending on Django version in use.
 if StrictVersion(get_version()) < StrictVersion('1.9'):
     INSTALLED_APPS += ('django_hstore',)
+else:
+    INSTALLED_APPS += ('django.contrib.postgres',)
 
 
 # Middleware that is used with GeoKey to process HTTP requests and responses.
