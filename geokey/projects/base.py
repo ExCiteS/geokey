@@ -2,8 +2,8 @@
 
 from model_utils import Choices
 
-from local_settings.settings import ALLOWED_CONTRIBUTORS
+from django.conf import settings
 
 
 STATUS = Choices('active', 'inactive', 'deleted')
-EVERYONE_CONTRIBUTES = Choices(*ALLOWED_CONTRIBUTORS)
+EVERYONE_CONTRIBUTES = Choices(*settings.ALLOWED_CONTRIBUTORS)
