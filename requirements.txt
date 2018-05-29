@@ -12,6 +12,7 @@ django-nose==1.4.5
 djangorestframework==3.6.3
 djangorestframework-gis==0.11.2
 easy-thumbnails==2.4.2
+GDAL==2.2.2
 gdata==2.0.18
 iso8601==0.1.12
 moment==0.8.2
