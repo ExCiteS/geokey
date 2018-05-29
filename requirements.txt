@@ -1,4 +1,4 @@
-Django>=1.8,<1.9
+Django>=1.8.19,<1.9
 django-aggregate-if==0.5
 django-allauth==0.33.0
 django-braces==1.11.0

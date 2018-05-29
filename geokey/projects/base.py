@@ -2,8 +2,11 @@
 
 from model_utils import Choices
 
-from local_settings.settings import ALLOWED_CONTRIBUTORS
+from django.conf import settings
 
 
 STATUS = Choices('active', 'inactive', 'deleted')
-EVERYONE_CONTRIBUTES = Choices(*ALLOWED_CONTRIBUTORS)
+allowed = ("auth", "false", "true")
+if hasattr(settings, 'ALLOWED_CONTRIBUTORS'):
+    allowed = settings.ALLOWED_CONTRIBUTORS
+EVERYONE_CONTRIBUTES = Choices(*allowed)

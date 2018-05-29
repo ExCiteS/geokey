@@ -14,7 +14,7 @@ addons:
       - postgresql-9.4-postgis-2.3
 
 env:
-  - DJANGO='>=1.8,<1.9'
+  - DJANGO='>=1.8.19,<1.9'
 
 virtualenv:
   system_site_packages: true
