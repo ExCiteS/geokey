@@ -195,7 +195,7 @@ class FieldTest(TestCase):
     @raises(NotImplementedError)
     def test_field_type_name(self):
         field = FieldFactory()
-        field.type_name
+        _ = field.type_name
 
     @raises(NotImplementedError)
     def test_field_get_filter(self):

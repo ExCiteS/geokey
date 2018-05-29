@@ -2,7 +2,10 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import django_hstore.fields
+try:
+    from django.contrib.postgres.fields import HStoreField
+except ImportError:
+    from django_hstore.fields import DictionaryField as HStoreField
 import django.contrib.gis.db.models.fields
 
 
@@ -35,7 +38,7 @@ class Migration(migrations.Migration):
                 ('project_id', models.IntegerField(db_index=True, null=True, blank=True)),
                 ('category_id', models.IntegerField(db_index=True, null=True, blank=True)),
                 ('status', models.CharField(default=b'active', max_length=20, choices=[(b'active', b'active'), (b'draft', b'draft'), (b'review', b'review'), (b'pending', b'pending'), (b'deleted', b'deleted')])),
-                ('attributes', django_hstore.fields.DictionaryField(db_index=True)),
+                ('attributes', HStoreField(db_index=True)),
                 ('created_at', models.DateTimeField(editable=False, blank=True)),
                 ('creator_id', models.IntegerField(db_index=True, null=True, blank=True)),
                 ('updated_at', models.DateTimeField(null=True, editable=False, blank=True)),
@@ -98,7 +101,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('status', models.CharField(default=b'active', max_length=20, choices=[(b'active', b'active'), (b'draft', b'draft'), (b'review', b'review'), (b'pending', b'pending'), (b'deleted', b'deleted')])),
-                ('attributes', django_hstore.fields.DictionaryField(db_index=True)),
+                ('attributes', HStoreField(db_index=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now_add=True, null=True)),
                 ('version', models.IntegerField(default=1)),

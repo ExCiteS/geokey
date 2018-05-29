@@ -2,7 +2,10 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import django_pgjson.fields
+try:
+    from django.contrib.postgres.fields import JSONField
+except ImportError:
+    from django_pgjson.fields import JsonBField as JSONField
 import django.db.models.deletion
 from django.conf import settings
 
@@ -12,6 +15,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('projects', '0008_historicalproject'),
         ('users', '0007_auto_20151006_1110'),
+        ('users', '0004_auto_20150617_0902'),
     ]
 
     operations = [
@@ -23,7 +27,7 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(null=True, blank=True)),
                 ('can_contribute', models.BooleanField(default=True)),
                 ('can_moderate', models.BooleanField(default=False)),
-                ('filters', django_pgjson.fields.JsonBField(null=True, blank=True)),
+                ('filters', JSONField(null=True, blank=True)),
                 ('where_clause', models.TextField(null=True, blank=True)),
                 ('history_id', models.AutoField(serialize=False, primary_key=True)),
                 ('history_date', models.DateTimeField()),

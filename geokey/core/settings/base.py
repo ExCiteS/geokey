@@ -2,6 +2,9 @@
 
 from os.path import abspath, dirname, join, normpath
 from django.contrib import messages
+from distutils.version import StrictVersion
+from django import get_version
+
 
 # The ID of the current site in the django_site database table
 # see: https://docs.djangoproject.com/en/1.8/ref/settings/#site-id
@@ -42,7 +45,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
 
     # Third-party apps
-    'django_hstore',
     'oauth2_provider',
     'easy_thumbnails',
     'allauth',
@@ -64,6 +66,13 @@ INSTALLED_APPS = (
     'geokey.subsets',
     'geokey.socialinteractions',
 )
+
+# Conditionally add applications depending on Django version in use.
+if StrictVersion(get_version()) < StrictVersion('1.9'):
+    INSTALLED_APPS += ('django_hstore',)
+else:
+    INSTALLED_APPS += ('django.contrib.postgres',)
+
 
 # Middleware that is used with GeoKey to process HTTP requests and responses.
 # see: https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-MIDDLEWARE_CLASSES
