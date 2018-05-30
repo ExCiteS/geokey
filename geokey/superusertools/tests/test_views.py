@@ -34,6 +34,7 @@ from geokey.contributions.tests.model_factories import (
 from geokey.superusertools.views import (
     ManageSuperusers,
     ManageInactiveUsers,
+    ManageNormalUsers,
     ManageProjects,
     PlatformSettings,
     ProviderList,
@@ -234,6 +235,175 @@ class ManageInactiveUsersTest(TestCase):
 
     def test_post_with_superuser(self):
         """Test POST with superuser."""
+        self.create_inactive()
+        user = UserFactory.create(**{'is_superuser': True})
+        self.request.method = 'POST'
+        self.request.POST = QueryDict(
+            'activate_users=%s&activate_users=%s' % (
+                self.inactive_1.id, self.inactive_2.id
+            )
+        )
+        self.request.user = user
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            'superusertools/manage_inactive_users.html',
+            {
+                'GEOKEY_VERSION': version.get_version(),
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'user': user,
+                'messages': get_messages(self.request),
+                'inactive_users': [self.inactive_3]
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
+        self.assertEqual(User.objects.filter(is_active=False).count(), 1)
+        self.assertEqual(len(EmailAddress.objects.filter(verified=False)), 1)
+
+
+class ManageNormalUsersTest(TestCase):
+    """Test manage normal users page."""
+
+    def setUp(self):
+        """Set up test."""
+        self.view = ManageNormalUsers.as_view()
+        self.request = HttpRequest()
+
+        setattr(self.request, 'session', 'session')
+        messages = FallbackStorage(self.request)
+        setattr(self.request, '_messages', messages)
+
+    def create_users(self):
+        """Create 3 users. 1 inactive, 1 normal, 1 superuser"""
+        self.inactive = UserFactory.create(**{'is_active': False})
+        EmailAddress(
+            user=self.inactive,
+            email=self.inactive.email,
+            verified=False
+        ).save()
+        self.active = UserFactory.create(**{'is_active': True})
+        EmailAddress(
+            user=self.active,
+            email=self.active.email,
+            verified=False
+        ).save()
+        self.superuser = UserFactory.create(**{'is_active': True, 'is_superuser': True})
+        EmailAddress(
+            user=self.superuser,
+            email=self.superuser.email,
+            verified=False
+        ).save()
+
+    def test_get_with_anonymous(self):
+        """Test GET with anonymous user."""
+        self.request.method = 'GET'
+        self.request.user = AnonymousUser()
+        response = self.view(self.request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/account/login/', response['location'])
+
+    def test_get_with_user(self):
+        """Test GET with user."""
+        user = UserFactory.create(**{'is_superuser': False})
+        self.request.method = 'GET'
+        self.request.user = user
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            'superusertools/manage_normal_users.html',
+            {
+                'GEOKEY_VERSION': version.get_version(),
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'user': user,
+                'error': 'Permission denied.',
+                'error_description': 'No rights to access superuser tools.',
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
+
+    def test_get_with_superuser(self):
+        """Test GET with superuser."""
+        self.create_users()
+        user = UserFactory.create(**{'is_superuser': True})
+        self.request.method = 'GET'
+        self.request.user = user
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            'superusertools/manage_normal_users.html',
+            {
+                'GEOKEY_VERSION': version.get_version(),
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'user': self.superuser,
+                'normal_users': []
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
+
+    def test_post_with_anonymous(self):
+        """Test POST with anonymous user."""
+        self.assertEquals(True, False)
+        self.create_inactive()
+        self.request.method = 'POST'
+        self.request.POST = QueryDict(
+            'activate_users=%s&activate_users=%s' % (
+                self.inactive_1.id, self.inactive_2.id
+            )
+        )
+        self.request.user = AnonymousUser()
+        response = self.view(self.request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/account/login/', response['location'])
+        self.assertEqual(User.objects.filter(is_active=False).count(), 3)
+        self.assertEqual(len(EmailAddress.objects.filter(verified=False)), 3)
+
+    def test_post_with_user(self):
+        """Test POST with user."""
+        self.assertEquals(True, False)
+
+        self.create_inactive()
+        user = UserFactory.create()
+        self.request.method = 'POST'
+        self.request.POST = QueryDict(
+            'activate_users=%s&activate_users=%s' % (
+                self.inactive_1.id, self.inactive_2.id
+            )
+        )
+        self.request.user = user
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            'superusertools/manage_inactive_users.html',
+            {
+                'GEOKEY_VERSION': version.get_version(),
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'user': user,
+                'error': 'Permission denied.',
+                'error_description': 'No rights to access superuser tools.'
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(User.objects.filter(is_active=False).count(), 3)
+        self.assertEqual(len(EmailAddress.objects.filter(verified=False)), 3)
+
+    def test_post_with_superuser(self):
+        """Test POST with superuser."""
+        self.assertEquals(True, False)
+
         self.create_inactive()
         user = UserFactory.create(**{'is_superuser': True})
         self.request.method = 'POST'

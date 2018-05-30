@@ -103,6 +103,59 @@ class ManageInactiveUsers(LoginRequiredMixin, SuperuserMixin, TemplateView):
         return self.render_to_response(context)
 
 
+class ManageNormalUsers(LoginRequiredMixin, SuperuserMixin, TemplateView):
+    """Manage normal users page."""
+
+    template_name = 'superusertools/manage_normal_users.html'
+
+    def get_context_data(self):
+        """
+        Return the context to render the view.
+
+        Add a list of normal users to the context.
+
+        Returns
+        -------
+        dict
+        """
+        return {'all_users': User.objects.all().defer('is_superuser')}
+
+    def post(self, request):
+        """
+        Activate inactive users.
+
+        Parameters
+        ----------
+        request : django.http.HttpRequest
+            Object representing the request.
+
+        Returns
+        -------
+        django.http.HttpResponse
+        """
+        data = request.POST
+        context = self.get_context_data()
+        inactive_users = context.get('inactive_users')
+
+        if inactive_users:
+            active_users = inactive_users.filter(
+                id__in=data.getlist('activate_users'))
+            in_total = len(active_users)
+
+            for email in EmailAddress.objects.filter(user__in=active_users):
+                email.verified = True
+                email.set_as_primary(conditional=True)
+                email.save()
+
+            active_users.update(is_active=True)
+            messages.success(
+                self.request,
+                '%s user(s) has been activated.' % in_total)
+            context['inactive_users'] = User.objects.filter(is_active=False)
+
+        return self.render_to_response(context)
+
+
 class ManageProjects(LoginRequiredMixin, SuperuserMixin, TemplateView):
     """Manage projects page."""
 
