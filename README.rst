@@ -45,7 +45,7 @@ Download and install `Docker CE <https://www.docker.com/community-edition#downlo
 
     docker-compose exec geokey python manage.py collectstatic --noinput
 
-4. Fin ally run the server:
+4. Finally run the server:
 
 .. code-block:: console
 
