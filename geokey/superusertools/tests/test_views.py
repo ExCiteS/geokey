@@ -339,6 +339,82 @@ class ManageNormalUsersTest(TestCase):
         self.assertContains(response=response,
                             text='No normal users were found.')
 
+    def test_post_with_anonymous(self):
+        """Test POST with anonymous user."""
+        self.create_users()
+        self.request.method = 'POST'
+        self.request.POST = QueryDict(
+            'activate_users=%s&activate_users=%s' % (
+                self.active.id, self.inactive.id
+            )
+        )
+        self.request.user = AnonymousUser()
+        response = self.view(self.request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/account/login/', response['location'])
+        self.assertEqual(User.objects.filter(is_active=False).count(), 1)
+        self.assertEqual(len(EmailAddress.objects.filter(verified=False)), 3)
+
+    def test_post_with_user(self):
+        """Test POST with user."""
+        self.create_users()
+        user = UserFactory.create()
+        self.request.method = 'POST'
+        self.request.POST = QueryDict(
+            'activate_users=%s&activate_users=%s' % (
+                self.active.id, self.inactive.id
+            )
+        )
+        self.request.user = user
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            'superusertools/manage_normal_users.html',
+            {
+                'GEOKEY_VERSION': version.get_version(),
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'user': user,
+                'error': 'Permission denied.',
+                'error_description': 'No rights to access superuser tools.'
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode('utf-8'), rendered)
+        self.assertEqual(User.objects.filter(is_active=False).count(), 1)
+        self.assertEqual(len(EmailAddress.objects.filter(verified=False)), 3)
+
+    def test_post_with_superuser(self):
+        """Test POST with superuser."""
+        self.create_users()
+        user = UserFactory.create(**{'is_superuser': True})
+        self.request.method = 'POST'
+        self.request.POST = QueryDict(
+            'activate_users=%s&activate_users=%s' % (
+                self.active.id, self.inactive.id
+            )
+        )
+        self.request.user = user
+        response = self.view(self.request).render()
+
+        rendered = render_to_string(
+            'superusertools/manage_normal_users.html',
+            {
+                'GEOKEY_VERSION': version.get_version(),
+                'PLATFORM_NAME': get_current_site(self.request).name,
+                'user': user,
+                'messages': get_messages(self.request),
+                'normal_users': [self.active, self.inactive]
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
+        self.assertEqual(response, rendered)
+        self.assertEqual(User.objects.filter(is_active=False).count(), 1)
+        self.assertEqual(len(EmailAddress.objects.filter(verified=False)), 1)
+
 
 class ManageProjectsTest(TestCase):
     """Test manage projects page."""
