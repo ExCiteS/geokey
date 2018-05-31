@@ -336,7 +336,6 @@ class ManageNormalUsersTest(TestCase):
         response = self.view(self.request).render()
 
         self.assertEqual(response.status_code, 200)
-        print(response)
         self.assertContains(response=response,
                             text='No normal users were found.')
 
