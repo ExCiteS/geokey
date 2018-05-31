@@ -118,11 +118,12 @@ class ManageNormalUsers(LoginRequiredMixin, SuperuserMixin, TemplateView):
         -------
         dict
         """
-        return {'all_users': User.objects.all().defer('is_superuser')}
+        user_objects = {'normal_users': User.objects.filter(is_superuser=False).exclude(display_name='AnonymousUser')}
+        return user_objects
 
     def post(self, request):
         """
-        Activate inactive users.
+        Delete users.
 
         Parameters
         ----------
@@ -147,10 +148,10 @@ class ManageNormalUsers(LoginRequiredMixin, SuperuserMixin, TemplateView):
                 email.set_as_primary(conditional=True)
                 email.save()
 
-            active_users.update(is_active=True)
+            active_users.delete()
             messages.success(
                 self.request,
-                '%s user(s) has been activated.' % in_total)
+                '%s user(s) has been deleted.' % in_total)
             context['inactive_users'] = User.objects.filter(is_active=False)
 
         return self.render_to_response(context)
