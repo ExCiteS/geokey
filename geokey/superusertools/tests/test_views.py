@@ -398,22 +398,11 @@ class ManageNormalUsersTest(TestCase):
         self.request.user = user
         response = self.view(self.request).render()
 
-        rendered = render_to_string(
-            'superusertools/manage_normal_users.html',
-            {
-                'GEOKEY_VERSION': version.get_version(),
-                'PLATFORM_NAME': get_current_site(self.request).name,
-                'user': user,
-                'messages': get_messages(self.request),
-                'normal_users': [self.active, self.inactive]
-            }
-        )
-
         self.assertEqual(response.status_code, 200)
-        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
-        self.assertEqual(response, rendered)
+        self.assertContains(response=response,
+                            text='Select users you would like to delete by manually confirming their email addresses:')
         self.assertEqual(User.objects.filter(is_active=False).count(), 1)
-        self.assertEqual(len(EmailAddress.objects.filter(verified=False)), 1)
+        self.assertEqual(User.objects.filter(is_superuser=True).count(), 2)
 
 
 class ManageProjectsTest(TestCase):
