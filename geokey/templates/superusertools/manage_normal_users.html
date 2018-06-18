@@ -22,14 +22,17 @@
 
             {% if normal_users %}
                 <p>Select users you would like to delete by manually confirming their email addresses:</p>
+                <p>Note that if you delete a user, but not their contributions, the contributions will be assigned
+                   to an anonymous user.</p>
 
                 <div class="form-group">
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th></th>
-                                <th>Display name</th>
-                                <th>Email address</th>
+                                <th>User</th>
+                                <th>Contributions</th>
+                                <th>Name</th>
+                                <th>Email</th>
                                 <th>Date joined</th>
                             </tr>
                         </thead>
@@ -37,8 +40,10 @@
                         <tbody>
                             {% for user in normal_users %}
                                 <tr>
-                                    <td class="text-center"><input title="delete" type="checkbox" name="delete_users"
-                                                                   value="{{ user.id }}"></td>
+                                    <td class="text-center"><input title="delete_user" type="checkbox"
+                                                                   name="delete_users" value="{{ user.id }}"></td>
+                                    <td class="text-center"><input title="delete_contributions" type="checkbox"
+                                                                   name="delete_contribs" value="{{ user.id }}"></td>
                                     <td>{{ user.display_name }}</td>
                                     <td>{{ user.email|urlize }}</td>
                                     <td>{{ user.date_joined|date:'d F, Y' }}</td>
