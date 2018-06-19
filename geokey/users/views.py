@@ -562,6 +562,67 @@ class UserProfile(LoginRequiredMixin, TemplateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
+class DeleteUser(LoginRequiredMixin, TemplateView):
+    """User self-delete page."""
+
+    template_name = 'account/delete_account.html'
+
+    def get_context_data(self, *args, **kwargs):
+        """
+        Return the context to render the view.
+
+        Add social accounts for user to the context.
+
+        Returns
+        -------
+        dict
+        """
+        return super(DeleteUser, self).get_context_data()
+
+    def post(self, request):
+        """
+        Update user profile.
+
+        Parameters
+        ----------
+        request : django.http.HttpRequest
+            Object representing the request.
+
+        Returns
+        -------
+        django.http.HttpResponse
+            Rendered template.
+        """
+        user = User.objects.get(pk=request.user.pk)
+        form = UserForm(request.POST, instance=user)
+
+        if form.is_valid():
+            if form.has_changed():
+                user.display_name = form.cleaned_data['display_name']
+                user.email = form.cleaned_data['email']
+                user.save()
+
+                if user.email != request.user.email:
+                    try:
+                        EmailAddress.objects.get(user=user).change(
+                            request,
+                            user.email,
+                            confirm=True
+                        )
+                    except EmailAddress.DoesNotExist:
+                        EmailAddress.objects.create(
+                            user=user,
+                            email=user.email
+                        ).send_confirmation(request)
+
+                messages.success(request, 'Your profile has been updated.')
+                self.request.user = user
+            else:
+                messages.info(request, 'Your profile has not been edited.')
+
+        return self.render_to_response(self.get_context_data(form=form))
+
+
 class AccountDisconnect(LoginRequiredMixin, TemplateView):
     """Disconnect an account."""
 
