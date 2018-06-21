@@ -25,16 +25,15 @@ from allauth.socialaccount.models import SocialApp, SocialAccount
 
 from geokey import version
 from geokey.core.tests.helpers import render_helpers
-from geokey.applications.tests.model_factories import ApplicationFactory
 from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.categories.tests.model_factories import CategoryFactory
 
-from .model_factories import UserFactory, UserGroupFactory
+from .model_factories import UserFactory, UserGroupFactory, ApplicationFactory
 from ..views import (
     UserGroupCreate, UserGroupSettings, UserProfile, AccountDisconnect,
     CreateUserMixin, UserAPIView, Dashboard, ChangePasswordView, Index,
     UserGroupList, UserGroupOverview, AdministratorsOverview,
-    UserGroupPermissions, UserGroupDelete, UserGroupData
+    UserGroupPermissions, UserGroupDelete, UserGroupData, DeleteUser
 )
 from ..models import User, UserGroup as Group
 
@@ -1531,3 +1530,39 @@ class UserAPIViewTest(TestCase):
         response = view(request).render()
 
         self.assertEqual(response.status_code, 400)
+
+
+class UserDeleteTest(TestCase):
+
+    def setUp(self):
+        self.admin = UserFactory.create()
+        self.contributor_no_contributions = UserFactory.create()
+        self.contributor_with_contributions = UserFactory.create()
+        self.project = ProjectFactory.create(
+            add_admins=[self.admin],
+            add_contributors=[self.contributor_with_contributions]
+        )
+        self.usergroup = UserGroupFactory.create(**{'project': self.project})
+
+    def test_delete_contributor_with_no_contributions(self):
+        view = DeleteUser.as_view()
+        url = reverse(
+            'admin:delete_user',
+            kwargs={
+                'user_id': self.contributor_no_contributions.id,
+            }
+        )
+        request = APIRequestFactory().get(url, user_id=self.contributor_no_contributions.id)
+        request.user = self.contributor_no_contributions
+
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = view(
+            request,
+            user_id=self.contributor_no_contributions.id)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Group.objects.count(), 1)
+
