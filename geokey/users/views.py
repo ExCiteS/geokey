@@ -596,6 +596,11 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
         user = User.objects.get(pk=request.user.pk)
         form = UserForm(request.POST, instance=user)
 
+        # Get a list of all objects owned by the user.
+        # Set the owner of those objects to the anonymous user.
+        # Cascade anonymous ownership to sub-objects.
+        # Hard-delete the user.
+
         if form.is_valid():
             if form.has_changed():
                 user.display_name = form.cleaned_data['display_name']
