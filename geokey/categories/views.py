@@ -258,6 +258,7 @@ class CategoryDisplay(LoginRequiredMixin, CategoryMixin, TemplateView):
         if category:
             symbol = request.FILES.get('symbol')
             category.colour = data.get('colour')
+            category.transparency = data.get('transparency')
 
             if symbol is not None:
                 category.symbol.delete()
