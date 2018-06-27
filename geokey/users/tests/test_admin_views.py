@@ -1561,4 +1561,6 @@ class UserDeleteTest(TestCase):
             user_id=self.contributor_no_contributions.id)
 
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "You are about to delete your user account")
+
 
