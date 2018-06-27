@@ -571,8 +571,6 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
         """
         Return the context to render the view.
 
-        Add social accounts for user to the context.
-
         Returns
         -------
         dict
@@ -581,7 +579,7 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
 
     def post(self, request):
         """
-        Update user profile.
+        Delete user profile.
 
         Parameters
         ----------
@@ -593,38 +591,57 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
         django.http.HttpResponse
             Rendered template.
         """
+        # Get user and form info.
         user = User.objects.get(pk=request.user.pk)
         form = UserForm(request.POST, instance=user)
 
-        # Get a list of all objects owned by the user.
-        # Set the owner of those objects to the anonymous user.
-        # Cascade anonymous ownership to sub-objects.
-        # Hard-delete the user.
+        # Check user is not superuser (superuser delete only?)
+        if user.is_superuser:
+            messages.info(request, 'Superuser cannot be deleted. Another superuser must first revoke superuser status.')
+            return self.render_to_response(self.get_context_data(form=form))
 
-        if form.is_valid():
-            if form.has_changed():
-                user.display_name = form.cleaned_data['display_name']
-                user.email = form.cleaned_data['email']
-                user.save()
+        # Check user is not AnonymousUser - shouldn't be possible.
+        if user.is_anonymous:
+            messages.info(request, 'AnonymousUser cannot be deleted.')
+            return self.render_to_response(self.get_context_data(form=form))
 
-                if user.email != request.user.email:
-                    try:
-                        EmailAddress.objects.get(user=user).change(
-                            request,
-                            user.email,
-                            confirm=True
-                        )
-                    except EmailAddress.DoesNotExist:
-                        EmailAddress.objects.create(
-                            user=user,
-                            email=user.email
-                        ).send_confirmation(request)
+        # Check user is authenticated.
+        if not user.is_authenticated:
+            messages.info(request, 'The user is not authenticated, so cannot be deleted.')
+            return self.render_to_response(self.get_context_data(form=form))
 
-                messages.success(request, 'Your profile has been updated.')
-                self.request.user = user
-            else:
-                messages.info(request, 'Your profile has not been edited.')
-
+        # Get a list of all projects owned by the user.
+        # projects = Project.objects.get(creator_id=user.id)
+        #
+        # # Set the owner of those objects to the anonymous user.
+        # # Cascade anonymous ownership to sub-objects.
+        # # Hard-delete the user.
+        #
+        #
+        # if form.is_valid():
+        #     if form.has_changed():
+        #         user.display_name = form.cleaned_data['display_name']
+        #         user.email = form.cleaned_data['email']
+        #         user.save()
+        #
+        #         if user.email != request.user.email:
+        #             try:
+        #                 EmailAddress.objects.get(user=user).change(
+        #                     request,
+        #                     user.email,
+        #                     confirm=True
+        #                 )
+        #             except EmailAddress.DoesNotExist:
+        #                 EmailAddress.objects.create(
+        #                     user=user,
+        #                     email=user.email
+        #                 ).send_confirmation(request)
+        #
+        #         messages.success(request, 'Your profile has been updated.')
+        #         self.request.user = user
+        #     else:
+        #         messages.info(request, 'Your profile has not been edited.')
+        #
         return self.render_to_response(self.get_context_data(form=form))
 
 

@@ -1535,6 +1535,7 @@ class UserAPIViewTest(TestCase):
 class UserDeleteTest(TestCase):
 
     def setUp(self):
+        self.factory = APIRequestFactory()
         self.admin = UserFactory.create()
         self.contributor_no_contributions = UserFactory.create()
         self.contributor_with_contributions = UserFactory.create()
@@ -1542,25 +1543,48 @@ class UserDeleteTest(TestCase):
             add_admins=[self.admin],
             add_contributors=[self.contributor_with_contributions]
         )
-        self.usergroup = UserGroupFactory.create(**{'project': self.project})
+        self.view = DeleteUser.as_view()
+        self.url = reverse('admin:delete_user',)
 
-    def test_delete_contributor_with_no_contributions(self):
+    def _post(self, data, user):
+        request = self.factory.post(
+            self.url, json.dumps(data), content_type='application/json')
+        request.user = user
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+        force_authenticate(request, user=user)
         view = DeleteUser.as_view()
-        url = reverse(
-            'admin:delete_user',
-        )
-        request = APIRequestFactory().get(url, user_id=self.contributor_no_contributions.id)
+        return view(request).render()
+
+    def test_correct_template_reponse(self):
+        request = APIRequestFactory().get(self.url, user_id=self.contributor_no_contributions.id)
         request.user = self.contributor_no_contributions
 
         setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
 
-        response = view(
+        response = self.view(
             request,
             user_id=self.contributor_no_contributions.id)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "You are about to delete your user account")
+
+    def test_superuser_not_deleted(self):
+        #request = APIRequestFactory().get(self.url, user_id=self.admin)
+        #request.user = self.admin
+        #setattr(request, 'session', 'session')
+        #messages = FallbackStorage(request)
+        #setattr(request, '_messages', messages)
+
+        # TODO: Include form here?
+        data = {}
+        response = self._post(data=data, user=self.admin)
+
+        self.assertEqual(response.status_code, 200)
+        messages = get_messages(response)
+        self.assertEqual(len(messages), 1)
 
 
