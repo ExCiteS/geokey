@@ -600,16 +600,6 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
             messages.info(request, 'Superuser cannot be deleted. Another superuser must first revoke superuser status.')
             return self.render_to_response(self.get_context_data(form=form))
 
-        # Check user is not AnonymousUser - shouldn't be possible.
-        if user.is_anonymous:
-            messages.info(request, 'AnonymousUser cannot be deleted.')
-            return self.render_to_response(self.get_context_data(form=form))
-
-        # Check user is authenticated.
-        if not user.is_authenticated:
-            messages.info(request, 'The user is not authenticated, so cannot be deleted.')
-            return self.render_to_response(self.get_context_data(form=form))
-
         # Get a list of all projects owned by the user.
         # projects = Project.objects.get(creator_id=user.id)
         #

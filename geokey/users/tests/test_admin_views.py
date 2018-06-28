@@ -1583,8 +1583,7 @@ class UserDeleteTest(TestCase):
         self.request.POST = {
             'filters': '{ "%s": { } }' % self.admin.id
         }
-        response = self.view(
-            self.request).render()
+        response = self.view(self.request).render()
 
         self.assertEqual(response.status_code, 200)
         messages = get_messages(self.request)
