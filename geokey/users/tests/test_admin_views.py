@@ -13,7 +13,7 @@ from django.core import mail
 from django.template.loader import render_to_string
 from django.test.utils import override_settings
 from django.contrib.sites.shortcuts import get_current_site
-from django.contrib.messages import get_messages
+from django.contrib.messages import get_messages, INFO
 from django.contrib.messages.storage.fallback import FallbackStorage
 
 from nose.tools import raises
@@ -1536,7 +1536,12 @@ class UserDeleteTest(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = UserFactory.create()
+
+        self.request = HttpRequest()
+        self.request.method = 'GET'
+        self.request.user = AnonymousUser()
+
+        self.admin = UserFactory.create(is_superuser=True)
         self.contributor_no_contributions = UserFactory.create()
         self.contributor_with_contributions = UserFactory.create()
         self.project = ProjectFactory.create(
@@ -1545,6 +1550,10 @@ class UserDeleteTest(TestCase):
         )
         self.view = DeleteUser.as_view()
         self.url = reverse('admin:delete_user',)
+
+        setattr(self.request, 'session', 'session')
+        messages = FallbackStorage(self.request)
+        setattr(self.request, '_messages', messages)
 
     def _post(self, data, user):
         request = self.factory.post(
@@ -1557,13 +1566,9 @@ class UserDeleteTest(TestCase):
         view = DeleteUser.as_view()
         return view(request).render()
 
-    def test_correct_template_reponse(self):
+    def test_correct_template_response(self):
         request = APIRequestFactory().get(self.url, user_id=self.contributor_no_contributions.id)
         request.user = self.contributor_no_contributions
-
-        setattr(request, 'session', 'session')
-        messages = FallbackStorage(request)
-        setattr(request, '_messages', messages)
 
         response = self.view(
             request,
@@ -1573,18 +1578,18 @@ class UserDeleteTest(TestCase):
         self.assertContains(response, "You are about to delete your user account")
 
     def test_superuser_not_deleted(self):
-        #request = APIRequestFactory().get(self.url, user_id=self.admin)
-        #request.user = self.admin
-        #setattr(request, 'session', 'session')
-        #messages = FallbackStorage(request)
-        #setattr(request, '_messages', messages)
-
-        # TODO: Include form here?
-        data = {}
-        response = self._post(data=data, user=self.admin)
+        self.request.user = self.admin
+        self.request.method = 'POST'
+        self.request.POST = {
+            'filters': '{ "%s": { } }' % self.admin.id
+        }
+        response = self.view(
+            self.request).render()
 
         self.assertEqual(response.status_code, 200)
-        messages = get_messages(response)
-        self.assertEqual(len(messages), 1)
-
-
+        messages = get_messages(self.request)
+        self.assertEqual(len(messages._loaded_messages), 1)
+        for message in messages:
+            self.assertEqual(INFO, message.level)
+            self.assertEqual("Superuser cannot be deleted. Another superuser must first revoke superuser status.",
+                             message.message)
