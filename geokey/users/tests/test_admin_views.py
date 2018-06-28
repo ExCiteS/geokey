@@ -13,7 +13,7 @@ from django.core import mail
 from django.template.loader import render_to_string
 from django.test.utils import override_settings
 from django.contrib.sites.shortcuts import get_current_site
-from django.contrib.messages import get_messages, INFO
+from django.contrib.messages import get_messages, INFO, WARNING
 from django.contrib.messages.storage.fallback import FallbackStorage
 
 from nose.tools import raises
@@ -25,6 +25,7 @@ from allauth.socialaccount.models import SocialApp, SocialAccount
 
 from geokey import version
 from geokey.core.tests.helpers import render_helpers
+from geokey.projects.models import Project
 from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.categories.tests.model_factories import CategoryFactory
 
@@ -1542,11 +1543,11 @@ class UserDeleteTest(TestCase):
         self.request.user = AnonymousUser()
 
         self.admin = UserFactory.create(is_superuser=True)
-        self.contributor_no_contributions = UserFactory.create()
-        self.contributor_with_contributions = UserFactory.create()
+        self.user_no_contributions = UserFactory.create()
+        self.user_with_contributions = UserFactory.create()
         self.project = ProjectFactory.create(
             add_admins=[self.admin],
-            add_contributors=[self.contributor_with_contributions]
+            add_contributors=[self.user_with_contributions]
         )
         self.view = DeleteUser.as_view()
         self.url = reverse('admin:delete_user',)
@@ -1567,12 +1568,12 @@ class UserDeleteTest(TestCase):
         return view(request).render()
 
     def test_correct_template_response(self):
-        request = APIRequestFactory().get(self.url, user_id=self.contributor_no_contributions.id)
-        request.user = self.contributor_no_contributions
+        request = APIRequestFactory().get(self.url, user_id=self.user_no_contributions.id)
+        request.user = self.user_no_contributions
 
         response = self.view(
             request,
-            user_id=self.contributor_no_contributions.id)
+            user_id=self.user_no_contributions.id)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "You are about to delete your user account")
@@ -1585,6 +1586,24 @@ class UserDeleteTest(TestCase):
         }
         response = self.view(self.request).render()
 
+        self.assertEqual(response.status_code, 200)
+        messages = get_messages(self.request)
+        self.assertEqual(len(messages._loaded_messages), 1)
+        for message in messages:
+            self.assertEqual(WARNING, message.level)
+            self.assertEqual("Superuser cannot be deleted. Another superuser must first revoke superuser status.",
+                             message.message)
+
+    def test_user_project_deleted(self):
+        self.request.user = self.user_with_contributions
+        self.request.method = 'POST'
+        self.request.POST = {
+            'filters': '{ "%s": { } }' % self.user_with_contributions.id
+        }
+        response = self.view(self.request).render()
+
+        projects_before = Project.objects.get(creator_id=self.user_with_contributions.id)
+        self.assertGreater(0, len(projects_before))
         self.assertEqual(response.status_code, 200)
         messages = get_messages(self.request)
         self.assertEqual(len(messages._loaded_messages), 1)

@@ -597,11 +597,12 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
 
         # Check user is not superuser (superuser delete only?)
         if user.is_superuser:
-            messages.info(request, 'Superuser cannot be deleted. Another superuser must first revoke superuser status.')
+            messages.warning(request, 'Superuser cannot be deleted. '
+                                      'Another superuser must first revoke superuser status.')
             return self.render_to_response(self.get_context_data(form=form))
 
         # Get a list of all projects owned by the user.
-        # projects = Project.objects.get(creator_id=user.id)
+        projects = Project.objects.get(creator_id=user.id)
         #
         # # Set the owner of those objects to the anonymous user.
         # # Cascade anonymous ownership to sub-objects.
