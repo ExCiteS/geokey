@@ -601,10 +601,16 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
                                       'Another superuser must first revoke superuser status.')
             return self.render_to_response(self.get_context_data(form=form))
 
-        # Get the ID of the AnonymousUser.
-        anon_user = User.objects.get_or_create(display_name='AnonymousUser')
+        # Get the ID of the Anonymous user. Not the same as Django AnonymousUser object.
+        anon_user_tuple = User.objects.get_or_create(display_name='Anonymous user',
+                                                     email='anon.user@anonuser.anon')
+        anon_user_tuple[0].save()
         # Get a list of all projects owned by the user.
         projects = Project.objects.filter(creator_id=user.id)
+
+        for proj in projects:
+            proj.creator_id = anon_user_tuple[0].id
+            proj.save(force_update=True)
 
         #
         # # Set the owner of those objects to the anonymous user.

@@ -1542,22 +1542,27 @@ class UserDeleteTest(TestCase):
         self.request.method = 'GET'
         self.request.user = AnonymousUser()
 
-        self.admin = UserFactory.create(is_superuser=True)
-        self.user_no_contributions = UserFactory.create()
-        self.user_with_contributions = UserFactory.create()
+        self.admin = UserFactory.create(is_superuser=True, **{'display_name': 'delete_test_admin_user'})
+        self.user_no_contributions = UserFactory.create(**{'display_name': 'delete_test_no_contribs_user'})
+        self.user_with_contributions = UserFactory.create(**{'display_name': 'delete_test_contribs_user'})
         self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.user_with_contributions],
             **{
-                'creator': self.user_with_contributions
+                'creator': self.user_with_contributions,
+                'name': 'user_delete_test_project1'
             }
         )
+        self.project.save()
         self.view = DeleteUser.as_view()
         self.url = reverse('admin:delete_user',)
 
         setattr(self.request, 'session', 'session')
         messages = FallbackStorage(self.request)
         setattr(self.request, '_messages', messages)
+
+    def tearDown(self):
+        self.project.delete()
 
     def _post(self, data, user):
         request = self.factory.post(
@@ -1567,16 +1572,13 @@ class UserDeleteTest(TestCase):
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
         force_authenticate(request, user=user)
-        view = DeleteUser.as_view()
-        return view(request).render()
+
+        return self.view(request).render()
 
     def test_correct_template_response(self):
         request = APIRequestFactory().get(self.url, user_id=self.user_no_contributions.id)
         request.user = self.user_no_contributions
-
-        response = self.view(
-            request,
-            user_id=self.user_no_contributions.id)
+        response = self.view(request, user_id=self.user_no_contributions.id)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "You are about to delete your user account")
@@ -1598,9 +1600,12 @@ class UserDeleteTest(TestCase):
                              message.message)
 
     def test_user_project_assigned_to_anon(self):
-        projects_before = Project.objects.filter(creator_id=self.user_with_contributions.id)
-        self.assertGreater(len(projects_before), 0)
-        self.assertTrue(type(projects_before[0]) == Project)
+        input_projects = Project.objects.filter(creator_id=self.user_with_contributions.id)
+        self.assertGreater(len(input_projects), 0)
+        self.assertTrue(type(input_projects[0]) == Project)
+        # Check user owns all projects.
+        for proj in input_projects:
+            self.assertEqual(proj.creator_id, self.user_with_contributions.id)
 
         self.request.user = self.user_with_contributions
         self.request.method = 'POST'
@@ -1610,6 +1615,13 @@ class UserDeleteTest(TestCase):
         response = self.view(self.request).render()
 
         self.assertEqual(response.status_code, 200)
+        anon_user_tuple = User.objects.get_or_create(display_name='Anonymous user',
+                                                     email='anon.user@anonuser.anon')
+        # Check projects now assigned to anon.
+        output_projects = Project.objects.filter(creator_id=self.user_with_contributions.id)
+        for proj in output_projects:
+            self.assertEqual(proj.creator_id, anon_user_tuple[0].id)
+
         messages = get_messages(self.request)
         # self.assertEqual(len(messages._loaded_messages), 1)
         # for message in messages:
