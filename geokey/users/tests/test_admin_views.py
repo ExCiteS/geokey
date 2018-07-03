@@ -25,6 +25,7 @@ from allauth.socialaccount.models import SocialApp, SocialAccount
 
 from geokey import version
 from geokey.categories.models import Category
+from geokey.contributions.models import Location
 from geokey.core.tests.helpers import render_helpers
 from geokey.projects.models import Project
 from geokey.projects.tests.model_factories import ProjectFactory
@@ -1652,4 +1653,25 @@ class UserDeleteTest(TestCase):
         for cat in output_categories:
             self.assertEqual(cat.creator_id, anon_user_tuple[0].id)
 
+    def test_user_location_assigned_to_anon(self):
+        input_categories = Location.objects.filter(creator_id=self.user_with_contributions.id)
+        self.assertGreater(len(input_categories), 0)
+        self.assertTrue(type(input_categories[0]) == Location)
+        # Check user owns all categories.
+        for cat in input_categories:
+            self.assertEqual(cat.creator_id, self.user_with_contributions.id)
 
+        self.request.user = self.user_with_contributions
+        self.request.method = 'POST'
+        self.request.POST = {
+            'filters': '{ "%s": { } }' % self.user_with_contributions.id
+        }
+        response = self.view(self.request).render()
+
+        self.assertEqual(response.status_code, 200)
+        anon_user_tuple = User.objects.get_or_create(display_name='Anonymous user',
+                                                     email='anon.user@anonuser.anon')
+        # Check categories now assigned to anon.
+        output_categories = Location.objects.filter(creator_id=self.user_with_contributions.id)
+        for cat in output_categories:
+            self.assertEqual(cat.creator_id, anon_user_tuple[0].id)

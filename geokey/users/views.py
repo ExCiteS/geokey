@@ -578,6 +578,21 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
         """
         return super(DeleteUser, self).get_context_data()
 
+    @staticmethod
+    def _assign_to_anon(model_list, user):
+        # Get the ID of the Anonymous user. Not the same as Django AnonymousUser object.
+        anon_user_tuple = User.objects.get_or_create(display_name='Anonymous user',
+                                                     email='anon.user@anonuser.anon')
+        anon_user_tuple[0].save()
+
+        for model in model_list:
+            # Get a list of all projects owned by the user.
+            obj_list = model.objects.filter(creator_id=user.id)
+
+            for obj in obj_list:
+                obj.creator_id = anon_user_tuple[0].id
+                obj.save(force_update=True)
+
     def post(self, request):
         """
         Delete user profile.
@@ -603,24 +618,8 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
             return self.render_to_response(self.get_context_data(form=form))
 
         # Get the ID of the Anonymous user. Not the same as Django AnonymousUser object.
-        anon_user_tuple = User.objects.get_or_create(display_name='Anonymous user',
-                                                     email='anon.user@anonuser.anon')
-        anon_user_tuple[0].save()
-        # Get a list of all projects owned by the user.
-        projects = Project.objects.filter(creator_id=user.id)
+        DeleteUser._assign_to_anon(model_list=[Project, Category], user=user)
 
-        for proj in projects:
-            proj.creator_id = anon_user_tuple[0].id
-            proj.save(force_update=True)
-
-        # Get a list of all projects owned by the user.
-        categories = Category.objects.filter(creator_id=user.id)
-
-        # for cat in categories:
-        #     cat.creator_id = anon_user_tuple[0].id
-        #     cat.save(force_update=True)
-
-        #
 
         #
         # # Set the owner of those objects to the anonymous user.
