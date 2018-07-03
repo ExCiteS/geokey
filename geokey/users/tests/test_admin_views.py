@@ -1555,6 +1555,12 @@ class UserDeleteTest(TestCase):
             }
         )
         self.project.save()
+        self.project = CategoryFactory.create(
+            **{
+                'creator': self.user_with_contributions,
+                'name': 'user_delete_test_category1'
+            }
+        )
         self.view = DeleteUser.as_view()
         self.url = reverse('admin:delete_user',)
 

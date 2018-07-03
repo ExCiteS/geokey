@@ -21,6 +21,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from geokey.applications.models import Application
+from geokey.categories.models import Category
 
 from geokey.projects.views import ProjectContext
 from geokey.core.decorators import (
@@ -611,6 +612,15 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
         for proj in projects:
             proj.creator_id = anon_user_tuple[0].id
             proj.save(force_update=True)
+
+        # Get a list of all projects owned by the user.
+        categories = Category.objects.filter(creator_id=user.id)
+
+        # for cat in categories:
+        #     cat.creator_id = anon_user_tuple[0].id
+        #     cat.save(force_update=True)
+
+        #
 
         #
         # # Set the owner of those objects to the anonymous user.
