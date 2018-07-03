@@ -25,8 +25,8 @@ from allauth.socialaccount.models import SocialApp, SocialAccount
 
 from geokey import version
 from geokey.categories.models import Category
-from geokey.contributions.models import Location
-from geokey.contributions.tests.model_factories import LocationFactory
+from geokey.contributions.models import Location, MediaFile, Comment
+from geokey.contributions.tests.model_factories import LocationFactory, CommentFactory
 from geokey.core.tests.helpers import render_helpers
 from geokey.projects.models import Project
 from geokey.projects.tests.model_factories import ProjectFactory
@@ -1558,9 +1558,10 @@ class UserDeleteTest(TestCase):
                                                   'name': 'user_delete_test_category1'}).save()
         self.location = LocationFactory.create(**{'creator': self.user_with_contributions,
                                                   'name': 'user_delete_test_location1'}).save()
-
-        self.comment = None
-        self.media_file = None
+        self.comment = CommentFactory.create(**{'creator': self.user_with_contributions,
+                                                'text': 'user_delete_test_location1'}).save()
+        #self.media_file = MediaFile.objects.create(name='TestMediaFile1', creator=self.user_with_contributions,)
+        self.observation = None
         self.social_post = None
         self.social_pull = None
         self.subset = None
@@ -1677,3 +1678,27 @@ class UserDeleteTest(TestCase):
         output_locations = Location.objects.filter(creator_id=self.user_with_contributions.id)
         for loc in output_locations:
             self.assertEqual(loc.creator_id, anon_user_tuple[0].id)
+
+    def test_user_comment_assigned_to_anon(self):
+        input_comments = Comment.objects.filter(creator_id=self.user_with_contributions.id)
+        self.assertGreater(len(input_comments), 0)
+        self.assertTrue(type(input_comments[0]) == Comment)
+        # Check user owns all comments.
+        for com in input_comments:
+            self.assertEqual(com.creator_id, self.user_with_contributions.id)
+
+        self.request.user = self.user_with_contributions
+        self.request.method = 'POST'
+        self.request.POST = {
+            'filters': '{ "%s": { } }' % self.user_with_contributions.id
+        }
+        response = self.view(self.request).render()
+
+        self.assertEqual(response.status_code, 200)
+        anon_user_tuple = User.objects.get_or_create(display_name='Anonymous user',
+                                                     email='anon.user@anonuser.anon')
+        # Check comments now assigned to anon.
+        output_comments = Comment.objects.filter(creator_id=self.user_with_contributions.id)
+        for com in output_comments:
+            self.assertEqual(com.creator_id, anon_user_tuple[0].id)
+
