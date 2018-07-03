@@ -13,7 +13,7 @@ from django.core import mail
 from django.template.loader import render_to_string
 from django.test.utils import override_settings
 from django.contrib.sites.shortcuts import get_current_site
-from django.contrib.messages import get_messages, INFO, WARNING
+from django.contrib.messages import get_messages, WARNING
 from django.contrib.messages.storage.fallback import FallbackStorage
 
 from nose.tools import raises
@@ -26,6 +26,7 @@ from allauth.socialaccount.models import SocialApp, SocialAccount
 from geokey import version
 from geokey.categories.models import Category
 from geokey.contributions.models import Location
+from geokey.contributions.tests.model_factories import LocationFactory
 from geokey.core.tests.helpers import render_helpers
 from geokey.projects.models import Project
 from geokey.projects.tests.model_factories import ProjectFactory
@@ -1547,21 +1548,22 @@ class UserDeleteTest(TestCase):
         self.admin = UserFactory.create(is_superuser=True, **{'display_name': 'delete_test_admin_user'})
         self.user_no_contributions = UserFactory.create(**{'display_name': 'delete_test_no_contribs_user'})
         self.user_with_contributions = UserFactory.create(**{'display_name': 'delete_test_contribs_user'})
+        # TODO: Also remove user from admins and contributors.
         self.project = ProjectFactory.create(
             add_admins=[self.admin],
             add_contributors=[self.user_with_contributions],
-            **{
-                'creator': self.user_with_contributions,
-                'name': 'user_delete_test_project1'
-            }
-        )
-        self.project.save()
-        self.project = CategoryFactory.create(
-            **{
-                'creator': self.user_with_contributions,
-                'name': 'user_delete_test_category1'
-            }
-        )
+            **{'creator': self.user_with_contributions, 'name': 'user_delete_test_project1'}
+        ).save()
+        self.category = CategoryFactory.create(**{'creator': self.user_with_contributions,
+                                                  'name': 'user_delete_test_category1'}).save()
+        self.location = LocationFactory.create(**{'creator': self.user_with_contributions,
+                                                  'name': 'user_delete_test_location1'}).save()
+
+        self.comment = None
+        self.media_file = None
+        self.social_post = None
+        self.social_pull = None
+        self.subset = None
         self.view = DeleteUser.as_view()
         self.url = reverse('admin:delete_user',)
 
@@ -1570,7 +1572,7 @@ class UserDeleteTest(TestCase):
         setattr(self.request, '_messages', messages)
 
     def tearDown(self):
-        self.project.delete()
+        pass
 
     def _post(self, data, user):
         request = self.factory.post(
@@ -1654,12 +1656,12 @@ class UserDeleteTest(TestCase):
             self.assertEqual(cat.creator_id, anon_user_tuple[0].id)
 
     def test_user_location_assigned_to_anon(self):
-        input_categories = Location.objects.filter(creator_id=self.user_with_contributions.id)
-        self.assertGreater(len(input_categories), 0)
-        self.assertTrue(type(input_categories[0]) == Location)
-        # Check user owns all categories.
-        for cat in input_categories:
-            self.assertEqual(cat.creator_id, self.user_with_contributions.id)
+        input_locations = Location.objects.filter(creator_id=self.user_with_contributions.id)
+        self.assertGreater(len(input_locations), 0)
+        self.assertTrue(type(input_locations[0]) == Location)
+        # Check user owns all locations.
+        for loc in input_locations:
+            self.assertEqual(loc.creator_id, self.user_with_contributions.id)
 
         self.request.user = self.user_with_contributions
         self.request.method = 'POST'
@@ -1671,7 +1673,7 @@ class UserDeleteTest(TestCase):
         self.assertEqual(response.status_code, 200)
         anon_user_tuple = User.objects.get_or_create(display_name='Anonymous user',
                                                      email='anon.user@anonuser.anon')
-        # Check categories now assigned to anon.
-        output_categories = Location.objects.filter(creator_id=self.user_with_contributions.id)
-        for cat in output_categories:
-            self.assertEqual(cat.creator_id, anon_user_tuple[0].id)
+        # Check locations now assigned to anon.
+        output_locations = Location.objects.filter(creator_id=self.user_with_contributions.id)
+        for loc in output_locations:
+            self.assertEqual(loc.creator_id, anon_user_tuple[0].id)

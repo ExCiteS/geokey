@@ -22,6 +22,7 @@ from rest_framework import status
 
 from geokey.applications.models import Application
 from geokey.categories.models import Category
+from geokey.contributions.models import Location
 
 from geokey.projects.views import ProjectContext
 from geokey.core.decorators import (
@@ -618,7 +619,7 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
             return self.render_to_response(self.get_context_data(form=form))
 
         # Get the ID of the Anonymous user. Not the same as Django AnonymousUser object.
-        DeleteUser._assign_to_anon(model_list=[Project, Category], user=user)
+        DeleteUser._assign_to_anon(model_list=[Project, Category, Location], user=user)
 
 
         #
