@@ -40,6 +40,9 @@ from .forms import (
     UserForm
 )
 
+from string import ascii_lowercase
+import random
+
 
 # ############################################################################
 #
@@ -618,11 +621,11 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
                                       'Another superuser must first revoke superuser status.')
             return self.render_to_response(self.get_context_data(form=form))
 
-        # Get the ID of the Anonymous user. Not the same as Django AnonymousUser object.
-        DeleteUser._assign_to_anon(
-            model_list=[Project, Category, Location, Comment],
-            user=user)
-
+        # Blank/default user fields.
+        random_string = ''.join(random.choice(ascii_lowercase) for _ in range(15))
+        user.email = random_string + '@' + 'deleteduser.email'
+        user.display_name = 'Deleted user ' + random_string
+        user.save()
 
         #
         # # Set the owner of those objects to the anonymous user.
