@@ -1,5 +1,5 @@
 """Views for users."""
-
+from datetime import datetime
 from json import loads as json_loads
 from django.views.generic import TemplateView, CreateView
 from django.shortcuts import redirect
@@ -622,9 +622,14 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
             return self.render_to_response(self.get_context_data(form=form))
 
         # Blank/default user fields.
-        random_string = ''.join(random.choice(ascii_lowercase) for _ in range(15))
+        random_string = ''.join(random.choice(ascii_lowercase) for _ in range(12))
+        random_password = ''.join(random.choice(ascii_lowercase) for _ in range(15))
         user.email = random_string + '@' + 'deleteduser.email'
         user.display_name = 'Deleted user ' + random_string
+        user.date_joined = datetime.strptime('2018-04-01 11:11:11.111111', '%Y-%m-%d %H:%M:%S.%f')
+        user.last_login = datetime.strptime('2018-04-01 11:11:11.111111', '%Y-%m-%d %H:%M:%S.%f')
+        user.is_active = False
+        user.reset_password(password=random_password)
         user.save()
 
         #
