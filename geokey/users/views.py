@@ -1,6 +1,8 @@
 """Views for users."""
 from datetime import datetime
 from json import loads as json_loads
+
+from django.contrib.auth import logout
 from django.views.generic import TemplateView, CreateView
 from django.shortcuts import redirect
 from django.core.exceptions import ValidationError
@@ -21,8 +23,6 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from geokey.applications.models import Application
-from geokey.categories.models import Category
-from geokey.contributions.models import Location, Comment
 
 from geokey.projects.views import ProjectContext
 from geokey.core.decorators import (
@@ -628,6 +628,7 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
         user.display_name = 'Deleted user ' + random_numbers
         user.date_joined = datetime.strptime('2018-04-01 11:11:11.111111', '%Y-%m-%d %H:%M:%S.%f')
         user.last_login = datetime.now()
+        logout(request)
         user.is_active = False
         user.reset_password(password=random_password)
         user.save()
