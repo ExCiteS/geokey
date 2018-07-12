@@ -622,12 +622,12 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
             return self.render_to_response(self.get_context_data(form=form))
 
         # Blank/default user fields.
-        random_string = ''.join(random.choice(ascii_lowercase) for _ in range(8))
+        random_numbers = ''.join(str(random.choice(range(10))) for _ in range(8))
         random_password = ''.join(random.choice(ascii_lowercase) for _ in range(15))
-        user.email = random_string + '@' + 'deleteduser.email'
-        user.display_name = 'Deleted user ' + random_string
+        user.email = random_numbers + '@' + 'deleteduser.email'
+        user.display_name = 'Deleted user ' + random_numbers
         user.date_joined = datetime.strptime('2018-04-01 11:11:11.111111', '%Y-%m-%d %H:%M:%S.%f')
-        user.last_login = datetime.strptime('2018-04-01 11:11:11.111111', '%Y-%m-%d %H:%M:%S.%f')
+        user.last_login = datetime.now()
         user.is_active = False
         user.reset_password(password=random_password)
         user.save()

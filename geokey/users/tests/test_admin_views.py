@@ -1625,7 +1625,8 @@ class UserDeleteTest(TestCase):
         self.assertEqual(result_user.display_name[:12], 'Deleted user')
         self.assertEqual(result_user.email[-17:], 'deleteduser.email')
         self.assertEqual(result_user.date_joined.strftime('%Y-%m-%d %H:%M:%S.%f'), '2018-04-01 11:11:11.111111')
-        self.assertEqual(result_user.last_login.strftime('%Y-%m-%d %H:%M:%S.%f'), '2018-04-01 11:11:11.111111')
+        self.assertAlmostEqual(datetime.strftime(result_user.last_login, '%Y-%m-%d %H:%M'),
+                               datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M'))
         self.assertFalse(result_user.is_active, msg="User should no longer be active.")
 
         access_tokens = AccessToken.objects.filter(user=result_user)
