@@ -26,11 +26,7 @@ from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialApp, SocialAccount
 
 from geokey import version
-from geokey.categories.models import Category
-from geokey.contributions.models import Location, MediaFile, Comment, Observation
-from geokey.contributions.tests.model_factories import LocationFactory, CommentFactory, ObservationFactory
 from geokey.core.tests.helpers import render_helpers
-from geokey.projects.models import Project
 from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.categories.tests.model_factories import CategoryFactory
 
@@ -1633,7 +1629,4 @@ class UserDeleteTest(TestCase):
         self.assertFalse(result_user.is_active, msg="User should no longer be active.")
 
         access_tokens = AccessToken.objects.filter(user=result_user)
-        print(len(access_tokens))
         self.assertEqual(len(access_tokens), 0, msg="Access tokens for user should be removed.")
-
-

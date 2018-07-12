@@ -615,14 +615,14 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
         user = User.objects.get(pk=request.user.pk)
         form = UserForm(request.POST, instance=user)
 
-        # Check user is not superuser (superuser delete only?)
+        # Check user is not superuser
         if user.is_superuser:
             messages.warning(request, 'Superuser cannot be deleted. '
                                       'Another superuser must first revoke superuser status.')
             return self.render_to_response(self.get_context_data(form=form))
 
         # Blank/default user fields.
-        random_string = ''.join(random.choice(ascii_lowercase) for _ in range(12))
+        random_string = ''.join(random.choice(ascii_lowercase) for _ in range(8))
         random_password = ''.join(random.choice(ascii_lowercase) for _ in range(15))
         user.email = random_string + '@' + 'deleteduser.email'
         user.display_name = 'Deleted user ' + random_string
@@ -632,36 +632,6 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
         user.reset_password(password=random_password)
         user.save()
 
-        #
-        # # Set the owner of those objects to the anonymous user.
-        # # Cascade anonymous ownership to sub-objects.
-        # # Hard-delete the user.
-        #
-        #
-        # if form.is_valid():
-        #     if form.has_changed():
-        #         user.display_name = form.cleaned_data['display_name']
-        #         user.email = form.cleaned_data['email']
-        #         user.save()
-        #
-        #         if user.email != request.user.email:
-        #             try:
-        #                 EmailAddress.objects.get(user=user).change(
-        #                     request,
-        #                     user.email,
-        #                     confirm=True
-        #                 )
-        #             except EmailAddress.DoesNotExist:
-        #                 EmailAddress.objects.create(
-        #                     user=user,
-        #                     email=user.email
-        #                 ).send_confirmation(request)
-        #
-        #         messages.success(request, 'Your profile has been updated.')
-        #         self.request.user = user
-        #     else:
-        #         messages.info(request, 'Your profile has not been edited.')
-        #
         return self.render_to_response(self.get_context_data(form=form))
 
 
