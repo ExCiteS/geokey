@@ -7,12 +7,8 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 
 ADD /geokey/local_settings /app/local_settings
 ADD /geokey /app
-# Uncomment for communitymaps.
-# ADD /geokey-communitymaps /extensions/geokey-communitymaps
 
 WORKDIR /app
 RUN pip install -r requirements.txt
 RUN pip install -r requirements-dev.txt
 RUN pip install -e /app
-# Uncomment for communitymaps.
-# RUN pip install -e /extensions/geokey-communitymaps
