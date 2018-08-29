@@ -1579,7 +1579,6 @@ class UserDeleteTest(TestCase):
         request = self.factory.post(
             self.url, json.dumps(data), content_type='application/json')
         request.user = user
-        setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
         force_authenticate(request, user=user)
@@ -1616,6 +1615,11 @@ class UserDeleteTest(TestCase):
         self.request.POST = {
             'filters': '{ "%s": { } }' % self.user_with_contributions.id
         }
+        session = self.client.session
+        session['_language'] = 'en'
+        session.save()
+        setattr(self.request, 'session', session)
+
         user_id = self.user_with_contributions.id
         response = self.view(self.request).render()
 
