@@ -146,7 +146,8 @@ ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/admin/dashboard/'
 ACCOUNT_FORMS = {
     'signup': 'geokey.users.forms.UserRegistrationForm',
     'change_password': 'geokey.users.forms.CustomPasswordChangeForm',
-    'reset_password_from_key': 'geokey.users.forms.CustomResetPasswordKeyForm'
+    'reset_password_from_key': 'geokey.users.forms.CustomResetPasswordKeyForm',
+    'delete_account': 'geokey.users.forms.UserDeleteAccount'
 }
 SOCIALACCOUNT_ADAPTER = 'geokey.core.adapters.SocialAccountAdapter'
 SOCIALACCOUNT_QUERY_EMAIL = True

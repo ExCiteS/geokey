@@ -1,6 +1,8 @@
 """Views for users."""
-
+from datetime import datetime
 from json import loads as json_loads
+
+from django.contrib.auth import logout
 from django.views.generic import TemplateView, CreateView
 from django.shortcuts import redirect
 from django.core.exceptions import ValidationError
@@ -37,6 +39,9 @@ from .forms import (
     UserRegistrationForm,
     UserForm
 )
+
+from string import ascii_lowercase
+import random
 
 
 # ############################################################################
@@ -558,6 +563,75 @@ class UserProfile(LoginRequiredMixin, TemplateView):
                 self.request.user = user
             else:
                 messages.info(request, 'Your profile has not been edited.')
+
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class DeleteUser(LoginRequiredMixin, TemplateView):
+    """User self-delete page."""
+
+    template_name = 'account/delete_account.html'
+
+    def get_context_data(self, *args, **kwargs):
+        """
+        Return the context to render the view.
+
+        Returns
+        -------
+        dict
+        """
+        return super(DeleteUser, self).get_context_data()
+
+    @staticmethod
+    def _assign_to_anon(model_list, user):
+        # Get the ID of the Anonymous user. Not the same as Django AnonymousUser object.
+        anon_user_tuple = User.objects.get_or_create(display_name='Anonymous user',
+                                                     email='anon.user@anonuser.anon')
+        anon_user_tuple[0].save()
+
+        for model in model_list:
+            # Get a list of all projects owned by the user.
+            obj_list = model.objects.filter(creator_id=user.id)
+
+            for obj in obj_list:
+                obj.creator_id = anon_user_tuple[0].id
+                obj.save(force_update=True)
+
+    def post(self, request):
+        """
+        Delete user profile.
+
+        Parameters
+        ----------
+        request : django.http.HttpRequest
+            Object representing the request.
+
+        Returns
+        -------
+        django.http.HttpResponse
+            Rendered template.
+        """
+        # Get user and form info.
+        user = User.objects.get(pk=request.user.pk)
+        form = UserForm(request.POST, instance=user)
+
+        # Check user is not superuser
+        if user.is_superuser:
+            messages.warning(request, 'Superuser cannot be deleted. '
+                                      'Another superuser must first revoke superuser status.')
+            return self.render_to_response(self.get_context_data(form=form))
+
+        # Blank/default user fields.
+        random_numbers = ''.join(str(random.choice(range(10))) for _ in range(8))
+        random_password = ''.join(random.choice(ascii_lowercase) for _ in range(15))
+        user.email = random_numbers + '@' + 'deleteduser.email'
+        user.display_name = 'Deleted user ' + random_numbers
+        user.date_joined = datetime.strptime('2018-04-01 11:11:11.111111', '%Y-%m-%d %H:%M:%S.%f')
+        user.last_login = datetime.now()
+        logout(request)
+        user.is_active = False
+        user.reset_password(password=random_password)
+        user.save()
 
         return self.render_to_response(self.get_context_data(form=form))
 
