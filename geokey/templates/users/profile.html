@@ -34,9 +34,7 @@
                         <label for="display_name">Display name</label>
                         <input type="text" class="form-control input-lg" id="display_name" name="display_name"
                                maxlength="50"
-                               value="
-
-                                   {% if form.data.display_name %}{{ form.data.display_name }}{% else %}{{ user.display_name }}{% endif %}"
+                               value="{% if form.data.display_name %}{{ form.data.display_name }}{% else %}{{ user.display_name }}{% endif %}"
                                required/>
                         {% if form.display_name.errors %}
                             <span class="help-block">{{ form.display_name.errors|striptags }}</span>{% endif %}
