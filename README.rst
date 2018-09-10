@@ -89,6 +89,8 @@ Note that for Ubuntu 16.04, you don't need to add the repo and can install 9.5:
 
 For Ubuntu you might also need to install *libavcodec-extra-52* or *libavcodec-extra-53*.
 
+For Ubuntu 18.04 you may have to use the `_following advice <https://askubuntu.com/a/1070698/89097>__` if installing *libav-tools* doesn't work and you can't find avconv.
+
 
 Setup database
 ==============
