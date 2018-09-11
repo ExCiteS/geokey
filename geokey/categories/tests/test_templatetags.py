@@ -47,7 +47,7 @@ class OnlyFieldsTest(TestCase):
 
         date_fields = filter_fields.only_fields(
             all_fields,
-            (', ').join(type_names)
+            ', '.join(type_names)
         )
         self.assertEqual(len(date_fields), len(type_names))
         for field in date_fields:
@@ -86,6 +86,6 @@ class ExceptFieldsTest(TestCase):
 
         date_fields = filter_fields.except_fields(
             all_fields,
-            (', ').join(type_names)
+            ', '.join(type_names)
         )
         self.assertEqual(len(date_fields), 0)
