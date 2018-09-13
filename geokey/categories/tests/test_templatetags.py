@@ -2,6 +2,7 @@
 
 from django.test import TestCase
 
+from geokey.categories.models import Field
 from geokey.categories.templatetags import filter_fields
 from geokey.categories.tests.model_factories import (
     CategoryFactory,
@@ -66,7 +67,7 @@ class ExceptFieldsTest(TestCase):
         LookupFieldFactory(category=category)
         MultipleLookupFieldFactory(category=category)
 
-        all_fields = category.fields.all()
+        all_fields = Field.objects.filter(category=category).select_subclasses()
 
         type_names = [
             'Text',
@@ -79,13 +80,13 @@ class ExceptFieldsTest(TestCase):
         ]
 
         for type_name in type_names:
-            date_fields = filter_fields.except_fields(all_fields, type_name)
-            self.assertEqual(len(date_fields), len(type_names) - 1)
-            for field in date_fields:
+            remaining_fields = filter_fields.except_fields(all_fields, type_name)
+            self.assertEqual(len(remaining_fields), len(type_names) - 1)
+            for field in remaining_fields:
                 self.assertNotEqual(field.type_name, type_name)
 
         date_fields = filter_fields.except_fields(
-            all_fields,
-            ', '.join(type_names)
+            fields=all_fields,
+            type_names=', '.join(type_names)
         )
         self.assertEqual(len(date_fields), 0)
