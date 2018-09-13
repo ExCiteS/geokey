@@ -70,7 +70,6 @@ class DateTimeFieldFactory(factory.django.DjangoModelFactory):
     category = factory.SubFactory(CategoryFactory)
     status = 'active'
     required = False
-    type_name = 'Date and Time'
 
 
 class DateFieldFactory(factory.django.DjangoModelFactory):
@@ -83,7 +82,6 @@ class DateFieldFactory(factory.django.DjangoModelFactory):
     category = factory.SubFactory(CategoryFactory)
     status = 'active'
     required = False
-    type_name = 'Date'
 
 
 class TimeFieldFactory(factory.django.DjangoModelFactory):

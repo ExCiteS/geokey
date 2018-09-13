@@ -28,7 +28,7 @@ class OnlyFieldsTest(TestCase):
         LookupFieldFactory(category=category)
         MultipleLookupFieldFactory(category=category)
 
-        all_fields = category.fields.all()
+        all_fields = Field.objects.filter(category=category).select_subclasses()
 
         type_names = [
             'Text',
