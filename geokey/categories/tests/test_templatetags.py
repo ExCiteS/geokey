@@ -2,7 +2,6 @@
 
 from django.test import TestCase
 
-from geokey.categories.models import Field
 from geokey.categories.templatetags import filter_fields
 from geokey.categories.tests.model_factories import (
     CategoryFactory,
@@ -28,7 +27,7 @@ class OnlyFieldsTest(TestCase):
         LookupFieldFactory(category=category)
         MultipleLookupFieldFactory(category=category)
 
-        all_fields = Field.objects.filter(category=category).select_subclasses()
+        all_fields = category.fields.all().select_subclasses()
 
         type_names = [
             'Text',
@@ -67,7 +66,7 @@ class ExceptFieldsTest(TestCase):
         LookupFieldFactory(category=category)
         MultipleLookupFieldFactory(category=category)
 
-        all_fields = Field.objects.filter(category=category).select_subclasses()
+        all_fields = category.fields.all().select_subclasses()
 
         type_names = [
             'Text',
