@@ -72,7 +72,7 @@ class SingleContributionAPIViewTest(TestCase):
         )
 
     def test_approve_pending_with_admin_empty_properties(self):
-        self.observation.properties = None
+        self.observation.properties = {}
         self.observation.status = 'pending'
         self.observation.save()
 
