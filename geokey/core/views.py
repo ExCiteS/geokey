@@ -89,12 +89,9 @@ class InfoAPIView(APIView):
         """
         info = {'geokey': {}}
         info['geokey']['version'] = get_version()
-        info['geokey']['installed_extensions'] = map(
-            lambda (ext_id, ext): {
-                'name': ext_id,
-                'version': ext['version'] if 'version' in ext else None
-            },
-            extensions.iteritems()
-        )
+        info['geokey']['installed_extensions'] = [{
+                'name': ext_id_ext[0],
+                'version': ext_id_ext[1]['version'] if 'version' in ext_id_ext[1] else None
+            } for ext_id_ext in iter(list(extensions.items()))]
 
         return Response(info)
