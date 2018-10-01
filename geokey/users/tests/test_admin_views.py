@@ -445,7 +445,7 @@ class UserGroupDataTest(TestCase):
         resolved = resolve('/admin/projects/1/usergroups/1/data/')
         self.assertEqual(resolved.kwargs['project_id'], '1')
         self.assertEqual(resolved.kwargs['usergroup_id'], '1')
-        self.assertEqual(resolved.func.func_name, UserGroupData.__name__)
+        self.assertEqual(resolved.func.__name__, UserGroupData.__name__)
 
     def test_views_with_admin(self):
         usergroup = UserGroupFactory.create()
@@ -464,7 +464,7 @@ class UserGroupDataTest(TestCase):
             project_id=usergroup.project.id,
             usergroup_id=usergroup.id
         ).render()
-        response = render_helpers.remove_csrf(unicode(response.content))
+        response = render_helpers.remove_csrf(str(response.content))
 
         rendered = render_to_string(
             'users/usergroup_data.html',
@@ -493,7 +493,7 @@ class UserGroupDataTest(TestCase):
             project_id=usergroup.project.id,
             usergroup_id=usergroup.id
         ).render()
-        response = render_helpers.remove_csrf(unicode(response.content))
+        response = render_helpers.remove_csrf(str(response.content))
 
         ref = Group.objects.get(pk=usergroup.id)
 
@@ -529,7 +529,7 @@ class UserGroupDataTest(TestCase):
             project_id=usergroup.project.id,
             usergroup_id=usergroup.id
         ).render()
-        response = render_helpers.remove_csrf(unicode(response.content))
+        response = render_helpers.remove_csrf(str(response.content))
 
         ref = Group.objects.get(pk=usergroup.id)
 
@@ -575,7 +575,7 @@ class UserGroupDataTest(TestCase):
             project_id=usergroup.project.id,
             usergroup_id=usergroup.id
         ).render()
-        response = render_helpers.remove_csrf(unicode(response.content))
+        response = render_helpers.remove_csrf(str(response.content))
 
         rendered = render_to_string(
             'users/usergroup_data.html',
@@ -609,7 +609,7 @@ class UserGroupDataTest(TestCase):
             project_id=usergroup.project.id,
             usergroup_id=usergroup.id
         ).render()
-        response = render_helpers.remove_csrf(unicode(response.content))
+        response = render_helpers.remove_csrf(str(response.content))
 
         rendered = render_to_string(
             'users/usergroup_data.html',
@@ -642,7 +642,7 @@ class UserGroupDataTest(TestCase):
             project_id=usergroup.project.id,
             usergroup_id=usergroup.id
         ).render()
-        response = render_helpers.remove_csrf(unicode(response.content))
+        response = render_helpers.remove_csrf(str(response.content))
 
         rendered = render_to_string(
             'users/usergroup_data.html',
@@ -1465,7 +1465,7 @@ class UserAPIViewTest(TestCase):
             user_json.get('display_name'),
             self.data.get('display_name')
         )
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_sign_with_existing_email(self):
         UserFactory.create(**{
