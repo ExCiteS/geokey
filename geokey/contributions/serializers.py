@@ -134,8 +134,8 @@ class ContributionSerializer(BaseSerializer):
             Contribution properties with replaced null values
 
         """
-        for key, value in properties.iteritems():
-            if isinstance(value, (str, unicode)) and len(value) == 0:
+        for key, value in properties.items():
+            if isinstance(value, str) and len(value) == 0:
                 properties[key] = None
 
         return properties
@@ -170,7 +170,7 @@ class ContributionSerializer(BaseSerializer):
                 Observation.validate_partial(category, properties)
             else:
                 Observation.validate_full(category, properties)
-        except ValidationError, e:
+        except ValidationError as e:
             errors.append(e)
 
         self._validated_data['properties'] = properties
@@ -200,9 +200,9 @@ class ContributionSerializer(BaseSerializer):
                     project.id,
                     location_id
                 )
-        except PermissionDenied, error:
+        except PermissionDenied as error:
             errors.append(error)
-        except Location.DoesNotExist, error:
+        except Location.DoesNotExist as error:
             errors.append(error)
 
         if errors:

@@ -282,7 +282,7 @@ class Observation(models.Model):
 
         for field in self.category.fields.all().select_subclasses():
             value = None
-            if self.properties and field.key in self.properties.keys():
+            if self.properties and field.key in list(self.properties.keys()):
                 if field.fieldtype == 'TextField':
                     value = self.properties.get(field.key)
 

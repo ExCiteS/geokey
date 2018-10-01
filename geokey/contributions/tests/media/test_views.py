@@ -7,7 +7,7 @@ import glob
 from os.path import dirname, normpath, abspath, join
 
 from PIL import Image
-from StringIO import StringIO
+from io import StringIO
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse

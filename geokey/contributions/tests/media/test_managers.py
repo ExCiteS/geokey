@@ -4,7 +4,7 @@ import os
 import glob
 
 from PIL import Image
-from StringIO import StringIO
+from io import StringIO
 
 from django.core.files.base import ContentFile
 from django.test import TestCase

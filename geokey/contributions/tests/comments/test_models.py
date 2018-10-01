@@ -33,6 +33,6 @@ class CommentTest(TestCase):
         comment = CommentFactory()
         response = CommentFactory(**{'respondsto': comment})
         CommentFactory.create_batch(3, **{'respondsto': response})
-        self.assertEquals(len(Comment.objects.all()), 5)
+        self.assertEqual(len(Comment.objects.all()), 5)
         comment.delete()
-        self.assertEquals(len(Comment.objects.all()), 0)
+        self.assertEqual(len(Comment.objects.all()), 0)

@@ -56,7 +56,7 @@ class ImageFileTest(TestCase):
             image=get_image()
         )
         image_file.delete()
-        self.assertEquals(image_file.status, 'deleted')
+        self.assertEqual(image_file.status, 'deleted')
 
 
 class TestVideoFilePostSave(TestCase):
@@ -111,7 +111,7 @@ class VideoFileTest(TestCase):
             swf_link='http://example.com/1122323.swf'
         )
         video_file.delete()
-        self.assertEquals(video_file.status, 'deleted')
+        self.assertEqual(video_file.status, 'deleted')
 
 
 class TestAudioFilePostSave(TestCase):
@@ -158,4 +158,4 @@ class AudioFileTest(TestCase):
             audio=get_image()
         )
         audio_file.delete()
-        self.assertEquals(audio_file.status, 'deleted')
+        self.assertEqual(audio_file.status, 'deleted')

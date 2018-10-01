@@ -64,7 +64,7 @@ def kml_desc(place):
             except Field.DoesNotExist:
                 pass
 
-            if type(value) in [str, unicode]:
+            if type(value) in [str, str]:
                 value = value.encode('utf-8')
 
             if properties[key] is not None:

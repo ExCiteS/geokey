@@ -17,7 +17,7 @@ from oauth2client.client import OAuth2WebServerFlow
 from argparse import Namespace
 
 import httplib2
-import httplib
+import http.client
 
 from django.conf import settings
 
@@ -26,10 +26,10 @@ YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 RETRIABLE_EXCEPTIONS = (
-    httplib2.HttpLib2Error, IOError, httplib.NotConnected,
-    httplib.IncompleteRead, httplib.ImproperConnectionState,
-    httplib.CannotSendRequest, httplib.CannotSendHeader,
-    httplib.ResponseNotReady, httplib.BadStatusLine
+    httplib2.HttpLib2Error, IOError, http.client.NotConnected,
+    http.client.IncompleteRead, http.client.ImproperConnectionState,
+    http.client.CannotSendRequest, http.client.CannotSendHeader,
+    http.client.ResponseNotReady, http.client.BadStatusLine
 )
 
 
@@ -89,7 +89,7 @@ def my_flow_from_clientsecrets(client_info, scope, redirect_uri=None,
             client_info['client_id'], client_info['client_secret'],
             scope, **constructor_kwargs)
     except Exception as e:
-        print "error", e
+        print(("error", e))
 
 
 def resumable_upload(insert_request):
@@ -98,15 +98,15 @@ def resumable_upload(insert_request):
     error = None
     while response is None:
         try:
-            print "Uploading file..."
+            print("Uploading file...")
             status, response = insert_request.next_chunk()
             if response is not None:
                 if 'id' in response:
-                    print "Video id '%s' was successfully uploaded." %response['id']
+                    print(("Video id '%s' was successfully uploaded." %response['id']))
                     return response['id']
             else:
                 exit("The upload failed with an unexpected response: %s" % response)
-        except HttpError, e:
+        except HttpError as e:
             if e.resp.status in RETRIABLE_STATUS_CODES:
                 error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
             else:
@@ -130,7 +130,7 @@ def initialize_upload(youtube, options):
 
     # Call the API's videos.insert method to create and upload the video.
     insert_request = youtube.videos().insert(
-        part=",".join(body.keys()),
+        part=",".join(list(body.keys())),
         body=body,
         media_body=MediaFileUpload(options.file, chunksize=-1, resumable=True))
 
@@ -178,5 +178,5 @@ def get_authenticated_service():
             http=credentials.authorize(httplib2.Http()))
         return builded
     except Exception as e:
-        print "error", e
+        print(("error", e))
 

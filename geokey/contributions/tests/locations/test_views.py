@@ -59,21 +59,21 @@ class LocationApiTest(TestCase):
 
     def test_get_locations_with_admin(self):
         response = self._get(self.admin)
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
             len(json.loads(response.content).get('features')), 10
         )
 
     def test_get_locations_with_contributor(self):
         response = self._get(self.contributor)
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
             len(json.loads(response.content).get('features')), 10
         )
 
     def test_get_locations_with_non_member(self):
         response = self._get(self.non_member)
-        self.assertEquals(response.status_code, 404)
+        self.assertEqual(response.status_code, 404)
 
 
 class LocationQueryTest(TestCase):
