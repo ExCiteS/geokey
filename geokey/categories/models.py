@@ -314,7 +314,7 @@ class TextField(Field):
         -----
         Raises InputError if no value is provided
         """
-        if isinstance(value, str) or isinstance(value, unicode):
+        if isinstance(value, str):
             value = value.encode('utf-8')
 
         if self.status == STATUS.active and self.required and (
@@ -397,13 +397,13 @@ class NumericField(Field):
         -----
         Raises InputError if an invalid value is provided
         """
-        if isinstance(value, (str, unicode)) and len(value) == 0:
+        if isinstance(value, (str, bytes)) and len(value) == 0:
             value = None
 
         self.validate_required(value)
 
         if value is not None:
-            if isinstance(value, (str, unicode)):
+            if isinstance(value, (str, bytes)):
                 try:
                     value = float(value) if '.' in value else int(value)
                 except ValueError:
@@ -412,7 +412,7 @@ class NumericField(Field):
                         self.name
                     )
 
-            if isinstance(value, (int, long, float, complex)):
+            if isinstance(value, (int, float, complex)):
                 if self.minval and self.maxval and (
                         not (value >= self.minval) and (value <= self.maxval)):
                     raise InputError('The value provided for field %s must be '
@@ -871,7 +871,7 @@ class MultipleLookupField(Field):
         valid = True
 
         if provided_vals is not None:
-            if isinstance(provided_vals, (str, unicode)):
+            if isinstance(provided_vals, (str, bytes)):
                 provided_vals = json.loads(provided_vals)
 
             accepted_values = [value.id for value in self.lookupvalues.all()]
