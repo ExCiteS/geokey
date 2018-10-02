@@ -314,9 +314,6 @@ class TextField(Field):
         -----
         Raises InputError if no value is provided
         """
-        if isinstance(value, str):
-            value = value.encode('utf-8')
-
         if self.status == STATUS.active and self.required and (
                 value is None or len(str(value)) == 0):
             raise InputError('The field %s is required.' % self.name)
