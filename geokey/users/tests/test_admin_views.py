@@ -464,7 +464,7 @@ class UserGroupDataTest(TestCase):
             project_id=usergroup.project.id,
             usergroup_id=usergroup.id
         ).render()
-        response = render_helpers.remove_csrf(str(response.content))
+        response = render_helpers.remove_csrf(str(response.content.decode()))
 
         rendered = render_to_string(
             'users/usergroup_data.html',
@@ -493,7 +493,7 @@ class UserGroupDataTest(TestCase):
             project_id=usergroup.project.id,
             usergroup_id=usergroup.id
         ).render()
-        response = render_helpers.remove_csrf(str(response.content))
+        response = render_helpers.remove_csrf(response.content.decode())
 
         ref = Group.objects.get(pk=usergroup.id)
 
@@ -529,7 +529,7 @@ class UserGroupDataTest(TestCase):
             project_id=usergroup.project.id,
             usergroup_id=usergroup.id
         ).render()
-        response = render_helpers.remove_csrf(str(response.content))
+        response = render_helpers.remove_csrf(response.content.decode())
 
         ref = Group.objects.get(pk=usergroup.id)
 
@@ -575,7 +575,7 @@ class UserGroupDataTest(TestCase):
             project_id=usergroup.project.id,
             usergroup_id=usergroup.id
         ).render()
-        response = render_helpers.remove_csrf(str(response.content))
+        response = render_helpers.remove_csrf(str(response.content.decode()))
 
         rendered = render_to_string(
             'users/usergroup_data.html',
@@ -609,7 +609,7 @@ class UserGroupDataTest(TestCase):
             project_id=usergroup.project.id,
             usergroup_id=usergroup.id
         ).render()
-        response = render_helpers.remove_csrf(str(response.content))
+        response = render_helpers.remove_csrf(str(response.content.decode()))
 
         rendered = render_to_string(
             'users/usergroup_data.html',
@@ -642,7 +642,7 @@ class UserGroupDataTest(TestCase):
             project_id=usergroup.project.id,
             usergroup_id=usergroup.id
         ).render()
-        response = render_helpers.remove_csrf(str(response.content))
+        response = render_helpers.remove_csrf(response.content.decode())
 
         rendered = render_to_string(
             'users/usergroup_data.html',

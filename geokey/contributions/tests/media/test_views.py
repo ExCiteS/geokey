@@ -7,7 +7,7 @@ import glob
 from os.path import dirname, normpath, abspath, join
 
 from PIL import Image
-from io import StringIO
+from io import BytesIO
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
@@ -547,7 +547,7 @@ class MediaAPIViewTest(TestCase):
         self.assertEqual(response.status_code, 201)
 
     def test_upload_unsupported_file_format(self):
-        xyz_file = StringIO()
+        xyz_file = BytesIO()
         xyz = Image.new('RGBA', size=(50, 50), color=(256, 0, 0))
         xyz.save(xyz_file, 'png')
         xyz_file.seek(0)

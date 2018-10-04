@@ -553,7 +553,7 @@ class MediaFileManager(InheritanceManager):
             )
 
             # Using error because output file is not specified
-            if not video_stream.search(error):
+            if not video_stream.search(error.decode()):
                 content_type[0] = 'audio'
 
                 converted_file = os.path.join(

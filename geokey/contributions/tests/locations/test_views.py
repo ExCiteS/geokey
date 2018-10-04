@@ -100,7 +100,7 @@ class LocationQueryTest(TestCase):
 
         response_json = json.loads(response.content)
         self.assertEqual(len(response_json.get('features')), 3)
-        self.assertNotIn('Regents Park', response.content)
+        self.assertNotIn('Regents Park', response.content.decode())
 
     def test_park(self):
         request = self.factory.get(self.url + '?query=park')
@@ -110,7 +110,7 @@ class LocationQueryTest(TestCase):
 
         response_json = json.loads(response.content)
         self.assertEqual(len(response_json.get('features')), 3)
-        self.assertNotIn('"description": "hyde"', response.content)
+        self.assertNotIn('"description": "hyde"', response.content.decode())
 
     def test_regen(self):
         request = self.factory.get(self.url + '?query=regen')
@@ -120,8 +120,8 @@ class LocationQueryTest(TestCase):
 
         response_json = json.loads(response.content)
         self.assertEqual(len(response_json.get('features')), 1)
-        self.assertNotIn('hyde', response.content)
-        self.assertNotIn('Hyde Park', response.content)
+        self.assertNotIn('hyde', response.content.decode())
+        self.assertNotIn('Hyde Park', response.content.decode())
 
 
 class LocationUpdateApiTest(TestCase):
