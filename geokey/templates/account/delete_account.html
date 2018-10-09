@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %} | Delete account{% endblock %}
+
+{% block main %}
+<div class="page-header">
+    <div class="container">
+        <h1>Delete account</h1>
+    </div>
+</div>
+
+<div class="container">
+    {% include 'snippets/messages.html' %}
+
+    <div class="row">
+        <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <p>An error occurred. Please try again.</p>
+                </div>
+            {% endif %}
+
+            <form action="{% url 'admin:delete_user' %}" method="POST" novalidate>
+                {% csrf_token %}
+                <div class="row">
+                    <div class="panel panel-danger">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Warning: Delete user account</h2>
+                        </div>
+
+                        <div class="panel-body becareful">
+                            <div>
+                                <p>You are about to delete your user account.
+                                <strong>This cannot be undone, not even by admins.</strong>
+                                </p>
+                                <p>Before continuing, please be aware:</p>
+                                <ol>
+                                    <li>Your contributions will be made anonymous and you will no
+                                        longer have any control over them nor any rights to change them.</li>
+                                    <li>If you want to edit or delete any contributions, do so
+                                        <strong>before</strong> deleting your account.</li>
+                                    <li>Deleting your account cannot be undone. If you click the Delete button
+                                        below, there's no going back.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-lg btn-primary">Delete my account</button>
+                    &nbsp;&nbsp;&nbsp;
+                    <a role="button" href="{% url 'admin:userprofile' %}" class="btn btn-lg btn-link">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block libraries %}
+<script src="/static/js/admin.ui.forms.validate.js"></script>
+{% endblock %}

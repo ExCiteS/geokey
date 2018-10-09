@@ -1,6 +1,7 @@
-"""Tests for views of users."""
+"""Tests for admin views of users."""
 
 import json
+from datetime import datetime, timedelta
 
 from django.contrib.auth import hashers
 from django.test import TestCase, TransactionTestCase
@@ -13,10 +14,12 @@ from django.core import mail
 from django.template.loader import render_to_string
 from django.test.utils import override_settings
 from django.contrib.sites.shortcuts import get_current_site
-from django.contrib.messages import get_messages
+from django.contrib.messages import get_messages, WARNING
 from django.contrib.messages.storage.fallback import FallbackStorage
+from django.utils import timezone
 
 from nose.tools import raises
+from oauth2_provider.models import AccessToken
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework import status
@@ -25,26 +28,18 @@ from allauth.socialaccount.models import SocialApp, SocialAccount
 
 from geokey import version
 from geokey.core.tests.helpers import render_helpers
-from geokey.applications.tests.model_factories import ApplicationFactory
 from geokey.projects.tests.model_factories import ProjectFactory
 from geokey.categories.tests.model_factories import CategoryFactory
 
-from .model_factories import UserFactory, UserGroupFactory
+from .model_factories import UserFactory, UserGroupFactory, ApplicationFactory
 from ..views import (
-    UserGroup, UserGroupUsers, UserGroupSingleUser,
     UserGroupCreate, UserGroupSettings, UserProfile, AccountDisconnect,
     CreateUserMixin, UserAPIView, Dashboard, ChangePasswordView, Index,
     UserGroupList, UserGroupOverview, AdministratorsOverview,
-    UserGroupPermissions, UserGroupDelete, UserGroupData
+    UserGroupPermissions, UserGroupDelete, UserGroupData, DeleteUser
 )
 from ..models import User, UserGroup as Group
 
-
-# ############################################################################
-#
-# ADMIN VIEWS
-#
-# ############################################################################
 
 class IndexTest(TestCase):
 
@@ -1234,376 +1229,6 @@ class AccountDisconnectTest(TestCase):
             'Your account has no verified e-mail address.' in msg.message)
 
 
-# ############################################################################
-#
-# AJAX VIEWS
-#
-# ############################################################################
-
-class QueryUsersTest(TestCase):
-
-    def _get(self, query):
-        return self.client.get('/ajax/users/?query=' + query)
-
-    def setUp(self):
-        UserFactory.create(**{
-            'display_name': 'Peter Schmeichel'
-        })
-        UserFactory.create(**{
-            'display_name': 'George Best'
-        })
-        UserFactory.create(**{
-            'display_name': 'Luis Figo'
-        })
-        UserFactory.create(**{
-            'display_name': 'pete23'
-        })
-        UserFactory.create(**{
-            'display_name': 'pet48'
-        })
-        UserFactory.create(**{
-            'display_name': 'Frank Lampard'
-        })
-
-    def test_query_pet(self):
-        response = self._get('pet')
-
-        result_set = json.loads(response.content)
-        self.assertEqual(len(result_set), 3)
-        self.assertContains(response, 'Schmeichel')
-        self.assertContains(response, 'pete23')
-        self.assertContains(response, 'pet48')
-
-    def test_query_peter(self):
-        response = self._get('peter')
-        result_set = json.loads(response.content)
-        self.assertEqual(len(result_set), 1)
-        self.assertContains(response, 'Schmeichel')
-
-    def test_query_anonymous(self):
-        response = self._get('anon')
-        result_set = json.loads(response.content)
-        self.assertEqual(len(result_set), 0)
-
-    def test_no_query(self):
-        response = self.client.get('/ajax/users/')
-        result_set = json.loads(response.content)
-        self.assertEqual(len(result_set), 0)
-
-
-class UserGroupTest(TestCase):
-
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.admin = UserFactory.create()
-        self.contributor = UserFactory.create()
-        self.non_member = UserFactory.create()
-        self.user_to_add = UserFactory.create()
-
-        self.project = ProjectFactory.create(
-            add_admins=[self.admin]
-        )
-
-        self.contributors = UserGroupFactory(
-            add_users=[self.contributor],
-            **{'project': self.project}
-        )
-
-    def put(self, user, data):
-        url = reverse('ajax:usergroup', kwargs={
-            'project_id': self.project.id,
-            'usergroup_id': self.contributors.id
-        })
-        request = self.factory.put(
-            url, json.dumps(data), content_type='application/json')
-        force_authenticate(request, user=user)
-        view = UserGroup.as_view()
-
-        return view(
-            request,
-            project_id=self.project.id,
-            usergroup_id=self.contributors.id).render()
-
-    def test_update_with_admin(self):
-        response = self.put(self.admin, {'can_contribute': False})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertFalse(
-            Group.objects.get(pk=self.contributors.id).can_contribute,
-        )
-
-    def test_when_project_is_locked(self):
-        self.project.islocked = True
-        self.project.save()
-
-        response = self.put(self.admin, {'can_contribute': False})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertTrue(
-            Group.objects.get(pk=self.contributors.id).can_contribute,
-        )
-
-    def test_invalid_update_with_admin(self):
-        response = self.put(self.admin, {'can_contribute': 'Blah'})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertTrue(
-            Group.objects.get(pk=self.contributors.id).can_contribute,
-        )
-
-    def test_update_description_with_contributor(self):
-        response = self.put(self.contributor, {'can_contribute': False})
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertTrue(
-            Group.objects.get(pk=self.contributors.id).can_contribute,
-        )
-
-    def test_update_description_with_non_member(self):
-        response = self.put(self.non_member, {'can_contribute': False})
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertTrue(
-            Group.objects.get(pk=self.contributors.id).can_contribute,
-        )
-
-
-class UserGroupUsersTest(TestCase):
-
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.admin = UserFactory.create()
-        self.contributor = UserFactory.create()
-        self.non_member = UserFactory.create()
-        self.user_to_add = UserFactory.create()
-
-        self.project = ProjectFactory.create(
-            add_admins=[self.admin]
-        )
-
-        self.contributors = UserGroupFactory(
-            add_users=[self.contributor],
-            **{'project': self.project}
-        )
-
-    def test_add_to_not_existing_usergroup(self):
-        request = self.factory.post(
-            '/ajax/projects/%s/usergroups/%s/users/' %
-            (self.project.id, 6545454844545648),
-            {'user_id': self.user_to_add.id}
-        )
-        force_authenticate(request, user=self.admin)
-        view = UserGroupUsers.as_view()
-        response = view(
-            request,
-            project_id=self.project.id,
-            usergroup_id=6545454844545648
-        ).render()
-
-        self.assertEqual(response.status_code, 404)
-
-    def test_add_not_existing_user(self):
-        request = self.factory.post(
-            '/ajax/projects/%s/usergroups/%s/users/' %
-            (self.project.id, self.contributors.id),
-            {'user_id': 4445468756454}
-        )
-        force_authenticate(request, user=self.admin)
-        view = UserGroupUsers.as_view()
-        response = view(
-            request,
-            project_id=self.project.id,
-            usergroup_id=self.contributors.id
-        ).render()
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_add_on_locked_project(self):
-        self.project.islocked = True
-        self.project.save()
-
-        request = self.factory.post(
-            '/ajax/projects/%s/usergroups/%s/users/' %
-            (self.project.id, self.contributors.id),
-            {'user_id': self.user_to_add.id}
-        )
-        force_authenticate(request, user=self.admin)
-        view = UserGroupUsers.as_view()
-        response = view(
-            request,
-            project_id=self.project.id,
-            usergroup_id=self.contributors.id
-        ).render()
-
-        self.assertEqual(response.status_code, 400)
-
-    def test_add_contributor_with_admin(self):
-        request = self.factory.post(
-            '/ajax/projects/%s/usergroups/%s/users/' %
-            (self.project.id, self.contributors.id),
-            {'user_id': self.user_to_add.id}
-        )
-        force_authenticate(request, user=self.admin)
-        view = UserGroupUsers.as_view()
-        response = view(
-            request,
-            project_id=self.project.id,
-            usergroup_id=self.contributors.id
-        ).render()
-
-        self.assertEqual(response.status_code, 201)
-        self.assertIn(
-            self.user_to_add,
-            self.contributors.users.all()
-        )
-
-    def test_add_contributor_with_contributor(self):
-        request = self.factory.post(
-            '/ajax/projects/%s/usergroups/%s/users/' %
-            (self.project.id, self.contributors.id),
-            {'user_id': self.user_to_add.id}
-        )
-        force_authenticate(request, user=self.contributor)
-        view = UserGroupUsers.as_view()
-        response = view(
-            request,
-            project_id=self.project.id,
-            usergroup_id=self.contributors.id
-        ).render()
-
-        self.assertEqual(response.status_code, 403)
-        self.assertNotIn(
-            self.user_to_add,
-            self.contributors.users.all()
-        )
-
-    def test_add_contributor_with_non_member(self):
-        request = self.factory.post(
-            '/ajax/projects/%s/usergroups/%s/users/' %
-            (self.project.id, self.contributors.id),
-            {'user_id': self.user_to_add.id}
-        )
-        force_authenticate(request, user=self.non_member)
-        view = UserGroupUsers.as_view()
-        response = view(
-            request,
-            project_id=self.project.id,
-            usergroup_id=self.contributors.id
-        ).render()
-
-        self.assertEqual(response.status_code, 404)
-        self.assertNotIn(
-            self.user_to_add,
-            self.contributors.users.all()
-        )
-
-
-class UserGroupSingleUserTest(TestCase):
-
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.admin = UserFactory.create()
-        self.contributor = UserFactory.create()
-        self.non_member = UserFactory.create()
-        self.contrib_to_remove = UserFactory.create()
-
-        self.project = ProjectFactory.create(
-            add_admins=[self.admin]
-        )
-
-        self.contributors = UserGroupFactory(
-            add_users=[self.contributor, self.contrib_to_remove],
-            **{'project': self.project, 'can_contribute': True}
-        )
-
-    def test_delete_not_existing_user(self):
-        user = UserFactory.create()
-        request = self.factory.delete(
-            '/ajax/projects/%s/usergroups/%s/users/%s/' %
-            (self.project.id, self.contributors.id, user.id),
-        )
-        force_authenticate(request, user=self.admin)
-        view = UserGroupSingleUser.as_view()
-        response = view(
-            request,
-            project_id=self.project.id,
-            usergroup_id=self.contributors.id,
-            user_id=user.id
-        ).render()
-
-        self.assertEqual(response.status_code, 404)
-
-    def test_delete_from_not_existing_usergroup(self):
-        request = self.factory.delete(
-            '/ajax/projects/%s/usergroups/%s/users/%s/' %
-            (self.project.id, 455646445484545, self.contrib_to_remove.id),
-        )
-        force_authenticate(request, user=self.admin)
-        view = UserGroupSingleUser.as_view()
-        response = view(
-            request,
-            project_id=self.project.id,
-            usergroup_id=455646445484545,
-            user_id=self.contrib_to_remove.id
-        ).render()
-
-        self.assertEqual(response.status_code, 404)
-
-    def test_delete_contributor_with_admin(self):
-        request = self.factory.delete(
-            '/ajax/projects/%s/usergroups/%s/users/%s/' %
-            (self.project.id, self.contributors.id, self.contrib_to_remove.id),
-        )
-        force_authenticate(request, user=self.admin)
-        view = UserGroupSingleUser.as_view()
-        response = view(
-            request,
-            project_id=self.project.id,
-            usergroup_id=self.contributors.id,
-            user_id=self.contrib_to_remove.id
-        ).render()
-
-        self.assertEqual(response.status_code, 204)
-        self.assertNotIn(
-            self.contrib_to_remove,
-            self.contributors.users.all()
-        )
-
-    def test_delete_contributor_with_contributor(self):
-        request = self.factory.delete(
-            '/ajax/projects/%s/usergroups/%s/users/%s/' %
-            (self.project.id, self.contributors.id, self.contrib_to_remove.id)
-        )
-        force_authenticate(request, user=self.contributor)
-        view = UserGroupSingleUser.as_view()
-        response = view(
-            request,
-            project_id=self.project.id,
-            usergroup_id=self.contributors.id,
-            user_id=self.contrib_to_remove.id
-        ).render()
-
-        self.assertEqual(response.status_code, 403)
-        self.assertIn(
-            self.contrib_to_remove,
-            self.contributors.users.all()
-        )
-
-    def test_delete_contributor_with_non_member(self):
-        request = self.factory.delete(
-            '/ajax/projects/%s/usergroups/%s/users/%s/' %
-            (self.project.id, self.contributors.id, self.contrib_to_remove.id)
-        )
-        force_authenticate(request, user=self.non_member)
-        view = UserGroupSingleUser.as_view()
-        response = view(
-            request,
-            project_id=self.project.id,
-            usergroup_id=self.contributors.id,
-            user_id=self.contrib_to_remove.id
-        ).render()
-        self.assertEqual(response.status_code, 404)
-        self.assertIn(
-            self.contrib_to_remove,
-            self.contributors.users.all()
-        )
-
-
 class ChangePasswordTest(TestCase):
 
     def test_changepassword(self):
@@ -1908,3 +1533,106 @@ class UserAPIViewTest(TestCase):
         response = view(request).render()
 
         self.assertEqual(response.status_code, 400)
+
+
+class UserDeleteTest(TestCase):
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+
+        self.request = HttpRequest()
+        self.request.method = 'GET'
+        self.request.user = AnonymousUser()
+
+        self.admin = UserFactory.create(is_superuser=True, **{'display_name': 'delete_test_admin_user'})
+        self.user_no_contributions = UserFactory.create(**{'display_name': 'delete_test_no_contribs_user'})
+        self.user_with_contributions = UserFactory.create(**{'display_name': 'delete_test_contribs_user',
+                                                             'email': 'veryspecific@email.address.hh',
+                                                             'date_joined': '2016-12-15 14:22:24.632764Z',
+                                                             'last_login': '2018-01-01 10:00:00.000001Z'})
+        token_expiry = timezone.now() + timedelta(hours=1)
+        app = ApplicationFactory.create()
+        self.access_token_contribs = AccessToken.objects.get_or_create(**{'user': self.user_with_contributions,
+                                                                          'expires': token_expiry,
+                                                                          'application': app,
+                                                                          'scope': ''})
+        # TODO: Also remove user from admins and contributors.
+        self.project = ProjectFactory.create(
+            add_admins=[self.admin],
+            add_contributors=[self.user_with_contributions],
+            **{'creator': self.user_with_contributions, 'name': 'user_delete_test_project1'}
+        ).save()
+
+        self.social_post = None
+        self.social_pull = None
+        self.subset = None
+        self.view = DeleteUser.as_view()
+        self.url = reverse('admin:delete_user',)
+
+        setattr(self.request, 'session', 'session')
+        messages = FallbackStorage(self.request)
+        setattr(self.request, '_messages', messages)
+
+    def tearDown(self):
+        pass
+
+    def _post(self, data, user):
+        request = self.factory.post(
+            self.url, json.dumps(data), content_type='application/json')
+        request.user = user
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+        force_authenticate(request, user=user)
+
+        return self.view(request).render()
+
+    def test_correct_template_response(self):
+        request = APIRequestFactory().get(self.url, user_id=self.user_no_contributions.id)
+        request.user = self.user_no_contributions
+        response = self.view(request, user_id=self.user_no_contributions.id)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "You are about to delete your user account")
+
+    def test_superuser_not_deleted(self):
+        self.request.user = self.admin
+        self.request.method = 'POST'
+        self.request.POST = {
+            'filters': '{ "%s": { } }' % self.admin.id
+        }
+        response = self.view(self.request).render()
+
+        self.assertEqual(response.status_code, 200)
+        messages = get_messages(self.request)
+        self.assertEqual(len(messages._loaded_messages), 1)
+        for message in messages:
+            self.assertEqual(WARNING, message.level)
+            self.assertEqual("Superuser cannot be deleted. Another superuser must first revoke superuser status.",
+                             message.message)
+
+    def test_user_details_removed(self):
+        self.request.user = self.user_with_contributions
+        self.request.method = 'POST'
+        self.request.POST = {
+            'filters': '{ "%s": { } }' % self.user_with_contributions.id
+        }
+        session = self.client.session
+        session['_language'] = 'en'
+        session.save()
+        setattr(self.request, 'session', session)
+
+        user_id = self.user_with_contributions.id
+        response = self.view(self.request).render()
+
+        self.assertEqual(response.status_code, 200)
+
+        result_user = User.objects.get_or_create(id=user_id)[0]
+        self.assertEqual(result_user.display_name[:12], 'Deleted user')
+        self.assertEqual(result_user.email[-17:], 'deleteduser.email')
+        self.assertEqual(result_user.date_joined.strftime('%Y-%m-%d %H:%M:%S'), '2018-04-01 11:11:11')
+        self.assertAlmostEqual(datetime.strftime(result_user.last_login, '%Y-%m-%d %H:%M'),
+                               datetime.strftime(timezone.now(), '%Y-%m-%d %H:%M'))
+        self.assertFalse(result_user.is_active, msg="User should no longer be active.")
+
+        access_tokens = AccessToken.objects.filter(user=result_user)
+        self.assertEqual(len(access_tokens), 0, msg="Access tokens for user should be removed.")

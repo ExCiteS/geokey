@@ -228,7 +228,6 @@ class ManageInactiveUsersTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), rendered)
-        response = render_helpers.remove_csrf(response.content.decode('utf-8'))
         self.assertEqual(User.objects.filter(is_active=False).count(), 3)
         self.assertEqual(len(EmailAddress.objects.filter(verified=False)), 3)
 

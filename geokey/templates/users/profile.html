@@ -4,74 +4,89 @@
 {% load social %}
 
 {% block main %}
-{% get_social_apps as social_apps %}
-<div class="page-header">
-    <div class="container">
-        <h1>Your profile</h1>
-    </div>
-</div>
-
-<div class="container">
-    {% include 'snippets/messages.html' %}
-
-    <div class="row">
-        <div class="col-md-6 {% if not social_apps %}col-sm-8 col-sm-offset-2 col-md-offset-3{% endif %}">
-            <h2 class="header">Profile information</h2>
-
-            <form action="{% url 'admin:userprofile' %}" method="POST" novalidate>
-                {% csrf_token %}
-
-                <div class="form-group {% if form.email.errors %}has-error{% endif %}">
-                    <label for="email">Email address</label>
-                    <input type="email" class="form-control input-lg" id="email" name="email" value="{% if form.data.email %}{{ form.data.email }}{% else %}{{ user.email }}{% endif %}" required />
-                    {% if form.email.errors %}<span class="help-block">{{ form.email.errors|striptags }}</span>{% endif %}
-                </div>
-
-                <div class="form-group {% if form.display_name.errors %}has-error{% endif %}">
-                    <label for="display_name">Display name</label>
-                    <input type="text" class="form-control input-lg" id="display_name" name="display_name" maxlength="50" value="{% if form.data.display_name %}{{ form.data.display_name }}{% else %}{{ user.display_name }}{% endif %}" required />
-                    {% if form.display_name.errors %}<span class="help-block">{{ form.display_name.errors|striptags }}</span>{% endif %}
-                </div>
-
-                <div class="form-group">
-                    <button type="submit" class="btn btn-lg btn-primary">Update profile</button>
-                    <a type="button" href="{% url 'account_change_password' %}" class="btn btn-lg btn-link">{% if user.has_usable_password %}Change password{% else %}Set password{% endif %}</a>
-                </div>
-            </form>
+    {% get_social_apps as social_apps %}
+    <div class="page-header">
+        <div class="container">
+            <h1>Your profile</h1>
         </div>
+    </div>
 
-        {% if social_apps %}
-            <div class="col-md-6">
-                <h2 class="header">Connect social accounts</h2>
+    <div class="container">
+        {% include 'snippets/messages.html' %}
 
-                {% include 'snippets/social_apps.html' with process='connect' %}
+        <div class="row">
+            <div class="col-md-6 {% if not social_apps %}col-sm-8 col-sm-offset-2 col-md-offset-3{% endif %}">
+                <h2 class="header">Profile information</h2>
 
-                {% if accounts %}
-                    <h2 class="header">Your connected accounts</h2>
+                <form action="{% url 'admin:userprofile' %}" method="POST" novalidate>
+                    {% csrf_token %}
 
-                    {% for account in accounts %}
-                        {% with account.get_provider_account as provider_account %}
-                            {% if forloop.first %}
-                                <ul class="list-unstyled overview-list social">
-                            {% endif %}
+                    <div class="form-group {% if form.email.errors %}has-error{% endif %}">
+                        <label for="email">Email address</label>
+                        <input type="email" class="form-control input-lg" id="email" name="email" value="
+                            {% if form.data.email %}{{ form.data.email }}{% else %}{{ user.email }}{% endif %}"
+                               required/>
+                        {% if form.email.errors %}
+                            <span class="help-block">{{ form.email.errors|striptags }}</span>{% endif %}
+                    </div>
+
+                    <div class="form-group {% if form.display_name.errors %}has-error{% endif %}">
+                        <label for="display_name">Display name</label>
+                        <input type="text" class="form-control input-lg" id="display_name" name="display_name"
+                               maxlength="50"
+                               value="{% if form.data.display_name %}{{ form.data.display_name }}{% else %}{{ user.display_name }}{% endif %}"
+                               required/>
+                        {% if form.display_name.errors %}
+                            <span class="help-block">{{ form.display_name.errors|striptags }}</span>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-lg btn-primary">Update profile</button>
+                        <a type="button" href="{% url 'account_change_password' %}" class="btn btn-lg btn-link">
+                            {% if user.has_usable_password %}Change password{% else %}Set password{% endif %}
+                        </a>
+                    </div>
+
+                    <div class="form-group">
+                        <a type="button" href="{% url 'admin:delete_user' %}" class="btn btn-lg btn-link">
+                            Delete account</a>
+                    </div>
+                </form>
+            </div>
+
+            {% if social_apps %}
+                <div class="col-md-6">
+                    <h2 class="header">Connect social accounts</h2>
+
+                    {% include 'snippets/social_apps.html' with process='connect' %}
+
+                    {% if accounts %}
+                        <h2 class="header">Your connected accounts</h2>
+
+                        {% for account in accounts %}
+                            {% with account.get_provider_account as provider_account %}
+                                {% if forloop.first %}
+                                    <ul class="list-unstyled overview-list social">
+                                {% endif %}
 
                             <li>
                                 <strong>{{ provider_account }}</strong>
-                                <a role="button" href="{% url 'admin:account_disconnect' account.id %}" class="btn btn-sm btn-default pull-right">Disconnect</a>
+                                <a role="button" href="{% url 'admin:account_disconnect' account.id %}"
+                                   class="btn btn-sm btn-default pull-right">Disconnect</a>
                             </li>
 
                             {% if forloop.last %}
                                 </ul>
                             {% endif %}
-                        {% endwith %}
-                    {% endfor %}
-                {% endif %}
-            </div>
-        {% endif %}
+                            {% endwith %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
     </div>
-</div>
 {% endblock %}
 
 {% block libraries %}
-<script src="/static/js/admin.ui.forms.validate.js"></script>
+    <script src="/static/js/admin.ui.forms.validate.js"></script>
 {% endblock %}
