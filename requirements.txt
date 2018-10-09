@@ -1,10 +1,10 @@
-Django>=1.8.19,<1.9
+Django>=1.8.19,<1.12
 django-aggregate-if==0.5
 django-allauth==0.33.0
 django-braces==1.11.0
 django-crontab==0.7.1
 django-hstore==1.4.2
-django-model-utils==2.6.1
+django-model-utils==3.1.2
 django-oauth-toolkit==0.12.0
 django-pgjson==0.3.1
 django-simple-history==1.8.2

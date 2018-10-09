@@ -206,7 +206,7 @@ class ObservationTest(TestCase):
             'project': category.project,
             'category': category,
             'display_field': None,
-            'properties': None
+            'properties': {}
         })
 
         observation.update_display_field()
@@ -226,7 +226,7 @@ class ObservationTest(TestCase):
             'project': category.project,
             'category': category,
             'display_field': None,
-            'properties': None
+            'properties': {}
         })
 
         observation.update_display_field()
@@ -275,7 +275,7 @@ class ObservationTest(TestCase):
             'project': category.project,
             'category': category,
             'expiry_field': None,
-            'properties': None
+            'properties': {}
         })
 
         observation.update_expiry_field()
@@ -295,7 +295,7 @@ class ObservationTest(TestCase):
             'project': category.project,
             'category': category,
             'expiry_field': None,
-            'properties': None
+            'properties': {}
         })
 
         observation.update_expiry_field()

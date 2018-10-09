@@ -14,7 +14,8 @@
     {% include 'snippets/messages.html' %}
 
     <div class="row">
-        <form class="col-sm-12 col-md-12 col-lg-12" method="POST" action="{% url 'admin:superusertools_manage_inactive_users' %}">
+        <form class="col-sm-12 col-md-12 col-lg-12" method="POST"
+              action="{% url 'admin:superusertools_manage_inactive_users' %}">
             {% csrf_token %}
 
             <h2 class="header">Manage inactive users</h2>
@@ -36,11 +37,12 @@
                         <tbody>
                             {% for user in inactive_users %}
                                 <tr>
-                                    <td class="text-center"><input type="checkbox" name="activate_users" value="{{ user.id }}"></td>
+                                    <td class="text-center"><input title="activate_users" type="checkbox"
+                                                                   name="activate_users" value="{{ user.id }}"></td>
                                     <td>{{ user.display_name }}</td>
                                     <td>{{ user.email|urlize }}</td>
                                     <td>{{ user.date_joined|date:'d F, Y' }}</td>
-                                </td>
+                                </tr>
                             {% endfor %}
                         </tbody>
                     </table>
