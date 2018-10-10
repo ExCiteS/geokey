@@ -304,7 +304,7 @@ class Observation(models.Model):
                         value = ' '.join([val.name for val in lookupvalues])
 
             if value:
-                cleaned = re.sub(r'[\W_]+', ' ', value)
+                cleaned = re.sub('[\W_]+', ' ', str(value))
                 terms = cleaned.lower().split()
 
                 search_index = search_index + list(
