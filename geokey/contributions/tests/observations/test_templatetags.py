@@ -89,11 +89,12 @@ class TemplateTagsTest(TestCase):
         self.assertEqual(
             description,
             '<![CDATA[<table><tr><td>key_1</td><td>1</td></tr>'
-            '<tr><td>key_2</td><td>b\'value\'</td></tr></table>'
-            '<table><tr><td><strong>Image</strong><br /><a href="/media/image.png"><img src="/media/image-thumbnail.png" /></a></td></tr>'
-            '<tr><td><strong>Video</strong><br /><a href="https://www.youtube.com/watch?v=LueGR1IpfS0"><img src="/static/img/play.png" /></a></td></tr>'
-            '<tr><td><a href="/media/audio.mp4"><strong>Audio</strong></a><br />New feature - audio support.</td></tr></table>'
-            '<table><tr><td><strong>Adam</strong><br />Is it ready yet?'
+            '<tr><td>key_2</td><td>value</td></tr></table>'
+            '<table><tr><td><strong>Image</strong><br /><a href="/media/image.png">'
+            '<img src="/media/image-thumbnail.png" /></a></td></tr><tr><td><strong>Video</strong><br />'
+            '<a href="https://www.youtube.com/watch?v=LueGR1IpfS0"><img src="/static/img/play.png" /></a></td></tr>'
+            '<tr><td><a href="/media/audio.mp4"><strong>Audio</strong></a><br />New feature - audio support.</td></tr>'
+            '</table><table><tr><td><strong>Adam</strong><br />Is it ready yet?'
             '<table><tr><td><strong>Sarah</strong><br />Yes!</td></tr></table></td></tr></table>]]>'
         )
 

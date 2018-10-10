@@ -1,8 +1,7 @@
 """Template tags for KML."""
-
 from osgeo import ogr
-
 from django import template
+from six import PY2
 
 from geokey.categories.models import Field, LookupField, MultipleLookupField
 
@@ -64,11 +63,11 @@ def kml_desc(place):
             except Field.DoesNotExist:
                 pass
 
-            if type(value) in [str, str]:
+            if isinstance(value, str) and PY2:
                 value = value.encode('utf-8')
 
             if properties[key] is not None:
-                description = '{desc}<tr><td>{name}</td><td>{value}</td></tr>'.format(
+                description = u'{desc}<tr><td>{name}</td><td>{value}</td></tr>'.format(
                     desc=description,
                     name=name,
                     value=value
