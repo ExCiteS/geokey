@@ -17,7 +17,7 @@ from oauth2client.client import OAuth2WebServerFlow
 from argparse import Namespace
 
 import httplib2
-import http.client
+from six.moves import http_client
 
 from django.conf import settings
 
@@ -26,10 +26,10 @@ YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 RETRIABLE_EXCEPTIONS = (
-    httplib2.HttpLib2Error, IOError, http.client.NotConnected,
-    http.client.IncompleteRead, http.client.ImproperConnectionState,
-    http.client.CannotSendRequest, http.client.CannotSendHeader,
-    http.client.ResponseNotReady, http.client.BadStatusLine
+    httplib2.HttpLib2Error, IOError, http_client.NotConnected,
+    http_client.IncompleteRead, http_client.ImproperConnectionState,
+    http_client.CannotSendRequest, http_client.CannotSendHeader,
+    http_client.ResponseNotReady, http_client.BadStatusLine
 )
 
 
