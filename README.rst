@@ -85,7 +85,7 @@ Note that for Ubuntu 16.04, you don't need to add the repo and can install 9.5:
 
 .. code-block:: console
 
-    sudo apt-get install python-pip python-virtualenv python-dev libjpeg-dev binutils libproj-dev libav-tools gdal-bin python-gdal
+    sudo apt-get install python-pip python-virtualenv python-dev libjpeg-dev libmagickcore-dev libmagickwand-dev imagemagick binutils libproj-dev libav-tools gdal-bin python-gdal
 
 For Ubuntu you might also need to install *libavcodec-extra-52* or *libavcodec-extra-53*.
 
