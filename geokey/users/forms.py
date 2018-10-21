@@ -123,3 +123,16 @@ class CustomResetPasswordKeyForm(ResetPasswordKeyForm):
         """
         AccessToken.objects.filter(user=self.user).delete()
         super(CustomResetPasswordKeyForm, self).save(*args, **kwargs)
+
+
+class UserDeleteAccount(ResetPasswordKeyForm):
+    """
+    Deletes the user, assigning all of their contributions to the anonymous user.
+    """
+    def save(self, *args, **kwargs):
+        """
+        TBD
+        """
+        # Deletes all OAuth access tokens assigned to the user.
+        AccessToken.objects.filter(user=self.user).delete()
+        super(UserDeleteAccount, self).save(*args, **kwargs)

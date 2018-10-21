@@ -95,7 +95,7 @@ class CommentAbstractAPIViewTest(TestCase):
         self.assertEqual(ref.status, 'review')
 
     def test_create_reviewcomment_to_empty_obs_with_admin(self):
-        self.contribution.properties = None
+        self.contribution.properties = {}
         self.contribution.save()
 
         url = reverse('api:project_comments', kwargs={

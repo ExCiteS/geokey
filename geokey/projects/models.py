@@ -98,6 +98,7 @@ class Project(models.Model):
         We are not allowing anonymous contributions for private projects.
         """
         if (self.isprivate and
+                type(self.everyone_contributes) == str and
                 self.everyone_contributes == EVERYONE_CONTRIBUTES.true):
             self.everyone_contributes = EVERYONE_CONTRIBUTES.auth
 

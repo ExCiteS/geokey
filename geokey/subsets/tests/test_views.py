@@ -276,7 +276,7 @@ class SubsetCreateTest(TestCase):
         self.assertEqual(0, Subset.objects.count())
         self.assertEqual(response.status_code, 302)
         self.assertIn(
-            '/admin/projects/%s/subsets/new/' % (project.id),
+            '/admin/projects/%s/subsets/new/' % project.id,
             response['location']
         )
 
@@ -301,7 +301,7 @@ class SubsetCreateTest(TestCase):
         self.assertEqual(0, Subset.objects.count())
         self.assertEqual(response.status_code, 302)
         self.assertIn(
-            '/admin/projects/%s/subsets/new/' % (project.id),
+            '/admin/projects/%s/subsets/new/' % project.id,
             response['location']
         )
 
@@ -774,7 +774,7 @@ class SubsetDataTest(TestCase):
     def test_post_on_locked_project_with_admin(self):
         """
         Updating with project admin when the project is locked should render
-        the page withh an error message
+        the page with an error message
         """
 
         subset = SubsetFactory.create()
