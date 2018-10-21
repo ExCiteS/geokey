@@ -175,8 +175,7 @@ def get_authenticated_service():
 
     try:
         builded = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-            http=credentials.authorize(httplib2.Http()))
+                        http=credentials.authorize(httplib2.Http()))
         return builded
     except Exception as e:
         print "error", e
-
