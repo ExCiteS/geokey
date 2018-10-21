@@ -7,6 +7,7 @@ from geokey.contributions.models import (
     post_save_media_file_count_update
 )
 from geokey.contributions.tests.model_factories import ObservationFactory
+from geokey.contributions.tests.helpers.document_helpers import get_pdf_document
 from geokey.users.tests.model_factories import UserFactory
 
 from .model_factories import get_image
@@ -67,7 +68,7 @@ class TestDocumentFilePostSave(TestCase):
             description='Test Description',
             contribution=observation,
             creator=UserFactory.create(),
-            document=get_image()
+            document=get_pdf_document()
         )
         DocumentFile.objects.create(
             status='deleted',
@@ -75,7 +76,7 @@ class TestDocumentFilePostSave(TestCase):
             description='Test Description',
             contribution=observation,
             creator=UserFactory.create(),
-            document=get_image()
+            document=get_pdf_document()
         )
 
         post_save_media_file_count_update(DocumentFile, instance=document_file)
@@ -90,7 +91,7 @@ class DocumentFileTest(TestCase):
             description='Test Description',
             contribution=ObservationFactory.create(),
             creator=UserFactory.create(),
-            document=get_image()
+            document=get_pdf_document()
         )
         self.assertEqual(document_file.type_name, 'DocumentFile')
 
@@ -100,7 +101,7 @@ class DocumentFileTest(TestCase):
             description='Test Description',
             contribution=ObservationFactory.create(),
             creator=UserFactory.create(),
-            document=get_image()
+            document=get_pdf_document()
         )
         document_file.delete()
         self.assertEquals(document_file.status, 'deleted')
