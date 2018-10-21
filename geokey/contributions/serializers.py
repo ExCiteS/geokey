@@ -680,7 +680,7 @@ class FileSerializer(serializers.ModelSerializer):
             obj.thumbnail = thumbnail_name
             obj.save()
 
-            pipe = subprocess.Popen(
+            converter = subprocess.Popen(
                 'convert -quality 95 -thumbnail %s %s/%s[0] %s/%s' % (
                     500,  # width of a generated thumb
                     settings.MEDIA_ROOT,
@@ -693,7 +693,7 @@ class FileSerializer(serializers.ModelSerializer):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-            output, error = pipe.communicate()
+            converter.communicate()[0]
 
             w, h = Image.open(obj.thumbnail).size
 
