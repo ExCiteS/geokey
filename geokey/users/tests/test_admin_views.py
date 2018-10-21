@@ -16,6 +16,7 @@ from django.test.utils import override_settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.messages import get_messages, WARNING
 from django.contrib.messages.storage.fallback import FallbackStorage
+from django.utils import timezone
 
 from nose.tools import raises
 from oauth2_provider.models import AccessToken
@@ -1547,9 +1548,9 @@ class UserDeleteTest(TestCase):
         self.user_no_contributions = UserFactory.create(**{'display_name': 'delete_test_no_contribs_user'})
         self.user_with_contributions = UserFactory.create(**{'display_name': 'delete_test_contribs_user',
                                                              'email': 'veryspecific@email.address.hh',
-                                                             'date_joined': '2016-12-15 14:22:24.632764',
-                                                             'last_login': '2018-01-01 10:00:00.000001'})
-        token_expiry = datetime.now() + timedelta(hours=1)
+                                                             'date_joined': '2016-12-15 14:22:24.632764Z',
+                                                             'last_login': '2018-01-01 10:00:00.000001Z'})
+        token_expiry = timezone.now() + timedelta(hours=1)
         app = ApplicationFactory.create()
         self.access_token_contribs = AccessToken.objects.get_or_create(**{'user': self.user_with_contributions,
                                                                           'expires': token_expiry,
@@ -1628,9 +1629,9 @@ class UserDeleteTest(TestCase):
         result_user = User.objects.get_or_create(id=user_id)[0]
         self.assertEqual(result_user.display_name[:12], 'Deleted user')
         self.assertEqual(result_user.email[-17:], 'deleteduser.email')
-        self.assertEqual(result_user.date_joined.strftime('%Y-%m-%d %H:%M:%S.%f'), '2018-04-01 11:11:11.111111')
+        self.assertEqual(result_user.date_joined.strftime('%Y-%m-%d %H:%M:%S'), '2018-04-01 11:11:11')
         self.assertAlmostEqual(datetime.strftime(result_user.last_login, '%Y-%m-%d %H:%M'),
-                               datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M'))
+                               datetime.strftime(timezone.now(), '%Y-%m-%d %H:%M'))
         self.assertFalse(result_user.is_active, msg="User should no longer be active.")
 
         access_tokens = AccessToken.objects.filter(user=result_user)

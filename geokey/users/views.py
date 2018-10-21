@@ -1,8 +1,9 @@
 """Views for users."""
 from datetime import datetime
 from json import loads as json_loads
-
+from dateutil.tz import tzoffset
 from django.contrib.auth import logout
+from django.utils import timezone
 from django.views.generic import TemplateView, CreateView
 from django.shortcuts import redirect
 from django.core.exceptions import ValidationError
@@ -626,8 +627,8 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
         random_password = ''.join(random.choice(ascii_lowercase) for _ in range(15))
         user.email = random_numbers + '@' + 'deleteduser.email'
         user.display_name = 'Deleted user ' + random_numbers
-        user.date_joined = datetime.strptime('2018-04-01 11:11:11.111111', '%Y-%m-%d %H:%M:%S.%f')
-        user.last_login = datetime.now()
+        user.date_joined = datetime(2018, 4, 1, 11, 11, 11, tzinfo=tzoffset(None, 0))
+        user.last_login = timezone.now()
         logout(request)
         user.is_active = False
         user.reset_password(password=random_password)

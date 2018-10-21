@@ -280,7 +280,7 @@ class Observation(models.Model):
     def create_search_index(self):
         search_index = []
 
-        for field in self.category.fields.all():
+        for field in self.category.fields.all().select_subclasses():
             value = None
             if self.properties and field.key in self.properties.keys():
                 if field.fieldtype == 'TextField':
