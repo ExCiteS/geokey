@@ -79,8 +79,8 @@ class TestDocumentFilePostSave(TestCase):
         )
 
         post_save_media_file_count_update(DocumentFile, instance=document_file)
-        self.assertEqual(image_file.contribution.num_media, 1)
-        self.assertEqual(image_file.contribution.num_comments, 0)
+        self.assertEqual(document_file.contribution.num_media, 1)
+        self.assertEqual(document_file.contribution.num_comments, 0)
 
 
 class DocumentFileTest(TestCase):
