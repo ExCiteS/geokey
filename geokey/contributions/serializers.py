@@ -2,7 +2,11 @@
 
 import requests
 import tempfile
+import subprocess
 
+from PIL import Image
+
+from django.conf import settings
 from django.core import files
 from django.core.exceptions import PermissionDenied, ValidationError
 
@@ -24,6 +28,7 @@ from .models import (
     Comment,
     MediaFile,
     ImageFile,
+    DocumentFile,
     VideoFile,
     AudioFile
 )
@@ -608,6 +613,8 @@ class FileSerializer(serializers.ModelSerializer):
         """
         if isinstance(obj, ImageFile):
             return obj.image.url
+        if isinstance(obj, DocumentFile):
+            return obj.document.url
         elif isinstance(obj, VideoFile):
             return obj.youtube_link
         elif isinstance(obj, AudioFile):
@@ -622,13 +629,12 @@ class FileSerializer(serializers.ModelSerializer):
         image : Image
             The image to be thumbnailed
         size : tuple
-            width and height of the thumbnail, defaults to 300 by 300
+            Width and height of the thumbnail, defaults to 300 by 300
 
         Returns
         -------
         Image
             The thumbnail
-
         """
         thumbnailer = get_thumbnailer(image)
         thumb = thumbnailer.get_thumbnail({
@@ -663,6 +669,40 @@ class FileSerializer(serializers.ModelSerializer):
             ):
                 return ''
 
+        elif isinstance(obj, DocumentFile):
+            if obj.thumbnail:
+                # thumbnail has been generated, return the link
+                return self._get_thumb(obj.thumbnail).url
+
+            thumbnail_name = '%s_thumbnail.png' % obj.document
+
+            # Save placeholder for current thumb which will be generated
+            obj.thumbnail = thumbnail_name
+            obj.save()
+
+            converter = subprocess.Popen(
+                'convert -quality 95 -thumbnail %s %s/%s[0] %s/%s' % (
+                    500,  # width of a generated thumb
+                    settings.MEDIA_ROOT,
+                    obj.document,
+                    settings.MEDIA_ROOT,
+                    thumbnail_name
+                ),
+                shell=True,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            converter.communicate()[0]
+
+            w, h = Image.open(obj.thumbnail).size
+
+            # Crop and replace thumb based on whether height or width is smaller
+            thumb = self._get_thumb(obj.thumbnail, size=(min(w, h), min(w, h)))
+            obj.thumbnail.save(thumbnail_name, thumb)
+
+            return self._get_thumb(obj.thumbnail).url
+
         elif isinstance(obj, VideoFile):
             if obj.thumbnail:
                 # thumbnail has been downloaded, return the link
@@ -690,8 +730,6 @@ class FileSerializer(serializers.ModelSerializer):
 
             file_name = obj.youtube_id + '.jpg'
             obj.thumbnail.save(file_name, files.File(lf))
-
-            from PIL import Image
 
             w, h = Image.open(obj.thumbnail).size
 

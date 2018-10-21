@@ -73,6 +73,9 @@ LOG_MODELS = {
     'ImageFile': [
         'status',
     ],
+    'DocumentFile': [
+        'status',
+    ],
     'VideoFile': [
         'status',
     ],

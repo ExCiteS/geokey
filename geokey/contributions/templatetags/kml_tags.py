@@ -80,7 +80,7 @@ def kml_desc(place):
         description += '<table>'
 
         for file in media:
-            if file['file_type'] == 'ImageFile' or file['file_type'] == 'VideoFile':
+            if file['file_type'] in ['ImageFile', 'DocumentFile', 'VideoFile']:
                 if file['file_type'] == 'VideoFile':
                     file['url'] = file['url'].replace('embed/', 'watch?v=')
 

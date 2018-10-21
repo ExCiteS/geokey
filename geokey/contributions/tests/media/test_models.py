@@ -3,7 +3,7 @@
 from django.test import TestCase
 
 from geokey.contributions.models import (
-    ImageFile, VideoFile, AudioFile,
+    ImageFile, DocumentFile, VideoFile, AudioFile,
     post_save_media_file_count_update
 )
 from geokey.contributions.tests.model_factories import ObservationFactory
@@ -57,6 +57,53 @@ class ImageFileTest(TestCase):
         )
         image_file.delete()
         self.assertEquals(image_file.status, 'deleted')
+
+
+class TestDocumentFilePostSave(TestCase):
+    def test_post_save_document_file_count_update(self):
+        observation = ObservationFactory()
+        document_file = DocumentFile.objects.create(
+            name='Test name',
+            description='Test Description',
+            contribution=observation,
+            creator=UserFactory.create(),
+            document=get_image()
+        )
+        DocumentFile.objects.create(
+            status='deleted',
+            name='Test name',
+            description='Test Description',
+            contribution=observation,
+            creator=UserFactory.create(),
+            document=get_image()
+        )
+
+        post_save_media_file_count_update(DocumentFile, instance=document_file)
+        self.assertEqual(image_file.contribution.num_media, 1)
+        self.assertEqual(image_file.contribution.num_comments, 0)
+
+
+class DocumentFileTest(TestCase):
+    def test_get_type_name(self):
+        document_file = DocumentFile.objects.create(
+            name='Test name',
+            description='Test Description',
+            contribution=ObservationFactory.create(),
+            creator=UserFactory.create(),
+            document=get_image()
+        )
+        self.assertEqual(document_file.type_name, 'DocumentFile')
+
+    def test_delete_file(self):
+        document_file = DocumentFile.objects.create(
+            name='Test name',
+            description='Test Description',
+            contribution=ObservationFactory.create(),
+            creator=UserFactory.create(),
+            document=get_image()
+        )
+        document_file.delete()
+        self.assertEquals(document_file.status, 'deleted')
 
 
 class TestVideoFilePostSave(TestCase):
