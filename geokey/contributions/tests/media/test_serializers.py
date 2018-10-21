@@ -71,7 +71,7 @@ class FileSerializerTest(TestCase):
         })
         self.assertEqual(
             serializer.get_thumbnail_url(document),
-            document.document.url + '.300x300_q85_crop.jpg'
+            document.thumbnail.url + '.300x300_q85_crop.jpg'
         )
 
     def test_get_youtube_link(self):
