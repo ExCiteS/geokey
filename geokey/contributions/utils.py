@@ -155,12 +155,11 @@ def get_args(name, path):
 
 
 def get_authenticated_service():
-    """Get youtube crecentials identified. """
+    """Get youtube credentials identified. """
     try:
         youtube_uploader = settings.YOUTUBE_UPLOADER
     except Exception as e:
         raise ValueError(e)
-        pass
 
     scope = youtube_uploader['scope']
     credentials_path = youtube_uploader['credentials_path']
@@ -173,10 +172,6 @@ def get_authenticated_service():
     storage = Storage(file_path)
     credentials = storage.get()
 
-    try:
-        builded = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-            http=credentials.authorize(httplib2.Http()))
-        return builded
-    except Exception as e:
-        print(("error", e))
-
+    built = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
+                  http=credentials.authorize(httplib2.Http()))
+    return built
