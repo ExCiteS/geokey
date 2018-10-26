@@ -1,3 +1,2 @@
-Django>=1.8.19,<1.9
 factory-boy==2.11.1
 django-debug-toolbar==1.7
