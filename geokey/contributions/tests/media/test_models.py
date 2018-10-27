@@ -7,7 +7,9 @@ from geokey.contributions.models import (
     post_save_media_file_count_update
 )
 from geokey.contributions.tests.model_factories import ObservationFactory
-from geokey.contributions.tests.helpers.document_helpers import get_pdf_document
+from geokey.contributions.tests.media.helpers.document_helpers import (
+    get_pdf_document
+)
 from geokey.users.tests.model_factories import UserFactory
 
 from .model_factories import get_image
