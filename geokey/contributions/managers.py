@@ -18,8 +18,9 @@ from geokey.core.exceptions import FileTypeError, InputError
 from geokey.projects.models import Project
 
 from .base import (
-    OBSERVATION_STATUS, COMMENT_STATUS, ACCEPTED_IMAGE_FORMATS,
-    ACCEPTED_AUDIO_FORMATS, ACCEPTED_VIDEO_FORMATS, MEDIA_STATUS
+    OBSERVATION_STATUS, COMMENT_STATUS, MEDIA_STATUS,
+    ACCEPTED_IMAGE_FORMATS, ACCEPTED_DOCUMENT_FORMATS,
+    ACCEPTED_AUDIO_FORMATS, ACCEPTED_VIDEO_FORMATS
 )
 
 from .utils import (
@@ -231,7 +232,7 @@ class ObservationQuerySet(models.query.QuerySet):
             try:
                 # created bbox to Polygon
                 from django.contrib.gis.geos import Polygon
-                bbox = bbox.split(',') # Split by ','
+                bbox = bbox.split(',')  # Split by ','
                 geom_bbox = Polygon.from_bbox(bbox)
                 # Filtering observations where
                 return self.filter(location__geometry__bboverlaps=geom_bbox)
@@ -374,6 +375,43 @@ class MediaFileManager(InheritanceManager):
             image=the_file
         )
 
+    def _create_document_file(self, name, description, creator, contribution,
+                              the_file):
+        """
+        Creates an DocumentFile and returns the instance.
+
+        Parameter
+        ---------
+        name : str
+            Name of the file (short caption)
+        description : str
+            Long-form description (or caption) for the file
+        creator : geokey.users.models.User
+            User who created the file
+        contribution : geokey.contributions.models.Observation
+            Observation the file is assigned to
+        the_file : django.core.files.File
+            The actual file
+
+        Return
+        ------
+        geokey.contributions.models.DocumentFile
+            File created
+        """
+        from geokey.contributions.models import DocumentFile
+
+        filename, extension = os.path.splitext(the_file.name)
+        filename = self._normalise_filename(filename)
+        the_file.name = filename[:FILE_NAME_TRUNC] + extension
+
+        return DocumentFile.objects.create(
+            name=name,
+            description=description,
+            creator=creator,
+            contribution=contribution,
+            document=the_file
+        )
+
     def _create_audio_file(self, name, description, creator, contribution,
                            the_file):
         """
@@ -492,7 +530,7 @@ class MediaFileManager(InheritanceManager):
     def create(self, the_file=None, **kwargs):
         """
         Create a new file. Evaluates the file's content type and creates either
-        an ImageFile, AudioFile or VideoFile.
+        an ImageFile, DocumentFile, VideoFile or AudioFile.
 
         3gpp/3gpp2 audio files are converted to mp3 by default using avconv.
 
@@ -504,14 +542,15 @@ class MediaFileManager(InheritanceManager):
         Returns
         -------
         geokey.contributions.models.ImageFile or
-        geokey.contributions.models.AudioFile or
-        geokey.contributions.models.VideoFile
+        geokey.contributions.models.DocumentFile or
+        geokey.contributions.models.VideoFile or
+        geokey.contributions.models.AudioFile
             File created
 
         Raises
         ------
         FileTypeError
-            if the file type is not supported, e.g. PDFs
+            if the file type is not supported, e.g. DOCs or HTMLs
         """
         name = kwargs.get('name')
         description = kwargs.get('description')
@@ -584,6 +623,15 @@ class MediaFileManager(InheritanceManager):
         if (content_type[0] == 'image' and
                 content_type[1] in ACCEPTED_IMAGE_FORMATS):
             return self._create_image_file(
+                name,
+                description,
+                creator,
+                contribution,
+                the_file
+            )
+        elif (content_type[0] == 'application' and
+                content_type[1] in ACCEPTED_DOCUMENT_FORMATS):
+            return self._create_document_file(
                 name,
                 description,
                 creator,

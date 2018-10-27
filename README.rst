@@ -85,7 +85,11 @@ Note that for Ubuntu 16.04, you don't need to add the repo and can install 9.5:
 
 .. code-block:: console
 
-    sudo apt-get install python-pip python-virtualenv python-dev libjpeg-dev binutils libproj-dev libav-tools gdal-bin python-gdal
+    sudo apt-get install python-pip python-virtualenv python-dev libjpeg-dev libmagickcore-dev libmagickwand-dev imagemagick binutils libproj-dev libav-tools gdal-bin python-gdal
+
+4. Change ImageMagick permissions for it to be able to write:
+
+    `sed -i 's/\(<policy domain="coder" rights=\)"none" \(pattern="PDF" \/>\)/\1"read|write"\2/g' /etc/ImageMagick-6/policy.xml`
 
 For Ubuntu you might also need to install *libavcodec-extra-52* or *libavcodec-extra-53*.
 
