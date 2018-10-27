@@ -4,6 +4,7 @@ import requests
 import tempfile
 import subprocess
 
+from os.path import basename
 from PIL import Image
 
 from django.conf import settings
@@ -686,7 +687,7 @@ class FileSerializer(serializers.ModelSerializer):
                     settings.MEDIA_ROOT,
                     obj.document,
                     settings.MEDIA_ROOT,
-                    thumbnail_name
+                    '%s_thumbnail.png' % obj.document
                 ),
                 shell=True,
                 stdin=subprocess.PIPE,
@@ -702,7 +703,7 @@ class FileSerializer(serializers.ModelSerializer):
 
             # Crop and replace thumb based on whether height or width is smaller
             thumb = self._get_thumb(obj.thumbnail, size=(min(w, h), min(w, h)))
-            obj.thumbnail.save(thumbnail_name, thumb)
+            obj.thumbnail.save(basename(obj.document.name), thumb)
 
             return self._get_thumb(obj.thumbnail).url
 
