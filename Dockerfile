@@ -1,6 +1,7 @@
 FROM ecarrara/python-gdal
 
 RUN apt-get update && apt-get install -y libmagickcore-dev libmagickwand-dev imagemagick libav-tools
+RUN sed -i 's/\(<policy domain="coder" rights=\)"none" \(pattern="PDF" \/>\)/\1"read|write"\2/g' /etc/ImageMagick-6/policy.xml
 
 ENV DOCKERIZE_VERSION v0.6.1
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
