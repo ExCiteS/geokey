@@ -290,9 +290,11 @@ this["Templates"]["fieldselect"] = Handlebars.template({"1":function(container,d
 this["Templates"]["lookupvalues"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 
-  return "    <li class=\"list-group-item\">\n        <div class=\"value-display\">\n            <span class=\"value-label\">"
+  return "    <li class=\"list-group-item sort-item\" data-item-id=\""
+    + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
+    + "\">\n        <div class=\"value-display\">\n            <h4>\n                <small><span class=\"glyphicon glyphicon-sort\"></span></small>\n                <span class=\"value-label\">"
     + alias4(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data}) : helper)))
-    + "</span>\n\n            <span class=\"btn-group\">\n"
+    + "</span>\n            </h4>\n\n            <span class=\"btn-group\">\n"
     + ((stack1 = helpers.unless.call(alias1,(depth0 != null ? depth0.locked : depth0),{"name":"unless","hash":{},"fn":container.program(2, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + "\n                <button type=\"button\" class=\"btn btn-default btn-xs edit-symbol\">\n"
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.locked : depth0),{"name":"if","hash":{},"fn":container.program(4, data, 0),"inverse":container.program(6, data, 0),"data":data})) != null ? stack1 : "")

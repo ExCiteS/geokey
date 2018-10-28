@@ -587,6 +587,66 @@ class SingleLookupFieldTest(TestCase):
             '((properties ->> \'key\')::int IN (1,2,3))'
         )
 
+    def test_value_order(self):
+        field = LookupFieldFactory()
+
+        value_0 = LookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': field
+        })
+        value_1 = LookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': field
+        })
+
+        self.assertEqual(value_0.order, 0)
+        self.assertEqual(value_1.order, 1)
+
+    def test_reorder_values(self):
+        field = LookupFieldFactory.create()
+
+        value_0 = LookupValueFactory.create(**{'field': field})
+        value_1 = LookupValueFactory.create(**{'field': field})
+        value_2 = LookupValueFactory.create(**{'field': field})
+        value_3 = LookupValueFactory.create(**{'field': field})
+        value_4 = LookupValueFactory.create(**{'field': field})
+
+        field.reorder_values(
+            [value_4.id, value_0.id, value_2.id, value_1.id, value_3.id]
+        )
+
+        values = field.lookupvalues.all()
+
+        self.assertTrue(values.ordered)
+        self.assertEqual(values[0], value_4)
+        self.assertEqual(values[1], value_0)
+        self.assertEqual(values[2], value_2)
+        self.assertEqual(values[3], value_1)
+        self.assertEqual(values[4], value_3)
+
+    def test_reorder_values_with_false_value(self):
+        field = LookupFieldFactory.create()
+
+        value_0 = LookupValueFactory.create(**{'field': field})
+        value_1 = LookupValueFactory.create(**{'field': field})
+        value_2 = LookupValueFactory.create(**{'field': field})
+        value_3 = LookupValueFactory.create(**{'field': field})
+        value_4 = LookupValueFactory.create(**{'field': field})
+
+        try:
+            field.reorder_values(
+                [value_4.id, value_0.id, value_2.id, value_1.id, 5854]
+            )
+        except LookupValue.DoesNotExist:
+            values = field.lookupvalues.all()
+
+            self.assertTrue(values.ordered)
+            self.assertEqual(values[0].order, 0)
+            self.assertEqual(values[1].order, 1)
+            self.assertEqual(values[2].order, 2)
+            self.assertEqual(values[3].order, 3)
+            self.assertEqual(values[4].order, 4)
+
 
 class DateTimeFieldTest(TestCase):
     def test_create_datetimefield(self):
@@ -975,3 +1035,63 @@ class MultipleLookupTest(TestCase):
             '(regexp_split_to_array(btrim(properties ->> \'key\', \'[]\'), '
             '\',\')::int[] && ARRAY[1, 2, 3])'
         )
+
+    def test_value_order(self):
+        field = MultipleLookupFieldFactory()
+
+        value_0 = MultipleLookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': field
+        })
+        value_1 = MultipleLookupValueFactory(**{
+            'name': 'Ms. Piggy',
+            'field': field
+        })
+
+        self.assertEqual(value_0.order, 0)
+        self.assertEqual(value_1.order, 1)
+
+    def test_reorder_values(self):
+        field = MultipleLookupFieldFactory.create()
+
+        value_0 = MultipleLookupValueFactory.create(**{'field': field})
+        value_1 = MultipleLookupValueFactory.create(**{'field': field})
+        value_2 = MultipleLookupValueFactory.create(**{'field': field})
+        value_3 = MultipleLookupValueFactory.create(**{'field': field})
+        value_4 = MultipleLookupValueFactory.create(**{'field': field})
+
+        field.reorder_values(
+            [value_4.id, value_0.id, value_2.id, value_1.id, value_3.id]
+        )
+
+        values = field.lookupvalues.all()
+
+        self.assertTrue(values.ordered)
+        self.assertEqual(values[0], value_4)
+        self.assertEqual(values[1], value_0)
+        self.assertEqual(values[2], value_2)
+        self.assertEqual(values[3], value_1)
+        self.assertEqual(values[4], value_3)
+
+    def test_reorder_values_with_false_value(self):
+        field = MultipleLookupFieldFactory.create()
+
+        value_0 = MultipleLookupValueFactory.create(**{'field': field})
+        value_1 = MultipleLookupValueFactory.create(**{'field': field})
+        value_2 = MultipleLookupValueFactory.create(**{'field': field})
+        value_3 = MultipleLookupValueFactory.create(**{'field': field})
+        value_4 = MultipleLookupValueFactory.create(**{'field': field})
+
+        try:
+            field.reorder_values(
+                [value_4.id, value_0.id, value_2.id, value_1.id, 5854]
+            )
+        except MultipleLookupValue.DoesNotExist:
+            values = field.lookupvalues.all()
+
+            self.assertTrue(values.ordered)
+            self.assertEqual(values[0].order, 0)
+            self.assertEqual(values[1].order, 1)
+            self.assertEqual(values[2].order, 2)
+            self.assertEqual(values[3].order, 3)
+            self.assertEqual(values[4].order, 4)
