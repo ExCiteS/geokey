@@ -1,6 +1,6 @@
 FROM ecarrara/python-gdal
 
-RUN apt-get update && apt-get install -y libmagickcore-dev libmagickwand-dev imagemagick libav-tools
+RUN apt-get update && apt-get install -y libmagickcore-dev libmagickwand-dev imagemagick libav-tools nodejs npm
 RUN sed -i 's/\(<policy domain="coder" rights=\)"none" \(pattern="PDF" \/>\)/\1"read|write"\2/g' /etc/ImageMagick-6/policy.xml
 
 ENV DOCKERIZE_VERSION v0.6.1
@@ -15,3 +15,4 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 RUN pip install -r requirements-dev.txt
 RUN pip install -e /app
+RUN npm install
