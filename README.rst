@@ -55,6 +55,13 @@ If everything went well, there should be a GeoKey instance available on your sys
 
 For development purposes, the source code is also mounted as a volume in the `geokey` container, which means that changes made to the source code on the host machine are reflected in the container.
 
+In order for Grunt to compile the Handlebars templates within the container, in a new terminal window run:
+
+.. code-block:: console
+
+    docker-compose exec geokey npm run grunt
+
+
 Install for development
 =======================
 
