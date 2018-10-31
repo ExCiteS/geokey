@@ -306,3 +306,17 @@ class LookupValueManager(models.Manager):
             All active instances
         """
         return self.get_queryset().active(*args, **kwargs)
+
+    def create(self, *args, **kwargs):
+        """
+        Creates a new lookup value. Overwrites method to set the order of the
+        value in the list of values.
+
+        Returns
+        -------
+        geokey.categories.models.LookupValue
+            The newly created lookup value
+        """
+
+        return super(LookupValueManager, self).create(
+            order=kwargs.get('field').lookupvalues.count(), *args, **kwargs)

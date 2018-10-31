@@ -45,17 +45,9 @@ module.exports = function(grunt) {
                 livereload: true,
             },
 
-            concat: {
-                files: ['geokey/templates/handlebars/helpers.js', 'geokey/templates/templates.js'],
-                tasks: ['concat'],
-                options: {
-                    spawn: false,
-                }
-            },
-
-            handlebars: {
-                files: ['geokey/templates/handlebars/**/*.hbs'],
-                tasks: ['handlebars'],
+            templates: {
+                files: ['geokey/templates/handlebars/helpers.js', 'geokey/templates/handlebars/**/*.hbs'],
+                tasks: ['handlebars', 'concat', 'uglify'],
                 options: {
                     spawn: false,
                 }

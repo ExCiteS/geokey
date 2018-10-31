@@ -169,9 +169,9 @@ class ProjectOverview(LoginRequiredMixin, ProjectContext, TemplateView):
             contributions = project.observations.all()
             project.contributions_count = len(contributions)
             project.comments_count = Comment.objects.filter(
-                commentto=contributions).count()
+                commentto__in=contributions).count()
             project.media_count = MediaFile.objects.filter(
-                contribution=contributions).count()
+                contribution__in=contributions).count()
 
         return context
 

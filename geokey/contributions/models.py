@@ -404,9 +404,6 @@ class MediaFile(models.Model):
 
     objects = MediaFileManager()
 
-    class Meta:
-        ordering = ['id']
-
     @property
     def type_name(self):
         """
@@ -428,29 +425,6 @@ class MediaFile(models.Model):
         """
         self.status = MEDIA_STATUS.deleted
         self.save()
-
-
-class AudioFile(MediaFile):
-    """
-    Stores audio files uploaded by users.
-    """
-    audio = models.FileField(upload_to='user-uploads/audio')
-
-    class Meta:
-        ordering = ['id']
-        app_label = 'contributions'
-
-    @property
-    def type_name(self):
-        """
-        Returns file type name
-
-        Returns
-        -------
-        str
-            'AudioFile'
-        """
-        return 'AudioFile'
 
 
 class ImageFile(MediaFile):
@@ -476,9 +450,33 @@ class ImageFile(MediaFile):
         return 'ImageFile'
 
 
+class DocumentFile(MediaFile):
+    """
+    Stores documents uploaded by users.
+    """
+    document = models.FileField(upload_to='user-uploads/documents')
+    thumbnail = models.ImageField(upload_to='user-uploads/documents', null=True)
+
+    class Meta:
+        ordering = ['id']
+        app_label = 'contributions'
+
+    @property
+    def type_name(self):
+        """
+        Returns file type name
+
+        Returns
+        -------
+        str
+            'DocumentFile'
+        """
+        return 'DocumentFile'
+
+
 class VideoFile(MediaFile):
     """
-    Stores images uploaded by users.
+    Stores videos uploaded by users.
     """
     video = models.ImageField(upload_to='user-uploads/videos')
     youtube_id = models.CharField(max_length=100)
@@ -488,6 +486,7 @@ class VideoFile(MediaFile):
 
     class Meta:
         ordering = ['id']
+        app_label = 'contributions'
 
     @property
     def type_name(self):
@@ -502,12 +501,40 @@ class VideoFile(MediaFile):
         return 'VideoFile'
 
 
+class AudioFile(MediaFile):
+    """
+    Stores audio files uploaded by users.
+    """
+    audio = models.FileField(upload_to='user-uploads/audio')
+
+    class Meta:
+        ordering = ['id']
+        app_label = 'contributions'
+
+    @property
+    def type_name(self):
+        """
+        Returns file type name
+
+        Returns
+        -------
+        str
+            'AudioFile'
+        """
+        return 'AudioFile'
+
+
 @receiver(post_save)
 def post_save_media_file_count_update(sender, **kwargs):
     """
     Receiver that is called after a media file is saved. Updates num_media and
     num_comments properties.
     """
-    if sender.__name__ in ['ImageFile', 'VideoFile', 'AudioFile']:
+    if sender.__name__ in [
+        'ImageFile',
+        'DocumentFile',
+        'VideoFile',
+        'AudioFile'
+    ]:
         media_file = kwargs.get('instance')
         media_file.contribution.update_count()

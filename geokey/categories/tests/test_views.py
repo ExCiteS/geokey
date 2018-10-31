@@ -23,9 +23,10 @@ from .model_factories import (
 from ..models import Category, Field, LookupValue, MultipleLookupValue
 from ..views import (
     CategoryOverview, CategoryDelete, FieldSettings, FieldDelete,
-    CategoryUpdate, FieldUpdate, FieldLookupsUpdate, FieldLookups,
+    CategoryUpdate, FieldsReorderView, FieldUpdate,
+    FieldLookupsUpdate, FieldLookups, FieldLookupsReorderView,
     SingleCategory, CategoryCreate, CategorySettings,
-    FieldCreate, CategoryList, CategoryDisplay, FieldsReorderView
+    FieldCreate, CategoryList, CategoryDisplay
 )
 
 # ############################################################################
@@ -2007,6 +2008,92 @@ class UpdateLookupValues(TestCase):
         self.assertEqual(len(lookup_field.lookupvalues.all()), 1)
 
 
+class ReorderLookupValuesTest(TestCase):
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.field = LookupFieldFactory.create()
+
+        self.value_0 = LookupValueFactory.create(
+            **{'field': self.field})
+        self.value_1 = LookupValueFactory.create(
+            **{'field': self.field})
+        self.value_2 = LookupValueFactory.create(
+            **{'field': self.field})
+        self.value_3 = LookupValueFactory.create(
+            **{'field': self.field})
+
+    def test_reorder(self):
+        url = reverse(
+            'ajax:category_lookupvalues_reorder',
+            kwargs={
+                'project_id': self.field.category.project.id,
+                'category_id': self.field.category.id,
+                'field_id': self.field.id
+            }
+        )
+
+        data = [
+            self.value_0.id, self.value_2.id, self.value_1.id, self.value_3.id
+        ]
+
+        request = self.factory.post(
+            url, json.dumps({'order': data}), content_type='application/json')
+        force_authenticate(request, user=self.field.category.project.creator)
+        view = FieldLookupsReorderView.as_view()
+        response = view(
+            request,
+            project_id=self.field.category.project.id,
+            category_id=self.field.category.id,
+            field_id=self.field.id
+        ).render()
+
+        self.assertEqual(response.status_code, 200)
+
+        values = self.field.lookupvalues.all()
+
+        self.assertTrue(values.ordered)
+        self.assertEqual(values[0], self.value_0)
+        self.assertEqual(values[1], self.value_2)
+        self.assertEqual(values[2], self.value_1)
+        self.assertEqual(values[3], self.value_3)
+
+    def test_reorder_with_false_value(self):
+        url = reverse(
+            'ajax:category_lookupvalues_reorder',
+            kwargs={
+                'project_id': self.field.category.project.id,
+                'category_id': self.field.category.id,
+                'field_id': self.field.id
+            }
+        )
+
+        data = [
+            self.value_0.id, self.value_2.id, self.value_1.id, 655123135135
+        ]
+
+        request = self.factory.post(
+            url, json.dumps({'order': data}), content_type='application/json')
+        force_authenticate(request, user=self.field.category.project.creator)
+        view = FieldLookupsReorderView.as_view()
+        response = view(
+            request,
+            project_id=self.field.category.project.id,
+            category_id=self.field.category.id,
+            field_id=self.field.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
+
+        values = self.field.lookupvalues.all()
+
+        self.assertTrue(values.ordered)
+        self.assertEqual(values[0].order, 0)
+        self.assertEqual(values[1].order, 1)
+        self.assertEqual(values[2].order, 2)
+        self.assertEqual(values[3].order, 3)
+
+
 class AddMutipleLookupValueTest(TestCase):
 
     def setUp(self):
@@ -2250,6 +2337,92 @@ class RemoveMultipleLookupValues(TestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(len(lookup_field.lookupvalues.all()), 1)
+
+
+class ReorderMultipleLookupValuesTest(TestCase):
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.field = MultipleLookupFieldFactory.create()
+
+        self.value_0 = MultipleLookupValueFactory.create(
+            **{'field': self.field})
+        self.value_1 = MultipleLookupValueFactory.create(
+            **{'field': self.field})
+        self.value_2 = MultipleLookupValueFactory.create(
+            **{'field': self.field})
+        self.value_3 = MultipleLookupValueFactory.create(
+            **{'field': self.field})
+
+    def test_reorder(self):
+        url = reverse(
+            'ajax:category_lookupvalues_reorder',
+            kwargs={
+                'project_id': self.field.category.project.id,
+                'category_id': self.field.category.id,
+                'field_id': self.field.id
+            }
+        )
+
+        data = [
+            self.value_0.id, self.value_2.id, self.value_1.id, self.value_3.id
+        ]
+
+        request = self.factory.post(
+            url, json.dumps({'order': data}), content_type='application/json')
+        force_authenticate(request, user=self.field.category.project.creator)
+        view = FieldLookupsReorderView.as_view()
+        response = view(
+            request,
+            project_id=self.field.category.project.id,
+            category_id=self.field.category.id,
+            field_id=self.field.id
+        ).render()
+
+        self.assertEqual(response.status_code, 200)
+
+        values = self.field.lookupvalues.all()
+
+        self.assertTrue(values.ordered)
+        self.assertEqual(values[0], self.value_0)
+        self.assertEqual(values[1], self.value_2)
+        self.assertEqual(values[2], self.value_1)
+        self.assertEqual(values[3], self.value_3)
+
+    def test_reorder_with_false_value(self):
+        url = reverse(
+            'ajax:category_lookupvalues_reorder',
+            kwargs={
+                'project_id': self.field.category.project.id,
+                'category_id': self.field.category.id,
+                'field_id': self.field.id
+            }
+        )
+
+        data = [
+            self.value_0.id, self.value_2.id, self.value_1.id, 655123135135
+        ]
+
+        request = self.factory.post(
+            url, json.dumps({'order': data}), content_type='application/json')
+        force_authenticate(request, user=self.field.category.project.creator)
+        view = FieldLookupsReorderView.as_view()
+        response = view(
+            request,
+            project_id=self.field.category.project.id,
+            category_id=self.field.category.id,
+            field_id=self.field.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
+
+        values = self.field.lookupvalues.all()
+
+        self.assertTrue(values.ordered)
+        self.assertEqual(values[0].order, 0)
+        self.assertEqual(values[1].order, 1)
+        self.assertEqual(values[2].order, 2)
+        self.assertEqual(values[3].order, 3)
 
 
 # ############################################################################

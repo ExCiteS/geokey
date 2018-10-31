@@ -1,15 +1,18 @@
 /* ***********************************************
- * Handles sorting of categories or fields.
+ * Handles sorting of categories, fields, lookup
+ * values.
  * Based in jQueryUI sortable: https://jqueryui.com/sortable/
  *
  * Used in:
  * - templates/categories/category_list.html
  * - templates/categories/category_overview.html
+ * - templates/categories/field_settings.html
  * ***********************************************/
 
 $(function () {
     var projectId = $('body').attr('data-project-id'),
         categoryId = $('body').attr('data-category-id'),
+        fieldId = $('body').attr('data-field-id'),
         url = 'projects/' + projectId + '/categories/',
         name = 'category';
 
@@ -18,9 +21,14 @@ $(function () {
             name = 'field';
         }
 
+        if (fieldId) {
+            url += fieldId + '/lookupvalues/';
+            name = 'lookupvalue';
+        }
+
         url += 're-order/';
 
-    var list = $( "#sortable" );
+    var list = $('#sortable');
 
     /**
      * Handle successful update via the Ajax API. Displays a success message.
@@ -40,10 +48,10 @@ $(function () {
     function handleError(response) {
         $('.message').remove();
         var msg = 'An error occurred while updating the ' + name + ' order. Error text was: ' + response.responseJSON.error;
-        var html = $('<div class="bg-danger text-danger message"><span class="glyphicon glyphicon-remove"></span>' + msg + '</div>');
+        var html = $('<div class="bg-danger text-danger message"><span class="glyphicon glyphicon-remove"></span> ' + msg + '</div>');
             $('#sortable').before(html);
             setTimeout(function () { html.remove(); }, 5000);
-        list.sortable( "cancel" );
+        list.sortable('cancel');
     }
 
     /**
@@ -58,7 +66,7 @@ $(function () {
             sort.push($(fields[i]).attr('data-item-id'));
         }
 
-        Control.Ajax.post(url, handleSuccess, handleError, {'order': sort});
+        Control.Ajax.post(url, handleSuccess, handleError, { 'order': sort });
     }
 
     // initialise drag and drop ordering
@@ -67,5 +75,5 @@ $(function () {
         stop: getSorting,
         revert: true
     });
-    $( "#sortable" ).disableSelection();
+    list.disableSelection();
 }());
