@@ -207,7 +207,7 @@ class ApplicationSettings(LoginRequiredMixin, TemplateView):
             app.download_url = data.get('download_url')
             app.redirect_uris = data.get('redirect_uris')
             app.authorization_grant_type = data.get('authorization_grant_type')
-            app.skip_authorization = data.get('skip_authorization', False)
+            app.skip_authorization = True if data.get('skip_authorization') else False
             app.save()
 
             messages.success(self.request, 'The application has been updated.')
