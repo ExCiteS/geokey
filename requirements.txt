@@ -25,4 +25,3 @@ facebook-sdk==2.0.0
 oauth2client==4.1.2
 oauthlib==2.0.6
 google-api-python-client==1.6.4
-factory-boy==2.10.0

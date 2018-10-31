@@ -257,6 +257,26 @@ class Field(models.Model):
             'subclass of Field.'
         )
 
+    def reorder_values(self, order):
+        """
+        Changes the order in which (single/multiple) lookup values are displayed
+        on client side.
+
+        Parameters
+        -------
+        order : List
+            IDs of values, ordered according to new display order
+        """
+        if isinstance(self, (LookupField, MultipleLookupField)):
+            values_to_save = []
+            for idx, value_id in enumerate(order):
+                value = self.lookupvalues.get(pk=value_id)
+                value.order = idx
+                values_to_save.append(value)
+
+            for value in values_to_save:
+                value.save()
+
     def get_filter(self, rule):
         """
         Returns an SQL where clause that can be used to filter contributions in
@@ -832,6 +852,7 @@ class LookupValue(models.Model):
     name = models.CharField(max_length=100)
     symbol = models.ImageField(upload_to='symbols', null=True, max_length=500)
     field = models.ForeignKey(LookupField, related_name='lookupvalues')
+    order = models.IntegerField(default=0)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
@@ -841,7 +862,7 @@ class LookupValue(models.Model):
     objects = LookupValueManager()
 
     class Meta:
-        ordering = ['id']
+        ordering = ['order']
 
     def delete(self):
         """
@@ -925,6 +946,7 @@ class MultipleLookupValue(models.Model):
     name = models.CharField(max_length=100)
     symbol = models.ImageField(upload_to='symbols', null=True, max_length=500)
     field = models.ForeignKey(MultipleLookupField, related_name='lookupvalues')
+    order = models.IntegerField(default=0)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
@@ -934,7 +956,7 @@ class MultipleLookupValue(models.Model):
     objects = LookupValueManager()
 
     class Meta:
-        ordering = ['id']
+        ordering = ['order']
 
     def delete(self):
         """

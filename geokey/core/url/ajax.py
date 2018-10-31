@@ -60,6 +60,12 @@ urlpatterns = [
     url(
         r'^projects/(?P<project_id>[0-9]+)/'
         r'categories/(?P<category_id>[0-9]+)/'
+        r'fields/re-order/$',
+        category_views.FieldsReorderView.as_view(),
+        name='category_fields_reorder'),
+    url(
+        r'^projects/(?P<project_id>[0-9]+)/'
+        r'categories/(?P<category_id>[0-9]+)/'
         r'fields/(?P<field_id>[0-9]+)/$',
         category_views.FieldUpdate.as_view(),
         name='category_field'),
@@ -74,15 +80,16 @@ urlpatterns = [
         r'^projects/(?P<project_id>[0-9]+)/'
         r'categories/(?P<category_id>[0-9]+)/'
         r'fields/(?P<field_id>[0-9]+)/'
-        r'lookupvalues/(?P<value_id>[0-9]+)/$',
-        category_views.FieldLookupsUpdate.as_view(),
-        name='category_lookupvalues_detail'),
+        r'lookupvalues/re-order/$',
+        category_views.FieldLookupsReorderView.as_view(),
+        name='category_lookupvalues_reorder'),
     url(
         r'^projects/(?P<project_id>[0-9]+)/'
         r'categories/(?P<category_id>[0-9]+)/'
-        r'fields/re-order/$',
-        category_views.FieldsReorderView.as_view(),
-        name='category_fields_reorder'),
+        r'fields/(?P<field_id>[0-9]+)/'
+        r'lookupvalues/(?P<value_id>[0-9]+)/$',
+        category_views.FieldLookupsUpdate.as_view(),
+        name='category_lookupvalues_detail'),
 
     # ###########################
     # USER
