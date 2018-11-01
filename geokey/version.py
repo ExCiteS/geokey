@@ -1,6 +1,6 @@
 """Version of GeoKey."""
 
-VERSION = (1, 7, 1, 'final', 0)
+VERSION = (1, 7, 2, 'final', 0)
 
 
 def get_version():
