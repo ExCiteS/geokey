@@ -408,7 +408,7 @@ class FieldCreate(LoginRequiredMixin, CategoryMixin, CreateView):
                 )
 
                 if isinstance(field, TextField):
-                    field.textarea = request.POST.get('textarea') or False
+                    field.textarea = True if request.POST.get('textarea') else False
                     field.maxlength = request.POST.get('maxlength') or None
 
                 elif isinstance(field, NumericField):
@@ -502,10 +502,10 @@ class FieldSettings(LoginRequiredMixin, FieldMixin, TemplateView):
         if field:
             field.name = strip_tags(data.get('name'))
             field.description = strip_tags(data.get('description'))
-            field.required = data.get('required') or False
+            field.required = True if data.get('required') else False
 
             if isinstance(field, TextField):
-                field.textarea = data.get('textarea') or False
+                field.textarea = True if data.get('textarea') else False
                 field.maxlength = data.get('maxlength') or None
             elif isinstance(field, NumericField):
                 field.minval = data.get('minval') or None
