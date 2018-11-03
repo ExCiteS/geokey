@@ -177,4 +177,4 @@ def get_authenticated_service():
                         http=credentials.authorize(httplib2.Http()))
         return builded
     except Exception as e:
-        print "error", e
+        print(("error", e))
