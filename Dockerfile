@@ -11,8 +11,6 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 
 ADD /geokey/local_settings /app/local_settings
 ADD /geokey /app
-# Uncomment for communitymaps.
-ADD /geokey-communitymaps /extensions/geokey-communitymaps
 
 WORKDIR /app
 RUN pip install --upgrade pip
