@@ -115,8 +115,6 @@ $(function () {
 
         $(form).find('textarea').each(function () {
             var length = $(this).val().length;
-            console.log(length)
-            console.log($(this).attr('maxlength'))
             if (length > $(this).attr('maxlength')) {
                 valid = false;
                 $(this).parents('.form-group').addClass('has-error');

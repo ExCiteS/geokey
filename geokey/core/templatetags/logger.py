@@ -12,6 +12,8 @@ def check_media_file_type(media_file_class):
         media_file_type = 'Audio file'
     elif media_file_class == 'VideoFile':
         media_file_type = 'Video file'
+    elif media_file_class == 'DocumentFile':
+        media_file_type = 'Document file'
     elif media_file_class == 'ImageFile':
         media_file_type = 'Image file'
 

@@ -408,7 +408,7 @@ class FieldCreate(LoginRequiredMixin, CategoryMixin, CreateView):
                 )
 
                 if isinstance(field, TextField):
-                    field.textarea = request.POST.get('textarea') or False
+                    field.textarea = True if request.POST.get('textarea') else False
                     field.maxlength = request.POST.get('maxlength') or None
 
                 elif isinstance(field, NumericField):
@@ -502,10 +502,10 @@ class FieldSettings(LoginRequiredMixin, FieldMixin, TemplateView):
         if field:
             field.name = strip_tags(data.get('name'))
             field.description = strip_tags(data.get('description'))
-            field.required = data.get('required') or False
+            field.required = True if data.get('required') else False
 
             if isinstance(field, TextField):
-                field.textarea = data.get('textarea') or False
+                field.textarea = True if data.get('textarea') else False
                 field.maxlength = data.get('maxlength') or None
             elif isinstance(field, NumericField):
                 field.minval = data.get('minval') or None
@@ -657,6 +657,45 @@ class CategoryUpdate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class FieldsReorderView(APIView):
+    """Ajax API to reorder fields of a category."""
+
+    @handle_exceptions_for_ajax
+    def post(self, request, project_id, category_id):
+        """
+        Handle POST request.
+
+        Reorder fields of the category.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Object representing the request.
+        project_id : int
+            Identifies the project in the database.
+        category_id : int
+            Identifies the category in the database.
+
+        Returns
+        -------
+        rest_framework.response.Response
+            Response to the request.
+        """
+
+        category = Category.objects.as_admin(
+            request.user, project_id, category_id)
+
+        try:
+            category.reorder_fields(request.data.get('order'))
+            serializer = CategorySerializer(category)
+            return Response(serializer.data)
+        except Field.DoesNotExist:
+            return Response(
+                {'error': 'One or more field IDs were not found.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
 class FieldUpdate(APIView):
 
     """
@@ -753,6 +792,59 @@ class FieldLookups(APIView):
             return Response(
                 {'error': 'This field is not a lookup field.'},
                 status=status.HTTP_404_NOT_FOUND
+            )
+
+
+class FieldLookupsReorderView(APIView):
+    """Ajax API to reorder values of a (single/multiple) lookup field."""
+
+    @handle_exceptions_for_ajax
+    def post(self, request, project_id, category_id, field_id):
+        """
+        Handle POST request.
+
+        Reorder values of the (single/multiple) lookup field.
+
+        Parameters
+        ----------
+        request : rest_framework.request.Request
+            Object representing the request.
+        project_id : int
+            Identifies the project in the database.
+        category_id : int
+            Identifies the category in the database.
+        field_id : int
+            Identifies the field in the database.
+
+        Returns
+        -------
+        rest_framework.response.Response
+            Response to the request.
+        """
+
+        field = Field.objects.as_admin(
+            request.user, project_id, category_id, field_id)
+
+        value_model = None
+
+        if isinstance(field, LookupField):
+            value_model = LookupValue
+        elif isinstance(field, MultipleLookupField):
+            value_model = MultipleLookupValue
+        else:
+            return Response(
+                {'error': 'This field is not a lookup field.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        try:
+            field.reorder_values(request.data.get('order'))
+            serializer = LookupFieldSerializer(field)
+            return Response(serializer.data)
+        except value_model.DoesNotExist:
+            return Response(
+                {'error': 'One or more value IDs were not found.'},
+                status=status.HTTP_400_BAD_REQUEST
             )
 
 
@@ -873,47 +965,6 @@ class FieldLookupsUpdate(APIView):
             return Response(
                 {'error': 'This field is not a lookup field.'},
                 status=status.HTTP_404_NOT_FOUND
-            )
-
-
-class FieldsReorderView(APIView):
-    """Ajax API to reorder fields of a category."""
-
-    @handle_exceptions_for_ajax
-    def post(self, request, project_id, category_id):
-        """
-        Handle POST request.
-
-        Reorder fields of the category.
-
-        Parameters
-        ----------
-        request : rest_framework.request.Request
-            Object representing the request.
-        project_id : int
-            Identifies the project in the database.
-        category_id : int
-            Identifies the category in the database.
-
-        Returns
-        -------
-        rest_framework.response.Response
-            Response to the request.
-        """
-        category = Category.objects.as_admin(
-            request.user,
-            project_id,
-            category_id
-        )
-
-        try:
-            category.reorder_fields(request.data.get('order'))
-            serializer = CategorySerializer(category)
-            return Response(serializer.data)
-        except Field.DoesNotExist:
-            return Response(
-                {'error': 'One or more field IDs were not found.'},
-                status=status.HTTP_400_BAD_REQUEST
             )
 
 

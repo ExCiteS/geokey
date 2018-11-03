@@ -1,6 +1,7 @@
 """Template tags for filtering tags."""
 
 from django import template
+from django.utils.safestring import mark_safe
 
 from geokey.categories.models import Field
 
@@ -19,8 +20,8 @@ def show_restrict(rules, category):
     if rules:
         if str(category.id) in rules:
             if rules[str(category.id)] == {}:
-                return ('<a href="#" class="text-danger activate-detailed">'
-                        'Restrict further</a>')
+                return mark_safe('<a href="#" class="text-danger '
+                                 'activate-detailed">Restrict further</a>')
 
     return ''
 

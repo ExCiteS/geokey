@@ -21,7 +21,7 @@ from nose.tools import raises
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework.renderers import JSONRenderer
 
-from geokey.core.exceptions import MalformedRequestData
+from geokey.core.exceptions import MalformedRequestData, FileTypeError
 from geokey.core.tests.helpers.image_helpers import get_image
 from geokey.projects.tests.model_factories import UserFactory, ProjectFactory
 from geokey.contributions.models import MediaFile
@@ -164,6 +164,88 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         data = {
             'description': 'Test image description',
             'file': get_image()
+        }
+
+        request = self.factory.post(url, data)
+        request.user = self.admin
+        view = MediaAbstractAPIView()
+        view.request = request
+
+        view.create_and_respond(request, self.contribution)
+
+    def test_create_document_and_respond(self):
+        url = reverse(
+            'api:project_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id
+            }
+        )
+
+        document = File(open(
+            normpath(join(
+                dirname(abspath(__file__)),
+                'files/document_1.pdf'
+            )),
+            'rb'
+        ))
+
+        data = {
+            'name': 'A test document',
+            'description': 'Test document description',
+            'file': document
+        }
+
+        request = self.factory.post(url, data)
+        request.user = self.admin
+        view = MediaAbstractAPIView()
+        view.request = request
+
+        response = self.render(
+            view.create_and_respond(request, self.contribution)
+        )
+
+        response_json = json.loads(response.content)
+        self.assertEqual(
+            response_json.get('name'),
+            data.get('name')
+        )
+        self.assertEqual(
+            response_json.get('description'),
+            data.get('description')
+        )
+        self.assertEqual(
+            response_json.get('creator').get('display_name'),
+            request.user.display_name
+        )
+        self.assertEqual(
+            response_json.get('file_type'),
+            'DocumentFile'
+        )
+        self.assertIn('document_1.pdf', response_json.get('url'))
+
+    @raises(FileTypeError)
+    def test_create_document_and_respond_with_unsupported_type(self):
+        url = reverse(
+            'api:project_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id
+            }
+        )
+
+        document = File(open(
+            normpath(join(
+                dirname(abspath(__file__)),
+                'files/document_2.doc'
+            )),
+            'rb'
+        ))
+
+        data = {
+            'name': 'A test document',
+            'description': 'Test document description',
+            'file': document
         }
 
         request = self.factory.post(url, data)

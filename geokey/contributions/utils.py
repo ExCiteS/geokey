@@ -172,6 +172,9 @@ def get_authenticated_service():
     storage = Storage(file_path)
     credentials = storage.get()
 
-    built = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-                  http=credentials.authorize(httplib2.Http()))
-    return built
+    try:
+        builded = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
+                        http=credentials.authorize(httplib2.Http()))
+        return builded
+    except Exception as e:
+        print "error", e

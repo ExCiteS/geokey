@@ -11,6 +11,7 @@ from geokey.users.tests.model_factories import UserFactory
 
 from .model_factories import (
     ImageFileFactory,
+    DocumentFileFactory,
     VideoFileFactory,
     AudioFileFactory
 )
@@ -45,13 +46,32 @@ class FileSerializerTest(TestCase):
         serializer = FileSerializer(image, context={'user': image.creator})
         self.assertEqual(serializer.get_url(image), image.image.url)
 
-    def test_get_thumb_url(self):
+    def test_get_image_thumb_url(self):
         image = ImageFileFactory.create()
 
         serializer = FileSerializer(image, context={'user': image.creator})
         self.assertEqual(
             serializer.get_thumbnail_url(image),
             image.image.url + '.300x300_q85_crop.png'
+        )
+
+    def test_get_document_url(self):
+        document = DocumentFileFactory.create()
+
+        serializer = FileSerializer(document, context={
+            'user': document.creator
+        })
+        self.assertEqual(serializer.get_url(document), document.document.url)
+
+    def test_get_document_thumb_url(self):
+        document = DocumentFileFactory.create()
+
+        serializer = FileSerializer(document, context={
+            'user': document.creator
+        })
+        self.assertEqual(
+            serializer.get_thumbnail_url(document),
+            document.thumbnail.url + '.300x300_q85_crop.jpg'
         )
 
     def test_get_youtube_link(self):
