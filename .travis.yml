@@ -20,7 +20,7 @@ env:
 install:
   - sudo -E apt-get -yq update &>> ~/apt-get-update.log
   - sudo apt-get install binutils libav-tools
-  - sudo apt-get -yq install libgdal-dev python-gdal
+  - sudo apt-get -yq install libgdal-dev
   - gdal-config --version
   - export C_INCLUDE_PATH=/usr/include/gdal
   - export CPLUS_INCLUDE_PATH=/usr/include/gdal
