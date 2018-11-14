@@ -1205,7 +1205,7 @@ class TestProjectPublicApi(TestCase):
                 'project': self.project,
                 'category': category,
                 'properties': {'text': 'blub'},
-                'location': loc2 }
+                'location': loc2}
                 
             )
 
@@ -1240,7 +1240,7 @@ class TestProjectPublicApi(TestCase):
                 'project': self.project,
                 'category': category,
                 'properties': {'text': 'blub'},
-                'location': loc2 }
+                'location': loc2}
                 
             )
 
@@ -1277,7 +1277,7 @@ class TestProjectPublicApi(TestCase):
                 'project': self.project,
                 'category': category,
                 'properties': {'text': 'blub'},
-                'location': loc2 }
+                'location': loc2}
                 
             )
 
