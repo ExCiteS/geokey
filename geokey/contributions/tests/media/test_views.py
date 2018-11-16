@@ -255,6 +255,53 @@ class MediaFileAbstractListAPIViewTest(TestCase):
 
         view.create_and_respond(request, self.contribution)
 
+    # This test does not work on Travis CI, but can be enabled to run locally.
+    # Need to set settings.ENABLE_VIDEO = True and fill in YOUTUBE_* settings.
+    # def test_create_video_and_respond(self):
+    #     url = reverse(
+    #         'api:project_media',
+    #         kwargs={
+    #             'project_id': self.project.id,
+    #             'contribution_id': self.contribution.id
+    #         }
+    #     )
+    #
+    #     video_file = File(open(normpath(join(dirname(abspath(__file__)), 'files/video.MOV')), 'rb'))
+    #
+    #     data = {
+    #         'name': 'A test video',
+    #         'description': 'Test video description',
+    #         'file': video_file
+    #     }
+    #
+    #     request = self.factory.post(url, data)
+    #     request.user = self.admin
+    #     view = MediaAbstractAPIView()
+    #     view.request = request
+    #
+    #     response = self.render(
+    #         view.create_and_respond(request, self.contribution)
+    #     )
+    #
+    #     response_json = json.loads(response.content)
+    #     self.assertEqual(
+    #         response_json.get('name'),
+    #         data.get('name')
+    #     )
+    #     self.assertEqual(
+    #         response_json.get('description'),
+    #         data.get('description')
+    #     )
+    #     self.assertEqual(
+    #         response_json.get('creator').get('display_name'),
+    #         request.user.display_name
+    #     )
+    #     self.assertEqual(
+    #         response_json.get('file_type'),
+    #         'VideoFile'
+    #     )
+    #     self.assertIsNotNone(response_json.get('url'))
+
     def test_create_audio_and_respond(self):
         url = reverse(
             'api:project_media',
