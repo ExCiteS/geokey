@@ -255,50 +255,52 @@ class MediaFileAbstractListAPIViewTest(TestCase):
 
         view.create_and_respond(request, self.contribution)
 
-    #def test_create_video_and_respond(self):
-    #    url = reverse(
-    #        'api:project_media',
-    #        kwargs={
-    #            'project_id': self.project.id,
-    #            'contribution_id': self.contribution.id
-    #        }
-    #    )
+    # This test does not work on Travis CI, but can be enabled to run locally.
+    # Need to set settings.ENABLE_VIDEO = True and fill in YOUTUBE_* settings.
+    # def test_create_video_and_respond(self):
+    #     url = reverse(
+    #         'api:project_media',
+    #         kwargs={
+    #             'project_id': self.project.id,
+    #             'contribution_id': self.contribution.id
+    #         }
+    #     )
     #
-    #    video_file = File(open(normpath(join(dirname(abspath(__file__)), 'files/video.MOV')), 'rb'))
+    #     video_file = File(open(normpath(join(dirname(abspath(__file__)), 'files/video.MOV')), 'rb'))
     #
-    #    data = {
-    #        'name': 'A test video',
-    #        'description': 'Test video description',
-    #        'file': video_file
-    #    }
+    #     data = {
+    #         'name': 'A test video',
+    #         'description': 'Test video description',
+    #         'file': video_file
+    #     }
     #
-    #    request = self.factory.post(url, data)
-    #    request.user = self.admin
-    #    view = MediaAbstractAPIView()
-    #    view.request = request
+    #     request = self.factory.post(url, data)
+    #     request.user = self.admin
+    #     view = MediaAbstractAPIView()
+    #     view.request = request
     #
-    #    response = self.render(
-    #        view.create_and_respond(request, self.contribution)
-    #    )
+    #     response = self.render(
+    #         view.create_and_respond(request, self.contribution)
+    #     )
     #
-    #    response_json = json.loads(response.content)
-    #    self.assertEqual(
-    #        response_json.get('name'),
-    #        data.get('name')
-    #    )
-    #    self.assertEqual(
-    #        response_json.get('description'),
-    #        data.get('description')
-    #    )
-    #    self.assertEqual(
-    #        response_json.get('creator').get('display_name'),
-    #        request.user.display_name
-    #    )
-    #    self.assertEqual(
-    #        response_json.get('file_type'),
-    #        'VideoFile'
-    #    )
-    #    self.assertIsNotNone(response_json.get('url'))
+    #     response_json = json.loads(response.content)
+    #     self.assertEqual(
+    #         response_json.get('name'),
+    #         data.get('name')
+    #     )
+    #     self.assertEqual(
+    #         response_json.get('description'),
+    #         data.get('description')
+    #     )
+    #     self.assertEqual(
+    #         response_json.get('creator').get('display_name'),
+    #         request.user.display_name
+    #     )
+    #     self.assertEqual(
+    #         response_json.get('file_type'),
+    #         'VideoFile'
+    #     )
+    #     self.assertIsNotNone(response_json.get('url'))
 
     def test_create_audio_and_respond(self):
         url = reverse(
@@ -351,7 +353,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         )
         self.assertIn('audio_1.mp3', response_json.get('url'))
 
-    def test_create_audio_and_convert(self):
+    def test_create_audio_and_convert_3gp(self):
         url = reverse(
             'api:project_media',
             kwargs={
@@ -401,6 +403,108 @@ class MediaFileAbstractListAPIViewTest(TestCase):
             'AudioFile'
         )
         self.assertIn('audio_2.mp3', response_json.get('url'))
+
+    def test_create_audio_and_convert_opus(self):
+        url = reverse(
+            'api:project_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id
+            }
+        )
+
+        audio_file = File(open(
+            normpath(join(
+                dirname(abspath(__file__)),
+                'files/audio_1.opus'
+            )),
+            'rb'
+        ))
+
+        data = {
+            'name': 'A test sound',
+            'description': 'Test sound description (opus)',
+            'file': audio_file
+        }
+
+        request = self.factory.post(url, data)
+        request.user = self.admin
+        view = MediaAbstractAPIView()
+        view.request = request
+
+        response = self.render(
+            view.create_and_respond(request, self.contribution)
+        )
+
+        response_json = json.loads(response.content)
+        self.assertEqual(
+            response_json.get('name'),
+            data.get('name')
+        )
+        self.assertEqual(
+            response_json.get('description'),
+            data.get('description')
+        )
+        self.assertEqual(
+            response_json.get('creator').get('display_name'),
+            request.user.display_name
+        )
+        self.assertEqual(
+            response_json.get('file_type'),
+            'AudioFile'
+        )
+        self.assertIn('audio_1.mp3', response_json.get('url'))
+
+    def test_create_audio_and_convert_m4a(self):
+        url = reverse(
+            'api:project_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id
+            }
+        )
+
+        audio_file = File(open(
+            normpath(join(
+                dirname(abspath(__file__)),
+                'files/audio_1.m4a'
+            )),
+            'rb'
+        ))
+
+        data = {
+            'name': 'A test sound',
+            'description': 'Test sound description (m4a)',
+            'file': audio_file
+        }
+
+        request = self.factory.post(url, data)
+        request.user = self.admin
+        view = MediaAbstractAPIView()
+        view.request = request
+
+        response = self.render(
+            view.create_and_respond(request, self.contribution)
+        )
+
+        response_json = json.loads(response.content)
+        self.assertEqual(
+            response_json.get('name'),
+            data.get('name')
+        )
+        self.assertEqual(
+            response_json.get('description'),
+            data.get('description')
+        )
+        self.assertEqual(
+            response_json.get('creator').get('display_name'),
+            request.user.display_name
+        )
+        self.assertEqual(
+            response_json.get('file_type'),
+            'AudioFile'
+        )
+        self.assertIn('audio_1.mp3', response_json.get('url'))
 
 
 class MediaAbstractAPIViewTest(TestCase):

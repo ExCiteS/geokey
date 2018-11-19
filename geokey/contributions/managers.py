@@ -561,7 +561,8 @@ class MediaFileManager(InheritanceManager):
         converted_file = None
 
         # Using avconv to scan and convert 3gpp/3gpp2 audio files to mp3
-        if content_type[1] in ['3gpp', '3gpp2']:
+        if content_type[1] in ['3gpp', '3gpp2', 'ogg'] or \
+           content_type == ['audio', 'mpeg']:
             import time
             import shlex
             import subprocess
