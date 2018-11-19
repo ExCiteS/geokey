@@ -26,7 +26,7 @@ def handle_exceptions_for_admin(func):
     def wrapped(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except PermissionDenied, error:
+        except PermissionDenied as error:
             return {
                 "error_description": str(error),
                 "error": "Permission denied."
@@ -47,22 +47,22 @@ def handle_exceptions_for_ajax(func):
     def wrapped(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except Unauthenticated, error:
+        except Unauthenticated as error:
             return Response(
                 {"error": str(error)},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-        except PermissionDenied, error:
+        except PermissionDenied as error:
             return Response(
                 {"error": str(error)},
                 status=status.HTTP_403_FORBIDDEN
             )
-        except ValidationError, error:
+        except ValidationError as error:
             return Response(
                 {"error": error.messages},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        except (MalformedRequestData, FileTypeError), error:
+        except (MalformedRequestData, FileTypeError) as error:
             return Response(
                 {"error": str(error)},
                 status=status.HTTP_400_BAD_REQUEST

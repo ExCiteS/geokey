@@ -7,7 +7,7 @@ from django.db import connection
 from .signals import request_accessor
 
 try:
-    import settings
+    from . import settings
     XS_SHARING_ALLOWED_ORIGINS = settings.XS_SHARING_ALLOWED_ORIGINS
     XS_SHARING_ALLOWED_METHODS = settings.XS_SHARING_ALLOWED_METHODS
     XS_SHARING_ALLOWED_HEADERS = settings.XS_SHARING_ALLOWED_HEADERS
@@ -51,8 +51,8 @@ class TerminalLogging(object):
         from sys import stdout
         if stdout.isatty():
             for query in connection.queries :
-                print "\033[1;31m[%s]\033[0m \033[1m%s\033[0m" % (query['time'],
-                    " ".join(query['sql'].split()))
+                print("\033[1;31m[%s]\033[0m \033[1m%s\033[0m" % (query['time'],
+                    " ".join(query['sql'].split())))
         return response
 
 

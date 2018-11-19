@@ -65,7 +65,7 @@ In order for Grunt to compile the Handlebars templates within the container, in 
 Install for development
 =======================
 
-GeoKey can be run on Python 2.7 only.
+GeoKey can be run on Python 2.7 or Python 3 (Geokey 1.8 onwards).
 
 1. Update your system:
 
@@ -192,7 +192,7 @@ You may need to add *sudo* before the pip commands, unless you are logged in as 
 
 4. Inside the *local_settings* open *settings.py* in a text editor and...
 
-Add your `database settings <https://docs.djangoproject.com/en/1.8/ref/settings/#databases>`_:
+Add your `database settings <https://docs.djangoproject.com/en/1.11/ref/settings/#databases>`_:
 
 .. code-block:: python
 
@@ -207,14 +207,14 @@ Add your `database settings <https://docs.djangoproject.com/en/1.8/ref/settings/
         }
     }
 
-Set the `secret key <https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-SECRET_KEY>`_:
+Set the `secret key <https://docs.djangoproject.com/en/1.11/ref/settings/#std:setting-SECRET_KEY>`_:
 
 .. code-block:: python
 
     SECRET_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
 
-Set the `STATIC_ROOT directory <https://docs.djangoproject.com/en/1.8/howto/static-files/#deployment>`_:
+Set the `STATIC_ROOT directory <https://docs.djangoproject.com/en/1.11/howto/static-files/#deployment>`_:
 
 .. code-block:: python
 

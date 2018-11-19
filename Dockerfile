@@ -13,6 +13,7 @@ ADD /geokey/local_settings /app/local_settings
 ADD /geokey /app
 
 WORKDIR /app
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 RUN pip install -r requirements-dev.txt
 RUN pip install -e /app

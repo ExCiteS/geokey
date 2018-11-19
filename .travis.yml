@@ -5,7 +5,8 @@ services:
   - postgresql
 
 python:
-  - '2.7'
+  - '2.7_with_system_site_packages'
+  - '3.6'
 
 addons:
   postgresql: '9.4'
@@ -16,13 +17,10 @@ addons:
 env:
   - DJANGO='>=1.8.19,<1.12'
 
-virtualenv:
-  system_site_packages: true
-
 install:
   - sudo -E apt-get -yq update &>> ~/apt-get-update.log
   - sudo apt-get install binutils libav-tools
-  - sudo apt-get -yq install libgdal-dev python-gdal
+  - sudo apt-get -yq install libgdal-dev
   - gdal-config --version
   - export C_INCLUDE_PATH=/usr/include/gdal
   - export CPLUS_INCLUDE_PATH=/usr/include/gdal
@@ -56,3 +54,4 @@ deploy:
     secure: EPsnf69HqWA8nT9ncgVuyhIJGZnR3Nrg8NUEzG4t1B1CTJfmwODC0Fb8Hybq25/0y6Fq3mBWE482xhscVHYvNh/7UnehU+y2riIj5iP+VYrfEuLzBN6ZkjYXOezafq6pzotwsj6JCDWKGmBE6Jy++FDsOFSzLK/R2p3HqnrnRpc=
   on:
     tags: true
+    python: '3.6'

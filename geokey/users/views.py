@@ -623,7 +623,7 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
             return self.render_to_response(self.get_context_data(form=form))
 
         # Blank/default user fields.
-        random_numbers = ''.join(str(random.choice(range(10))) for _ in range(8))
+        random_numbers = ''.join(str(random.choice(list(range(10)))) for _ in range(8))
         random_password = ''.join(random.choice(ascii_lowercase) for _ in range(15))
         user.email = random_numbers + '@' + 'deleteduser.email'
         user.display_name = 'Deleted user ' + random_numbers
@@ -676,7 +676,7 @@ class AccountDisconnect(LoginRequiredMixin, TemplateView):
                     SocialAccount.objects.filter(user=self.request.user))
                 account.delete()
                 messages.success(request, 'The account has been disconnected.')
-            except ValidationError, e:
+            except ValidationError as e:
                 messages.error(request, e)
 
         return HttpResponseRedirect(reverse('admin:userprofile'))
