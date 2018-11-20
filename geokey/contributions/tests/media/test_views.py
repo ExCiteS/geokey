@@ -620,7 +620,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         audio_file = File(open(
             normpath(join(
                 dirname(abspath(__file__)),
-                'files/audio_7.flac'
+                'files/audio_6.flac'
             )),
             'rb'
         ))
@@ -657,7 +657,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
             response_json.get('file_type'),
             'AudioFile'
         )
-        self.assertIn('audio_7.mp3', response_json.get('url'))
+        self.assertIn('audio_6.mp3', response_json.get('url'))
 
 
 class MediaAbstractAPIViewTest(TestCase):
