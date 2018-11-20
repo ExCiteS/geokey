@@ -10,7 +10,7 @@ COMMENT_REVIEW = Choices('open', 'resolved')
 MEDIA_STATUS = Choices('active', 'deleted')
 
 ACCEPTED_IMAGE_FORMATS = ('png', 'jpeg', 'gif')
-ACCEPTED_AUDIO_FORMATS = ('wav', 'wave', 'mp3', 'mpeg', '3gpp', '3gpp2', 'x-m4a', 'mp4', 'ogg', 'amr', 'aiff', 'midi')
+ACCEPTED_AUDIO_FORMATS = ('wav', 'wave', 'mp3', 'mpeg', '3gpp', '3gpp2', 'x-m4a', 'mp4', 'ogg', 'amr', 'x-aiff', 'midi')
 ACCEPTED_VIDEO_FORMATS = (
     'mpeg', 'mpeg2', 'mp4', 'quicktime', '3gpp', '3gpp2', 'avi', 'x-flv',
     'x-matroska', 'x-msvideo', 'x-ms-wmv', 'ogg', 'webm'
