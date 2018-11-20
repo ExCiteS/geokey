@@ -643,7 +643,7 @@ class MediaFileManager(InheritanceManager):
                 contribution,
                 the_file
             )
-        elif (content_type[0] == 'audio' and
+        elif (content_type[0] in ['application', 'audio', 'video'] and
                 content_type[1] in ACCEPTED_AUDIO_FORMATS):
             return self._create_audio_file(
                 name,
