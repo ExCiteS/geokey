@@ -643,19 +643,19 @@ class MediaFileManager(InheritanceManager):
                 contribution,
                 the_file
             )
-        elif (content_type[0] in ['application', 'audio', 'video'] and
-                content_type[1] in ACCEPTED_AUDIO_FORMATS):
-            return self._create_audio_file(
+        elif (content_type[0] == 'video' and
+                settings.ENABLE_VIDEO and
+                content_type[1] in ACCEPTED_VIDEO_FORMATS):
+            return self._create_video_file(
                 name,
                 description,
                 creator,
                 contribution,
                 the_file
             )
-        elif (content_type[0] == 'video' and
-                settings.ENABLE_VIDEO and
-                content_type[1] in ACCEPTED_VIDEO_FORMATS):
-            return self._create_video_file(
+        elif (content_type[0] in ['application', 'audio', 'video'] and
+                content_type[1] in ACCEPTED_AUDIO_FORMATS):
+            return self._create_audio_file(
                 name,
                 description,
                 creator,
