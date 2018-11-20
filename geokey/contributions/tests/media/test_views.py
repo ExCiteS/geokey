@@ -320,7 +320,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         ))
 
         data = {
-            'name': 'A test sound',
+            'name': 'A test sound (mp3)',
             'description': 'Test sound description',
             'file': audio_file
         }
@@ -371,7 +371,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         ))
 
         data = {
-            'name': 'A test sound',
+            'name': 'A test sound (3gp)',
             'description': 'Test sound description',
             'file': audio_file
         }
@@ -422,8 +422,8 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         ))
 
         data = {
-            'name': 'A test sound',
-            'description': 'Test sound description (opus)',
+            'name': 'A test sound (opus)',
+            'description': 'Test sound description',
             'file': audio_file
         }
 
@@ -473,8 +473,8 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         ))
 
         data = {
-            'name': 'A test sound',
-            'description': 'Test sound description (m4a)',
+            'name': 'A test sound (m4a)',
+            'description': 'Test sound description',
             'file': audio_file
         }
 
@@ -524,8 +524,8 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         ))
 
         data = {
-            'name': 'A test sound',
-            'description': 'Test sound description (amr)',
+            'name': 'A test sound (amr)',
+            'description': 'Test sound description',
             'file': audio_file
         }
 
@@ -575,8 +575,8 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         ))
 
         data = {
-            'name': 'A test sound',
-            'description': 'Test sound description (amr)',
+            'name': 'A test sound (aac)',
+            'description': 'Test sound description',
             'file': audio_file
         }
 
@@ -626,8 +626,8 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         ))
 
         data = {
-            'name': 'A test sound',
-            'description': 'Test sound description (flac)',
+            'name': 'A test sound (flac)',
+            'description': 'Test sound description',
             'file': audio_file
         }
 
