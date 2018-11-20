@@ -12,7 +12,7 @@ MEDIA_STATUS = Choices('active', 'deleted')
 ACCEPTED_IMAGE_FORMATS = ('png', 'jpeg', 'gif')
 ACCEPTED_AUDIO_FORMATS = (
     'wave', 'wav', 'x-wav', 'mp3', '3gpp', '3gpp2', 'mpeg', 'x-m4a', 'ogg',
-    'amr' 'aiff', 'x-aiff'
+    'amr', 'aiff', 'x-aiff'
 )
 ACCEPTED_VIDEO_FORMATS = (
     'mpeg', 'mpeg2', 'mp4', 'quicktime', '3gpp', '3gpp2', 'avi', 'x-flv',
