@@ -557,6 +557,57 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         )
         self.assertIn('audio_5.mp3', response_json.get('url'))
 
+    def test_create_audio_and_convert_aac(self):
+        url = reverse(
+            'api:project_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id
+            }
+        )
+
+        audio_file = File(open(
+            normpath(join(
+                dirname(abspath(__file__)),
+                'files/audio_6.aac'
+            )),
+            'rb'
+        ))
+
+        data = {
+            'name': 'A test sound',
+            'description': 'Test sound description (amr)',
+            'file': audio_file
+        }
+
+        request = self.factory.post(url, data)
+        request.user = self.admin
+        view = MediaAbstractAPIView()
+        view.request = request
+
+        response = self.render(
+            view.create_and_respond(request, self.contribution)
+        )
+
+        response_json = json.loads(response.content)
+        self.assertEqual(
+            response_json.get('name'),
+            data.get('name')
+        )
+        self.assertEqual(
+            response_json.get('description'),
+            data.get('description')
+        )
+        self.assertEqual(
+            response_json.get('creator').get('display_name'),
+            request.user.display_name
+        )
+        self.assertEqual(
+            response_json.get('file_type'),
+            'AudioFile'
+        )
+        self.assertIn('audio_6.mp3', response_json.get('url'))
+
 
 class MediaAbstractAPIViewTest(TestCase):
     def setUp(self):
