@@ -439,10 +439,11 @@ class MediaFileManager(InheritanceManager):
         """
         from geokey.contributions.models import AudioFile
 
+        content_type = the_file.content_type.split('/')
         converted_file = None
 
         # Convert using avconv
-        if content_type[1] in ['mpeg', '3gpp', '3gpp2', 'ogg', 'amr', 'x-aiff']:
+        if content_type[1] in ['3gpp', '3gpp2', 'mpeg', 'x-m4a', 'x-aiff', 'ogg', 'amr']:
             import time
             import shlex
             import subprocess
@@ -474,8 +475,6 @@ class MediaFileManager(InheritanceManager):
 
             # Using error because output file is not specified
             if not video_stream.search(error):
-                content_type[0] = 'audio'
-
                 converted_file = os.path.join(
                     settings.MEDIA_ROOT,
                     'tmp',
