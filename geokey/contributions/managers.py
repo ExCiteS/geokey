@@ -505,7 +505,7 @@ class MediaFileManager(InheritanceManager):
         filename = self._normalise_filename(filename)
         the_file.name = filename[:FILE_NAME_TRUNC] + extension
 
-        audio_file AudioFile.objects.create(
+        audio_file = AudioFile.objects.create(
             name=name,
             description=description,
             creator=creator,
