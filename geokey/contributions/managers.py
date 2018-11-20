@@ -417,7 +417,7 @@ class MediaFileManager(InheritanceManager):
         """
         Creates an AudioFile and returns the instance.
 
-        Some audio files are converted to mp3 using avconv.
+        All files that are not mp3 get converted using avconv.
 
         Parameter
         ---------
@@ -443,7 +443,7 @@ class MediaFileManager(InheritanceManager):
         converted_file = None
 
         # Convert using avconv
-        if content_type[1] in ['3gpp', '3gpp2', 'mpeg', 'x-m4a', 'x-aiff', 'ogg', 'amr']:
+        if content_type[1] != 'mp3':
             import time
             import shlex
             import subprocess
