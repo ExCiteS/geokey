@@ -416,7 +416,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         audio_file = File(open(
             normpath(join(
                 dirname(abspath(__file__)),
-                'files/audio_1.opus'
+                'files/audio_3.opus'
             )),
             'rb'
         ))
@@ -453,7 +453,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
             response_json.get('file_type'),
             'AudioFile'
         )
-        self.assertIn('audio_1.mp3', response_json.get('url'))
+        self.assertIn('audio_3.mp3', response_json.get('url'))
 
     def test_create_audio_and_convert_m4a(self):
         url = reverse(
@@ -467,7 +467,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         audio_file = File(open(
             normpath(join(
                 dirname(abspath(__file__)),
-                'files/audio_1.m4a'
+                'files/audio_4.m4a'
             )),
             'rb'
         ))
@@ -504,7 +504,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
             response_json.get('file_type'),
             'AudioFile'
         )
-        self.assertIn('audio_1.mp3', response_json.get('url'))
+        self.assertIn('audio_4.mp3', response_json.get('url'))
 
     def test_create_audio_and_convert_amr(self):
         url = reverse(
@@ -518,7 +518,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         audio_file = File(open(
             normpath(join(
                 dirname(abspath(__file__)),
-                'files/audio_3.amr'
+                'files/audio_5.amr'
             )),
             'rb'
         ))
@@ -555,7 +555,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
             response_json.get('file_type'),
             'AudioFile'
         )
-        self.assertIn('audio_3.mp3', response_json.get('url'))
+        self.assertIn('audio_5.mp3', response_json.get('url'))
 
 
 class MediaAbstractAPIViewTest(TestCase):
