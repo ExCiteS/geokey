@@ -654,7 +654,7 @@ class MediaFileManager(InheritanceManager):
                 the_file
             )
         elif (content_type[0] in ['application', 'audio', 'video'] and
-                content_type[1] in ACCEPTED_AUDIO_FORMATS):
+                content_type[1].lower() in ACCEPTED_AUDIO_FORMATS):
             return self._create_audio_file(
                 name,
                 description,
