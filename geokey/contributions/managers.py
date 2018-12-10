@@ -3,6 +3,7 @@
 import os
 import re
 
+import magic
 from pytz import utc
 from datetime import datetime
 
@@ -18,9 +19,7 @@ from geokey.core.exceptions import FileTypeError, InputError
 from geokey.projects.models import Project
 
 from .base import (
-    OBSERVATION_STATUS, COMMENT_STATUS, MEDIA_STATUS,
-    ACCEPTED_IMAGE_FORMATS, ACCEPTED_DOCUMENT_FORMATS,
-    ACCEPTED_AUDIO_FORMATS, ACCEPTED_VIDEO_FORMATS
+    OBSERVATION_STATUS, COMMENT_STATUS, MEDIA_STATUS, ACCEPTED_FILE_TYPES,
 )
 
 from .utils import (
@@ -36,6 +35,7 @@ class LocationQuerySet(models.query.QuerySet):
     """
     Querset manager for Locaion model
     """
+
     def get_list(self, project):
         """
         Returns a list of all locations avaiable for that project
@@ -60,6 +60,7 @@ class LocationManager(models.GeoManager):
     """
     Manager for Location Model
     """
+
     def get_queryset(self):
         """
         Returns the QuerySet. Overwrites the method for specific queryset
@@ -130,6 +131,7 @@ class ObservationQuerySet(models.query.QuerySet):
     """
     Implements custom queryset methods that are applied in ObservationManager
     """
+
     def for_moderator(self, user):
         """
         Returns all observations for moderators; That includes all observations
@@ -238,14 +240,15 @@ class ObservationQuerySet(models.query.QuerySet):
                 return self.filter(location__geometry__bboverlaps=geom_bbox)
             except Exception as e:
                 raise InputError(str(e) + '. Please, check the coordinates'
-                    ' you attached to bbox parameters, they should follow'
-                    'the OSGeo standards (e.g:bbox=xmin,ymin,xmax,ymax).')
+                                          ' you attached to bbox parameters, they should follow'
+                                          'the OSGeo standards (e.g:bbox=xmin,ymin,xmax,ymax).')
 
 
 class ObservationManager(models.Manager):
     """
     Manager for Observation Model
     """
+
     def get_queryset(self):
         """
         Returns all observations excluding those with status `deleted`
@@ -298,6 +301,7 @@ class CommentManager(models.Manager):
     """
     Manager for Comment model
     """
+
     def get_queryset(self):
         """
         Returns all comments excluding those with status='deleted'
@@ -315,6 +319,7 @@ class MediaFileManager(InheritanceManager):
     """
     Manger for MediaFile model
     """
+
     def get_queryset(self):
         """
         Returns the subclasses of the MediaFiles; i.e. ImageFile or VideoFile
@@ -622,11 +627,11 @@ class MediaFileManager(InheritanceManager):
         description = kwargs.get('description')
         creator = kwargs.get('creator')
         contribution = kwargs.get('contribution')
-
         content_type = the_file.content_type.split('/')
+        file_identification = magic.from_buffer(the_file.read(1024))
+        file_type_accepted = any(i[0] in file_identification for i in ACCEPTED_FILE_TYPES)
 
-        if (content_type[0] == 'image' and
-                content_type[1] in ACCEPTED_IMAGE_FORMATS):
+        if content_type[0] == 'image' and file_type_accepted:
             return self._create_image_file(
                 name,
                 description,
@@ -634,8 +639,7 @@ class MediaFileManager(InheritanceManager):
                 contribution,
                 the_file
             )
-        elif (content_type[0] == 'application' and
-                content_type[1] in ACCEPTED_DOCUMENT_FORMATS):
+        elif content_type[0] == 'application' and file_type_accepted:
             return self._create_document_file(
                 name,
                 description,
@@ -643,9 +647,7 @@ class MediaFileManager(InheritanceManager):
                 contribution,
                 the_file
             )
-        elif (content_type[0] == 'video' and
-                settings.ENABLE_VIDEO and
-                content_type[1] in ACCEPTED_VIDEO_FORMATS):
+        elif content_type[0] == 'video' and settings.ENABLE_VIDEO and file_type_accepted:
             return self._create_video_file(
                 name,
                 description,
@@ -653,8 +655,7 @@ class MediaFileManager(InheritanceManager):
                 contribution,
                 the_file
             )
-        elif (content_type[0] in ['application', 'audio', 'video'] and
-                content_type[1].lower() in ACCEPTED_AUDIO_FORMATS):
+        elif content_type[0] in ['application', 'audio', 'video'] and file_type_accepted:
             return self._create_audio_file(
                 name,
                 description,
