@@ -135,7 +135,7 @@ def generate_log(sender, instance, action):
     elif class_name == 'Subset':
         fields['subset'] = instance
 
-    for field, instance in fields.iteritems():
+    for field, instance in fields.items():
         value = {'id': str(instance.id)}
 
         # Not all models have names

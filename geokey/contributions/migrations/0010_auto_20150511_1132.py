@@ -1,26 +1,26 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import json
 from django.db import migrations
 
 
 def clean_list(val):
-    if val is not None and (isinstance(val, str) or isinstance(val, unicode)):
+    if val is not None and (isinstance(val, str) or isinstance(val, str)):
         return json.loads(val)
 
     return val
 
 
 def clean_int(val):
-    if val is not None and (isinstance(val, str) or isinstance(val, unicode)):
+    if val is not None and (isinstance(val, str) or isinstance(val, str)):
         return int(val)
 
     return val
 
 
 def clean_number(val):
-    if val is not None and (isinstance(val, str) or isinstance(val, unicode)):
+    if val is not None and (isinstance(val, str) or isinstance(val, str)):
         try:  # it's an int
             return int(val)
         except ValueError:

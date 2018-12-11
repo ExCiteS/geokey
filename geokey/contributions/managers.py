@@ -240,8 +240,8 @@ class ObservationQuerySet(models.query.QuerySet):
                 return self.filter(location__geometry__bboverlaps=geom_bbox)
             except Exception as e:
                 raise InputError(str(e) + '. Please, check the coordinates'
-                                          ' you attached to bbox parameters, they should follow'
-                                          'the OSGeo standards (e.g:bbox=xmin,ymin,xmax,ymax).')
+                    ' you attached to bbox parameters, they should follow'
+                    'the OSGeo standards (e.g:bbox=xmin,ymin,xmax,ymax).')
 
 
 class ObservationManager(models.Manager):

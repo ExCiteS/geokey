@@ -282,7 +282,7 @@ class Observation(models.Model):
 
         for field in self.category.fields.all().select_subclasses():
             value = None
-            if self.properties and field.key in self.properties.keys():
+            if self.properties and field.key in list(self.properties.keys()):
                 if field.fieldtype == 'TextField':
                     value = self.properties.get(field.key)
 
@@ -304,7 +304,7 @@ class Observation(models.Model):
                         value = ' '.join([val.name for val in lookupvalues])
 
             if value:
-                cleaned = re.sub(r'[\W_]+', ' ', value)
+                cleaned = re.sub('[\W_]+', ' ', str(value))
                 terms = cleaned.lower().split()
 
                 search_index = search_index + list(

@@ -4,7 +4,7 @@ import os
 import glob
 
 from PIL import Image
-from StringIO import StringIO
+from io import BytesIO
 
 from django.core.files.base import ContentFile
 from django.test import TestCase
@@ -52,7 +52,7 @@ class ModelManagerTest(TestCase):
 
     @raises(FileTypeError)
     def test_create_not_supported(self):
-        xyz_file = StringIO()
+        xyz_file = BytesIO()
         xyz = Image.new('RGBA', size=(50, 50), color=(256, 0, 0))
         xyz.save(xyz_file, 'png')
         xyz_file.seek(0)
