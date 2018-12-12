@@ -479,7 +479,7 @@ class MediaFileManager(InheritanceManager):
             )
 
             # Using error because output file is not specified
-            if not video_stream.search(error):
+            if not video_stream.search(error.decode()):
                 converted_file = os.path.join(
                     settings.MEDIA_ROOT,
                     'tmp',
