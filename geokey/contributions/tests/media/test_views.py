@@ -381,7 +381,6 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         view = MediaAbstractAPIView()
         view.request = request
 
-        # TODO: Work out why content_type is judged to be video.
         response = self.render(
             view.create_and_respond(request, self.contribution)
         )

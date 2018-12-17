@@ -629,6 +629,8 @@ class MediaFileManager(InheritanceManager):
         contribution = kwargs.get('contribution')
         content_type = the_file.content_type.split('/')
         file_identification = magic.from_buffer(the_file.read(1024))
+        # Ensure the next file read starts from the start.
+        the_file.seek(0)
         file_type_accepted = any(i[0] in file_identification for i in ACCEPTED_FILE_TYPES)
 
         if content_type[0] == 'image' and file_type_accepted:
