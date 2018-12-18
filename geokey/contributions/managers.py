@@ -631,7 +631,7 @@ class MediaFileManager(InheritanceManager):
         # Ensure the next file read starts from the start.
         the_file.seek(0)
         file_type_accepted = any(i[0] in file_identification for i in ACCEPTED_FILE_TYPES)
-        print("file_type_accepted: {}, file id: {}".format(file_type_accepted, file_identification))
+        print("File_name: {}, Accepted: {}, file id: {}".format(name, file_type_accepted, file_identification))
         if content_type[0] == 'image' and file_type_accepted:
             return self._create_image_file(
                 name,
@@ -666,5 +666,5 @@ class MediaFileManager(InheritanceManager):
                 content_type=content_type
             )
         else:
-            raise FileTypeError('Files of type %s are currently not supported.'
-                                % the_file.content_type)
+            raise FileTypeError(
+                'Files of type %s (%s) are currently not supported.'.format(file_identification, name))
