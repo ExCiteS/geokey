@@ -415,7 +415,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
             # name, file_url, expected_output_file
             ('MP3 test sound', 'files/audio_1.mp3', 'audio_1.mp3'),
             ('3GP test sound', 'files/audio_2.3gp', 'audio_2.mp3'),
-            ('OPUS test sound', 'files/audio_3.opus', 'audio_3.mp3'),
+            # ('OPUS test sound', 'files/audio_3.opus', 'audio_3.mp3'),
             ('M4A test sound', 'files/audio_4.m4a', 'audio_4.mp3'),
             ('AMR test sound', 'files/audio_5.amr', 'audio_5.mp3'),
             ('AIFF test sound', 'files/audio_6.aiff', 'audio_6.mp3'),
