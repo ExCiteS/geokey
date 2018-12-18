@@ -418,7 +418,7 @@ class MediaFileManager(InheritanceManager):
         )
 
     def _create_audio_file(self, name, description, creator, contribution,
-                           the_file):
+                           the_file, content_type):
         """
         Creates an AudioFile and returns the instance.
 
@@ -444,7 +444,6 @@ class MediaFileManager(InheritanceManager):
         """
         from geokey.contributions.models import AudioFile
 
-        content_type = the_file.content_type.split('/')
         converted_file = None
 
         # Convert using avconv
@@ -632,7 +631,7 @@ class MediaFileManager(InheritanceManager):
         # Ensure the next file read starts from the start.
         the_file.seek(0)
         file_type_accepted = any(i[0] in file_identification for i in ACCEPTED_FILE_TYPES)
-
+        print("file_type_accepted: {}, file id: {}".format(file_type_accepted, file_identification))
         if content_type[0] == 'image' and file_type_accepted:
             return self._create_image_file(
                 name,
@@ -657,13 +656,14 @@ class MediaFileManager(InheritanceManager):
                 contribution,
                 the_file
             )
-        elif content_type[0] in ['application', 'audio', 'video'] and file_type_accepted:
+        elif content_type[0] in ['audio', 'video'] and file_type_accepted:
             return self._create_audio_file(
-                name,
-                description,
-                creator,
-                contribution,
-                the_file
+                name=name,
+                description=description,
+                creator=creator,
+                contribution=contribution,
+                the_file=the_file,
+                content_type=content_type
             )
         else:
             raise FileTypeError('Files of type %s are currently not supported.'
