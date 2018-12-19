@@ -13,8 +13,8 @@ ACCEPTED_FILE_TYPES = (
     # Audio types
     ('MPEG ADTS, layer III', 'mp3'),
     ('Audio file', 'mp3'),
-    ('Ogg data, Opus audio', 'opus'),
-    ('Ogg data, Vorbis audio', 'ogg'),
+    ('Ogg data', 'opus'),
+    ('Ogg data', 'ogg'),
     ('WAVE audio', 'wav'),
     ('ALAC/AAC-LC (.M4A) Audio', 'm4a'),
     ('Adaptive Multi-Rate Codec', 'amr'),
