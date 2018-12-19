@@ -20,7 +20,7 @@ from geokey.projects.models import Project
 
 from .base import (
     OBSERVATION_STATUS, COMMENT_STATUS, MEDIA_STATUS, ACCEPTED_FILE_TYPES,
-)
+    ACCEPTED_AUDIO_TYPES, ACCEPTED_VIDEO_TYPES, ACCEPTED_IMAGE_TYPES, ACCEPTED_DOC_TYPES)
 
 from .utils import (
     get_args,
@@ -336,7 +336,41 @@ class MediaFileManager(InheritanceManager):
         )
         return query_set.select_subclasses()
 
-    def _normalise_filename(self, name):
+    @staticmethod
+    def _get_file_id(the_file):
+        file_identification = magic.from_buffer(the_file.read(1024))
+        # Ensure the next file read starts from the start.
+        the_file.seek(0)
+        return file_identification
+
+    @staticmethod
+    def _get_file_id_data(the_file):
+        file_id = MediaFileManager._get_file_id(the_file)
+        for id_info, extension in ACCEPTED_FILE_TYPES:
+            # Stops at the first match.
+            if id_info in file_id:
+                return id_info, extension
+        return 'Unknown', ''
+
+    @staticmethod
+    def _get_file_content_data(a_file):
+        content_type = a_file.content_type.split('/')
+        id_info, extn = MediaFileManager._get_file_id_data(a_file)
+        # Only adjust the content type when no file extension exists.
+        if '.' not in a_file.name:
+            if (id_info, extn) in ACCEPTED_AUDIO_TYPES:
+                content_type[0] = 'audio'
+            elif (id_info, extn) in ACCEPTED_VIDEO_TYPES:
+                content_type[0] = 'video'
+            elif (id_info, extn) in ACCEPTED_IMAGE_TYPES:
+                content_type[0] = 'image'
+            elif (id_info, extn) in ACCEPTED_DOC_TYPES:
+                content_type[0] = 'application'
+
+        return content_type, id_info, extn
+
+    @staticmethod
+    def _normalise_filename(name):
         filename = slugify(name)
         if len(filename) < 1:
             filename = 'file_%s' % datetime.now().microsecond
@@ -626,10 +660,8 @@ class MediaFileManager(InheritanceManager):
         description = kwargs.get('description')
         creator = kwargs.get('creator')
         contribution = kwargs.get('contribution')
-        content_type = the_file.content_type.split('/')
-        file_identification = magic.from_buffer(the_file.read(1024))
-        # Ensure the next file read starts from the start.
-        the_file.seek(0)
+        file_identification = MediaFileManager._get_file_id(the_file)
+        content_type = MediaFileManager._get_file_content_data(a_file=the_file, file_id=file_identification)
         file_type_accepted = any(i[0] in file_identification for i in ACCEPTED_FILE_TYPES)
         print("File_name: {}, Accepted: {}, file id: {}".format(name, file_type_accepted, file_identification))
         if content_type[0] == 'image' and file_type_accepted:

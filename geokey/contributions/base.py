@@ -8,12 +8,10 @@ OBSERVATION_STATUS = Choices('active', 'draft', 'review', 'pending', 'deleted')
 COMMENT_STATUS = Choices('active', 'deleted')
 COMMENT_REVIEW = Choices('open', 'resolved')
 MEDIA_STATUS = Choices('active', 'deleted')
-
-ACCEPTED_FILE_TYPES = (
-    # Audio types
+ACCEPTED_AUDIO_TYPES = (
     ('MPEG ADTS, layer III', 'mp3'),
     ('Audio file', 'mp3'),
-    ('Ogg data', 'opus'),
+    ('Ogg data, Opus audio', 'opus'),
     ('Ogg data', 'ogg'),
     ('WAVE audio', 'wav'),
     ('AAC-LC (.M4A) Audio', 'm4a'),
@@ -24,9 +22,9 @@ ACCEPTED_FILE_TYPES = (
     ('MPEG ADTS, AAC', 'aac'),
     ('FLAC audio bitstream data', 'flac'),
     ('Microsoft ASF', 'wma'),
-    ('Standard MIDI data', 'mid'),
-
-    # Video types
+    ('Standard MIDI data', 'mid')
+)
+ACCEPTED_VIDEO_TYPES = (
     ('Apple QuickTime movie', 'mov'),
     ('RIFF (little-endian) data, AVI', 'avi'),
     ('Macromedia Flash Video', 'flv'),
@@ -35,12 +33,17 @@ ACCEPTED_FILE_TYPES = (
     ('Macromedia Flash data', 'swf'),
     ('WebM', 'webm'),
     ('Microsoft ASF', 'wmv'),
-
-    # Image types
+)
+ACCEPTED_IMAGE_TYPES = (
     ('GIF image data', 'gif'),
     ('JPEG image data', 'jpg'),
     ('PNG image data', 'png'),
-
-    # Office/document types
+)
+ACCEPTED_DOC_TYPES = (
     ('PDF document', 'pdf'),
 )
+ACCEPTED_FILE_TYPES = \
+    ACCEPTED_AUDIO_TYPES + \
+    ACCEPTED_VIDEO_TYPES + \
+    ACCEPTED_IMAGE_TYPES + \
+    ACCEPTED_DOC_TYPES

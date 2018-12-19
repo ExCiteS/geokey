@@ -82,7 +82,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
             audio_file = File(open(
                 normpath(join(
                     dirname(abspath(__file__)),
-                    file_url  # 'files/audio_7.wav'
+                    file_url
                 )),
                 'rb'
             ))
