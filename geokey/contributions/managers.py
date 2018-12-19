@@ -667,4 +667,4 @@ class MediaFileManager(InheritanceManager):
             )
         else:
             raise FileTypeError(
-                'Files of type %s (%s) are currently not supported.'.format(file_identification, name))
+                'Files of type {} ({}) are currently not supported.'.format(file_identification, name))
