@@ -117,7 +117,9 @@ class MediaFileAbstractListAPIViewTest(TestCase):
             )
             self.assertEqual(
                 response_json.get('file_type'),
-                'AudioFile'
+                'AudioFile',
+                msg='Unexpected file type: {} (should be AudioFile) '
+                    'for file "{}"'.format(response_json.get('file_type'), name)
             )
             self.assertIn(expected_output_file, response_json.get('url'))
 
@@ -420,6 +422,11 @@ class MediaFileAbstractListAPIViewTest(TestCase):
             ('AMR test sound', 'files/audio_5.amr', 'audio_5.mp3'),
             ('AIFF test sound', 'files/audio_6.aiff', 'audio_6.mp3'),
             ('WAV test sound', 'files/audio_7.wav', 'audio_7.mp3'),
+            ('Opus with no extension', 'files/audio_8', 'audio_8.mp3'),
+            # TODO: Investigate this one:
+            # ('AAC test sound', 'files/audio_9.aac', 'audio_9.mp3'),
+            ('Flac test sound', 'files/audio_10.flac', 'audio_10.mp3'),
+            ('WMA test sound', 'files/audio_12.wma', 'audio_12.mp3'),
         )
 
         self.process_list_of_audio_files(files_list=test_data)

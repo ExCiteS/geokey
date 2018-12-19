@@ -4,6 +4,7 @@ import os
 import re
 
 import magic
+from django.core.files import File
 from pytz import utc
 from datetime import datetime
 
@@ -353,7 +354,7 @@ class MediaFileManager(InheritanceManager):
         return 'Unknown', ''
 
     @staticmethod
-    def _get_file_content_data(a_file):
+    def _get_file_content_data(a_file: File) -> object:
         content_type = a_file.content_type.split('/')
         id_info, extn = MediaFileManager._get_file_id_data(a_file)
         # Only adjust the content type when no file extension exists.
@@ -660,10 +661,9 @@ class MediaFileManager(InheritanceManager):
         description = kwargs.get('description')
         creator = kwargs.get('creator')
         contribution = kwargs.get('contribution')
-        file_identification = MediaFileManager._get_file_id(the_file)
-        content_type = MediaFileManager._get_file_content_data(a_file=the_file, file_id=file_identification)
-        file_type_accepted = any(i[0] in file_identification for i in ACCEPTED_FILE_TYPES)
-        print("File_name: {}, Accepted: {}, file id: {}".format(name, file_type_accepted, file_identification))
+        content_type, id_info, new_extn = MediaFileManager._get_file_content_data(a_file=the_file)
+        file_type_accepted = any(i[0] in id_info for i in ACCEPTED_FILE_TYPES)
+        print("File_name: {}, Accepted: {}, file id: {}".format(name, file_type_accepted, id_info))
         if content_type[0] == 'image' and file_type_accepted:
             return self._create_image_file(
                 name,
@@ -699,4 +699,4 @@ class MediaFileManager(InheritanceManager):
             )
         else:
             raise FileTypeError(
-                'Files of type {} ({}) are currently not supported.'.format(file_identification, name))
+                'Files of type {} ({}) are currently not supported.'.format(id_info, name))

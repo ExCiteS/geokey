@@ -19,10 +19,9 @@ ACCEPTED_AUDIO_TYPES = (
     ('Adaptive Multi-Rate Codec', 'amr'),
     ('MPEG v4 system, 3GPP', '3gp'),
     ('AIFF audio', 'aiff'),
-    ('MPEG ADTS, AAC', 'aac'),
+    ('AAC', 'aac'),
     ('FLAC audio bitstream data', 'flac'),
     ('Microsoft ASF', 'wma'),
-    ('Standard MIDI data', 'mid')
 )
 ACCEPTED_VIDEO_TYPES = (
     ('Apple QuickTime movie', 'mov'),
