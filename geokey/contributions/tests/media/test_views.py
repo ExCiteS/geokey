@@ -435,6 +435,40 @@ class MediaFileAbstractListAPIViewTest(TestCase):
 
         self.process_list_of_image_files(files_list=test_data)
 
+    def test_text_file_not_allowed(self):
+
+        url = reverse(
+            'api:project_media',
+            kwargs={
+                'project_id': self.project.id,
+                'contribution_id': self.contribution.id
+            }
+        )
+
+        document = File(open(
+            normpath(join(
+                dirname(abspath(__file__)),
+                'files/text_1.txt'
+            )),
+            'rb'
+        ))
+
+        data = {
+            'name': 'A test text file',
+            'description': 'Test file description',
+            'file': document
+        }
+
+        request = self.factory.post(url, data)
+        request.user = self.admin
+        view = MediaAbstractAPIView()
+        view.request = request
+
+        with self.assertRaises(FileTypeError):
+            self.render(
+                view.create_and_respond(request, self.contribution)
+            )
+
 
 class MediaAbstractAPIViewTest(TestCase):
     def setUp(self):
