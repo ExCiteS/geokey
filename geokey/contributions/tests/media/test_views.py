@@ -360,57 +360,6 @@ class MediaFileAbstractListAPIViewTest(TestCase):
     #     )
     #     self.assertIsNotNone(response_json.get('url'))
 
-    def test_create_audio_and_respond(self):
-        url = reverse(
-            'api:project_media',
-            kwargs={
-                'project_id': self.project.id,
-                'contribution_id': self.contribution.id
-            }
-        )
-
-        audio_file = File(open(
-            normpath(join(
-                dirname(abspath(__file__)),
-                'files/audio_1.mp3'
-            )),
-            'rb'
-        ))
-
-        data = {
-            'name': 'A test sound (mp3)',
-            'description': 'Test sound description',
-            'file': audio_file
-        }
-
-        request = self.factory.post(url, data)
-        request.user = self.admin
-        view = MediaAbstractAPIView()
-        view.request = request
-
-        response = self.render(
-            view.create_and_respond(request, self.contribution)
-        )
-
-        response_json = json.loads(response.content)
-        self.assertEqual(
-            response_json.get('name'),
-            data.get('name')
-        )
-        self.assertEqual(
-            response_json.get('description'),
-            data.get('description')
-        )
-        self.assertEqual(
-            response_json.get('creator').get('display_name'),
-            request.user.display_name
-        )
-        self.assertEqual(
-            response_json.get('file_type'),
-            'AudioFile'
-        )
-        self.assertIn('audio_1.mp3', response_json.get('url'))
-
     def test_create_audio_files(self):
 
         test_data = (
