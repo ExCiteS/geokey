@@ -241,8 +241,8 @@ class ObservationQuerySet(models.query.QuerySet):
                 return self.filter(location__geometry__bboverlaps=geom_bbox)
             except Exception as e:
                 raise InputError(str(e) + '. Please, check the coordinates'
-                    ' you attached to bbox parameters, they should follow'
-                    'the OSGeo standards (e.g:bbox=xmin,ymin,xmax,ymax).')
+                                          ' you attached to bbox parameters, they should follow'
+                                          'the OSGeo standards (e.g:bbox=xmin,ymin,xmax,ymax).')
 
 
 class ObservationManager(models.Manager):
@@ -368,7 +368,10 @@ class MediaFileManager(InheritanceManager):
             elif (id_info, extn) in ACCEPTED_DOC_TYPES:
                 content_type[0] = 'application'
 
-        return content_type, id_info, extn
+        if extn == 'aac' and id_info == 'AAC':
+            content_type = ('audio', 'aac')
+
+        return content_type, id_info
 
     @staticmethod
     def _normalise_filename(name):
@@ -508,7 +511,7 @@ class MediaFileManager(InheritanceManager):
             output, error = pipe.communicate()
 
             video_stream = re.compile(
-                r"Stream #\d*\.\d*.*\:\s*Video",
+                r"Stream #\d*\.\d*.*:\s*Video",
                 re.MULTILINE
             )
 
@@ -556,7 +559,8 @@ class MediaFileManager(InheritanceManager):
 
         return audio_file
 
-    def _upload_to_youtube(self, name, path):
+    @staticmethod
+    def _upload_to_youtube(name, path):
         """
         Uploads the file from the given path to youtube
 
@@ -661,7 +665,7 @@ class MediaFileManager(InheritanceManager):
         description = kwargs.get('description')
         creator = kwargs.get('creator')
         contribution = kwargs.get('contribution')
-        content_type, id_info, new_extn = MediaFileManager._get_file_content_data(a_file=the_file)
+        content_type, id_info = MediaFileManager._get_file_content_data(a_file=the_file)
         file_type_accepted = any(i[0] in id_info for i in ACCEPTED_FILE_TYPES)
         print("File_name: {}, Accepted: {}, file id: {}".format(name, file_type_accepted, id_info))
         if content_type[0] == 'image' and file_type_accepted:

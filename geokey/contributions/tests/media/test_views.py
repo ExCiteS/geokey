@@ -423,8 +423,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
             ('AIFF test sound', 'files/audio_6.aiff', 'audio_6.mp3'),
             ('WAV test sound', 'files/audio_7.wav', 'audio_7.mp3'),
             ('Opus with no extension', 'files/audio_8', 'audio_8.mp3'),
-            # TODO: Investigate this one:
-            # ('AAC test sound', 'files/audio_9.aac', 'audio_9.mp3'),
+            ('AAC test sound', 'files/audio_9.aac', 'audio_9.mp3'),
             ('Flac test sound', 'files/audio_10.flac', 'audio_10.mp3'),
             ('WMA test sound', 'files/audio_12.wma', 'audio_12.mp3'),
         )
