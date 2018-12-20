@@ -37,9 +37,6 @@ from ..model_factories import ObservationFactory
 from .model_factories import ImageFileFactory
 
 
-
-
-
 class MediaFileAbstractListAPIViewTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
@@ -70,7 +67,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
 
     def process_list_of_audio_files(self, files_list):
 
-        for name, file_url, expected_output_file in files_list:
+        for name, file_path, expected_output_file in files_list:
             url = reverse(
                 'api:project_media',
                 kwargs={
@@ -82,7 +79,7 @@ class MediaFileAbstractListAPIViewTest(TestCase):
             audio_file = File(open(
                 normpath(join(
                     dirname(abspath(__file__)),
-                    file_url
+                    file_path
                 )),
                 'rb'
             ))
@@ -121,6 +118,52 @@ class MediaFileAbstractListAPIViewTest(TestCase):
                 msg='Unexpected file type: {} (should be AudioFile) '
                     'for file "{}"'.format(response_json.get('file_type'), name)
             )
+            self.assertIn(expected_output_file, response_json.get('url'))
+
+    def process_list_of_image_files(self, files_list):
+
+        for name, file_path, expected_output_file in files_list:
+            url = reverse(
+                'api:project_media',
+                kwargs={
+                    'project_id': self.project.id,
+                    'contribution_id': self.contribution.id
+                }
+            )
+
+            data = {
+                'name': name,
+                'description': 'Test image description',
+                'file': get_image(file_name=file_path)
+            }
+
+            request = self.factory.post(url, data)
+            request.user = self.admin
+            view = MediaAbstractAPIView()
+            view.request = request
+
+            response = self.render(
+                view.create_and_respond(request, self.contribution)
+            )
+
+            response_json = json.loads(response.content)
+            self.assertEqual(
+                response_json.get('name'),
+                data.get('name')
+            )
+            self.assertEqual(
+                response_json.get('description'),
+                data.get('description')
+            )
+            self.assertEqual(
+                response_json.get('creator').get('display_name'),
+                request.user.display_name
+            )
+            self.assertEqual(
+                response_json.get('file_type'),
+                'ImageFile'
+            )
+            self.assertIsNotNone(response_json.get('url'))
             self.assertIn(expected_output_file, response_json.get('url'))
 
     def test_get_list_and_respond(self):
@@ -378,6 +421,19 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         )
 
         self.process_list_of_audio_files(files_list=test_data)
+
+    def test_create_image_files(self):
+
+        test_data = (
+            # name, file_url, expected_output_file
+            ('PNG test image', 'files/image_01.png', 'image_01.png'),
+            ('JPG test image', 'files/image_02.jpg', 'image_02.jpg'),
+            ('GIF test image', 'files/image_03.gif', 'image_03.gif'),
+            ('SVG test image', 'files/image_04.svg', 'image_04.svg'),
+            ('TIFF test image', 'files/image_05.tiff', 'image_05.tiff'),
+        )
+
+        self.process_list_of_image_files(files_list=test_data)
 
 
 class MediaAbstractAPIViewTest(TestCase):

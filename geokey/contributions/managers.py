@@ -667,7 +667,6 @@ class MediaFileManager(InheritanceManager):
         contribution = kwargs.get('contribution')
         content_type, id_info = MediaFileManager._get_file_content_data(a_file=the_file)
         file_type_accepted = any(i[0] in id_info for i in ACCEPTED_FILE_TYPES)
-        print("File_name: {}, Accepted: {}, file id: {}".format(name, file_type_accepted, id_info))
         if content_type[0] == 'image' and file_type_accepted:
             return self._create_image_file(
                 name,

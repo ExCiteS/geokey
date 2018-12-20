@@ -37,6 +37,8 @@ ACCEPTED_IMAGE_TYPES = (
     ('GIF image data', 'gif'),
     ('JPEG image data', 'jpg'),
     ('PNG image data', 'png'),
+    ('Scalable Vector Graphics', 'svg'),
+    ('TIFF image data', 'tiff'),
 )
 ACCEPTED_DOC_TYPES = (
     ('PDF document', 'pdf'),
