@@ -65,6 +65,107 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         response.renderer_context = {'blah': 'blubb'}
         return response.render()
 
+    def process_list_of_audio_files(self, files_list):
+
+        for name, file_path, expected_output_file in files_list:
+            url = reverse(
+                'api:project_media',
+                kwargs={
+                    'project_id': self.project.id,
+                    'contribution_id': self.contribution.id
+                }
+            )
+
+            audio_file = File(open(
+                normpath(join(
+                    dirname(abspath(__file__)),
+                    file_path
+                )),
+                'rb'
+            ))
+
+            data = {
+                'name': name,
+                'description': 'Test sound description',
+                'file': audio_file
+            }
+
+            request = self.factory.post(url, data)
+            request.user = self.admin
+            view = MediaAbstractAPIView()
+            view.request = request
+
+            response = self.render(
+                view.create_and_respond(request, self.contribution)
+            )
+
+            response_json = json.loads(response.content)
+            self.assertEqual(
+                response_json.get('name'),
+                data.get('name')
+            )
+            self.assertEqual(
+                response_json.get('description'),
+                data.get('description')
+            )
+            self.assertEqual(
+                response_json.get('creator').get('display_name'),
+                request.user.display_name
+            )
+            self.assertEqual(
+                response_json.get('file_type'),
+                'AudioFile',
+                msg='Unexpected file type: {} (should be AudioFile) '
+                    'for file "{}"'.format(response_json.get('file_type'), name)
+            )
+            self.assertIn(expected_output_file, response_json.get('url'))
+
+    def process_list_of_image_files(self, files_list):
+
+        for name, file_path, expected_output_file in files_list:
+            url = reverse(
+                'api:project_media',
+                kwargs={
+                    'project_id': self.project.id,
+                    'contribution_id': self.contribution.id
+                }
+            )
+
+            data = {
+                'name': name,
+                'description': 'Test image description',
+                'file': get_image(file_name=file_path)
+            }
+
+            request = self.factory.post(url, data)
+            request.user = self.admin
+            view = MediaAbstractAPIView()
+            view.request = request
+
+            response = self.render(
+                view.create_and_respond(request, self.contribution)
+            )
+
+            response_json = json.loads(response.content)
+            self.assertEqual(
+                response_json.get('name'),
+                data.get('name')
+            )
+            self.assertEqual(
+                response_json.get('description'),
+                data.get('description')
+            )
+            self.assertEqual(
+                response_json.get('creator').get('display_name'),
+                request.user.display_name
+            )
+            self.assertEqual(
+                response_json.get('file_type'),
+                'ImageFile'
+            )
+            self.assertIsNotNone(response_json.get('url'))
+            self.assertIn(expected_output_file, response_json.get('url'))
+
     def test_get_list_and_respond(self):
         ImageFileFactory.create_batch(5, **{'contribution': self.contribution})
 
@@ -302,7 +403,40 @@ class MediaFileAbstractListAPIViewTest(TestCase):
     #     )
     #     self.assertIsNotNone(response_json.get('url'))
 
-    def test_create_audio_and_respond(self):
+    def test_create_audio_files(self):
+
+        test_data = (
+            # name, file_url, expected_output_file
+            ('MP3 test sound', 'files/audio_1.mp3', 'audio_1.mp3'),
+            ('3GP test sound', 'files/audio_2.3gp', 'audio_2.mp3'),
+            ('OPUS test sound', 'files/audio_3.opus', 'audio_3.mp3'),
+            ('M4A test sound', 'files/audio_4.m4a', 'audio_4.mp3'),
+            ('AMR test sound', 'files/audio_5.amr', 'audio_5.mp3'),
+            ('AIFF test sound', 'files/audio_6.aiff', 'audio_6.mp3'),
+            ('WAV test sound', 'files/audio_7.wav', 'audio_7.mp3'),
+            ('Opus with no extension', 'files/audio_8', 'audio_8.mp3'),
+            ('AAC test sound', 'files/audio_9.aac', 'audio_9.mp3'),
+            ('Flac test sound', 'files/audio_10.flac', 'audio_10.mp3'),
+            ('WMA test sound', 'files/audio_12.wma', 'audio_12.mp3'),
+        )
+
+        self.process_list_of_audio_files(files_list=test_data)
+
+    def test_create_image_files(self):
+
+        test_data = (
+            # name, file_url, expected_output_file
+            ('PNG test image', 'files/image_01.png', 'image_01.png'),
+            ('JPG test image', 'files/image_02.jpg', 'image_02.jpg'),
+            ('GIF test image', 'files/image_03.gif', 'image_03.gif'),
+            ('SVG test image', 'files/image_04.svg', 'image_04.svg'),
+            ('TIFF test image', 'files/image_05.tiff', 'image_05.tiff'),
+        )
+
+        self.process_list_of_image_files(files_list=test_data)
+
+    def test_text_file_not_allowed(self):
+
         url = reverse(
             'api:project_media',
             kwargs={
@@ -311,18 +445,18 @@ class MediaFileAbstractListAPIViewTest(TestCase):
             }
         )
 
-        audio_file = File(open(
+        document = File(open(
             normpath(join(
                 dirname(abspath(__file__)),
-                'files/audio_1.mp3'
+                'files/text_1.txt'
             )),
             'rb'
         ))
 
         data = {
-            'name': 'A test sound',
-            'description': 'Test sound description',
-            'file': audio_file
+            'name': 'A test text file',
+            'description': 'Test file description',
+            'file': document
         }
 
         request = self.factory.post(url, data)
@@ -330,181 +464,10 @@ class MediaFileAbstractListAPIViewTest(TestCase):
         view = MediaAbstractAPIView()
         view.request = request
 
-        response = self.render(
-            view.create_and_respond(request, self.contribution)
-        )
-
-        response_json = json.loads(response.content)
-        self.assertEqual(
-            response_json.get('name'),
-            data.get('name')
-        )
-        self.assertEqual(
-            response_json.get('description'),
-            data.get('description')
-        )
-        self.assertEqual(
-            response_json.get('creator').get('display_name'),
-            request.user.display_name
-        )
-        self.assertEqual(
-            response_json.get('file_type'),
-            'AudioFile'
-        )
-        self.assertIn('audio_1.mp3', response_json.get('url'))
-
-    def test_create_audio_and_convert_3gp(self):
-        url = reverse(
-            'api:project_media',
-            kwargs={
-                'project_id': self.project.id,
-                'contribution_id': self.contribution.id
-            }
-        )
-
-        audio_file = File(open(
-            normpath(join(
-                dirname(abspath(__file__)),
-                'files/audio_2.3gp'
-            )),
-            'rb'
-        ))
-
-        data = {
-            'name': 'A test sound',
-            'description': 'Test sound description',
-            'file': audio_file
-        }
-
-        request = self.factory.post(url, data)
-        request.user = self.admin
-        view = MediaAbstractAPIView()
-        view.request = request
-
-        response = self.render(
-            view.create_and_respond(request, self.contribution)
-        )
-
-        response_json = json.loads(response.content)
-        self.assertEqual(
-            response_json.get('name'),
-            data.get('name')
-        )
-        self.assertEqual(
-            response_json.get('description'),
-            data.get('description')
-        )
-        self.assertEqual(
-            response_json.get('creator').get('display_name'),
-            request.user.display_name
-        )
-        self.assertEqual(
-            response_json.get('file_type'),
-            'AudioFile'
-        )
-        self.assertIn('audio_2.mp3', response_json.get('url'))
-
-    def test_create_audio_and_convert_opus(self):
-        url = reverse(
-            'api:project_media',
-            kwargs={
-                'project_id': self.project.id,
-                'contribution_id': self.contribution.id
-            }
-        )
-
-        audio_file = File(open(
-            normpath(join(
-                dirname(abspath(__file__)),
-                'files/audio_1.opus'
-            )),
-            'rb'
-        ))
-
-        data = {
-            'name': 'A test sound',
-            'description': 'Test sound description (opus)',
-            'file': audio_file
-        }
-
-        request = self.factory.post(url, data)
-        request.user = self.admin
-        view = MediaAbstractAPIView()
-        view.request = request
-
-        response = self.render(
-            view.create_and_respond(request, self.contribution)
-        )
-
-        response_json = json.loads(response.content)
-        self.assertEqual(
-            response_json.get('name'),
-            data.get('name')
-        )
-        self.assertEqual(
-            response_json.get('description'),
-            data.get('description')
-        )
-        self.assertEqual(
-            response_json.get('creator').get('display_name'),
-            request.user.display_name
-        )
-        self.assertEqual(
-            response_json.get('file_type'),
-            'AudioFile'
-        )
-        self.assertIn('audio_1.mp3', response_json.get('url'))
-
-    def test_create_audio_and_convert_m4a(self):
-        url = reverse(
-            'api:project_media',
-            kwargs={
-                'project_id': self.project.id,
-                'contribution_id': self.contribution.id
-            }
-        )
-
-        audio_file = File(open(
-            normpath(join(
-                dirname(abspath(__file__)),
-                'files/audio_1.m4a'
-            )),
-            'rb'
-        ))
-
-        data = {
-            'name': 'A test sound',
-            'description': 'Test sound description (m4a)',
-            'file': audio_file
-        }
-
-        request = self.factory.post(url, data)
-        request.user = self.admin
-        view = MediaAbstractAPIView()
-        view.request = request
-
-        response = self.render(
-            view.create_and_respond(request, self.contribution)
-        )
-
-        response_json = json.loads(response.content)
-        self.assertEqual(
-            response_json.get('name'),
-            data.get('name')
-        )
-        self.assertEqual(
-            response_json.get('description'),
-            data.get('description')
-        )
-        self.assertEqual(
-            response_json.get('creator').get('display_name'),
-            request.user.display_name
-        )
-        self.assertEqual(
-            response_json.get('file_type'),
-            'AudioFile'
-        )
-        self.assertIn('audio_1.mp3', response_json.get('url'))
+        with self.assertRaises(FileTypeError):
+            self.render(
+                view.create_and_respond(request, self.contribution)
+            )
 
 
 class MediaAbstractAPIViewTest(TestCase):

@@ -3,6 +3,8 @@
 import os
 import re
 
+import magic
+from django.core.files import File
 from pytz import utc
 from datetime import datetime
 
@@ -18,10 +20,8 @@ from geokey.core.exceptions import FileTypeError, InputError
 from geokey.projects.models import Project
 
 from .base import (
-    OBSERVATION_STATUS, COMMENT_STATUS, MEDIA_STATUS,
-    ACCEPTED_IMAGE_FORMATS, ACCEPTED_DOCUMENT_FORMATS,
-    ACCEPTED_AUDIO_FORMATS, ACCEPTED_VIDEO_FORMATS
-)
+    OBSERVATION_STATUS, COMMENT_STATUS, MEDIA_STATUS, ACCEPTED_FILE_TYPES,
+    ACCEPTED_AUDIO_TYPES, ACCEPTED_VIDEO_TYPES, ACCEPTED_IMAGE_TYPES, ACCEPTED_DOC_TYPES)
 
 from .utils import (
     get_args,
@@ -36,6 +36,7 @@ class LocationQuerySet(models.query.QuerySet):
     """
     Querset manager for Locaion model
     """
+
     def get_list(self, project):
         """
         Returns a list of all locations avaiable for that project
@@ -60,6 +61,7 @@ class LocationManager(models.GeoManager):
     """
     Manager for Location Model
     """
+
     def get_queryset(self):
         """
         Returns the QuerySet. Overwrites the method for specific queryset
@@ -130,6 +132,7 @@ class ObservationQuerySet(models.query.QuerySet):
     """
     Implements custom queryset methods that are applied in ObservationManager
     """
+
     def for_moderator(self, user):
         """
         Returns all observations for moderators; That includes all observations
@@ -238,14 +241,15 @@ class ObservationQuerySet(models.query.QuerySet):
                 return self.filter(location__geometry__bboverlaps=geom_bbox)
             except Exception as e:
                 raise InputError(str(e) + '. Please, check the coordinates'
-                    ' you attached to bbox parameters, they should follow'
-                    'the OSGeo standards (e.g:bbox=xmin,ymin,xmax,ymax).')
+                                          ' you attached to bbox parameters, they should follow'
+                                          'the OSGeo standards (e.g:bbox=xmin,ymin,xmax,ymax).')
 
 
 class ObservationManager(models.Manager):
     """
     Manager for Observation Model
     """
+
     def get_queryset(self):
         """
         Returns all observations excluding those with status `deleted`
@@ -298,6 +302,7 @@ class CommentManager(models.Manager):
     """
     Manager for Comment model
     """
+
     def get_queryset(self):
         """
         Returns all comments excluding those with status='deleted'
@@ -315,6 +320,7 @@ class MediaFileManager(InheritanceManager):
     """
     Manger for MediaFile model
     """
+
     def get_queryset(self):
         """
         Returns the subclasses of the MediaFiles; i.e. ImageFile or VideoFile
@@ -331,7 +337,44 @@ class MediaFileManager(InheritanceManager):
         )
         return query_set.select_subclasses()
 
-    def _normalise_filename(self, name):
+    @staticmethod
+    def _get_file_id(the_file):
+        file_identification = magic.from_buffer(the_file.read(1024))
+        # Ensure the next file read starts from the start.
+        the_file.seek(0)
+        return file_identification
+
+    @staticmethod
+    def _get_file_id_data(the_file):
+        file_id = MediaFileManager._get_file_id(the_file)
+        for id_info, extension in ACCEPTED_FILE_TYPES:
+            # Stops at the first match.
+            if id_info in file_id:
+                return id_info, extension
+        return 'Unknown', ''
+
+    @staticmethod
+    def _get_file_content_data(a_file):
+        content_type = a_file.content_type.split('/')
+        id_info, extn = MediaFileManager._get_file_id_data(a_file)
+        # Only adjust the content type when no file extension exists.
+        if '.' not in a_file.name:
+            if (id_info, extn) in ACCEPTED_AUDIO_TYPES:
+                content_type[0] = 'audio'
+            elif (id_info, extn) in ACCEPTED_VIDEO_TYPES:
+                content_type[0] = 'video'
+            elif (id_info, extn) in ACCEPTED_IMAGE_TYPES:
+                content_type[0] = 'image'
+            elif (id_info, extn) in ACCEPTED_DOC_TYPES:
+                content_type[0] = 'application'
+
+        if extn == 'aac' and id_info == 'AAC':
+            content_type = ('audio', 'aac')
+
+        return content_type, id_info
+
+    @staticmethod
+    def _normalise_filename(name):
         filename = slugify(name)
         if len(filename) < 1:
             filename = 'file_%s' % datetime.now().microsecond
@@ -413,9 +456,11 @@ class MediaFileManager(InheritanceManager):
         )
 
     def _create_audio_file(self, name, description, creator, contribution,
-                           the_file):
+                           the_file, content_type):
         """
         Creates an AudioFile and returns the instance.
+
+        All files that are not mp3 get converted using avconv.
 
         Parameter
         ---------
@@ -437,11 +482,71 @@ class MediaFileManager(InheritanceManager):
         """
         from geokey.contributions.models import AudioFile
 
+        converted_file = None
+
+        # Convert using avconv
+        if content_type[1] != 'mp3':
+            import time
+            import shlex
+            import subprocess
+            from django.core.files import File
+            from django.core.files.storage import default_storage
+            from django.core.files.base import ContentFile
+
+            filename, extension = os.path.splitext(the_file.name)
+            filename = self._normalise_filename(filename)
+
+            path = default_storage.save(
+                'tmp/' + filename + extension,
+                ContentFile(the_file.read())
+            )
+            tmp_file = os.path.join(settings.MEDIA_ROOT, path)
+
+            cmd = shlex.split('avconv -i %s' % tmp_file)
+            pipe = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
+            output, error = pipe.communicate()
+
+            video_stream = re.compile(
+                r"Stream #\d*\.\d*.*:\s*Video",
+                re.MULTILINE
+            )
+
+            # Using error because output file is not specified
+            if not video_stream.search(error.decode()):
+                converted_file = os.path.join(
+                    settings.MEDIA_ROOT,
+                    'tmp',
+                    '%s_%s.mp3' % (filename, int(time.time()))
+                )
+
+                cmd = shlex.split(
+                    'avconv -nostats -loglevel 0 -y -i %s -c:a libmp3lame -q:a 4 -ar 44100 %s' % (
+                        tmp_file,
+                        converted_file
+                    )
+                )
+                pipe = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE
+                )
+                output, error = pipe.communicate()
+
+                if not error:
+                    the_file = File(open(converted_file, 'rb'))
+                    the_file.name = '%s.mp3' % filename
+
+            os.remove(tmp_file)
+
         filename, extension = os.path.splitext(the_file.name)
         filename = self._normalise_filename(filename)
         the_file.name = filename[:FILE_NAME_TRUNC] + extension
 
-        return AudioFile.objects.create(
+        audio_file = AudioFile.objects.create(
             name=name,
             description=description,
             creator=creator,
@@ -449,7 +554,13 @@ class MediaFileManager(InheritanceManager):
             audio=the_file
         )
 
-    def _upload_to_youtube(self, name, path):
+        if converted_file is not None and os.path.isfile(converted_file):
+            os.remove(converted_file)
+
+        return audio_file
+
+    @staticmethod
+    def _upload_to_youtube(name, path):
         """
         Uploads the file from the given path to youtube
 
@@ -532,8 +643,6 @@ class MediaFileManager(InheritanceManager):
         Create a new file. Evaluates the file's content type and creates either
         an ImageFile, DocumentFile, VideoFile or AudioFile.
 
-        3gpp/3gpp2 audio files are converted to mp3 by default using avconv.
-
         Parameters
         ----------
         the_file : django.core.files.File
@@ -556,73 +665,9 @@ class MediaFileManager(InheritanceManager):
         description = kwargs.get('description')
         creator = kwargs.get('creator')
         contribution = kwargs.get('contribution')
-
-        content_type = the_file.content_type.split('/')
-        converted_file = None
-
-        # Using avconv to scan and convert 3gpp/3gpp2 audio files to mp3
-        if content_type[1] in ['3gpp', '3gpp2', 'ogg'] or \
-           content_type == ['audio', 'mpeg']:
-            import time
-            import shlex
-            import subprocess
-            from django.core.files import File
-            from django.core.files.storage import default_storage
-            from django.core.files.base import ContentFile
-
-            filename, extension = os.path.splitext(the_file.name)
-            filename = self._normalise_filename(filename)
-
-            path = default_storage.save(
-                'tmp/' + filename + extension,
-                ContentFile(the_file.read())
-            )
-            tmp_file = os.path.join(settings.MEDIA_ROOT, path)
-
-            cmd = shlex.split('avconv -i %s' % tmp_file)
-            pipe = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
-            output, error = pipe.communicate()
-
-            video_stream = re.compile(
-                r"Stream #\d*\.\d*.*\:\s*Video",
-                re.MULTILINE
-            )
-
-            # Using error because output file is not specified
-            if not video_stream.search(error.decode()):
-                content_type[0] = 'audio'
-
-                converted_file = os.path.join(
-                    settings.MEDIA_ROOT,
-                    'tmp',
-                    '%s_%s.mp3' % (filename, int(time.time()))
-                )
-
-                cmd = shlex.split(
-                    'avconv -nostats -loglevel 0 -y -i %s -c:a libmp3lame -q:a 4 -ar 44100 %s' % (
-                        tmp_file,
-                        converted_file
-                    )
-                )
-                pipe = subprocess.Popen(
-                    cmd,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE
-                )
-                output, error = pipe.communicate()
-
-                if not error:
-                    the_file = File(open(converted_file, 'rb'))
-                    the_file.name = '%s.mp3' % filename
-
-            os.remove(tmp_file)
-
-        if (content_type[0] == 'image' and
-                content_type[1] in ACCEPTED_IMAGE_FORMATS):
+        content_type, id_info = MediaFileManager._get_file_content_data(the_file)
+        file_type_accepted = any(i[0] in id_info for i in ACCEPTED_FILE_TYPES)
+        if content_type[0] == 'image' and file_type_accepted:
             return self._create_image_file(
                 name,
                 description,
@@ -630,8 +675,7 @@ class MediaFileManager(InheritanceManager):
                 contribution,
                 the_file
             )
-        elif (content_type[0] == 'application' and
-                content_type[1] in ACCEPTED_DOCUMENT_FORMATS):
+        elif content_type[0] == 'application' and file_type_accepted:
             return self._create_document_file(
                 name,
                 description,
@@ -639,23 +683,7 @@ class MediaFileManager(InheritanceManager):
                 contribution,
                 the_file
             )
-        elif (content_type[0] == 'audio' and
-                content_type[1] in ACCEPTED_AUDIO_FORMATS):
-            audio_file = self._create_audio_file(
-                name,
-                description,
-                creator,
-                contribution,
-                the_file
-            )
-
-            if converted_file is not None and os.path.isfile(converted_file):
-                os.remove(converted_file)
-
-            return audio_file
-        elif (content_type[0] == 'video' and
-                settings.ENABLE_VIDEO and
-                content_type[1] in ACCEPTED_VIDEO_FORMATS):
+        elif content_type[0] == 'video' and settings.ENABLE_VIDEO and file_type_accepted:
             return self._create_video_file(
                 name,
                 description,
@@ -663,6 +691,15 @@ class MediaFileManager(InheritanceManager):
                 contribution,
                 the_file
             )
+        elif content_type[0] in ['audio', 'video'] and file_type_accepted:
+            return self._create_audio_file(
+                name=name,
+                description=description,
+                creator=creator,
+                contribution=contribution,
+                the_file=the_file,
+                content_type=content_type
+            )
         else:
-            raise FileTypeError('Files of type %s are currently not supported.'
-                                % the_file.content_type)
+            raise FileTypeError(
+                'Files of type {} ({}) are currently not supported.'.format(id_info, name))
