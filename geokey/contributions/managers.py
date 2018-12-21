@@ -354,7 +354,7 @@ class MediaFileManager(InheritanceManager):
         return 'Unknown', ''
 
     @staticmethod
-    def _get_file_content_data(a_file: File) -> object:
+    def _get_file_content_data(a_file):
         content_type = a_file.content_type.split('/')
         id_info, extn = MediaFileManager._get_file_id_data(a_file)
         # Only adjust the content type when no file extension exists.
@@ -665,7 +665,7 @@ class MediaFileManager(InheritanceManager):
         description = kwargs.get('description')
         creator = kwargs.get('creator')
         contribution = kwargs.get('contribution')
-        content_type, id_info = MediaFileManager._get_file_content_data(a_file=the_file)
+        content_type, id_info = MediaFileManager._get_file_content_data(the_file)
         file_type_accepted = any(i[0] in id_info for i in ACCEPTED_FILE_TYPES)
         if content_type[0] == 'image' and file_type_accepted:
             return self._create_image_file(
