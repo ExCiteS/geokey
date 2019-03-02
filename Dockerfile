@@ -15,6 +15,8 @@ RUN apt-get update && \
         wget && \
     apt-get clean
 
+RUN sed -i 's/\(<policy domain="coder" rights=\)"none" \(pattern="PDF" \/>\)/\1"read|write"\2/g' /etc/ImageMagick/policy.xml
+
 RUN python --version
 RUN curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py" && \
     python get-pip.py && \
