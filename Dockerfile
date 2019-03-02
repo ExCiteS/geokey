@@ -26,9 +26,8 @@ RUN gdal-config --version && \
     pip install gdal==1.10
 
 RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
-    apt-get install -y nodejs
-RUN node -v
-RUN npm -v
+    apt-get install -y nodejs && \
+    node -v &&  npm -v
 
 ENV DOCKERIZE_VERSION v0.6.1
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && \
