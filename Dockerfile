@@ -22,7 +22,8 @@ RUN curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py" && \
 
 RUN gdal-config --version && \
     export C_INCLUDE_PATH=/usr/include/gdal && \
-    export CPLUS_INCLUDE_PATH=/usr/include/gdal
+    export CPLUS_INCLUDE_PATH=/usr/include/gdal && \
+    pip install gdal==1.10
 
 RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
     apt-get install -y nodejs
