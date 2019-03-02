@@ -44,5 +44,3 @@ RUN \
     pip install -r requirements-dev.txt && \
     pip install -e /app
 RUN npm install
-
-CMD ["python"]
