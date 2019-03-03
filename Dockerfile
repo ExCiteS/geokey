@@ -20,6 +20,7 @@ RUN sed -i 's/\(<policy domain="coder" rights=\)"none" \(pattern="PDF" \/>\)/\1"
 RUN python --version
 RUN curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py" && \
     python get-pip.py && \
+    rm get-pip.py && \
     pip --version
 
 RUN gdal-config --version && \
