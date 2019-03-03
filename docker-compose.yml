@@ -16,6 +16,7 @@ services:
     volumes:
       - ./geokey:/app/geokey
       - ./local_settings:/app/local_settings
+      - ./assets:/app/assets
   db:
     build:
       context: ./db
