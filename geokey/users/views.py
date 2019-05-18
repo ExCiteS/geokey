@@ -754,7 +754,8 @@ class UserGroup(APIView):
 
         if project.islocked:
             return Response(
-                'The project is locked. User group info cannot be modified.',
+                {'error': 'The project is locked. User group info cannot be ' +
+                    'modified.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         else:
@@ -802,7 +803,7 @@ class UserGroupUsers(APIView):
 
         if project.islocked:
             return Response(
-                'The project is locked. New users cannot be added.',
+                {'error': 'The project is locked. New users cannot be added.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         else:
@@ -810,8 +811,8 @@ class UserGroupUsers(APIView):
                 user = User.objects.get(pk=request.data.get('user_id'))
             except User.DoesNotExist:
                 return Response(
-                    'The user you are trying to add to the user group does ' +
-                    'not exist.',
+                    {'error': 'The user you are trying to add to the user ' +
+                        'group does not exist.'},
                     status=status.HTTP_404_NOT_FOUND
                 )
 
@@ -854,7 +855,7 @@ class UserGroupSingleUser(APIView):
 
         if project.islocked:
             return Response(
-                'The project is locked. Users cannot be removed.',
+                {'error': 'The project is locked. Users cannot be removed.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         else:

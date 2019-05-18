@@ -417,7 +417,8 @@ class ProjectAdmins(APIView):
 
         if project.islocked:
             return Response(
-                'The project is locked. New administrators cannot be added.',
+                {'error': 'The project is locked. New administrators cannot ' +
+                    'be added.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         else:
@@ -425,8 +426,8 @@ class ProjectAdmins(APIView):
                 user = User.objects.get(pk=request.data.get('user_id'))
             except User.DoesNotExist:
                 return Response(
-                    'The user you are trying to add to the group of ' +
-                    'administrators does not exist.',
+                    {'error': 'The user you are trying to add to the group ' +
+                        'of administrators does not exist.'},
                     status=status.HTTP_404_NOT_FOUND
                 )
 
@@ -434,7 +435,8 @@ class ProjectAdmins(APIView):
                 Admins.objects.create(project=project, user=user)
             except IntegrityError:
                 return Response(
-                    'The user is already an administrator of this project.',
+                    {'error': 'The user is already an administrator of this ' +
+                        'project.'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -476,7 +478,8 @@ class ProjectAdminsUser(APIView):
 
         if project.islocked:
             return Response(
-                'The project is locked. Administrators cannot be removed.',
+                {'error': 'The project is locked. Administrators cannot be ' +
+                    'removed.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         else:
