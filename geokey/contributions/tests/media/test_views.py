@@ -729,9 +729,10 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
         self.admin = UserFactory.create()
         self.creator = UserFactory.create()
         self.viewer = UserFactory.create()
-        self.project = ProjectFactory(
+        self.project = ProjectFactory.create(
             add_admins=[self.admin],
-            add_contributors=[self.creator]
+            add_contributors=[self.creator],
+            **{'isprivate': False}
         )
 
         self.contribution = ObservationFactory.create(
@@ -750,13 +751,16 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
         for f in files:
             os.remove(f)
 
-    def get(self, user):
+    def get(self, user, image_id=None):
+        if image_id is None:
+            image_id = self.image_file.id
+
         url = reverse(
             'api:project_single_media',
             kwargs={
                 'project_id': self.project.id,
                 'contribution_id': self.contribution.id,
-                'file_id': self.image_file.id
+                'file_id': image_id
             }
         )
 
@@ -767,7 +771,7 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
             request,
             project_id=self.project.id,
             contribution_id=self.contribution.id,
-            file_id=self.image_file.id
+            file_id=image_id
         ).render()
 
     def delete(self, user, image_id=None):
@@ -797,15 +801,35 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
         response = self.get(self.admin)
         self.assertEqual(response.status_code, 200)
 
+    def test_get_non_existing_image_with_admin(self):
+        response = self.get(self.admin, image_id=545487654)
+        self.assertEqual(response.status_code, 404)
+
     def test_get_image_with_contributor(self):
         response = self.get(self.creator)
         self.assertEqual(response.status_code, 200)
 
+    def test_get_non_existing_image_with_contributor(self):
+        response = self.get(self.creator, image_id=545487654)
+        self.assertEqual(response.status_code, 404)
+
     def test_get_image_with_some_dude(self):
+        response = self.get(UserFactory.create())
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_image_with_some_dude_when_project_is_private(self):
+        self.project.isprivate = True
+        self.project.save()
         response = self.get(UserFactory.create())
         self.assertEqual(response.status_code, 404)
 
     def test_get_image_with_anonymous(self):
+        response = self.get(AnonymousUser())
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_image_with_anonymous_when_project_is_private(self):
+        self.project.isprivate = True
+        self.project.save()
         response = self.get(AnonymousUser())
         self.assertEqual(response.status_code, 404)
 
@@ -813,7 +837,7 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
         response = self.delete(self.admin)
         self.assertEqual(response.status_code, 204)
 
-    def test_get_not_existing_image_with_admin(self):
+    def test_delete_non_existing_image_with_admin(self):
         response = self.delete(self.admin, image_id=545487654)
         self.assertEqual(response.status_code, 404)
 
@@ -821,10 +845,22 @@ class AllContributionsSingleMediaApiViewTest(TestCase):
         response = self.delete(self.creator)
         self.assertEqual(response.status_code, 204)
 
+    def test_delete_non_existing_image_with_contributor(self):
+        response = self.delete(self.creator, image_id=545487654)
+        self.assertEqual(response.status_code, 404)
+
     def test_delete_image_with_some_dude(self):
         response = self.delete(UserFactory.create())
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 403)
 
     def test_delete_image_with_anonymous(self):
         response = self.delete(AnonymousUser())
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 403)
+
+    def test_delete_anonymous_image_with_image_creator(self):
+        image_file = ImageFileFactory.create(**{
+            'contribution': self.contribution,
+            'creator': User.objects.get(display_name='AnonymousUser')
+        })
+        response = self.delete(AnonymousUser(), image_id=image_file.id)
+        self.assertEqual(response.status_code, 403)
