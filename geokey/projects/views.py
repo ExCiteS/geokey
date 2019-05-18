@@ -391,80 +391,98 @@ class ProjectUpdate(APIView):
 class ProjectAdmins(APIView):
 
     """
-    AJAX Endpoint for project administrators.
+    API endpoints for all project administrators.
     /ajax/projects/:project_id/admins
     """
 
     @handle_exceptions_for_ajax
     def post(self, request, project_id):
         """
-        Adds a user to the admin group.
+        Adds an admin to the group of admins.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         request : rest_framework.request.Request
-            Object representing the request.
+            Represents the HTTP request
         project_id : int
-            identifies the project in the database
+            Identifies the project in the database
 
         Returns
         -------
         rest_framework.response.Response
-            Response containing the serialised list of admins or an error
-            message.
+            Contains the serialised user group or an error message
         """
 
         project = Project.objects.as_admin(request.user, project_id)
-        user = User.objects.get(pk=request.data.get('user_id'))
 
-        try:
-            Admins.objects.create(project=project, user=user)
-        except IntegrityError:
+        if project.islocked:
             return Response(
-                'The user is already an administrator of this project.',
+                'The project is locked. New administrators cannot be added.',
                 status=status.HTTP_400_BAD_REQUEST
             )
+        else:
+            try:
+                user = User.objects.get(pk=request.data.get('user_id'))
+            except User.DoesNotExist:
+                return Response(
+                    'The user you are trying to add to the group of ' +
+                    'administrators does not exist.',
+                    status=status.HTTP_404_NOT_FOUND
+                )
 
-        refreshed_admins = Project.objects.get(pk=project_id).admins.all()
-        serializer = UserSerializer(refreshed_admins, many=True)
+            try:
+                Admins.objects.create(project=project, user=user)
+            except IntegrityError:
+                return Response(
+                    'The user is already an administrator of this project.',
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-        return Response(
-            {'users': serializer.data},
-            status=status.HTTP_201_CREATED
-        )
+            refreshed_admins = Project.objects.get(pk=project_id).admins.all()
+            serializer = UserSerializer(refreshed_admins, many=True)
+
+            return Response(
+                {'users': serializer.data},
+                status=status.HTTP_201_CREATED
+            )
 
 
 class ProjectAdminsUser(APIView):
 
     """
-    AJAX Endpoint for a single project administrator.
+    API endpoints for a single project administrator.
     /ajax/projects/:project_id/admins
     """
 
     @handle_exceptions_for_ajax
     def delete(self, request, project_id, user_id):
         """
-        Removes a user from the user group.
+        Removes an admin from the group of admins.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         request : rest_framework.request.Request
-            Object representing the request.
+            Represents the HTTP request
         project_id : int
-            identifies the project in the database
+            Identifies the project in the database
 
         Returns
         -------
         rest_framework.response.Response
-            Empty response if successful or response containing an error
-            message.
+            Empty response if successful or an error message
         """
 
         project = Project.objects.as_admin(request.user, project_id)
-        user = project.admins.get(pk=user_id)
-        Admins.objects.get(project=project, user=user).delete()
 
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if project.islocked:
+            return Response(
+                'The project is locked. Administrators cannot be removed.',
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        else:
+            user = project.admins.get(pk=user_id)
+            Admins.objects.get(project=project, user=user).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CategoriesReorderView(APIView):

@@ -694,6 +694,23 @@ class ProjectAdminsTest(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    def test_add_on_locked_project(self):
+        self.project.islocked = True
+        self.project.save()
+
+        request = self.factory.post(
+            '/ajax/projects/%s/admins/' % self.project.id,
+            {'user_id': self.user_to_add.id}
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectAdmins.as_view()
+        response = view(
+            request,
+            project_id=self.project.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
+
     def test_add_when_user_already_an_admin(self):
         Admins.objects.create(project=self.project, user=self.user_to_add)
         request = self.factory.post(
@@ -790,7 +807,26 @@ class ProjectAdminsUserTest(TestCase):
             project_id=self.project.id,
             user_id=user.id
         ).render()
+
         self.assertEqual(response.status_code, 404)
+
+    def test_delete_on_locked_project(self):
+        self.project.islocked = True
+        self.project.save()
+
+        request = self.factory.delete(
+            '/ajax/projects/%s/admins/%s/' %
+            (self.project.id, self.admin_to_remove.id)
+        )
+        force_authenticate(request, user=self.admin)
+        view = ProjectAdminsUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            user_id=self.admin_to_remove.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
 
     def test_delete_adminuser_with_admin(self):
         request = self.factory.delete(
