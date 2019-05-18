@@ -806,10 +806,8 @@ class UserGroupUsers(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         else:
-            user_id = request.data.get('user_id')
-
             try:
-                user = User.objects.get(pk=user_id)
+                user = User.objects.get(pk=request.data.get('user_id'))
             except User.DoesNotExist:
                 return Response(
                     'The user you are trying to add to the user group does ' +
