@@ -321,6 +321,25 @@ class UserGroupSingleUserTest(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    def test_delete_on_locked_project(self):
+        self.project.islocked = True
+        self.project.save()
+
+        request = self.factory.delete(
+            '/ajax/projects/%s/usergroups/%s/users/%s/' %
+            (self.project.id, self.contributors.id, self.contrib_to_remove.id),
+        )
+        force_authenticate(request, user=self.admin)
+        view = UserGroupSingleUser.as_view()
+        response = view(
+            request,
+            project_id=self.project.id,
+            usergroup_id=self.contributors.id,
+            user_id=self.contrib_to_remove.id
+        ).render()
+
+        self.assertEqual(response.status_code, 400)
+
     def test_delete_contributor_with_admin(self):
         request = self.factory.delete(
             '/ajax/projects/%s/usergroups/%s/users/%s/' %
