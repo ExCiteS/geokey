@@ -188,7 +188,7 @@ class UserGroupUsersTest(TestCase):
             usergroup_id=self.contributors.id
         ).render()
 
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 404)
 
     def test_add_on_locked_project(self):
         self.project.islocked = True

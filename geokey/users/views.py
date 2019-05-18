@@ -812,7 +812,7 @@ class UserGroupUsers(APIView):
                 return Response(
                     'The user you are trying to add to the user group does ' +
                     'not exist.',
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_404_NOT_FOUND
                 )
 
             group = project.usergroups.get(pk=usergroup_id)
