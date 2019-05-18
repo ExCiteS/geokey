@@ -80,7 +80,7 @@ class MediaAbstractAPIView(APIView):
         serializer = FileSerializer(
             contribution.files_attached.all(),
             many=True,
-            context={'user': self.get_user(request)}
+            context={'user': request.user}
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -131,7 +131,7 @@ class MediaAbstractAPIView(APIView):
                 the_file=file
             )
 
-            serializer = FileSerializer(file, context={'user': user})
+            serializer = FileSerializer(file, context={'user': request.user})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             raise PermissionDenied(
@@ -156,7 +156,7 @@ class MediaAbstractAPIView(APIView):
         """
         serializer = FileSerializer(
             file,
-            context={'user': self.get_user(request)}
+            context={'user': request.user}
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -183,9 +183,12 @@ class MediaAbstractAPIView(APIView):
         PermissionDenied
             When user is not allowed to delete the media file.
         """
-        user = self.get_user(request)
+        user = request.user
 
-        if file.creator == user or contribution.project.can_moderate(user):
+        is_owner = not user.is_anonymous() and file.creator == user
+        can_moderate = contribution.project.can_moderate(user)
+
+        if is_owner or can_moderate:
             file.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
