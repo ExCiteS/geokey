@@ -81,7 +81,7 @@ class CommentAbstractAPIView(APIView):
         serializer = CommentSerializer(
             contribution.comments.filter(respondsto=None),
             many=True,
-            context={'user': self.get_user(request)}
+            context={'user': request.user}
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -136,7 +136,7 @@ class CommentAbstractAPIView(APIView):
             review_status=review_status
         )
 
-        serializer = CommentSerializer(comment, context={'user': user})
+        serializer = CommentSerializer(comment, context={'user': request.user})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def update_and_respond(self, request, contribution, comment):
@@ -179,7 +179,7 @@ class CommentAbstractAPIView(APIView):
                 comment,
                 data=data,
                 partial=True,
-                context={'user': user}
+                context={'user': request.user}
             )
 
             if serializer.is_valid():
@@ -224,9 +224,12 @@ class CommentAbstractAPIView(APIView):
         PermissionDenied
             When user is not allowed to delete the comment.
         """
-        user = self.get_user(request)
+        user = request.user
 
-        if comment.creator == user or contribution.project.can_moderate(user):
+        is_owner = not user.is_anonymous() and comment.creator == user
+        can_moderate = contribution.project.can_moderate(user)
+
+        if is_owner or can_moderate:
             comment.delete()
 
             if (contribution.status == 'review' and

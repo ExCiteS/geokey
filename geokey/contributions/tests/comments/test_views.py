@@ -752,11 +752,13 @@ class DeleteProjectCommentTest(APITestCase):
             'creator': self.contributor
         })
 
-    def get_response(self, user):
+    def get_response(self, user, comment_to_remove=None):
+        if not comment_to_remove:
+            comment_to_remove = self.comment_to_remove
         factory = APIRequestFactory()
         request = factory.delete(
             '/api/projects/%s/contributions/%s/comments/%s/' %
-            (self.project.id, self.contribution.id, self.comment_to_remove.id),
+            (self.project.id, self.contribution.id, comment_to_remove.id),
             {'text': 'A comment to the contribution.'}
         )
         force_authenticate(request, user=user)
@@ -765,8 +767,15 @@ class DeleteProjectCommentTest(APITestCase):
             request,
             project_id=self.project.id,
             contribution_id=self.contribution.id,
-            comment_id=self.comment_to_remove.id
+            comment_id=comment_to_remove.id
         ).render()
+
+    def test_delete_comment_with_anonymous(self):
+        response = self.get_response(AnonymousUser())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        contribution = Observation.objects.get(pk=self.contribution.id)
+        self.assertIn(self.comment_to_remove, contribution.comments.all())
 
     def test_delete_comment_with_admin(self):
         response = self.get_response(self.admin)
@@ -775,6 +784,17 @@ class DeleteProjectCommentTest(APITestCase):
         contribution = Observation.objects.get(pk=self.contribution.id)
         self.assertIn(self.comment, contribution.comments.all())
         self.assertNotIn(self.comment_to_remove, contribution.comments.all())
+
+    def test_delete_anonymous_comment_with_comment_creator(self):
+        comment_to_remove = CommentFactory.create(**{
+            'commentto': self.contribution,
+            'creator': User.objects.get(display_name='AnonymousUser')
+        })
+        response = self.get_response(AnonymousUser(), comment_to_remove)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        contribution = Observation.objects.get(pk=self.contribution.id)
+        self.assertIn(comment_to_remove, contribution.comments.all())
 
     def test_delete_comment_with_comment_creator(self):
         response = self.get_response(self.contributor)
