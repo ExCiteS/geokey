@@ -224,9 +224,12 @@ class CommentAbstractAPIView(APIView):
         PermissionDenied
             When user is not allowed to delete the comment.
         """
-        user = self.get_user(request)
+        user = request.user
 
-        if comment.creator == user or contribution.project.can_moderate(user):
+        is_owner = not user.is_anonymous() and comment.creator == user
+        can_moderate = contribution.project.can_moderate(user)
+
+        if is_owner or can_moderate:
             comment.delete()
 
             if (contribution.status == 'review' and
