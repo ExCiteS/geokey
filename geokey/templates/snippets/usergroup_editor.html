@@ -22,7 +22,9 @@
     	{% for user in users %}
     		<li>
     			{{ user }}
-    			{% if users|length > 1 or not admins and not project.islocked %}<a class="text-danger remove" data-user-id="{{ user.id }}" href="#"><small>remove</small></a>{% endif %}
+                {% if not project.islocked %}
+                    {% if users|length > 1 or not admins %}<a class="text-danger remove" data-user-id="{{ user.id }}" href="#"><small>remove</small></a>{% endif %}
+                {% endif %}
     		</li>
     	{% empty %}
     		<li>No users have been added to this user group yet.</li>
