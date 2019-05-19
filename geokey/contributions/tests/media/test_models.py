@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from geokey.contributions.models import (
     ImageFile, DocumentFile, VideoFile, AudioFile,
-    post_save_media_file_count_update
+    post_save_count_update
 )
 from geokey.contributions.tests.model_factories import ObservationFactory
 from geokey.contributions.tests.media.helpers.document_helpers import (
@@ -34,9 +34,14 @@ class TestImageFilePostSave(TestCase):
             image=get_image()
         )
 
-        post_save_media_file_count_update(ImageFile, instance=image_file)
-        self.assertEqual(image_file.contribution.num_media, 1)
-        self.assertEqual(image_file.contribution.num_comments, 0)
+        post_save_count_update(
+            ImageFile,
+            instance=image_file,
+            created=True)
+
+        observation.refresh_from_db()
+        self.assertEqual(observation.num_media, 1)
+        self.assertEqual(observation.num_comments, 0)
 
 
 class ImageFileTest(TestCase):
@@ -81,9 +86,14 @@ class TestDocumentFilePostSave(TestCase):
             document=get_pdf_document()
         )
 
-        post_save_media_file_count_update(DocumentFile, instance=document_file)
-        self.assertEqual(document_file.contribution.num_media, 1)
-        self.assertEqual(document_file.contribution.num_comments, 0)
+        post_save_count_update(
+            DocumentFile,
+            instance=document_file,
+            created=True)
+
+        observation.refresh_from_db()
+        self.assertEqual(observation.num_media, 1)
+        self.assertEqual(observation.num_comments, 0)
 
 
 class DocumentFileTest(TestCase):
@@ -132,9 +142,14 @@ class TestVideoFilePostSave(TestCase):
             swf_link='http://example.com/1122323.swf'
         )
 
-        post_save_media_file_count_update(VideoFile, instance=video_file)
-        self.assertEqual(video_file.contribution.num_media, 1)
-        self.assertEqual(video_file.contribution.num_comments, 0)
+        post_save_count_update(
+            VideoFile,
+            instance=video_file,
+            created=True)
+
+        observation.refresh_from_db()
+        self.assertEqual(observation.num_media, 1)
+        self.assertEqual(observation.num_comments, 0)
 
 
 class VideoFileTest(TestCase):
@@ -183,9 +198,14 @@ class TestAudioFilePostSave(TestCase):
             audio=get_image()
         )
 
-        post_save_media_file_count_update(AudioFile, instance=audio_file)
-        self.assertEqual(audio_file.contribution.num_media, 1)
-        self.assertEqual(audio_file.contribution.num_comments, 0)
+        post_save_count_update(
+            AudioFile,
+            instance=audio_file,
+            created=True)
+
+        observation.refresh_from_db()
+        self.assertEqual(observation.num_media, 1)
+        self.assertEqual(observation.num_comments, 0)
 
 
 class AudioFileTest(TestCase):

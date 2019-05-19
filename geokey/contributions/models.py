@@ -273,9 +273,10 @@ class Observation(models.Model):
         Updates the count of media files attached and comments. Should be
         called each time a file or comment is added/deleted.
         """
-        self.num_media = self.files_attached.count()
-        self.num_comments = self.comments.count()
-        self.save()
+        instance = self.__class__._default_manager.get(pk=self.pk)  # refresh
+        instance.num_media = instance.files_attached.count()
+        instance.num_comments = instance.comments.count()
+        instance.save()
 
     def create_search_index(self):
         search_index = []
@@ -372,16 +373,6 @@ class Comment(models.Model):
         self.responses.all().delete()
         self.status = COMMENT_STATUS.deleted
         self.save()
-
-
-@receiver(post_save, sender=Comment)
-def post_save_comment_count_update(sender, **kwargs):
-    """
-    Receiver that is called after a comment is saved. Updates num_media and
-    num_comments properties.
-    """
-    comment = kwargs.get('instance')
-    comment.commentto.update_count()
 
 
 class MediaFile(models.Model):
@@ -525,16 +516,18 @@ class AudioFile(MediaFile):
 
 
 @receiver(post_save)
-def post_save_media_file_count_update(sender, **kwargs):
+def post_save_count_update(sender, instance, created, **kwargs):
     """
-    Receiver that is called after a media file is saved. Updates num_media and
-    num_comments properties.
+    Receiver that is called after a media file or a comment is saved. Updates
+    num_media and num_comments properties.
     """
-    if sender.__name__ in [
-        'ImageFile',
-        'DocumentFile',
-        'VideoFile',
-        'AudioFile'
-    ]:
-        media_file = kwargs.get('instance')
-        media_file.contribution.update_count()
+    if created:
+        if sender.__name__ == 'Comment':
+            instance.commentto.update_count()
+        elif sender.__name__ in [
+            'ImageFile',
+            'DocumentFile',
+            'VideoFile',
+            'AudioFile'
+        ]:
+            instance.contribution.update_count()
