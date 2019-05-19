@@ -518,10 +518,11 @@ class AudioFile(MediaFile):
 @receiver(post_save)
 def post_save_count_update(sender, instance, created, **kwargs):
     """
-    Receiver that is called after a media file or a comment is saved. Updates
-    num_media and num_comments properties.
+    Receiver that is called after a media file or a comment is created or
+    deleted. Updates num_media and num_comments properties of an observation.
     """
-    if created:
+    deleted = hasattr(instance, 'status') and instance.status == 'deleted'
+    if created or deleted:
         if sender.__name__ == 'Comment':
             instance.commentto.update_count()
         elif sender.__name__ in [
