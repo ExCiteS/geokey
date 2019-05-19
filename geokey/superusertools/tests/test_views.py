@@ -325,6 +325,7 @@ class ManageProjectsTest(TestCase):
         self.assertEqual(len(context.get('projects')), 4)
 
         for project in context.get('projects'):
+            project.refresh_from_db()
             self.assertEqual(project.contributions_count, 1)
             self.assertEqual(project.comments_count, 1)
             self.assertEqual(project.media_count, 0)
