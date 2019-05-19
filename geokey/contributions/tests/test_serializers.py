@@ -428,6 +428,7 @@ class ContributionSerializerIntegrationTests(TestCase):
         CommentFactory.create(**{
             'commentto': observation
         })
+        observation.refresh_from_db()
         serializer = ContributionSerializer(
             observation,
             context={'user': self.contributor, 'project': self.project}
