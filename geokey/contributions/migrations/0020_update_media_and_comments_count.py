@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from django.db import migrations
+from django.db import migrations, IntegrityError
 
 
 def update_media_and_comments_count(apps, schema_editor):
     Observation = apps.get_model('contributions', 'Observation')
 
     for observation in Observation.objects.all():
-        observation.num_media = observation.files_attached.count()
-        observation.num_comments = observation.comments.count()
-        observation.save()
+        try:
+            observation.num_media = observation.files_attached.count()
+            observation.num_comments = observation.comments.count()
+            observation.save()
+        except IntegrityError:
+            pass
 
 
 class Migration(migrations.Migration):
