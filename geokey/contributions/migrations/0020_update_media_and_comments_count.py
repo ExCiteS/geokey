@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.db import migrations, IntegrityError
+from django.db import migrations, transaction, IntegrityError
 
 
 def update_media_and_comments_count(apps, schema_editor):
@@ -8,9 +8,10 @@ def update_media_and_comments_count(apps, schema_editor):
 
     for observation in Observation.objects.all():
         try:
-            observation.num_media = observation.files_attached.count()
-            observation.num_comments = observation.comments.count()
-            observation.save()
+            with transaction.atomic():
+                observation.num_media = observation.files_attached.count()
+                observation.num_comments = observation.comments.count()
+                observation.save()
         except IntegrityError:
             pass
 
