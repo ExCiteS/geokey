@@ -1,7 +1,10 @@
 {{#each lookupvalues}}
-    <li class="list-group-item">
+    <li class="list-group-item sort-item" data-item-id="{{id}}">
         <div class="value-display">
-            <span class="value-label">{{name}}</span>
+            <h4>
+                <small><span class="glyphicon glyphicon-sort"></span></small>
+                <span class="value-label">{{name}}</span>
+            </h4>
 
             <span class="btn-group">
                 {{#unless locked}}

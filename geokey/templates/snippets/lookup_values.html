@@ -7,12 +7,15 @@
                     {% if not project.islocked %}Add and remove{% else %}View{% endif %} accepted values for the field
                 </h2>
             </div>
-            <ul class="list-group">
+            <ul id="sortable" class="list-unstyled list-group">
 
             {% for lookupvalue in field.lookupvalues.active %}
-                <li class="list-group-item">
+                <li class="list-group-item sort-item" data-item-id="{{ lookupvalue.id }}">
                     <div class="value-display">
-                        <span class="value-label">{{ lookupvalue.name }}</span>
+                        <h4>
+                            <small><span class="glyphicon glyphicon-sort"></span></small>
+                            <span class="value-label">{{ lookupvalue.name }}</span>
+                        </h4>
 
                         <span class="btn-group">
                             {% if not project.islocked %}

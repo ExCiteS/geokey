@@ -16,6 +16,13 @@ from geokey.core.exceptions import InputError
 
 from .managers import CategoryManager, FieldManager, LookupValueManager
 from .base import STATUS, DEFAULT_STATUS
+from six import PY2
+if PY2:
+    STR_TYPES = (str, unicode)
+    NUM_TYPES = (int, long, float, complex)
+else:
+    STR_TYPES = (str, bytes)
+    NUM_TYPES = (int, float, complex)
 
 
 class Category(models.Model):
@@ -258,6 +265,26 @@ class Field(models.Model):
             'subclass of Field.'
         )
 
+    def reorder_values(self, order):
+        """
+        Changes the order in which (single/multiple) lookup values are displayed
+        on client side.
+
+        Parameters
+        -------
+        order : List
+            IDs of values, ordered according to new display order
+        """
+        if isinstance(self, (LookupField, MultipleLookupField)):
+            values_to_save = []
+            for idx, value_id in enumerate(order):
+                value = self.lookupvalues.get(pk=value_id)
+                value.order = idx
+                values_to_save.append(value)
+
+            for value in values_to_save:
+                value.save()
+
     def get_filter(self, rule):
         """
         Returns an SQL where clause that can be used to filter contributions in
@@ -315,9 +342,6 @@ class TextField(Field):
         -----
         Raises InputError if no value is provided
         """
-        if isinstance(value, str) or isinstance(value, unicode):
-            value = value.encode('utf-8')
-
         if self.status == STATUS.active and self.required and (
                 value is None or len(str(value)) == 0):
             raise InputError('The field %s is required.' % self.name)
@@ -398,13 +422,13 @@ class NumericField(Field):
         -----
         Raises InputError if an invalid value is provided
         """
-        if isinstance(value, (str, unicode)) and len(value) == 0:
+        if isinstance(value, STR_TYPES) and len(value) == 0:
             value = None
 
         self.validate_required(value)
 
         if value is not None:
-            if isinstance(value, (str, unicode)):
+            if isinstance(value, STR_TYPES):
                 try:
                     value = float(value) if '.' in value else int(value)
                 except ValueError:
@@ -413,7 +437,7 @@ class NumericField(Field):
                         self.name
                     )
 
-            if isinstance(value, (int, long, float, complex)):
+            if isinstance(value, NUM_TYPES):
                 if self.minval and self.maxval and (
                         not (value >= self.minval) and (value <= self.maxval)):
                     raise InputError('The value provided for field %s must be '
@@ -833,6 +857,7 @@ class LookupValue(models.Model):
     name = models.CharField(max_length=100)
     symbol = models.ImageField(upload_to='symbols', null=True, max_length=500)
     field = models.ForeignKey(LookupField, related_name='lookupvalues')
+    order = models.IntegerField(default=0)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
@@ -842,7 +867,7 @@ class LookupValue(models.Model):
     objects = LookupValueManager()
 
     class Meta:
-        ordering = ['id']
+        ordering = ['order']
 
     def delete(self):
         """
@@ -872,7 +897,7 @@ class MultipleLookupField(Field):
         valid = True
 
         if provided_vals is not None:
-            if isinstance(provided_vals, (str, unicode)):
+            if isinstance(provided_vals, STR_TYPES):
                 provided_vals = json.loads(provided_vals)
 
             accepted_values = [value.id for value in self.lookupvalues.all()]
@@ -926,6 +951,7 @@ class MultipleLookupValue(models.Model):
     name = models.CharField(max_length=100)
     symbol = models.ImageField(upload_to='symbols', null=True, max_length=500)
     field = models.ForeignKey(MultipleLookupField, related_name='lookupvalues')
+    order = models.IntegerField(default=0)
     status = models.CharField(
         choices=STATUS,
         default=STATUS.active,
@@ -935,7 +961,7 @@ class MultipleLookupValue(models.Model):
     objects = LookupValueManager()
 
     class Meta:
-        ordering = ['id']
+        ordering = ['order']
 
     def delete(self):
         """

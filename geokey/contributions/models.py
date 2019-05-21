@@ -273,16 +273,17 @@ class Observation(models.Model):
         Updates the count of media files attached and comments. Should be
         called each time a file or comment is added/deleted.
         """
-        self.num_media = self.files_attached.count()
-        self.num_comments = self.comments.count()
-        self.save()
+        instance = self.__class__._default_manager.get(pk=self.pk)  # refresh
+        instance.num_media = instance.files_attached.count()
+        instance.num_comments = instance.comments.count()
+        instance.save()
 
     def create_search_index(self):
         search_index = []
 
         for field in self.category.fields.all().select_subclasses():
             value = None
-            if self.properties and field.key in self.properties.keys():
+            if self.properties and field.key in list(self.properties.keys()):
                 if field.fieldtype == 'TextField':
                     value = self.properties.get(field.key)
 
@@ -304,7 +305,7 @@ class Observation(models.Model):
                         value = ' '.join([val.name for val in lookupvalues])
 
             if value:
-                cleaned = re.sub(r'[\W_]+', ' ', value)
+                cleaned = re.sub('[\W_]+', ' ', str(value))
                 terms = cleaned.lower().split()
 
                 search_index = search_index + list(
@@ -374,16 +375,6 @@ class Comment(models.Model):
         self.save()
 
 
-@receiver(post_save, sender=Comment)
-def post_save_comment_count_update(sender, **kwargs):
-    """
-    Receiver that is called after a comment is saved. Updates num_media and
-    num_comments properties.
-    """
-    comment = kwargs.get('instance')
-    comment.commentto.update_count()
-
-
 class MediaFile(models.Model):
     """
     Base class for all media files. Not to be instaciate; instaciate one of
@@ -403,9 +394,6 @@ class MediaFile(models.Model):
     )
 
     objects = MediaFileManager()
-
-    class Meta:
-        ordering = ['id']
 
     @property
     def type_name(self):
@@ -428,29 +416,6 @@ class MediaFile(models.Model):
         """
         self.status = MEDIA_STATUS.deleted
         self.save()
-
-
-class AudioFile(MediaFile):
-    """
-    Stores audio files uploaded by users.
-    """
-    audio = models.FileField(upload_to='user-uploads/audio')
-
-    class Meta:
-        ordering = ['id']
-        app_label = 'contributions'
-
-    @property
-    def type_name(self):
-        """
-        Returns file type name
-
-        Returns
-        -------
-        str
-            'AudioFile'
-        """
-        return 'AudioFile'
 
 
 class ImageFile(MediaFile):
@@ -476,9 +441,33 @@ class ImageFile(MediaFile):
         return 'ImageFile'
 
 
+class DocumentFile(MediaFile):
+    """
+    Stores documents uploaded by users.
+    """
+    document = models.FileField(upload_to='user-uploads/documents')
+    thumbnail = models.ImageField(upload_to='user-uploads/documents', null=True)
+
+    class Meta:
+        ordering = ['id']
+        app_label = 'contributions'
+
+    @property
+    def type_name(self):
+        """
+        Returns file type name
+
+        Returns
+        -------
+        str
+            'DocumentFile'
+        """
+        return 'DocumentFile'
+
+
 class VideoFile(MediaFile):
     """
-    Stores images uploaded by users.
+    Stores videos uploaded by users.
     """
     video = models.ImageField(upload_to='user-uploads/videos')
     youtube_id = models.CharField(max_length=100)
@@ -488,6 +477,7 @@ class VideoFile(MediaFile):
 
     class Meta:
         ordering = ['id']
+        app_label = 'contributions'
 
     @property
     def type_name(self):
@@ -502,12 +492,43 @@ class VideoFile(MediaFile):
         return 'VideoFile'
 
 
+class AudioFile(MediaFile):
+    """
+    Stores audio files uploaded by users.
+    """
+    audio = models.FileField(upload_to='user-uploads/audio')
+
+    class Meta:
+        ordering = ['id']
+        app_label = 'contributions'
+
+    @property
+    def type_name(self):
+        """
+        Returns file type name
+
+        Returns
+        -------
+        str
+            'AudioFile'
+        """
+        return 'AudioFile'
+
+
 @receiver(post_save)
-def post_save_media_file_count_update(sender, **kwargs):
+def post_save_count_update(sender, instance, created, **kwargs):
     """
-    Receiver that is called after a media file is saved. Updates num_media and
-    num_comments properties.
+    Receiver that is called after a media file or a comment is created or
+    deleted. Updates num_media and num_comments properties of an observation.
     """
-    if sender.__name__ in ['ImageFile', 'VideoFile', 'AudioFile']:
-        media_file = kwargs.get('instance')
-        media_file.contribution.update_count()
+    deleted = hasattr(instance, 'status') and instance.status == 'deleted'
+    if created or deleted:
+        if sender.__name__ == 'Comment':
+            instance.commentto.update_count()
+        elif sender.__name__ in [
+            'ImageFile',
+            'DocumentFile',
+            'VideoFile',
+            'AudioFile'
+        ]:
+            instance.contribution.update_count()

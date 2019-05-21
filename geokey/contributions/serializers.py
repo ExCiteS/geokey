@@ -2,7 +2,12 @@
 
 import requests
 import tempfile
+import subprocess
 
+from os.path import basename
+from PIL import Image
+
+from django.conf import settings
 from django.core import files
 from django.core.exceptions import PermissionDenied, ValidationError
 
@@ -24,6 +29,7 @@ from .models import (
     Comment,
     MediaFile,
     ImageFile,
+    DocumentFile,
     VideoFile,
     AudioFile
 )
@@ -134,8 +140,8 @@ class ContributionSerializer(BaseSerializer):
             Contribution properties with replaced null values
 
         """
-        for key, value in properties.iteritems():
-            if isinstance(value, (str, unicode)) and len(value) == 0:
+        for key, value in properties.items():
+            if isinstance(value, str) and len(value) == 0:
                 properties[key] = None
 
         return properties
@@ -170,7 +176,7 @@ class ContributionSerializer(BaseSerializer):
                 Observation.validate_partial(category, properties)
             else:
                 Observation.validate_full(category, properties)
-        except ValidationError, e:
+        except ValidationError as e:
             errors.append(e)
 
         self._validated_data['properties'] = properties
@@ -200,9 +206,9 @@ class ContributionSerializer(BaseSerializer):
                     project.id,
                     location_id
                 )
-        except PermissionDenied, error:
+        except PermissionDenied as error:
             errors.append(error)
-        except Location.DoesNotExist, error:
+        except Location.DoesNotExist as error:
             errors.append(error)
 
         if errors:
@@ -608,6 +614,8 @@ class FileSerializer(serializers.ModelSerializer):
         """
         if isinstance(obj, ImageFile):
             return obj.image.url
+        if isinstance(obj, DocumentFile):
+            return obj.document.url
         elif isinstance(obj, VideoFile):
             return obj.youtube_link
         elif isinstance(obj, AudioFile):
@@ -622,13 +630,12 @@ class FileSerializer(serializers.ModelSerializer):
         image : Image
             The image to be thumbnailed
         size : tuple
-            width and height of the thumbnail, defaults to 300 by 300
+            Width and height of the thumbnail, defaults to 300 by 300
 
         Returns
         -------
         Image
             The thumbnail
-
         """
         thumbnailer = get_thumbnailer(image)
         thumb = thumbnailer.get_thumbnail({
@@ -663,6 +670,43 @@ class FileSerializer(serializers.ModelSerializer):
             ):
                 return ''
 
+        elif isinstance(obj, DocumentFile):
+            if obj.thumbnail:
+                # thumbnail has been generated, return the link
+                return self._get_thumb(obj.thumbnail).url
+
+            thumbnail_name = '%s_thumbnail.png' % obj.document
+
+            # Save placeholder for current thumb which will be generated
+            obj.thumbnail = thumbnail_name
+            obj.save()
+
+            pipe = subprocess.Popen(
+                'convert -quality 95 -thumbnail %s %s/%s[0] %s/%s' % (
+                    500,  # width of a generated thumb
+                    settings.MEDIA_ROOT,
+                    obj.document,
+                    settings.MEDIA_ROOT,
+                    '%s_thumbnail.png' % obj.document
+                ),
+                shell=True,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            output, error = pipe.communicate()
+
+            if error:
+                return None
+
+            w, h = Image.open(obj.thumbnail).size
+
+            # Crop and replace thumb based on whether height or width is smaller
+            thumb = self._get_thumb(obj.thumbnail, size=(min(w, h), min(w, h)))
+            obj.thumbnail.save(basename(obj.document.name), thumb)
+
+            return self._get_thumb(obj.thumbnail).url
+
         elif isinstance(obj, VideoFile):
             if obj.thumbnail:
                 # thumbnail has been downloaded, return the link
@@ -690,8 +734,6 @@ class FileSerializer(serializers.ModelSerializer):
 
             file_name = obj.youtube_id + '.jpg'
             obj.thumbnail.save(file_name, files.File(lf))
-
-            from PIL import Image
 
             w, h = Image.open(obj.thumbnail).size
 

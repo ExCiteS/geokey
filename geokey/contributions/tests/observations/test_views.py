@@ -712,7 +712,7 @@ class ProjectPublicApiTest(TestCase):
         }
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 201)
-        self.assertIn('"status":"draft"', response.content)
+        self.assertIn('"status":"draft"', response.content.decode())
 
     def test_contribute_valid_draft_with_empty_required(self):
         self.data = {
@@ -740,7 +740,7 @@ class ProjectPublicApiTest(TestCase):
         }
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 201)
-        self.assertIn('"status":"draft"', response.content)
+        self.assertIn('"status":"draft"', response.content.decode())
 
     def test_contribute_invalid_draft(self):
         self.data = {
@@ -782,7 +782,7 @@ class ProjectPublicApiTest(TestCase):
         self.project.save()
         response = self._post(self.data, self.admin)
         self.assertEqual(response.status_code, 201)
-        self.assertIn('"status":"active"', response.content)
+        self.assertIn('"status":"active"', response.content.decode())
 
     def test_contribute_to_public_with_contributor(self):
         self.project.isprivate = False
@@ -790,7 +790,7 @@ class ProjectPublicApiTest(TestCase):
 
         response = self._post(self.data, self.contributor)
         self.assertEqual(response.status_code, 201)
-        self.assertIn('"status":"pending"', response.content)
+        self.assertIn('"status":"pending"', response.content.decode())
 
     def test_contribute_to_public_with_non_member(self):
         self.project.isprivate = False
@@ -1205,7 +1205,7 @@ class TestProjectPublicApi(TestCase):
                 'project': self.project,
                 'category': category,
                 'properties': {'text': 'blub'},
-                'location': loc2 }
+                'location': loc2}
                 
             )
 
@@ -1240,13 +1240,13 @@ class TestProjectPublicApi(TestCase):
                 'project': self.project,
                 'category': category,
                 'properties': {'text': 'blub'},
-                'location': loc2 }
+                'location': loc2}
                 
             )
 
         response = self.get(self.admin, bbox='text_only')
         error = ''
-        if 'error' in response.content:
+        if 'error' in response.content.decode():
             error = True
         self.assertEqual(error, True)
 
@@ -1277,7 +1277,7 @@ class TestProjectPublicApi(TestCase):
                 'project': self.project,
                 'category': category,
                 'properties': {'text': 'blub'},
-                'location': loc2 }
+                'location': loc2}
                 
             )
 

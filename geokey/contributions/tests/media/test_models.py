@@ -3,10 +3,13 @@
 from django.test import TestCase
 
 from geokey.contributions.models import (
-    ImageFile, VideoFile, AudioFile,
-    post_save_media_file_count_update
+    ImageFile, DocumentFile, VideoFile, AudioFile,
+    post_save_count_update
 )
 from geokey.contributions.tests.model_factories import ObservationFactory
+from geokey.contributions.tests.media.helpers.document_helpers import (
+    get_pdf_document
+)
 from geokey.users.tests.model_factories import UserFactory
 
 from .model_factories import get_image
@@ -31,9 +34,14 @@ class TestImageFilePostSave(TestCase):
             image=get_image()
         )
 
-        post_save_media_file_count_update(ImageFile, instance=image_file)
-        self.assertEqual(image_file.contribution.num_media, 1)
-        self.assertEqual(image_file.contribution.num_comments, 0)
+        post_save_count_update(
+            ImageFile,
+            instance=image_file,
+            created=True)
+
+        observation.refresh_from_db()
+        self.assertEqual(observation.num_media, 1)
+        self.assertEqual(observation.num_comments, 0)
 
 
 class ImageFileTest(TestCase):
@@ -56,7 +64,59 @@ class ImageFileTest(TestCase):
             image=get_image()
         )
         image_file.delete()
-        self.assertEquals(image_file.status, 'deleted')
+        self.assertEqual(image_file.status, 'deleted')
+
+
+class TestDocumentFilePostSave(TestCase):
+    def test_post_save_document_file_count_update(self):
+        observation = ObservationFactory()
+        document_file = DocumentFile.objects.create(
+            name='Test name',
+            description='Test Description',
+            contribution=observation,
+            creator=UserFactory.create(),
+            document=get_pdf_document()
+        )
+        DocumentFile.objects.create(
+            status='deleted',
+            name='Test name',
+            description='Test Description',
+            contribution=observation,
+            creator=UserFactory.create(),
+            document=get_pdf_document()
+        )
+
+        post_save_count_update(
+            DocumentFile,
+            instance=document_file,
+            created=True)
+
+        observation.refresh_from_db()
+        self.assertEqual(observation.num_media, 1)
+        self.assertEqual(observation.num_comments, 0)
+
+
+class DocumentFileTest(TestCase):
+    def test_get_type_name(self):
+        document_file = DocumentFile.objects.create(
+            name='Test name',
+            description='Test Description',
+            contribution=ObservationFactory.create(),
+            creator=UserFactory.create(),
+            document=get_pdf_document()
+        )
+        self.assertEqual(document_file.type_name, 'DocumentFile')
+
+    def test_delete_file(self):
+        document_file = DocumentFile.objects.create(
+            name='Test name',
+            description='Test Description',
+            contribution=ObservationFactory.create(),
+            creator=UserFactory.create(),
+            document=get_pdf_document()
+        )
+        document_file.delete()
+        self.assertEquals(document_file.status, 'deleted')
 
 
 class TestVideoFilePostSave(TestCase):
@@ -82,9 +142,14 @@ class TestVideoFilePostSave(TestCase):
             swf_link='http://example.com/1122323.swf'
         )
 
-        post_save_media_file_count_update(VideoFile, instance=video_file)
-        self.assertEqual(video_file.contribution.num_media, 1)
-        self.assertEqual(video_file.contribution.num_comments, 0)
+        post_save_count_update(
+            VideoFile,
+            instance=video_file,
+            created=True)
+
+        observation.refresh_from_db()
+        self.assertEqual(observation.num_media, 1)
+        self.assertEqual(observation.num_comments, 0)
 
 
 class VideoFileTest(TestCase):
@@ -111,7 +176,7 @@ class VideoFileTest(TestCase):
             swf_link='http://example.com/1122323.swf'
         )
         video_file.delete()
-        self.assertEquals(video_file.status, 'deleted')
+        self.assertEqual(video_file.status, 'deleted')
 
 
 class TestAudioFilePostSave(TestCase):
@@ -133,9 +198,14 @@ class TestAudioFilePostSave(TestCase):
             audio=get_image()
         )
 
-        post_save_media_file_count_update(AudioFile, instance=audio_file)
-        self.assertEqual(audio_file.contribution.num_media, 1)
-        self.assertEqual(audio_file.contribution.num_comments, 0)
+        post_save_count_update(
+            AudioFile,
+            instance=audio_file,
+            created=True)
+
+        observation.refresh_from_db()
+        self.assertEqual(observation.num_media, 1)
+        self.assertEqual(observation.num_comments, 0)
 
 
 class AudioFileTest(TestCase):
@@ -158,4 +228,4 @@ class AudioFileTest(TestCase):
             audio=get_image()
         )
         audio_file.delete()
-        self.assertEquals(audio_file.status, 'deleted')
+        self.assertEqual(audio_file.status, 'deleted')

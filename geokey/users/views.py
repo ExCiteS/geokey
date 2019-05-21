@@ -623,7 +623,7 @@ class DeleteUser(LoginRequiredMixin, TemplateView):
             return self.render_to_response(self.get_context_data(form=form))
 
         # Blank/default user fields.
-        random_numbers = ''.join(str(random.choice(range(10))) for _ in range(8))
+        random_numbers = ''.join(str(random.choice(list(range(10)))) for _ in range(8))
         random_password = ''.join(random.choice(ascii_lowercase) for _ in range(15))
         user.email = random_numbers + '@' + 'deleteduser.email'
         user.display_name = 'Deleted user ' + random_numbers
@@ -676,7 +676,7 @@ class AccountDisconnect(LoginRequiredMixin, TemplateView):
                     SocialAccount.objects.filter(user=self.request.user))
                 account.delete()
                 messages.success(request, 'The account has been disconnected.')
-            except ValidationError, e:
+            except ValidationError as e:
                 messages.error(request, e)
 
         return HttpResponseRedirect(reverse('admin:userprofile'))
@@ -754,7 +754,8 @@ class UserGroup(APIView):
 
         if project.islocked:
             return Response(
-                'The project is locked. User group info cannot be modified.',
+                {'error': 'The project is locked. User group info cannot be ' +
+                    'modified.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         else:
@@ -802,19 +803,17 @@ class UserGroupUsers(APIView):
 
         if project.islocked:
             return Response(
-                'The project is locked. New users cannot be added.',
+                {'error': 'The project is locked. New users cannot be added.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         else:
-            user_id = request.data.get('user_id')
-
             try:
-                user = User.objects.get(pk=user_id)
+                user = User.objects.get(pk=request.data.get('user_id'))
             except User.DoesNotExist:
                 return Response(
-                    'The user you are trying to add to the user group does ' +
-                    'not exist.',
-                    status=status.HTTP_400_BAD_REQUEST
+                    {'error': 'The user you are trying to add to the user ' +
+                        'group does not exist.'},
+                    status=status.HTTP_404_NOT_FOUND
                 )
 
             group = project.usergroups.get(pk=usergroup_id)
@@ -856,7 +855,7 @@ class UserGroupSingleUser(APIView):
 
         if project.islocked:
             return Response(
-                'The project is locked. Users cannot be removed.',
+                {'error': 'The project is locked. Users cannot be removed.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         else:

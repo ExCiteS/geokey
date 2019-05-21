@@ -55,10 +55,17 @@ If everything went well, there should be a GeoKey instance available on your sys
 
 For development purposes, the source code is also mounted as a volume in the `geokey` container, which means that changes made to the source code on the host machine are reflected in the container.
 
+In order for Grunt to compile the Handlebars templates within the container, in a new terminal window run:
+
+.. code-block:: console
+
+    docker-compose exec geokey npm run grunt
+
+
 Install for development
 =======================
 
-GeoKey can be run on Python 2.7 only.
+GeoKey can be run on Python 2.7 or Python 3 (Geokey 1.8 onwards).
 
 1. Update your system:
 
@@ -85,7 +92,11 @@ Note that for Ubuntu 16.04, you don't need to add the repo and can install 9.5:
 
 .. code-block:: console
 
-    sudo apt-get install python-pip python-virtualenv python-dev libjpeg-dev binutils libproj-dev libav-tools gdal-bin python-gdal
+    sudo apt-get install python-pip python-virtualenv python-dev libjpeg-dev libmagickcore-dev libmagickwand-dev imagemagick binutils libproj-dev libav-tools gdal-bin python-gdal
+
+4. Change ImageMagick permissions for it to be able to write:
+
+    `sed -i 's/\(<policy domain="coder" rights=\)"none" \(pattern="PDF" \/>\)/\1"read|write"\2/g' /etc/ImageMagick-6/policy.xml`
 
 For Ubuntu you might also need to install *libavcodec-extra-52* or *libavcodec-extra-53*.
 
@@ -181,7 +192,7 @@ You may need to add *sudo* before the pip commands, unless you are logged in as 
 
 4. Inside the *local_settings* open *settings.py* in a text editor and...
 
-Add your `database settings <https://docs.djangoproject.com/en/1.8/ref/settings/#databases>`_:
+Add your `database settings <https://docs.djangoproject.com/en/1.11/ref/settings/#databases>`_:
 
 .. code-block:: python
 
@@ -196,14 +207,14 @@ Add your `database settings <https://docs.djangoproject.com/en/1.8/ref/settings/
         }
     }
 
-Set the `secret key <https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-SECRET_KEY>`_:
+Set the `secret key <https://docs.djangoproject.com/en/1.11/ref/settings/#std:setting-SECRET_KEY>`_:
 
 .. code-block:: python
 
     SECRET_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
 
-Set the `STATIC_ROOT directory <https://docs.djangoproject.com/en/1.8/howto/static-files/#deployment>`_:
+Set the `STATIC_ROOT directory <https://docs.djangoproject.com/en/1.11/howto/static-files/#deployment>`_:
 
 .. code-block:: python
 

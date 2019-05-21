@@ -51,7 +51,7 @@ class GeoJsonParserTest(TestCase):
             }
         }
         parser = GeoJsonParser()
-        parsed = parser.parse(BytesIO(json.dumps(obj)))
+        parsed = parser.parse(BytesIO(json.dumps(obj).encode()))
 
         self.assertFalse('id' in parsed)
         self.assertEqual(parsed.get('meta'), ref.get('meta'))
@@ -101,7 +101,7 @@ class GeoJsonParserTest(TestCase):
             }
         }
         parser = GeoJsonParser()
-        parsed = parser.parse(BytesIO(json.dumps(obj)))
+        parsed = parser.parse(BytesIO(json.dumps(obj).encode()))
 
         self.assertFalse('id' in parsed)
         self.assertEqual(parsed.get('meta'), ref.get('meta'))
@@ -154,7 +154,7 @@ class GeoJsonParserTest(TestCase):
             }
         }
         parser = GeoJsonParser()
-        parsed = parser.parse(BytesIO(json.dumps(obj)))
+        parsed = parser.parse(BytesIO(json.dumps(obj).encode()))
 
         self.assertFalse('id' in parsed)
         self.assertEqual(parsed.get('meta'), ref.get('meta'))
@@ -189,7 +189,7 @@ class GeoJsonParserTest(TestCase):
             }
         }
         parser = GeoJsonParser()
-        parsed = parser.parse(BytesIO(json.dumps(obj)))
+        parsed = parser.parse(BytesIO(json.dumps(obj).encode()))
 
         self.assertFalse('meta' in parsed)
         self.assertFalse('location' in parsed)
@@ -204,7 +204,7 @@ class GeoJsonParserTest(TestCase):
         }
 
         parser = GeoJsonParser()
-        parsed = parser.parse(BytesIO(json.dumps(obj)))
+        parsed = parser.parse(BytesIO(json.dumps(obj).encode()))
 
         self.assertEqual(parsed.get('id'), 12)
         self.assertEqual('review', parsed.get('meta').get('status'))
@@ -221,7 +221,7 @@ class GeoJsonParserTest(TestCase):
         }
 
         parser = GeoJsonParser()
-        parsed = parser.parse(BytesIO(json.dumps(obj)))
+        parsed = parser.parse(BytesIO(json.dumps(obj).encode()))
 
         self.assertFalse('id' in parsed)
         self.assertFalse('meta' in parsed)
@@ -245,7 +245,7 @@ class GeoJsonParserTest(TestCase):
         }
 
         parser = GeoJsonParser()
-        parsed = parser.parse(BytesIO(json.dumps(obj)))
+        parsed = parser.parse(BytesIO(json.dumps(obj).encode()))
 
         self.assertFalse('id' in parsed)
         self.assertFalse('meta' in parsed)
