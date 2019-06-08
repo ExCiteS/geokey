@@ -10,7 +10,7 @@ django-pgjson==0.3.1
 django-simple-history==1.8.2
 django-nose==1.4.5
 djangorestframework==3.9.4
-djangorestframework-gis==0.11.2
+djangorestframework-gis==0.14.0
 easy-thumbnails==2.4.2
 gdata==2.0.18
 gdal==1.10.0
