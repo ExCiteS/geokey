@@ -65,6 +65,11 @@ In order for Grunt to compile the Handlebars templates within the container, in 
 Install for development
 =======================
 
+**Updated documentation:** The following link will direct you to the updated guide that aims to install GeoKey on a cloud server running on a Ubuntu machine, specifically version 18.04 that will be supported until 2028. This documentation aims to simplify the processes as much as possible to make it suitable for everyone including non-technical people not familiar with Python / Linux environment but keen on running GeoKey on their own cloud servers. 
+https://github.com/ExCiteS/geokey/blob/master/GeoKey_updated_documentation.pdf
+
+For advanced users, please follow below.
+
 GeoKey can be run on Python 2.7 or Python 3 (Geokey 1.8 onwards).
 
 1. Update your system:
