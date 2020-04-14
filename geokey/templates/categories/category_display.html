@@ -45,6 +45,13 @@ data-category-id="{{ category.id }}"
                 </div>
 
                 <div class="form-group">
+                    <label for="transparency" class="control-label">Transparency</label>
+                    <div class="input-group" id="transparency">
+                        <input type="text" name="transparency" value="{{ category.transparency }}" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label for="symbol" class="control-label">Symbol</label>
                     <input type="file" id="symbol" name="symbol" data-target="symbol" {% if category.symbol %}data-preview="{{ category.symbol.url }}"{% endif %} />
                 </div>
