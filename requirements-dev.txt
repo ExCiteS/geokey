@@ -1,2 +1,2 @@
 factory-boy==2.11.1
-django-debug-toolbar==1.7
+django-debug-toolbar==1.11.1
