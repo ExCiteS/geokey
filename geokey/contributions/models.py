@@ -1,6 +1,7 @@
 """Models for contributions."""
 
 import re
+import unicodedata
 
 from pytz import utc
 from datetime import datetime
@@ -305,6 +306,8 @@ class Observation(models.Model):
                         value = ' '.join([val.name for val in lookupvalues])
 
             if value:
+                if isinstance(value, unicode):
+                    value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
                 cleaned = re.sub('[\W_]+', ' ', str(value))
                 terms = cleaned.lower().split()
 
